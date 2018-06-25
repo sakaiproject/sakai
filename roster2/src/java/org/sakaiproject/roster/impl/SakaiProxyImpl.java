@@ -1195,6 +1195,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 log.debug("Site membership or groups updated. Clearing caches ...");
                 String siteId = event.getContext();
 
+                if (siteId == null) {
+                    log.debug("siteId was null, skipping");
+                    return;
+                }
+
                 Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
                 enrollmentsCache.remove(siteId);
 

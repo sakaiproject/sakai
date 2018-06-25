@@ -391,17 +391,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             return false;
         }
 
-        HibernateCallback<Boolean> hc = session -> {
-            Long result = (Long) session.createCriteria(CourseGradeRecord.class)
-                    .add(Restrictions.isNotNull("enteredGrade"))
-                    .add(Restrictions.eq("gradableObject.gradebook.id", gradebookId))
-                    .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentUids))
-                    .setProjection(Projections.rowCount())
-                    .uniqueResult();
-            log.debug("total number of explicitly entered course grade records = {}", result);
-            return result > 0L;
-        };
-        return getHibernateTemplate().execute(hc);
+        HibernateCallback<Number> hc = session -> (Number) session.createCriteria(CourseGradeRecord.class)
+                .createAlias("gradableObject", "go")
+                .createAlias("go.gradebook", "gb")
+                .add(Restrictions.eq("gb.id", gradebookId))
+                .add(Restrictions.isNotNull("enteredGrade"))
+                .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentUids))
+                .setProjection(Projections.rowCount())
+                .uniqueResult();
+        Number number = getHibernateTemplate().execute(hc);
+        log.debug("total number of explicitly entered course grade records = {}", number);
+        return number.intValue() > 0;
     }
 
 	public Authn getAuthn() {
@@ -1310,8 +1310,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     {
         Number count = (Number) getHibernateTemplate().execute(session -> session
                 .createCriteria(GradableObject.class)
+                .createAlias("gradebook", "gb")
                 .add(Restrictions.eq("name", name))
-                .add(Restrictions.eq("gradebook", gradebook))
+                .add(Restrictions.eq("gb.uid", gradebook.getUid()))
                 .add(Restrictions.eq("removed", false))
                 .setProjection(Projections.rowCount())
                 .uniqueResult());

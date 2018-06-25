@@ -56,7 +56,7 @@
                                      #else 
                                      	<li id="row-$rowCount">
                                             <div class="toolListControl" id="$toolId.replace(".","_")_wrap">
-                                                <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
+                                                <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId" aria-describedby="${toolId}.desc"
                                                 #if ($tool.isRequired())
                                                     checked="checked" 
                                                     disabled="disabled"
@@ -90,7 +90,7 @@
                                                     #end
                                                 </label>
                                             </div>
-                                            <div class="toolListDesc textPanelFooter specialLink">
+                                            <div class="toolListDesc textPanelFooter specialLink" id="${toolId}.desc">
                                               		## in case that a tool does not have description defined
                                               		#set($description="")
                                               		#set($description=$tool.getDescription())

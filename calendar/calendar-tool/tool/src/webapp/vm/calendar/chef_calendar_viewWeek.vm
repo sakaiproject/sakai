@@ -46,7 +46,7 @@
 
     #if($m.isEmpty()) ## if this cell has no any event
         #if ($n==$todayIndex)
-            #if ($nx==19)
+            #if ($nx==$numberOfSections)
                 <td class="borderTodayBottom" colspan="$vec.elementAt($k)">&nbsp;</td>
             #else
                 <td class="borderTodayCenter" colspan="$vec.elementAt($k)">&nbsp;</td>
@@ -84,12 +84,12 @@
                             #else   ## if this subcell in the middle, its borders are all gray
                             #set ($LeftRight="Middle")
                             #end
-                            #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                            #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
 
                             ## to calculate how many rows should be spanned
                             #rowspans($event)
                             #set ($heightPct = 5 * $rowspan)
-                            #set ($divHeight = 18 * $rowspan)
+                            #set ($divHeight = ($numberOfSections-1) * $rowspan)
 
                             #if ($event.getRange().isSingleTime())
                                     <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
@@ -108,7 +108,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = 18 * $rowspan)
+                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -133,7 +133,7 @@
                                     #else   ## if this subcell in the middle, its borders are all gray
                                     #set ($LeftRight="Middle")
                                     #end
-                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                                     <td class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
                                 #else
                                     ## no cell to be rendered 
@@ -161,7 +161,7 @@
                                         #else   ## if this subcell in the middle, its borders are all gray
                                         #set ($LeftRight="Middle")
                                         #end
-                                        #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                        #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                                         <td valign="top" class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
                                     #else
                                         #if ($eventD.Flag == false)
@@ -198,7 +198,7 @@
                                                 #rowspans($event)
                                                 #set ($heightPct = 5 * $rowspan)
                                                 <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                #set ($divHeight = 18 * $rowspan)
+                                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else
@@ -235,7 +235,7 @@
 
                         #if ($n==$todayIndex)
                             #if ($event.getRange().isSingleTime())
-                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                                     <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayToday$BottomCenter">
                                     <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
                             #else
@@ -248,12 +248,12 @@
                                         #set ($LeftRight = "Right")
                                         #end
                                     #end
-                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
 
                                     ## to calculate how many rows should be spanned
                                     #rowspans($event)
                                     #set ($heightPct = 5 * $rowspan)
-                                    #set ($divHeight = 18 * $rowspan)
+                                    #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                     <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
                                     <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -266,7 +266,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = 18 * $rowspan)
+                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -307,7 +307,7 @@
                 #else ## middle subcell
                 #set ($LeftRight = "middle")
                 #end
-                #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                 <td class="borderGrayTodayEmpty$LeftRight$BottomCenter">&nbsp;</td>
             #else
                 <td class="borderGrayDayWeek">&nbsp;</td>
@@ -393,7 +393,7 @@
 #foreach($day_span in [0..6])
     #set ($colspan = 1)
     #set ($mm_span = $weekCopy.getWeek($day_span))
-    #foreach($nx_span in [0..19])
+    #foreach($nx_span in [0..$numberOfSections])
             #set($m_span = $mm_span.getEventsBerWeek($nx_span))
 ## to work out how many sub-columns in each day column
             #if ($m_span.size() > $colspan)
@@ -483,49 +483,27 @@
         #set($e = $e * 2)
         #set($e = $e + 4)
 
-        #foreach($nx in [0..19])
+        #foreach($nx in [0..$numberOfSections])
             <tr valign="top" bgcolor="#FFFFFF" >
             #if($fractiontime == "false")
-                #if($timer == 12)
-                    <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
-                    #foreach ($format in $timeFormat)
-                        #if ($format == "h")
-                            $timer
-                        #elseif ($format == "a")
-                            $pmString
-                        #elseif ($format == "H")
-                            ${timer}:00
+                #set($temp = $timer)
+                #set($temp2 = $timer % 24)
+                #set($timer = $temp2 % 12)
+                <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
+                #foreach ($format in $timeFormat)
+                    #if ($format == "h")
+                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        $timer
+                    #elseif ($format == "a")
+                        #if ($temp2 >= 12) $pmString
+                        #else $amString
                         #end
+                    #elseif ($format == "H")
+                        ${temp2}:00
                     #end
-                    </th>
-                #elseif($timer<=11)
-                    <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
-                    #foreach ($format in $timeFormat)
-                        #if ($format == "h")
-                            $timer
-                        #elseif ($format == "a")
-                            $amString
-                        #elseif ($format == "H")
-                            ${timer}:00
-                        #end
-                    #end
-                    </th>
-                #else
-                    #set($temp = $timer)
-                    #set($timer = $timer - 12)
-                    <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
-                    #foreach ($format in $timeFormat)
-                        #if ($format == "h")
-                            $timer
-                        #elseif ($format == "a")
-                            $pmString
-                        #elseif ($format == "H")
-                            ${temp}:00
-                        #end
-                    #end
-                    </th>
-                    #set($timer = $temp)
                 #end
+                </th>
+                #set($timer = $temp)
                 #set($fractiontime ="true")
             #else
                 #set($fractiontime = "false")
@@ -540,7 +518,7 @@
 
     #if($m.isEmpty()) ## if this cell has no any event
         #if ($n==$todayIndex)
-            #if ($nx==19)
+            #if ($nx==$numberOfSections)
                 <td class="borderTodayBottom" colspan="$vec.elementAt($k)">&nbsp;</td>
             #else
                 <td class="borderTodayCenter" colspan="$vec.elementAt($k)">&nbsp;</td>
@@ -578,12 +556,12 @@
                             #else   ## if this subcell in the middle, its borders are all gray
                             #set ($LeftRight="Middle")
                             #end
-                            #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                            #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
 
                             ## to calculate how many rows should be spanned
                             #rowspans($event)
                             #set ($heightPct = 5 * $rowspan)
-                            #set ($divHeight = 18 * $rowspan)
+                            #set ($divHeight = ($numberOfSections-1) * $rowspan)
 
                             #if ($event.getRange().isSingleTime())
                                     <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
@@ -602,7 +580,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = 18 * $rowspan)
+                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -627,7 +605,7 @@
                                     #else   ## if this subcell in the middle, its borders are all gray
                                     #set ($LeftRight="Middle")
                                     #end
-                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                                     <td class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp; </td>
                                 #else
                                     ## no cell to be rendered 
@@ -655,7 +633,7 @@
                                         #else   ## if this subcell in the middle, its borders are all gray
                                         #set ($LeftRight="Middle")
                                         #end
-                                        #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                        #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                                         <td valign="top" class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
                                     #else
                                         #if ($eventD.Flag == false)
@@ -692,7 +670,7 @@
                                                 #rowspans($event)
                                                 #set ($heightPct = 5 * $rowspan)
                                                 <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                #set ($divHeight = 18 * $rowspan)
+                                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else
@@ -729,7 +707,7 @@
 
                         #if ($n==$todayIndex)
                             #if ($event.getRange().isSingleTime())
-                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                                     <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayToday$BottomCenter">
                                     <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
                             #else
@@ -742,12 +720,12 @@
                                         #set ($LeftRight = "Right")
                                         #end
                                     #end
-                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
 
                                     ## to calculate how many rows should be spanned
                                     #rowspans($event)
                                     #set ($heightPct = 5 * $rowspan)
-                                    #set ($divHeight = 18 * $rowspan)
+                                    #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                     <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
                                     <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -760,7 +738,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = 18 * $rowspan)
+                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 ##<td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
@@ -801,7 +779,7 @@
                 #else ## middle subcell
                 #set ($LeftRight = "Middle")
                 #end
-                #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                #if ($nx==$numberOfSections) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
                 <td class="borderGrayTodayEmpty$LeftRight$BottomCenter">&nbsp;</td>
             #else
                 <td class="borderGrayDayWeek">&nbsp;</td>
@@ -814,7 +792,7 @@
 
             #set($e = $e +1)
             </tr>
-    #end ## #foreach($nx in [0..19])
+    #end ## #foreach($nx in [0..$numberOfSections])
 
 #elseif($page== "third" )
         ## JS -- set start time to be 2 PM 
@@ -825,87 +803,65 @@
         #set($e = $e * 2)
         #set($e = $e + 4)
 
-        #foreach($nx in [0..19])
+        #foreach($nx in [0..$numberOfSections])
             <tr valign="top" bgcolor="#FFFFFF"> 
             #if($fractiontime == "false")
-                    #set($temp = $timer)
-                    #set($timer = $timer - 12)
-                #if($timer<12)
-                    <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
-                    #foreach ($format in $timeFormat)
-                        #if ($format == "h")
-                            $timer
-                        #elseif ($format == "a")
-                            $pmString
-                        #elseif ($format == "H")
-                            ${temp}:00
+                #set($temp = $timer)
+                #set($temp2 = $timer % 24)
+                #set($timer = $temp2 % 12)
+                <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
+                #foreach ($format in $timeFormat)
+                    #if ($format == "h")
+                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        $timer
+                    #elseif ($format == "a")
+                        #if ($temp2 >= 12) $pmString
+                        #else $amString
                         #end
+                    #elseif ($format == "H")
+                        ${temp2}:00
                     #end
-                    </th>
-                    #set($timer = $temp)
-                #elseif($timer ==12)
-                    <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">$timer AM </th>
-                    #set($timer = $temp)
-                #elseif($timer >12)
-                    #set($temp = $timer)
-                    #set($timer = $timer - 12)
-                    <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">$timer AM </th>
-                    #set($timer = $temp)
                 #end
+                </th>
+                #set($timer = $temp)
                 #set($fractiontime ="true")
             #else
                 #set($fractiontime = "false")
                 #set($timer = $timer+1)
             #end
             #same()
-            #if($e == 47)
-                #set($e = 0)
-            #else
                 #set($e = $e +1)
-            #end
             </tr>
         #end
 
 #elseif($page== "first" )
-        #set($timer = 12)
+        #set($timer = 0)
         #set($e = 24 - 3)
         #set($e = $e * 2)
         #set($e = $e + 4)
         #set($fractiontime ="false")
 
-        #foreach($nx in [0..19])
+        #foreach($nx in [0..$numberOfSections])
             <tr valign="top" bgcolor="#FFFFFF"> 
             #if($fractiontime == "false")
-                #if($timer == 12)
-                    <th align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite" scope="row">
-                    #foreach ($format in $timeFormat)
-                        #if ($format == "h")
-                            $timer
-                        #elseif ($format == "a")
-                            $amString
-                        #elseif ($format == "H")
-                            0:00
+                #set($temp = $timer)
+                #set($temp2 = $timer % 24)
+                #set($timer = $temp2 % 12)
+                <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
+                #foreach ($format in $timeFormat)
+                    #if ($format == "h")
+                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        $timer
+                    #elseif ($format == "a")
+                        #if ($temp2 >= 12) $pmString
+                        #else $amString
                         #end
+                    #elseif ($format == "H")
+                        ${temp2}:00
                     #end
-                    </th>
-                #elseif($timer>12)
-                    #set($temp = $timer)
-                    #set($timer = $timer - 12)
-                    <th align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite" scope="row">
-                    #foreach ($format in $timeFormat)
-                        #if ($format == "h")
-                            $timer
-                        #elseif ($format == "a")
-                            $amString
-                        #elseif ($format == "H")
-                            ${timer}:00
-                        #end
-                    #end
-                    </th>
-                    #set($timer = $temp)
-                #else
-                    <th align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite" scope="row">$timer PM </th>
                 #end
+                </th>
+                #set($timer = $temp)
                 #set($fractiontime ="true")
             #else
                 #set($fractiontime = "false")

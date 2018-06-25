@@ -428,7 +428,6 @@ function resizeFrame(){
 					</div>
 				</div>	
 			#end
-		</div>	
 		
 		#if ($notiHistory)
 			<div class="specialLink act act-outer"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>

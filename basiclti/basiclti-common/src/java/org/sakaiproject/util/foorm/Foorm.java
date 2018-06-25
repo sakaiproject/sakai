@@ -1743,6 +1743,49 @@ public class Foorm {
 		return ret.toArray(new String[ret.size()]);
 	}
 
+	/**
+	 * Determines if the tool instance has configurable settings.
+	 * For instance if the admin tool disallows every type of instructor customization, this method would return false for instructors
+	 */
+	public boolean formHasConfiguration(Object controlRow, String[] fieldinfo, String includePattern, String excludePattern) {
+		if (fieldinfo == null) {
+			return false;
+		}
+
+		for (String line : fieldinfo) {
+			if ((includePattern != null && (!line.matches(includePattern))) || (excludePattern != null && (line.matches(excludePattern)))) {
+				continue;
+			}
+
+			Properties fields = parseFormString(line);
+			String field = fields.getProperty("field", null);
+			String type = fields.getProperty("type", null);
+			String allowed = fields.getProperty("allowed", null);
+
+			if (field == null || type == null) {
+				throw new IllegalArgumentException("All model elements must include field name and type");
+			}
+
+			if ("radio".equals(type) || "checkbox".equals(type)) {
+				int value = getInt(getField(controlRow, field));
+				if (value == 2 || !isFieldSet(controlRow, field)) {
+					// radio / checkbox is configuration
+					return true;
+				}
+			} else if (isFieldSet(controlRow, "allow" + field) && !"false".equals(allowed)) {
+				Object allowRow = getField(controlRow, "allow" + field);
+				int value = getInt(allowRow);
+
+				// "Allow external tool to store setting data" enters this block, but it's not configuration; so exclude LTI_SETTINGS
+				if (value == 1 && !LTIService.LTI_SETTINGS.equals(field)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	// http://technology-ameyaaloni.blogspot.com/2010/06/mysql-to-hsql-migration-tips.html
 	/**
 	 * 

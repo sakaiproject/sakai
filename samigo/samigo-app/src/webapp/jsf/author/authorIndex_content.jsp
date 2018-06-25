@@ -32,13 +32,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{authorFrontDoorMessages.auth_front_door}" /></title>
-    <link rel="stylesheet" type="text/css" href="/library/webjars/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
     <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="/library/webjars/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
     <samigo:script path="/js/info.js"/>
     <samigo:script path="/js/naturalSort.js"/>
     <script type="text/JavaScript">
@@ -290,6 +289,14 @@
                         </h:panelGroup>
 
                         <h:outputText styleClass="spanValue" value="#{assessment.title}" />
+
+                        <!--Rubrics icon-->
+                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
+                            <h:outputText styleClass="fa fa-table" id="rubrics-assessment-icon" rendered="#{author.assessmentHasRubric(assessment.assessmentBaseId, false)}" title="#{authorFrontDoorMessages.assessment_use_rubric}" style="margin-left:0.5em"/>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
+                            <h:outputText styleClass="fa fa-table" id="rubrics-published-assessment-icon" rendered="#{author.assessmentHasRubric(assessment.publishedAssessmentId, true)}" title="#{authorFrontDoorMessages.assessment_use_rubric}" style="margin-left:0.5em"/>
+                        </h:panelGroup>
                     </strong>
 
                 </t:column>
@@ -505,7 +512,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="For"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_release }"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
@@ -534,7 +541,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="Open"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_date}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
@@ -549,7 +556,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="Due"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_due}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>

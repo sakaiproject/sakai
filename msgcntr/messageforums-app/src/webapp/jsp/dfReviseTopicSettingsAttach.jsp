@@ -60,7 +60,39 @@
 			revealIDsToRoles.css("display", "none");
 		}
 	}
+
+	function toggleIncludeContentsInEmailsOption(checked) {
+		var includeContentsInEmails = $("#revise\\:includeContentsInEmailsContainer");
+		if (checked)
+		{
+			includeContentsInEmails.css("display", "");
+		}
+		else
+		{
+			includeContentsInEmails.css("display", "none");
+		}
+	}
 	</script>
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+	'/rubrics-service/imports/sakai-rubric-association.html',
+	'/rubrics-service/imports/sakai-rubric-grading.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
+</script>
+<%
+	FacesContext fcontext = FacesContext.getCurrentInstance();
+	Application appl = fcontext.getApplication();
+	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
+	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
+	String stateDetails = forumTool.getRbcsStateDetails();
+	String entityId = forumTool.getSelectedTopic().getTopic().getUuid();
+%>
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
+<!-- END RUBRICS JAVASCRIPT -->
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
     <h:form id="revise">
@@ -245,25 +277,18 @@
                <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan  calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? 'block' : 'none'}">
 
                	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-
 	               <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedTopic.openDate}"/>
-
 
               	</h:panelGroup>
                <h:panelGroup id="closeDateSpan" styleClass="indnt2 openDateSpan  calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
 
-					
-              		<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
-
+	               <h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 	               <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
 
               	</h:panelGroup>
            </h:panelGrid>
 
 			</div>
-
-
-			
 
 			<script type="text/javascript">
 			      localDatePicker({
@@ -282,6 +307,23 @@
 			      	useTime:1
 			      });
 			</script>
+
+			<h4><h:outputText value="#{msgs.cdfm_forum_notifications}"/></h4>
+			<div class="indnt1">
+				<p class="checkbox">
+					<h:selectBooleanCheckbox
+						title="allowEmailNotifications" value="#{ForumTool.selectedTopic.topicAllowEmailNotifications}"
+						id="topic_allow_email_notifications"
+						onclick='toggleIncludeContentsInEmailsOption(this.checked);resizeFrame();'>
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_allow_email_notifications" value="#{msgs.cdfm_allowEmailNotifications}" />
+				<t:htmlTag value="p" id="includeContentsInEmailsContainer" style="display: #{ForumTool.selectedTopic.topicAllowEmailNotifications ? '' : 'none'}" styleClass="checkbox indnt1">
+					<h:selectBooleanCheckbox
+						title="includeContentsInEmails" value="#{ForumTool.selectedTopic.topicIncludeContentsInEmails}"
+						id="topic_includeContentsInEmails">
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_includeContentsInEmails" value="#{msgs.cdfm_includeContentsInEmails}" />
+				</t:htmlTag>
+				</p>
+			</div>
 
 		<%--
 		   <h4><h:outputText  value="Confidential Responses"/></h4>
@@ -336,15 +378,40 @@
 					    </h:panelGroup>
 			  </h:panelGrid>
 
+		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px"
+
+			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
+			dont-associate-value="0"
+			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
+			associate-value="1"
+
+			tool-id="sakai.forums"
+			<% if(entityId != null && !"".equals(entityId)){ %>
+				entity-id=<%= entityId %>
+			<%}%>
+			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
+				state-details=<%= stateDetails %>
+			<%}%>
+
+			config-fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
+			config-hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
+
+		></sakai-rubric-association>
+			  
 				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}">
 					<f:verbatim><h4></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_topics_header}" /><f:verbatim></h4></f:verbatim>
 				</h:panelGroup>
 				<div class="indnt1">
 					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
-						<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}">
-							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups" value="#{ForumTool.createTopicsForGroups}">
+						<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && !ForumTool.selectedForum.restrictPermissionsForGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups" value="#{ForumTool.selectedTopic.restrictPermissionsForGroups}">
 								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_topic}"/>
 								<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_autocreate_topics_for_groups}"/>
+							</h:selectOneRadio>
+						</h:panelGroup>
+						<h:panelGroup style="display:none" rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.selectedForum.restrictPermissionsForGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups2" value="#{ForumTool.selectedTopic.restrictPermissionsForGroups}">
+								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_topic}"/>
 							</h:selectOneRadio>
 						</h:panelGroup>
 					</h:panelGrid>
@@ -354,7 +421,7 @@
 				</div>
 
 				<div id="createTopicsForGroupsPanel" class="createTopicsForGroupsPanel" style="display:none" >
-				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}"> 
+				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && !ForumTool.selectedForum.restrictPermissionsForGroups}">
 					<h:outputText value="#{msgs.cdfm_autocreate_topics_desc}" rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}" />
 					<h:panelGroup styleClass="itemAction">
 						<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
@@ -380,24 +447,24 @@
 <script type="text/javascript">
 setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 $(function () {
-	if (<h:outputText value="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.createTopicsForGroups}" />) {
+	if (<h:outputText value="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.selectedTopic.restrictPermissionsForGroups}" />) {
 		$("#createOneTopicPanel").hide();
 		$("#createTopicsForGroupsPanel").show();
 	}
 });
 </script>
       <div class="act">
-          <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
+          <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
           								 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick"> 
     	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>    
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-          <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
+          <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" actionListener="#{ForumTool.keepStateDetails}"  value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
           								 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 
           </h:commandButton>
-          <h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
+          <h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" actionListener="#{ForumTool.keepStateDetails}"  value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
           								 rendered="#{!ForumTool.selectedTopic.markForDeletion}"  styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 

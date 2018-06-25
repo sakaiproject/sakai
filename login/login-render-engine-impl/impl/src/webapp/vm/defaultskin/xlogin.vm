@@ -55,6 +55,7 @@
     	    }
     	    if ( needJQuery ) {
     	        document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.12.4/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     	        document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     	    }
     	</script>

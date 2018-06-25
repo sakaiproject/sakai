@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 
@@ -17,6 +17,7 @@
 		<module>api</module>
 		<module>impl</module>
 		<module>pack</module>
+		<module>tool</module>
 	</modules>
 
 	<dependencyManagement>
@@ -45,6 +46,11 @@
 			<dependency>
 				<groupId>org.sakaiproject.contentreview.vericite</groupId>
 				<artifactId>content-review-vericite-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.contentreview.turnitin.oc</groupId>
+				<artifactId>content-review-turnitin-oc-impl</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

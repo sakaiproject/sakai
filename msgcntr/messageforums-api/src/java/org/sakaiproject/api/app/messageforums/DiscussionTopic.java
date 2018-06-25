@@ -60,4 +60,8 @@ public interface DiscussionTopic extends OpenTopic {
     public void addLabel(Label label);
     
     public void removeLabel(Label label);
+
+    public Boolean getRestrictPermissionsForGroups();
+
+    public void setRestrictPermissionsForGroups(Boolean restrictPermissionsForGroups);
 }

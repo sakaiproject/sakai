@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -142,7 +143,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public void setPersistenceHelper(PersistenceHelper persistenceHelper) {
         this.persistenceHelper = persistenceHelper;
     }
-
 
     /**
      * @param publishedId
@@ -1426,24 +1426,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(final Long publishedAssessmentId) {
-        List<AssessmentGradingData> aList = getAllSubmissions(publishedAssessmentId.toString());
-        Map<Long, AssessmentGradingData> aHash = aList.stream()
+        Map<Long, AssessmentGradingData> submissionDataMap = getAllSubmissions(publishedAssessmentId.toString()).stream()
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(AssessmentGradingData::getAssessmentGradingId, a -> a));
 
         final HibernateCallback<List<ItemGradingData>> hcb = session -> {
             Query q = session.createQuery(
                     "select new ItemGradingData(i.itemGradingId, a.assessmentGradingId) " +
                             " from ItemGradingData i, AssessmentGradingData a " +
-                            " where i.assessmentGradingId=a.assessmentGradingId " +
-                            " and a.publishedAssessmentId = :id");
+                            " where i.assessmentGradingId = a.assessmentGradingId " +
+                            " and a.publishedAssessmentId = :id " +
+                            " and a.forGrade = :forgrade ");
             q.setLong("id", publishedAssessmentId);
+            q.setBoolean("forgrade", true);
             return q.list();
         };
         List<ItemGradingData> l = getHibernateTemplate().execute(hcb);
 
-        return l.stream()
-                .collect(Collectors.toMap(ItemGradingData::getItemGradingId,
-                        p -> aHash.get(p.getAssessmentGradingId())));
+        return l.stream().filter(i -> Objects.nonNull(submissionDataMap.get(i.getAssessmentGradingId())))
+                .collect(Collectors.toMap(ItemGradingData::getItemGradingId, g -> submissionDataMap.get(g.getAssessmentGradingId())));
     }
 
     public void deleteAll(Collection c) {
@@ -2037,6 +2038,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
 
             if (canBeExported) {
+
+                Date attempt = assessmentGradingData.getAttemptDate();
+                Date submitted = assessmentGradingData.getSubmittedDate();
+                responseList.add(attempt == null ? "" : attempt);
+                responseList.add(submitted == null ? "" : submitted);
+
                 int sectionScoreColumnStart = responseList.size();
                 if (showPartAndTotalScoreSpreadsheetColumns) {
                     Double finalScore = assessmentGradingData.getFinalScore();

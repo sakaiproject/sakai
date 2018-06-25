@@ -363,8 +363,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 entity = createAssignmentEntity(reference.getId());
                 break;
             case REF_TYPE_SUBMISSION:
-                // entity = createSubmissionEntity();
                 // TODO assignment submission entities
+                log.warn("Submission Entity not implemented open a JIRA, reference: {}", reference.getReference());
                 break;
             default:
                 log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
@@ -389,27 +389,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getEntityUrl(Reference reference) {
-        String url = null;
-
-        try {
-            switch (reference.getSubType()) {
-                case REF_TYPE_CONTENT:
-                case REF_TYPE_ASSIGNMENT:
-                    Assignment a = getAssignment(reference.getId());
-                    url = createAssignmentEntity(a.getId()).getUrl();
-                    break;
-                case REF_TYPE_SUBMISSION:
-                    // url = createAssignmentEntity(a.getId()).getUrl();
-                    // TODO assignment submission entities
-                    break;
-                default:
-                    log.warn("Unknown Entity subtype: {} in ref: {}", reference.getSubType(), reference.getReference());
-            }
-        } catch (Exception e) {
-            log.warn("Could not get entity url with ref = {}", reference.getReference(), e);
-        }
-
-        return url;
+        return getEntity(reference).getUrl();
     }
 
     @Override
@@ -480,40 +460,39 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     switch (refReckoner.getSubtype()) {
                         case REF_TYPE_CONTENT:
                         case REF_TYPE_ASSIGNMENT:
-                            String assignmentName = "bulk_download";
-                            try {
-                                assignmentName = getAssignment(refReckoner.getId()).getTitle();
-                            } catch (Exception ignore) {
-                                log.error("Could not find assignment for ref = {}", ref.getReference());
-                            }
                             String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
-                            String filename = assignmentName + "_" + date;
-
                             String queryString = req.getQueryString();
                             if (StringUtils.isNotBlank(refReckoner.getId())) {
                                 // if subtype is assignment then were downloading all submissions for an assignment
-                                res.setContentType("application/zip");
-                                res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
+                                try {
+                                    Assignment a = getAssignment(refReckoner.getId());
+                                    String filename = a.getTitle() + "_" + date;
+                                    res.setContentType("application/zip");
+                                    res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
 
-                                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                                    @Override
-                                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                        try (OutputStream out = res.getOutputStream()) {
-                                            getSubmissionsZip(out, ref.getReference(), queryString);
-                                        } catch (Exception ignore) {
-                                            log.warn("Could not stream the zip of submissions for reference: {}", ref.getReference());
+                                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                                        @Override
+                                        protected void doInTransactionWithoutResult(TransactionStatus status) {
+                                            try (OutputStream out = res.getOutputStream()) {
+                                                getSubmissionsZip(out, ref.getReference(), queryString);
+                                            } catch (Exception e) {
+                                                log.warn("Could not stream the submissions for reference: {}", ref.getReference(), e);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                } catch (Exception e) {
+                                    log.warn("Could not find assignment for ref = {}", ref.getReference(), e);
+                                }
                             } else {
+                                String filename = "bulk_download_" + date;
                                 // if subtype is assignment and there is no assignmentId then were downloading grades
                                 res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                                 res.setHeader("Content-Disposition", "attachment; filename = \"export_grades_" + filename + ".xlsx\"");
 
                                 try (OutputStream out = res.getOutputStream()) {
                                     gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference(), queryString);
-                                } catch (Exception ignore) {
-                                    log.warn("Could not stream the grades for reference: {}", ref.getReference());
+                                } catch (Exception e) {
+                                    log.warn("Could not stream the grades for reference: {}", ref.getReference(), e);
                                 }
                             }
                             break;
@@ -580,7 +559,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         return groupsAllowed;
                     case GROUP: // return only matching groups for group access
                         Set<String> assignmentGroups = assignment.getGroups();
-                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getId())).collect(Collectors.toSet());
+                        return groupsAllowed.stream().filter(g -> assignmentGroups.contains(g.getReference())).collect(Collectors.toSet());
                 }
             }
         }
@@ -1017,12 +996,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (assignment.getIsGroup()) {
                     Group group = site.getGroup(submitter);
                     if (group != null && assignment.getGroups().contains(group.getReference())) {
-                        for (Member member : group.getMembers()) {
-                            AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
-                            ass.setSubmitter(member.getUserId());
-                            submissionSubmitters.add(ass);
-                        }
-                        submission.setGroupId(submitter);
+                    	group.getMembers().stream()
+                    	.filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                    			|| group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+                    			&& !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                    			&& !group.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                    	.forEach(member -> {
+                			AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
+                    		ass.setSubmitter(member.getUserId());
+                    		submissionSubmitters.add(ass);
+                    	});
+                    	submission.setGroupId(submitter);
                     } else {
                         log.warn("A submission cannot be added to assignment: {}, for group: {}", assignmentId, submitter);
                     }
@@ -1206,7 +1190,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         } else {
             // submitting a submission
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, true));
+            Assignment a = submission.getAssignment();
+            LRS_Statement statement = getStatementForSubmitAssignment(a.getId(), serverConfigurationService.getAccessUrl(), a.getTitle());
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement));
 
             // only doing the notification for real online submissions
             if (submission.getAssignment().getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
@@ -1555,12 +1541,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public List<User> getSortedGroupUsers(Group g) {
         List<User> users = new ArrayList<>();
-        for (Member member : g.getMembers())
-            try {
-                users.add(userDirectoryService.getUser(member.getUserId()));
-            } catch (Exception e) {
-                log.warn("Creating a list of users, user = {}, {}", member.getUserId(), e.getMessage());
-            }
+		g.getMembers().stream()
+		.filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+				|| g.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+				&& !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+				&& !g.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+		.forEach( member -> {
+			try {
+				users.add(userDirectoryService.getUser(member.getUserId()));
+			} catch (Exception e) {
+				log.warn("Creating a list of users, user = {}, {}", member.getUserId(), e.getMessage());
+			}
+		});
         users.sort(new UserComparator());
         return users;
     }
@@ -3511,7 +3503,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     nAssignment.setTitle(oAssignment.getTitle());
                     // replace all occurrence of old context with new context inside instruction text
-                    nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                    if(StringUtils.isNotBlank(oAssignment.getInstructions())){
+                    	nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                    }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
                     // when importing, refer to property to determine draft status
@@ -3845,6 +3839,20 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         LRS_Actor student = learningResourceStoreService.getActor(studentUser.getId());
         student.setName(studentUser.getDisplayName());
         return new LRS_Statement(student, verb, lrsObject, getLRS_Result(a, s, false), null);
+    }
+
+    private LRS_Statement getStatementForSubmitAssignment(String reference, String accessUrl, String assignmentName) {
+    	LRS_Actor actor = learningResourceStoreService.getActor(sessionManager.getCurrentSessionUserId());
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.attempted);
+        LRS_Object lrsObject = new LRS_Object(accessUrl + reference, "submit-assignment");
+        HashMap<String, String> nameMap = new HashMap<String, String>();
+        nameMap.put("en-US", "User submitted an assignment");
+        lrsObject.setActivityName(nameMap);
+        // Add description
+        HashMap<String, String> descMap = new HashMap<String, String>();
+        descMap.put("en-US", "User submitted an assignment: " + assignmentName);
+        lrsObject.setDescription(descMap);
+        return new LRS_Statement(actor, verb, lrsObject);
     }
 
     private void sendGradeReleaseNotification(AssignmentSubmission submission) {

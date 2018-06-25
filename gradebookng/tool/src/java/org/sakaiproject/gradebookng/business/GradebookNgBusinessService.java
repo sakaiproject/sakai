@@ -42,6 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.Membership;
@@ -61,12 +63,15 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -135,6 +140,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+
+	@Setter
+	private RubricsService rubricsService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
@@ -220,7 +228,7 @@ public class GradebookNgBusinessService {
 
 				// if there are permissions, pass it through them
 				// don't need to test TA access if no permissions
-				final List<PermissionDefinition> perms = getPermissionsForUser(user.getId());
+				final List<PermissionDefinition> perms = getPermissionsForUser(user.getId(),siteId);
 				if (!perms.isEmpty()) {
 
 					final Gradebook gradebook = this.getGradebook(givenSiteId);
@@ -231,7 +239,7 @@ public class GradebookNgBusinessService {
 					//for each section TA has access to, grab student Id's
 					List<String> viewableStudents = new ArrayList();
 
-					Map<String, Set<Member>> groupMembers = getGroupMembers();
+					Map<String, Set<Member>> groupMembers = getGroupMembers(givenSiteId);
 					
 					//iterate through sections available to the TA and build a list of the student members of each section
 					if(courseSections != null && !courseSections.isEmpty() && groupMembers!=null){
@@ -516,6 +524,38 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	* Retrieve the categories visible to the given student.
+	*
+	* This should only be called if you are wanting to view the categories that a student would see (ie if you ARE a student, or if you
+	* are an instructor using the student review mode)
+	*
+	* @param studentUuid
+	* @return list of visible categories
+	*/
+	public List<CategoryDefinition> getGradebookCategoriesForStudent(String studentUuid) {
+		// find the categories that this student's visible assignments belong to
+		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(studentUuid);
+		final List<Long> catIds = new ArrayList<>();
+		for (Assignment a : viewableAssignments) {
+			Long catId = a.getCategoryId();
+			if (catId != null && !catIds.contains(catId)) {
+				catIds.add(a.getCategoryId());
+			}
+		}
+
+		// get all the categories in the gradebook, use a security advisor in case the current user is the student
+		SecurityAdvisor gbAdvisor = (String userId, String function, String reference)
+						-> "gradebook.gradeAll".equals(function) ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
+		securityService.pushAdvisor(gbAdvisor);
+		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(getGradebook().getUid());
+		securityService.popAdvisor(gbAdvisor);
+
+		// filter out the categories that don't match the categories of the viewable assignments
+		return catDefs.stream().filter(def -> catIds.contains(def.getId())).collect(Collectors.toList());
+
+	}
+
+	/**
 	 * Get a map of course grades for all students in the given site.
 	 *
 	 * @param siteId siteId to get course grades for
@@ -743,6 +783,9 @@ public class GradebookNgBusinessService {
 			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
 			rval = GradeSaveResponse.ERROR;
 		}
+
+		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone());
+
 		return rval;
 	}
 
@@ -792,6 +835,16 @@ public class GradebookNgBusinessService {
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final GradebookUiSettings uiSettings) throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
+	}
+
+	public HashMap<Long, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
+		HashMap<Long, Boolean> map = new HashMap<Long, Boolean>();
+		for (Assignment assignment : assignments) {
+			Long assignmentId = assignment.getId();
+			boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric("sakai.gradebookng", assignmentId.toString());
+			map.put(assignmentId, hasAssociatedRubric);
+		}
+		return map;
 	}
 
 	/**
@@ -938,9 +991,8 @@ public class GradebookNgBusinessService {
 				Collections.sort(users, comp);
 			}
 		}
-
 		for (User u : users) {
-			gbUsers.add(new GbUser(u));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
 		}
 
 		return gbUsers;
@@ -963,7 +1015,7 @@ public class GradebookNgBusinessService {
 
 		// Setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, role, isCourseGradeVisible, settings.getShowPoints(), false);
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, role, isCourseGradeVisible, settings.getShowPoints(), true);
 
 		for (final GbUser student : gbStudents) {
 			// Create and add the user info
@@ -1111,10 +1163,17 @@ public class GradebookNgBusinessService {
 						}
 					}
 
-					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook, student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
-
-					// add to GbStudentGradeInfo
-					sg.addCategoryAverage(category.getId(), categoryScore);
+					final Optional<CategoryScoreData> categoryScore = gradebookService.calculateCategoryScore(gradebook,
+							student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
+					categoryScore.ifPresent(data -> {
+						for (Long item : gradeMap.keySet())	{
+							if (data.droppedItems.contains(item)) {
+								grades.get(item).setDroppedFromCategoryScore(true);
+							}
+						}
+						// add to GbStudentGradeInfo
+						sg.addCategoryAverage(category.getId(), data.score);
+					});
 
 					// TODO the TA permission check could reuse this iteration... check performance.
 				}
@@ -1499,6 +1558,78 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
+	private List<GbGroup> getSiteSectionsAndGroups(final String siteId) {
+
+		final List<GbGroup> rval = new ArrayList<>();
+
+		// get groups (handles both groups and sections)
+		try {
+			final Site site = this.siteService.getSite(siteId);
+			final Collection<Group> groups = site.getGroups();
+
+			for (final Group group : groups) {
+				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
+			}
+
+		} catch (final IdUnusedException e) {
+			// essentially ignore and use what we have
+			log.error("Error retrieving groups", e);
+		}
+
+		GbRole role;
+		try {
+			role = this.getUserRole(siteId);
+		} catch (final GbAccessDeniedException e) {
+			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
+			return rval;
+		}
+
+		// if user is a TA, get the groups they can see and filter the GbGroup
+		// list to keep just those
+		if (role == GbRole.TA) {
+			final Gradebook gradebook = this.getGradebook(siteId);
+			final User user = getCurrentUser();
+
+			// need list of all groups as REFERENCES (not ids)
+			final List<String> allGroupIds = new ArrayList<>();
+			for (final GbGroup group : rval) {
+				allGroupIds.add(group.getReference());
+			}
+
+			// get the ones the TA can actually view
+			// note that if a group is empty, it will not be included.
+			List<String> viewableGroupIds = this.gradebookPermissionService
+					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
+
+			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
+			//need to check realms to see if user has privilege to grade any groups. This is already done in 
+			if(viewableGroupIds.isEmpty()){
+				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(),siteId);
+				if(!realmsPerms.isEmpty()){
+					for(PermissionDefinition permDef : realmsPerms){
+						if(permDef.getGroupReference()!=null){
+							viewableGroupIds.add(permDef.getGroupReference());
+						}
+					}
+				}
+			}
+
+			// remove the ones that the user can't view
+			final Iterator<GbGroup> iter = rval.iterator();
+			while (iter.hasNext()) {
+				final GbGroup group = iter.next();
+				if (!viewableGroupIds.contains(group.getReference())) {
+					iter.remove();
+				}
+			}
+
+		}
+
+		Collections.sort(rval);
+
+		return rval;
+	}
+
 	/**
 	 * Helper to get siteid. This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
 	 *
@@ -1583,6 +1714,8 @@ public class GradebookNgBusinessService {
 			// also update the categorized order
 			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignmentId,
 					Integer.MAX_VALUE);
+
+			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
 
 			return assignmentId;
 
@@ -1827,11 +1960,15 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+
+			EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
+
 			if (original.getCategoryId() != null && assignment.getCategoryId() != null
 					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
 				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
 						Integer.MAX_VALUE);
 			}
+
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -1896,6 +2033,9 @@ public class GradebookNgBusinessService {
 				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
 						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), null);
 			}
+
+			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
+
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -1991,6 +2131,9 @@ public class GradebookNgBusinessService {
 			// could do a check here to ensure we aren't overwriting someone
 			// else's comment that has been updated in the interim...
 			this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
+
+			EventHelper.postUpdateCommentEvent(getGradebook(), assignmentId, studentUuid, comment, getUserRoleOrNone());
+
 			return true;
 		} catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
 			log.error("An error occurred saving the comment. {}: {}", e.getClass(), e.getMessage());
@@ -2041,6 +2184,19 @@ public class GradebookNgBusinessService {
 		}
 
 		return rval;
+	}
+
+	/**
+	 * Get the role of the current user in the given site or GbRole.NONE if the user does not have access
+	 *
+	 * @return GbRole for the current user
+	 */
+	public GbRole getUserRoleOrNone() {
+		try {
+			return getUserRole();
+		} catch (GbAccessDeniedException e) {
+			return GbRole.NONE;
+		}
 	}
 
 	/**
@@ -2095,14 +2251,14 @@ public class GradebookNgBusinessService {
 	 * @param studentUuid uuid of student
 	 * @return
 	 */
-	public Double getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
-		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, score);
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
+		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
-		return score;
+		return result;
 	}
 
 	/**
@@ -2140,6 +2296,8 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		this.gradebookService.updateGradebookSettings(gradebook.getUid(), settings);
+
+		EventHelper.postUpdateSettingsEvent(gradebook);
 	}
 
 	/**
@@ -2149,6 +2307,8 @@ public class GradebookNgBusinessService {
 	 */
 	public void removeAssignment(final Long assignmentId) {
 		this.gradebookService.removeAssignment(assignmentId);
+
+		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());
 	}
 
 	/**
@@ -2181,6 +2341,25 @@ public class GradebookNgBusinessService {
 	 */
 	public List<PermissionDefinition> getPermissionsForUser(final String userUuid) {
 		final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(siteId);
+
+		List<PermissionDefinition> permissions = this.gradebookPermissionService
+				.getPermissionsForUser(gradebook.getUid(), userUuid);
+
+		//if db permissions are null, check realms permissions.
+		if (permissions == null || permissions.isEmpty()) {
+			//This method should return empty arraylist if they have no realms perms
+			permissions = this.gradebookPermissionService.getRealmsPermissionsForUser(userUuid, siteId, Role.TA);
+		}
+		return permissions;
+	}
+
+	private List<PermissionDefinition> getPermissionsForUser(final String userUuid, String siteId) {
+
+		if(siteId==null) {
+			siteId = getCurrentSiteId();
+		}
+		
 		final Gradebook gradebook = getGradebook(siteId);
 
 		List<PermissionDefinition> permissions = this.gradebookPermissionService
@@ -2342,9 +2521,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @return
 	 */
-	public Map<String, Set<Member>> getGroupMembers() {
-
-		final String siteId = getCurrentSiteId();
+	private Map<String, Set<Member>> getGroupMembers(final String siteId) {
 
 		Site site;
 		try {
@@ -2355,7 +2532,7 @@ public class GradebookNgBusinessService {
 		}
 
 		// filtered for the user
-		final List<GbGroup> viewableGroups = getSiteSectionsAndGroups();
+		final List<GbGroup> viewableGroups = getSiteSectionsAndGroups(siteId);
 
 		final Map<String, Set<Member>> rval = new HashMap<>();
 
@@ -2412,6 +2589,7 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade);
+			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, grade, grade != null);
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred saving the course grade. {}: {}", e.getClass(), e.getMessage());
@@ -2442,6 +2620,23 @@ public class GradebookNgBusinessService {
 			// something has happened between getting the siteId and getting the site.
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
+	}
+
+	/**
+	 * Check if current user has "gradebook.editAssignments" permission 
+	 *
+	 * @return true if yes, false if no.
+	 */
+	public boolean isUserAbleToEditAssessments(){
+		String siteRef;
+		
+		try {
+			siteRef = this.siteService.getSite(getCurrentSiteId()).getReference();
+		} catch (final IdUnusedException e) {
+			throw new GbException(e);
+		}
+		
+		return this.securityService.unlock("gradebook.editAssignments", siteRef);
 	}
 
 	/**

@@ -1,9 +1,9 @@
 version: 2
 jobs:
-  build:
+  jdk-8:
     working_directory: ~/sakai/
     docker:
-      - image: maven:3.5
+      - image: maven:3-jdk-8
     steps:
       - checkout
       - restore_cache:
@@ -15,9 +15,80 @@ jobs:
           name: Maven Test
           command: mvn test -B
       - run:
-          name: Delete org.sakaiproject SNAPSHOT
-          command: find ~/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
+          name: Delete org.sakaiproject
+          command: rm -rf ~/.m2/repository/org/sakaiproject
       - save_cache:
           key: MAVEN
           paths:
             - ~/.m2/
+  jdk-9:
+    working_directory: ~/sakai/
+    docker:
+      - image: maven:3-jdk-9
+    steps:
+      - checkout
+      - restore_cache:
+          key: MAVEN
+      - run:
+          name: Maven Install
+          command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - run: 
+          name: Maven Test
+          command: mvn test -B
+      - run:
+          name: Delete org.sakaiproject
+          command: rm -rf ~/.m2/repository/org/sakaiproject
+      - save_cache:
+          key: MAVEN
+          paths:
+            - ~/.m2/
+  jdk-10:
+    working_directory: ~/sakai/
+    docker:
+      - image: maven:3-jdk-10
+    steps:
+      - checkout
+      - restore_cache:
+          key: MAVEN
+      - run:
+          name: Maven Install
+          command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - run: 
+          name: Maven Test
+          command: mvn test -B
+      - run:
+          name: Delete org.sakaiproject
+          command: rm -rf ~/.m2/repository/org/sakaiproject
+      - save_cache:
+          key: MAVEN
+          paths:
+            - ~/.m2/
+  jdk-11:
+    working_directory: ~/sakai/
+    docker:
+      - image: maven:3-jdk-11
+    steps:
+      - checkout
+      - restore_cache:
+          key: MAVEN
+      - run:
+          name: Maven Install
+          command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - run: 
+          name: Maven Test
+          command: mvn test -B
+      - run:
+          name: Delete org.sakaiproject
+          command: rm -rf ~/.m2/repository/org/sakaiproject
+      - save_cache:
+          key: MAVEN
+          paths:
+            - ~/.m2/
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - jdk-8
+      - jdk-9
+      - jdk-10
+      - jdk-11

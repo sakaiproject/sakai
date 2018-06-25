@@ -6,12 +6,14 @@
       String head = (String) request.getAttribute("sakai.html.head");
       head += "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += org.sakaiproject.portal.util.PortalUtils.includeLatestJQuery("Samigo");
-      head += "<script type=\"text/javascript\" src=\"/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.min.js\"></script>\n";
-      head += "<link href=\"/library/js/jquery/tablesorter/2.1.17/css/theme.default.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+      head += "<script type=\"text/javascript\" src=\"/library/webjars/jquery.tablesorter/2.27.7/dist/js/jquery.tablesorter.min.js\"></script>\n";
+      head += "<link href=\"/library/webjars/jquery.tablesorter/2.27.7/dist/css/theme.default.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 
-      head += "<script type=\"text/javascript\" src=\"/library/js/jquery/qtip/jquery.qtip-latest.min.js\"></script>\n";
-      head += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/library/js/jquery/qtip/jquery.qtip-latest.min.css\"/>\n";
+      head += "<script type=\"text/javascript\" src=\"/library/webjars/qtip2/3.0.3/jquery.qtip.min.js\"></script>\n";
+      head += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/library/webjars/qtip2/3.0.3/jquery.qtip.min.css\"/>\n";
+      
+      head += "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
 
       request.setAttribute("html.head", head);
       request.setAttribute("html.body.onload", request.getAttribute("sakai.html.body.onload"));
@@ -26,6 +28,7 @@
          "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.12.4/jquery.min.js\"></script>\n" +
          "<script type=\"text/javascript\" src=\"/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js\"></script>\n" +
-         "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n");
+         "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n" +
+         "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n");
       request.setAttribute("html.body.onload", "");
     } %>

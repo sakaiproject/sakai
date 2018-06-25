@@ -77,6 +77,16 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 		
 		return Optional.ofNullable((ContentReviewItem) c.uniqueResult());
 	}
+	
+	public Optional<ContentReviewItem> findByProviderAndExternalId(Integer providerId, String externalId) {
+
+		Criteria c = sessionFactory.getCurrentSession()
+				.createCriteria(ContentReviewItem.class)
+				.add(Restrictions.eq("providerId", providerId))
+				.add(Restrictions.eq("externalId", externalId));
+		
+		return Optional.ofNullable((ContentReviewItem) c.uniqueResult());
+	}
 
 	public Optional<ContentReviewItem> findByProviderSingleItemToSubmit(Integer providerId) {
 

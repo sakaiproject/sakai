@@ -62,15 +62,15 @@
                     <hr />
 
                     <div id="otherSiteSearch">
-                        <label class="sr-only" for="txtSearch">${rloader.sit_search}"</label>
-                        <input type="text" id="txtSearch" name="txtSearch" maxlength="50" placeholder=" ${rloader.sit_search}">
+                        <label for="txtSearch">${rloader.sit_search}</label>
+                        <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
                         <a id="otherSiteSearchClear" class="other-site-search-clear" href="javascript:void(0);"></a>
                     </div>
                     <div id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</div>
 
 
                     #macro( displaySite $site )
-                        <li class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
+                        <li role="presentation" class="fav-sites-entry #if (${site.isCurrentSite})is-selected #end #if (${site.isMyWorkspace})my-workspace #end">
                             #if (!${site.isMyWorkspace})
                             	<a class="site-favorite-btn" data-site-id="${site.siteId}" href="javascript:void(0);"></a>
                             #end
@@ -78,7 +78,7 @@
                             <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
                             	<a href="${site.siteUrl}" title="${site.siteTitle}">
                                     #if (${site.isMyWorkspace})
-                                        <i class="fa fa-home" aria-hidden="true"></i><span class="fullTitle">${rloader.sit_mywor}</span>
+                                        <span class="fa fa-home" aria-hidden="true"></span><span class="fullTitle">${rloader.sit_mywor}</span>
                                     #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                                         <span class="fullTitle">${site.shortDescription}</span>
                                     #else
@@ -86,7 +86,9 @@
                                     #end
                                 </a>
                             </div>
-                            <a href="#" id="${site.siteId}" class="toolMenus"><i class="fa fa-chevron-down" aria-hidden="true"></i></a>
+                            <a href="#" id="${site.siteId}" class="toolMenus" aria-haspopup="true" aria-label="${site.siteTitleTrunc} - ${rloader.sit_open_menu}">
+                                <span class="fa fa-chevron-down" aria-hidden="true"></span>
+                            </a>
                         </li>
                     #end
 

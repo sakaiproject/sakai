@@ -13,7 +13,7 @@
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review-impl</artifactId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -65,5 +65,9 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+        <dependency>
+	        <groupId>javax.servlet</groupId>
+	        <artifactId>servlet-api</artifactId>
+	    </dependency>
 	</dependencies>
 </project>

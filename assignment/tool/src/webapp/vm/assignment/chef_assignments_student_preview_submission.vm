@@ -164,7 +164,35 @@
 
         #end
     #end
-    <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	<form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	    #if ($plagiarismNote)
+			<p>
+				<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+				<em>
+					$plagiarismNote
+					#if ($plagiarismFileTypes)
+						$plagiarismFileTypes
+					#end
+					#if ($plagiarismStudentPreview)
+						$plagiarismStudentPreview
+					#end
+				</em>
+			</p>
+		#end
+		#if ($plagiarismEULALink)
+			<p class="checkbox highlightPanel form-required">
+				<label for="$name_plagiarism_eula_agreement">
+					#if ($value_plagiarism_eula_agreement.equals("true"))
+						<input id="$name_plagiarism_eula_agreement" type="checkbox" name="$name_plagiarism_eula_agreement" value="true" checked="checked"/>
+					#else
+						<input id="$name_plagiarism_eula_agreement" type="checkbox" name="$name_plagiarism_eula_agreement" value="true"/>
+					#end
+					$tlang.getString("review.eula.agreement")&nbsp;<a href="$plagiarismEULALink" target="_blank">$tlang.getString("review.eula")</a>
+				</label>
+			</p>
+			<input type="hidden" name="$name_check_plagiarism_eula_agreement" id="$name_check_plagiarism_eula_agreement" value="true" checked="checked"/>
+		#end
+
         <input type="hidden" name="assignmentId" value="$!assignmentReference"/>
         <input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x"/>
         <input type="hidden" name="option" id="option" value="cancel"/>

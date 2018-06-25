@@ -20,7 +20,9 @@ import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
+
 
 /**
  * Just used for migration to the quartz scheduler.
@@ -31,6 +33,7 @@ public class DelayedInvocationDAO {
     private SessionFactory sessionFactory;
 
     @Inject
+    @Named("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }

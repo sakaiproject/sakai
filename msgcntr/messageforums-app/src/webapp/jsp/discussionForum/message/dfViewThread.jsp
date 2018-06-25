@@ -19,8 +19,8 @@
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
   			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
-			<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
-			<link rel="stylesheet" type="text/css" href="/library/js/jquery/qtip/jquery.qtip-latest.min.css" />
+			<script type="text/javascript" src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
+			<link rel="stylesheet" type="text/css" href="/library/webjars/qtip2/3.0.3/jquery.qtip.min.css" />
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />	
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>

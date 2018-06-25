@@ -102,6 +102,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -158,9 +159,16 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
-// for basiclti integration
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.FileItem;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
-import org.sakaiproject.util.*;
 
 /**
  * <p>
@@ -223,6 +231,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
 	
 	private PreferencesService preferencesService = (PreferencesService)ComponentManager.get(PreferencesService.class);
+
+	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -1683,9 +1693,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			//Add flash notification when new site is created
 			if(state.getAttribute(STATE_NEW_SITE_STATUS_ID) != null){
-				String  flashNotifMsg = "<a title=\"" + state.getAttribute(STATE_NEW_SITE_STATUS_TITLE) + "\"href=\"/portal/site/"+
+				String siteTitle = Validator.escapeHtml((String)state.getAttribute(STATE_NEW_SITE_STATUS_TITLE));
+				String  flashNotifMsg = "<a title=\"" + siteTitle + "\"href=\"/portal/site/"+
 				state.getAttribute(STATE_NEW_SITE_STATUS_ID) + "\" target=\"_top\">"+
-				state.getAttribute(STATE_NEW_SITE_STATUS_TITLE)+"</a>" +" "+
+				siteTitle+"</a>" +" "+
 				rb.getString("sitdup.hasbeedup");
 				addFlashNotif(state,flashNotifMsg);
 				StringBuilder sbFlashNotifAction =  new StringBuilder();
@@ -2896,27 +2907,30 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 			{
 				HashMap<String, Map<String, Object>> currentLtiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
-				HashMap<String, Map<String, Object>> dialogLtiTools =  new HashMap<String, Map<String, Object>> ();
+				HashMap<String, Map<String, Object>> dialogLtiTools = new HashMap<>();
 
 				for (Map.Entry<String, Map<String, Object>> entry : currentLtiTools.entrySet() ) {
-					 Map<String, Object> toolMap = entry.getValue();
-					 String toolId = entry.getKey();
+					Map<String, Object> toolMap = entry.getValue();
 					// get the configuration html for tool is post-add configuration has been requested (by Laura)
 					Object showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG);
 					if ( showDialog == null || ! "1".equals(showDialog.toString()) ) continue;
 
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
-					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
-					for(int k=0; k<contentToolModel.length;k++)
-					{
-						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+					String[] contentToolModel = m_ltiService.getContentModelIfConfigurable(Long.valueOf(ltiToolId), site.getId());
+					if (contentToolModel != null) {
+
+						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
+						for(int k = 0; k < contentToolModel.length; k++) {
+							contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+						}
+						Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
+						String formInput = m_ltiService.formInput(ltiTool, contentToolModel);
+						toolMap.put("formInput", formInput);
+						toolMap.put("hasConfiguration", true);
+
+						// Add the entry to the tools that need a dialog
+						dialogLtiTools.put(ltiToolId, toolMap);
 					}
-					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
-					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
-					toolMap.put("formInput", formInput);
-					// Add the entry to the tools that need a dialog
-					dialogLtiTools.put(ltiToolId, toolMap);
 				}
 				context.put("ltiTools", dialogLtiTools);
 				context.put("ltiService", m_ltiService);
@@ -4816,11 +4830,11 @@ public class SiteAction extends PagedResourceActionII {
 		// read the search form field into the state object
 		String search = StringUtils.trimToNull(Validator.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
 
-		// set the flag to go to the prev page on the next list
-		if (StringUtils.isNotBlank(search)) {
+		// If there is no search term provided, remove any previous search term from state
+		if (StringUtils.isBlank(search)) {
 			state.removeAttribute(SITE_USER_SEARCH);
 		} else {
-			//search item is present, if the result was paged clear the top position from the state
+			// Search term is present, reset the paging and set the search term in state
 			resetPaging(state);
 			state.setAttribute(SITE_USER_SEARCH, search);
 		}
@@ -11239,6 +11253,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					Properties reqProperties = (Properties) toolValues.get("reqProperties");
 					if (reqProperties==null) {
 						reqProperties = new Properties();
+
+						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
+						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
 					}
 					Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
@@ -11629,13 +11646,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (state.getAttribute(STATE_IMPORT) != null) {
 				// go to import tool page
 				state.setAttribute(STATE_TEMPLATE_INDEX, "27");
-			} else if (goToToolConfigPage || ltiToolNeedsConfig) {
+			} else if (goToToolConfigPage) {
 				state.setAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, Boolean.valueOf(goToToolConfigPage));
 				// go to the configuration page for multiple instances of tools
 				state.setAttribute(STATE_TEMPLATE_INDEX, "26");
 			} else {
-				// go to next page
-				state.setAttribute(STATE_TEMPLATE_INDEX, continuePageIndex);
+				boolean ltiToConfigure = false;
+				if (ltiToolNeedsConfig) {
+					// iterate over ltiSelectedTools; if any are configurable, go to 26
+					Site site = getStateSite(state);
+					for (String ltiToolId : ltiSelectedTools.keySet()) {
+						// don't display configuration for LTI tools if all configuration is disabled
+						if ((existingLtiIds == null || !existingLtiIds.keySet().contains(ltiToolId)) && m_ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId), site.getId()) != null) {
+							ltiToConfigure = true;
+							break;
+						}
+					}
+				}
+				if (ltiToConfigure) {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "26");
+				} else {
+					// go to next page
+					state.setAttribute(STATE_TEMPLATE_INDEX, continuePageIndex);
+				}
 			}
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_SET, multipleToolIdSet);
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
@@ -15012,40 +15045,33 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * Handle the eventSubmit_doUnjoin command to have the user un-join this site.
+	 * @param data
 	 */
 	public void doUnjoin(RunData data) {
 		
-		SessionState state = ((JetspeedRunData) data)
-			.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		final ParameterParser params = data.getParameters();
-
 		final String id = params.get("itemReference");
-		String siteTitle = null;
-		
-		if (id != null)	{
-			try	{
-				siteTitle = SiteService.getSite(id).getTitle();
+
+		if (id != null) {
+			try {
 				SiteService.unjoin(id);
-				String msg = rb.getString("sitinfimp.youhave") + " " + siteTitle;
-				addAlert(state, msg);
-				
-			} catch (IdUnusedException ignore) {
-				
-			} catch (PermissionException e)	{
-				// This could occur if the user's role is the maintain role for the site, and we don't let the user
-				// unjoin sites they are maintainers of
-			 	log.warn(e.getMessage());
-				//TODO can't access site so redirect to portal
-				
+				String userHomeURL = devHelperService.getUserHomeLocationURL(devHelperService.getCurrentUserReference());
+				addAlert(state, rb.getFormattedMessage("site.unjoin", new Object[] {userHomeURL}));
+			} catch (IdUnusedException e) {
+				// Something strange happened, log and notify the user
+				log.debug("Unexpected error: ", e);
+				addAlert(state, rb.getFormattedMessage("site.unjoin.error", new Object[] {ServerConfigurationService.getString("mail.support")}));
+			} catch (PermissionException e) {
+				// This could occur if the user's role is the maintain role for the site, and unjoining would leave the site without
+				// a user with the maintain role
+				log.warn(e.getMessage());
+				addAlert(state, rb.getString("site.unjoin.permissionException"));
 			} catch (InUseException e) {
-				addAlert(state, siteTitle + " "
-						+ rb.getString("sitinfimp.sitebeing") + " ");
+				log.debug("InUseException: ", e);
+				addAlert(state, rb.getString("site.unjoin.inUseException"));
 			}
 		}
-		
-		// refresh the whole page
-		scheduleTopRefresh();
-		
 	} // doUnjoin
 
 	

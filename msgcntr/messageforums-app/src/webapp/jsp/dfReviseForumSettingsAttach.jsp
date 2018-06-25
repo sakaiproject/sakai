@@ -42,12 +42,52 @@
 	function closeDateCal(){
 			NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
+
+	function setAutoCreatePanel(radioButton) {
+		$(".createOneForumPanel").slideToggle("fast");
+		$(".createForumsForGroupsPanel").slideToggle("fast", function() {
+			if ($('#createForumsForGroupsPanel').is(':hidden')) {
+			   document.getElementById("revise:saveandadd").disabled = false;
+			}
+			else {
+			   document.getElementById("revise:saveandadd").disabled = true;
+			}
+		});		
+	}
 	</script>
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+	'/rubrics-service/imports/sakai-rubric-association.html',
+	'/rubrics-service/imports/sakai-rubric-grading.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
+</script>
+<%
+	FacesContext fcontext = FacesContext.getCurrentInstance();
+	Application appl = fcontext.getApplication();
+	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
+	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
+	String stateDetails = forumTool.getRbcsStateDetails();
+	String entityId = forumTool.getSelectedForum().getForum().getUuid();
+%>
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
+<!-- END RUBRICS JAVASCRIPT -->
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
     <h:form id="revise">
 		  <script type="text/javascript">
             $(document).ready(function(){
+				$('.displayMore').click(function(e){
+					e.preventDefault();
+					$('.displayMorePanel').fadeIn('slow')
+				})
+				$('.displayMoreAutoCreate').click(function(e){
+					e.preventDefault();
+					$('.displayMoreAutoCreatePanel').fadeIn('slow')
+				})
 				if ($('.gradeSelector').find('option').length ===1){
 					$('.gradeSelector').find('select').hide();
 					$('.gradeSelector').find('.instrWithGrades').hide();
@@ -220,9 +260,6 @@
            <%-- </h:panelGrid> --%>
  		</div>
 
-
- 		
-
  		<script type="text/javascript">
  		      localDatePicker({
  		      	input:'.openDate', 
@@ -240,7 +277,6 @@
  		      	useTime:1 
  		      });
  		</script>
-
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
 			
@@ -278,21 +314,78 @@
 			    		</div>
 					</div>
 				</div>
+			
+		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px"
 
-			<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
+			dont-associate-value="0"
+			associate-label='<h:outputText value="#{msgs.forum_associate_label}" />'
+			associate-value="1"
 
+			tool-id="sakai.forums"
+			<% if(entityId != null && !"".equals(entityId)){ %>
+				entity-id=<%= entityId %>
+			<%}%>
+			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
+				state-details=<%= stateDetails %>
+			<%}%>
+
+			config-fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
+			config-hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
+
+		></sakai-rubric-association>
+
+			<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
+					<f:verbatim><h4></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_forums_header}" /><f:verbatim></h4></f:verbatim>
+				</h:panelGroup>
+				<div class="indnt1">
+					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
+						<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createForumsForGroups" value="#{ForumTool.selectedForum.restrictPermissionsForGroups}">
+								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_forum}"/>
+								<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_autocreate_forums_for_groups}"/>
+							</h:selectOneRadio>
+						</h:panelGroup>
+					</h:panelGrid>
+				</div>
+				<div id="createOneForumPanel" class="createOneForumPanel">
+					<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+				</div>
+
+				<div id="createForumsForGroupsPanel" class="createForumsForGroupsPanel" style="display:none" >
+				<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}"> 
+					<h:outputText value="#{msgs.cdfm_autocreate_forums_desc}" rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}" />
+					<h:panelGroup styleClass="itemAction">
+						<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
+							<h:outputText styleClass="displayMoreAutoCreate" value="#{msgs.perm_choose_instruction_more_link}"/>
+						</h:outputLink>
+					</h:panelGroup>
+					<f:verbatim><br/></f:verbatim>
+					<h:panelGroup styleClass="displayMoreAutoCreatePanel instruction" style="display:none">
+						<h:outputText value="#{ForumTool.autoRolesNoneDesc}" />
+						<h:outputText value="#{ForumTool.autoGroupsDesc}" />
+					</h:panelGroup>
+					<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable" 
+								 rendered="#{ForumTool.selectedForum.forum.id==null}">
+						<h:column>
+							<h:selectBooleanCheckbox value="#{siteGroup.createForumForGroup}" />
+							<h:outputText value="#{siteGroup.group.title}" />
+						</h:column>
+					</h:dataTable>
+				</h:panelGroup>
+				</div>
 				
         
       <div class="act">
-          <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"
+          <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}"
           								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s" styleClass="blockMeOnClick"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-				<h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
+				<h:commandButton id="saveandadd" action="#{ForumTool.processActionSaveForumAndAddTopic}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
           								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>  
-				<h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
+				<h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
           								 rendered = "#{!ForumTool.selectedForum.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>

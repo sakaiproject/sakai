@@ -1,38 +1,19 @@
 <?xml version="1.0"?>
-<!DOCTYPE faces-config PUBLIC
-  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
-  "dtd/web-facesconfig_1_0.dtd">
-
-<faces-config>
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+    version="2.3">
 
   <application>
     <message-bundle>chat</message-bundle>
     <locale-config>
       <default-locale>en</default-locale>
-      <!-- 
-      <supported-locale>de</supported-locale>
-      <supported-locale>fr</supported-locale>
-      <supported-locale>es</supported-locale> -->
     </locale-config>
     <navigation-handler>
     	org.sakaiproject.chat2.tool.ChatNavigationHandler
     </navigation-handler>
   </application>
-
-<!--sakai2 - take this out. <application>
-    <view-handler>
-      org.sakaiproject.jsf.custom.SakaiViewHandler
-    </view-handler>
-    <navigation-handler>
-      org.sakaiproject.jsf.custom.SakaiNavigationHandler
-    </navigation-handler>
-    <variable-resolver>
-      org.sakaiproject.jsf.custom.SakaiVariableResolver
-    </variable-resolver>
-    <state-manager>
-      org.sakaiproject.jsf.custom.SakaiStateManager
-    </state-manager>
-  </application> -->
 
   <!-- =================== Tool Beans ============== -->
     <managed-bean>
@@ -40,7 +21,6 @@
         <description>ChatTool</description>
         <managed-bean-name>ChatTool</managed-bean-name>
         <managed-bean-class>org.sakaiproject.chat2.tool.ChatTool</managed-bean-class>
-<!--sakai2      <managed-bean-scope>request</managed-bean-scope>-->
         <managed-bean-scope>session</managed-bean-scope>
 
         <managed-property>
@@ -109,9 +89,7 @@
       <redirect/>
     </navigation-case>
   </navigation-rule>
-  
-   
-  
+
 	<managed-bean>
 		<description>
 			Dynamic Resource Bundle Loader
@@ -125,6 +103,5 @@
 			<value>chat</value>
 		</managed-property>
 	</managed-bean>
-  
 
 </faces-config>

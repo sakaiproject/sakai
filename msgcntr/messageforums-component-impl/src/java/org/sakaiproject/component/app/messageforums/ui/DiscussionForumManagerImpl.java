@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.api.Tool;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
@@ -1227,14 +1228,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     boolean saveForum = topic.getId() == null;
     
-    topic.setDraft(Boolean.valueOf(draft));
-    forumManager.saveDiscussionForumTopic(topic, false, currentUser, logEvent);
-    
+    topic.setDraft(draft);
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    forumManager.saveDiscussionForumTopic(topic, forum.getDraft(), currentUser, logEvent);
+    // refresh the forum for Hibernate
+    forum = (DiscussionForum) topic.getBaseForum();
+
     if (saveForum)
     {
-      DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
       forum.addTopic(topic);
-      forumManager.saveDiscussionForum(forum, forum.getDraft().booleanValue(), logEvent, currentUser);
+      forumManager.saveDiscussionForum(forum, forum.getDraft(), logEvent, currentUser);
       //sak-5146 forumManager.saveDiscussionForum(forum);
     }
     
@@ -2426,17 +2429,19 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	}
 
     private String getEventMessage(Object object) {
-    	String eventMessagePrefix = "";
-    	final String toolId = toolManager.getCurrentTool().getId();
-    	
-    		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
-    			eventMessagePrefix = "/messagesAndForums";
-    		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
-    			eventMessagePrefix = "/messages";
-    		else
-    			eventMessagePrefix = "/forums";
-    	
-    	return eventMessagePrefix + getContextSiteId() + "/" + object.toString() + "/" + sessionManager.getCurrentSessionUserId();
+        String eventMessagePrefix = "/forums";
+        Tool tool = toolManager.getCurrentTool();
+        if (tool != null) {
+            switch (tool.getId()) {
+                case DiscussionForumService.MESSAGE_CENTER_ID:
+                    eventMessagePrefix = "/messagesAndForums";
+                    break;
+                case DiscussionForumService.MESSAGES_TOOL_ID:
+                    eventMessagePrefix = "/messages";
+                    break;
+            }
+        }
+        return eventMessagePrefix + getContextSiteId() + "/" + object.toString() + "/" + sessionManager.getCurrentSessionUserId();
     }
 
     public String getContextForTopicById(Long topicId) {
@@ -2577,5 +2582,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
-       
+
+	public String getAllowedGroupForRestrictedForum(final Long forumId, final String permissionName) {
+		return forumManager.getAllowedGroupForRestrictedForum(forumId, permissionName);
+	}
+
+	public String getAllowedGroupForRestrictedTopic(final Long topicId, final String permissionName) {
+		return forumManager.getAllowedGroupForRestrictedTopic(topicId, permissionName);
+	}
 }

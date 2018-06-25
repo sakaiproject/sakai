@@ -1000,3 +1000,28 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
         content.style.display = "none";
     }
 }
+
+// rubrics-specific code
+ASN.rubricsEventHandlers = function ()
+{
+    $('body').on('rubrics-event', function(e, payload){
+        if (payload.event == "total-points-updated") {
+            ASN.handleRubricsTotalPointChange(payload.value);
+        }
+        if (payload.event == "rubric-ratings-changed") {
+            console.log('rubric-ratings-changed');
+            ASN.rubricChanged = true;
+        }
+    });
+
+    console.log('Rubrics event handlers loaded');
+}
+
+// handles point changes for assignments, updating the grade field if it exists.
+ASN.handleRubricsTotalPointChange = function (points)
+{
+    var gradeField = $('#grade');
+    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || ASN.rubricChanged)) {
+        gradeField.val(points);
+    }
+}

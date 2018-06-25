@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder</artifactId>
         <relativePath>../pom.xml</relativePath>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
     </parent>
 
     <name>sakai-lessonbuildertool-tool-components</name>

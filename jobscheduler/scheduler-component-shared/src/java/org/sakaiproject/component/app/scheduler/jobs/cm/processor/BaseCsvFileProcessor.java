@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.cm.processor;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;

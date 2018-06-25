@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler</artifactId>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Job Scheduler Component (scheduler-component-shared)</name>
@@ -82,9 +82,8 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.opencsv</groupId>
+            <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>2.3</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

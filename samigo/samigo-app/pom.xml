@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Tool (samigo-app)</name>
@@ -86,12 +86,12 @@
         <dependency>
             	<groupId>javax.faces</groupId>
             	<artifactId>jsf-api</artifactId>
-            	<version>1.2_15</version>
+            	<version>1.2_15-06</version>
         </dependency>
         <dependency>
             	<groupId>javax.faces</groupId>
             	<artifactId>jsf-impl</artifactId>
-               <version>1.2_15</version>
+               <version>1.2_15-06</version>
         </dependency>
 		<!-- end of JSF related version issue -->
         <dependency>
@@ -268,6 +268,15 @@
         <dependency>
             <groupId>org.sakaiproject.tags</groupId>
             <artifactId>tags-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-service-api</artifactId>
         </dependency>
     </dependencies>
     

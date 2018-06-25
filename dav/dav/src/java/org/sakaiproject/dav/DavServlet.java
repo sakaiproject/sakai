@@ -87,6 +87,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -176,6 +177,8 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+
+import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
 
 /**
  * Servlet which adds support for WebDAV level 2. All the basic HTTP requests are handled by the DefaultServlet.
@@ -2493,21 +2496,6 @@ public class DavServlet extends HttpServlet
 	}
 
 	/**
-	 * Find the containing collection id of a given resource id. Copied from BaseContentService.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the containing collection id.
-	 */
-	private String isolateContainingId(String id)
-	{
-		// take up to including the last resource path separator, not counting one at the very end if there
-		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
-
-	} // isolateContainingId
-
-
-	/**
 	 * MKCOL Method.
 	 */
 	protected void doMkcol(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -3164,7 +3152,7 @@ public class DavServlet extends HttpServlet
 							break;
 						case Node.ELEMENT_NODE:
 							strWriter = new StringWriter();
-							domWriter = new DOMWriter(strWriter, true);
+							domWriter = new DOMWriter(strWriter);
 							domWriter.print(currentNode);
 							lock.owner += strWriter.toString();
 							break;
@@ -3783,7 +3771,7 @@ public class DavServlet extends HttpServlet
 			}
 		}
 
-		destinationPath = UDecoder.URLDecode(normalize(destinationPath), "UTF8");
+		destinationPath = UDecoder.URLDecode(normalize(destinationPath), StandardCharsets.UTF_8);
 
 		return destinationPath;
 

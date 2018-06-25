@@ -94,7 +94,7 @@
 						<h:outputText value="#{msgs.cat_drop_lowest}"/>
 					</f:facet>
 					<h:outputLabel value="#{msgs.cat_drop_lowest}" for="dropLowest"  styleClass="skip" />
-					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
+					<h:inputText id="dropLowest" value="#{category.dropLowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         onkeyup="javascript:dropScoresAdjust(this.form);" 
                         disabled="#{!category.assignmentsEqual}" >
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
@@ -125,7 +125,7 @@
 							</h:outputLink>
 						</h:panelGroup>
 					</f:facet>
-				  	<h:outputText id="pointValueLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPointGrade && category.assignmentsEqual}"/>
+					<h:outputText id="pointValueLabelAsterisk" value="* " styleClass="valueLabelAsterisk reqStarInline" rendered="#{gradebookSetupBean.isPointGrade && category.assignmentsEqual}"/>
 					<h:inputText id="pointValue" value="#{category.itemValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
 					rendered="#{gradebookSetupBean.isPointGrade}"
 					disabled="#{!category.assignmentsEqual}">
@@ -144,7 +144,7 @@
 							</h:outputLink>
 						</h:panelGroup>
 					</f:facet>
-				  	<h:outputText id="pointValueLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPercentageGrade && category.assignmentsEqual}"/>
+					<h:outputText id="relativeWeightLabelAsterisk" value="* " styleClass="valueLabelAsterisk reqStarInline" rendered="#{gradebookSetupBean.isPercentageGrade && category.assignmentsEqual}"/>
 					<h:inputText id="relativeWeight" value="#{category.itemValue}" size="3" title="#{msgs.cat_percent_value_tooltip}"
 					rendered="#{gradebookSetupBean.isPercentageGrade}"
 					disabled="#{!category.assignmentsEqual}">

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Content Packaging (samigo-cp)</name>
@@ -46,12 +46,12 @@
 		<dependency>
 			<groupId>javax.faces</groupId>
 			<artifactId>jsf-api</artifactId>
-			<version>1.2_15</version>
+			<version>1.2_15-06</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.faces</groupId>
 			<artifactId>jsf-impl</artifactId>
-			<version>1.2_15</version>
+			<version>1.2_15-06</version>
 		</dependency>
         <dependency>
             <groupId>jdom</groupId>

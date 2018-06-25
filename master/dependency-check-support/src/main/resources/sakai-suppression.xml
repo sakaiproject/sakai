@@ -23,84 +23,84 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: entitybroker-api-13-SNAPSHOT.jar
+   file name: entitybroker-api-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.entitybroker:entitybroker-api:.*$</gav>
         <cpe>cpe:/a:entity_api_project:entity_api</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jsf-widgets-sun-13-SNAPSHOT.jar
+   file name: jsf-widgets-sun-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.jsf:jsf-widgets-sun:.*$</gav>
         <cpe>cpe:/a:sun:jsf</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jsf-widgets-13-SNAPSHOT.jar
+   file name: jsf-widgets-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.jsf:jsf-widgets:.*$</gav>
         <cpe>cpe:/a:widgets_project:widgets</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: myfaces-widgets-13-SNAPSHOT.jar
+   file name: myfaces-widgets-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.jsf:myfaces-widgets:.*$</gav>
         <cpe>cpe:/a:widgets_project:widgets</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: lessonbuilder-hbm-13-SNAPSHOT.jar
+   file name: lessonbuilder-hbm-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.lessonbuilder:lessonbuilder-hbm:.*$</gav>
         <cpe>cpe:/a:hbm:hbm</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: mailsender-api-13-SNAPSHOT.jar
+   file name: mailsender-api-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.mailsender:mailsender-api:.*$</gav>
         <cpe>cpe:/a:mail_project:mail</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: messageforums-hbm-13-SNAPSHOT.jar
+   file name: messageforums-hbm-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.msgcntr:messageforums-hbm:.*$</gav>
         <cpe>cpe:/a:hbm:hbm</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: sakai-portal-api-13-SNAPSHOT.jar
+   file name: sakai-portal-api-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.portal:sakai-portal-api:.*$</gav>
         <cpe>cpe:/a:in-portal:in-portal</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: sakai-postem-hbm-13-SNAPSHOT.jar
+   file name: sakai-postem-hbm-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject:sakai-postem-hbm:.*$</gav>
         <cpe>cpe:/a:hbm:hbm</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: elasticsearch-api-13-SNAPSHOT.jar
+   file name: elasticsearch-api-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.search\.elasticsearch:elasticsearch-api:.*$</gav>
         <cpe>cpe:/a:elasticsearch:elasticsearch</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: search-api-13-SNAPSHOT.jar
+   file name: search-api-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.search:search-api:.*$</gav>
         <cpe>cpe:/a:pro_search:pro_search</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: shortenedurl-api-13-SNAPSHOT.jar
+   file name: shortenedurl-api-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.shortenedurl:shortenedurl-api:.*$</gav>
         <cpe>cpe:/a:short_url:short_url</cpe>
@@ -114,21 +114,21 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: sakai-privacy-hbm-13-SNAPSHOT.jar
+   file name: sakai-privacy-hbm-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.common:sakai-privacy-hbm:.*$</gav>
         <cpe>cpe:/a:hbm:hbm</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jsf-widgets-sun-13-SNAPSHOT.jar
+   file name: jsf-widgets-sun-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.jsf:jsf-widgets-sun:.*$</gav>
         <cpe>cpe:/a:widgets_project:widgets</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: sakai-portal-impl-13-SNAPSHOT.jar
+   file name: sakai-portal-impl-19-SNAPSHOT.jar
    ]]></notes>
         <gav regex="true">^org\.sakaiproject\.portal:sakai-portal-impl:.*$</gav>
         <cpe>cpe:/a:in-portal:in-portal</cpe>

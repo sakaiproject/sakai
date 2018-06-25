@@ -46,10 +46,9 @@
 						<div class="form-group">
 							<p class="content">
 								<label for="searchinput">
-									<p class="toolTip"><span wicket:id="searchToolTip">[searchToolTip]</span></p>
 									<wicket:message key="text.search.terms.tooltip"></wicket:message>
 								</label>
-								<input type="text" wicket:id="searchField" class="form-control" wicket:message="title:text.search.terms.tooltip" />
+								<input type="text" wicket:id="searchField" class="form-control" />
 							</p>
 						</div>
 					</div>
@@ -170,20 +169,6 @@
 
 		});
 
-		$(document).ready(function() {
-			$('.sakai-wicket-iconwithtooltip').cluetip({
-				local: true,
-				showTitle: false,
-				attribute: 'rel',
-				cursor: 'pointer',
-				cluetipClass: 'jtip',
-				arrows: true,
-				hoverIntent: true
-			});	
-			
-		});
-
-	
 	</script>
 
 	

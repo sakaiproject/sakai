@@ -122,20 +122,25 @@
 		http://jqueryui.com/demos/datepicker/
 		*/
 		$(document).ready(function(){
-
-			$('.datePicker').datepicker({
-				changeYear: true,
-				yearRange: '-100:+1',
-				dateFormat: 'dd MM yy',
-				defaultDate: new Date(),
-				hideIfNoPrevNext: true,
-				maxDate: new Date(),  
-				showOn: 'both', 
-				buttonImage: '/library/image/silk/calendar.png',
-				buttonText: '',
-				buttonImageOnly: true
-			});
-		
+			// Unified this with the rest of the sakai tools
+			$.getScript("/library/js/lang-datepicker/lang-datepicker.js" )
+			.done(function( script, textStatus ) {
+				$.datepicker.setDefaults($.datepicker.regional[sakai.locale.userLanguage]);
+				$('.datePicker').datepicker({
+					changeYear: true,
+					yearRange: '-100:+1',
+					defaultDate: new Date(),
+					hideIfNoPrevNext: true,
+					maxDate: new Date(),  
+					showOn: 'both', 
+					buttonImage: '',
+					buttonText: '<i class="fa fa-calendar" aria-hidden="true"></i>',
+					buttonImageOnly: false
+				}); 
+			})
+			.fail(function( jqxhr, settings, exception ) {
+			    console.error(exception);
+			});		
 
 			$('.sakai-wicket-iconwithtooltip').cluetip({
 				local: true,
@@ -148,7 +153,6 @@
 			});	
 			
 		});
-		
 
 	</script> 
 	

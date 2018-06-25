@@ -45,6 +45,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.conversion.AssignmentConversionService;
 import org.sakaiproject.assignment.api.conversion.AssignmentDataProvider;
@@ -52,10 +53,15 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.util.BasicConfigItem;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 @Slf4j
 public class AssignmentConversionServiceImpl implements AssignmentConversionService {
@@ -66,6 +72,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentDataProvider dataProvider;
     @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SiteService siteService;
 
     private Predicate<String> attachmentFilter = Pattern.compile("attachment\\d+").asPredicate();
     private Predicate<String> submitterFilter = Pattern.compile("submitter\\d+").asPredicate();
@@ -234,6 +241,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                         Assignment assignment = assignmentReintegration(o11a, o11ac);
 
                         if (assignment != null) {
+                        	List<String> submissionGroups = new ArrayList<>();
                             List<String> sXml = dataProvider.fetchAssignmentSubmissions(assignmentId);
                             for (String xml : sXml) {
                                 O11Submission o11s = (O11Submission) serializeFromXml(xml, O11Submission.class);
@@ -242,6 +250,12 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                                     if (submission != null) {
                                         submission.setAssignment(assignment);
                                         assignment.getSubmissions().add(submission);
+                                        if (Assignment.Access.SITE.equals(assignment.getTypeOfAccess()) && assignment.getIsGroup()) {
+                                        	String submissionGrp = "/site/"+assignment.getContext()+"/group/"+submission.getGroupId(); 
+                                        	if (!submissionGroups.contains(submissionGrp)) {
+                                        		submissionGroups.add(submissionGrp);
+                                        	}
+                                        }
                                     } else {
                                         log.warn("reintegration of submission {} in assignment {} failed skipping submission", o11s.getId(), assignmentId);
                                         submissionsFailed++;
@@ -251,7 +265,11 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
                                     submissionsFailed++;
                                 }
                             }
-
+                            // Fix corrupted data: Group submission shouldn't be accessed by site
+                            if (Assignment.Access.SITE.equals(assignment.getTypeOfAccess()) && assignment.getIsGroup()) {
+                    			assignment.setTypeOfAccess(Assignment.Access.GROUP);
+                    			submissionGroups.forEach(g -> assignment.getGroups().add(g));
+                            }
                             // at this point everything has been added to the persistence context
                             // so we just need to merge and flush so that every assignment is persisted
                             try {
@@ -323,7 +341,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         a.setPeerAssessmentStudentReview(assignment.getPeerassessmentstudentviewreviews());
         a.setPosition(assignment.getPosition_order());
         a.setReleaseGrades(content.getReleasegrades());
-        a.setScaleFactor(content.getScaled_factor());
+        a.setScaleFactor(content.getScaled_factor() == null ? AssignmentConstants.DEFAULT_SCALED_FACTOR : content.getScaled_factor());
         a.setSection(assignment.getSection());
         a.setTitle(assignment.getTitle());
         a.setTypeOfAccess("site".equals(assignment.getAccess()) ? Assignment.Access.SITE : Assignment.Access.GROUP);
@@ -420,13 +438,34 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
         s.setReturned(submission.getReturned());
         s.setSubmitted(submission.getSubmitted());
         s.setSubmittedText(decodeBase64(submission.getSubmittedtextHtml()));
-        s.setUserSubmission(submission.getIsUserSubmission());
+        s.setUserSubmission(submission.getIsUserSubmission()!=null?submission.getIsUserSubmission(): 
+        		StringUtils.isNotBlank(s.getSubmittedText()) 
+        		|| Arrays.stream(submissionAnyKeys).filter(submittedAttachmentFilter).collect(Collectors.toSet()).size() > 0 
+        		|| assignment.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION);
 
         Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
         if (assignment.getIsGroup()) {
             // submitterid is the group
             if (StringUtils.isNotBlank(submission.getSubmitterid())) {
-                s.setGroupId(submission.getSubmitterid());
+            	try {
+            		// The id must be any group if is SITE mode or a some of the accesed groups if its GROUPED
+            		if (Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())) {
+            			if (assignment.getGroups().contains("/site/"+assignment.getContext()+"/group/"+submission.getSubmitterid())) {
+            				s.setGroupId(submission.getSubmitterid());
+            			} else {
+            				return null;
+            			}
+            		} else {
+            			Site assignmentSite = siteService.getSite(assignment.getContext());
+            			if (assignmentSite.getGroup(submission.getSubmitterid())!=null) {
+            				s.setGroupId(submission.getSubmitterid());
+            			} else {
+            				return null;
+            			}
+            		}
+            	} catch (Exception ex) {
+            		return null;
+            	}
             } else {
                 // the submitterid must not be blank for a group submission
                 return null;
@@ -434,6 +473,26 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
 
             // support for a list of submitter0, grade0
             Set<String> submitterKeys = Arrays.stream(submissionAnyKeys).filter(submitterFilter).collect(Collectors.toSet());
+            // Maybe the xml has no submitterN attributes, check the group members
+            if (submitterKeys.size() == 0) {
+            	// Maybe submitter keys are missing check group members
+		        try {
+		            Site assignmentSite = siteService.getSite(assignment.getContext());
+		            Group submissionGroup = assignmentSite.getGroup(s.getGroupId());
+		            int k=0;
+		            for (Member member : submissionGroup.getMembers()) {
+	                	if (!member.getRole().isAllowed(SECURE_ADD_ASSIGNMENT) 
+	                			&& !member.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)) {
+	                		submissionAny.put("submitter"+k, member.getUserId());
+	                		submitterKeys.add("submitter"+k);
+	                		k++;
+	                	}
+		            }
+        		} catch (Exception ex) {
+        			log.warn("Error looking for real group members in submission: {} site: {} group: {}",s.getId(),assignment.getContext(),s.getGroupId());
+        		}
+            }
+            
             for (String submitterKey : submitterKeys) {
                 AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
                 String submitterId = (String) submissionAny.get(submitterKey);

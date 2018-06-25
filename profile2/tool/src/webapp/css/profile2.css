@@ -27,10 +27,6 @@
 #rightPanel {
 }
 
-div#footer {
-}
-
-
 #fullWidth {
 }
 
@@ -832,18 +828,6 @@ h2 {
 }
 
 
-
-
-
-
-
-/* overrides cluetip's text color and border that jquery-ui sets */
-.cluetip-inner {
-	color: #5D5D5D;
-	border: 0 !important;
-}
-
-
 /* heading for pages and items */
 .header {
 	border-bottom: 1px solid #DDD;
@@ -1370,6 +1354,14 @@ div.wicket-aa ul li.selected {
 /* center the datepicker icon */
 img.ui-datepicker-trigger {
 	vertical-align: middle;
+}
+
+button.ui-datepicker-trigger {
+	margin: 0 0;
+}
+
+button.ui-datepicker-trigger .fa.fa-calendar{
+	color: #212121 !important;
 }
 
 .no-pictures {

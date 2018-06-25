@@ -330,7 +330,10 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 
 		SignupTimeslot ts = new SignupTimeslot();
 		ts.setStartTime(calendar.getTime());
+		
+		calendar.add(Calendar.MINUTE, 15);
 		ts.setEndTime(calendar.getTime());
+		
 		ts.setMaxNoOfAttendees(MAX_NUM_PARTICIPANTS);
 		TimeslotWrapper tsWrp = new TimeslotWrapper(ts);
 
@@ -386,21 +389,28 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	public void validateTimeslots(ActionEvent e) {
 		if (this.timeSlotWrpList == null)
 			return;
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		int position = 1;
+		int i = 1;
 		for (TimeslotWrapper tsWrp : this.timeSlotWrpList) {
 			if(tsWrp.getDeleted())
 				continue;//skip
 			
-			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-
 			String isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
+			String isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
+			
+			if (isoStartTime == null && isoEndTime == null) {
+				while (isoStartTime == null) {
+					position++;
+					isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
+					isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
+				}
+			}
 
 			if(DateFormatterUtil.isValidISODate(isoStartTime)){
 				tsWrp.getTimeSlot().setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
 			}
 			
-			String isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
-
 			if(DateFormatterUtil.isValidISODate(isoEndTime)){
 				tsWrp.getTimeSlot().setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
 			}
@@ -410,11 +420,11 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 				this.validationError = true;
 				tsWrp.setErrorStyle(this.errorStyleValue);
 				Utilities.addErrorMessage(MessageFormat.format(Utilities.rb
-						.getString("event.endTimeslot_should_after_startTimeslot"),
-						new Object[] { position }));
+						.getString("event.endTimeslot_should_after_startTimeslot"), i));
 				return;
 			}
 			position++;
+			i++;
 		}
 
 	}

@@ -75,9 +75,6 @@ public abstract class BasicSqlService implements SqlService
 	/** The "shared", "common" database connection pool */
 	protected DataSource defaultDataSource;
 
-	/** The "slow" connection pool for file uploads/downloads */
-	protected DataSource longDataSource;
-
 	/** Should we do a commit after a single statement read? */
 	protected boolean m_commitAfterRead = false;
 
@@ -2451,20 +2448,6 @@ public abstract class BasicSqlService implements SqlService
 		}
 
 		this.defaultDataSource = defaultDataSource;
-	}
-
-	/**
-	 * @param slowDataSource
-	 *        The slowDataSource to set.
-	 */
-	public void setLongDataSource(DataSource slowDataSource)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("setLongDataSource(DataSource " + slowDataSource + ")");
-		}
-
-		this.longDataSource = slowDataSource;
 	}
 
 	/**

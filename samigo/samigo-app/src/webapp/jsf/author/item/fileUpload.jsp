@@ -90,7 +90,9 @@
             </h:selectOneRadio>
         </div>
     </div>    
-      
+
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
+
     <!-- 1.2 Min POINTS 
     Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
     <div class="shorttext">

@@ -32,23 +32,23 @@
     
     <many-to-one name="permissionLevel" column="PERMISSION_LEVEL"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"
-        not-null="false" cascade="save-update" unique="true"
+        not-null="false" cascade="persist,merge,save-update" unique="true"
         lazy="false"/>
      
       <many-to-one name="topic" column="t_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
-        not-null="false" cascade="save-update" unique="false"
+        not-null="false" cascade="persist,merge,save-update" unique="false"
         lazy="false"
         index="MFR_MEMBERSHIP_ITEM_I01_I"/>
                
       <many-to-one name="forum" column="of_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
-        not-null="false" cascade="save-update" unique="false"
+        not-null="false" cascade="persist,merge,save-update" unique="false"
         lazy="false"/>  
 
       <many-to-one name="area" column="a_surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
-        not-null="false" cascade="save-update" unique="false"
+        not-null="false" cascade="persist,merge,save-update" unique="false"
         lazy="false"
         index="MFR_MEMBERSHIP_ITEM_I02_I"/>  
   </class>
@@ -86,5 +86,17 @@
              where membership.topic.id = :id and membership.name = :roleName and membership.permissionLevelName = :permissionLevelName
     ]]>
   </query>
+
+    <query name="findAllowedGroupInForum">
+        <![CDATA[select membership.name from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+             where membership.forum.id = :id and membership.type = 3 and membership.permissionLevelName = :permissionLevelName
+        ]]>
+    </query>
+
+    <query name="findAllowedGroupInTopic">
+        <![CDATA[select membership.name from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+             where membership.topic.id = :id and membership.type = 3 and membership.permissionLevelName = :permissionLevelName
+        ]]>
+    </query>
 
 </hibernate-mapping>

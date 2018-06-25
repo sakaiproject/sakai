@@ -63,12 +63,12 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.springutil.SpringMessageLocator;
 
 @Slf4j
-public class ValidationProducer implements ViewComponentProducer,
-ViewParamsReporter, ActionResultInterceptor {
+public class ValidationProducer extends BaseValidationProducer implements ViewComponentProducer, ViewParamsReporter, ActionResultInterceptor {
 
 	public static final String VIEW_ID = "validate";
 
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
+	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -161,37 +161,26 @@ ViewParamsReporter, ActionResultInterceptor {
 				* Note that there already exists a quartz job to expire the validation tokens, but using a quartz job
 				* means that tokens would only be invalidated when the job runs. So here we check in real-time
 				* */
-				//Only do this check if accountValidator.maxPasswordResetMinutes is configured correctly
-				String strMinutes = serverConfigurationService.getString(MAX_PASSWORD_RESET_MINUTES);
-				if (strMinutes != null && !"".equals(strMinutes))
+				if (va.getStatus() != null)
 				{
-					if (va.getStatus() != null)
+					if (va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
 					{
-						if (va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
+						int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+
+						//get the time limit and convert to millis
+						long maxMillis = minutes * 60 * 1000;
+
+						//the time when the validation token was sent to the email server
+						long sentTime = va.getValidationSent().getTime();
+
+						if (System.currentTimeMillis() - sentTime > maxMillis)
 						{
-							try
-							{
-								//get the time limit and convert to millis
-								long maxMillis = Long.parseLong(strMinutes);
-								maxMillis*=60*1000;
+							//it's been too long, so invalidate the token and stop the user
+							va.setStatus(ValidationAccount.STATUS_EXPIRED);
 
-								//the time when the validation token was sent to the email server
-								long sentTime = va.getValidationSent().getTime();
-
-								if (System.currentTimeMillis() - sentTime > maxMillis)
-								{
-									//it's been too long, so invalidate the token and stop the user
-									va.setStatus(ValidationAccount.STATUS_EXPIRED);
-
-									Object[] args = new Object[] {vvp.tokenId};
-									tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
-									return;
-								}
-							}
-							catch (NumberFormatException nfe)
-							{
-								log.warn("accountValidator.maxPasswordResetMinutes is not configured correctly");
-							}
+							Object[] args = new Object[] {vvp.tokenId};
+							tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
+							return;
 						}
 					}
 				}
@@ -236,7 +225,7 @@ ViewParamsReporter, ActionResultInterceptor {
 			
 			//we need some values to fill in
 			Object[] args = new Object[]{
-					serverConfigurationService.getString("ui.service", "Sakai"),
+					getUIService(),
 					addedBy.getDisplayName(),
 					addedBy.getEmail()
 					

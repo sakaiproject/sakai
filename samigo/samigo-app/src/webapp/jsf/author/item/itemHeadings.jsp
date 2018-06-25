@@ -194,7 +194,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
 </h:commandLink>
 
 &nbsp;

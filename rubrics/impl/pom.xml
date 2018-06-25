@@ -4,13 +4,13 @@
     <parent>
         <artifactId>rubrics</artifactId>
         <groupId>org.sakaiproject.rubrics</groupId>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>Sakai Rubrics - Service Client Implementation</name>
+    <name>Sakai Rubrics - Implementation</name>
     <groupId>org.sakaiproject.rubrics</groupId>
-    <artifactId>rubrics-service-client-impl</artifactId>
+    <artifactId>rubrics-service-impl</artifactId>
 
     <packaging>sakai-component</packaging>
     <properties>
@@ -19,8 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>rubrics-service-client-api</artifactId>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-service-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -86,29 +86,44 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${jayway.jsonpath.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
       </dependencies>
 
     <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources</directory>
+                <directory>src/main/bundle</directory>
                 <includes>
-                    <include>**/*.properties</include>
+                    <include>**/*</include>
                 </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
             </resource>
         </resources>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.sakaiproject.maven.plugins</groupId>
+                <artifactId>sakai</artifactId>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

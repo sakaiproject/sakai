@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import au.com.bytecode.opencsv.CSVParser;
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVReader;
 
 import java.io.IOException;
 import java.io.InputStream; 
@@ -674,7 +674,10 @@ public class ImportGradesHelper {
 
 					// has a value, could be NEW or an UPDATE. Preserve NEW if we already had it
 					if (status != Status.NEW) {
-						if (StringUtils.isNotBlank(importedComment) && !StringUtils.equals(importedComment, existingComment)) {
+						boolean importContainsNewComment = (StringUtils.isNotBlank(importedComment) && !StringUtils.equals(importedComment, existingComment));
+						boolean importClearsExistingComment = (StringUtils.isBlank(importedComment) && StringUtils.isNotBlank(existingComment));
+
+						if (importContainsNewComment || importClearsExistingComment) {
 							status = Status.UPDATE;
 							break;
 						}

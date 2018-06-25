@@ -18,11 +18,19 @@
 	<div class="clear"></div>
 	#end
 	<form action="$actionUrl" method="post" name="customizeForm" >
-		$formInput 
+		#if ($noCustomizations)
+			<span class="messageInformation">$noCustomizations</span>
+		#elseif ($formInput)
+			$formInput
+		#end
 
 		<p class="act">
-			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
-			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+			#if ($noCustomizations)
+				<input type="submit" accesskey ="x" class="active" name="$doCancel" value="$tlang.getString('gen.back')" />
+			#else
+				<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+				<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+			#end
 		</p>
 	</form>
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>

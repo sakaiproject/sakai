@@ -24,12 +24,14 @@ import org.sakaiproject.site.api.Group;
 
 public class SiteGroupBean {
 	private Group group;
+	private boolean createForumForGroup;
 	private boolean createTopicForGroup;
 	
-	public SiteGroupBean (Group group, boolean createTopicForGroup) 
+	public SiteGroupBean (Group group, boolean createTopicForGroup, boolean createForumForGroup) 
 	{
 		this.group = group;
 		this.createTopicForGroup = createTopicForGroup;
+		this.createForumForGroup = createForumForGroup;
 	}
 	
 	public Group getGroup() 
@@ -50,5 +52,15 @@ public class SiteGroupBean {
 	public void setCreateTopicForGroup(boolean createTopicForGroup)
 	{
 		this.createTopicForGroup = createTopicForGroup;
+	}
+
+	public boolean getCreateForumForGroup()
+	{
+		return this.createForumForGroup;
+	}
+	
+	public void setCreateForumForGroup(boolean createForumForGroup)
+	{
+		this.createForumForGroup = createForumForGroup;
 	}
 }

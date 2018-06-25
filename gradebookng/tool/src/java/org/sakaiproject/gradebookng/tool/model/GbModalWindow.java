@@ -117,6 +117,13 @@ public class GbModalWindow extends ModalWindow {
 		this.assignmentIdToReturnFocusTo = assignmentId;
 	}
 
+	/**
+	 * Get the assignment to return focus to upon closing the window.
+	 */
+	public String getAssignmentToReturnFocusTo() {
+		return this.assignmentIdToReturnFocusTo;
+	}
+
 	public void setReturnFocusToCourseGrade() {
 		this.returnFocusToCourseGrade = true;
 	}

@@ -231,8 +231,6 @@ spring.datasource.url=jdbc:mysql://server/sakaidb
 spring.datasource.username=sakai
 spring.datasource.password=sakai
 
-rubrics.integration.sakai-rest-url=http://sakai-core:8080/sakai-ws/rest/
-
 rubrics.integration.token-secret=<Unique secret to support JWT signing>
 ```
 

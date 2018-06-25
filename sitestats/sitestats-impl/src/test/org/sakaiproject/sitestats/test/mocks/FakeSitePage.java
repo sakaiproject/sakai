@@ -19,19 +19,11 @@
 package org.sakaiproject.sitestats.test.mocks;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Stack;
 
 import org.mockito.Mockito;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Tool;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 @SuppressWarnings("serial")
 public abstract class FakeSitePage implements SitePage {

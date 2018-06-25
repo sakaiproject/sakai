@@ -551,6 +551,11 @@
             <property-name>threadLocalManager</property-name>
             <value>#{Components["org.sakaiproject.thread_local.api.ThreadLocalManager"]}</value>
         </managed-property>
+        <managed-property>
+            <description>RubricsService</description>
+            <property-name>rubricsService</property-name>
+            <value>#{Components["org.sakaiproject.rubrics.logic.RubricsService"]}</value>
+        </managed-property>
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>

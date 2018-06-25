@@ -1406,6 +1406,73 @@ public class BaseDbFlatStorage
 	}
 
 	/**
+	 * Insert a uniform property on multiple resources. NB: this will not check for duplicates; calling method must prevent unique constraint violations
+	 */
+	public void writePropertyOnResources(final String table, final String idField, final Object[] ids, final String extraIdField, final String[] extraIds,
+			final String propName, final String propValue)
+	{
+		if (extraIdField != null && ids.length != extraIds.length)
+		{
+			throw new IllegalArgumentException("writePropertyOnResources: extraIdField exists, but ids and extraIds arrays differ in length");
+		}
+		if (table == null || StringUtils.isBlank(propName) || StringUtils.isBlank(propValue))
+		{
+			return;
+		}
+
+		StringBuilder tagName = new StringBuilder("writePropertiesOnResource");
+		String delim = "";
+
+		Cache myCache = getCache(table);
+		if (myCache != null)
+		{
+			for (Object id : ids)
+			{
+				tagName.append(delim).append(id.toString());
+				String cacheKey = table + ":" + idField + ":" + id;
+				myCache.remove(cacheKey);
+
+				// optimized away by compiler
+				delim = ",";
+			}
+		}
+
+		// do it all in the same transaction
+		m_sql.transact(()->
+		{
+			for (int i = 0; i < ids.length; i++)
+			{
+				String extraId = extraIdField == null ? null : extraIds[i];
+				writePropertyTx(table, idField, ids[i], extraIdField, extraId, propName, propValue);
+			}
+		}, tagName.toString());
+	}
+
+	/**
+	 * The transaction code that writes the properties
+	 */
+	protected void writePropertyTx(String table, String idField, Object id, String extraIdField, String extraId, String propName, String propValue)
+	{
+		String statement = flatStorageSql.getInsertSql(table, idField, extraIdField);
+		boolean useExtraId = extraIdField != null;
+		Object fields[] = new Object[(useExtraId ? 4 : 3)];
+		fields[0] = id;
+
+		fields[1] = propName;
+		fields[2] = propValue;
+
+		if (useExtraId)
+		{
+			fields[3] = extraId;
+		}
+
+		if (propValue.length() > 0)
+		{
+			m_sql.dbWrite(statement, fields);
+		}
+	}
+
+	/**
 	 * The transaction code for writing properties.
 	 * 
 	 * @param r

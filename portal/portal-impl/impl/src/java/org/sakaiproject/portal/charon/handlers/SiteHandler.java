@@ -55,6 +55,7 @@ import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
+import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
@@ -539,7 +540,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("isUserSite", true);
 		}else{
 			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
-			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers));
+			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
 			rcontext.put("isUserSite", false);
 		}
 		
@@ -562,7 +563,7 @@ public class SiteHandler extends WorksiteHandler
 		try{
 			boolean presenceEvents = ServerConfigurationService.getBoolean("presence.events.log", true);
 			if (presenceEvents)
-				org.sakaiproject.presence.cover.PresenceService.setPresence(siteId + "-presence");
+				org.sakaiproject.presence.cover.PresenceService.setPresence(siteId + PresenceService.PRESENCE_SUFFIX);
 		}catch(Exception e){}
 		//End - log the visit into SAKAI_EVENT		
 

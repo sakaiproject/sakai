@@ -199,9 +199,6 @@ public class ItemService
     }
   }
 
-
-
-
   /**
    * Save a question item.
    */
@@ -216,6 +213,22 @@ public class ItemService
       log.error(e.getMessage(), e);
 
       return item;
+    }
+  }
+
+  /**
+   * Save question items (in a single transaction for improved performance over sequential saveItem() invocations)
+   */
+  public List<ItemFacade> saveItems(List<ItemFacade> items)
+  {
+    try
+    {
+      return PersistenceService.getInstance().getItemFacadeQueries().saveItems(items);
+    }
+    catch (Exception e)
+    {
+      log.error(e.getMessage(), e);
+      return items;
     }
   }
 

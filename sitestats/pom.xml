@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>13-SNAPSHOT</version>
+    <version>19-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -40,24 +40,6 @@
     <module>sitestats-impl-hib</module>
     <module>sitestats-tool</module>
   </modules>
-
-  <!-- Profiles -->
-  <profiles>
-    <profile>
-      <!-- Execute performance tests (instead) -->
-      <id>perftests</id>
-      <properties>
-        <perftests.includes>**/*TestPerf.java</perftests.includes>
-      </properties>
-    </profile>
-    <profile>
-      <!-- Generate DB schema (DDL) -->
-      <id>ddl</id>
-      <modules>
-        <module>sitestats-impl-hib/src/ddl</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <!-- Project related dependencies -->
   <dependencyManagement>
@@ -168,48 +150,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <!-- Reporting (mvn site) -->
-  <reporting>
-    <plugins>
-      <!-- FindBugs: mvn findbugs:findbugs -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>1.2</version>
-        <configuration>
-          <findbugsXmlOutput>true</findbugsXmlOutput>
-          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-          <xmlOutput>true</xmlOutput>
-        </configuration>
-      </plugin>
-      <!-- CheckStyle: mvn checkstyle:checkstyle -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <outputFileFormat>xml</outputFileFormat>
-        </configuration>
-      </plugin>
-      <!-- Downgrade to address build failure. -->
-      <plugin>
-        <inherited>true</inherited>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.6</version>
-      </plugin>
-      <!-- Cobertura: mvn cobertura:cobertura -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <configuration>
-          <formats>
-            <format>html</format>
-            <format>xml</format>
-          </formats>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
 </project>

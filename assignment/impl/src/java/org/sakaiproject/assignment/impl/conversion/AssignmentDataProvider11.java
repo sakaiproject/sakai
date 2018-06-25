@@ -21,7 +21,8 @@ public class AssignmentDataProvider11 implements AssignmentDataProvider{
         List<String> list;
         try {
             list = sessionFactory.getCurrentSession()
-                    .createSQLQuery("SELECT ASSIGNMENT_ID FROM ASSIGNMENT_ASSIGNMENT")
+                    // here we order the assignments based on the sites created date so newer sites will import first
+                    .createSQLQuery("SELECT aa.ASSIGNMENT_ID FROM ASSIGNMENT_ASSIGNMENT aa LEFT JOIN SAKAI_SITE ss ON (aa.CONTEXT = ss.SITE_ID) ORDER BY ss.CREATEDON DESC")
                     .addScalar("ASSIGNMENT_ID", StringType.INSTANCE)
                     .list();
 

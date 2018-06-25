@@ -28,7 +28,10 @@ import org.sakaiproject.user.api.Preferences;
 import java.util.Collections;
 import org.sakaiproject.tool.cover.SessionManager;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -40,6 +43,8 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -134,10 +139,10 @@ public class FavoritesHandler extends BasePortalHandler
 
 		result.autoFavoritesEnabled = autoFavorite;
 
-		List<String> favoriteSiteIds = (List<String>)props.getPropertyList(FAVORITES_PROPERTY);
-
-		if (favoriteSiteIds == null) {
-			favoriteSiteIds = Collections.<String>emptyList();
+		Set<String> favoriteSiteIds = Collections.<String>emptySet();
+		List<String> listFavoriteSiteIds = (List<String>)props.getPropertyList(FAVORITES_PROPERTY);
+		if (listFavoriteSiteIds != null) {
+			favoriteSiteIds = new LinkedHashSet<String>(listFavoriteSiteIds);
 		}
 
 		if (autoFavorite) {
@@ -150,14 +155,14 @@ public class FavoritesHandler extends BasePortalHandler
 		return result;
 	}
 
-	private static List<String> applyAutoFavorites(String userId, ResourceProperties existingProps, List<String> existingFavorites)
+	private static Set<String> applyAutoFavorites(String userId, ResourceProperties existingProps, Set<String> existingFavorites)
 		throws PermissionException, PortalHandlerException, InUseException, IdUnusedException {
 
 		// The site list as when we last checked
+		Set<String> oldSiteSet = Collections.<String>emptySet();
 		List<String> oldSiteList = (List<String>)existingProps.getPropertyList(SEEN_SITES_PROPERTY);
-
-		if (oldSiteList == null) {
-			oldSiteList = Collections.<String>emptyList();
+		if (oldSiteList != null) {
+			oldSiteSet = new HashSet<String>(oldSiteList);
 		}
 
 		boolean firstTimeFavs = true;
@@ -173,45 +178,34 @@ public class FavoritesHandler extends BasePortalHandler
 		PreferencesEdit edit = PreferencesService.edit(userId);
 		ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
-		List<Site> userSites = SiteService.getUserSites(false);
-		List<String> newFavorites = new ArrayList<String>();
+		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
+		List<Site> userSites = SiteService.getSites(SelectionType.MEMBER, null, null, null, SortType.TITLE_ASC, null, false);
+		Set<String> newFavorites = new LinkedHashSet<String>();
 
 		props.removeProperty(SEEN_SITES_PROPERTY);
 		for (Site userSite : userSites) {
-			if (!oldSiteList.contains(userSite.getId()) && !existingFavorites.contains(userSite.getId()) && !firstTimeFavs) {
+			if (!oldSiteSet.contains(userSite.getId()) && !existingFavorites.contains(userSite.getId()) && !firstTimeFavs) {
 				newFavorites.add(userSite.getId());
 			}
 			props.addPropertyToList(SEEN_SITES_PROPERTY, userSite.getId());
 		}
-
-		if (firstTimeFavs) {
-			firstTimeFavs = false;
-			props.removeProperty(FIRST_TIME_PROPERTY);
-			props.addProperty(FIRST_TIME_PROPERTY, String.valueOf(firstTimeFavs));
-		}
-		PreferencesService.commit(edit);
-
-		if (newFavorites.isEmpty()) {
-			// No change!  Don't bother writing back to the DB
-			return existingFavorites;
- 		}
-
 		newFavorites.addAll(existingFavorites);
 
-		// Add our new sites to the list of user favorites
-		PreferencesEdit editFav = PreferencesService.edit(userId);
-		ResourcePropertiesEdit propsEditFav = editFav.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-
-		// Add our new properties and any existing favorite sites after them
-		propsEditFav.removeProperty(FAVORITES_PROPERTY);
-		for (String siteId : newFavorites) {
-			propsEditFav.addPropertyToList(FAVORITES_PROPERTY, siteId);
+		if (firstTimeFavs) {
+			props.removeProperty(FIRST_TIME_PROPERTY);
+			props.addProperty(FIRST_TIME_PROPERTY, String.valueOf(false));
 		}
 
-		PreferencesService.commit(editFav);
+		// Add our new properties and any existing favorite sites after them
+		props.removeProperty(FAVORITES_PROPERTY);
+		for (String siteId : newFavorites) {
+			props.addPropertyToList(FAVORITES_PROPERTY, siteId);
+		}
+
+		PreferencesService.commit(edit);
 
 		return newFavorites;
- 	}
+	}
 
 	private void saveUserFavorites(String userId, UserFavorites favorites) throws PermissionException, InUseException, IdUnusedException, PortalHandlerException {
 		if (userId == null) {
@@ -235,11 +229,11 @@ public class FavoritesHandler extends BasePortalHandler
 	}
 
 	public static class UserFavorites {
-		public List<String> favoriteSiteIds;
+		public Set<String> favoriteSiteIds;
 		public boolean autoFavoritesEnabled;
 
 		public UserFavorites() {
-			favoriteSiteIds = Collections.<String>emptyList();
+			favoriteSiteIds = Collections.<String>emptySet();
 			autoFavoritesEnabled = false;
 		}
 
@@ -247,7 +241,7 @@ public class FavoritesHandler extends BasePortalHandler
 			JSONObject obj = new JSONObject();
 
 			obj.put("autoFavoritesEnabled", autoFavoritesEnabled);
-			obj.put("favoriteSiteIds", favoriteSiteIds);
+			obj.put("favoriteSiteIds", new ArrayList<String>(favoriteSiteIds));
 
 			return obj.toString();
 		}
@@ -258,7 +252,7 @@ public class FavoritesHandler extends BasePortalHandler
 			JSONObject obj = (JSONObject)parser.parse(json);
 
 			UserFavorites result = new UserFavorites();
-			result.favoriteSiteIds = (List<String>)obj.get("favoriteSiteIds");
+			result.favoriteSiteIds = new LinkedHashSet<String>((List<String>)obj.get("favoriteSiteIds"));
 			result.autoFavoritesEnabled = (Boolean)obj.get("autoFavoritesEnabled");
 
 			return result;

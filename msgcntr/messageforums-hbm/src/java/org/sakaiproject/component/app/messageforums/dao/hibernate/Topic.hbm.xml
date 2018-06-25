@@ -47,12 +47,12 @@
         <key column="t_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="messagesSet" lazy="true" cascade="save-update"
+    <set name="messagesSet" lazy="true" cascade="persist,merge,save-update"
       sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc" batch-size="100">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
     </set>    
-     <set name="membershipItemSet" lazy="true" cascade="save-update" batch-size="50">
+     <set name="membershipItemSet" lazy="true" cascade="persist,merge,save-update" batch-size="50">
         <key column="t_surrogateKey"/>
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
     </set>
@@ -71,6 +71,14 @@
 
     <property name="revealIDsToRoles">
         <column name="REVEAL_IDS_TO_ROLES" not-null="true" />
+    </property>
+
+    <property name="allowEmailNotifications">
+        <column name="ALLOW_EMAIL_NOTIFICATIONS" not-null="true" />
+    </property>
+
+    <property name="includeContentsInEmails">
+        <column name="INCLUDE_CONTENTS_IN_EMAILS" not-null="true" />
     </property>
 	
 	<property name="autoMarkThreadsRead" column="AUTO_MARK_THREADS_READ" not-null="true" />
@@ -167,7 +175,10 @@
 	    </property>        
 	    <property name="hourBeforeResponsesVisible">
 	      <column name="HOUR_BEFORE_RESPONSES_VISIBLE" length="10" not-null="false" />
-	    </property>    
+	    </property>
+	    <property name="restrictPermissionsForGroups">
+	      <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
+	    </property>
 	    <!-- 
 	    <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
 	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"

@@ -212,11 +212,13 @@
 		  class="org.sakaiproject.coursemanagement.impl.CourseSiteRemovalServiceImpl"
 		  destroy-method="destroy"
 		  init-method="init">
-		<property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"      /></property>   <!-- used to get the start and end date of terms       -->
-		<property name="functionManager"        ><ref bean="org.sakaiproject.authz.api.FunctionManager"                         /></property>   <!-- used to register api permissions                  -->
-		<property name="securityService"        ><ref bean="org.sakaiproject.authz.api.SecurityService"                         /></property>   <!-- used to check for super user                      -->
-		<property name="sessionFactory"         ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>   <!-- global hibernate transaction manager              -->
-		<property name="siteService"            ><ref bean="org.sakaiproject.site.api.SiteService"                              /></property>   <!-- needed to retrieve course sites that have expired -->
+		<property name="authzGroupService"         ><ref bean="org.sakaiproject.authz.api.AuthzGroupService"                       /></property>   <!-- used to get providers from a site                 -->
+		<property name="courseManagementService"   ><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"      /></property>   <!-- used to get the start and end date of terms       -->
+		<property name="functionManager"           ><ref bean="org.sakaiproject.authz.api.FunctionManager"                         /></property>   <!-- used to register api permissions                  -->
+		<property name="securityService"           ><ref bean="org.sakaiproject.authz.api.SecurityService"                         /></property>   <!-- used to check for super user                      -->
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"          /></property>   <!-- to get sakai.properties                           -->
+		<property name="sessionFactory"            ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>   <!-- global hibernate transaction manager              -->
+		<property name="siteService"               ><ref bean="org.sakaiproject.site.api.SiteService"                              /></property>   <!-- needed to retrieve course sites that have expired -->
 	</bean>
 
 	<!-- global hibernate transaction proxy bean -->

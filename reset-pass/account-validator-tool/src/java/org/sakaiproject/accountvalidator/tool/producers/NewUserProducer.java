@@ -103,7 +103,7 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 		if (u == null)
 		{
 			log.error("user ID does not exist for ValidationAccount with tokenId: " + va.getValidationToken());
-			tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+			tml.addMessage(new TargettedMessage("validate.userNotDefined", new Object[]{getUIService()}, TargettedMessage.SEVERITY_ERROR));
 			return;
 		}
 
@@ -128,7 +128,6 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 		}
 		else {
 			UIMessage.make(tofill, "account-title", "activateAccount.title");
-			UIMessage.make(tofill, "welcome", "validate.welcome", args);
 			UIOutput.make(tofill, "eid", u.getDisplayId());
 			UIMessage.make(tofill, "wait.1", "validate.wait.newUser.1", args);
 			String linkText = messageLocator.getMessage("validate.wait.newUser.2", args);
@@ -159,6 +158,15 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 						log.error(e.getMessage(), e);
 					}
 				}
+			}
+
+			if (existingSites.size() >= 2)
+			{
+				UIMessage.make(tofill, "welcome", "validate.welcome.plural", args);
+			}
+			else
+			{
+				UIMessage.make(tofill, "welcome", "validate.welcome.single", args);
 			}
 		}
 		UIMessage.make(tofill, "welcome2", "validate.welcome2", args);

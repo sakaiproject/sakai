@@ -36,6 +36,7 @@
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
+
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>;resetInsertAnswerSelectMenus();disablePartialCreditField();">
 
@@ -100,6 +101,8 @@
       </ul>
     </div>
   </div>
+
+  <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="form-group row">

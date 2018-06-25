@@ -2263,11 +2263,6 @@ public class UserPrefsTool
 			setUserEditingOn();
 			props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
 
-			// Any site now hidden should also be removed from favorites
-			for (String siteId : hiddenSitesInput.split(",")) {
-				currentFavoriteSites.remove(siteId);
-			}
-
 			for (Object siteId : currentFavoriteSites) {
 				props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
 			}

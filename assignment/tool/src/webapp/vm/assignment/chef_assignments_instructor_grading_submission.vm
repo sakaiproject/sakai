@@ -18,6 +18,20 @@
         disableBackButton("$!tlang.getString("use_form_navigation")");
     });
 </script>
+
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-grading.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+  ASN.rubricsEventHandlers();
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<!-- END RUBRICS JAVASCRIPT -->
+
 <div class="portletBody">
 
     #set($gradeType = $assignment.TypeOfGrade.ordinal())
@@ -262,7 +276,6 @@
         #end
         #if ($assignment_expand_flag)
             #if (!$assignment.Instructions.isEmpty())
-                +
                 <div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
             #end
 
@@ -412,7 +425,17 @@
             </div>
         #end
 
-        <h3>$tlang.getString("gen.subm")</h3>
+        #if ($!hasAssociatedRubric)
+        <ul id="rubricTabs" class="nav nav-tabs">
+            <li class="active"><a href="#submition">$tlang.getString("gen.subm")</a></li>
+            <li><a href="#rubric">$tlang.getString("grading_rubric")</a></li>
+        </ul>
+        <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="submition">
+        #else
+            <h3>$tlang.getString("gen.subm")</h3>
+        #end
+
         #set($hasInline = !$value_feedback_text.isEmpty())
         #set($size = 0)
         #if ($!submission.Submitted || !$alertGradeDraft)
@@ -430,7 +453,7 @@
             <p class="text-warning">$tlang.getString("nonelec_instruction2")</p>
         #else
             #if($submissionType == 1 || $submissionType == 3)
-                #if (($submission.Submitted || !$alertGradeDraft) && !$!value_feedback_text.isEmpty())
+                #if (($submission.Submitted || !$alertGradeDraft) && $!value_feedback_text && !$!value_feedback_text.isEmpty())
                     <p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
                     <div class="textarea-holder">
                         <textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">
@@ -496,6 +519,30 @@
                 </ul>
             #end
         #end
+
+        #if ($!hasAssociatedRubric)
+        </div>
+        <div role="tabpanel" class="tab-pane" id="rubric">
+            <sakai-rubric-grading
+                ## grade-field-id="grade"
+                tool-id="sakai.assignment"
+                entity-id="$assignment.Id"
+                evaluated-item-id="$submission.Id"
+
+                #if($rbcs-state-details && "$!rbcs-state-details" != "")
+                state-details="$rbcs-state-details"
+                #end
+            ></sakai-rubric-grading>
+        </div>
+        </div>
+        <script>
+            $('#rubricTabs a').click(function (e) {
+                e.preventDefault()
+                $(this).tab('show')
+            })
+        </script>
+        #end
+
         #if ($withGrade)
             <div class="highlightPanel" style="width:80%">
                 #if ($allowToGrade)
@@ -934,6 +981,7 @@
             </div>
         </div>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
+        <input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
     </form>
 </div>
 <!-- end: check_assignments_instructor_grading_submission.vm  -->

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -307,7 +308,7 @@ public class ReportXMLReader extends AbstractObjectReader {
 	    			if(("-").equals(id)) {
 	    				userId = "-";
 	    				userName = msgs.getString("user_anonymous");
-	    			}else if(("?").equals(id)) {
+	    			}else if(EventTrackingService.UNKNOWN_USER.equals(id)) {
 	    				userId = "-";
 	    				userName = msgs.getString("user_anonymous_access");
 	    			}else{

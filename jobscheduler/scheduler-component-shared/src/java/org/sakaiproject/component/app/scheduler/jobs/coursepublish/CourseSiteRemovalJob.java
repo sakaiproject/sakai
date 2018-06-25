@@ -104,7 +104,7 @@ public class CourseSiteRemovalJob implements StatefulJob {
          user = userDirectoryService.getUser(userId);
       } catch (UserNotDefinedException ex) {
          user = null;
-         log.error("The user with eid " + userId + " was not found.  The course site publish job has been aborted.");
+         log.error("The user with eid {} was not found.  The course site publish job has been aborted.", userId);
       }
 
 
@@ -112,14 +112,14 @@ public class CourseSiteRemovalJob implements StatefulJob {
       String actionString = serverConfigurationService.getString(PROPERTY_COURSE_SITE_REMOVAL_ACTION);
       if (actionString == null || actionString.trim().length() == 0)
       {
-         log.warn("The property " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + " was not specified in sakai.properties.  Using a default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION + ".");
+         log.warn("The property " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + " was not specified in sakai.properties.  Using a default value of {}.", DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION);
          action = DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION;
       }
       else
       {
          action = getAction(actionString);
          if (action == null) {
-            log.error("The value specified for " + actionString + " in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION + " will be used instead.");
+            log.error("The value specified for {} in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + ", is not valid.  A default value of {} will be used instead.", actionString, DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION);
             action = DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION;
          }
       }
@@ -132,9 +132,10 @@ public class CourseSiteRemovalJob implements StatefulJob {
    public void execute(JobExecutionContext context) throws JobExecutionException {
       synchronized (this) {
          log.info("execute()");
+         String actionStr = CourseSiteRemovalService.Action.remove.equals(action) ? " course sites were removed." : " course sites were unpublished.";
 
          if (user == null) {
-            log.error("The scheduled job to remove course sites can not be run with an invalid user.  No courses were removed.");
+            log.error("The scheduled job to remove course sites can not be run with an invalid user.  No{}", actionStr);
          } else {
             try {
                // switch the current user to the one specified to run the quartz job
@@ -142,9 +143,9 @@ public class CourseSiteRemovalJob implements StatefulJob {
                sakaiSesson.setUserId(user.getId());
 
                int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
-               log.info(numSitesRemoved + " course sites were removed.");
+               log.info("{}{}", numSitesRemoved, actionStr);
             } catch (Exception ex) {
-               log.error(ex.getMessage());
+               log.error(ex.getMessage(), ex);
             }
          }
       }
