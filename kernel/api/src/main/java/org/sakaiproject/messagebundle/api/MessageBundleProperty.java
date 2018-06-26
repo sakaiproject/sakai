@@ -67,16 +67,16 @@ public class MessageBundleProperty {
     @SequenceGenerator(name = "message_bundle_property_sequence", sequenceName = "SAKAI_MESSAGEBUNDLE_S")
     private Long id;
 
-    @Column(name = "BASENAME", nullable = false)
+    @Column(name = "BASENAME", length = 150, nullable = false)
     private String baseName;
 
-    @Column(name = "MODULE_NAME", nullable = false)
+    @Column(name = "MODULE_NAME", length = 100, nullable = false)
     private String moduleName;
 
-    @Column(name = "LOCALE", nullable = false)
+    @Column(name = "LOCALE", length = 32, nullable = false)
     private String locale;
 
-    @Column(name = "PROP_NAME", nullable = false)
+    @Column(name = "PROP_NAME", length = 350, nullable = false)
     private String propertyName;
 
     @Lob
