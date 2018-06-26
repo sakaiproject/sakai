@@ -282,4 +282,12 @@
 			}
 		}
 	}
+
+	a.highlightlink {
+		text-decoration: none;
+
+		span.iconText {
+			margin-right: 0.1em;
+		}
+	}
 }
