@@ -109,7 +109,6 @@
 							#end
 						<tr>
 							<td headers="studentname" class="specialLink">
-								<h4>
 									<div class="spinnerBesideContainer">
 								#set( $userSpinnerID = "userSpinner_" + $member.Id )
 								#if (!$studentListShowSet.contains($member.Id))
@@ -125,7 +124,6 @@
 										</a>
 										<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
 									</div>
-								</h4>
 							</td>
 							<td colspan="4">
 							</td>
@@ -145,7 +143,6 @@
 										<td headers="studentname"/>
 										<td headers="assignment">
 											#if (!$isAnon)
-											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submissionReference)&option=lisofass2")" title="$validator.escapeHtml($assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
 												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignmentReference) )
@@ -163,7 +160,6 @@
 											#else
 												$validator.escapeHtml($assignment.Title) ($tlang.getString("grading.anonymous.title"))
 											#end
-											</h5>
 										</td>
 										<td headers="submitted">
 											#if ($!submission.submitted)
