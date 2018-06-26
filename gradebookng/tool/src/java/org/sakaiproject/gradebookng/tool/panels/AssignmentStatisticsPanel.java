@@ -15,6 +15,10 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
@@ -22,6 +26,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbAssignmentGradeChart;
+import org.sakaiproject.gradebookng.tool.stats.AssignmentStatistics;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 public class AssignmentStatisticsPanel extends BasePanel {
@@ -49,6 +54,9 @@ public class AssignmentStatisticsPanel extends BasePanel {
 		final GbAssignmentGradeChart chart = new GbAssignmentGradeChart("gradingSchemaChart", assignmentId);
 		add(chart);
 
+		final AssignmentStatistics stats = new AssignmentStatistics("stats", getData(assignment));
+		add(stats);
+
 		add(new GbAjaxLink<Void>("done") {
 			private static final long serialVersionUID = 1L;
 
@@ -58,6 +66,19 @@ public class AssignmentStatisticsPanel extends BasePanel {
 			}
 		});
 
+	}
+
+	/**
+	 * Get the grade data for the assignment and wrap it
+	 *
+	 * @param assignment assignment to get data for
+	 * @return
+	 */
+	private IModel<Map<String, Object>> getData(final Assignment assignment) {
+		final Map<String, Object> data = new HashMap<>();
+		data.put("gradeInfo", this.businessService.buildGradeMatrix(Arrays.asList(assignment)));
+		data.put("assignmentId", assignment.getId());
+		return Model.ofMap(data);
 	}
 
 }
