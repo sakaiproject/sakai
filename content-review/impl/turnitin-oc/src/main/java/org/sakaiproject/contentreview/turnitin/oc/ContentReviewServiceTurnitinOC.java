@@ -276,29 +276,31 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		CONTENT_UPLOAD_HEADERS.putAll(BASE_HEADERS);
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 
-		try {
-			// Get the webhook url
-			String webhookUrl = getWebhookUrl(Optional.empty());
-			boolean webhooksSetup = false;
-			// Check to see if any webhooks have already been set up for this url
-			for (Webhook webhook : getWebhooks()) {
-				log.info("Found webhook: " + webhook.getUrl());
-				if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
-					webhooksSetup = true;
-					break;
+		if(StringUtils.isNotEmpty(apiKey) && StringUtils.isNotEmpty(serviceUrl)) {
+			try {
+				// Get the webhook url
+				String webhookUrl = getWebhookUrl(Optional.empty());
+				boolean webhooksSetup = false;
+				// Check to see if any webhooks have already been set up for this url
+				for (Webhook webhook : getWebhooks()) {
+					log.info("Found webhook: " + webhook.getUrl());
+					if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
+						webhooksSetup = true;
+						break;
+					}
 				}
-			}
 
-			if (!webhooksSetup) {
-				// No webhook set up for this url, set one up
-				log.info("No matching webhook for " + webhookUrl);
-				String id = setupWebhook(webhookUrl);
-				if(StringUtils.isNotEmpty(id)) {
-					log.info("successfully created webhook: " + id);
+				if (!webhooksSetup) {
+					// No webhook set up for this url, set one up
+					log.info("No matching webhook for " + webhookUrl);
+					String id = setupWebhook(webhookUrl);
+					if(StringUtils.isNotEmpty(id)) {
+						log.info("successfully created webhook: " + id);
+					}
 				}
+			} catch (Exception e) {
+				log.error(e.getLocalizedMessage(), e);
 			}
-		} catch (Exception e) {
-			log.error(e.getLocalizedMessage(), e);
 		}
 	}
 
