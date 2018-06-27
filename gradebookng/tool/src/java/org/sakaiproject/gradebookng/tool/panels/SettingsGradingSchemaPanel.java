@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -43,7 +46,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
@@ -53,7 +55,6 @@ import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.user.api.User;
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
@@ -419,13 +420,23 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.map(c -> c.getKey())
 				.collect(Collectors.toList());
 
-		final List<User> users = this.businessService.getUsers(userUuids);
-		Collections.sort(users, new FirstNameComparator());
+		final List<GbUser> users = this.businessService.getGbUsers(userUuids);
+		users.sort(new Comparator<GbUser>() {
+			private final Collator collator;
+			{
+				collator = Collator.getInstance();
+				collator.setStrength(Collator.PRIMARY);
+			}
+			@Override
+			public int compare(GbUser g1, GbUser g2) {
+				return new CompareToBuilder()
+						.append(g1.getFirstName(), g2.getFirstName(), collator)
+						.append(g1.getLastName(), g2.getLastName(), collator)
+						.toComparison();
+			}
+		});
 
-		final List<GbUser> rval = new ArrayList<>();
-		users.forEach(u -> rval.add(new GbUser(u)));
-
-		return rval;
+		return users;
 	}
 
 	/**
@@ -499,8 +510,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		/**
 		 * Refresh the grading schema table
-		 *
-		 * @param target
 		 */
 		private void refreshGradingSchemaTable() {
 			// fetch current data from model, sort and refresh the table
@@ -512,8 +521,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		/**
 		 * Refresh messages
-		 *
-		 * @param target
 		 */
 		private void refreshMessages() {
 
