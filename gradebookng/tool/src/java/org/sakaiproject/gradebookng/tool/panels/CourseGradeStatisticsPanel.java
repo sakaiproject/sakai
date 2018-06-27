@@ -26,6 +26,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 /**
  * Renders the course grade graph in a modal window
@@ -69,12 +70,17 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 	/**
 	 * Get the course grade data for the site and wrap it
 	 *
-	 * @param siteId siteIf to get data for
+	 * @param siteId siteId to get data for
 	 * @return
 	 */
 	private IModel<Map<String, Object>> getData(final String siteId) {
 		final Map<String, Object> data = new HashMap<>();
 		data.put("courseGradeMap", this.businessService.getCourseGrades(siteId));
+
+		final GradebookInformation info = this.businessService.getGradebookSettings(siteId);
+		data.put("gradingSchemaName", info.getGradeScale());
+		data.put("bottomPercents", info.getSelectedGradingScaleBottomPercents());
+
 		return Model.ofMap(data);
 	}
 

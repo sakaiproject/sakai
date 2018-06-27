@@ -21,7 +21,7 @@ public class CourseGradeStatistics extends BaseStatistics {
 
 	private static final long serialVersionUID = 1L;
 	private final Map<String, CourseGrade> courseGradeMap;
-	private final Map<String, Double> gpaScoresMap;
+	private final Map<String, Double> bottomPercents;
 	private final String gradingSchemaName;
 
 	public CourseGradeStatistics(final String id, final IModel<?> model) {
@@ -31,18 +31,25 @@ public class CourseGradeStatistics extends BaseStatistics {
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		this.courseGradeMap = (Map<String, CourseGrade>) modelData.get("courseGradeMap");
 
-		// these are optional
-		// but, gpaScoresMap must be set if Grade Points is the grading schema
+		// these are optional. currently only used for gpa stats
 		this.gradingSchemaName = (String) modelData.get("gradingSchemaName");
-		this.gpaScoresMap = (Map<String, Double>) modelData.get("gpaScoresMap");
+		this.bottomPercents = (Map<String, Double>) modelData.get("bottomPercents");
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new Label("averageGpa", getAverageGPA(getStatistics())));
-		/// TODO hide if null via enclosure
+		// add average GPA but hidden if none
+		add(new Label("averageGpa", getAverageGPA(getStatistics())) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return StringUtils.isNotBlank((String) getDefaultModelObject());
+			}
+		});
 
 	}
 
@@ -78,6 +85,11 @@ public class CourseGradeStatistics extends BaseStatistics {
 			return null;
 		}
 
+		if (this.bottomPercents == null || this.bottomPercents.isEmpty()) {
+			// cannot display averageGpa without bottomPercents
+			return null;
+		}
+
 		if (stats.getN() == 0) {
 			return "-";
 		}
@@ -88,9 +100,7 @@ public class CourseGradeStatistics extends BaseStatistics {
 				.map(c -> (c.getMappedGrade())).collect(Collectors.toList());
 		Double averageGPA = 0.0;
 		for (final String mappedGrade : mappedGrades) {
-			// Note to developers. If you changed GradePointsMapping without changing gpaScoresMap, the average will be incorrect.
-			// As per GradePointsMapping, both must be kept in sync
-			final Double grade = this.gpaScoresMap.get(mappedGrade);
+			final Double grade = this.bottomPercents.get(mappedGrade);
 			if (grade != null) {
 				averageGPA += grade;
 			} else {
@@ -100,7 +110,6 @@ public class CourseGradeStatistics extends BaseStatistics {
 		averageGPA /= mappedGrades.size();
 
 		return String.format("%.2f", averageGPA);
-
 	}
 
 }

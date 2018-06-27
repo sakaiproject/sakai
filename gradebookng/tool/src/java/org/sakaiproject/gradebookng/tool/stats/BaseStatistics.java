@@ -27,6 +27,7 @@ public abstract class BaseStatistics extends Panel {
 
 	public BaseStatistics(final String id, final IModel<?> model) {
 		super(id, model);
+		setOutputMarkupId(true);
 	}
 
 	/**
