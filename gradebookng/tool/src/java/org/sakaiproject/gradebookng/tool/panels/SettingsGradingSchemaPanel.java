@@ -46,8 +46,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
+import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeChart;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -74,7 +74,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	Label unsavedSchema;
 	Label duplicateEntries;
 
-	GbCourseGradeChart chart;
+	CourseGradeChart chart;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -358,7 +358,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		});
 
 		// chart
-		this.chart = new GbCourseGradeChart("gradingSchemaChart", getCurrentSiteId());
+		this.chart = new CourseGradeChart("gradingSchemaChart", getCurrentSiteId());
 		settingsGradingSchemaPanel.add(this.chart);
 	}
 

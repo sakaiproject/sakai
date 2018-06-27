@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.tool.component;
+package org.sakaiproject.gradebookng.tool.chart;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,13 +17,13 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 /**
  * Panel that renders the individual assignment grade charts
  */
-public class GbAssignmentGradeChart extends GbBaseChart {
+public class AssignmentGradeChart extends BaseChart {
 
 	private static final long serialVersionUID = 1L;
 
 	private final long assignmentId;
 
-	public GbAssignmentGradeChart(final String id, final long assignmentId) {
+	public AssignmentGradeChart(final String id, final long assignmentId) {
 		super(id);
 		this.assignmentId = assignmentId;
 	}
@@ -59,12 +59,12 @@ public class GbAssignmentGradeChart extends GbBaseChart {
 		final GbChartData data = new GbChartData();
 
 		// Add 0-50% range
-		data.add(buildRangeLabel(0, 50));
+		data.addZeroed(buildRangeLabel(0, 50));
 
 		// Add all ranges from 50 up to 100 in increments of 10.
 		final int range = 10;
 		for (int start = 50; start < 100; start = start + range) {
-			data.add(buildRangeLabel(start, start + range));
+			data.addZeroed(buildRangeLabel(start, start + range));
 		}
 
 		for (final Double grade : allGrades) {
@@ -80,7 +80,7 @@ public class GbAssignmentGradeChart extends GbBaseChart {
 				percentage = grade / assignment.getPoints() * 100;
 			}
 
-			//determine key for this grade
+			// determine key for this grade
 			final int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
 
 			int start = total * range;
@@ -117,7 +117,6 @@ public class GbAssignmentGradeChart extends GbBaseChart {
 	private String buildRangeLabel(final int start, final int end) {
 		return new StringResourceModel("label.statistics.chart.range", null, start, end).getString();
 	}
-
 
 	/**
 	 * Check if a grade is considered extra credit

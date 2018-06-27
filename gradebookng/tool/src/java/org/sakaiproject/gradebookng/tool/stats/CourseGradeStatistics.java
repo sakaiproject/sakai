@@ -41,7 +41,7 @@ public class CourseGradeStatistics extends BaseStatistics {
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new Label("average", getAverageGPA(getStatistics())));
+		add(new Label("averageGpa", getAverageGPA(getStatistics())));
 		/// TODO hide if null via enclosure
 
 	}

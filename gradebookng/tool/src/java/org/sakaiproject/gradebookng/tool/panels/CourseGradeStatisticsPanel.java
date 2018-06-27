@@ -23,8 +23,8 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeChart;
 import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
 
 /**
@@ -48,9 +48,9 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 
 		final String siteId = ((Model<String>) getDefaultModel()).getObject();
 
-		CourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.coursegrade.title"));
+		CourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final GbCourseGradeChart chart = new GbCourseGradeChart("gradingSchemaChart", siteId);
+		final CourseGradeChart chart = new CourseGradeChart("gradingSchemaChart", siteId);
 		add(chart);
 
 		final CourseGradeStatistics stats = new CourseGradeStatistics("stats", getData(siteId));

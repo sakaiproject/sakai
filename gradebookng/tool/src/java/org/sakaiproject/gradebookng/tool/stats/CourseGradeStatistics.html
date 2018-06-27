@@ -3,8 +3,11 @@
 
 <body>
 	<wicket:extend>
-		<dt>asdfasdf</dt>
-		<dd>asdfasdfasdfasdf</dd>
+		
+		<wicket:enclosure child="averageGpa">
+			<dt><wicket:message key="label.statistics.averagegpa"></wicket:message></dt>
+			<dd wicket:id="averageGpa"></dd>
+		</wicket:enclosure>
 
 	</wicket:extend>
 </body>
