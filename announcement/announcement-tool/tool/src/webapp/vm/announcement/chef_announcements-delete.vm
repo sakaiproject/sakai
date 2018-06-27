@@ -1,5 +1,17 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-delete.vm,v 1.2 2005/05/15 04:54:19 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
+	#if ($isOnWorkspaceTab.equals("false") && $menu && $EnabledMenuItemExists)
+		#if ($toolId == "sakai.synoptic.announcement")
+			<ul class="navIntraTool actionToolBar" role="menu">
+				<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$tlang.getString("gen.recopt")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+					$tlang.getString("custom.options")
+					<span class="skip">$toolTitle</span>
+				</a></span></li>
+			</ul>
+		#else
+			#toolbar($menu)
+		#end
+	#end
 	<h3>
 		$tlang.getString("del.deleting")
 	</h3>

@@ -51,6 +51,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.announcement.tool.MenuBuilder.ActiveTab;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -60,11 +61,6 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.api.Menu;
-import org.sakaiproject.cheftool.api.MenuItem;
-import org.sakaiproject.cheftool.menu.MenuDivider;
-import org.sakaiproject.cheftool.menu.MenuEntry;
-import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -123,11 +119,11 @@ public class AnnouncementAction extends PagedResourceActionII
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("announcement");
 
-	private static final String CONTEXT_ENABLED_MENU_ITEM_EXISTS = "EnabledMenuItemExists";
+	public static final String CONTEXT_ENABLED_MENU_ITEM_EXISTS = "EnabledMenuItemExists";
 
-	private static final String CONTEXT_ENABLE_ITEM_CHECKBOXES = "EnableItemCheckBoxes";
+	public static final String CONTEXT_ENABLE_ITEM_CHECKBOXES = "EnableItemCheckBoxes";
 
-	private static final String ENABLED_MENU_ITEM_EXISTS = CONTEXT_ENABLED_MENU_ITEM_EXISTS;
+	public static final String ENABLED_MENU_ITEM_EXISTS = CONTEXT_ENABLED_MENU_ITEM_EXISTS;
 
 	private static final String NOT_SELECTED_FOR_REVISE_STATUS = "noSelectedForRevise";
 
@@ -144,6 +140,16 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String REORDER_STATUS = "reorder";
 
 	private static final String OPTIONS_STATUS = "options";
+
+	private static final String LIST_STATUS = "view";
+
+	private static final String VIEW_STATUS = "showMetadata";
+
+	private static final String ADD_STATUS = "new";
+
+	private static final String EDIT_STATUS = "goToReviseAnnouncement";
+
+	private static final String DELETE_STATUS = "deleteAnnouncement";
 
 	private static final String SSTATE_NOTI_VALUE = "noti_value";
 
@@ -172,13 +178,13 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private static final String VELOCITY_DISPLAY_OPTIONS = CONTEXT_VAR_DISPLAY_OPTIONS;
 
-	private static final String PERMISSIONS_BUTTON_HANDLER = "doPermissions";
+	public static final String PERMISSIONS_BUTTON_HANDLER = "doPermissions";
 	
-	private static final String REORDER_BUTTON_HANDLER = "doReorder";
+	public static final String REORDER_BUTTON_HANDLER = "doReorder";
 	
-	private static final String REFRESH_BUTTON_HANDLER = "doCancel";
+	public static final String REFRESH_BUTTON_HANDLER = "doCancel";
 
-	private static final String MERGE_BUTTON_HANDLER = "doMerge";
+	public static final String MERGE_BUTTON_HANDLER = "doMerge";
 
 	private static final String SSTATE_ATTRIBUTE_MERGED_CHANNELS = "mergedChannels";
 
@@ -224,6 +230,9 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
  
    private static final String UPDATE_PERMISSIONS = "site.upd";
+
+   public static final String SAK_PROP_ANNC_REORDER = "sakai.announcement.reorder";
+   public static final boolean SAK_PROP_ANNC_REORDER_DEFAULT = true;
 	
 	private final String TAB_EXCLUDED_SITES = "exclude";
 
@@ -257,7 +266,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	public String getCurrentOrder() {
 		
-		boolean enableReorder=serverConfigurationService.getBoolean("sakai.announcement.reorder", true);
+		boolean enableReorder=serverConfigurationService.getBoolean(SAK_PROP_ANNC_REORDER, SAK_PROP_ANNC_REORDER_DEFAULT);
 		String sortCurrentOrder = SORT_DATE;
 		if (enableReorder){
 			sortCurrentOrder=SORT_MESSAGE_ORDER;
@@ -1154,7 +1163,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		AnnouncementActionState.DisplayOptions displayOptions = state.getDisplayOptions();
 		
-		if(statusName=="showMetadata" && channel!=null)
+		if(VIEW_STATUS.equals(statusName) && channel != null)
 		{
 			String messageReference = state.getMessageReference();
 			AnnouncementMessage message;
@@ -1173,9 +1182,43 @@ public class AnnouncementAction extends PagedResourceActionII
 		boolean showMerge = !isMotd(channelId) && isOkToShowMergeButton(statusName);
 		boolean showPermissions = !isMotd(channelId) && isOkToShowPermissionsButton(statusName);
 		boolean showOptions = this.isOkToShowOptionsButton(statusName);
-		buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, showMerge,
-					showPermissions, showOptions, displayOptions);
-			
+
+		ActiveTab activeTab = ActiveTab.LIST;
+		if(statusName != null) switch(statusName) {
+			case VIEW_STATUS:
+				activeTab = ActiveTab.VIEW;
+				break;
+			case LIST_STATUS:
+				activeTab = ActiveTab.LIST;
+				break;
+			case CANCEL_STATUS:
+				activeTab = ActiveTab.LIST;
+				break;
+			case ADD_STATUS:
+				activeTab = ActiveTab.ADD;
+				break;
+			case MERGE_STATUS:
+				activeTab = ActiveTab.MERGE;
+				break;
+			case REORDER_STATUS:
+				activeTab = ActiveTab.REORDER;
+				break;
+			case OPTIONS_STATUS:
+				activeTab = ActiveTab.OPTIONS;
+				break;
+			case EDIT_STATUS:
+				activeTab = ActiveTab.EDIT;
+				break;
+			case DELETE_STATUS:
+				activeTab = ActiveTab.DELETE;
+				break;
+		}
+
+		// "View" announcement menu bar has already been built by this point (buildShowMetadataContext)
+		if( !ActiveTab.VIEW.equals(activeTab)) {
+			MenuBuilder.buildMenuForGeneral(portlet, rundata, activeTab, rb, context, menu_new, showMerge, showPermissions, showOptions, displayOptions);
+		}
+
 		// added by zqian for toolbar
 		context.put("allow_new", Boolean.valueOf(menu_new));
 		context.put("allow_delete", Boolean.valueOf(menu_delete));
@@ -1316,12 +1359,12 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			template = buildDeleteAnnouncementContext(portlet, context, rundata, state);
 		}
-		else if (statusName.equals("showMetadata"))
+		else if (statusName.equals(VIEW_STATUS))
 		{
 			template = buildShowMetadataContext(portlet, context, rundata, state, sstate);
 		}
 		else if ((statusName.equals("goToReviseAnnouncement")) || (statusName.equals("backToReviseAnnouncement"))
-				|| (statusName.equals("new")) || (statusName.equals("stayAtRevise")))
+				|| (ADD_STATUS.equals(statusName)) || ("stayAtRevise".equals(statusName)))
 		{
 			template = buildReviseAnnouncementContext(portlet, context, rundata, state, sstate);
 		}
@@ -1406,10 +1449,6 @@ public class AnnouncementAction extends PagedResourceActionII
 				|| selectedMessageReference.length() == 0)
 		{
 			return true;
-		}
-		if (state.getStatus().equals(MERGE_STATUS))
-		{
-			return false;
 		}
 		else
 		{
@@ -2080,7 +2119,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		List attachments = state.getAttachments();
 
 		// if this a new annoucement, get the subject and body from temparory record
-		if (state.getStatus().equals("new"))
+		if (state.getStatus().equals(ADD_STATUS))
 		{
 			context.put("new", "true");
 			context.put("tempSubject", state.getTempSubject());
@@ -2418,13 +2457,11 @@ public class AnnouncementAction extends PagedResourceActionII
                             context.put("assignmenttitle", assignData.get("assignmentTitle"));
 			}
 
-			// check the state status to decide which vm to render
-			String statusName = state.getStatus();
-
-			AnnouncementActionState.DisplayOptions displayOptions = state.getDisplayOptions();
-
-			buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
-					this.isOkToShowPermissionsButton(statusName), this.isOkToShowOptionsButton(statusName), displayOptions);
+			ActiveTab activeTab = ActiveTab.VIEW;
+			if (EDIT_STATUS.equals(state.getStatus())) {
+				activeTab = ActiveTab.EDIT;
+			}
+			MenuBuilder.buildMenuForMetaDataView(portlet, rundata, state.getDisplayOptions(), activeTab, rb, context, menu_new, menu_revise, menu_delete);
 
 			context.put("allow_new", Boolean.valueOf(menu_new));
 			context.put("allow_delete", Boolean.valueOf(menu_delete));
@@ -2597,7 +2634,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		state.setIsListVM(false);
 		state.setIsNewAnnouncement(false);
-		state.setStatus("showMetadata");
+		state.setStatus(VIEW_STATUS);
 
 		// disable auto-updates while in view mode
 		disableObservers(sstate);
@@ -2663,7 +2700,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setIsNewAnnouncement(true);
 		state.setTempBody("");
 		state.setTempSubject("");
-		state.setStatus("new");
+		state.setStatus(ADD_STATUS);
 
 		sstate.setAttribute(AnnouncementAction.SSTATE_PUBLICVIEW_VALUE, null);
 		sstate.setAttribute(AnnouncementAction.SSTATE_NOTI_VALUE, null);
@@ -3515,14 +3552,14 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			if (log.isDebugEnabled()) log.debug("{}announcementRevise", this, e);
-			state.setStatus("showMetadata");
+			state.setStatus(VIEW_STATUS);
 		}
 		catch (InUseException err)
 		{
 			if (log.isDebugEnabled()) log.debug("{}.doReviseannouncementfrommenu", this, err);
 			addAlert(sstate, rb.getString("java.alert.thisitem"));
 			// "This item is being edited by another user. Please try again later.");
-			state.setStatus("showMetadata");
+			state.setStatus(VIEW_STATUS);
 		}
 		state.setIsNewAnnouncement(false);
 
@@ -3606,7 +3643,7 @@ public class AnnouncementAction extends PagedResourceActionII
 							log.debug("{}.doReviseannouncementfrommenu", this, err);
 						addAlert(sstate, rb.getString("java.alert.thisis"));
 						state.setIsListVM(false);
-						state.setStatus("showMetadata");
+						state.setStatus(VIEW_STATUS);
 
 						// make sure auto-updates are enabled
 						disableObservers(sstate);
@@ -3666,7 +3703,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (log.isDebugEnabled()) log.debug("{}.doReviseannouncementfrommenu", this, err);
 				addAlert(sstate, rb.getString("java.alert.thisis"));
 				state.setIsListVM(false);
-				state.setStatus("showMetadata");
+				state.setStatus(VIEW_STATUS);
 
 				// disable auto-updates while in view mode
 				disableObservers(sstate);
@@ -3917,168 +3954,6 @@ public class AnnouncementAction extends PagedResourceActionII
 	} // doSortbyfor
 
 	// ********* ending for sorting *********
-
-	/**
-	 * Action is to parse the function calls
-	 */
-	/*
-	 * public void doParse_list_announcement(RunData data, Context context) { SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid()); ParameterParser params = data.getParameters(); String source =
-	 * params.getString("source"); if (source.equalsIgnoreCase("new")) { // create new announcement doNewannouncement(data, context); } else if (source.equalsIgnoreCase("revise")) { // revise announcement doReviseannouncementfrommenu(data, context); }
-	 * else if (source.equalsIgnoreCase("delete")) { // delete announcement doDeleteannouncement(data, context); } } // doParse_list_announcement
-	 */
-
-	private int seperatorMatrix(boolean a, boolean b, boolean c)
-	{
-		int i = 0;
-		if (a) i = i + 100;
-		if (b) i = i + 10;
-		if (c) i = i + 1;
-
-		if (i == 111) return 11;
-		if ((i == 110) || (i == 101)) return 10;
-		if (i == 11) return 1;
-		if ((i == 100) || (i == 10) || (i == 1) || (i == 0)) return 0;
-		return 11;
-	}
-
-	/**
-	 * Build the menu.
-	 */
-	private void buildMenu(VelocityPortlet portlet, Context context, RunData rundata, AnnouncementActionState state,
-			boolean menu_new, boolean menu_delete, boolean menu_revise, boolean menu_merge, boolean menu_permissions,
-			boolean menu_options, AnnouncementActionState.DisplayOptions displayOptions)
-	{
-		Menu bar = new MenuImpl(portlet, rundata, "AnnouncementAction");
-		boolean buttonRequiringCheckboxesPresent = false;
-		Properties placementProperties = ToolManager.getCurrentPlacement().getPlacementConfig();
-		String sakaiReorderProperty= serverConfigurationService.getString("sakai.announcement.reorder", "true");
-
-        String statusName = state.getStatus();
-
-		//if (!displayOptions.isShowOnlyOptionsButton()) ##SAK-13434
-		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
-		{
-			if (statusName != null)
-			{
-				if (statusName.equals("showMetadata"))
-				{
-					boolean s1 = true;
-					boolean s2 = true;
-					// int m = seperatorMatrix(menu_new, menu_delete, menu_revise);
-					int m = seperatorMatrix(menu_new, menu_revise, menu_delete);
-					if (m == 10) s2 = false; // 10
-					if (m == 1) s1 = false; // 01
-					if (m == 0) s1 = s2 = false; // 00
-
-					bar.add(new MenuEntry(rb.getString("gen.new"), null, menu_new, MenuItem.CHECKED_NA, "doNewannouncement"));
-					if (s1) bar.add(new MenuDivider());
-					bar.add(new MenuEntry(rb.getString("gen.revise"), null, menu_revise, MenuItem.CHECKED_NA,
-							"doReviseannouncementfrommenu"));
-					if (s2) bar.add(new MenuDivider());
-					bar.add(new MenuEntry(rb.getString("gen.delete2"), null, menu_delete, MenuItem.CHECKED_NA,
-							"doDeleteannouncement"));
-					buttonRequiringCheckboxesPresent = true;
-				}
-				else
-				{
-					buttonRequiringCheckboxesPresent = true;
-
-				} // if (statusName.equals("showMetadata"))
-			}
-			else
-			{
-				buttonRequiringCheckboxesPresent = true;
-			} // if-else (statusName != null)
-		} // if-else (!displayOptions.isShowOnlyOptionsButton())
-
-		if (statusName == null) statusName = "view";
-
-		MenuEntry home = new MenuEntry(rb.getString("java.refresh"), REFRESH_BUTTON_HANDLER);
-		if (statusName.equals("view") || statusName.equals(CANCEL_STATUS)) home.setIsCurrent(true);
-		bar.add(home);
-
-		if (menu_new) {
-			MenuEntry add = new MenuEntry(rb.getString("gen.new"), null, menu_new, MenuItem.CHECKED_NA, "doNewannouncement");
-			if (statusName.equals("new")) add.setIsCurrent(true);
-			bar.add(add);
-		}
-
-		if (menu_merge) {
-			MenuEntry merge = new MenuEntry(rb.getString("java.merge"), MERGE_BUTTON_HANDLER);
-			if (statusName.equals(MERGE_STATUS)) merge.setIsCurrent(true);
-			bar.add(merge);
-		}
-		
-		//re-orderer link in the announcementlist view
-		MenuEntry reorder = new MenuEntry(rb.getString("java.reorder"), REORDER_BUTTON_HANDLER);
-		if (statusName.equals(REORDER_STATUS)) reorder.setIsCurrent(true);
-		if ((placementProperties.containsKey("enableReorder")
-				&& placementProperties.getProperty("enableReorder").equalsIgnoreCase("true")) 
-				&& menu_new && state.getStatus()!="showMetadata")
-		{
-			bar.add(reorder);
-		}
-		else if ((!placementProperties.containsKey("enableReorder")
-					|| !placementProperties.getProperty("enableReorder").equalsIgnoreCase("false"))
-						&& menu_new && state.getStatus() != "showMetadata")
-		{			
-			if (sakaiReorderProperty.equalsIgnoreCase("true")){
-				bar.add(reorder);
-			}
-		}
-
-		// add options if allowed
-		if (menu_options)
-		{
-			addOptionsMenu(bar, (JetspeedRunData) rundata);
-			MenuEntry options = (MenuEntry) bar.getItem(bar.size() - 1);
-			if (statusName.equals(OPTIONS_STATUS)) options.setIsCurrent(true);
-		}
-
-		// let the permissions button to be the last one in the toolbar
-		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
-		{
-			// add permissions, if allowed
-			if (menu_permissions)
-			{
-				bar.add(new MenuEntry(rb.getString("java.permissions"), PERMISSIONS_BUTTON_HANDLER));
-			}
-		}
-
-		// Set menu state attribute
-		SessionState stateForMenus = ((JetspeedRunData) rundata).getPortletSessionState(portlet.getID());
-		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
-
-		Iterator it = bar.getItems().iterator();
-
-		// See if we have any enabled menu items.
-		boolean enabledItemExists = false;
-
-		while (it.hasNext())
-		{
-			MenuItem menuItem = (MenuItem) it.next();
-			if (menuItem.getIsEnabled())
-			{
-				enabledItemExists = true;
-				break;
-			}
-		}
-
-		// Set a flag in the context to indicate that at least one menu item is enabled.
-		context.put(ENABLED_MENU_ITEM_EXISTS, Boolean.valueOf(enabledItemExists));
-
-		context.put(CONTEXT_ENABLE_ITEM_CHECKBOXES, Boolean.valueOf(enabledItemExists && buttonRequiringCheckboxesPresent));
-		context.put(CONTEXT_ENABLED_MENU_ITEM_EXISTS, Boolean.valueOf(enabledItemExists));
-
-		context.put(Menu.CONTEXT_MENU, bar);
-		context.put(Menu.CONTEXT_ACTION, "AnnouncementAction");
-		context.put("tlang", rb);
-		
-		//SAK-19700 put name of tool into context so it can be rendered with the option link, for screenreaders
-		context.put("toolTitle", ToolManager.getCurrentPlacement().getTitle());
-
-	} // buildMenu
-
 	/*
 	 * what i've done to make this tool automaticlly updated includes some corresponding imports in buildMail, tell observer just the page is just refreshed in the do() functions related to show the list, enable the obeserver in other do() functions
 	 * related to not show the list, disable the obeserver in the do(), define the session sstate object, and protlet. add initState add updateObservationOfChannel() add state attribute STATE_CHANNEL_REF
