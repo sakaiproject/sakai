@@ -32,7 +32,7 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
 /* Color palette */
 $background-color: 			 #FFFFFF !default;
-$background-color-secondary: #3949AB !default;
+$background-color-secondary: #000036 !default;
 
 $primary-color:    			 #265b81 !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
@@ -41,6 +41,7 @@ $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
 
 $text-color:				 #212121 !default;
+$text-color-disabled:		 #767676 !default;
 
 $body-background-color: #FAFAFA !default;
 
@@ -141,7 +142,7 @@ $header-size: 50px !default;
 $topNav-text-color:                         #fff !default; /* used for links and text in the topNav */
 $topNav-text-alt-color:                     #ccc !default;
 
-/* Favorites */ 
+/* Favorites */
 /* Favorites - item */
 $sites-nav-menu-item-background:            #FFFFFF !default;
 $sites-nav-menu-item-color:                 #4C4C4C !default;
@@ -297,23 +298,24 @@ $tool-menu-item-selected-hover-icon-color:                 #15597e !default;
 $tool-menu-item-selected-hover-background-color:           #FFFFFF !default;
 $tool-menu-item-selected-hover-border-left:                4px solid #15597e !default;
 
-$tool-menu-collapse-text-color:                            #4C4C4C !default;
-$tool-menu-collapse-background-color:                      #FAFAFA !default;
+$tool-menu-collapse-text-color:                            $tool-menu-item-text-color !default;
+$tool-menu-collapse-icon-color:                            $tool-menu-item-text-color !default;
+$tool-menu-collapse-background-color:                      $tool-menu-item-background-color !default;
 $tool-menu-collapse-border-top:                            none !default;
 $tool-menu-collapse-shadow:                                0 -1px 3px rgba(0,0,0,0.3) !default;
-$tool-menu-collapse-hover-text-color:                      #191919 !default;
-$tool-menu-collapse-hover-background-color:                #FAFAFA !default;
-$tool-menu-collapse-hover-border-top:                      none !default;
-$tool-menu-collapse-hover-shadow:                          0 -1px 3px rgba(0,0,0,0.3) !default;
-$tool-menu-collapse-active-text-color:                     #FFFFFF !default;
-$tool-menu-collapse-active-background-color:               #15597e !default;
-$tool-menu-collapse-active-icon-color:                     $tool-menu-collapse-active-text-color !default;
-$tool-menu-collapse-active-border-top:                     none !default;
-$tool-menu-collapse-active-shadow:                         0 -1px 3px rgba(0,0,0,0.3) !default;
-$tool-menu-collapse-active-hover-text-color:               #FFFFFF !default;
-$tool-menu-collapse-active-hover-background-color:         #15597e !default;
-$tool-menu-collapse-active-hover-border-top:               none !default;
-$tool-menu-collapse-active-hover-shadow:                   0 -1px 3px rgba(0,0,0,0.3) !default;
+$tool-menu-collapse-hover-text-color:                      $tool-menu-item-hover-text-color !default;
+$tool-menu-collapse-hover-background-color:                $tool-menu-item-hover-background-color !default;
+$tool-menu-collapse-hover-border-top:                      $tool-menu-collapse-border-top !default;
+$tool-menu-collapse-hover-shadow:                          $tool-menu-collapse-shadow !default;
+$tool-menu-collapse-min-text-color:                        $tool-menu-collapse-text-color !default;
+$tool-menu-collapse-min-icon-color:                        $tool-menu-collapse-min-text-color !default;
+$tool-menu-collapse-min-background-color:                  $tool-menu-collapse-background-color !default;
+$tool-menu-collapse-min-border-top:                        $tool-menu-collapse-border-top !default;
+$tool-menu-collapse-min-shadow:                            $tool-menu-collapse-shadow !default;
+$tool-menu-collapse-min-hover-text-color:                  $tool-menu-collapse-hover-text-color !default;
+$tool-menu-collapse-min-hover-background-color:            $tool-menu-collapse-hover-background-color !default;
+$tool-menu-collapse-min-hover-border-top:                  $tool-menu-collapse-border-top !default;
+$tool-menu-collapse-min-hover-shadow:                      $tool-menu-collapse-shadow !default;
 
 /* Tool sub menu */
 $tool-sub-menu-border-color: darken( $tool-menu-background-color, 10% ) !default;
@@ -332,12 +334,15 @@ $hierarchy-size: 3.5em !default;
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
 
+/* The standard spacing for items in Sakai */
+$standard-spacing: 10px !default;
+
 $banner-height: 52px !default;
 
 /* Logo location */
-$logo: 'images/logo.png' !default;
+$logo: 'images/logo-jewel.png' !default;
 $logo-height: 36px !default;
-$logo-width: 60px !default;
+$logo-width: 126px !default;
 
 /* Tool icons */
 $skin-with-icons: true !default;
@@ -365,5 +370,11 @@ $overview-portlet-title-background-color: $tool-tab-background-color !default;
 
 $instruction-color: #5c5c5c !default;
 $instruction-background-color: #fff !default;
+
+// Accessibility
+// This should be visible based on your button colors and is based on webkit's default
+
+$focus-outline-color: #5b9dd9;
+
 
 @import url(#{$font-family-url});

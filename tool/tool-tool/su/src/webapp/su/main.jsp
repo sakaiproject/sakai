@@ -32,7 +32,7 @@
                 <tr><th scope="row"><h:outputText value="#{msgs.eid}" /></th><td><h:outputText value="#{SuTool.userinfo.eid}" /></td></tr>
                 <tr><th scope="row"><h:outputText value="#{msgs.id}" /></th><td><h:outputText value="#{SuTool.userinfo.id}" /></td></tr>
                 <tr><th scope="row"><h:outputText value="#{msgs.type}" /></th><td><h:outputText value="#{SuTool.userinfo.type}" /></td></tr>
-                <tr><th scope="row"><h:outputText value="#{msgs.created}" /></th><td><h:outputText value="#{SuTool.userinfo.createdTime.display}" /></td></tr>
+                <tr><th scope="row"><h:outputText value="#{msgs.created}" /></th><td><h:outputText value="#{SuTool.userCreatedTime}" /></td></tr>
             </table>
         <h:outputText rendered="#{SuTool.userinfo == null}" escape="false" value="</div>" />
 

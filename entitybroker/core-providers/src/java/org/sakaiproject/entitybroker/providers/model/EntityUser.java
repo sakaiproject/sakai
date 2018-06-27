@@ -33,7 +33,6 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -84,7 +83,7 @@ public class EntityUser implements User {
         this.displayName = user.getDisplayName();
         this.displayId = user.getDisplayId();
         this.owner = user.getCreatedBy() == null ? null : "/user/" + user.getCreatedBy().getId();
-        this.lastModified = user.getModifiedTime() == null ? System.currentTimeMillis() : user.getModifiedTime().getTime();
+        this.lastModified = user.getModifiedDate() == null ? System.currentTimeMillis() : user.getModifiedDate().getTime();
         this.type = user.getType();
         ResourceProperties rp = user.getProperties();
         for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
@@ -224,13 +223,6 @@ public class EntityUser implements User {
         throw new UnsupportedOperationException();
     }
 
-    public Time getCreatedTime() {
-        if (user != null) {
-            return user.getCreatedTime();
-        }
-        throw new UnsupportedOperationException();
-    }
-
     public Date getCreatedDate() {
         if (user != null) {
             return user.getCreatedDate();
@@ -249,12 +241,6 @@ public class EntityUser implements User {
         throw new UnsupportedOperationException();
     }
 
-    public Time getModifiedTime() {
-        if (user != null) {
-            return user.getModifiedTime();
-        }
-        throw new UnsupportedOperationException();
-    }
 
     public Date getModifiedDate() {
         if (user != null) {

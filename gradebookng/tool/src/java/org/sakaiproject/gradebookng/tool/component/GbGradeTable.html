@@ -13,7 +13,7 @@
                 <div class="gb-grade-item-flags">
                     {if settings.isCourseGradeReleased}
                     <span class="gb-flag-released" wicket:message="title:label.coursegrade.released">
-                        {if settings.instructor}
+                        {if settings.isUserAbleToEditAssessments}
                             <span aria-hidden="true" style="display:none;" class="gb-tooltip-extras">
                                 <div>
                                     <a href="javascript:void(0);" class="gb-gradebook-settings"><wicket:message key="label.coursegrade.editsettings"/></a>
@@ -23,7 +23,7 @@
                     </span>
                     {else}
                     <span class="gb-flag-not-released" wicket:message="title:label.coursegrade.notreleased">
-                        {if settings.instructor}
+                        {if settings.isUserAbleToEditAssessments}
                             <span aria-hidden="true" style="display:none;" class="gb-tooltip-extras">
                                 <div>
                                     <a href="javascript:void(0);" class="gb-gradebook-settings"><wicket:message key="label.coursegrade.editsettings"/></a>
@@ -33,7 +33,7 @@
                     </span>
                     {/if}
                 </div>
-                {if settings.instructor}
+                {if settings.isUserAbleToEditAssessments}
                     <div class="btn-group">
                         <a class="btn btn-sm btn-default dropdown-toggle"
                            data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
@@ -54,6 +54,7 @@
                                     </a>
                                 </li>
                             {/if}
+                        		<li><a href="javascript:void(0);" class="gb-view-course-grade-statistics" role="menuitem"><wicket:message key="coursegrade.option.viewcoursegradestatistics" /></a></li>
                         </ul>
                     </div>
                 {/if}
@@ -73,6 +74,9 @@
                 {var tooltip = title.replace(/"/g, '&quot;')}
                 <a class="gb-title" title="${tooltip}">
                     ${abbrevTitle}
+                    {if hasAssociatedRubric}
+                        <span class="fa fa-fw fa-table" wicket:message="title:rubrics.question_use_rubric"></span>
+                    {/if}
                 </a>
                 {if settings.isCategoriesEnabled}
                     {if categoryId}
@@ -125,19 +129,19 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                        {if settings.instructor}
+                        {if settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="edit-assignment-details" role="menuitem"><wicket:message key="assignment.option.edit" /></a></li>
                         {/if}
                         <li><a href="javascript:void(0);" class="gb-view-statistics" role="menuitem"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
-                        {if settings.instructor}
+                        {if settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-move-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-move-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
                         {/if}
-                        {if !externallyMaintained && settings.instructor}
+                        {if !externallyMaintained && settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-set-ungraded" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
                         {/if}
                         <li><a href="javascript:void(0);" class="gb-hide-column" role="menuitem" data-assignmentid="${assignmentId}"><wicket:message key="assignment.option.hide" /></a></li>
-                        {if !externallyMaintained && settings.instructor}
+                        {if !externallyMaintained && settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-delete-item" role="menuitem"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
                         {/if}
                     </ul>
@@ -165,6 +169,9 @@
                         {/if}
                     </span>
                 </a>
+                {for info in dropInfo}
+                <div class="gb-drop-info">${info}</div>
+                {/for}
                 <div class="btn-group">
                     <a class="btn btn-sm btn-default dropdown-toggle"
                        data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
@@ -232,6 +239,7 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li class="{if !hasAssociatedRubric} hidden {/if}"><a class="gb-grade-rubric" href="#" role="menuitem"><wicket:message key="rubrics.option.graderubric" /></a></li>
                         <li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
                         <li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
                     </ul>
@@ -243,7 +251,7 @@
                 <span class="gb-value {if isOverridden} gb-overridden {/if}">
                     ${value}
                 </span>
-                {if GbGradeTable.settings.instructor}
+                {if GbGradeTable.settings.isUserAbleToEditAssessments}
                     <div class="btn-group">
                         <a class="btn btn-sm btn-default dropdown-toggle"
                            data-toggle="dropdown" href="#" role="button" aria-haspopup="true"

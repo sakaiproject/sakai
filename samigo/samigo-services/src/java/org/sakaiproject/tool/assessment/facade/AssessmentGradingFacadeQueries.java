@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -95,10 +96,10 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -142,7 +143,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     public void setPersistenceHelper(PersistenceHelper persistenceHelper) {
         this.persistenceHelper = persistenceHelper;
     }
-
 
     /**
      * @param publishedId
@@ -1102,8 +1102,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
     }
 
-    public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) {
+    public boolean saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) {
         int retryCount = persistenceHelper.getRetryCount();
+        boolean success = false;
         while (retryCount > 0) {
             try {
                 if (assessment.getAssessmentGradingId() != null) {
@@ -1113,11 +1114,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     getHibernateTemplate().save((AssessmentGradingData) assessment);
                 }
                 retryCount = 0;
+				success = true;
             } catch (Exception e) {
                 log.warn("problem inserting/updating assessmentGrading: {}", e.getMessage());
                 retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
+        return success;
     }
 
     private byte[] getMediaStream(Long mediaId) {
@@ -1423,24 +1426,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
     public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(final Long publishedAssessmentId) {
-        List<AssessmentGradingData> aList = getAllSubmissions(publishedAssessmentId.toString());
-        Map<Long, AssessmentGradingData> aHash = aList.stream()
+        Map<Long, AssessmentGradingData> submissionDataMap = getAllSubmissions(publishedAssessmentId.toString()).stream()
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(AssessmentGradingData::getAssessmentGradingId, a -> a));
 
         final HibernateCallback<List<ItemGradingData>> hcb = session -> {
             Query q = session.createQuery(
                     "select new ItemGradingData(i.itemGradingId, a.assessmentGradingId) " +
                             " from ItemGradingData i, AssessmentGradingData a " +
-                            " where i.assessmentGradingId=a.assessmentGradingId " +
-                            " and a.publishedAssessmentId = :id");
+                            " where i.assessmentGradingId = a.assessmentGradingId " +
+                            " and a.publishedAssessmentId = :id " +
+                            " and a.forGrade = :forgrade ");
             q.setLong("id", publishedAssessmentId);
+            q.setBoolean("forgrade", true);
             return q.list();
         };
         List<ItemGradingData> l = getHibernateTemplate().execute(hcb);
 
-        return l.stream()
-                .collect(Collectors.toMap(ItemGradingData::getItemGradingId,
-                        p -> aHash.get(p.getAssessmentGradingId())));
+        return l.stream().filter(i -> Objects.nonNull(submissionDataMap.get(i.getAssessmentGradingId())))
+                .collect(Collectors.toMap(ItemGradingData::getItemGradingId, g -> submissionDataMap.get(g.getAssessmentGradingId())));
     }
 
     public void deleteAll(Collection c) {
@@ -2034,6 +2038,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
 
             if (canBeExported) {
+
+                Date attempt = assessmentGradingData.getAttemptDate();
+                Date submitted = assessmentGradingData.getSubmittedDate();
+                responseList.add(attempt == null ? "" : attempt);
+                responseList.add(submitted == null ? "" : submitted);
+
                 int sectionScoreColumnStart = responseList.size();
                 if (showPartAndTotalScoreSpreadsheetColumns) {
                     Double finalScore = assessmentGradingData.getFinalScore();
@@ -2989,8 +2999,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         AssessmentGradingData adata = null;
         Map sectionSetMap = new HashMap();
 
-        EventLogService eventService = new EventLogService();
-        EventLogFacade eventLogFacade = new EventLogFacade();
+
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
         GradebookExternalAssessmentService g = null;
@@ -3008,12 +3017,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             updateGrades = true;
         }
         boolean autoSubmitCurrent;
-        boolean updateCurrentGrade;
+        Integer scoringType;
         int failures = 0;
+        
         while (iter.hasNext()) {
 
             autoSubmitCurrent = false;
-            updateCurrentGrade = false;
+            scoringType = -1;
 
             try {
                 adata = (AssessmentGradingData) iter.next();
@@ -3025,6 +3035,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
                     PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
                             adata.getPublishedAssessmentId());
+                    scoringType = assessment.getEvaluationModel().getScoringType();
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
                     Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
                     Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
@@ -3067,28 +3078,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     }
 
                     autoSubmitCurrent = true;
-                    updateCurrentGrade = true;
                     adata.setIsAutoSubmitted(Boolean.TRUE);
                     if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
                             && lastAgentId.equals(adata.getAgentId())) {
                         adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-
-                        // Check: needed updating gradebook
-                        // If the assessment is configured with highest score and exists a previous submission with higher score
-                        // this submission doesn't have to be sent to gradebook
-
-                        if (assessment.getEvaluationModel().getScoringType().equals(EvaluationModel.HIGHEST_SCORE)) {
-                            AssessmentGradingData assessmentGrading =
-                                    getHighestSubmittedAssessmentGrading(adata.getPublishedAssessmentId(),
-                                            adata.getAgentId(),
-                                            null);
-                            if (assessmentGrading.getTotalAutoScore() > adata.getTotalAutoScore()) {
-                                updateCurrentGrade = false;
-                            }
-                        }
                     } else {
                         adata.setStatus(AssessmentGradingData.SUBMITTED);
                     }
+                   
                     completeItemGradingData(adata, sectionSetMap);
                 }
 
@@ -3098,23 +3095,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId()
                         .toString());
                 // this call happens in a separate transaction, so a rollback only affects this iteration
-                boolean success = PersistenceService.getInstance()
-                        .getAutoSubmitQueries()
-                        .autoSubmitSingleAssessment(adata,
-                                autoSubmitCurrent,
-                                updateCurrentGrade,
-                                publishedAssessment,
-                                persistenceHelper,
-                                updateGrades,
-                                eventService,
-                                eventLogFacade,
-                                toGradebookPublishedAssessmentSiteIdMap,
-                                gbsHelper,
-                                g);
-                if (!success) {
+                
+                boolean success = saveOrUpdateAssessmentGrading(adata);
+                
+                if (success && updateGrades == true) {
+                    GradingService gs = new GradingService();
+                	gs.updateAutosubmitEventLog(adata);
+                    gs.notifyGradebookByScoringType(adata, publishedAssessment);
+                }
+                else {
                     ++failures;
                 }
-
+                
                 adata = null;
             } catch (Exception e) {
                 ++failures;
@@ -3129,7 +3121,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         return failures;
     }
-
+    
     private String makeHeader(String section, int sectionNumber, String question, String headerType, int questionNumber, String pool, String poolName) {
         StringBuilder sb = new StringBuilder(section);
         sb.append(" ");

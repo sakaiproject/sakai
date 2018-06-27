@@ -90,6 +90,8 @@ import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.Xml;
 
+import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+
 /**
  * <p>
  * DbContentService is an extension of the BaseContentService with a database implementation.

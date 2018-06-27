@@ -130,5 +130,15 @@ table.narrowTable tr th {
 /* Indent options checkboxes */
 .indent {text-indent: 1em;}
 
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
 
-
+.displayNone {
+    display: none;
+}
+ 
+.dialogConfirm {
+    float:left;
+    margin:12px 12px 20px 0;
+}

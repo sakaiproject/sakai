@@ -90,11 +90,11 @@
 					<input type="text" size="3" value="$count" id="index$count"/>
 					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 				</span>
-				<span class="title col-md-6 col-sm-6 col-xs-12" title="$validator.escapeHtml($!assignment.Title)">
+				<span class="col-md-6 col-sm-6 col-xs-12" title="$validator.escapeHtml($!assignment.Title)">
 					#if ($!assignment.Draft)
 						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
 					#end
-					$validator.escapeHtml($validator.limit($!assignment.Title, 45))
+					$validator.escapeHtml($!assignment.Title)
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!service.getUsersLocalDateTimeString($!assignment.OpenDate)

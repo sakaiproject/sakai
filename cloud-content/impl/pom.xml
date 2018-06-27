@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.content</groupId>
     <artifactId>cloud-content</artifactId>
-    <version>13-SNAPSHOT</version>
+    <version>19-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -14,7 +14,7 @@
   <packaging>sakai-component</packaging>
 
   <properties>
-    <jclouds.version>1.9.1</jclouds.version>
+    <jclouds.version>2.1.0</jclouds.version>
     <deploy.target>components</deploy.target>
   </properties>
 

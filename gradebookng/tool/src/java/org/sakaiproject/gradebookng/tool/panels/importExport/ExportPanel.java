@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,6 +39,7 @@ import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
@@ -63,6 +64,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
 	boolean includeStudentNumber = false;
+	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
 	boolean includeCourseGrade = false;
@@ -87,6 +89,16 @@ public class ExportPanel extends BasePanel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeStudentId = !ExportPanel.this.includeStudentId;
 				setDefaultModelObject(ExportPanel.this.includeStudentId);
+			}
+		});
+
+		add(new AjaxCheckBox("includeStudentDisplayId", Model.of(this.includeStudentDisplayId)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentDisplayId = !ExportPanel.this.includeStudentDisplayId;
+				setDefaultModelObject(ExportPanel.this.includeStudentDisplayId);
 			}
 		});
 
@@ -252,6 +264,9 @@ public class ExportPanel extends BasePanel {
 				if (!isCustomExport || this.includeStudentId) {
 					header.add(getString("importExport.export.csv.headers.studentId"));
 				}
+				if (isCustomExport || this.includeStudentDisplayId) {
+					header.add(getString("importExport.export.csv.headers.studentDisplayId"));
+				}
 				if (!isCustomExport || this.includeStudentName) {
 					header.add(getString("importExport.export.csv.headers.studentName"));
 				}
@@ -279,9 +294,9 @@ public class ExportPanel extends BasePanel {
 
 				// build column header
 				assignments.forEach(assignment -> {
-					final String assignmentPoints = assignment.getPoints().toString();
+					final String assignmentPoints = FormatHelper.formatGradeForDisplay(assignment.getPoints().toString());
 					if (!isCustomExport || this.includeGradeItemScores) {
-						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, FormattedText.getDecimalSeparator() + "0") + "]");
 					}
 					if (!isCustomExport || this.includeGradeItemComments) {
 						header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, assignment.getName()));
@@ -320,6 +335,9 @@ public class ExportPanel extends BasePanel {
 					final List<String> line = new ArrayList<>();
 					if (!isCustomExport || this.includeStudentId) {
 						line.add(studentGradeInfo.getStudentEid());
+					}
+					if (isCustomExport || this.includeStudentDisplayId) {
+						header.add(studentGradeInfo.getStudentDisplayId());
 					}
 					if (!isCustomExport || this.includeStudentName) {
 						line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
@@ -380,6 +398,8 @@ public class ExportPanel extends BasePanel {
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		EventHelper.postExportEvent(getGradebook(), isCustomExport);
 
 		return tempFile;
 	}

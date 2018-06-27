@@ -255,10 +255,12 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   // key needs to contain all values the cell requires for render
   // otherwise it won't rerender when those values change
   var hasComment = column.type === "assignment" ? GbGradeTable.hasComment(student, column.assignmentId) : false;
+  var isDropped = column.type === "assignment" ? student.hasDroppedScores[index] === '1' : false;
   var scoreState = GbGradeTable.getCellState(row, col, instance);
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
-  var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState];
+  var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
+  var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState, isDropped];
   var cellKey = GbGradeTable.cleanKey(keyValues.join("_"));
 
   var wasInitialised = $.data(td, 'cell-initialised');
@@ -276,7 +278,8 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     // First time we've initialised this cell.
     // Or we're replacing the student name cell
     GbGradeTable.templates.cell.setHTML(td, {
-      value: value
+      value: value,
+      hasAssociatedRubric: hasAssociatedRubric
     });
 
     if (td.hasAttribute('scope')) {
@@ -288,6 +291,13 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
     // This cell was previously holding a different value.  Just patch it.
     GbGradeTable.replaceContents(valueCell, document.createTextNode(value));
+  }
+
+  var $gradeRubricOption = $(td).find(".gb-grade-rubric").parent();
+  if (hasAssociatedRubric) {
+    $gradeRubricOption.removeClass("hidden");
+  } else {
+    $gradeRubricOption.addClass("hidden");
   }
 
   if (!valueCell) {
@@ -420,6 +430,8 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     $cellDiv.removeClass("gb-extra-credit");
   }
 
+  $cellDiv.toggleClass("gb-dropped-grade-cell", isDropped && scoreState !== "error" && scoreState !== "invalid");
+
   if (column.type == 'category') {
     $cellDiv.addClass('gb-category-average');
   } else {
@@ -459,9 +471,12 @@ GbGradeTable.headerRenderer = function (col, column) {
     return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
   }
 
+  var hasAssociatedRubric = column.type === "assignment" ? column.hasAssociatedRubric : false;
+
   var templateData = $.extend({
     col: col,
-    settings: GbGradeTable.settings
+    settings: GbGradeTable.settings,
+    hasAssociatedRubric: hasAssociatedRubric,
   }, column);
 
   if (column.type === "assignment") {
@@ -626,7 +641,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   };
 
   GbGradeTable.calculateIdealWidth = function() {
-    return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+    if (GbGradeTable.columns.length > 0) {
+        return MorpheusViewportHelper.isPhone() ? $("#pageBody").width() - 40 : $("#pageBody").width() - $("#toolMenuWrap").width() - 60;
+    }
+
+    var scrollbarWidth = GbGradeTable.students.length > 0 ? 16 : 0;
+    return GbGradeTable.getColumnWidths().reduce(function (acc, cur) { return acc + cur; }, 0) + scrollbarWidth;
   };
 
   GbGradeTable.instance = new Handsontable(document.getElementById(elementId), {
@@ -732,7 +752,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       // show visual cue that columns are hidden
       // check for last of the fixed columns
       if (col == GbGradeTable.FIXED_COLUMN_OFFSET - 1) { //GbGradeTable.instance.getSettings().fixedColumnsLeft - 1) {
-        if (GbGradeTable.columns[0].hidden &&
+        if (GbGradeTable.columns[0] && GbGradeTable.columns[0].hidden &&
             $th.find(".gb-hidden-column-visual-cue").length == 0) {
           $th.find(".relative").append("<a href='javascript:void(0);' class='gb-hidden-column-visual-cue'></a>");
         }
@@ -933,8 +953,25 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   });
 
   // Setup menu event bindings
+  // Grade rubric
+  rubricGradingRow = 0;
+  rubricGradingCol = 0;
+  $(document).on("click", ".gb-dropdown-menu .gb-grade-rubric", function() {
+    var $dropdown = $(this).closest(".gb-dropdown-menu");
+    var $cell = $dropdown.data("cell");
+    var studentId = $.data($cell[0], "studentid");
+    var assignmentId = $.data($cell[0], "assignmentid");
+    rubricGradingRow = GbGradeTable.rowForStudent(studentId);
+    rubricGradingCol = GbGradeTable.colForAssignment(assignmentId);
+
+    GbGradeTable.ajax({
+      action: 'gradeRubric',
+      studentId: studentId,
+      assignmentId: assignmentId
+    });
+  }).
   // View Log
-  $(document).on("click", ".gb-dropdown-menu .gb-view-log", function() {
+  on("click", ".gb-dropdown-menu .gb-view-log", function() {
     var $dropdown = $(this).closest(".gb-dropdown-menu");
     var $cell = $dropdown.data("cell");
 
@@ -1072,6 +1109,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
         $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
       }
+  }).
+  // View Course Grade Statistics
+  on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
+    GbGradeTable.ajax({
+      action: 'viewCourseGradeStatistics',
+      siteId: GbGradeTable.container.data("siteid")
+    });
   });
 
   GbGradeTable.setupToggleGradeItems();
@@ -1235,6 +1279,29 @@ GbGradeTable.colModelForAssignment = function(assignmentId) {
   }
   
   throw "colModelForAssignment: column not found for " + assignmentId;
+};
+
+// returns the gradebook items included in this category, as AssignmentColumn objects
+GbGradeTable.itemsInCategory = function(categoryId) {
+    return GbGradeTable.columns.filter(function(col) {
+        return col.categoryId === categoryId && col.type === "assignment";
+    });
+};
+
+GbGradeTable.updateHasDroppedScores = function(student, assignmentIndex, dropped) {
+    var hasDroppedScores = student.hasDroppedScores;
+    var flag = dropped ? '1' : '0';
+    student.hasDroppedScores = hasDroppedScores.substr(0, assignmentIndex) + flag + hasDroppedScores.substr(assignmentIndex + 1);
+};
+
+GbGradeTable.moveItemFlag = function(flagString, fromIndex, toIndex) {
+    if (fromIndex === toIndex)
+    {
+        return flagString;
+    }
+    var tmp = flagString[fromIndex];
+    var removed = flagString.substr(0, fromIndex) + flagString.substr(fromIndex + 1);
+    return removed.substr(0, toIndex) + tmp + removed.substr(toIndex);
 };
 
 GbGradeTable.hasComment = function(student, assignmentId) {
@@ -2203,9 +2270,19 @@ GbGradeTable.setupDragAndDrop = function () {
           moveColumn(GbGradeTable.grades, sourceColIndex, targetColIndex);
 
           /* And the header columns */
-          moveColumn([GbGradeTable.columns],
-                     (sourceColIndex - numberOfFixedColumns),
-                     (targetColIndex - numberOfFixedColumns));
+          var adjustedSource = sourceColIndex - numberOfFixedColumns;
+          var adjustedTarget = targetColIndex - numberOfFixedColumns;
+          moveColumn([GbGradeTable.columns], adjustedSource, adjustedTarget);
+
+          /* And the comment/concurrent/dropped flag strings in the student objects */
+          var hasCategories = GbGradeTable.settings.isCategoriesEnabled;
+          GbGradeTable.students.forEach(function(student) {
+              if (hasCategories) {
+                  student.hasDroppedScores = GbGradeTable.moveItemFlag(student.hasDroppedScores, adjustedSource, adjustedTarget);
+              }
+              student.hasComments = GbGradeTable.moveItemFlag(student.hasComments, adjustedSource, adjustedTarget);
+              student.hasConcurrentEdit = GbGradeTable.moveItemFlag(student.hasConcurrentEdit, adjustedSource, adjustedTarget);
+          });
 
           GbGradeTable.redrawTable(true);
         };
@@ -2829,7 +2906,7 @@ GbGradeTable.syncCourseGrade = function(studentId, courseGradeData) {
 };
 
 
-GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore) {
+GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore, droppedItems) {
     var categoryScoreAsLocaleString = GbGradeTable.localizeNumber(categoryScore);
 
     // update table
@@ -2844,6 +2921,16 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
     var modelRow = GbGradeTable.modelIndexForStudent(studentId);
     var modelCol = $.inArray(GbGradeTable.colModelForCategoryId(categoryId), GbGradeTable.columns);
     GbGradeTable.grades[modelRow][modelCol + GbGradeTable.FIXED_COLUMN_OFFSET] = categoryScore;
+
+    // update dropped status of all items in this category
+    var categoryItems = GbGradeTable.itemsInCategory(categoryId);
+    categoryItems.forEach(function(col) {
+        var dropped = droppedItems.indexOf(col.assignmentId) > -1;
+        var columnIndex = GbGradeTable.colForAssignment(col.assignmentId);
+        var student = GbGradeTable.modelForStudent(studentId);
+        GbGradeTable.updateHasDroppedScores(student, columnIndex - GbGradeTable.FIXED_COLUMN_OFFSET, dropped);
+        GbGradeTable.redrawCell(tableRow, columnIndex);
+    });
 };
 
 
@@ -2894,7 +2981,7 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
 
         // update the category average cell
         if (assignment.categoryId) {
-          GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
+          GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore, data.categoryDroppedItems);
         }
 
         GbGradeTable.syncScore(studentId, assignmentId, newScore);
@@ -3031,7 +3118,8 @@ GradebookAPI = {};
 GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
   var params = {
-    since: timestamp
+    since: timestamp,
+    auto: true // indicate that the request is automatic, not from a user action
   };
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };

@@ -4,7 +4,7 @@ This is the vericite content review implementation which is for use with those t
 
 ### Configuration
 
-- vericite.serviceUrl=https://app.vericite.com/vericite/report
+- vericite.serviceUrl=https://api.vericite.com/lms/
 - vericite.consumer={username}
 - vericite.consumerSecret={password}
 

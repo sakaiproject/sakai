@@ -99,7 +99,7 @@ public class RequestUtilsTest extends TestCase {
       assertEquals(1, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
-      assertEquals(10, search.getLimit());
+      assertEquals(15, search.getLimit());
       assertEquals(5, search.getStart());
 
       params.clear();
@@ -113,7 +113,7 @@ public class RequestUtilsTest extends TestCase {
       assertEquals(1, search.getRestrictions().length);
       assertNotNull( search.getRestrictionByProperty("test") );
       assertEquals("stuff", search.getRestrictionByProperty("test").value);
-      assertEquals(5, search.getLimit());
+      assertEquals(15, search.getLimit());
       assertEquals(10, search.getStart());
    }
 
@@ -131,7 +131,7 @@ public class RequestUtilsTest extends TestCase {
        assertEquals(1, search.getRestrictions().length);
        assertNotNull( search.getRestrictionByProperty("test") );
        assertEquals("stuff", search.getRestrictionByProperty("test").value);
-       assertEquals(0, search.getLimit());
+       assertEquals(10, search.getLimit());
        assertEquals(0, search.getStart());
        assertEquals(1, search.getOrders().length);
        assertEquals("name", search.getOrders()[0].getProperty());
@@ -147,7 +147,7 @@ public class RequestUtilsTest extends TestCase {
        assertEquals(1, search.getRestrictions().length);
        assertNotNull( search.getRestrictionByProperty("test") );
        assertEquals("stuff", search.getRestrictionByProperty("test").value);
-       assertEquals(0, search.getLimit());
+       assertEquals(10, search.getLimit());
        assertEquals(0, search.getStart());
        assertEquals(1, search.getOrders().length);
        assertEquals("name", search.getOrders()[0].getProperty());
@@ -163,7 +163,7 @@ public class RequestUtilsTest extends TestCase {
        assertEquals(1, search.getRestrictions().length);
        assertNotNull( search.getRestrictionByProperty("test") );
        assertEquals("stuff", search.getRestrictionByProperty("test").value);
-       assertEquals(0, search.getLimit());
+       assertEquals(10, search.getLimit());
        assertEquals(0, search.getStart());
        assertEquals(2, search.getOrders().length);
        assertEquals("name", search.getOrders()[0].getProperty());
@@ -181,7 +181,7 @@ public class RequestUtilsTest extends TestCase {
        assertEquals(1, search.getRestrictions().length);
        assertNotNull( search.getRestrictionByProperty("test") );
        assertEquals("stuff", search.getRestrictionByProperty("test").value);
-       assertEquals(0, search.getLimit());
+       assertEquals(10, search.getLimit());
        assertEquals(0, search.getStart());
        assertEquals(3, search.getOrders().length);
        assertEquals("name", search.getOrders()[0].getProperty());

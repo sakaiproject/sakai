@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.sakaiproject.gradebookng</groupId>
 		<artifactId>gradebookng</artifactId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
 	<packaging>war</packaging>
 	<dependencies>
@@ -67,6 +67,10 @@
 			<artifactId>sections-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.rubrics</groupId>
+			<artifactId>rubrics-service-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
@@ -80,7 +84,7 @@
 			<artifactId>commons-validator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.opencsv</groupId>
+			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 		</dependency>
 		<dependency>

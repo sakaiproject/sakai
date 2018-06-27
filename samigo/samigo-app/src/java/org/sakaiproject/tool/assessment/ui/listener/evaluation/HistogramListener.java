@@ -876,8 +876,10 @@ public class HistogramListener
     }
     else if (!qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) // matching
     {
-      ItemTextIfc firstText = (ItemTextIfc) publishedItemTextHash.get(((ItemTextIfc) text.toArray()[0]).getId());
-      answers = firstText.getAnswerArraySorted();
+      if (text.size() > 0) {
+        ItemTextIfc firstText = (ItemTextIfc) publishedItemTextHash.get(((ItemTextIfc) text.toArray()[0]).getId());
+        answers = firstText.getAnswerArraySorted();
+      }
     }
    
     if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString())) // mcsc

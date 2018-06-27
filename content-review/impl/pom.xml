@@ -8,18 +8,19 @@
 	<parent>
 		<groupId>org.sakaiproject.contentreview</groupId>
 		<artifactId>content-review</artifactId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
 
 	<modules>
 		<module>dao</module>
 		<module>service</module>
 		<module>turnitin</module>
+		<module>turnitin-oc</module>
 		<module>vericite</module>
 		<module>compilatio</module>
 		<module>urkund</module>
 	</modules>
-	
+
 	<dependencyManagement>
 		<dependencies>
 		  <!-- the API is seperately versioned from the impl -->

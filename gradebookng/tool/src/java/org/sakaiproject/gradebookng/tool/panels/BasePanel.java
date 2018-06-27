@@ -15,16 +15,22 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
+
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.IRequestParameters;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -38,6 +44,9 @@ public abstract class BasePanel extends Panel {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
+	@SpringBean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+	protected RubricsService rubricsService;
+
 	public BasePanel(final String id) {
 		super(id);
 	}
@@ -48,10 +57,10 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Helper to get the user role, via the business service. Handles the Access Denied scenario.
-	 * 
+	 *
 	 * @return
 	 */
-	public GbRole getUserRole() {
+	protected GbRole getUserRole() {
 
 		GbRole role;
 		try {
@@ -66,20 +75,52 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Get the current user, via the business service
-	 * 
+	 *
 	 * @return
 	 */
-	public String getCurrentUserId() {
+	protected String getCurrentUserId() {
 		return this.businessService.getCurrentUser().getId();
 	}
 
 	/**
-	 * Get the Gradebook for the panel, via the business service
+	 * Get the current siteId, via the business service
 	 * 
 	 * @return
 	 */
-	public Gradebook getGradebook() {
+	protected String getCurrentSiteId() {
+		return this.businessService.getCurrentSiteId();
+	}
+
+	/**
+	 * Get the Gradebook for the panel, via the business service
+	 *
+	 * @return
+	 */
+	protected Gradebook getGradebook() {
 		return this.businessService.getGradebook();
 	}
 
+	/**
+	 * Get the Rubric request parameters
+	 *
+	 * @return A map with key and value of those parameters
+	 */
+	protected HashMap<String, String> getRubricParameters(String entityId) {
+		HashMap<String, String> list = new HashMap<String, String>();
+
+		String entity = "rbcs-";
+		if (entityId != null && !entityId.isEmpty()) {
+			entity += entityId + "-";
+		}
+		String startsWith = entity;
+
+		IRequestParameters parameters = RequestCycle.get().getRequest().getPostParameters();
+		parameters.getParameterNames().forEach((value) -> {
+			if (value.startsWith(startsWith)) {
+				list.put(value, parameters.getParameterValue(value).toString());
+			}
+		});
+
+		return list;
+	}
 }

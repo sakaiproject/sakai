@@ -66,7 +66,7 @@ var dhtml_view_sites = function(){
         // Raise the button to keep it visible over the modal overlay
         allSitesButton.css('z-index', 1005);
 
-        var topPosition = allSitesButton.offset().top - $(window).scrollTop() + topPadding;
+        var topPosition = allSitesButton.offset().top - $PBJQ(window).scrollTop() + topPadding;
         var rightPosition = $PBJQ('body').outerWidth() - (allSitesButton.offset().left + allSitesButton.outerWidth());
         if( $PBJQ('html').attr('dir') !== "rtl" ){
           modal.css('top', topPosition).css('right', rightPosition);
@@ -117,7 +117,7 @@ var dhtml_view_sites = function(){
   }
   
   
-  if($(window).width() < 800) {
+  if($PBJQ(window).width() < 800) {
 	  paneHeight = paneHeight*0.85;
   }
   $PBJQ('.tab-pane').css('height', paneHeight);
@@ -134,7 +134,14 @@ function closeDrawer() {
   $PBJQ('#otherSiteTools').remove();
   $PBJQ('.selectedTab').unbind('click');
   $PBJQ('.moreSitesLink').unbind('keydown');
-  $PBJQ('.more-tab a').focus();
+
+  // For desktop screen size
+  if ($PBJQ('.view-all-sites-btn a:visible').length) {
+    $PBJQ('.view-all-sites-btn a').focus();
+  }
+  else {
+    $PBJQ('.js-toggle-sites-nav').focus();
+  }
 
 }
 
@@ -167,20 +174,20 @@ function showToolMenu(jqObj){
   var classId = jqObj.attr('id');
   // We need to escape special chars, like exclamations, or else $PBJQ selectors don't work.
   var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
-  $PBJQ('.toolMenus').removeClass('toolMenusActive');
+  $PBJQ('.toolMenus').removeClass('toolMenusActive').attr('aria-expanded', 'false');
 
   if ($PBJQ('.' + id).length) {
     $PBJQ('#otherSiteTools').remove();
   } else {
     var subsubmenu_elt = $PBJQ('<ul id="otherSiteTools" role="menu" />').addClass(classId);
     var siteURL = '/direct/site/' + classId + '/pages.json';
-    scroll(0, 0)
+    scroll(0, 0);
     var maxToolsInt = parseInt($PBJQ('#maxToolsInt').text());
     var maxToolsText = $PBJQ('#maxToolsText').text();
 
     var li_template = $PBJQ('<li class="otherSiteTool" >' +
                             '<span>' +
-                            '<a role="menuitem"><span class="Mrphs-toolsNav__menuitem--icon"> </span></a>' +
+                            '<a role="menuitem" tabindex="-1"><span class="Mrphs-toolsNav__menuitem--icon"> </span></a>' +
                             '</span>' +
                             '</li>');
 
@@ -234,8 +241,11 @@ function showToolMenu(jqObj){
 
       $PBJQ('#otherSiteTools').remove();
       jqObj.closest('li').append(subsubmenu_elt);
+      // Move focus to first option and setup menu tools for arrow navigation
+      jqObj.closest('li').find('ul li a').first().focus();
+      addArrowNavAndDisableTabNav($PBJQ('ul#otherSiteTools'));
 
-      jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
+      jqObj.parent().find('.toolMenus').addClass("toolMenusActive").attr('aria-expanded', 'true');
     }); // end json call
   }
 }
@@ -401,9 +411,9 @@ $PBJQ(document).ready(function($){
     $PBJQ(btn).data('favorite-state', state);
 
     if (state === 'favorite') {
-      $PBJQ(btn).attr('title', $PBJQ('#removeFromFavoritesText').text());
+      $PBJQ(btn).attr('title', $PBJQ('#removeFromFavoritesText').text().replace("[site]", $PBJQ(btn).parent().find('span.fullTitle').text() ));
     } else if (state === 'nonfavorite') {
-      $PBJQ(btn).attr('title', $PBJQ('#addToFavoritesText').text());
+      $PBJQ(btn).attr('title', $PBJQ('#addToFavoritesText').text().replace("[site]", $PBJQ(btn).parent().find('span.fullTitle').text() ));
     } else {
       $PBJQ(btn).attr('title', null);
     }
@@ -425,24 +435,24 @@ $PBJQ(document).ready(function($){
 
   var setAllOrNoneStarStates = function () {
     $PBJQ('.favorites-select-all-none', favoritesPane).each(function (idx, selectAllNone) {
-      var termContainer = $(selectAllNone).closest('.fav-sites-term');
+      var termContainer = $PBJQ(selectAllNone).closest('.fav-sites-term');
 
       var siteCount = termContainer.find('.fav-sites-entry:not(.my-workspace)').length;
       var favoritedSiteCount = termContainer.find('.fav-sites-entry .site-favorite').length;
 
       if (siteCount == 0) {
         // No favoritable sites under this section
-        $(selectAllNone).hide();
+        $PBJQ(selectAllNone).hide();
       } else {
         if (favoritedSiteCount == siteCount) {
-          $(selectAllNone).data('favorite-state', 'favorite');
-          $(selectAllNone).html(button_states.favorite.markup);
+          $PBJQ(selectAllNone).data('favorite-state', 'favorite');
+          $PBJQ(selectAllNone).html(button_states.favorite.markup);
         } else {
-          $(selectAllNone).data('favorite-state', 'nonfavorite');
-          $(selectAllNone).html(button_states.nonfavorite.markup);
+          $PBJQ(selectAllNone).data('favorite-state', 'nonfavorite');
+          $PBJQ(selectAllNone).html(button_states.nonfavorite.markup);
         }
 
-        $(selectAllNone).show();
+        $PBJQ(selectAllNone).show();
       }
     });
   };
@@ -467,12 +477,12 @@ $PBJQ(document).ready(function($){
       }
     });
 
-    $('.favorites-help-text').hide();
+    $PBJQ('.favorites-help-text').hide();
 
     if (autoFavoritesEnabled) {
-      $('.favorites-help-text.autofavorite-enabled').show();
+      $PBJQ('.favorites-help-text.autofavorite-enabled').show();
     } else {
-      $('.favorites-help-text.autofavorite-disabled').show();
+      $PBJQ('.favorites-help-text.autofavorite-disabled').show();
     }
 
     setAllOrNoneStarStates();
@@ -684,8 +694,8 @@ $PBJQ(document).ready(function($){
   });
 
   $PBJQ(favoritesPane).on('click', '.favorites-select-all-none', function () {
-    var state = $(this).data('favorite-state');
-    var buttons = $(this).closest('.fav-sites-term').find('.fav-sites-entry:not(.my-workspace) .site-favorite-btn');
+    var state = $PBJQ(this).data('favorite-state');
+    var buttons = $PBJQ(this).closest('.fav-sites-term').find('.fav-sites-entry:not(.my-workspace) .site-favorite-btn');
 
     var newState;
 
@@ -696,7 +706,7 @@ $PBJQ(document).ready(function($){
     }
 
     buttons.each(function (idx, button) {
-      setButton($(button), newState);
+      setButton($PBJQ(button), newState);
     });
 
     renderFavoriteCount();
@@ -754,8 +764,8 @@ $PBJQ(document).ready(function($){
       var list = $PBJQ('#organizeFavoritesList');
       list.empty();
 
-      $('#noFavoritesToShow').hide();
-      $('#favoritesToShow').hide();
+      $PBJQ('#noFavoritesToShow').hide();
+      $PBJQ('#favoritesToShow').hide();
 
       // Collapse any visible tool menus
       $PBJQ('#otherSiteTools').remove();
@@ -794,24 +804,24 @@ $PBJQ(document).ready(function($){
 
       if (list.find('li').length == 0) {
         // No favorites are present
-        $('#noFavoritesToShow').show();
+        $PBJQ('#noFavoritesToShow').show();
       } else {
-        $('#favoritesToShow').show();
+        $PBJQ('#favoritesToShow').show();
       }
 
       var highlightMaxItems = function () {
-        var items = $('.organize-favorite-item');
+        var items = $PBJQ('.organize-favorite-item');
 
         items.removeClass('site-favorite-is-past-max');
         $PBJQ('.favorites-max-marker').remove();
 
         $PBJQ.each(items, function (idx, li) {
           if (idx >= maxFavoriteEntries) {
-            $(li).addClass('site-favorite-is-past-max');
+            $PBJQ(li).addClass('site-favorite-is-past-max');
           }
 
           if (idx == maxFavoriteEntries) {
-            $(li).before($PBJQ('<li class="favorites-max-marker"><i class="fa fa-warning warning-icon"></i> ' + $('#maxFavoritesLimitReachedText').text() + '</li>'));
+            $PBJQ(li).before($PBJQ('<li class="favorites-max-marker"><i class="fa fa-warning warning-icon"></i> ' + $PBJQ('#maxFavoritesLimitReachedText').text() + '</li>'));
           }
         });
       };
@@ -837,8 +847,8 @@ $PBJQ(document).ready(function($){
 
       list.disableSelection();
 
-      $('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
-      $('#organizeFavorites .onoffswitch').show();
+      $PBJQ('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
+      $PBJQ('#organizeFavorites .onoffswitch').show();
     }
   });
 
@@ -904,22 +914,22 @@ $PBJQ(document).ready(function($){
   });
 
   $PBJQ("#autoFavoritesEnabled").click(function() {
-	$(this).attr('aria-checked', function(index, clicked) {
+	$PBJQ(this).attr('aria-checked', function(index, clicked) {
 		var pressed = (clicked === 'true');
 		return String(!pressed);
 	});
-	$(this).trigger('change');
+	$PBJQ(this).trigger('change');
   });
 
   $PBJQ('#autoFavoritesEnabled').on('change', function () {
-    autoFavoritesEnabled = $(this).attr('aria-checked') === 'true';
+    autoFavoritesEnabled = $PBJQ(this).attr('aria-checked') === 'true';
 
-    $('.favorites-help-text').hide();
+    $PBJQ('.favorites-help-text').hide();
 
     if (autoFavoritesEnabled) {
-      $('.favorites-help-text.autofavorite-enabled').show();
+      $PBJQ('.favorites-help-text.autofavorite-enabled').show();
     } else {
-      $('.favorites-help-text.autofavorite-disabled').show();
+      $PBJQ('.favorites-help-text.autofavorite-disabled').show();
     }
 
     syncWithServer();

@@ -59,10 +59,7 @@
                         $tlang.getString('gen.students'):
                     </th>
                     <td>
-                        #set ($submitters = $submission.Submitters)
-                        #foreach ($submitter in $submitters)
-                            $validator.escapeHtml($submitter.DisplayName)<br/>
-                        #end
+                        $!submitterNames
                     </td>
                 </tr>
             #end

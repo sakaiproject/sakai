@@ -299,7 +299,13 @@
 		    <a role="menuitem button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
 		  </li>
 		  <li rsf:id="calendar-li">
-		    <a role="menuitem" rsf:id="calendar-link" class="calendar-link add-before-param"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
+		    <a role="menuitem button" href="#" id="calendar-link" rsf:id="calendar-link" class="calendar-link"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
+		    <form rsf:id="add-calendar-form" style="display:none" action="#" id="add-calendar-form" method="post" enctype="multipart/form-data">
+		      <input type="hidden" rsf:id="calendar-addBefore" id="calendar-addBefore" />
+		      <input type="hidden" rsf:id="csrf28" />
+		      <input type="submit" rsf:id="add-calendar" id="add-calendar"/>
+		    </form>
+
 		  </li>
 		  <li rsf:id="quiz-li">
 		    <a role="menuitem button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
@@ -458,6 +464,7 @@
                            allowfullscreen="true"
                            webkitallowfullscreen="true"
                            mozallowfullscreen="true"
+                           allow="camera; microphone"
                            rsf:id="blti-iframe"
                                id="blti-iframe"
                            >
@@ -563,6 +570,7 @@
                          allowfullscreen="true"
                          webkitallowfullscreen="true"
                          mozallowfullscreen="true"
+                         allow="camera; microphone"
                          rsf:id="iframe"
                              id="iframe"
                          ></iframe>
@@ -605,6 +613,7 @@
                             allowfullscreen="allowfullscreen"
                             webkitallowfullscreen="true"
                             mozallowfullscreen="true"
+                            allow="camera; microphone"
                             class="playerwidth"></iframe>
 			<div rsf:id="youtube-td" role="toolbar" class="edit-col"><div><a role="button" aria-haspopup="dialog" aria-controls="youtube-dialog" href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a role="button" href="#" class="usebutton del-item-link" onclick="return false"><span aria-hidden="true" class="fa-trash-o fa-edit-icon"></span></a><a role="button" aria-haspopup="dialog" aria-controls="youtube-dialog" href="#" class="usebutton add-link" onclick="return false"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
                       </div>
@@ -956,6 +965,7 @@
 		   allowfullscreen="true"
 		   webkitallowfullscreen="true"
 		   mozallowfullscreen="true"
+		   allow="camera; microphone"
 		   id="iframe"
 		   ></iframe>
 		   <ul class="navIntraTool">
@@ -1057,6 +1067,7 @@
 			  <p rsf:id="msg=simplepage.delete_page_confirm" id="simplepage.delete_page_confirm"></p>
 			  <p rsf:id="msg=simplepage.delete" id="simplepage.delete"></p>
 			  <p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
+			  <p rsf:id="msg=simplepage.delete_comment" id="simplepage.delete_comment"></p>
 			  <p rsf:id="msg=simplepage.add_caption" id="simplepage.add_caption"></p>
 			  <p rsf:id="msg=simplepage.change_caption" id="simplepage.change_caption"></p>
 			  <p rsf:id="msg=simplepage.join-items" id="simplepage.join-items"></p>

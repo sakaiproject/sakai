@@ -6,7 +6,7 @@
 <link href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
 <script  rsf:id="scr=portal-matter" type="text/javascript" src="/library/js/headscripts.js"></script>
 <script type="text/javascript">includeLatestJQuery('polls');</script>
-<script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
+<script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
 <script type="text/javascript" src="../js/polls.js"></script>
 </head>
 
@@ -80,8 +80,8 @@
       <th><a rsf:id="poll-question-title" title="Sort by Question" href="#">Question</a></th>
       <th><a rsf:id="poll-open-title" title=" Sort by Opening Date" href="#">Opening</a></th>
       <th><a rsf:id="poll-close-title" title="Sort by Closing Date" href="#">Closing</a></th>
-      <th rsf:id="poll-result-title">Results</th>
-      <th><label for="remove-all" class="skip"><span  rsf:id="poll-remove-title">Remove all</span></label><input type="checkbox" id="remove-all"/></th>
+       <th><label rsf:id="poll-result-title"> Results</label></th> 
+	  <th ><input type="checkbox" rsf:id="remove-all" id="remove-all" title="Select to remove"/> <label for="remove-all" rsf:id="poll_select_title_all">Select all</label></th>
     </tr>
   </thead>
   <tbody id="tasks:polllist:tbody_element">

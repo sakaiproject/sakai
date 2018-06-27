@@ -97,7 +97,7 @@ $(window).load( function() {
   <h:inputHidden id="ItemIdent" value="#{author.currentItem}"/>
 
   <!-- HEADINGS -->
-  <%@ include file="/jsf/author/allHeadings.jsp" %>
+  <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
 
   <div class="navView">
     <h1>
@@ -165,7 +165,7 @@ $(window).load( function() {
           action="#{author.getOutcome}">
         
         <h:outputText  value="#{commonMessages.settings_action}" />
-        <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
+        <f:param name="publishedId" value="#{assessmentBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
     </h:commandLink>
@@ -221,9 +221,8 @@ $(window).load( function() {
   </h:outputLink>
 </h:panelGrid>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
-  <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
   <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
@@ -235,10 +234,11 @@ $(window).load( function() {
     <h:column>
       <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
-		<h:outputText value="#{authorMessages.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
+          <h:outputLabel for="number" value="#{authorMessages.p}" />
+          <h:outputText value="&#160;" escape="false" />
           <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{author.isEditPendingAssessmentFlow}" >
-          <f:selectItems value="#{assessmentBean.partNumbers}" />          
-        </h:selectOneMenu>
+            <f:selectItems value="#{assessmentBean.partNumbers}" />          
+          </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
         <h:outputText value="&#160;" escape="false" />
 	  <h:panelGroup rendered="#{!author.isEditPoolFlow}">
@@ -324,7 +324,7 @@ $(window).load( function() {
              <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},0"/>
          </h:selectOneMenu>
     </div>
-    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
+    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
       <f:param name="itemSequence" value="0"/>
     </h:commandLink>
 </h:panelGroup>
@@ -335,7 +335,8 @@ $(window).load( function() {
       <h:column>
          <h:panelGrid styleClass="table table-condensed" columns="2" width="100%" columnClasses="navView,navList">
           <h:panelGroup>
-          <h:outputText value="#{authorMessages.q} " />
+            <h:outputLabel for="number" value="#{authorMessages.q} " />
+            <h:outputText value="&#160;" escape="false" />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
             <h:selectOneMenu id="number" onchange="enableOrderUpdate()" value="#{question.number}" rendered="#{author.isEditPendingAssessmentFlow}">
               <f:selectItems value="#{partBean.questionNumbers}" />
@@ -361,12 +362,18 @@ $(window).load( function() {
 
      <h:outputText value=" #{authorMessages.dash} " />
      <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow || (question.itemData.typeId== 14)}" label="#{authorMessages.pt}" size="6" onkeydown="inIt()" styleClass="ConvertPoint" rendered="#{question.itemData.typeId!= 3}">
-	<f:validateDoubleRange minimum="0.00"/></h:inputText>
-    <h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
-		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
-		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
-		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
+       <f:validateDoubleRange minimum="0.00"/>
+     </h:inputText>
+     <h:outputText value="&#160;" escape="false" />
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
+     <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
 	</h:panelGroup>
+
+	<!--Rubrics icon-->
+	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="fa fa-table" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 
 
         </h:panelGroup>
@@ -458,7 +465,7 @@ $(window).load( function() {
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
             <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
           </h:selectOneMenu>
-          <h:commandLink id="hiddenlink" styleClass="hiddenLink" action="#{itemauthor.doit}" value="">
+          <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
             <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
           </h:commandLink>
         </div>

@@ -163,7 +163,8 @@
 	}
 
 	&:focus {
-		outline-color: darken( $button-border-color, 50% ) !important;
+		outline: 5px groove $focus-outline-color !important;
+		outline-offset: 2px !important;
 	}
 
 	&:hover{

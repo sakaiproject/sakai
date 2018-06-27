@@ -35,13 +35,35 @@ CKEDITOR.plugins.add( 'contentitem',
 			if ( items ) for(var i=0; i < items.length; i++) {
                             var item = items[i];
                             console.log(item['@type']);
+/*
+                            { "@type" : "LtiLinkItem", ...
+                                "placementAdvice" : {
+                                    "displayWidth" : 800,
+                                        "presentationDocumentTarget" : "iframe",
+                                        "displayHeight" : 600
+                                }}
+                            }
+*/
+
                             try {
                                 if ( item['@type'] == 'LtiLinkItem') {
-				    editor.insertHtml( '<a href="' + item.launch + '" target="_blank" class="lti-launch">'+item.title+'</a><br/>' );
+                                    if ( item.placementAdvice && item.placementAdvice.displayWidth && item.placementAdvice.displayWidth > 10 &&
+                                        item.placementAdvice.displayHeight && item.placementAdvice.displayHeight > 10 &&
+                                        item.placementAdvice.presentationDocumentTarget &&
+                                        item.placementAdvice.presentationDocumentTarget == 'iframe' ) {
+				                        editor.insertHtml( '<br/><iframe src="' + CKEDITOR.tools.htmlEncode(item.launch) + '" height="'+item.placementAdvice.displayHeight+
+                                                '" width="'+item.placementAdvice.displayWidth+
+                                                '" title="'+CKEDITOR.tools.htmlEncode(item.title)+
+                                                ' allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" '+
+                                                ' allow="camera; microphone" ' +
+                                                '" class="lti-iframe"></iframe><br/>' );
+                                    } else {
+				                        editor.insertHtml( '<a href="' + CKEDITOR.tools.htmlEncode(item.launch) + '" target="_blank" class="lti-launch">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' );
+                                    }
                                 } else if ( item['@type'] == 'ContentItem') {
-				    editor.insertHtml( '<a href="' + item.url + '" target="_blank" class="lti-contentitem">'+item.title+'</a><br/>' );
+				    editor.insertHtml( '<a href="' + CKEDITOR.tools.htmlEncode(item.url) + '" target="_blank" class="lti-contentitem">'+CKEDITOR.tools.htmlEncode(item.title)+'</a><br/>' );
                                 } else if ( item['@type'] == 'FileItem' && item['mediaType'].startsWith('image/') ) {
-				    editor.insertHtml( '<img src="' + item.url + '" target="_blank" class="lti-image"><br/>' );
+				    editor.insertHtml( '<img src="' + CKEDITOR.tools.htmlEncode(item.url) + '" target="_blank" class="lti-image"><br/>' );
                                 } else {
                                     console.log('Not handled: '+item['@type']);
                                 }

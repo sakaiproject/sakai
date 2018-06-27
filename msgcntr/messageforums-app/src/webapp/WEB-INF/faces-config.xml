@@ -521,6 +521,41 @@
             <property-name>eventTrackingService</property-name>
             <value>#{Components["org.sakaiproject.event.api.EventTrackingService"]}</value>
         </managed-property>
+        <managed-property>
+            <description>User Directory Service</description>
+            <property-name>userDirectoryService</property-name>
+            <value>#{Components["org.sakaiproject.user.api.UserDirectoryService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Site Service</description>
+            <property-name>siteService</property-name>
+            <value>#{Components["org.sakaiproject.site.api.SiteService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Security Service</description>
+            <property-name>securityService</property-name>
+            <value>#{Components["org.sakaiproject.authz.api.SecurityService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Session Manager</description>
+            <property-name>sessionManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Tool Manager</description>
+            <property-name>toolManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>ThreadLocalManager</description>
+            <property-name>threadLocalManager</property-name>
+            <value>#{Components["org.sakaiproject.thread_local.api.ThreadLocalManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>RubricsService</description>
+            <property-name>rubricsService</property-name>
+            <value>#{Components["org.sakaiproject.rubrics.logic.RubricsService"]}</value>
+        </managed-property>
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
@@ -577,6 +612,36 @@
             <property-name>eventTrackingService</property-name>
             <value>#{Components["org.sakaiproject.event.api.EventTrackingService"]}</value>
         </managed-property>
+        <managed-property>
+            <description>User Directory Service</description>
+            <property-name>userDirectoryService</property-name>
+            <value>#{Components["org.sakaiproject.user.api.UserDirectoryService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Security Service</description>
+            <property-name>securityService</property-name>
+            <value>#{Components["org.sakaiproject.authz.api.SecurityService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Site Service</description>
+            <property-name>siteService</property-name>
+            <value>#{Components["org.sakaiproject.site.api.SiteService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Session Manager</description>
+            <property-name>sessionManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>User Time Service</description>
+            <property-name>userTimeService</property-name>
+            <value>#{Components["org.sakaiproject.time.api.UserTimeService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Tool Manager</description>
+            <property-name>toolManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
+        </managed-property>
     </managed-bean>
     
     <!-- =================== Synoptic Managed Bean ============== -->
@@ -608,9 +673,24 @@
             <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
         </managed-property>
         <managed-property>
-        	<description>Private Message Manager</description>
-        	<property-name>pvtMessageManager</property-name>
-        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+           <description>Private Message Manager</description>
+           <property-name>pvtMessageManager</property-name>
+           <value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Site Service</description>
+            <property-name>siteService</property-name>
+            <value>#{Components["org.sakaiproject.site.api.SiteService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Session Manager</description>
+            <property-name>sessionManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Tool Manager</description>
+            <property-name>toolManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
         </managed-property>
  	</managed-bean>
 
@@ -661,6 +741,21 @@
 			<property-name>preferencesService</property-name>
 			<value>#{Components["org.sakaiproject.user.api.PreferencesService"]}</value>
 		</managed-property>
+        <managed-property>
+            <description>Site Service</description>
+            <property-name>siteService</property-name>
+            <value>#{Components["org.sakaiproject.site.api.SiteService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Session Manager</description>
+            <property-name>sessionManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Tool Manager</description>
+            <property-name>toolManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
+        </managed-property>
  	</managed-bean>
  
  	<!-- =================== Statistics Objects =============== -->
@@ -695,9 +790,34 @@
             <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
         </managed-property>
         <managed-property>
+            <description>Site Service</description>
+            <property-name>siteService</property-name>
+            <value>#{Components["org.sakaiproject.site.api.SiteService"]}</value>
+        </managed-property>
+        <managed-property>
             <description>Tool Manager</description>
             <property-name>toolManager</property-name>
             <value>#{Components["org.sakaiproject.tool.api.ToolManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>User Directory Service</description>
+            <property-name>userDirectoryService</property-name>
+            <value>#{Components["org.sakaiproject.user.api.UserDirectoryService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Security Service</description>
+            <property-name>securityService</property-name>
+            <value>#{Components["org.sakaiproject.authz.api.SecurityService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Event Tracking Service</description>
+            <property-name>eventTrackingService</property-name>
+            <value>#{Components["org.sakaiproject.event.api.EventTrackingService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Session Manager</description>
+            <property-name>sessionManager</property-name>
+            <value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
         </managed-property>
  	</managed-bean>
  

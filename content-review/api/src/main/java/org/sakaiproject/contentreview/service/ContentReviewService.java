@@ -15,19 +15,23 @@
  */
 package org.sakaiproject.contentreview.service;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.site.api.Site;
 
 /**
  *  ContentReview Service manages submission to the Content review queue and retrieving reports from the service
@@ -344,4 +348,63 @@ public interface ContentReviewService {
 	 * @return ContentReviewResult
 	 */	
 	public ContentReviewItem getContentReviewItemByContentId(String contentId);
+	
+	/**
+	 * Returns a hyperlink to a providers EULA, if empty, no EULA will be shown to the user
+	 * @return
+	 */
+	public String getEndUserLicenseAgreementLink(String userId);
+	
+	/**
+	 * Returns date for most recent EULA. If null, no date will be checked. If provided, the user must re-accept the EULA if the date has changed.
+	 * @return
+	 */
+	public Instant getEndUserLicenseAgreementTimestamp();
+	
+	/**
+	 * Returns version for most recent EULA. If provided, the user must re-accept the EULA if the version doesn't match.
+	 * @return
+	 */
+	public String getEndUserLicenseAgreementVersion();
+	
+	/**
+	 * Returns date for the user's last agreement to the EULA. If null, the user has not agreed.
+	 * @param userId
+	 * @return
+	 */
+	public Instant getUserEULATimestamp(String userId);
+	
+	/**
+	 * Returns version for the user's last agreement to the EULA. If null, the user has not agreed.
+	 * @param userId
+	 * @return
+	 */
+	public String getUserEULAVersion(String userId);
+	
+	/**
+	 * Sets date for the user's last agreement to the EULA to current date
+	 * @param userId
+	 */
+	public void updateUserEULATimestamp(String userId);
+	
+	/**
+	 * 
+	 * Option for providers to decide whether they want to use redirect logic
+	 * for the report URLs. This means that instead of loading the report URLs for the entire page
+	 * all at once, Sakai will only request the URL when the user clicks the link.
+	 * @param contentId
+	 * @param assignmentRef
+	 * @param userId
+	 * @param isInstructor
+	 * @return
+	 */
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor);
+	
+	/**
+	 * Webhook event listener that can be used to get messages sent from the provider to Sakai
+	 * @param request
+	 * @param customParam
+	 * @param providerId
+	 */
+	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam);
 }

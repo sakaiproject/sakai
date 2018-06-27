@@ -31,9 +31,6 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -48,17 +45,14 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.GbCourseGradeChart;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.user.api.User;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,6 +73,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	Label modifiedSchema;
 	Label unsavedSchema;
 	Label duplicateEntries;
+
+	GbCourseGradeChart chart;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -283,6 +279,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				SettingsGradingSchemaPanel.this.schemaModifiedFromDefault = isModified();
 				SettingsGradingSchemaPanel.this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
 				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
+
+				// refresh chart
+				refreshCourseGradeChart(target);
 			}
 		});
 
@@ -358,16 +357,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
-		final WebMarkupContainer chart = new WebMarkupContainer("gradingSchemaChart");
-		chart.setOutputMarkupId(true);
-		chart.add(new AttributeAppender("data-siteId", SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId()));
-	}
-
-	@Override
-	public void renderHead(final IHeaderResponse response) {
-		super.renderHead(response);
-		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-		response.render(OnLoadHeaderItem.forScript("renderChart('" + siteId + "');"));
+		// chart
+		this.chart = new GbCourseGradeChart("gradingSchemaChart", getCurrentSiteId());
+		settingsGradingSchemaPanel.add(this.chart);
 	}
 
 	/**
@@ -710,22 +702,17 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @param target
 	 */
 	private void refreshCourseGradeChart(final AjaxRequestTarget target) {
-		// we need the current data from model (sorted) but in JSON form
+		// we need the current data from model
 		final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
 
 		// add warning for duplicates
 		this.duplicateEntries.setVisible(SettingsHelper.hasDuplicates(schemaList));
 		target.add(this.duplicateEntries);
 
+		// refresh the chart
 		Map<String, Double> schemaMap = SettingsHelper.asMap(schemaList);
 		schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
-		final Gson gson = new GsonBuilder().create();
-		final String schemaJson = gson.toJson(schemaMap);
-
-		final String siteId = SettingsGradingSchemaPanel.this.businessService.getCurrentSiteId();
-
-		// TODO this could be a wicket component instead of Javascript
-		target.appendJavaScript("renderChart('" + siteId + "', '" + FormatHelper.encode(schemaJson) + "')");
+		this.chart.refresh(target, schemaMap);
 	}
 
 }

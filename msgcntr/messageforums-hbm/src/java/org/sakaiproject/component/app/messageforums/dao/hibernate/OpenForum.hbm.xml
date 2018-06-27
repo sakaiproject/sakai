@@ -49,10 +49,10 @@
         <key column="of_urrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="topicsSet" lazy="true" cascade="save-update"
+    <set name="topicsSet" lazy="true" cascade="persist,merge,save-update"
       sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc" batch-size="50">
         <key column="of_surrogateKey"/>                        
-        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>
     </set>
 
   	<set name="membershipItemSet" lazy="true" cascade="all-delete-orphan" batch-size="50">
@@ -126,7 +126,10 @@
       </property>
       <property name="postFirst">
         <column name="POST_FIRST" not-null="true" />
-      </property> 
+      </property>
+      <property name="restrictPermissionsForGroups">
+        <column name="RESTRICT_PERMS_FOR_GROUPS" not-null="true" default="0" />
+      </property>
     </subclass>
 
   </class>

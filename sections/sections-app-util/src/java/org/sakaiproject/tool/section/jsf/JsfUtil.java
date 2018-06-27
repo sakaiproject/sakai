@@ -193,9 +193,9 @@ public class JsfUtil {
 
 		// Set the am/pm flag to ensure that the time is parsed properly
 		if(am) {
-			str = str + " " + new DateFormatSymbols(new ResourceLoader().getLocale()).getAmPmStrings()[0];
+			str = str + " " + DateFormatSymbols.getInstance(new ResourceLoader().getLocale()).getAmPmStrings()[0];
 		} else {
-			str = str + " " + new DateFormatSymbols(new ResourceLoader().getLocale()).getAmPmStrings()[1];
+			str = str + " " + DateFormatSymbols.getInstance(new ResourceLoader().getLocale()).getAmPmStrings()[1];
 		}
 
 		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;

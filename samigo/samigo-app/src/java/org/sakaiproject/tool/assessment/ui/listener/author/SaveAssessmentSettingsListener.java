@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
@@ -102,6 +103,13 @@ public class SaveAssessmentSettingsListener
     	context.addMessage(null,new FacesMessage(dueDateErr));
     	error=true;
     }
+
+    if(assessmentSettings.getDueDate() == null && assessmentSettings.getRetractDate() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+        String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_null_with_retract_date");
+        context.addMessage(null,new FacesMessage(dueDateErr));
+        error = true;
+    }
+
     // check if late submission date is valid
     if(!assessmentSettings.getIsValidRetractDate()){
     	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_retrack_date");
@@ -247,6 +255,7 @@ public class SaveAssessmentSettingsListener
  
     // Set the outcome once Save button is clicked
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    AuthorizationBean authorization = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     assessmentSettings.setOutcomeSave(author.getFromPage());
 
     s.save(assessmentSettings, false);
@@ -260,7 +269,15 @@ public class SaveAssessmentSettingsListener
 		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 	}
     // get the managed bean, author and set the list
+    List allAssessments = new ArrayList<>();
+    if (authorization.getEditAnyAssessment() || authorization.getEditOwnAssessment()) {
+        allAssessments.addAll(assessmentList);
+    }
+    if (authorization.getGradeAnyAssessment() || authorization.getGradeOwnAssessment()) {
+        allAssessments.addAll(author.getPublishedAssessments());
+    }
     author.setAssessments(assessmentList);
+    author.setAllAssessments(allAssessments);
 
     // goto Question Authoring page
     EditAssessmentListener editA= new EditAssessmentListener();

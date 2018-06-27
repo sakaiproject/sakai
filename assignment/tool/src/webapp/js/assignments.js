@@ -363,12 +363,14 @@ ASN.showOrHideSelectGroupsMessage = function() {
     // Get the elements
     var groupMsg = document.getElementById("msgSelectGroups");
     var groupsRadio = document.getElementById("groups");
-    var checkboxes = document.getElementsByName("selectedGroups");
+    var checkboxes = document.getElementById("selectedGroups");
     
     // Determine if groups are selected
     var groupsSelected = false;
+    checkboxes = checkboxes && checkboxes.options;
+    
     for (i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].checked === true) {
+        if (checkboxes[i].selected) {
             groupsSelected = true;
         }
     }
@@ -996,5 +998,30 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
     {
         header.src = expand;
         content.style.display = "none";
+    }
+}
+
+// rubrics-specific code
+ASN.rubricsEventHandlers = function ()
+{
+    $('body').on('rubrics-event', function(e, payload){
+        if (payload.event == "total-points-updated") {
+            ASN.handleRubricsTotalPointChange(payload.value);
+        }
+        if (payload.event == "rubric-ratings-changed") {
+            console.log('rubric-ratings-changed');
+            ASN.rubricChanged = true;
+        }
+    });
+
+    console.log('Rubrics event handlers loaded');
+}
+
+// handles point changes for assignments, updating the grade field if it exists.
+ASN.handleRubricsTotalPointChange = function (points)
+{
+    var gradeField = $('#grade');
+    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || ASN.rubricChanged)) {
+        gradeField.val(points);
     }
 }

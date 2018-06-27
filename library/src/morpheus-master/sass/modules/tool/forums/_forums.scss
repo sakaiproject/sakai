@@ -150,7 +150,7 @@
 			font-weight: 400;
 			margin: 1em 0 0.25em 0;
 			input[type="radio"]{
-				margin: 0 0.5em 0 0;
+				margin: 0 0.5em 0 -2em;
 			}
 			
 			&[for*=forum_assignments]{
@@ -181,7 +181,7 @@
 				position: relative;
 			}
 			input[type="checkbox"]{
-				margin-left: 10px;
+				margin: 0 10px;
 				position: inherit;
 				+ label{
 					padding-left: 10px;

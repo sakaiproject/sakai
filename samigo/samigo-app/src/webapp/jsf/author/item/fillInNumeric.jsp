@@ -100,7 +100,9 @@
             </h:selectOneRadio>
         </div>
     </div>
-    
+
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
+
     <%-- 2 QUESTION TEXT --%>
     <div class="longtext"> 
         <h:outputLabel value="#{authorMessages.q_text}" /><br/>

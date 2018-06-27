@@ -108,6 +108,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean						visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= true;
 	private boolean						countFilesUsingCHS						= true;
+	private boolean						countPagesUsingLBS						= true;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
 	private float						chartTransparency						= 0.80f;
@@ -203,6 +204,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	public void setCountFilesUsingCHS(boolean countFilesUsingCHS) {
 		this.countFilesUsingCHS = countFilesUsingCHS;
+	}
+	
+	public void setCountPagesUsingLBS(boolean countPagesUsingLBS) {
+		this.countPagesUsingLBS = countPagesUsingLBS;
 	}
 	
 	public void setChartBackgroundColor(String color) {
@@ -870,6 +875,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 		if (siteId == null){
 			throw new IllegalArgumentException("Null siteId");
+		} if(countPagesUsingLBS){
+			 List<SimplePage> sitePages = lessonBuilderService.getSitePages(siteId);
+			 return sitePages != null ? sitePages.size() : 0;
 		} else {
 			// Use SiteStats tables (very fast, relies on resource events)
 			// Build common HQL
@@ -1255,7 +1263,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                         .add(Expression.eq("siteId", siteId))
                         .add(Expression.in("eventId", events));
                 if(!showAnonymousAccessEvents)
-                    c.add(Expression.ne("userId", "?"));
+                    c.add(Expression.ne("userId", EventTrackingService.UNKNOWN_USER));
                 if(userIdList != null && userIdList.size() > 0)
                     c.add(Expression.in("userId", userIdList));
                 if(iDate != null)
@@ -1812,7 +1820,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 Criteria c = session.createCriteria(ResourceStatImpl.class)
                         .add(Expression.eq("siteId", siteId));
                 if(!showAnonymousAccessEvents)
-                    c.add(Expression.ne("userId", "?"));
+                    c.add(Expression.ne("userId", EventTrackingService.UNKNOWN_USER));
                 if(userIdList != null && userIdList.size() > 0)
                     c.add(Expression.in("userId", userIdList));
                 if(iDate != null)

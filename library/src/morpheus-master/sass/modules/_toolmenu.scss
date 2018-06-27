@@ -18,10 +18,11 @@ body.is-logged-out{
 	.#{$namespace}collapseTools button.js-toggle-nav {
 		background: transparent;
 		border: 0;
-		font-size: 1.0em;
+		font-size: 1em;
 		margin: 0;
-		padding: 0;
+		padding: 0 1em;
 		width: 100%;
+		height: 3em;
 		text-align: right;
 	}
 
@@ -295,22 +296,25 @@ nav#subSites{
 
 			&.#{$namespace}collapseTools
 			{
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				z-index: 1;
 				display:flex;
 				align-items:center;
 				justify-content:flex-end; /* right-align the arrows when expanded */
+				width: calc(#{$tool-menu-width} - 1px); /* width of sidebar minus border edge */
 				height:3em;
-				padding: 0 1em;
-				cursor:pointer;
-				font-size: 1.2em;
-				z-index: 1;
-
-				color: $tool-menu-collapse-text-color;
+				padding: 0;
 				border-top: $tool-menu-collapse-border-top;
 				border-bottom: none;
+				cursor:pointer;
+				font-size: 1.2em;
+				color: $tool-menu-collapse-text-color;
 				background-color: $tool-menu-collapse-background-color;
 				box-shadow: $tool-menu-collapse-shadow;
 
-				&:hover
+				&:hover, &:focus
 				{
 					color: $tool-menu-collapse-hover-text-color;
 					border-top: $tool-menu-collapse-hover-border-top;
@@ -320,22 +324,33 @@ nav#subSites{
 				&.min
 				{
 					justify-content:center; /* center the arrows when collapsed */
-					color: $tool-menu-collapse-active-text-color;
-					border-top: $tool-menu-collapse-active-border-top;
-					background-color: $tool-menu-collapse-active-background-color;
-					box-shadow: $tool-menu-collapse-active-shadow;
+					width: calc(#{$tool-menu-width-collapsed} - 1px); /* width of sidebar minus border edge */
+					color: $tool-menu-collapse-min-text-color;
+					border-top: $tool-menu-collapse-min-border-top;
+					background-color: $tool-menu-collapse-min-background-color;
+					box-shadow: $tool-menu-collapse-min-shadow;
 
-					&:hover{
-						color: $tool-menu-collapse-active-hover-text-color;
-						border-top: $tool-menu-collapse-active-hover-border-top;
-						background-color: $tool-menu-collapse-active-hover-background-color;
-						box-shadow: $tool-menu-collapse-active-hover-shadow;
-					}
-
-					span.fa-angle-double-left {
-						color: $tool-menu-collapse-active-icon-color;
+					&:hover, &:focus
+					{
+						color: $tool-menu-collapse-min-hover-text-color;
+						border-top: $tool-menu-collapse-min-hover-border-top;
+						background-color: $tool-menu-collapse-min-hover-background-color;
+						box-shadow: $tool-menu-collapse-min-hover-shadow;
 					}
 				}
+
+				button
+				{
+						span.fa-angle-double-left
+						{
+							color: $tool-menu-collapse-icon-color;
+						}
+						&:focus
+						{
+							outline-color: invert($tool-menu-collapse-background-color) !important;
+						}
+				}
+
 				span.fa-angle-double-left
 				{
 					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */

@@ -108,6 +108,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	private ToolManager toolManager;
 	private UserDirectoryService userDirectoryService;
     private RosterMemberComparator memberComparator;
+
+    private static final String SAK_PROP_SHOW_PERMS_TO_MAINTAINERS = "roster.showPermsToMaintainers";
+    private static final boolean SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT = true;
 	
 	public void init() {
 		
@@ -161,8 +164,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isSuperUser() {
-		return securityService.isSuperUser();
+	public boolean showPermsToMaintainers() {
+		boolean showToMaintainers = serverConfigurationService.getBoolean(SAK_PROP_SHOW_PERMS_TO_MAINTAINERS, SAK_PROP_SHOW_PERMS_TO_MAINTAINERS_DEFAULT);
+		return (showToMaintainers && isSiteMaintainer(getCurrentSiteId())) || securityService.isSuperUser();
 	}
 	
 	public Site getSite(String siteId) {
@@ -1190,6 +1194,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                     || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)) {
                 log.debug("Site membership or groups updated. Clearing caches ...");
                 String siteId = event.getContext();
+
+                if (siteId == null) {
+                    log.debug("siteId was null, skipping");
+                    return;
+                }
 
                 Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
                 enrollmentsCache.remove(siteId);

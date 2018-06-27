@@ -641,6 +641,10 @@
       <value>#{itemauthor}</value>
     </managed-property>
     <managed-property>
+      <property-name>authorizationBean</property-name>
+      <value>#{authorization}</value>
+    </managed-property>
+    <managed-property>
       <property-name>questionPoolBean</property-name>
       <value>#{questionpool}</value>
     </managed-property>    
@@ -658,6 +662,10 @@
     <managed-property>
       <property-name>authorBean</property-name>
       <value>#{author}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>authorizationBean</property-name>
+      <value>#{authorization}</value>
     </managed-property>
   </managed-bean>
   <managed-bean>
@@ -774,6 +782,10 @@
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>removeError</from-outcome>
+      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>sortCore</from-outcome>
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
     </navigation-case>
@@ -847,6 +859,10 @@
 
 
   <!-- AUTHOR -->
+    <navigation-case>
+      <from-outcome>createAssessmentTitle</from-outcome>
+      <to-view-id>/jsf/author/createAssessment_title.jsp</to-view-id>
+    </navigation-case>
     <navigation-case>
       <from-outcome>createAssessment</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
@@ -928,16 +944,8 @@
       <to-view-id>/jsf/author/confirmEditPublishedAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>confirmRemoveAssessment</from-outcome>
-      <to-view-id>/jsf/author/removeAssessment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>confirmCopyAssessment</from-outcome>
       <to-view-id>/jsf/author/confirmCopyAssessment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>confirmRemovePublishedAssessment</from-outcome>
-      <to-view-id>/jsf/author/removePublishedAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePart</from-outcome>
@@ -978,6 +986,7 @@
     <navigation-case>
       <from-outcome>removeAssessment</from-outcome>
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeMatchItem</from-outcome>

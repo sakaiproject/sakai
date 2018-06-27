@@ -53,6 +53,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -78,8 +79,6 @@ import org.sakaiproject.sitestats.api.parser.EventParserTip;
  */
 @Slf4j
 public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
-	private final static String				PRESENCE_SUFFIX						= "-presence";
-	private final static int				PRESENCE_SUFFIX_LENGTH				= PRESENCE_SUFFIX.length();
 
 	/** Spring bean members */
 	private boolean							collectThreadEnabled				= true;
@@ -574,7 +573,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if(!isCollectAdminEvents() && ("admin").equals(userId)){
 				return;
-			}if(!M_sm.isShowAnonymousAccessEvents() && ("?").equals(userId)){
+			}if(!M_sm.isShowAnonymousAccessEvents() && EventTrackingService.UNKNOWN_USER.equals(userId)){
 				return;
 			}
 			
@@ -706,11 +705,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		} else if (eventId.startsWith(StatsManager.LESSONS_EVENTID_PREFIX)) {
 			String[] resourceParts = resourceRef.split("/");
-			if (resourceParts.length > 3 && "page".equals(resourceParts[2])) {
+			if (resourceParts.length > 3) {
+				//The references are something like "/lessonbuilder/page/4" the id is in the fourth position
 				long pageId = Long.parseLong(resourceParts[3]);
 				String lessonBuilderAction = null;
 				try {
-					lessonBuilderAction = eventId.split("\\.")[1];
+					//The events are something like "lessonbuilder.page.create" the action is in the third position
+					lessonBuilderAction = eventId.split("\\.")[2];
 				} catch (ArrayIndexOutOfBoundsException ex){
 					lessonBuilderAction = eventId;
 				}
@@ -1604,8 +1605,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						|| StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
 					// presence (site visit) syntax (/presence/SITE_ID-presence)
 					String[] parts = eventRef.split("/");
-					if(parts.length > 2 && parts[2].endsWith(PRESENCE_SUFFIX)) {
-						return parts[2].substring(0, parts[2].length() - PRESENCE_SUFFIX_LENGTH);
+					if(parts.length > 2 && parts[2].endsWith(PresenceService.PRESENCE_SUFFIX)) {
+						return parts[2].substring(0, parts[2].length() - PresenceService.PRESENCE_SUFFIX.length());
 					}
 
 				}else{

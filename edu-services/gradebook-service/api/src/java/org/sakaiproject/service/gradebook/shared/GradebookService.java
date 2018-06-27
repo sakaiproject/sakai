@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -762,10 +763,10 @@ public interface GradebookService {
 	 * @param gradebookId Id of the gradebook
 	 * @param studentUuid uuid of the student
 	 * @param categoryId id of category
-	 * @return percentage or null if no calculations were made
+	 * @return percentage and dropped items, or empty if no calculations were made
 	 *
 	 */
-	Double calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
+	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
 
 	/**
 	 * Calculate the category score for the given gradebook, category, assignments in the category and grade map. This doesn't do any
@@ -774,12 +775,12 @@ public interface GradebookService {
 	 * @param gradebook the gradebook. As this method is called for every student at once, this is passed in to save additional lookups by
 	 *            id.
 	 * @param studentUuid uuid of the student
-	 * @param categoryId id of category
+	 * @param category the category
 	 * @param categoryAssignments list of assignments the student can view, and are in the category
 	 * @param gradeMap map of assignmentId to grade, to use for the calculations
-	 * @return percentage or null if no calculations were made
+	 * @return percentage and dropped items, or empty if no calculations were made
 	 */
-	Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
+	Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
 			final List<Assignment> categoryAssignments, Map<Long, String> gradeMap);
 
 	/**

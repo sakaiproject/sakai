@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import au.com.bytecode.opencsv.CSVParser;
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVReader;
 
 import java.io.IOException;
 import java.io.InputStream; 
@@ -82,7 +82,7 @@ public class ImportGradesHelper {
 	public final static int USER_NAME_POS = 1;
 
 	// patterns for detecting column headers and their types
-	final static Pattern ASSIGNMENT_PATTERN= Pattern.compile("([^\\[]+)(\\[(\\d+([\\.,]\\d\\d?)?)\\])?");
+	final static Pattern ASSIGNMENT_PATTERN = Pattern.compile("([^\\[]+)(\\[(\\d+([\\.,]\\d+)?)\\])?");
 	final static Pattern COMMENT_PATTERN = Pattern.compile("\\* (.+)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
@@ -118,22 +118,22 @@ public class ImportGradesHelper {
 	 * @param mimetype
 	 * @param filename
 	 * @param businessService
-	 * @param userCSVSeparator
+	 * @param userDecimalSeparator
 	 * @return
 	 * @throws GbImportExportInvalidFileTypeException
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
 	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
-			final GradebookNgBusinessService businessService, String userCSVSeparator) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+			final GradebookNgBusinessService businessService, String userDecimalSeparator) throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
 		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
 		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseCsv(is, businessService, userCSVSeparator);
+			rval = ImportGradesHelper.parseCsv(is, businessService, userDecimalSeparator);
 		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = ImportGradesHelper.parseXls(is, businessService, userCSVSeparator);
+			rval = ImportGradesHelper.parseXls(is, businessService, userDecimalSeparator);
 		} else {
 			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
 		}
@@ -149,15 +149,15 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService, String userCSVSeparator)
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
 			throws IOException {
 
 		// manually parse method so we can support arbitrary columns
 		CSVReader reader;
-		if(StringUtils.isEmpty(userCSVSeparator)){
+		if(StringUtils.isEmpty(userDecimalSeparator)){
 			reader = new CSVReader(new InputStreamReader(is));
 		}else{
-			reader = new CSVReader(new InputStreamReader(is), ".".equals(userCSVSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+			reader = new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
 		}
 		String[] nextLine;
 		int lineCount = 0;
@@ -174,7 +174,7 @@ public class ImportGradesHelper {
 					mapping = mapHeaderRow(nextLine, importedGradeWrapper.getHeadingReport());
 				} else {
 					// map the fields into the object
-					final ImportedRow importedRow = mapLine(nextLine, mapping, userEidMap, userCSVSeparator);
+					final ImportedRow importedRow = mapLine(nextLine, mapping, userEidMap, userDecimalSeparator);
 					if (importedRow != null) {
 						list.add(importedRow);
 					}
@@ -206,7 +206,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService, String userCSVSeparator)
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
 			throws InvalidFormatException, IOException {
 
 		int lineCount = 0;
@@ -226,7 +226,7 @@ public class ImportGradesHelper {
 				mapping = mapHeaderRow(r, importedGradeWrapper.getHeadingReport());
 			} else {
 				// map the fields into the object
-				final ImportedRow importedRow = mapLine(r, mapping, userEidMap, userCSVSeparator);
+				final ImportedRow importedRow = mapLine(r, mapping, userEidMap, userDecimalSeparator);
 				if (importedRow != null) {
 					list.add(importedRow);
 				}
@@ -247,7 +247,7 @@ public class ImportGradesHelper {
 	 * @param mapping
 	 * @return
 	 */
-	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap, String userCSVSeparator) {
+	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap, String userDecimalSeparator) {
 
 		final ImportedRow row = new ImportedRow();
 
@@ -294,10 +294,8 @@ public class ImportGradesHelper {
 				case GB_ITEM_WITHOUT_POINTS:
 					// fix the separator for the comparison with the current values
 					if (StringUtils.isNotBlank(lineVal)) {
-						if (",".equals(userCSVSeparator)) {
-							lineVal = lineVal.replace(",",".");
-						}
-						cell.setScore(lineVal);
+						cell.setRawScore(lineVal);
+						cell.setScore(",".equals(userDecimalSeparator) ? lineVal.replace(userDecimalSeparator, ".") : lineVal);
 					}
 					row.getCellMap().put(columnTitle, cell);
 					break;
@@ -676,7 +674,10 @@ public class ImportGradesHelper {
 
 					// has a value, could be NEW or an UPDATE. Preserve NEW if we already had it
 					if (status != Status.NEW) {
-						if (StringUtils.isNotBlank(importedComment) && !StringUtils.equals(importedComment, existingComment)) {
+						boolean importContainsNewComment = (StringUtils.isNotBlank(importedComment) && !StringUtils.equals(importedComment, existingComment));
+						boolean importClearsExistingComment = (StringUtils.isBlank(importedComment) && StringUtils.isNotBlank(existingComment));
+
+						if (importContainsNewComment || importClearsExistingComment) {
 							status = Status.UPDATE;
 							break;
 						}

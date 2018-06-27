@@ -62,9 +62,9 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
     super(assessmentTemplateId,title,lastModifiedDate);
   }
   
-  public AssessmentData(Long assessmentTemplateId, String title, Date lastModifiedDate, String lastModifiedBy){
+  public AssessmentData(Long assessmentTemplateId, String title, Date lastModifiedDate, String lastModifiedBy, Date startDate, Date dueDate, String releaseTo){
 	    // in the case of template assessmentBaseId is the assessmentTemplateId
-	    super(assessmentTemplateId,title,lastModifiedDate,lastModifiedBy);
+	    super(assessmentTemplateId,title,lastModifiedDate,lastModifiedBy,startDate,dueDate,releaseTo);
   }
   
   public AssessmentData(Long assessmentTemplateId, String title, Date lastModifiedDate, String lastModifiedBy, Integer questionSize){

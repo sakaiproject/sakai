@@ -1,5 +1,23 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 #set( $H = '-' )
+<!-- Initialize the Bootstrap-multiselect plugin: -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#selectedGroups').multiselect({
+            selectAllText: '$tlang.getString("asn.edit.selectall")',
+            nonSelectedText: '$tlang.getString("asn.edit.selectone")',
+            allSelectedText: '$tlang.getString("asn.edit.allselected")',
+            nSelectedText: ' $tlang.getString("asn.edit.groupsselected")',
+            filterPlaceholder: '$tlang.getString("asn.edit.searchgroup")',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            includeSelectAllOption: true
+        });
+        $('#selectedGroups').change(function(){
+            ASN.showOrHideSelectGroupsMessage();
+        });
+    });
+</script>
 <script type="text/javascript">
 	$(document).ready(function() {
 		ASN.setupAssignNew();
@@ -23,6 +41,11 @@
 		#end
 		if ($("#generalAlert").length <= 0) {
 			SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
+		}
+		window.onload = function() {
+			if( $('#new_assignment_group_submit').is(':checked') ) {
+				ASN.toggleAddOptions('GROUP');
+			}
 		}
 	});
 
@@ -66,8 +89,7 @@
 				useReview.disabled=false;
 				lblUseReview.style.display = 'block';
 			#end
-			## SAK-26640
-			document.getElementById('tempAllowRes').style.display = 'block';
+			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'block';
 			if (document.getElementById('allowResToggle').checked)
 			{
 				document.getElementById('allowResubmitNumber').style.display = 'block';
@@ -90,8 +112,7 @@
 				reviewSwitchNe1.style.removeProperty('display');
 				lblUseReview.style.display = 'none';
 			#end
-			## SAK-26640
-			document.getElementById('tempAllowRes').style.display = 'none';
+			document.getElementById('tempAllowRes').parentNode.parentNode.style.display = 'none';
 			document.getElementById('allowResubmitNumber').style.display = 'none';
 			document.getElementById('allowResubmitTime').style.display = 'none';
 			document.getElementById('resubmitNotification').style.display = 'none';
@@ -100,6 +121,21 @@
 	focus_path = [ '$fField' ];
 </script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
+
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-association.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
+<!-- END RUBRICS JAVASCRIPT -->
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
 <div class="portletBody container-fluid">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
@@ -545,48 +581,24 @@
                     #set( $listDisplay = "none" )
 			#end
 
-			<div class="row">
-				<div class="col-sm-offset-1 col-sm-9">
-					<div id="msgSelectGroups" class="messageInformation" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
-					<table id="groupTable" style="display:$listDisplay" class="table table-striped table-condensed" summary="$tlang.getString('group.list.summary')">
-						<tr>
-							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
-								<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="ASN.toggleSelectAll(this, 'selectedGroups'); ASN.showOrHideSelectGroupsMessage();"  />
-							</th>
-							<th id="groupname">
-								$tlang.getString('gen.title')
-							</th>
-							<th id="groupdescription">
-								$tlang.getString('group.list.descr')
-							</th>
-						</tr>
-						#foreach ($group in $!groups)
-							<tr>
-								<td headers="selected">
-									#set($selected=false)
-									#foreach($aGroupRef in $assignmentGroups)
-										#set($aGroup = $!site.getGroup($!aGroupRef))
-										#if ($!group.Id == $!aGroup.Id)
-											#set($selected = true)
-										#end
-									#end
-									<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end onclick="ASN.showOrHideSelectGroupsMessage();" />
-								</td>
-								<td headers="name">
-									<label for="id-$group.Id">
-										$validator.escapeHtml($group.Title)
-									</label>
-								</td>
-								<td headers="description">
-									#set($description = "")
-									#set($description = $group.Description)
-									$validator.escapeHtml($!description)
-								</td>
-							</tr>
+		<div class="row" id="groupTable" style="display:$listDisplay">
+			<div class="col-sm-offset-1 col-sm-9">
+				<div id="msgSelectGroups" class="messageInformation" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
+				<select id="selectedGroups" name="selectedGroups" multiple="multiple">
+					#foreach ($group in $!groups)
+						#set($description = $validator.escapeHtml($group.Description))
+						#set($selected=false)
+						#foreach($aGroupRef in $assignmentGroups)
+							#set($aGroup = $!site.getGroup($!aGroupRef))
+							#if ($!group.Id == $!aGroup.Id)
+								#set($selected = true)
+							#end
 						#end
-					</table>
-				</div>
+						<option value="$group.Id" #if($selected) selected #end>$validator.escapeHtml($group.Title) #if("$!description" != "") ($description) #end</option>
+					#end
+				</select>
 			</div>
+		</div>
 
 		<h4>
 			$tlang.getString("gen.stusub")
@@ -759,7 +771,7 @@
 					</div>
 
 					<!-- Start TII custom options -->
-					#if($reviewServiceName.equals("Turnitin"))
+					#if($reviewServiceProviderId == $turnitinProviderId)
 
 					#if ($content_review_note)
 						$content_review_note
@@ -1003,6 +1015,106 @@
                         </div>
 
                         <!-- End VeriCite custom options -->
+					#elseif($reviewServiceProviderId == $turnitinOCProviderId)
+						<!-- Start TurnitinOC custom options -->
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+							<br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.exclude.header"):</label>
+							</div>
+							<div style="display:inline-block">
+								<!-- Exclude Bibliographic materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)
+									<div class="checkbox">
+										<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC.equals("true"))
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" checked="checked" />
+											#else
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" />
+											#end
+											$tlang.getString("turnitinoc.exclude.bibliography")
+										</label>
+									</div>
+								#end
+								<!-- Exclude Quoted materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("turnitinoc.exclude.quoted")
+		                                </label>
+		                            </div>
+								#end
+							</div>
+						#end
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+							<br/><br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.index.header"):</label>
+								<p class="text-muted small">
+									$tlang.getString("turnitinoc.index.info")
+								</p>
+							</div>
+							<div style="display:inline-block">
+		                        <!-- Store Inst Index -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("turnitinoc.index.all")
+		                                </label>
+		                             </div>
+								#end
+							</div>
+						#end
+						
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT)
+						 	<br/><br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.generate.header"):</label>
+							</div>
+							<div style="display:inline-block">
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE"))checked#end/>$tlang.getString("review.originality.reports.immediately_and_due")</label>
+									</div>
+								#end
+							</div>
+						#end
+						<br/><br/>
+						<p class="text-muted small">
+							<a href="https://guides.turnitin.com/03_Integrations/Turnitin_Partner_Integrations/Sakai" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
+						</p>
+                        <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))
 						#if ($content_review_note)
 							$content_review_note
@@ -1033,7 +1145,7 @@
 			</div>
 			</div>
 		#end
-		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
+		#if(($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading))
 			<h4>$!tlang.getString('grading')</h4>
 		#end
 
@@ -1224,13 +1336,32 @@
 			#end
 		#end
 
+		<sakai-rubric-association
+			dont-associate-label="$tlang.getString("dont.associate.label")"
+			dont-associate-value="0"
+			associate-label="$tlang.getString("associate.label")"
+			associate-value="1"
+
+			#if("$!assignment.Id" != "")
+			tool-id="sakai.assignment"
+			entity-id="$assignment.Id"
+			#end
+
+			#if($rbcs-state-details && "$!rbcs-state-details" != "")
+			state-details="$rbcs-state-details"
+			#end
+
+			config-fine-tune-points="$tlang.getString("option.pointsoverride")"
+			config-hide-student-preview="$tlang.getString("option.studentpreview")"
+		></sakai-rubric-association>
+
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
-		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+		#if( $enableAnonGrading || $value_CheckAnonymousGrading)
 			#set ($anonDisabled = !$enableAnonGrading || $forceAnonGrading)
 			<div class="checkbox">
 				<label for="$name_CheckAnonymousGrading" #if($anonDisabled) class="disabled" #end>
 					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-					#if ($forceAnonGrading || $value_CheckAnonymousGrading.equals("true"))
+					#if ($forceAnonGrading || $value_CheckAnonymousGrading)
 						checked="checked"
 					#end
 					#if($anonDisabled)
@@ -1302,9 +1433,9 @@
 				#else
 					<div id="peerAssessmentOptions" style="display:none" class="col-sm-offset-1">
 				#end
-					<p class="instruction">
+					<div class="messageInformation">
 						$tlang.getString("peerassessment.note")
-					</p>
+					</div>
 					<div id="peerperiod-finish">
 						$tlang.getString("peerassessment.periodfinishes")
 						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
@@ -1366,7 +1497,7 @@
 		#if ($group_submissions_enabled)
 			<div class="radio">
 				<label for="$name_CheckIsGroupSubmission" class="$class">
-					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('group');"
+					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="GROUP" onclick="ASN.toggleAddOptions('GROUP');"
 					#if ($!value_additionalOptions.equals("GROUP") && $!groupsList)
 						checked="checked"
 					#elseif( !$!groupsList || ($!assignment && !$assignment.draft))
@@ -1834,6 +1965,7 @@
 			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
 	</form>
 </div>
 <!-- end: chef_assignments_instructor_new_edit_assignment.vm  -->

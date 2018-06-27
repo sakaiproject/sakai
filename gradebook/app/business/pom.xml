@@ -4,7 +4,7 @@
   <parent>
     <artifactId>sakai-gradebook-app</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>13-SNAPSHOT</version>
+    <version>19-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
@@ -67,16 +67,6 @@
         <artifactId>scoring-service-api</artifactId>
         <scope>provided</scope>
         <version>${sakai.version}</version>
-    </dependency>
-<!-- Standalone component -->
-	<!--    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl-standalone</artifactId>
-    </dependency> -->
-<!-- Used only for test data. -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-integrationsupport</artifactId>
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>

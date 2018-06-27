@@ -623,16 +623,19 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding: 0px 4px !important;
 }
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
-	font-size: 60%;
+	font-size: 90%;
 }
 .buttonItem {
 	padding-left: 20px
 }
 .offscreen {
-	/* from drupal */
+	/* from global skip */
 	position: absolute !important;
+	height: 1px; width: 1px; 
+	overflow: hidden;
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px);
 }
 .columnSetup2 {
     padding:5px;
@@ -1467,7 +1470,7 @@ div.navIntraTool {
 }
 
 .edit-col {
-margin-top:5px;
+margin-top:4px;
 display:inline-block;
 position:absolute;
 background-color:#eee;
@@ -1649,9 +1652,6 @@ li.resourceType .right-col {
 }
 .itemclass {
   margin-top: 2.0em !important;
-}
-.add-comment-button span {
-font-size: 90%;
 }
 .add-comment-button a {
  padding: 3px 7px;
@@ -2048,4 +2048,78 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 .subpage-breadcrumb-div {
     margin-top: 1.5em;
     margin-bottom: -1em
+}
+
+/*
+	This CSS should be deleted in the moment Lessons doesn't use iframes to include other tools inside itself. 
+*/
+form#revise[action$=dfReviseForumSettingsAttach] label {
+  font-weight: 400;
+  margin: 1em 0 0.25em 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] label input[type=radio] {
+  margin: 0 0.5em 0 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] label[for*=forum_assignments] {
+  margin-top: 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] input[type=text], form#revise[action$=dfReviseForumSettingsAttach] textarea {
+  width: 100%;
+}
+form#revise[action$=dfReviseForumSettingsAttach] input[type=text].hasDatepicker, form#revise[action$=dfReviseForumSettingsAttach] textarea.hasDatepicker {
+  display: inline-block;
+  margin: 0 4px 0 0;
+  width: calc(100% - 62px);
+}
+form#revise[action$=dfReviseForumSettingsAttach] .jsfFormTable, form#revise[action$=dfReviseForumSettingsAttach] .shorttext, form#revise[action$=dfReviseForumSettingsAttach] .longtext {
+  width: 100%;
+}
+form#revise[action$=dfReviseForumSettingsAttach] table {
+  width: 100%;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .checkbox {
+  display: block;
+  margin: 0 0 0 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .checkbox input[type=radio] {
+  margin-left: -10px;
+  margin-right: 11px;
+  position: relative;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .checkbox input[type=checkbox] {
+  margin-left: 10px;
+  position: inherit;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .checkbox input[type=checkbox] + label {
+  padding-left: 10px;
+  padding-right: 40px;
+}
+@media only screen and (max-width: 800px) {
+  form#revise[action$=dfReviseForumSettingsAttach] .checkbox input[type=checkbox] + label {
+    max-width: calc(100% - 50px);
+    vertical-align: middle;
+  }
+}
+form#revise[action$=dfReviseForumSettingsAttach] .checkbox.openDateSpan label {
+  font-weight: 700;
+  padding-left: 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .act {
+  margin: 1em 0 0 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .permissionRow label {
+  margin: 0 0 0 0;
+}
+form#revise[action$=dfReviseForumSettingsAttach] .messageInstruction {
+  display: inline;
+}
+form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
+  margin-top: 2em;
+}
+@media only screen and (max-width: 800px) {
+  form#revise[action$=dfReviseForumSettingsAttach] .messageInstruction {
+    display: inline-block;
+    margin: 0 0 0 0;
+    padding: 3px 0 3px 6px;
+  }
 }

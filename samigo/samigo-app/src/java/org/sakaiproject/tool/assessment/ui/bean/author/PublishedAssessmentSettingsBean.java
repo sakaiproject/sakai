@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -40,6 +41,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.site.api.Group;
@@ -48,7 +52,6 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.exception.PermissionException;
@@ -1482,8 +1485,9 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	    return this.editPubAnonyGradingRestricted;
 	}
 
-	public void setReleaseToGroupsAsString(String releaseToGroupsAsString){
-		this.releaseToGroupsAsString = releaseToGroupsAsString;
+	public void setReleaseToGroupsAsString(Map<String, String> releaseToGroupsMap){
+		this.releaseToGroupsAsString = releaseToGroupsMap.values().stream()
+			.map(Object::toString).collect(Collectors.joining(", "));
 	}
 
 	public String getReleaseToGroupsAsString() {

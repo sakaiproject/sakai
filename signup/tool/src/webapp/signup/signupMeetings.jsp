@@ -252,13 +252,13 @@
 							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" styleClass="toggleMeetings">
 								<h:outputText value="<span id='imageOpen_RM_#{wrapper.recurId}' style='display:none'>"  escape="false"/>
 								<h:outputLink value="javascript:showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{SignupMeetingsBean.iframeId}');">
-									<h:graphicImage value="/images/minusSmall.gif"  alt="open" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" />
+									<h:graphicImage value="/images/minusSmall.gif" alt="#{msgs.event_tool_tips_collapse_recur_meeting}" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" />
 								</h:outputLink>
 		   	    				<h:outputText value="</span>" escape="false" />
 		   	    			
 		   	    				<h:outputText value="<span id='imageClose_RM_#{wrapper.recurId}'>"  escape="false"/>
 								<h:outputLink value="javascript:showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{SignupMeetingsBean.iframeId}');">
-									<h:graphicImage title="#{msgs.event_tool_tips_expand_recur_meeting}" value="/images/plusSmall.gif" styleClass="openCloseImageIcon" alt="close" style="border:none" />
+									<h:graphicImage title="#{msgs.event_tool_tips_expand_recur_meeting}" value="/images/plusSmall.gif" styleClass="openCloseImageIcon" alt="#{msgs.event_tool_tips_expand_recur_meeting}" style="border:none" />
 								</h:outputLink>
 		   	    				<h:outputText value="</span>" escape="false" />
 		   	    				
@@ -373,7 +373,8 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.tab_event_remove}" escape="false"/>
 							</f:facet>
-							<h:selectBooleanCheckbox value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
+							<h:outputLabel for="eventRemove" value="#{msgs.tab_event_remove} - #{wrapper.meeting.title}" styleClass="sr-only" escape="false"/>
+							<h:selectBooleanCheckbox id="eventRemove" value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
 						</t:column>				
 						
 					</t:dataTable></div>

@@ -22,6 +22,7 @@
 package org.sakaiproject.user.tool;
 
 import java.io.InputStreamReader;
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,9 +55,9 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -66,22 +67,23 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.tool.PasswordPolicyHelper.TempUser;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.ExternalTrustedEvidence;
@@ -90,7 +92,7 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaFactory;
@@ -119,7 +121,6 @@ public class UsersAction extends PagedResourceActionII
 	private static final String IMPORT_EMAIL="email";
 	private static final String IMPORT_PASSWORD="password";
 	private static final String IMPORT_TYPE="type";
-	private ValidationLogic validationLogic;
 
 	// SAK-23568
 	private static final PasswordPolicyHelper pwHelper = new PasswordPolicyHelper();
@@ -155,6 +156,7 @@ public class UsersAction extends PagedResourceActionII
 	private SessionManager sessionManager;
 	
 	private ThreadLocalManager threadLocalManager;
+	private UserTimeService userTimeService;
 	
 	public UsersAction() {
 		super();
@@ -166,7 +168,8 @@ public class UsersAction extends PagedResourceActionII
 		usageSessionService =  ComponentManager.get(UsageSessionService.class);
 		sessionManager =  ComponentManager.get(SessionManager.class);
 		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
-		this.validationLogic = (ValidationLogic)ComponentManager.get(ValidationLogic.class);
+		userTimeService = (UserTimeService)ComponentManager.get(UserTimeService.class);
+		
 	}
 
 	/**
@@ -613,6 +616,14 @@ public class UsersAction extends PagedResourceActionII
 		value = (String) state.getAttribute("valueType");
 		if (value != null) context.put("valueType", value);
 		
+		//Users date
+		DateFormat dsf = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, rb.getLocale());
+		dsf.setTimeZone(userTimeService.getLocalTimeZone());
+		String userCreated = dsf.format(user.getCreatedDate());
+		String userModifiedDate = dsf.format(user.getModifiedDate());
+		context.put("userCreated", userCreated);
+		context.put("userModifiedDate", userModifiedDate);
+		
 		//optional attributes lists
 		context.put("optionalAttributes", getOptionalAttributes());
 		context.put("currentAttributes", getCurrentAttributes((UserEdit) state.getAttribute("user")));
@@ -964,8 +975,6 @@ public class UsersAction extends PagedResourceActionII
 		
 		// commit the change
 		UserEdit edit = (UserEdit) state.getAttribute("user");
-		String valueEmail = (String)state.getAttribute("valueEmail");
-		String oldEmail = (String)state.getAttribute("oldEmail");
 		if (edit != null)
 		{
 			
@@ -979,12 +988,6 @@ public class UsersAction extends PagedResourceActionII
 			
 			try
 			{
-				//start this validation only when user has changed the email for the account else skip, also skip for admin user
-				if (!securityService.isSuperUser() && StringUtils.trimToNull(valueEmail) != null && StringUtils.trimToNull(oldEmail) != null && !(oldEmail.equals(valueEmail))
-						&& EmailValidator.getInstance().isValid(edit.getEid()) && !(StringUtils.equalsIgnoreCase(edit.getEid(), valueEmail))) {
-					validationLogic.createValidationAccount(edit.getId(),valueEmail);
-					addAlert(state,rb.getFormattedMessage("useedi.val.email",new String[]{valueEmail}));
-				}
 				userDirectoryService.commitEdit(edit);
 			}
 			catch (UserAlreadyDefinedException e)
@@ -1362,19 +1365,6 @@ public class UsersAction extends PagedResourceActionII
 		
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
-		//if user has not changed the email then skip the 'email exists' verification. Also, skip it when user is admin
-		if(!securityService.isSuperUser() && user != null && !(StringUtils.equals(user.getEmail(), email))){
-			try {
-				userDirectoryService.getUserByEid(email);
-				addAlert(state,rb.getString("useedi.email.exists"));
-				return false;
-			} catch (UserNotDefinedException e) {
-				//unique user ,so continue
-			}
-			//user has changed the email so save the old email in the state
-			state.setAttribute("oldEmail",user.getEmail());
-		}
-		
 		//process any additional attributes
 		//we continue processing these until we get an empty attribute KEY
 		//counter starts at 1

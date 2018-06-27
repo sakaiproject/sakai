@@ -34,11 +34,11 @@
                          value="#{item.rowChoices}"
                          var="row"
                          rowIndexVar="rowIndex"
-                         columnClasses="Tablecolumn"
+                         columnClasses="matrixColumn"
                          rowClasses=""
                          frame="border"
                          rules="rows"
-                         styleClass="TableClass">
+                         styleClass="matrixTable">
                 <t:column headerstyle="#{item.relativeWidthStyle}" style="text-align:right;padding-left:0.3em" >
                     <f:facet name="header">
                         <t:outputText value="                "/>

@@ -4,7 +4,7 @@
     	#set ($rowCount=$rowCount + 1)
 	<li id="row-$rowCount" class="indnt3">
 		<div class="toolListControl">
-			<input type="checkbox" name="selectedTools" value="$toolMultipleId" id="$toolMultipleId"
+			<input type="checkbox" name="selectedTools" value="$toolMultipleId" id="$toolMultipleId" aria-describedby="${toolMultipleId}.desc"
 				## toolMultiples shouldn't be *required* but hey...
 				##if ($toolMultiple.isRequired())
 				##	disabled="disabled"
@@ -18,7 +18,7 @@
   	  			$title
    			</label>
 		</div>
-		<div class="toolListDesc textPanelFooter specialLink">
+		<div class="toolListDesc textPanelFooter specialLink" id="${toolMultipleId}.desc">
   			## in case a tool does not have description defined
   			#set($description="")
       			#set($description=$tool.getDescription())

@@ -29,6 +29,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 
 /**
@@ -87,7 +88,10 @@ public class PreviewImportedGradesPanel extends Panel
                 final GbUser user = details.getUser();
                 item.add( new Label( "studentID", user.getDisplayId() ) );
                 item.add( new Label( "studentName", user.getDisplayName() ) );
-                item.add( new Label( "studentGrade", details.getGrade() ) );
+
+                // Convert back to user's locale for display/validation purposes
+                String grade = FormatHelper.formatGradeForDisplay( details.getGrade() );
+                item.add( new Label( "studentGrade", grade ) );
             }
         };
 

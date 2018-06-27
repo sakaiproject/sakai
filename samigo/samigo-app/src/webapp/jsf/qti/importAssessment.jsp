@@ -37,6 +37,9 @@
  <div class="portletBody">
  <!-- content... -->
  <h:form id="importAssessmentForm" enctype="multipart/form-data">
+    <!-- HEADINGS -->
+    <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
+
     <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
 
     <div class="tier1">

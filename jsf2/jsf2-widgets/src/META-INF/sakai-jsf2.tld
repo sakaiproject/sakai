@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee web-jsptaglibrary_2_1.xsd"
+  xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="2.1">
+
+  <tlibversion>2.1</tlibversion> 
+  <jspversion>2.0</jspversion>
+
+  <short-name>sakai</short-name>
+  <uri>http://sakaiproject.org/jsf2/sakai</uri>
+  <description>
+<![CDATA[     This tag library contains Sakai 2.0 JavaServer Faces
+    component tags for creating user interface elements specified in the
+    <a href="http://cvs.sakaiproject.org/release/1.0.0/docs/Sakai-Style-Guide-1.0.0.pdf" target="_blank">Sakai style guide</a>.]]>
+  </description>
+
+  <tag>
+    <name>view</name>
+    <tag-class>org.sakaiproject.jsf2.tag.ViewTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Outermost container for a Sakai tool.  Parent should be a f:view tag.
+      Contains all other Sakai tags.  Responsible for rendering the HTML,
+      HEAD, and BODY tags (if necessary in the rendering context).  If the
+      tool is being rendered as a fragment of HTML, this tag will detect
+      this and not render the HTML, HEAD, and BODY.
+    </description>
+
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The page title.  Rendered as the HTML title of the tool page, unless
+        the tool is being aggreggated and doesn't have its own HTML document.
+      </description>
+    </attribute>
+    <attribute>
+      <name>toolCssHref</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The URL of a stylesheet whose link should go between the base
+        Sakai stylesheet and the installation skin stylesheet.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+
+    <tag>
+    <name>view_title</name>
+    <tag-class>org.sakaiproject.jsf2.tag.ViewTitleTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Output a view title according to the Sakai Style Guide.  Usually displayed at the
+      top of a tool page.
+    </description>
+    <attribute>
+      <name>indent</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          	  The integer intentation level at which to display this component - See the Sakai Style Guide.
+          	  Default is no special indentation.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+       The text of the title to display.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <example>
+    <![CDATA[
+    	<sakai:view_title value="Edit Announcement" indent="2" />
+   	]]>
+    </example>
+  </tag>
+  
+
+  <tag>
+    <name>tool_bar</name>
+    <tag-class>org.sakaiproject.jsf2.tag.ToolBarTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Renders a Sakai style toolbar at the top of the tool.  
+      Should be contained in an h:form tag.  Children are tool_bar_ttem or tool_bar_spacer tags.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The value binding expression linking this component to a property in a backing bean.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The component identifier for this component. This value must be unique
+        within the closest parent component that is a naming container.
+      </description>
+    </attribute>
+    
+    <attribute>
+    	<name>rendered</name>
+    	<required>false</required>
+    	<rtexprvalue>false</rtexprvalue>
+    	<type>boolean</type>
+    	<description>
+    	  Determine if this component is to be rendered.
+    	</description>
+    </attribute>
+    
+    <attribute>
+         <name>separator</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
+  </tag>
+
+  <tag>
+    <name>instruction_message</name>
+    <tag-class>org.sakaiproject.jsf2.tag.InstructionMessageTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Render an instructional message.  Should be contained in a sakai:view tag.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+   <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The message text
+      </description>
+    </attribute>
+
+  </tag>
+
+  <tag>
+    <name>button_bar</name>
+    <tag-class>org.sakaiproject.jsf2.tag.ButtonBarTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Render Sakai style button ("action") bar at the bottom of the tool.
+      See the Sakai Style Guide, "Item Summary Detail" and "Aggregated Item Summary".
+      Children are button_bar_item tags.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+
+  </tag>
+
+  <tag>
+    <name>group_box</name>
+    <tag-class>org.sakaiproject.jsf2.tag.GroupBoxTag</tag-class>
+    <body-content>JSP</body-content>
+    <description><![CDATA[
+      <b>DEPRECATED</b> - use panel_titled instead.
+      ]]>
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The group box title
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+
+    <name>panel_edit</name>
+    <tag-class>org.sakaiproject.jsf2.tag.PanelEditTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Setup an editing panel.  2 column layout.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+  </tag>
+
+   <tag>
+   	<name>separatedList</name>
+   	<tag-class>org.sakaiproject.jsf2.tag.SeparatedListTag</tag-class>
+     <body-content>JSP</body-content>
+     <description>
+    Adds a separator between the child nodes
+     </description>
+     <attribute>
+         <name>separator</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
+     <attribute>
+         <name>styleClass</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
+     <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Component id of this component.
+      </description>
+    </attribute>
+   </tag>
+
+</taglib>

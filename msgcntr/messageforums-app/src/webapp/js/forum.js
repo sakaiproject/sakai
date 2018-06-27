@@ -887,3 +887,26 @@ $(document).ready(function(){
     });
 
 });
+
+// rubrics-specific code
+var rubricChanged = false;
+rubricsEventHandlers = function () {
+    $('body').on('rubrics-event', function(e, payload){
+        if (payload.event == "total-points-updated") {
+            handleRubricsTotalPointChange(payload.value);
+        }
+        if (payload.event == "rubric-ratings-changed") {
+            console.log('rubric-ratings-changed');
+            rubricChanged = true;
+        }
+    });
+    console.log('Rubrics event handlers loaded');
+}
+
+// handles point changes for assignments, updating the grade field if it exists.
+handleRubricsTotalPointChange = function (points){
+    var gradeField = document.getElementById("msgForum:dfMsgGradeGradePoint");
+	if (gradeField != null && (gradeField.value === "" || rubricChanged)) {
+        gradeField.value = points;
+    }
+}

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder</artifactId>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -159,14 +159,12 @@
             <artifactId>commons-fileupload</artifactId>
         </dependency>
         <dependency>
-             <groupId>net.sf.opencsv</groupId>
+             <groupId>com.opencsv</groupId>
              <artifactId>opencsv</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.2</version>
         </dependency>
         
 

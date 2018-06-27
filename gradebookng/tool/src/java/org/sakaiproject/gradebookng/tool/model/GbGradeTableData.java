@@ -39,7 +39,9 @@ public class GbGradeTableData {
 	private GbRole role;
 	private Map<String, String> toolNameToIconCSS;
 	private String defaultIconCSS;
+	private boolean isUserAbleToEditAssessments;
 	private Map<String, Double> courseGradeMap;
+	private Map<Long, Boolean> hasAssociatedRubricMap;
 	private boolean isStudentNumberVisible;
 
 	public GbGradeTableData(final GradebookNgBusinessService businessService,
@@ -61,6 +63,7 @@ public class GbGradeTableData {
 			throw new RuntimeException(e);
 		}
 
+		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments();
 		assignments = businessService.getGradebookAssignments(sortBy);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
@@ -81,6 +84,8 @@ public class GbGradeTableData {
 
 		final Gradebook gradebook = businessService.getGradebook();
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
+
+		hasAssociatedRubricMap = businessService.buildHasAssociatedRubricMap(assignments);
 
 		isStudentNumberVisible = businessService.isStudentNumberVisible();
 	}
@@ -109,6 +114,10 @@ public class GbGradeTableData {
 		return role;
 	}
 
+	public boolean getisUserAbleToEditAssessments() {
+		return isUserAbleToEditAssessments;
+	}
+
 	public Map<String, String> getToolNameToIconCSS() {
 		return toolNameToIconCSS;
 	}
@@ -119,6 +128,10 @@ public class GbGradeTableData {
 
 	public Map<String, Double> getCourseGradeMap() {
 		return courseGradeMap;
+	}
+
+	public Map<Long, Boolean> getHasAssociatedRubricMap() {
+		return hasAssociatedRubricMap;
 	}
 
 	public boolean isStudentNumberVisible() {

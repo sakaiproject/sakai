@@ -60,7 +60,10 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 
 	// prefix for targetted messages that are source in tool configuration rather than a resource bundle
 	private final String TOOL_CONFIG_PREFIX = "toolconfig_";
-	
+
+	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
+	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
+
 	/* (non-Javadoc)
 	 * @see uk.org.ponder.rsf.view.ViewComponentProducer#getViewID()
 	 */
@@ -143,26 +146,9 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 			UIVerbatim.make(tofill,"main",messageLocator.getMessage("mainText", args));
 		}
 		UIForm form = UIForm.make(tofill,"form");
-		boolean skipExpirationTime=true;
-		String expirationTime=serverConfigurationService.getString("accountValidator.maxPasswordResetMinutes");
-		if (expirationTime != null && !"".equals(expirationTime))
-		{
-			try
-			{
-				int totalMinutes=Integer.parseInt(expirationTime);
+		int expirationTime = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+		UIOutput.make( form, "output", messageLocator.getMessage("explanation", new Object[]{getFormattedMinutes(expirationTime)} ));
 
-				skipExpirationTime=false;
-				UIOutput.make( form, "output", messageLocator.getMessage("explanation", new Object[]{getFormattedMinutes(totalMinutes)} ));
-			}
-			catch (NumberFormatException nfe)
-			{
-
-			}
-		}
-		if (skipExpirationTime)
-		{
-			UIOutput.make(form, "output", "");
-		}
 		UIInput.make(form,"input","#{userBean.email}");
 
 		boolean validatingAccounts = serverConfigurationService.getBoolean( "siteManage.validateNewUsers", false );

@@ -19,7 +19,7 @@
 		<property name="calendarEventId" column="calendar_event_id" type="string" length="2000" not-null="false"/>
 		<property name="calendarId" column="calendar_id" length="99" type="string"  not-null="false"/>
 		
-		<list name="signupGroups" cascade="save-update,delete" table="signup_site_groups" fetch="select" batch-size="50">
+		<list name="signupGroups" cascade="all" table="signup_site_groups" fetch="select" batch-size="50">
 			<key column="signup_site_id" not-null="true"/>
 			<list-index column="list_index" />
 			<composite-element class="org.sakaiproject.signup.model.SignupGroup">

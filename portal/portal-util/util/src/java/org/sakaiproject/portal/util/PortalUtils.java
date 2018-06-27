@@ -22,11 +22,21 @@
 package org.sakaiproject.portal.util;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 
 public class PortalUtils
 {
+
+	private static CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
 
 	/**
 	 * Returns an absolute URL for "/library" servlet with CDN path as necessary
@@ -142,6 +152,69 @@ public class PortalUtils
 
 	public static String getLatestJQueryPath() {
 		 return getWebjarsPath() + "jquery/1.12.4/jquery.min.js";
+	}
+	
+	/*
+	 * getPortalTermOrder - Gets the term order as sorted by the portal. Will take into consideration portal.term.order
+	 *   and the values returned by the CM service
+	 * Set tabsMoreTerms, a Set containing all terms to include (optional). 
+	 *   If provided it will both filter by this list and add anything in this list that isn't found in the CM table.
+	 *   
+	 * Returns a sorted term List
+	 */
+	public static List<String> getPortalTermOrder(Set <String> tabsMoreTerms) {
+		String[] termOrder = ServerConfigurationService.getStrings("portal.term.order");
+		List<String> tabsMoreSortedTermList = new ArrayList<String>();
+
+		// Order term column headers according to order specified in
+		// portal.term.order
+		// Filter out terms for which user is not a member of any sites
+
+		// SAK-19464 - Set tab order
+		// Property portal.term.order 
+		// Course sites (sorted in order by getAcademicSessions START_DATE ASC)
+		// Rest of terms in alphabetic order
+		if (termOrder != null && tabsMoreTerms != null)
+		{
+			for (int i = 0; i < termOrder.length; i++)
+			{
+				if (tabsMoreTerms.contains(termOrder[i]))
+				{
+					tabsMoreSortedTermList.add(termOrder[i]);
+				}
+			}
+		}
+
+		if (courseManagementService != null) {
+			Collection<AcademicSession> sessions = courseManagementService.getAcademicSessions();
+			for (AcademicSession s: sessions) {
+				String title = s.getTitle();
+				//Add this if the user doesn't specify to filter terms
+				if (tabsMoreTerms == null) {
+						tabsMoreSortedTermList.add(title);
+				}
+				else if (tabsMoreTerms.contains(title)) {
+					if (!tabsMoreSortedTermList.contains(title)) {
+						tabsMoreSortedTermList.add(title);
+					}
+				}
+			}
+		}
+		
+		if (tabsMoreTerms != null) {
+			Iterator<String> i = tabsMoreTerms.iterator();
+			while (i.hasNext())
+			{
+				String term = (String) i.next();
+				if (!tabsMoreSortedTermList.contains(term))
+				{
+					tabsMoreSortedTermList.add(term);
+
+				}
+			}
+		}
+
+		return tabsMoreSortedTermList;
 	}
 }
 

@@ -20,6 +20,15 @@
 		myForm.submit();
 		return false;
 	}
+
+    <!-- Initialize the Bootstrap-multiselect plugin: -->
+    $(document).ready(function() {
+        $('#filterByGroup').multiselect({
+            enableFiltering: true,
+            filterPlaceholder: '$tlang.getString("listassig.searchgroup")',
+            enableCaseInsensitiveFiltering: true
+        });
+    });
 </script>
 
 <div class="portletBody container-fluid">
@@ -34,6 +43,29 @@
 			$!tlang.getString('lisofass1')
 		</h1>
 	</div>
+
+	#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
+		<div class="row" id="filterByGroupDiv">
+			<div class="col-md-12">
+			<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+				<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
+					<div class="spinnerBesideContainer">
+						<label for="groupFilter">
+							$!tlang.getString("listassig.filterbygroup")
+						</label>
+						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+						<select id="filterByGroup" name="filterByGroup" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
+							<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
+							#foreach($group in $!filterGroupIterator)
+								<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
+							#end
+						</select>
+					</div>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+			</div>
+		</div>
+	#end
 
 	#if (!$!assignments.hasNext())
 		<p class="instruction">
@@ -235,12 +267,16 @@
 											#if ($!assignment.draft)
 												<span class="highlight">$tlang.getString("gen.dra2")</span>
 											#end
-												$validator.escapeHtml($validator.limit($!assignment.title, 64))
+												$validator.escapeHtml($!assignment.Title)
+											</a>
 
 											#if ($assignment.getContentReview())
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
-											</a>
+											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+												<i class="fa fa-table" aria-hidden="true" title="$tlang.getString("asn.list.userubric")"></i>
+											#end
+
 										</strong>
 										<div class="itemAction">
 											#set($prevAction=false)
@@ -287,14 +323,14 @@
 												#else
 													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">
 												#end
-												$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+												$validator.escapeHtml($assignment.Title)</a>
 											#else
 												#assignmentTitleIcon($assignment)
-												$validator.escapeHtml($validator.limit($assignment.Title, 40))
+												$validator.escapeHtml($assignment.Title)
 												#if ($!allowSubmit)
 													<div class="itemAction">
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$validator.escapeHtml($!assignment.Title)">
-															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($validator.limit($assignment.Title, 40))</span>
+															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($assignment.Title)</span>
 														</a>
 														<div id="subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 													</div>
@@ -330,16 +366,16 @@
 													#if ($service.canSubmit($assignment.Context, $assignment))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<strong>#assignmentTitleIcon($assignment)
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 														</strong>
 												#else
 														<strong>#assignmentTitleIcon($assignment)
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 														</strong>
 													#end
 												#else
 												<strong>#assignmentTitleIcon($assignment)
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 												</strong>
 												#end
 												#if ($taggable && $allowAddAssignment)
@@ -374,7 +410,7 @@
 													</div>
 												#end
 											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($validator.limit($assignment.Title, 40))</a>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 											#end
 										#end
 										#set ($deleted = false)
@@ -508,7 +544,7 @@
 								<td></td>
 								<!-- title col -->
 								<td class="peer-header">
-									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($validator.limit($assignment.Title, 40))</strong>
+									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($assignment.Title)</strong>
 									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
 								#if ($!groups && $!allowGradeSubmission)

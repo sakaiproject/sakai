@@ -37,6 +37,9 @@ public class GbStudentGradeInfo implements Serializable {
 	private String studentUuid;
 
 	@Getter
+	private String studentDisplayId;
+
+	@Getter
 	private String studentDisplayName;
 
 	@Getter
@@ -74,7 +77,7 @@ public class GbStudentGradeInfo implements Serializable {
 		studentDisplayName = u.getDisplayName();
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
-		studentNumber = "";
+		studentNumber = u.getStudentNumber();
 		grades = new HashMap<>();
 		categoryAverages = new HashMap<>();
 	}
@@ -82,6 +85,7 @@ public class GbStudentGradeInfo implements Serializable {
 	public GbStudentGradeInfo(final User u, final String studentNumber) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
+		this.studentDisplayId = u.getDisplayId();
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
 		this.studentDisplayName = u.getDisplayName();

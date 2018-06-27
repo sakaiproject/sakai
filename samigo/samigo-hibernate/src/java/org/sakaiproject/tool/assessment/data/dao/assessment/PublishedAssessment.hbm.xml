@@ -200,7 +200,7 @@
     table="SAM_PUBLISHEDSECTIONMETADATA_T">
     <id name="id" column="PUBLISHEDSECTIONMETADATAID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">
-        <param name="sequence">SAM_PUBLISHEDASSESSMENT_ID_S</param>
+        <param name="sequence">SAM_PUBSECTIONMETADATA_ID_S</param>
       </generator>
     </id>
     <many-to-one name="section" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.signup</groupId>
         <artifactId>signup</artifactId>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Signup Tool</name>
@@ -75,12 +75,12 @@
         <dependency>
             	<groupId>javax.faces</groupId>
             	<artifactId>jsf-api</artifactId>
-            	<version>1.2_15</version>
+            	<version>1.2_15-06</version>
         </dependency>
         <dependency>
             	<groupId>javax.faces</groupId>
             	<artifactId>jsf-impl</artifactId>
-               <version>1.2_15</version>
+               <version>1.2_15-06</version>
         </dependency>
 		<!-- end of JSF related version issue -->
 		
@@ -146,7 +146,7 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.opencsv</groupId>
+            <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
         </dependency>
         <dependency>

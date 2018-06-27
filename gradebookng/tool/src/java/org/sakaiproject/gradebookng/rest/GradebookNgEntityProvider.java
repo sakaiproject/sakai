@@ -15,12 +15,9 @@
  */
 package org.sakaiproject.gradebookng.rest;
 
-import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -40,15 +37,8 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
-import org.sakaiproject.gradebookng.rest.model.CourseGradeSummary;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -197,51 +187,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
 	}
 
-	@SuppressWarnings("unused")
-	@EntityCustomAction(action = "course-grades", viewKey = EntityView.VIEW_LIST)
-	public CourseGradeSummary getCourseGradeSummary(final EntityView view, final Map<String, Object> params) {
-
-		// get params
-		final String siteId = (String) params.get("siteId");
-		final String schema = (String) params.get("schema");
-
-		log.debug("Schema json:" + schema);
-
-		checkValidSite(siteId);
-		checkInstructor(siteId);
-
-		// if we have a schema provided, deserialise
-		Map<String, Double> gradingSchema = null;
-		if (StringUtils.isNotBlank(schema)) {
-			final Gson gson = new Gson();
-			final Type mappingType = new TypeToken<LinkedHashMap<String, Double>>() {
-			}.getType();
-			gradingSchema = gson.fromJson(schema, mappingType);
-
-			log.debug("provided gradeMap:" + gradingSchema);
-
-			if (gradingSchema == null) {
-				throw new IllegalArgumentException("Grading schema data was missing / invalid");
-			}
-		}
-
-		// if still null, use the persistent one for this gradebook
-		if (gradingSchema == null) {
-			log.debug("gradeMap not provided, using persistent one");
-			final GradebookInformation info = this.businessService.getGradebookSettings(siteId);
-			gradingSchema = info.getSelectedGradingScaleBottomPercents();
-			log.debug("persistent gradeMap:" + gradingSchema);
-		}
-
-		// ensure grading schema is sorted so the grade mapping works correctly
-		gradingSchema = GradeMappingDefinition.sortGradeMapping(gradingSchema);
-
-		// get the course grades and re-map to summary. Also sorts the data so it is ready for the consumer to use
-		final Map<String, CourseGrade> courseGrades = this.businessService.getCourseGrades(siteId, gradingSchema);
-		
-		return reMap(courseGrades, gradingSchema.keySet());
-	}
-
 	/**
 	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not. We don't currently need the value that this
 	 * produces so we don't return it.
@@ -325,30 +270,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("Your role could not be checked properly. This may be a role configuration issue in this site.");
 		}
 		return role;
-	}
-
-	/**
-	 * Re-map the course grades returned from the business service into our CourseGradeSummary object for returning on the REST API.
-	 * 
-	 * @param courseGrades map of student to course grade
-	 * @param gradingSchema the grading schema that has the order
-	 * @return
-	 */
-	private CourseGradeSummary reMap(final Map<String, CourseGrade> courseGrades, final Set<String> order) {
-		final CourseGradeSummary summary = new CourseGradeSummary();
-		courseGrades.forEach((k,v) -> {
-			summary.add(v.getDisplayGrade());
-		});
-		
-		//sort the map based on the ordered schema
-		Map<String, Integer> originalData = summary.getDataset();
-		Map<String, Integer> sortedData = new LinkedHashMap<>();
-		order.forEach(o -> {
-			sortedData.put(o, originalData.get(o));
-		});
-		summary.setDataset(sortedData);
-		
-		return summary;
 	}
 
 	@Setter

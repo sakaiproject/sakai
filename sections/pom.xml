@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
-    <version>13-SNAPSHOT</version>
+    <version>19-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
 
@@ -37,12 +37,6 @@
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-impl</artifactId>
         <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-integrationsupport</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

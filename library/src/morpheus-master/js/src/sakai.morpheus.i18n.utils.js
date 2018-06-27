@@ -1,5 +1,9 @@
 (function ($) {
 
+    if (!portal.loggedIn){
+        return;
+    }
+
     portal.i18n = portal.i18n || {};
     portal.i18n.translations = portal.i18n.translations || {};
 
@@ -18,7 +22,7 @@
 
         portal.i18n.translations[options.namespace] = portal.i18n.translations[options.namespace] || {};
 
-        $.ajax({
+        $PBJQ.ajax({
             url: '/sakai-ws/rest/i18n/getI18nProperties',
             cache: false,
             dataType: "text",

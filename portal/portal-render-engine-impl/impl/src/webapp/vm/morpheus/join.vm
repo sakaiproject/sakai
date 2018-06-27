@@ -7,6 +7,7 @@
         
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
         
+        <link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" rel="stylesheet" media="all">
         <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
         <script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>

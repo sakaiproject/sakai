@@ -38,10 +38,9 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import javax.annotation.Resource;
 
-import com.github.javafaker.Faker;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +54,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -68,7 +68,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -76,6 +75,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.github.javafaker.Faker;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -90,7 +93,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AssignmentService assignmentService;
     @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
-    @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private SiteService siteService;
     @Autowired private FormattedText formattedText;
     @Resource(name = "org.sakaiproject.time.api.UserTimeService")
@@ -692,6 +694,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         submitters.forEach(s -> {
                 Member member = mock(Member.class);
                 when(member.getUserId()).thenReturn(s);
+                Role r = mock(Role.class);
+                when(member.getRole()).thenReturn(r);
+                when(r.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)).thenReturn(true);
+                when(r.isAllowed(AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION)).thenReturn(false);
                 members.add(member);
         });
         when(group.getMembers()).thenReturn(members);
