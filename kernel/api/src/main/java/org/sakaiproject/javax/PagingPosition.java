@@ -167,6 +167,7 @@ public class PagingPosition implements Cloneable
 	{
 		if (m_first < 0) m_first = 1;
 		if (m_last > biggestLast) m_last = biggestLast;
+		if (m_first > biggestLast) m_first = biggestLast;
 		if (m_last < m_first) m_last = m_first;
 	}
 }
