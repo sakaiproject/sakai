@@ -79,6 +79,7 @@ import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
@@ -128,6 +129,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.PathEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
@@ -1137,7 +1139,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer tableContainer = null;
 
 			boolean first = true;
-			
+								
 			printSubpage(itemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 					container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
 					M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
@@ -1257,7 +1259,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer container, int cols, int colnum, boolean canEditPage, SimplePage currentPage, boolean[] anyItemVisible, long newItemId, boolean showRefresh, boolean canSeeAll, 
 			Locale M_locale, int ieVersion, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
 			boolean addedCommentsScript, boolean cameFromGradingPane, SimplePageItem pageItem, boolean noEditor, int commentsCount, int textboxcount) {
-					
+			
+			boolean subPageTitleIncluded = false;
+			boolean subPageTitleContinue = false;
+		
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
@@ -1347,12 +1352,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId()))			
 				{
 					// is a subpage		
-				
+					
 					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
 					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
 							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
-							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);				
+							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
+					
+					subPageTitleContinue = true;
 				}
 				else
 				{
@@ -3491,8 +3498,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (canSeeAll) {
 					    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 					    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+					    String subPagePath = null;
+					    if(!subPageTitleIncluded && httpServletRequest.getParameter("printall") != null)
+					    {
+					    	subPagePath = simplePageBean.getSubPagePath(i, false);
+					    	subPageTitleIncluded = true;					    	
+					    }
+					    if(subPageTitleContinue && httpServletRequest.getParameter("printall") != null)
+					    {
+					    	subPagePath = simplePageBean.getSubPagePath(i, true);
+					    	subPageTitleContinue = false;					    	
+					    }
+					    if (itemGroupTitles != null && subPagePath != null) {
+					    	itemGroupTitles = subPagePath +" - "+itemGroupTitles;
+					    }
+					    else if(subPagePath != null)
+					    {
+					    	itemGroupTitles = subPagePath;
+					    }
+					    
 					    if (itemGroupTitles != null) {
-						itemGroupTitles = "[" + itemGroupTitles + "]";
+					    	itemGroupTitles = "[" + itemGroupTitles + "]";
 					    }
 					    
 					    UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
