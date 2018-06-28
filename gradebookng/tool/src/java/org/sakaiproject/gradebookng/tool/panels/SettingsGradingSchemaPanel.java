@@ -15,10 +15,8 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -46,6 +43,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.gradebookng.business.FirstNameComparatorGbUser;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
@@ -421,20 +419,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.collect(Collectors.toList());
 
 		final List<GbUser> users = this.businessService.getGbUsers(userUuids);
-		users.sort(new Comparator<GbUser>() {
-			private final Collator collator;
-			{
-				collator = Collator.getInstance();
-				collator.setStrength(Collator.PRIMARY);
-			}
-			@Override
-			public int compare(GbUser g1, GbUser g2) {
-				return new CompareToBuilder()
-						.append(g1.getFirstName(), g2.getFirstName(), collator)
-						.append(g1.getLastName(), g2.getLastName(), collator)
-						.toComparison();
-			}
-		});
+		users.sort(new FirstNameComparatorGbUser());
 
 		return users;
 	}
