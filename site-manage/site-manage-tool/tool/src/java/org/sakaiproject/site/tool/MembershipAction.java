@@ -173,7 +173,7 @@ public class MembershipAction extends PagedResourceActionII
 
 		if( MY_ENROLMENTS_MODE.equals( mode ) )
 		{
-			String sortMode = ENROLMENTS_HANDLER.setSortModeForMyEnrolments( state );
+			String sortMode = ENROLMENTS_HANDLER.getSortModeForMyEnrolments( state );
 			ENROLMENTS_HANDLER.getSectionEnrolments( userDirectoryService.getCurrentUser().getId() );
 			rv = ENROLMENTS_HANDLER.getSortedAndPagedEnrolments( page, sortMode, sortAsc, StringUtils.isNotBlank( search ) );
 		}
@@ -299,23 +299,9 @@ public class MembershipAction extends PagedResourceActionII
 	 */
 	public String buildMyEnrolmentsContext( VelocityPortlet portlet, Context context, RunData runData, SessionState state )
 	{
-		// Get the sorting sequence (ascending/descending)
-		if( state.getAttribute( SORT_ASC ) == null )
-		{
-			state.setAttribute( SORT_ASC, Boolean.TRUE );
-		}
-		context.put( "currentSortAsc", state.getAttribute( SORT_ASC ) );
-
 		// Get the sort mode
-		String sortMode = ENROLMENTS_HANDLER.setSortModeForMyEnrolments( state );
+		String sortMode = ENROLMENTS_HANDLER.getSortModeForMyEnrolments( state );
 		context.put( "sortMode", sortMode );
-
-		// Get the search string (if any)
-		if( state.getAttribute( SEARCH_TERM ) == null )
-		{
-			state.setAttribute( SEARCH_TERM, "" );
-		}
-		context.put( SEARCH_TERM, state.getAttribute( SEARCH_TERM ) );
 
 		// Get the enrolments for the user, taking into consideration sorting, paging and filtering
 		List<Enrolment> currentUserEnrolments = prepPage( state );
@@ -425,19 +411,6 @@ public class MembershipAction extends PagedResourceActionII
 	 */
 	public String buildJoinableContext(VelocityPortlet portlet, Context context, RunData runData, SessionState state)
 	{
-		// the sorting sequence
-		if (state.getAttribute(SORT_ASC) == null)
-		{
-			state.setAttribute(SORT_ASC, Boolean.TRUE);
-		}
-		context.put("currentSortAsc", state.getAttribute(SORT_ASC));
-
-		if (state.getAttribute(SEARCH_TERM) == null)
-		{
-			state.setAttribute(SEARCH_TERM, "");
-		}
-		context.put(SEARCH_TERM, state.getAttribute(SEARCH_TERM));
-
 		List<Site> openSites = prepPage(state);
 		for (Site site : openSites)
 		{
@@ -616,4 +589,17 @@ public class MembershipAction extends PagedResourceActionII
 			state.setAttribute(SORT_ASC, !((Boolean) state.getAttribute(SORT_ASC)));
 		}
 	} // doToggle_sort
+
+	/**
+	 * toggle the sort ascending vs descending by property in enrolments view
+	 * @param data
+	 */
+	public void doToggle_sortEnrolments(RunData data)
+	{
+		doToggle_sort(data);
+
+		// Set the sort mode
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ENROLMENTS_HANDLER.setSortModeFromMyEnrolments(data, state);
+	}
 }
