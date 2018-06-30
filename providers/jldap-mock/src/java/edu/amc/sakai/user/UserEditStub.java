@@ -29,7 +29,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.w3c.dom.Document;
@@ -117,9 +116,6 @@ class UserEditStub implements UserEdit {
 		return null;
 	}
 
-	public Time getCreatedTime() {
-		return null;
-	}
     
     public String getUrlEmbeddableId() {
         return getDisplayId();
@@ -142,10 +138,6 @@ class UserEditStub implements UserEdit {
 	}
 
 	public User getModifiedBy() {
-		return null;
-	}
-
-	public Time getModifiedTime() {
 		return null;
 	}
 
@@ -285,12 +277,10 @@ class UserEditStub implements UserEdit {
 	}
 
 	public Date getCreatedDate() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Date getModifiedDate() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
