@@ -276,10 +276,12 @@ class UserEditStub implements UserEdit {
 		this.properties = properties;
 	}
 
+	@Override
 	public Date getCreatedDate() {
 		return null;
 	}
 
+	@Override
 	public Date getModifiedDate() {
 		return null;
 	}
