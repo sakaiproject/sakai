@@ -46,206 +46,204 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This is an abstract base class for gradebook dependent backing
- * beans that support searching, sorting, and paging student data.
+ * This is an abstract base class for gradebook dependent backing beans that support searching, sorting, and paging student data.
  */
 @Slf4j
 public abstract class EnrollmentTableBean
-    extends GradebookDependentBean implements Paging, Serializable {
+		extends GradebookDependentBean implements Paging, Serializable {
 
-    /**
-     * A comparator that sorts enrollments by student sortName
-     */
-    static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
-    	Collator collator;
-    	{
-    		this.collator = Collator.getInstance();
-	    	try
-	    	{
-	    		this.collator= new RuleBasedCollator(((RuleBasedCollator) this.collator).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-	    	} catch (final ParseException e) {
+	/**
+	 * A comparator that sorts enrollments by student sortName
+	 */
+	static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
+		Collator collator;
+		{
+			this.collator = Collator.getInstance();
+			try {
+				this.collator = new RuleBasedCollator(
+						((RuleBasedCollator) this.collator).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			} catch (final ParseException e) {
 				log.warn(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
 			}
-    	}
+		}
 
 		@Override
-		public int compare(final EnrollmentRecord o1, final EnrollmentRecord o2)
-		{
+		public int compare(final EnrollmentRecord o1, final EnrollmentRecord o2) {
 			return this.collator.compare(o1.getUser().getSortName(), o2.getUser().getSortName());
 		}
 	};
 
-    /**
-     * A comparator that sorts enrollments by student display UID (for installations
-     * where a student UID is not a number)
-     */
-    static final Comparator<EnrollmentRecord> ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator<EnrollmentRecord>() {
+	/**
+	 * A comparator that sorts enrollments by student display UID (for installations where a student UID is not a number)
+	 */
+	static final Comparator<EnrollmentRecord> ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator<EnrollmentRecord>() {
 		@Override
 		public int compare(final EnrollmentRecord o1, final EnrollmentRecord o2) {
-            return o1.getUser().getDisplayId().compareToIgnoreCase(o2.getUser().getDisplayId());
-        }
-    };
+			return o1.getUser().getDisplayId().compareToIgnoreCase(o2.getUser().getDisplayId());
+		}
+	};
 
-    /**
-     * A comparator that sorts enrollments by student display UID (for installations
-     * where a student UID is a number)
-     */
-    static final Comparator<EnrollmentRecord> ENROLLMENT_DISPLAY_UID_NUMERIC_COMPARATOR = new Comparator<EnrollmentRecord>() {
+	/**
+	 * A comparator that sorts enrollments by student display UID (for installations where a student UID is a number)
+	 */
+	static final Comparator<EnrollmentRecord> ENROLLMENT_DISPLAY_UID_NUMERIC_COMPARATOR = new Comparator<EnrollmentRecord>() {
 		@Override
 		public int compare(final EnrollmentRecord o1, final EnrollmentRecord o2) {
-            final long user1DisplayId = Long.parseLong(o1.getUser().getDisplayId());
-            final long user2DisplayId = Long.parseLong(o2.getUser().getDisplayId());
-            return (int)(user1DisplayId - user2DisplayId);
-        }
-    };
+			final long user1DisplayId = Long.parseLong(o1.getUser().getDisplayId());
+			final long user2DisplayId = Long.parseLong(o2.getUser().getDisplayId());
+			return (int) (user1DisplayId - user2DisplayId);
+		}
+	};
 
 	public static final int ALL_SECTIONS_SELECT_VALUE = -1;
 	public static final int ALL_CATEGORIES_SELECT_VALUE = -1;
 
-    private static Map columnSortMap;
-    private String searchString;
-    private int firstScoreRow;
-    public int maxDisplayedScoreRows;
-    private int scoreDataRows;
-    private boolean emptyEnrollments;	// Needed to render buttons
-    private String defaultSearchString;
+	private static Map columnSortMap;
+	private String searchString;
+	private int firstScoreRow;
+	public int maxDisplayedScoreRows;
+	private int scoreDataRows;
+	private boolean emptyEnrollments; // Needed to render buttons
+	private String defaultSearchString;
 
-    private boolean refreshRoster=true; // To prevent unnecessary roster loading
+	private boolean refreshRoster = true; // To prevent unnecessary roster loading
 
 	// The section selection menu will include some choices that aren't
 	// real sections (e.g., "All Sections" or "Unassigned Students".
 	private Integer selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
 	private List sectionFilterSelectItems;
-	private List availableSections;	// The real sections accessible by this user
+	private List availableSections; // The real sections accessible by this user
 
 	// The category selection menu will include some choices that aren't
 	// real categories (e.g., "All Categories") and will only be rendered if
 	// categories exists.
-    private Integer selectedCategoryFilterValue = new Integer(ALL_CATEGORIES_SELECT_VALUE);
-    private List availableCategories;
-    private List categoryFilterSelectItems;
+	private Integer selectedCategoryFilterValue = new Integer(ALL_CATEGORIES_SELECT_VALUE);
+	private List availableCategories;
+	private List categoryFilterSelectItems;
 
 	// We only store grader UIDs in the grading event history, but the
 	// log displays grader names instead. This map cuts down on possibly expensive
 	// calls to the user directory service.
 	private Map graderIdToNameMap;
 
-    public EnrollmentTableBean() {
-        this.maxDisplayedScoreRows = getPreferencesBean().getDefaultMaxDisplayedScoreRows();
-    }
+	public EnrollmentTableBean() {
+		this.maxDisplayedScoreRows = getPreferencesBean().getDefaultMaxDisplayedScoreRows();
+	}
 
-    static {
-        columnSortMap = new HashMap();
-        columnSortMap.put(PreferencesBean.SORT_BY_NAME, ENROLLMENT_NAME_COMPARATOR);
-        columnSortMap.put(PreferencesBean.SORT_BY_UID, ENROLLMENT_DISPLAY_UID_COMPARATOR);
-    }
+	static {
+		columnSortMap = new HashMap();
+		columnSortMap.put(PreferencesBean.SORT_BY_NAME, ENROLLMENT_NAME_COMPARATOR);
+		columnSortMap.put(PreferencesBean.SORT_BY_UID, ENROLLMENT_DISPLAY_UID_COMPARATOR);
+	}
 
-    // Searching
-    public String getSearchString() {
-        return this.searchString;
-    }
-    public void setSearchString(String searchString) {
-        if (StringUtils.trimToNull(searchString) == null) {
-            searchString = this.defaultSearchString;
-        }
-    	if (!StringUtils.equals(searchString, this.searchString)) {
-	    	if (log.isDebugEnabled()) {
+	// Searching
+	public String getSearchString() {
+		return this.searchString;
+	}
+
+	public void setSearchString(String searchString) {
+		if (StringUtils.trimToNull(searchString) == null) {
+			searchString = this.defaultSearchString;
+		}
+		if (!StringUtils.equals(searchString, this.searchString)) {
+			if (log.isDebugEnabled()) {
 				log.debug("setSearchString " + searchString);
 			}
-	        this.searchString = searchString;
-	        setFirstRow(0); // clear the paging when we update the search
-	    }
-    }
-    public void search(final ActionEvent event) {
-        // We don't need to do anything special here, since init will handle the search
-        if (log.isDebugEnabled()) {
+			this.searchString = searchString;
+			setFirstRow(0); // clear the paging when we update the search
+		}
+	}
+
+	public void search(final ActionEvent event) {
+		// We don't need to do anything special here, since init will handle the search
+		if (log.isDebugEnabled()) {
 			log.debug("search");
 		}
-        setRefreshRoster(true);
-    }
-    public void clear(final ActionEvent event) {
-        if (log.isDebugEnabled()) {
+		setRefreshRoster(true);
+	}
+
+	public void clear(final ActionEvent event) {
+		if (log.isDebugEnabled()) {
 			log.debug("clear");
 		}
-        setSearchString(null);
-        setRefreshRoster(true);
-    }
+		setSearchString(null);
+		setRefreshRoster(true);
+	}
 
-    // Sorting
-    public void sort(final ActionEvent event) {
-        setFirstRow(0); // clear the paging whenever we update the sorting
-        setRefreshRoster(true);
-    }
+	// Sorting
+	public void sort(final ActionEvent event) {
+		setFirstRow(0); // clear the paging whenever we update the sorting
+		setRefreshRoster(true);
+	}
 
-    public abstract boolean isSortAscending();
-    public abstract void setSortAscending(boolean sortAscending);
-    public abstract String getSortColumn();
-    public abstract void setSortColumn(String sortColumn);
+	public abstract boolean isSortAscending();
 
-    // Paging.
+	public abstract void setSortAscending(boolean sortAscending);
 
-    /**
-     * This method more or less turns a JSF input component (namely the Sakai Pager tag)
-     * into a JSF command component. We want the Pager to cause immediate pseudo-navigation
-     * to a new state, throwing away any score input values without bothering to
-     * validate them. But because the Pager is a UIInput component, it doesn't
-     * have an action method that will be called before full validation is done.
-     * Instead, we declare our Pager input tag to be immediate, set this
-     * valueChangeListener, and explicitly jump over all other intervening
-     * phases directly to the rendering phase, which should then pick up the new paging
-     * values.
-     */
-    public void changePagingState(final ValueChangeEvent valueChange) {
-    	if (log.isDebugEnabled()) {
+	public abstract String getSortColumn();
+
+	public abstract void setSortColumn(String sortColumn);
+
+	// Paging.
+
+	/**
+	 * This method more or less turns a JSF input component (namely the Sakai Pager tag) into a JSF command component. We want the Pager to
+	 * cause immediate pseudo-navigation to a new state, throwing away any score input values without bothering to validate them. But
+	 * because the Pager is a UIInput component, it doesn't have an action method that will be called before full validation is done.
+	 * Instead, we declare our Pager input tag to be immediate, set this valueChangeListener, and explicitly jump over all other intervening
+	 * phases directly to the rendering phase, which should then pick up the new paging values.
+	 */
+	public void changePagingState(final ValueChangeEvent valueChange) {
+		if (log.isDebugEnabled()) {
 			log.debug("changePagingState: old=" + valueChange.getOldValue() + ", new=" + valueChange.getNewValue());
 		}
-    	FacesContext.getCurrentInstance().renderResponse();
-    }
+		FacesContext.getCurrentInstance().renderResponse();
+	}
 
 	@Override
 	public int getFirstRow() {
-    	if (log.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			log.debug("getFirstRow " + this.firstScoreRow);
 		}
-    	return this.firstScoreRow;
-    }
+		return this.firstScoreRow;
+	}
 
 	@Override
 	public void setFirstRow(final int firstRow) {
-    	if (log.isDebugEnabled()) {
+		if (log.isDebugEnabled()) {
 			log.debug("setFirstRow from " + this.firstScoreRow + " to " + firstRow);
 		}
-    	this.firstScoreRow = firstRow;
-    	setRefreshRoster(true);
-    }
+		this.firstScoreRow = firstRow;
+		setRefreshRoster(true);
+	}
 
 	@Override
 	public int getMaxDisplayedRows() {
-        return this.maxDisplayedScoreRows;
-    }
+		return this.maxDisplayedScoreRows;
+	}
 
 	@Override
 	public void setMaxDisplayedRows(final int maxDisplayedRows) {
-        this.maxDisplayedScoreRows = maxDisplayedRows;
-        setRefreshRoster(true);
-    }
+		this.maxDisplayedScoreRows = maxDisplayedRows;
+		setRefreshRoster(true);
+	}
 
 	@Override
 	public int getDataRows() {
-        return this.scoreDataRows;
-    }
+		return this.scoreDataRows;
+	}
 
 	private boolean isFilteredSearch() {
-        return !StringUtils.equals(this.searchString, this.defaultSearchString);
+		return !StringUtils.equals(this.searchString, this.defaultSearchString);
 	}
 
 	/**
 	 *
-	 * @return Map of EnrollmentRecord to Map of gbItems and function (grade/view).
-	 * 			This is the group of students viewable on the roster page
+	 * @return Map of EnrollmentRecord to Map of gbItems and function (grade/view). This is the group of students viewable on the roster
+	 *         page
 	 */
 	protected Map getOrderedEnrollmentMapForAllItems() {
-        final Map enrollments = getWorkingEnrollmentsForAllItems();
+		final Map enrollments = getWorkingEnrollmentsForAllItems();
 
 		this.scoreDataRows = enrollments.size();
 		this.emptyEnrollments = enrollments.isEmpty();
@@ -255,8 +253,7 @@ public abstract class EnrollmentTableBean
 
 	/**
 	 *
-	 * @return Map of studentId to EnrollmentRecord in order. This is the group of
-	 * 			students viewable for the course grade page
+	 * @return Map of studentId to EnrollmentRecord in order. This is the group of students viewable for the course grade page
 	 */
 	protected Map getOrderedEnrollmentMapForCourseGrades() {
 		final Map enrollments = getWorkingEnrollmentsForCourseGrade();
@@ -271,8 +268,8 @@ public abstract class EnrollmentTableBean
 	 *
 	 * @param itemId
 	 * @param categoryId
-	 * @return Map of studentId to EnrollmentRecord in order. This is the group of
-	 * 			students viewable for a particular category associated with gb item
+	 * @return Map of studentId to EnrollmentRecord in order. This is the group of students viewable for a particular category associated
+	 *         with gb item
 	 */
 	protected Map getOrderedEnrollmentMapForItem(final Long categoryId) {
 		final Map enrollments = getWorkingEnrollmentsForItem(categoryId);
@@ -334,8 +331,7 @@ public abstract class EnrollmentTableBean
 
 	/**
 	 *
-	 * @return Map of EnrollmentRecord --> function (view/grade) that the current user
-	 * has grade/view permission for every gb item
+	 * @return Map of EnrollmentRecord --> function (view/grade) that the current user has grade/view permission for every gb item
 	 */
 	protected Map getWorkingEnrollmentsForCourseGrade() {
 		Map enrollments;
@@ -363,19 +359,19 @@ public abstract class EnrollmentTableBean
 		Map enrollmentMap;
 
 		if (isEnrollmentSort()) {
-			Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
+			Collections.sort(enrollmentList, (Comparator) columnSortMap.get(getSortColumn()));
 			enrollmentList = finalizeSortingAndPaging(enrollmentList);
-			enrollmentMap = new LinkedHashMap();	// Preserve ordering
-        } else {
-        	enrollmentMap = new HashMap();
-        }
+			enrollmentMap = new LinkedHashMap(); // Preserve ordering
+		} else {
+			enrollmentMap = new HashMap();
+		}
 
-        for (final Iterator iter = enrollmentList.iterator(); iter.hasNext(); ) {
-        	final EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-        	enrollmentMap.put(enr.getUser().getUserUid(), enr);
-        }
+		for (final Iterator iter = enrollmentList.iterator(); iter.hasNext();) {
+			final EnrollmentRecord enr = (EnrollmentRecord) iter.next();
+			enrollmentMap.put(enr.getUser().getUserUid(), enr);
+		}
 
-        return enrollmentMap;
+		return enrollmentMap;
 	}
 
 	/**
@@ -384,26 +380,25 @@ public abstract class EnrollmentTableBean
 	 * @return Ordered Map of student Id to map of EnrollmentRecord to function
 	 */
 	private Map transformToOrderedEnrollmentMapWithFunction(final Map enrRecFunctionMap) {
-		final Map studentIdEnrRecFunctionMap;
 		Map enrollmentMap;
 		List enrollmentList = new ArrayList(enrRecFunctionMap.keySet());
 
 		if (isEnrollmentSort()) {
-			Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
+			Collections.sort(enrollmentList, (Comparator) columnSortMap.get(getSortColumn()));
 			enrollmentList = finalizeSortingAndPaging(enrollmentList);
-			enrollmentMap = new LinkedHashMap();	// Preserve ordering
-        } else {
-        	enrollmentMap = new HashMap();
-        }
+			enrollmentMap = new LinkedHashMap(); // Preserve ordering
+		} else {
+			enrollmentMap = new HashMap();
+		}
 
-        for (final Iterator iter = enrollmentList.iterator(); iter.hasNext(); ) {
-        	final EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-        	final Map newEnrRecFunctionMap = new HashMap();
-        	newEnrRecFunctionMap.put(enr, enrRecFunctionMap.get(enr));
-        	enrollmentMap.put(enr.getUser().getUserUid(), newEnrRecFunctionMap);
-        }
+		for (final Iterator iter = enrollmentList.iterator(); iter.hasNext();) {
+			final EnrollmentRecord enr = (EnrollmentRecord) iter.next();
+			final Map newEnrRecFunctionMap = new HashMap();
+			newEnrRecFunctionMap.put(enr, enrRecFunctionMap.get(enr));
+			enrollmentMap.put(enr.getUser().getUserUid(), newEnrRecFunctionMap);
+		}
 
-        return enrollmentMap;
+		return enrollmentMap;
 	}
 
 	/**
@@ -417,15 +412,15 @@ public abstract class EnrollmentTableBean
 		List enrRecList = new ArrayList(enrollmentMapAllItems.keySet());
 
 		if (isEnrollmentSort()) {
-			Collections.sort(enrRecList, (Comparator)columnSortMap.get(getSortColumn()));
+			Collections.sort(enrRecList, (Comparator) columnSortMap.get(getSortColumn()));
 			enrRecList = finalizeSortingAndPaging(enrRecList);
-			enrollmentMap = new LinkedHashMap();	// Preserve ordering
+			enrollmentMap = new LinkedHashMap(); // Preserve ordering
 		} else {
 			enrollmentMap = new HashMap();
 		}
 
-		for (final Iterator iter = enrRecList.iterator(); iter.hasNext(); ) {
-			final EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+		for (final Iterator iter = enrRecList.iterator(); iter.hasNext();) {
+			final EnrollmentRecord enr = (EnrollmentRecord) iter.next();
 			enrollmentMap.put(enr, enrollmentMapAllItems.get(enr));
 		}
 
@@ -458,7 +453,7 @@ public abstract class EnrollmentTableBean
 	protected void init() {
 		this.graderIdToNameMap = new HashMap();
 
-        this.defaultSearchString = getLocalizedString("search_default_student_search_string");
+		this.defaultSearchString = getLocalizedString("search_default_student_search_string");
 		if (this.searchString == null) {
 			this.searchString = this.defaultSearchString;
 		}
@@ -468,13 +463,14 @@ public abstract class EnrollmentTableBean
 		this.sectionFilterSelectItems = new ArrayList();
 
 		// The first choice is always "All available enrollments"
-		this.sectionFilterSelectItems.add(new SelectItem(new Integer(ALL_SECTIONS_SELECT_VALUE), FacesUtil.getLocalizedString("search_sections_all")));
+		this.sectionFilterSelectItems
+				.add(new SelectItem(new Integer(ALL_SECTIONS_SELECT_VALUE), FacesUtil.getLocalizedString("search_sections_all")));
 
 		// TODO If there are unassigned students and the current user is allowed to see them, add them next.
 
 		// Add the available sections.
 		for (int i = 0; i < this.availableSections.size(); i++) {
-			final CourseSection section = (CourseSection)this.availableSections.get(i);
+			final CourseSection section = (CourseSection) this.availableSections.get(i);
 			this.sectionFilterSelectItems.add(new SelectItem(new Integer(i), section.getTitle()));
 		}
 
@@ -483,7 +479,8 @@ public abstract class EnrollmentTableBean
 		final int selectedSectionVal = this.selectedSectionFilterValue.intValue();
 		if ((selectedSectionVal >= 0) && (selectedSectionVal >= this.availableSections.size())) {
 			if (log.isInfoEnabled()) {
-				log.info("selectedSectionFilterValue=" + this.selectedSectionFilterValue.intValue() + " but available sections=" + this.availableSections.size());
+				log.info("selectedSectionFilterValue=" + this.selectedSectionFilterValue.intValue() + " but available sections="
+						+ this.availableSections.size());
 			}
 			this.selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
 		}
@@ -493,17 +490,14 @@ public abstract class EnrollmentTableBean
 		this.categoryFilterSelectItems = new ArrayList();
 
 		// The first choice is always "All Categories"
-		this.categoryFilterSelectItems.add(new SelectItem(new Integer(ALL_CATEGORIES_SELECT_VALUE), FacesUtil.getLocalizedString("search_categories_all")));
+		this.categoryFilterSelectItems
+				.add(new SelectItem(new Integer(ALL_CATEGORIES_SELECT_VALUE), FacesUtil.getLocalizedString("search_categories_all")));
 
 		// Add available categories
-		for (int i=0; i < this.availableCategories.size(); i++){
+		for (int i = 0; i < this.availableCategories.size(); i++) {
 			final Category cat = (Category) this.availableCategories.get(i);
 			this.categoryFilterSelectItems.add(new SelectItem(new Integer(cat.getId().intValue()), cat.getName()));
 		}
-
-		// If the selected value now falls out of legal range due to categories
-		// being deleted, throw it back to the default value (meaning all categories)
-		final int selectedCategoryVal = this.selectedCategoryFilterValue.intValue();
 	}
 
 	public boolean isAllSectionsSelected() {
@@ -518,7 +512,7 @@ public abstract class EnrollmentTableBean
 			if (this.availableSections == null) {
 				this.availableSections = getViewableSections();
 			}
-			final CourseSection section = (CourseSection)this.availableSections.get(filterValue);
+			final CourseSection section = (CourseSection) this.availableSections.get(filterValue);
 			return section.getUuid();
 		}
 	}
@@ -526,6 +520,7 @@ public abstract class EnrollmentTableBean
 	public Integer getSelectedSectionFilterValue() {
 		return this.selectedSectionFilterValue;
 	}
+
 	public void setSelectedSectionFilterValue(final Integer selectedSectionFilterValue) {
 		if (!selectedSectionFilterValue.equals(this.selectedSectionFilterValue)) {
 			this.selectedSectionFilterValue = selectedSectionFilterValue;
@@ -548,12 +543,12 @@ public abstract class EnrollmentTableBean
 			return null;
 		} else {
 			return Integer.toString(filterValue);
-			//Category cat = (Category) availableCategories.get(filterValue);
-			//return cat.getId().toString();
+			// Category cat = (Category) availableCategories.get(filterValue);
+			// return cat.getId().toString();
 		}
 	}
 
-	public String getCategoryUid(final String uid){
+	public String getCategoryUid(final String uid) {
 		if (uid == null) {
 			return null;
 		}
@@ -578,7 +573,7 @@ public abstract class EnrollmentTableBean
 		}
 	}
 
-	public void setSelectedCategoryFilterValue(final ValueChangeEvent event){
+	public void setSelectedCategoryFilterValue(final ValueChangeEvent event) {
 		final Integer newValue = (Integer) event.getNewValue();
 		if (!newValue.equals(this.selectedCategoryFilterValue)) {
 			this.selectedCategoryFilterValue = newValue;
@@ -591,23 +586,24 @@ public abstract class EnrollmentTableBean
 		return this.categoryFilterSelectItems;
 	}
 
-    public boolean isEmptyEnrollments() {
-        return this.emptyEnrollments;
-    }
+	public boolean isEmptyEnrollments() {
+		return this.emptyEnrollments;
+	}
 
-    public boolean isRefreshRoster() {
-    	return this.refreshRoster;
-    }
-    public void setRefreshRoster(final boolean refreshRoster) {
-    	this.refreshRoster = refreshRoster;
-    }
+	public boolean isRefreshRoster() {
+		return this.refreshRoster;
+	}
 
-    // Map grader UIDs to grader names for the grading event log.
-    public String getGraderNameForId(final String graderId) {
-    	if (this.graderIdToNameMap == null) {
+	public void setRefreshRoster(final boolean refreshRoster) {
+		this.refreshRoster = refreshRoster;
+	}
+
+	// Map grader UIDs to grader names for the grading event log.
+	public String getGraderNameForId(final String graderId) {
+		if (this.graderIdToNameMap == null) {
 			this.graderIdToNameMap = new HashMap();
 		}
-		String graderName = (String)this.graderIdToNameMap.get(graderId);
+		String graderName = (String) this.graderIdToNameMap.get(graderId);
 		if (graderName == null) {
 			try {
 				graderName = getGradebookBean().getUserDisplayName(graderId);
@@ -618,10 +614,10 @@ public abstract class EnrollmentTableBean
 			this.graderIdToNameMap.put(graderId, graderName);
 		}
 		return graderName;
-    }
+	}
 
-    // Support grading event logs.
-    public class GradingEventRow implements Serializable {
+	// Support grading event logs.
+	public class GradingEventRow implements Serializable {
 		private final Date date;
 		private final String graderName;
 		private String grade;
@@ -652,5 +648,5 @@ public abstract class EnrollmentTableBean
 		public String getGraderName() {
 			return this.graderName;
 		}
-    }
+	}
 }

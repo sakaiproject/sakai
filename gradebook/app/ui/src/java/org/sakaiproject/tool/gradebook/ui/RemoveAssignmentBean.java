@@ -22,6 +22,8 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,81 +33,58 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class RemoveAssignmentBean extends GradebookDependentBean implements Serializable {
-    // View maintenance fields - serializable.
-    private Long assignmentId;
-    private boolean removeConfirmed;
-    private GradebookAssignment assignment;
+
+	private static final long serialVersionUID = 1L;
+
+	// View maintenance fields - serializable.
+	@Getter
+	@Setter
+	private Long assignmentId;
+
+	@Getter
+	@Setter
+	private boolean removeConfirmed;
+
+	@Getter
+	@Setter
+	private GradebookAssignment assignment;
 
 	@Override
 	protected void init() {
-        if (this.assignmentId != null) {
-            this.assignment = getGradebookManager().getAssignment(this.assignmentId);
-            if (this.assignment == null) {
-                // The assignment might have been removed since this link was set up.
-                if (log.isWarnEnabled()) {
-					log.warn("No assignmentId=" + this.assignmentId + " in gradebookUid " + getGradebookUid());
-				}
+		if (this.assignmentId != null) {
+			this.assignment = getGradebookManager().getAssignment(this.assignmentId);
+			if (this.assignment == null) {
+				// The assignment might have been removed since this link was set up.
+				log.warn("No assignmentId=" + this.assignmentId + " in gradebookUid " + getGradebookUid());
+				// TODO Deliver an appropriate message.
+			}
+		}
+	}
 
-                // TODO Deliver an appropriate message.
-            }
-        }
-    }
-
-    public String removeAssignment() {
-        if(this.removeConfirmed) {
-            try {
-                getGradebookManager().removeAssignment(this.assignmentId);
-            } catch (final StaleObjectModificationException e) {
-                FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_locking_failure"));
-                return null;
-            }
-            final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+	public String removeAssignment() {
+		if (this.removeConfirmed) {
+			try {
+				getGradebookManager().removeAssignment(this.assignmentId);
+			} catch (final StaleObjectModificationException e) {
+				FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_locking_failure"));
+				return null;
+			}
+			final String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ? "instructor" : "TA";
 			getGradebookBean().postEvent("gradebook.deleteItem",
 					"/gradebook/" + getGradebookId() + "/" + this.assignment.getName() + "/" + authzLevel, true);
-            FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] {this.assignment.getName()}));
-            return "overview";
-        } else {
-            FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_confirmation_required"));
-            return null;
-        }
-    }
+			FacesUtil.addRedirectSafeMessage(getLocalizedString("remove_assignment_success", new String[] { this.assignment.getName() }));
+			return "overview";
+		} else {
+			FacesUtil.addErrorMessage(getLocalizedString("remove_assignment_confirmation_required"));
+			return null;
+		}
+	}
 
-    public String cancel() {
-        // Go back to the GradebookAssignment Details page for this assignment.
-        final AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
-        assignmentDetailsBean.setAssignmentId(this.assignmentId);
-        return "assignmentDetails";
-    }
+	public String cancel() {
+		// Go back to the GradebookAssignment Details page for this assignment.
+		final AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean) FacesUtil.resolveVariable("assignmentDetailsBean");
+		assignmentDetailsBean.setAssignmentId(this.assignmentId);
+		return "assignmentDetails";
+	}
 
-    public GradebookAssignment getAssignment() {
-        return this.assignment;
-    }
-    public void setAssignment(final GradebookAssignment assignment) {
-        this.assignment = assignment;
-    }
-
-    /**
-	 * @return Returns the assignmentId.
-	 */
-	public Long getAssignmentId() {
-		return this.assignmentId;
-	}
-	/**
-	 * @param assignmentId The assignmentId to set.
-	 */
-	public void setAssignmentId(final Long assignmentId) {
-		this.assignmentId = assignmentId;
-	}
-	/**
-	 * @return Returns the removeConfirmed.
-	 */
-	public boolean isRemoveConfirmed() {
-		return this.removeConfirmed;
-	}
-	/**
-	 * @param removeConfirmed The removeConfirmed to set.
-	 */
-	public void setRemoveConfirmed(final boolean removeConfirmed) {
-		this.removeConfirmed = removeConfirmed;
-	}
 }
