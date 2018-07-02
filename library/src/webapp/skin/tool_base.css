@@ -133,12 +133,8 @@ code {
 	padding: .3em 1em .3em .3em;
 }
 
-.itemSummaryHeader {
-	padding: .3em 1em 0em .3em;
-}
-
-.itemSummaryValue {
-	padding: 0em 1em .3em .3em;
+.itemSummaryHeader, .itemSummaryValue {
+	padding: .3em 1em .3em .3em;
 }
 
 table.itemSummary td, td.itemSummaryLite{
