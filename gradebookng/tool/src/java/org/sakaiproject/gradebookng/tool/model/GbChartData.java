@@ -39,7 +39,7 @@ public class GbChartData {
 	@Getter
 	@Setter
 	private String chartType;
-	
+
 	/**
 	 * HTML ID of the chart
 	 */
@@ -53,11 +53,21 @@ public class GbChartData {
 
 	/**
 	 * If label present then increment its count, otherwise add it
-	 * @param label letter grade we are wrking with
+	 *
+	 * @param label add to this axis increment
 	 */
 	public void add(final String label) {
-		this.dataset.computeIfPresent(label, (k,v) -> v+1);
+		this.dataset.computeIfPresent(label, (k, v) -> v + 1);
 		this.dataset.computeIfAbsent(label, value -> 1);
+	}
+
+	/**
+	 * Add the label but keep the count as zero. Useful for adding increments to axes without affecting the stats.
+	 *
+	 * @param label label to add as an axis increment
+	 */
+	public void addZeroed(final String label) {
+		this.dataset.put(label, 0);
 	}
 
 	@Override
