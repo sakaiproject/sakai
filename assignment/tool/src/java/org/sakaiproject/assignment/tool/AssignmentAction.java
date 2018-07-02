@@ -2586,13 +2586,10 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         else {
         	if (!StringUtils.isBlank(maxGrade)){
-        		int scaleFactor = assignmentService.getScaleFactor();
-        		validPointGrade(state, maxGrade, scaleFactor);
-        		maxGrade = scalePointGrade(state, maxGrade, scaleFactor);
         		context.put("value_GradePoints", assignmentService.getGradeDisplay(maxGrade, SCORE_GRADE_TYPE, assignmentService.getScaleFactor()));
         	}    	
-        }
-        context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));        
+        	context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING)); 
+        }      
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
 
         //Peer Assessment
