@@ -23,6 +23,7 @@ package org.sakaiproject.announcement.impl;
 
 import java.util.Iterator;
 import java.util.List;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
@@ -78,6 +79,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	private SiteService siteService;
 	private TimeService timeService;
 	private UserDirectoryService userDirectoryService;
+	
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
 
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
@@ -186,11 +190,21 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// Now build up the message text.
 		if (AnnouncementService.SECURE_ANNC_ADD.equals(event.getEvent()))
 		{
-			buf.append(rb.getFormattedMessage("noti.header.add", new Object[]{title, url}));
+			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
+				buf.append(rb.getFormattedMessage("noti.header.sender.info.add", title, url, hdr.getFrom().getDisplayName()));
+			}
+			else {
+				buf.append(rb.getFormattedMessage("noti.header.add", title, url));
+			}
 		}
 		else
 		{
-			buf.append(rb.getFormattedMessage("noti.header.update", new Object[]{title, url}));
+			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
+				buf.append(rb.getFormattedMessage("noti.header.sender.info.update", title, url, hdr.getFrom().getDisplayName()));
+			}
+			else {
+				buf.append(rb.getFormattedMessage("noti.header.update", title, url));
+			}
 		}
 		buf.append(" " + rb.getString("at_date") + " ");
 		buf.append(hdr.getDate().toStringLocalFull());
@@ -523,12 +537,22 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// Now build up the message text.
 		if (AnnouncementService.SECURE_ANNC_ADD.equals(event.getEvent()))
 		{
-			buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", new Object[]{title,url})));
+			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
+				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.add", title, url, hdr.getFrom().getDisplayName())));
+			}
+			else {
+				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", title, url)));
+			}
 
 		}
 		else
 		{
-			buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", new Object[]{title,url})));
+			if(!serverConfigurationService.getBoolean("notify.email.from.replyable", false)) {
+				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.sender.info.update", title, url, hdr.getFrom().getDisplayName())));
+			}
+			else {
+				buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", title, url)));
+			}
 		}
 		
         buf.append(" " + rb.getString("at_date") + " ");
