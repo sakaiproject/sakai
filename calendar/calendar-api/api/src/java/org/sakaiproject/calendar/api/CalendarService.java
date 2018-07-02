@@ -286,10 +286,11 @@ public interface CalendarService
 	* Access the internal reference which can be used to access the calendar-in-pdf format from within the system.
 	* @param context The context.
 	* @param id The calendar id.
+	* @param reverseOrder to order the event list as in ListView
 	* @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
 	*/
 	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString,
-			String userName, TimeRange dailyTimeRange);
+			String userName, TimeRange dailyTimeRange, boolean reverseOrder);
 
 	/**
 	* Access the internal reference which can be used to access the calendar-in-ical format from within the system.
@@ -353,6 +354,16 @@ public interface CalendarService
 	* @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
 	*/
 	public CalendarEventVector getEvents(List references, TimeRange range);
+	
+	/**
+	 * Takes several calendar References and merges their events from within a given time range.
+	 * 
+	 * @param references The List of calendar References.
+	 * @param range The time period to use to select events.
+	 * @param reverseOrder CalendarEventVector object will be ordered reverse.       
+	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
+	 */
+	public CalendarEventVector getEvents(List references, TimeRange range, boolean reverseOrder);
 
 	/**
 	 * Construct a new recurrence rule who's frequency description matches the frequency parameter.

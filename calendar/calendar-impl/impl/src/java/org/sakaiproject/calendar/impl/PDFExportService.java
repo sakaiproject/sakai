@@ -253,7 +253,7 @@ public class PDFExportService {
      * @param baseCalendarService
      */
     void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, TimeRange dailyTimeRange,
-                                       List calendarReferenceList, String userID, BaseCalendarService baseCalendarService)
+                                       List calendarReferenceList, String userID, BaseCalendarService baseCalendarService, boolean reverseOrder)
     {
 
         // This list will have an entry for every week day that we care about.
@@ -284,7 +284,7 @@ public class PDFExportService {
                 //
                 actualTimeRange = timeRange;
 
-                timeRangeList = makeListViewTimeRangeList(actualTimeRange, calendarReferenceList, baseCalendarService);
+                timeRangeList = makeListViewTimeRangeList(actualTimeRange, calendarReferenceList, baseCalendarService, reverseOrder);
                 break;
 
             case CalendarService.DAY_VIEW:
@@ -535,8 +535,9 @@ public class PDFExportService {
      * @param timeRange
      * @param calendarReferenceList
      * @param baseCalendarService
+     * @param reverseOrder
      */
-    private List makeListViewTimeRangeList(TimeRange timeRange, List calendarReferenceList, BaseCalendarService baseCalendarService)
+    private List makeListViewTimeRangeList(TimeRange timeRange, List calendarReferenceList, BaseCalendarService baseCalendarService, boolean reverseOrder)
     {
         // This is used to dimension a hash table. The default load factor is .75.
         // A rehash isn't done until the number of items in the table is .75 * the number
@@ -546,7 +547,7 @@ public class PDFExportService {
         List listOfDays = new ArrayList();
 
         // Get a list of merged events.
-        CalendarEventVector calendarEventVector = baseCalendarService.getEvents(calendarReferenceList, timeRange);
+        CalendarEventVector calendarEventVector = baseCalendarService.getEvents(calendarReferenceList, timeRange, reverseOrder);
 
         Iterator itEvents = calendarEventVector.iterator();
         HashMap datesSeenSoFar = new HashMap(DEFAULT_INITIAL_HASH_CAPACITY);
