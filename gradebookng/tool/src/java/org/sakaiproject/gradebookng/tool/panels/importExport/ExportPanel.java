@@ -76,7 +76,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeGradeOverride = false;
 	GbGroup group;
 
-	Component customDownloadLink;
+	private Component customDownloadLink;
 
 	public ExportPanel(final String id) {
 		super(id);
