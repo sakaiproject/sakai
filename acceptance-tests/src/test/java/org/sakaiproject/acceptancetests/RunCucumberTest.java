@@ -10,7 +10,10 @@ import org.junit.runner.RunWith;
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 
+/**
+ * Run this via `mvn test` to generate missing cucumber stepdefs for all feature files
+ */
 @RunWith(Cucumber.class)
-@CucumberOptions(plugin = {"pretty"})
+@CucumberOptions(plugin = "pretty", dryRun = true)
 public class RunCucumberTest {
 }
