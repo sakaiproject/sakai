@@ -29,8 +29,6 @@ import org.sakaiproject.content.api.*;
 import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.SakaiFsService;
 import org.sakaiproject.elfinder.sakai.SiteVolume;
-import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
-import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -39,6 +37,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -379,8 +378,33 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             return null;
         }
 
+        private boolean checkResourcesToolAccess(String id) {
+
+            // Dropbox is always available
+            if (contentHostingService.isInDropbox(id)) {
+                return true;
+            }
+
+            boolean hasSiteUpd = false;
+            boolean resourcesVisible = false;
+            try {
+              String[] refParts = id.split("/");
+              String refId = refParts[1].equalsIgnoreCase("user") ? siteService.getUserSiteId(refParts[2]) : refParts[2];
+              Site currentSite = siteService.getSite(refId);
+              hasSiteUpd = securityService.unlock("site.upd", currentSite.getReference());
+              Properties resourcesConfig = currentSite.getToolForCommonId("sakai.resources").getConfig();
+              resourcesVisible = "true".equalsIgnoreCase(resourcesConfig.getProperty("sakai-portal:visible"));
+            } catch (Exception e) {
+              log.warn("Failed to verify access to resources tool re: " + id, e);
+            }
+            return (hasSiteUpd || resourcesVisible);
+        }
+
         public boolean hasChildFolder(FsItem fsi) {
             String id = asId(fsi);
+            if (!checkResourcesToolAccess(id)) {
+                return false;
+            }
             try {
                 // For sites that don't have a root folder yet this will fail.
                 ContentCollection collection = contentHostingService.getCollection(id);
@@ -414,6 +438,9 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         public FsItem[] listChildren(FsItem fsi) {
             String id = asId(fsi);
+            if (!checkResourcesToolAccess(id)) {
+                return new FsItem[0];
+            }
             try {
                 ContentCollection collection = contentHostingService.getCollection(id);
                 List<FsItem> items = new ArrayList<>();
