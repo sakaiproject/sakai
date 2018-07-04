@@ -663,7 +663,7 @@ function printView(url) {
 									#if($!submission)
 										#foreach($item in $peerAssessmentItems.get($userSubmission.Submission.Id))
 											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=${userSubmission.Submission.Id}&assessorId=$item.getId().getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
-											#if($item.isRemoved())
+											#if($item.Removed)
 												<span style="text-decoration: line-through">
 											#else
 												<span>
@@ -676,7 +676,7 @@ function printView(url) {
 											</span>
 											</a>
 											#if($!item.getScoreDisplay().length() > 0 || ($!item.getComment() && $!item.getComment().trim().length() > 0))
-												<span class="highlight" #if($item.isRemoved()) style="text-decoration: line-through" #end>
+												<span class="highlight" #if($item.Removed) style="text-decoration: line-through" #end>
 													#if($item.isDraft())
 														-&nbsp;$tlang.getString("gen.dra1")
 													#else
@@ -691,7 +691,7 @@ function printView(url) {
 								<td>
 									#if($!submission)
 										#foreach($item in $peerAssessmentItems.get($userSubmission.Submission.Id))
-											#if($item.isRemoved())
+											#if($item.Removed)
 												<span style="text-decoration: line-through">
 											#else
 												<span>
