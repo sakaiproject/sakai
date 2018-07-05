@@ -3133,8 +3133,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         final String latenessStatus = whenSubmissionMade(s);
 
                         //Adding the row
-                        sheet.addRow(submitterString, submittersString, submitters2String, // TODO gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
-                                s.getGrade(), s.getDateSubmitted().toString(), latenessStatus);
+                        sheet.addRow(submitterString, submittersString.toString(), submitters2String.toString(), // TODO gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
+                                s.getGrade(), s.getDateSubmitted() != null ? s.getDateSubmitted().toString() : StringUtils.EMPTY, latenessStatus);
 
                         if (StringUtils.trimToNull(submitterString) != null) {
                             submittersName.append(StringUtils.trimToNull(submitterString));
