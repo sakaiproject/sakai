@@ -500,6 +500,8 @@ nav#subSites{
 			&.is-current{
 				position: relative;
 				margin-right: -1px;
+				font-size: 1.2em;
+				border-right: $tool-menu-item-selected-border-right;
 
 				.Mrphs-toolsNav__menuitem--link{
 					color: $tool-menu-item-selected-text-color;
