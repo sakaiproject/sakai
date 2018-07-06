@@ -16,7 +16,6 @@
 package org.sakaiproject.archive.tool;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,14 +29,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.SessionManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Download servlet for archive downloads. Restricted to super user as per normal archive tool

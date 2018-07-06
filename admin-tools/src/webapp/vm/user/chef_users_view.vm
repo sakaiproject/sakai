@@ -54,7 +54,7 @@
                 </div>
                 <div class="shorttext">
                     <label>$tlang.getString("useedi.cre")</label>
-                    $validator.escapeHtml($user.CreatedTime.toStringLocalFull())
+                   	$adminUtil.dateTimeFormatLong($user.CreatedDate, $tlang.Locale)
                 </div>
                 <div class="shorttext">
                     <label>$tlang.getString("useedi.modby")</label>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="shorttext">
                     <label>$tlang.getString("useedi.mod")</label>
-                    $validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
+                    $adminUtil.dateTimeFormatLong($user.ModifiedDate, $tlang.Locale))
                 </div>
                            
 				<div class="act">

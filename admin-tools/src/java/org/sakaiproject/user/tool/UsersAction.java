@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.admintool.util.AdminUtil;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -278,6 +279,7 @@ public class UsersAction extends PagedResourceActionII
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("adminUtil", AdminUtil.class);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("UsersAction"));
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();

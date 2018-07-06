@@ -200,7 +200,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.cre")</th>
 					<td>
-						#if ($site.CreatedTime) $validator.escapeHtml($site.CreatedTime.toStringLocalFull()) #end
+						#if ($site.CreatedDate) $adminUtil.dateTimeFormatLong($site.CreatedDate, $tlang.Locale) #end
 					</td>
 				</tr>
 				<tr>
@@ -212,7 +212,7 @@
 				<tr>
 					<th>$tlang.getString("sitedi.mod")</th>
 					<td>
-						#if ($site.ModifiedTime) $validator.escapeHtml($site.ModifiedTime.toStringLocalFull()) #end
+						#if ($site.ModifiedDate) $adminUtil.dateTimeFormatLong($site.ModifiedDate, $tlang.Locale) #end
 					</td>
 				</tr>
 				<tr>
