@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.function.*;
+import org.hibernate.dialect.function.StandardAnsiSqlAggregationFunctions;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.springframework.context.ApplicationContext;
@@ -44,8 +44,8 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class AddableSessionFactoryBean extends LocalSessionFactoryBean implements ApplicationContextAware {
-
+public class AddableSessionFactoryBean extends LocalSessionFactoryBean implements ApplicationContextAware
+{
 	@Setter private ApplicationContext applicationContext;
 	@Setter private ServerConfigurationService serverConfigurationService;
 
@@ -85,5 +85,4 @@ public class AddableSessionFactoryBean extends LocalSessionFactoryBean implement
 
 		return sfb.buildSessionFactory();
 	}
-
 }
