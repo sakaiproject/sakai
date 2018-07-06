@@ -2244,7 +2244,7 @@
         <configuration>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
-	        <lombok.disable>true</lombok.disable>
+            <lombok.disable>true</lombok.disable>
             <!-- Pass through important service-integration test properties. -->
             <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
             <!--suppress MavenModelInspection -->
