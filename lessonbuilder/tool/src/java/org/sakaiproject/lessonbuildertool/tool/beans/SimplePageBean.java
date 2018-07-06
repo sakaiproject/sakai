@@ -8514,6 +8514,10 @@ public class SimplePageBean {
 		    log.info("unable to get members of group {}", group);
 		}
 	    }
+		if (groupMembers == null) {
+			return new ArrayList<String>();
+		}
+		        
 	    return groupMembers;
 	}	    
 
