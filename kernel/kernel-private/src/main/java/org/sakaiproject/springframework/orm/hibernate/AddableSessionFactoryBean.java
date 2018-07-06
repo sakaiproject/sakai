@@ -27,9 +27,7 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.function.ClassicAvgFunction;
-import org.hibernate.dialect.function.ClassicCountFunction;
-import org.hibernate.dialect.function.ClassicSumFunction;
+import org.hibernate.dialect.function.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.springframework.context.ApplicationContext;
@@ -46,8 +44,8 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class AddableSessionFactoryBean extends LocalSessionFactoryBean implements ApplicationContextAware
-{
+public class AddableSessionFactoryBean extends LocalSessionFactoryBean implements ApplicationContextAware {
+
 	@Setter private ApplicationContext applicationContext;
 	@Setter private ServerConfigurationService serverConfigurationService;
 
@@ -57,9 +55,9 @@ public class AddableSessionFactoryBean extends LocalSessionFactoryBean implement
 	public void init() {
 		// Provide backwards compatibility with Hibernate 3.1.x behavior for aggregate functions.
 		Configuration config = getConfiguration();
-		config.addSqlFunction("count", new ClassicCountFunction());
-		config.addSqlFunction("avg", new ClassicAvgFunction());
-		config.addSqlFunction("sum", new ClassicSumFunction());
+		config.addSqlFunction("count", StandardAnsiSqlAggregationFunctions.CountFunction.INSTANCE);
+		config.addSqlFunction("avg", StandardAnsiSqlAggregationFunctions.AvgFunction.INSTANCE);
+		config.addSqlFunction("sum", StandardAnsiSqlAggregationFunctions.SumFunction.INSTANCE);
 	}
 
 	@Override
@@ -87,4 +85,5 @@ public class AddableSessionFactoryBean extends LocalSessionFactoryBean implement
 
 		return sfb.buildSessionFactory();
 	}
+
 }
