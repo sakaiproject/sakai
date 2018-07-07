@@ -5629,7 +5629,17 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null) {
             String peerAssessor = (String) state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID);
             ParameterParser params = data.getParameters();
-            String submissionId = params.getString("submissionId");
+            String submissionRef = params.getString("submissionId");
+            String submissionId = null;
+            if(submissionRef != null){
+            	submissionRef = submissionRef.endsWith("/") ? StringUtils.chop(submissionRef) : submissionRef;
+                int i = submissionRef.lastIndexOf(Entity.SEPARATOR);
+                if (i == -1){
+                    submissionId = submissionRef;
+                }else{
+                    submissionId = submissionRef.substring(i + 1);
+                }
+            }
             if (submissionId != null) {
                 //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
                 PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, peerAssessor);

@@ -1,0 +1,45 @@
+.#{$namespace}joinpage {
+    position: fixed;
+    width: 100%;
+    min-height: 14em;
+    background: $body-background-color;
+
+    .join {
+        position: fixed;
+        top: calc(50% - 17em);
+        left: calc(50% - 17em);
+        width: 34em;
+        min-height: 14em;
+        background: #fff;
+        box-shadow: 0 0 5px rgba(33,33,33,0.25);
+    }
+
+    h1 {
+        padding: 0.6em;
+        font-size: 1.8em;
+        color: $primary-color;
+        text-align: center;
+    }
+
+    .logo {
+        background: $background-color-secondary url($logo) no-repeat center center;
+        background-size: $logo-width $logo-height;
+        width: 100%;
+        height: calc(#{$logo-height} * 2);
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    p {
+        margin: 1em 1em 0 1em;
+    }
+
+    form {
+        padding: 1em;
+        text-align: right;
+
+        input:last-of-type {
+            margin-right: 0;
+        }
+    }
+}

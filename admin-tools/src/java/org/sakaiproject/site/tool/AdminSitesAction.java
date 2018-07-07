@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.tool;
 
+import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,8 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.admintool.util.AdminUtil;
@@ -58,8 +58,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -68,18 +68,20 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -1381,7 +1383,6 @@ public class AdminSitesAction extends PagedResourceActionII
 	{
 		// read the form
 		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
-		String title = StringUtils.trimToNull(data.getParameters().getString("title"));
 		String type = StringUtils.trimToNull(data.getParameters().getString("type"));
 		String shortDescription = StringUtils.trimToNull(data.getParameters().getString("shortDescription"));
 		String description = StringUtils.trimToNull(data.getParameters().getString("description"));
@@ -1394,6 +1395,22 @@ public class AdminSitesAction extends PagedResourceActionII
 		String skin = StringUtils.trimToNull(data.getParameters().getString("skin"));
 		boolean pubView = data.getParameters().getBoolean("pubView");
 		boolean customOrder = data.getParameters().getBoolean("customOrder");
+
+		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+		String titleOrig = data.getParameters().getString("title");
+		String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+		SiteTitleValidationStatus status = siteService.validateSiteTitle(titleOrig, titleStripped);
+
+		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
+			addAlert(state, rb.getString("siteTitle.htmlStrippedToEmpty"));
+			return false;
+		} else if (SiteTitleValidationStatus.EMPTY.equals(status)) {
+			addAlert(state, rb.getString("siteTitle.Empty"));
+			return false;
+		} else if (SiteTitleValidationStatus.TOO_LONG.equals(status)) {
+			addAlert(state, rb.getFormattedMessage("siteTitle.maxLength", new Object[]{SITE_TITLE_MAX_LENGTH}));
+			return false;
+		}
 
 		// get the site
 		Site site = (Site) state.getAttribute("site");
@@ -1484,7 +1501,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				}
 			}
 
-			site.setTitle(title);
+			site.setTitle(titleStripped);
 			site.setShortDescription(shortDescription);
 			site.setDescription(description);
 			site.setJoinable(joinable);
