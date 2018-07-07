@@ -207,7 +207,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			try
 			{
-				Site site = siteService.getSite(siteId);
+				siteService.getSite(siteId);
 				return 1;
 			}
 			catch (IdUnusedException e)
@@ -368,12 +368,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 
 		String template = null;
-
-		// get the Sakai session
-		Session session = sessionManager.getCurrentSession();
-
-		// get the Tool session
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
 		// check mode and dispatch
 		String mode = (String) state.getAttribute("mode");
@@ -1205,7 +1199,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		try
 		{
 			// make a new site with this id and as a structural copy of site
-			Site newSite = siteService.addSite(id, site);
+			siteService.addSite(id, site);
 		}
 		catch (IdUsedException e)
 		{
