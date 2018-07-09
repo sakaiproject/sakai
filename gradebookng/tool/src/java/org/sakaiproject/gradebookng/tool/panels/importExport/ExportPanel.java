@@ -263,7 +263,7 @@ public class ExportPanel extends BasePanel {
 				if (!isCustomExport || this.includeStudentId) {
 					header.add(getString("importExport.export.csv.headers.studentId"));
 				}
-				if (isCustomExport || this.includeStudentDisplayId) {
+				if (isCustomExport && this.includeStudentDisplayId) {
 					header.add(getString("importExport.export.csv.headers.studentDisplayId"));
 				}
 				if (!isCustomExport || this.includeStudentName) {
@@ -335,8 +335,8 @@ public class ExportPanel extends BasePanel {
 					if (!isCustomExport || this.includeStudentId) {
 						line.add(studentGradeInfo.getStudentEid());
 					}
-					if (isCustomExport || this.includeStudentDisplayId) {
-						header.add(studentGradeInfo.getStudentDisplayId());
+					if (isCustomExport && this.includeStudentDisplayId) {
+						line.add(studentGradeInfo.getStudentDisplayId());
 					}
 					if (!isCustomExport || this.includeStudentName) {
 						line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());

@@ -43,7 +43,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.gradebookng.business.FirstNameComparator;
+import org.sakaiproject.gradebookng.business.FirstNameComparatorGbUser;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
@@ -52,7 +52,6 @@ import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
-import org.sakaiproject.user.api.User;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -423,15 +422,10 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				.map(c -> c.getKey())
 				.collect(Collectors.toList());
 
-		final List<User> users = this.businessService.getUsers(userUuids);
-		Collections.sort(users, new FirstNameComparator());
+		final List<GbUser> users = this.businessService.getGbUsers(userUuids);
+		users.sort(new FirstNameComparatorGbUser());
 
-		final List<GbUser> rval = new ArrayList<>();
-		users.forEach(u -> {
-			rval.add(new GbUser(u));
-		});
-
-		return rval;
+		return users;
 	}
 
 	/**
@@ -649,8 +643,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		/**
 		 * Refresh the grading schema table
-		 *
-		 * @param target
 		 */
 		private void refreshGradingSchemaTable() {
 			// fetch current data from model, sort and refresh the table
@@ -663,8 +655,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		/**
 		 * Refresh messages
-		 *
-		 * @param target
 		 */
 		private void refreshMessages() {
 
