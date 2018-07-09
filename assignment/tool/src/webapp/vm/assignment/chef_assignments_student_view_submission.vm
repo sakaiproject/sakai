@@ -615,6 +615,19 @@ $(document).ready(function(){
 									</em>
 								</p>
 							#end
+							#if ($plagiarismEULALink)
+								<p class="checkbox highlightPanel form-required">
+									<label for="$name_plagiarism_eula_agreement">
+										#if ($value_plagiarism_eula_agreement.equals("true"))
+											<input id="$name_plagiarism_eula_agreement" type="checkbox" name="$name_plagiarism_eula_agreement" value="true" checked="checked"/>
+										#else
+											<input id="$name_plagiarism_eula_agreement" type="checkbox" name="$name_plagiarism_eula_agreement" value="true"/>
+										#end
+										$tlang.getString("review.eula.agreement")&nbsp;<a href="$plagiarismEULALink" target="_blank">$tlang.getString("review.eula")</a>
+									</label>
+								</p>
+								<input type="hidden" name="$name_check_plagiarism_eula_agreement" id="$name_check_plagiarism_eula_agreement" value="true" checked="checked"/>
+							#end
 							</p>
 							<table border="0">
 								<tr>

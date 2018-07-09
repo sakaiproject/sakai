@@ -7,8 +7,8 @@
     <bean
         id="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite"
         class="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite"
+        parent="org.sakaiproject.contentreview.service.BaseContentReviewService"
         init-method="init" lazy-init="true">
-         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
          <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
