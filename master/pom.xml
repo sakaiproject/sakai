@@ -1794,19 +1794,19 @@
       <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.43</version>
+          <version>5.1.46</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.1.0</version>
+          <version>2.2.5</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.6.3</version>
+        <version>3.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
