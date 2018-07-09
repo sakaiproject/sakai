@@ -799,7 +799,6 @@
 			############################################# end of "Other sites" section 
 		
 		</table>
-		<div id="bottompadding" style="height:35em"> </div> 
 		
 		#foreach($key in $listActions.keySet())
 			<input type="hidden" id="${key}-count" value="$counter.getValue("${key}selected")" />
