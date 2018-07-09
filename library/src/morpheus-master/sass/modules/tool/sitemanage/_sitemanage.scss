@@ -444,13 +444,7 @@
     }
   }
   #toolHolderWW {
-    .mathJaxToggleArea {
-      border: 1px solid #dddddd;
-      @include border-radius( 5px );
-      padding: 10px;
-      margin: 20px 0 0;
-    }
-    .lessonsSubNavToggleArea {
+    .mathJaxToggleArea, .lessonsSubNavToggleArea, .portalNeochatToggleArea {
       border: 1px solid #dddddd;
       @include border-radius( 5px );
       padding: 10px;

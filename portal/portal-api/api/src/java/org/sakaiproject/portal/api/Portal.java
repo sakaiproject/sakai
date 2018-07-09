@@ -246,8 +246,9 @@ public interface Portal
 	 * include the model section that relates to the bottom of the page.
 	 * 
 	 * @param rcontext
+	 * @param site
 	 */
-	void includeBottom(PortalRenderContext rcontext);
+	void includeBottom(PortalRenderContext rcontext, Site site);
 
 	/**
 	 * work out the type of the site based on the site id.
