@@ -89,11 +89,11 @@ public class RubricsServiceImpl implements RubricsService {
 
     protected static ResourceLoader rb = new ResourceLoader("rubricsMessages");
 
-    private static final String RBCS_PERMISSIONS_EVALUATOR = "rbcs.evaluator";
-    private static final String RBCS_PERMISSIONS_EDITOR = "rbcs.editor";
-    private static final String RBCS_PERMISSIONS_EVALUEE = "rbcs.evaluee";
-    private static final String RBCS_PERMISSIONS_ASSOCIATOR = "rbcs.associator";
-    private static final String RBCS_PERMISSIONS_SUPERUSER = "rbcs.superuser";
+    private static final String RBCS_PERMISSIONS_EVALUATOR = "rubrics.evaluator";
+    private static final String RBCS_PERMISSIONS_EDITOR = "rubrics.editor";
+    private static final String RBCS_PERMISSIONS_EVALUEE = "rubrics.evaluee";
+    private static final String RBCS_PERMISSIONS_ASSOCIATOR = "rubrics.associator";
+    private static final String RBCS_PERMISSIONS_SUPERUSER = "rubrics.superuser";
 
     private static final String RBCS_SERVICE_URL_PREFIX = "/rubrics-service/rest/";
 
