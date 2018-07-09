@@ -47,7 +47,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.16.20</sakai.lombok.version>
+    <sakai.lombok.version>1.18.0</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.mail.version>1.6.0</sakai.mail.version>
     <sakai.org.json.version>20171018</sakai.org.json.version>
@@ -2244,7 +2244,7 @@
         <configuration>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
-	    <lombok.disable>true</lombok.disable>
+            <lombok.disable>true</lombok.disable>
             <!-- Pass through important service-integration test properties. -->
             <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
             <!--suppress MavenModelInspection -->
