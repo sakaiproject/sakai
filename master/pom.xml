@@ -2262,10 +2262,14 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
+          <!-- Report is put in the target subdirectory. Can be run at the root of this as:
+            mvn -Pdependency-check-support clean install -Dmaven.test.skip=true
+            mvn -Pdependency-check-support org.owasp:dependency-check-maven:purge
+            mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate
+          -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>3.1.1</version>
+        <version>3.2.1</version>
         <dependencies>
           <dependency>
             <groupId>org.sakaiproject</groupId>
@@ -2278,6 +2282,7 @@
             <!-- This is loaded off the classpath and is provided through the dependency-check-support artifact -->
             <suppressionFile>sakai-suppression.xml</suppressionFile>
           </suppressionFiles>
+          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
         </configuration>
         <executions>
           <execution>
