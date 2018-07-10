@@ -73,6 +73,22 @@
 					<compilerArgument>-Werror</compilerArgument>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>au.com.flyingkite.xbdd-maven-plugin</groupId>
+				<artifactId>xbdd-maven-plugin</artifactId>
+				<version>1.0-SNAPSHOT</version>
+				<configuration>
+					<host>https://localhost:8443/</host>
+					<username>xbdd</username>
+					<password>xbdd</password>
+					<projectVersion>19.0.0</projectVersion>
+					<reports>
+						<report>${project.build.directory}/cucumber-report.json</report>
+						<report>${project.build.directory}/cucumber-report-manual.json</report>
+					</reports>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

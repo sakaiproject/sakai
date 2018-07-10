@@ -9,7 +9,7 @@ import cucumber.api.junit.Cucumber;
  * Runner for @manual tests
  */
 @RunWith(Cucumber.class)
-@CucumberOptions(tags = "@manual", plugin = { "pretty",
+@CucumberOptions(tags = "@Manual", plugin = { "pretty",
 		"json:target/cucumber-report-manual.json" }, monochrome = true, strict = true, dryRun = true)
 public class RunManualIT {
 }

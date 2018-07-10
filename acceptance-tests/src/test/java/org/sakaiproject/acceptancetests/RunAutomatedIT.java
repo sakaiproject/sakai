@@ -9,7 +9,7 @@ import cucumber.api.junit.Cucumber;
  * Runner for @automated tests
  */
 @RunWith(Cucumber.class)
-@CucumberOptions(tags = "@automated", plugin = { "pretty", "json:target/cucumber-report.json" }, monochrome = true, strict = true)
+@CucumberOptions(tags = "@Automated", plugin = { "pretty", "json:target/cucumber-report.json" }, monochrome = true, strict = true)
 public class RunAutomatedIT {
 
 }

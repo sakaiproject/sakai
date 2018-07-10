@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.sakaiproject.acceptancetests.collaborator.WebDriverManager;
@@ -42,10 +43,16 @@ public class AccessSakai {
 		Assert.assertTrue(StringUtils.contains(this.driver.getTitle(), siteName));
 	}
 
-	@Given("^I am logged in$")
-	public void i_am_logged_in()  {
-		//check we are logged in
+	@Then("^I am logged in$")
+	public void i_am_logged_in() {
+		new WebDriverWait(this.driver, 10).until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+		final WebElement body = this.driver.findElement(By.tagName("body"));
+		Assert.assertEquals("Mrphs-portalBody workspace", StringUtils.trim(body.getAttribute("class")));
+	}
+
+	@Given("^I am logged out$")
+	public void i_am_logged_out() {
+
 	}
 
 }
-
