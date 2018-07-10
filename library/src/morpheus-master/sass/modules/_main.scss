@@ -22,7 +22,7 @@
 	@include flex-direction(row);
 	
 	> .#{$namespace}pagebody{
-		@include display-flex(flex);
+		@include display-flex;
 		@include flex-direction(column);
 		width: 100%;
 	}
