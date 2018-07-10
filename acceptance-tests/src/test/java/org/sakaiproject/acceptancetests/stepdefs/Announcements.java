@@ -102,7 +102,7 @@ public class Announcements {
 		throw new PendingException();
 	}
 
-	@Then("^I should see Update  and Cancel Buttons$")
+	@Then("^I should see Update and Cancel Buttons$")
 	public void i_should_see_Update_and_Cancel_Buttons() throws Exception {
 		// Write code here that turns the phrase above into concrete actions
 		throw new PendingException();

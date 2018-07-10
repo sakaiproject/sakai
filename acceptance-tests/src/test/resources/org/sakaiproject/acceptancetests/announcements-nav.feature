@@ -29,7 +29,7 @@ Scenario: Checking Options
 	And I click the Announcement tool 
 	And I click on Options link 
 	Then I should see the message 'You are currently setting options for announcements.",Display Options: Sortable table view,Sortable table view with announcement body,List view with announcement body, Characters in body (All by default),RSS Feed Options public announcements only: 'RSS Alias','RSS URL',Display Limits: 'Number of days in the past','Number of announcements' 
-	And I should see Update  and Cancel Buttons 
+	And I should see Update and Cancel Buttons 
 Scenario: Checking Reorder link 
 	Given I am logged in as "Instructor" 
 	When I navigate to "Site1" site 
