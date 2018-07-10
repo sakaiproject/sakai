@@ -3067,7 +3067,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     // TODO zipSubmissions and zipGroupSubmissions should be combined
-    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator<AssignmentSubmission> submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
+    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(outputStream);
@@ -3093,7 +3093,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             String caughtException = null;
             String caughtStackTrace = null;
             while (submissions.hasNext()) {
-                final AssignmentSubmission s = submissions.next();
+                final AssignmentSubmission s = (AssignmentSubmission) submissions.next();
 
                 log.debug(this + " ZIPGROUP " + (s == null ? "null" : s.getId()));
 
@@ -3136,7 +3136,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         
                         //Adding the row
 
-                        sheet.addRow(submitterString, submittersString, submitters2String, // TODO gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
+                        sheet.addRow(submitterString, submittersString.toString(), submitters2String.toString(), // TODO gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
                         		gradeDisplay, s.getDateSubmitted() != null ? s.getDateSubmitted().toString(): StringUtils.EMPTY, latenessStatus);
 
 
