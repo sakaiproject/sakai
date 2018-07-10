@@ -388,6 +388,17 @@
 			</tr>
 		#end
 
+		#if (!$isPortalNeochatEnabledForSite)
+			<tr class="summary-portal-neochat-disabled">
+				<th>
+					$tlang.getString("sinfo.portalneochat.name")
+				</th>
+				<td>
+					$tlang.getString("sinfo.portalneochat.disabled")
+				</td>
+			</tr>
+		#end
+
 		</table>
 
 		#set ($desc = $siteDescription) 
