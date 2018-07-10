@@ -19,11 +19,6 @@
 		This Spring configuration file specifies a Sakai + SectionAwareness implementation of the facades.
 	-->
 
-	<!-- External User Directory Service -->
-	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.UserDirectoryServiceSakai2Impl">
-	</bean>
-
 	<!-- External Authn Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthnSakai2Impl">
@@ -36,11 +31,6 @@
 		<property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
 		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
 		<property name="gradebookPermissionService"><ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/></property>
-	</bean>
-
-	<!-- External Context Management Service -->
-	<bean id="org_sakaiproject_tool_gradebook_facades_ContextManagement"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.ContextManagementSakai2Impl">
 	</bean>
 
 </beans>

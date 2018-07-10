@@ -18,9 +18,6 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.api.EventTrackingService;
-
 
 /**
  * Provides data for the student view of the gradebook.
@@ -32,55 +29,54 @@ public class StudentViewBean extends ViewByStudentBean implements Serializable {
 	private String instViewReturnToPage;
 	private String instViewAssignmentId;
 
+	@Override
 	public void init() {
 
 		setIsInstructorView(false);
-		if (studentUidToView != null && isUserAbleToGradeAll()){
+		if (this.studentUidToView != null && isUserAbleToGradeAll()){
 			// we came to this page as an instructor "previewing" the student's view
-			setStudentUid(studentUidToView);
+			setStudentUid(this.studentUidToView);
 		} else {
 			setStudentUid(getUserUid());
+
 			// SAK-23566 indicate the student viewed their grades
-			EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
-			if (ets != null) {
-			    ets.post(ets.newEvent("gradebook.studentView", "/gradebook/studentView/"+getUserUid(), false));
-			}
+			getGradebookBean().postEvent("gradebook.studentView", "/gradebook/studentView/" + getUserUid(), false);
 		}
 
 		super.init();
 	}
-	
+
 	/**
 	 * If an instructor wants to see "student's view of her grades", this
 	 * param will be passed
 	 * @param studentUidToView
 	 */
-	public void setStudentUidToView(String studentUidToView) {
+	public void setStudentUidToView(final String studentUidToView) {
 		this.studentUidToView = studentUidToView;
 	}
 	public String getStudentUidToView() {
-		return studentUidToView;
+		return this.studentUidToView;
 	}
 	/**
 	 * To return to the inst view, we need to keep track of the original
 	 * returnToPage parameter
 	 * @param instViewReturnToPage
 	 */
-	public void setInstViewReturnToPage(String instViewReturnToPage) {
+	public void setInstViewReturnToPage(final String instViewReturnToPage) {
 		this.instViewReturnToPage = instViewReturnToPage;
 	}
 	public String getInstViewReturnToPage() {
-		return instViewReturnToPage;
+		return this.instViewReturnToPage;
 	}
 	/**
 	 * To return to the inst view, we need to keep track of the original
 	 * assignmentId parameter
 	 * @param instViewReturnToPage
 	 */
-	public void setInstViewAssignmentId(String instViewAssignmentId) {
+	public void setInstViewAssignmentId(final String instViewAssignmentId) {
 		this.instViewAssignmentId = instViewAssignmentId;
 	}
 	public String getInstViewAssignmentId() {
-		return instViewAssignmentId;
+		return this.instViewAssignmentId;
 	}
 }
