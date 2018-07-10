@@ -27,15 +27,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.sakaiproject.tool.gradebook.facades.ContextManagement;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A role-based authorization filter which takes four parameters:
@@ -60,30 +58,34 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 public class RoleFilter implements Filter {
 	private String authnServiceBeanName;
 	private String authzServiceBeanName;
-	private String contextManagementServiceBeanName;
 	private String authorizationFilterConfigurationBeanName;
 	private String selectGradebookRedirect;
 
 	private ApplicationContext ac;
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-		if(log.isInfoEnabled()) log.info("Initializing gradebook role filter");
+	@Override
+	public void init(final FilterConfig filterConfig) throws ServletException {
+		if(log.isInfoEnabled()) {
+			log.info("Initializing gradebook role filter");
+		}
 
-		ac = (ApplicationContext)filterConfig.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		this.ac = (ApplicationContext)filterConfig.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 
-		authnServiceBeanName = filterConfig.getInitParameter("authnServiceBean");
-		authzServiceBeanName = filterConfig.getInitParameter("authzServiceBean");
-		contextManagementServiceBeanName = filterConfig.getInitParameter("contextManagementServiceBean");
-		authorizationFilterConfigurationBeanName = filterConfig.getInitParameter("authorizationFilterConfigurationBean");
-		selectGradebookRedirect = filterConfig.getInitParameter("selectGradebookRedirect");
+		this.authnServiceBeanName = filterConfig.getInitParameter("authnServiceBean");
+		this.authzServiceBeanName = filterConfig.getInitParameter("authzServiceBean");
+		this.authorizationFilterConfigurationBeanName = filterConfig.getInitParameter("authorizationFilterConfigurationBean");
+		this.selectGradebookRedirect = filterConfig.getInitParameter("selectGradebookRedirect");
 	}
 
-	public void doFilter(ServletRequest servletRequest, ServletResponse response, FilterChain chain)
+	@Override
+	public void doFilter(final ServletRequest servletRequest, final ServletResponse response, final FilterChain chain)
 		throws IOException, ServletException {
 
-		HttpServletRequest request = (HttpServletRequest)servletRequest;
+		final HttpServletRequest request = (HttpServletRequest)servletRequest;
 		String servletPath = request.getServletPath();
-		if (log.isDebugEnabled()) log.debug("Filtering request for servletPath=" + servletPath);
+		if (log.isDebugEnabled()) {
+			log.debug("Filtering request for servletPath=" + servletPath);
+		}
 		servletPath = servletPath.replaceFirst("^/", "");
 		if (servletPath.indexOf("/") >= 0) {
 			// Only protect the top-level folder, to allow for login through
@@ -92,31 +94,38 @@ public class RoleFilter implements Filter {
 			return;
 		}
 
-		Authn authnService = (Authn)ac.getBean(authnServiceBeanName);
-		Authz authzService = (Authz)ac.getBean(authzServiceBeanName);
-		ContextManagement contextManagementService = (ContextManagement)ac.getBean(contextManagementServiceBeanName);
-		AuthorizationFilterConfigurationBean authorizationFilterConfigurationBean = (AuthorizationFilterConfigurationBean)ac.getBean(authorizationFilterConfigurationBeanName);
+		final Authn authnService = (Authn)this.ac.getBean(this.authnServiceBeanName);
+		final Authz authzService = (Authz)this.ac.getBean(this.authzServiceBeanName);
+		final AuthorizationFilterConfigurationBean authorizationFilterConfigurationBean = (AuthorizationFilterConfigurationBean)this.ac.getBean(this.authorizationFilterConfigurationBeanName);
 		authnService.setAuthnContext(request);
-		String userUid = authnService.getUserUid();
+		final String userUid = authnService.getUserUid();
 
-        if (log.isDebugEnabled()) log.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
+        if (log.isDebugEnabled()) {
+			log.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
+		}
 
 		// Try to get the currently selected gradebook UID, if any
 		// First check the context management service.
 		// Then check for a locally maintained value.
-		String gradebookUid = contextManagementService.getGradebookUid(request);
-        if(log.isDebugEnabled()) log.debug("contextManagementService.getGradebookUid=" + gradebookUid);
+		String gradebookUid = GradebookBean.getGradebookUid(request);
+        if(log.isDebugEnabled()) {
+			log.debug("contextManagementService.getGradebookUid=" + gradebookUid);
+		}
 		if (gradebookUid == null) {
 			gradebookUid = GradebookBean.getGradebookUidFromRequest(request);
-	        if (log.isDebugEnabled()) log.debug("GradebookBean.getGradebookUidFromRequest=" + gradebookUid);
+	        if (log.isDebugEnabled()) {
+				log.debug("GradebookBean.getGradebookUidFromRequest=" + gradebookUid);
+			}
 		}
 
 		if (gradebookUid != null) {
-			if(log.isDebugEnabled()) log.debug("gradebookUid=" + gradebookUid + ", userUid=" + userUid);
+			if(log.isDebugEnabled()) {
+				log.debug("gradebookUid=" + gradebookUid + ", userUid=" + userUid);
+			}
 
 			// Get the name of the page from the servlet path.
-			String[] splitPath = servletPath.split("[./]");
-			String pageName = splitPath[0];
+			final String[] splitPath = servletPath.split("[./]");
+			final String pageName = splitPath[0];
 
 			boolean isAuthorized;
 			if (authzService.isUserAbleToGrade(gradebookUid) &&
@@ -141,8 +150,8 @@ public class RoleFilter implements Filter {
 				((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			}
 		} else {
-			if (selectGradebookRedirect != null) {
-				((HttpServletResponse)response).sendRedirect(selectGradebookRedirect);
+			if (this.selectGradebookRedirect != null) {
+				((HttpServletResponse)response).sendRedirect(this.selectGradebookRedirect);
 			} else {
 				// TODO Any better status code for this?
 				((HttpServletResponse)response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -150,6 +159,7 @@ public class RoleFilter implements Filter {
 		}
 	}
 
+	@Override
 	public void destroy() {
 	}
 }

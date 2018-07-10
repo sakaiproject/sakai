@@ -27,8 +27,6 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -41,6 +39,8 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Provides data for the instructor's view of a student's grades in the gradebook.
  */
@@ -49,10 +49,10 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	private EnrollmentRecord previousStudent;
 	private EnrollmentRecord nextStudent;
 	private EnrollmentRecord currentStudent;
-	
+
 	private String studentEmailAddress;
 	private String studentSections;
-	
+
 	private List orderedEnrollmentList;
 
 	// parameters passed to the page
@@ -65,48 +65,49 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	/**
 	 * @see org.sakaiproject.tool.gradebook.ui.InitializableBean#init()
 	 */
+	@Override
 	public void init() {
-		previousStudent = null;
-		nextStudent = null;
-		studentSections = null;
+		this.previousStudent = null;
+		this.nextStudent = null;
+		this.studentSections = null;
 
-		String sortByCol = getSortColumn();
-		boolean sortAsc = isSortAscending();
+		final String sortByCol = getSortColumn();
+		final boolean sortAsc = isSortAscending();
 
 		setIsInstructorView(true);
 
 		if (getStudentUid() != null) {
 			super.init();
 
-			studentEmailAddress = getUserDirectoryService().getUserEmailAddress(getStudentUid());
-			studentSections = getStudentSectionsForDisplay();
+			this.studentEmailAddress = getGradebookBean().getUserEmailAddress(getStudentUid());
+			this.studentSections = getStudentSectionsForDisplay();
 
 			// set up the "next" and "previous" student navigation
 			// TODO preserve filter/sort status from originating page
-			if (orderedEnrollmentList == null) {
-				orderedEnrollmentList = new ArrayList();
-				if (returnToPage.equals(ROSTER_PAGE)) {
+			if (this.orderedEnrollmentList == null) {
+				this.orderedEnrollmentList = new ArrayList();
+				if (this.returnToPage.equals(ROSTER_PAGE)) {
 					super.setSelectedSectionFilterValue(getPreferencesBean().getRosterTableSectionFilter());
-					maxDisplayedScoreRows = 0;
-					orderedEnrollmentList = getOrderedEnrolleesFromRosterPage();
-				} else if (returnToPage.equals(ASSIGN_DETAILS_PAGE)) {
+					this.maxDisplayedScoreRows = 0;
+					this.orderedEnrollmentList = getOrderedEnrolleesFromRosterPage();
+				} else if (this.returnToPage.equals(ASSIGN_DETAILS_PAGE)) {
 					super.setSelectedSectionFilterValue(getPreferencesBean().getAssignmentDetailsTableSectionFilter());
-					maxDisplayedScoreRows = 0;
-					orderedEnrollmentList = getOrderedEnrolleesFromAssignDetailsPage();
+					this.maxDisplayedScoreRows = 0;
+					this.orderedEnrollmentList = getOrderedEnrolleesFromAssignDetailsPage();
 				}
 			}
 
-			if (orderedEnrollmentList != null && orderedEnrollmentList.size() > 1) {
+			if (this.orderedEnrollmentList != null && this.orderedEnrollmentList.size() > 1) {
 				int index = 0;
-				while (index < orderedEnrollmentList.size()) {
-					EnrollmentRecord enrollee = (EnrollmentRecord)orderedEnrollmentList.get(index);
+				while (index < this.orderedEnrollmentList.size()) {
+					final EnrollmentRecord enrollee = (EnrollmentRecord)this.orderedEnrollmentList.get(index);
 					if (enrollee.getUser().getUserUid().equals(getStudentUid())) {
-						currentStudent = enrollee;
+						this.currentStudent = enrollee;
 						if (index-1 >= 0) {
-							previousStudent = (EnrollmentRecord) orderedEnrollmentList.get(index-1);
+							this.previousStudent = (EnrollmentRecord) this.orderedEnrollmentList.get(index-1);
 						}
-						if (index+1 < orderedEnrollmentList.size()) {
-							nextStudent = (EnrollmentRecord) orderedEnrollmentList.get(index+1);
+						if (index+1 < this.orderedEnrollmentList.size()) {
+							this.nextStudent = (EnrollmentRecord) this.orderedEnrollmentList.get(index+1);
 						}
 						break;
 					}
@@ -122,21 +123,21 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 	// Navigation
 	public EnrollmentRecord getPreviousStudent() {
-		return previousStudent;
+		return this.previousStudent;
 	}
 	public EnrollmentRecord getNextStudent() {
-		return nextStudent;
+		return this.nextStudent;
 	}
-	
+
 	public boolean isFirst() {
-		return previousStudent == null;
+		return this.previousStudent == null;
 	}
 	public boolean isLast() {
-		return nextStudent == null;
+		return this.nextStudent == null;
 	}
-	
+
 	public EnrollmentRecord getCurrentStudent() {
-		return currentStudent;
+		return this.currentStudent;
 	}
 
 	/**
@@ -144,78 +145,83 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 */
 	public String getReturnToPageButtonName() {
 		String pageTitle;
-		if (ASSIGN_DETAILS_PAGE.equals(returnToPage))
+		if (ASSIGN_DETAILS_PAGE.equals(this.returnToPage)) {
 			pageTitle = getLocalizedString("assignment_details_page_title");
-		else
+		} else {
 			pageTitle = getLocalizedString("roster_page_title");
+		}
 
 		return getLocalizedString("inst_view_return_to", new String[] {pageTitle});
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return page title of originating page
 	 */
 	public String getReturnToPageName() {
-		if (returnToPage.equals(ASSIGN_DETAILS_PAGE))
+		if (this.returnToPage.equals(ASSIGN_DETAILS_PAGE)) {
 			return getLocalizedString("assignment_details_page_title");
-		else
+		} else {
 			return getLocalizedString("roster_page_title");
+		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return comma-separated string of user's section/group memberships
 	 */
 	public String getStudentSections() {
-		return studentSections;
+		return this.studentSections;
 	}
-	
+
     /**
      * @return studentEmailAddress
      */
     public String getStudentEmailAddress() {
-        return studentEmailAddress;
+        return this.studentEmailAddress;
     }
 
 	/**
 	 * Action listener to view a different student
 	 */
-	public void processStudentUidChange(ActionEvent event) {
-		Map params = FacesUtil.getEventParameterMap(event);
-		if (log.isDebugEnabled()) 
+	public void processStudentUidChange(final ActionEvent event) {
+		final Map params = FacesUtil.getEventParameterMap(event);
+		if (log.isDebugEnabled()) {
 			log.debug("processStudentUidChange params=" + params + ", current studentUid=" + getStudentUid());
+		}
 		// run the updates before changing the student id
 		processUpdateScoresForPreNextStudent();
-		String idParam = (String)params.get("studentUid");
+		final String idParam = (String)params.get("studentUid");
 		if (idParam != null) {
 			setStudentUid(idParam);
 		}
 	}
-	
+
 	public void processUpdateScoresForPreNextStudent() {
 		try {
 			saveScoresWithoutConfirmation();
-		} catch (StaleObjectModificationException e) {
+		} catch (final StaleObjectModificationException e) {
 			FacesUtil.addErrorMessage(getLocalizedString("assignment_details_locking_failure"));
 		}
 	}
-	
+
 	/**
 	 * Save the input scores for the user
 	 * @throws StaleObjectModificationException
 	 */
 	public void saveScoresWithoutConfirmation() throws StaleObjectModificationException {
-        if (log.isInfoEnabled()) log.info("saveScores for " + getStudentUid());
+        if (log.isInfoEnabled()) {
+			log.info("saveScores for " + getStudentUid());
+		}
 
 		// first, determine which scores were updated
-		List updatedGradeRecords = new ArrayList();
+		final List updatedGradeRecords = new ArrayList();
 		if (getGradebookItems() != null) {
-			Iterator itemIter = getGradebookItems().iterator();
+			final Iterator itemIter = getGradebookItems().iterator();
 			while (itemIter.hasNext()) {
-				Object item = itemIter.next();
+				final Object item = itemIter.next();
 				if (item instanceof AssignmentGradeRow) {
-					AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
+					final AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
 					AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
 
 					if (gradeRecord == null && (gradeRow.getScore() != null || gradeRow.getLetterScore() != null)) {
@@ -223,7 +229,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						if (getGradeEntryByPoints()) { 
+						if (getGradeEntryByPoints()) {
 							Double originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
 
@@ -231,7 +237,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 								// truncate to two decimals for more accurate comparison
 								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
 							}
-							Double newScore = gradeRow.getScore();
+							final Double newScore = gradeRow.getScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setPointsEarned(newScore);
@@ -245,7 +251,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 								// truncate to two decimals for more accurate comparison
 								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
 							}
-							Double newScore = gradeRow.getScore();
+							final Double newScore = gradeRow.getScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setPercentEarned(newScore);
@@ -254,52 +260,53 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 						}	else if (getGradeEntryByLetter()) {
 
-							String originalScore = gradeRecord.getLetterEarned();
-							String newScore = gradeRow.getLetterScore();
+							final String originalScore = gradeRecord.getLetterEarned();
+							final String newScore = gradeRow.getLetterScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setLetterEarned(newScore);
 								updatedGradeRecords.add(gradeRecord);
 							}
 						}
-					} 
+					}
 				}
 			}
 		}
 
-		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
-
-		if(updatedGradeRecords.size() > 0){
-			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+		if (updatedGradeRecords.isEmpty()) {
+			getGradebookBean().postEvent("gradebook.updateItemScores",
+					"/gradebook/" + getGradebookId() + "/" + updatedGradeRecords.size() + "/" + getAuthzLevel(), true);
 		}
 	}
-	
+
 	/**
 	 * Action listener to update scores.
 	 */
 	public void processUpdateScores() {
 		try {
 			saveScores();
-		} catch (StaleObjectModificationException e) {
+		} catch (final StaleObjectModificationException e) {
 			FacesUtil.addErrorMessage(getLocalizedString("assignment_details_locking_failure"));
 		}
 	}
-	
+
 	/**
 	 * Save the input scores for the user
 	 * @throws StaleObjectModificationException
 	 */
 	public void saveScores() throws StaleObjectModificationException {
-        if (log.isInfoEnabled()) log.info("saveScores for " + getStudentUid());
+        if (log.isInfoEnabled()) {
+			log.info("saveScores for " + getStudentUid());
+		}
 
 		// first, determine which scores were updated
-		List updatedGradeRecords = new ArrayList();
+		final List updatedGradeRecords = new ArrayList();
 		if (getGradebookItems() != null) {
-			Iterator itemIter = getGradebookItems().iterator();
+			final Iterator itemIter = getGradebookItems().iterator();
 			while (itemIter.hasNext()) {
-				Object item = itemIter.next();
+				final Object item = itemIter.next();
 				if (item instanceof AssignmentGradeRow) {
-					AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
+					final AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
 					AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
 
 					if (gradeRecord == null && (gradeRow.getScore() != null || gradeRow.getLetterScore() != null)) {
@@ -307,7 +314,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						if (getGradeEntryByPoints()) { 
+						if (getGradeEntryByPoints()) {
 							Double originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
 
@@ -315,12 +322,15 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 								// truncate to two decimals for more accurate comparison
 								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
 							}
-							Double newScore = gradeRow.getScore();
+							final Double newScore = gradeRow.getScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setPointsEarned(newScore);
 								updatedGradeRecords.add(gradeRecord);
-								getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gradeRecord.getAssignment().getName()+"/"+gradeRecord.getStudentId()+"/"+gradeRecord.getPointsEarned()+"/"+getAuthzLevel());
+								getGradebookBean().postEvent("gradebook.updateItemScore",
+										"/gradebook/" + getGradebookUid() + "/" + gradeRecord.getAssignment().getName() + "/"
+												+ gradeRecord.getStudentId() + "/" + gradeRecord.getPointsEarned() + "/" + getAuthzLevel(),
+										true);
 							}
 						} else if(getGradeEntryByPercent()) {
 							Double originalScore = null;
@@ -330,7 +340,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 								// truncate to two decimals for more accurate comparison
 								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
 							}
-							Double newScore = gradeRow.getScore();
+							final Double newScore = gradeRow.getScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setPercentEarned(newScore);
@@ -339,27 +349,28 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 						}	else if (getGradeEntryByLetter()) {
 
-							String originalScore = gradeRecord.getLetterEarned();
-							String newScore = gradeRow.getLetterScore();
+							final String originalScore = gradeRecord.getLetterEarned();
+							final String newScore = gradeRow.getLetterScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setLetterEarned(newScore);
 								updatedGradeRecords.add(gradeRecord);
 							}
 						}
-					} 
+					}
 				}
 			}
 		}
 
-		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
+		final Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
 
 		if(updatedGradeRecords.size() > 0){
-			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
-			String messageKey = (excessiveScores.size() > 0) ?
+			getGradebookBean().postEvent("gradebook.updateItemScores",
+					"/gradebook/" + getGradebookId() + "/" + updatedGradeRecords.size() + "/" + getAuthzLevel(), true);
+			final String messageKey = (excessiveScores.size() > 0) ?
 					"inst_view_scores_saved_excessive" :
 						"inst_view_scores_saved";
-			
+
 			// Let the user know.
 			FacesUtil.addMessage(getLocalizedString(messageKey));
 		}
@@ -367,14 +378,14 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 	}
 
-	private String getColumnHeader(GradableObject gradableObject) {
+	private String getColumnHeader(final GradableObject gradableObject) {
 		if (gradableObject.isCourseGrade()) {
 			return getLocalizedString("roster_course_grade_column_name");
 		} else {
 			return ((GradebookAssignment)gradableObject).getName();
 		}
 	}
-	
+
 	/**
 	 * If we came to the instructor view from the roster page, we need to
 	 * set the previous and next student info according to the order and filter
@@ -387,39 +398,39 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		setSortColumn(getPreferencesBean().getRosterTableSortColumn());
 		setSortAscending(getPreferencesBean().isRosterTableSortAscending());
 
-		Map enrollmentMap = getOrderedEnrollmentMapForAllItems();
+		final Map enrollmentMap = getOrderedEnrollmentMapForAllItems();
 
 		List workingEnrollments = new ArrayList(enrollmentMap.keySet());
 
 		if (isEnrollmentSort()) {
 			return workingEnrollments;
 		}
-		
-		Map studentIdItemIdFunctionMap = new HashMap();
-		Map studentIdEnrRecMap = new HashMap();
-		for (Iterator enrIter = workingEnrollments.iterator(); enrIter.hasNext();) {
-        	EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+
+		final Map studentIdItemIdFunctionMap = new HashMap();
+		final Map studentIdEnrRecMap = new HashMap();
+		for (final Iterator enrIter = workingEnrollments.iterator(); enrIter.hasNext();) {
+        	final EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
         	if (enr != null) {
-        		String studentId = enr.getUser().getUserUid();      		
-        		Map itemFunctionMap = (Map)enrollmentMap.get(enr);
-        		
+        		final String studentId = enr.getUser().getUserUid();
+        		final Map itemFunctionMap = (Map)enrollmentMap.get(enr);
+
 				studentIdItemIdFunctionMap.put(studentId, itemFunctionMap);
 				studentIdEnrRecMap.put(studentId, enr);
         	}
         }
 
 		List rosterGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentIdItemIdFunctionMap.keySet());
-		Map gradeRecordMap = new HashMap();
-		
+		final Map gradeRecordMap = new HashMap();
+
         if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords, studentIdItemIdFunctionMap);
 			// we need to re-sort these records b/c some may actually be null based upon permissions.
 			// retrieve updated grade recs from gradeRecordMap
-			List updatedGradeRecs = new ArrayList();
-			for (Iterator<Map.Entry<String, Map>> iter = gradeRecordMap.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry<String, Map> entry = iter.next();
-				String studentId = entry.getKey();
-				Map itemIdGradeRecMap = (Map)gradeRecordMap.get(studentId);
+			final List updatedGradeRecs = new ArrayList();
+			for (final Iterator<Map.Entry<String, Map>> iter = gradeRecordMap.entrySet().iterator(); iter.hasNext();) {
+                final Map.Entry<String, Map> entry = iter.next();
+				final String studentId = entry.getKey();
+				final Map itemIdGradeRecMap = (Map)gradeRecordMap.get(studentId);
 				if (!itemIdGradeRecMap.isEmpty()) {
 					updatedGradeRecs.addAll(itemIdGradeRecMap.values());
 				}
@@ -429,34 +440,38 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		} else {
 			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords);
 		}
-		if (log.isDebugEnabled()) log.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
+		if (log.isDebugEnabled()) {
+			log.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
+		}
 
 		List assignments = null;
-		String selectedCategoryUid = getSelectedCategoryUid();
-		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+		final String selectedCategoryUid = getSelectedCategoryUid();
+		final CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 		if(selectedCategoryUid == null) {
 			assignments = getGradebookManager().getAssignments(getGradebookId());
 		} else {
 			assignments = getGradebookManager().getAssignmentsForCategory(new Long(getSelectedSectionFilterValue().longValue()));
 		}
 
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentIdItemIdFunctionMap.keySet(), assignments, gradeRecordMap);
+		final List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentIdItemIdFunctionMap.keySet(), assignments, gradeRecordMap);
 		Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
 		getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
 		rosterGradeRecords.addAll(courseGradeRecords);
 
 		//do category results
-		Map categoryResultMap = new HashMap();
-		List categories = getGradebookManager().getCategories(getGradebookId());
+		final Map categoryResultMap = new HashMap();
+		final List categories = getGradebookManager().getCategories(getGradebookId());
 		getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
-		if (log.isDebugEnabled()) log.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
+		if (log.isDebugEnabled()) {
+			log.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
+		}
 
 
 		// Need to sort and page based on a scores column.
-		String sortColumn = getSortColumn();
-		List scoreSortedEnrollments = new ArrayList();
-		for(Iterator iter = rosterGradeRecords.iterator(); iter.hasNext();) {
-			AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
+		final String sortColumn = getSortColumn();
+		final List scoreSortedEnrollments = new ArrayList();
+		for(final Iterator iter = rosterGradeRecords.iterator(); iter.hasNext();) {
+			final AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
 			if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
 				scoreSortedEnrollments.add(studentIdEnrRecMap.get(agr.getStudentId()));
 			}
@@ -467,12 +482,12 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		// Add all sorted enrollments with scores into the final list
 		workingEnrollments.addAll(scoreSortedEnrollments);
-		
+
 		workingEnrollments = finalizeSortingAndPaging(workingEnrollments);
 
 		return workingEnrollments;
 	}
-	
+
 	/**
 	 * If we came to the instructor view from the assign details page, we need to
 	 * set the previous and next student info according to the order and filter
@@ -484,32 +499,34 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		setSortAscending(getPreferencesBean().isAssignmentDetailsTableSortAscending());
 
 		List assignGradeRecords = new ArrayList();
-		List enrollments = new ArrayList();
+		final List enrollments = new ArrayList();
 
-		Long assignmentIdAsLong = getAssignmentIdAsLong();
+		final Long assignmentIdAsLong = getAssignmentIdAsLong();
 		if (assignmentIdAsLong != null) {
-			GradebookAssignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
-			Category category = prevAssignment.getCategory();
+			final GradebookAssignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
+			final Category category = prevAssignment.getCategory();
 			Long catId = null;
-			if (category != null)
+			if (category != null) {
 				catId = category.getId();
-			
-			Map enrollmentMap = getOrderedStudentIdEnrollmentMapForItem(catId);
+			}
+
+			final Map enrollmentMap = getOrderedStudentIdEnrollmentMapForItem(catId);
 			if (isEnrollmentSort()) {
 				return new ArrayList(enrollmentMap.values());
 			}
-			
+
 			List studentUids = new ArrayList(enrollmentMap.keySet());
-			
-			if (getGradeEntryByPoints())
+
+			if (getGradeEntryByPoints()) {
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecords(prevAssignment, studentUids);
-			else if (getGradeEntryByPercent() || getGradeEntryByLetter())
+			} else if (getGradeEntryByPercent() || getGradeEntryByLetter()) {
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(prevAssignment, studentUids);
+			}
 
 			// Need to sort and page based on a scores column.
-			List scoreSortedStudentUids = new ArrayList();
-			for(Iterator iter = assignGradeRecords.iterator(); iter.hasNext();) {
-				AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
+			final List scoreSortedStudentUids = new ArrayList();
+			for(final Iterator iter = assignGradeRecords.iterator(); iter.hasNext();) {
+				final AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
 				scoreSortedStudentUids.add(agr.getStudentId());
 			}
 
@@ -522,37 +539,39 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			studentUids = finalizeSortingAndPaging(studentUids);
 
 			if (studentUids != null) {
-				Iterator studentIter = studentUids.iterator();
+				final Iterator studentIter = studentUids.iterator();
 				while (studentIter.hasNext()) {
-					String studentId = (String) studentIter.next();
-					EnrollmentRecord enrollee = (EnrollmentRecord)enrollmentMap.get(studentId);
-					if (enrollee != null)
+					final String studentId = (String) studentIter.next();
+					final EnrollmentRecord enrollee = (EnrollmentRecord)enrollmentMap.get(studentId);
+					if (enrollee != null) {
 						enrollments.add(enrollee);
+					}
 				}
 			}
 		}
 
 		return enrollments;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return String representation of the student's sections/groups
 	 */
 	private String getStudentSectionsForDisplay() {
-		StringBuilder sectionList = new StringBuilder();
-		List studentMemberships = getGradebookBean().getAuthzService().getStudentSectionMembershipNames(getGradebookUid(), getStudentUid());
+		final StringBuilder sectionList = new StringBuilder();
+		final List studentMemberships = getGradebookBean().getAuthzService().getStudentSectionMembershipNames(getGradebookUid(), getStudentUid());
 		if (studentMemberships != null && !studentMemberships.isEmpty()) {
 			Collections.sort(studentMemberships);
 			for (int i=0; i < studentMemberships.size(); i++) {
-				String sectionName = (String)studentMemberships.get(i);
-				if (i == (studentMemberships.size()-1))
+				final String sectionName = (String)studentMemberships.get(i);
+				if (i == (studentMemberships.size()-1)) {
 					sectionList.append(sectionName);
-				else
+				} else {
 					sectionList.append(getLocalizedString("inst_view_sections_list", new String[] {sectionName}) + " ");
+				}
 			}
 		}
-		
+
 		return sectionList.toString();
 	}
 
@@ -560,29 +579,31 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 * View maintenance methods.
 	 */
 	public String getReturnToPage() {
-		if (returnToPage == null)
-			returnToPage = ROSTER_PAGE;
-		return returnToPage;
+		if (this.returnToPage == null) {
+			this.returnToPage = ROSTER_PAGE;
+		}
+		return this.returnToPage;
 	}
-	public void setReturnToPage(String returnToPage) {
+	public void setReturnToPage(final String returnToPage) {
 		this.returnToPage = returnToPage;
 	}
 	public String getAssignmentId() {
-		return assignmentId;
+		return this.assignmentId;
 	}
-	public void setAssignmentId(String assignmentId) {
+	public void setAssignmentId(final String assignmentId) {
 		this.assignmentId = assignmentId;
 	}
 
 	private Long getAssignmentIdAsLong() {
 		Long id = null;
-		if (assignmentId == null)
+		if (this.assignmentId == null) {
 			return id;
+		}
 
 		try {
-			id = new Long(assignmentId);
+			id = new Long(this.assignmentId);
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 		}
 
 		return id;
@@ -596,17 +617,18 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 */
 	public String navigateToAssignmentDetails() {
 		setNav(null, null, null, "false", null);
-			
+
 		return "assignmentDetails";
 	}
-	
+
 	/**
 	 * Go to either Roster or GradebookAssignment Details page.
 	 */
+	@Override
 	public String processCancel() {
 		if (new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle")).booleanValue()) {
-			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
-			assignmentDetailsBean.setAssignmentId(new Long(assignmentId));
+			final AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+			assignmentDetailsBean.setAssignmentId(new Long(this.assignmentId));
 
 			return navigateToAssignmentDetails();
 		}
