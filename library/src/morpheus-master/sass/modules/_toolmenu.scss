@@ -177,7 +177,7 @@ body.is-logged-out{
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
 	min-height: 100vh;											// alternative for browswers who cannot do calculations
-	min-height: calc(100vh - (#{$banner-height} * 2) - 1px);	// viewport minus the two top banners; "- 1px" for extra pixel somewhere
+	min-height: calc(100vh - (#{$banner-height} * 2));	// viewport minus the two top banners
 	@include flex-basis( $tool-menu-width );
 	padding: 5px 0 0 0;
 	text-align: center;
