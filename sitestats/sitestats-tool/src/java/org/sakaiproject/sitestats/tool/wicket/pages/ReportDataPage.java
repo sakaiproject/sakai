@@ -256,7 +256,7 @@ public class ReportDataPage extends BasePage {
 		trReportUserSelection.add(new Label("reportUserSelection"));
 		add(trReportUserSelection);
 		
-		add(new Label("report.localizedReportGenerationDate"));
+		add(new Label("reportGenerationDate"));
 		
 		
 		// buttons

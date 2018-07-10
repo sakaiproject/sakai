@@ -22,6 +22,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -32,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TimeZone;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -82,6 +88,7 @@ import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsAuthz;
+import org.sakaiproject.sitestats.api.StatsDates;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -96,7 +103,6 @@ import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
 import org.sakaiproject.sitestats.impl.report.fop.ReportXMLReader;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
@@ -1347,9 +1353,12 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportGenerationDate(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportGenerationDate(Report report) {
-			if(report.getReportGenerationDate() == null)
+			if(report.getReportGenerationDate() == null) {
 				report.setReportGenerationDate(new Date());
-			return report.getLocalizedReportGenerationDate();
+			}
+			Instant time = report.getReportGenerationDate().toInstant();
+			TimeZone userTz = M_ts.getLocalTimeZone();
+			return StatsDates.shortLocalizedTimestamp(time, userTz, msgs.getLocale());
 		}
 
 		/* (non-Javadoc)
@@ -1532,9 +1541,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(report.getReportDefinition().getReportParams().getWhen().equals(ReportManager.WHEN_ALL)){
 				return msgs.getString("report_when_all");
 			}else{
-				Time from = M_ts.newTime(report.getReportDefinition().getReportParams().getWhenFrom().getTime());
-				Time to = M_ts.newTime(report.getReportDefinition().getReportParams().getWhenTo().getTime());
-				return from.toStringLocalFull() + " - " + to.toStringLocalFull();
+				ReportParams rp = report.getReportDefinition().getReportParams();
+				ZonedDateTime from = ZonedDateTime.ofInstant(rp.getWhenFrom().toInstant(), ZoneId.systemDefault());
+				ZonedDateTime to = ZonedDateTime.ofInstant(rp.getWhenTo().toInstant(), ZoneId.systemDefault());
+				DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(msgs.getLocale());
+				String timeZoneMsg = msgs.getFormattedMessage("report_server_time_zone", M_sm.getLocalSakaiName());
+
+				return from.format(fmt) + " - " + to.format(fmt) + " " + timeZoneMsg;
 			}
 		}
 		
