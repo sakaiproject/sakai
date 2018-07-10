@@ -11,14 +11,14 @@
 	{
 		tr
 		{
-			@include display-flex(flex);
+			@include display-flex;
 			@include justify-content(space-between);
 			@include flex-wrap(wrap);
 		}
 
 		td
 		{
-			@include display-flex(flex);
+			@include display-flex;
 			@include align-items(center);
 		}
 	}
@@ -32,6 +32,7 @@
 
 	.calRight
 	{
+		@include display-flex;
 		@include justify-content(flex-end);
 		vertical-align: middle;
 		text-align: right;
@@ -89,7 +90,7 @@
 		> span
 		{
 			position: relative;
-			@include display-flex(flex);
+			@include display-flex;
 			@include justify-content(center);
 			@include align-items(center);
 			width: 100%;
