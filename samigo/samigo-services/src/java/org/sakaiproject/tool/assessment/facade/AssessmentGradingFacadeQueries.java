@@ -1802,8 +1802,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return actualNumberRetakeHash;
     }
 
-    public Map<Long, Long> getActualNumberRetakeHash(final String agentIdString) {
-        Map<Long, Long> actualNumberRetakeHash = new HashMap<>();
+    public Map<Long, Integer> getActualNumberRetakeHash(final String agentIdString) {
+        Map<Long, Integer> actualNumberRetakeHash = new HashMap<>();
         final HibernateCallback<List<Object[]>> hcb = session -> {
             Query q = session.createQuery(
                     "select a.publishedAssessmentId, count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
@@ -1817,7 +1817,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         };
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
         for (Object[] o : countList) {
-            actualNumberRetakeHash.put((Long) o[0], (Long) o[1]);
+            actualNumberRetakeHash.put((Long) o[0], (Integer) o[1]);
         }
         return actualNumberRetakeHash;
     }

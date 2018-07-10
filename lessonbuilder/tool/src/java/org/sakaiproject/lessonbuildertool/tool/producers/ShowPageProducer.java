@@ -2357,19 +2357,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
 
 						boolean groupOwnedIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
-						boolean groupedPage = true;
-
-						//If groupMembers is empty this groupOwnedIndividual is false as it's really used for groups
-						if (groupMembers == null || groupMembers.isEmpty()) {
-							groupedPage = false;
-						}
 
 						// if we should show form. 
 						// individual owned
 						// group owned and eval group
 						// group owned and eval individual and we're in the group
 						// i.e. not eval individual and we're outside group
-						if(groupedPage && !(groupOwnedIndividual && !groupMembers.contains(currentUser))) {
+						if(!(groupOwnedIndividual && !groupMembers.contains(currentUser))) {
 						    UIOutput.make(tableRow, "peerReviewRubricStudent");
 						    UIOutput.make(tableRow, "peer-eval-title-student", String.valueOf(i.getAttribute("rubricTitle")));
 						    UIForm peerForm = UIForm.make(tableRow, "peer-review-form");

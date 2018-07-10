@@ -22,6 +22,7 @@ import java.util.Map;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 
@@ -1060,4 +1061,12 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if the profile2.onlineStatus.enabled flag is set, otherwise returns <code>false</code>.
 	 */
 	public boolean isOnlineStatusEnabledGlobally();
+
+	/**
+	 * Given the original and stripped site titles, determine that validation status of the stripped string.
+	 * @param orig the original, unaltered text as input by the user
+	 * @param stripped the HTML stripped text
+	 * @return {@link SiteTitleValidationStatus}
+	 */
+	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped);
 }

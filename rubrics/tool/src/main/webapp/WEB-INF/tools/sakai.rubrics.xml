@@ -9,7 +9,7 @@
       	<category name="project" />
 
 		<!--  If the visibility/access of this tool should be dependent on a user permission, you can list that here -->
-        <configuration name="functions.require" value="rbcs.editor" />
+        <configuration name="functions.require" value="rubrics.editor" />
 
     </tool>
 </registration>
