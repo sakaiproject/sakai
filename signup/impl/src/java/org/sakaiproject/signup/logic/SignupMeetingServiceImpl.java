@@ -34,6 +34,7 @@
 
 package org.sakaiproject.signup.logic;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -69,6 +70,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -94,6 +96,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 	@Getter @Setter
 	private SignupEmailFacade signupEmailFacade;
+	
+	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
 
 	public void init() {
 		log.debug("init");
@@ -721,7 +725,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 					/* new time frame */
 					String title_suffix = "";
 					if(hasMulptleBlock){
-						title_suffix = " (part " + sequence + ")";
+						String partSequence = MessageFormat.format(rb.getString("signup.event.part") ,new Object[] { sequence });
+						title_suffix = " (" + partSequence + ")";
 						sequence++;
 					}
 
@@ -789,8 +794,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		int num = 0;
 
         if(meeting.getSignupTimeSlots().size() > 0) {
-            // TODO: 'Attendees' needs internationalising
-            attendeeNamesMarkup += "<br /><br /><span style=\"font-weight: bold\"><b>Attendees:</b></span><br />";
+            attendeeNamesMarkup += "<br /><br /><span style=\"font-weight: bold\"><b>" + rb.getString("signup.event.attendees") + "</b></span><br />";
         }
 
         boolean displayAttendeeName = false;
@@ -809,14 +813,15 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         }
         
         if(!displayAttendeeName || num < 1){
-        	 attendeeNamesMarkup += ("<span style=\"font-weight: italic\"><i> Currently, " +  num + " attendees have been signed up.</i></span><br />");
+        	String currentAttendees = MessageFormat.format(rb.getString("signup.event.currentattendees") ,new Object[] { num });
+        	attendeeNamesMarkup += ("<span style=\"font-weight: italic\"><i>" + currentAttendees + "</i></span><br />");
         }
          
 		String desc = meeting.getDescription() + attendeeNamesMarkup;
 		eventEdit.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(desc));
 		eventEdit.setLocation(meeting.getLocation());
-        // TODO: 'attendees' needs internationalising
-		eventEdit.setDisplayName(meeting.getTitle() + title_suffix + " (" + num + " attendees)");			
+		String eventTitleAttendees = MessageFormat.format(rb.getString("signup.event.attendeestitle") ,new Object[] { num });
+		eventEdit.setDisplayName(meeting.getTitle() + title_suffix + " (" + eventTitleAttendees + ")");			
 		eventEdit.setRange(timeRange);
 	}
 	
