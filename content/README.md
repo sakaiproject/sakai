@@ -1,28 +1,54 @@
-=============================================================================
-Release Notes Sakai 10.0
+# Content
 
-SAK-25371 - The feature will add "Print File" action option to the Resources tool for those print-eligible-type resource items. The printing will be done on item-by-item base, not with a batch mode. The feature will save user effort of downloading the resource first and then upload to a  server. 
+Content is the project which provides the 'Resources' tool in Sakai.
 
-The following is required to enable the "Print File" choice in the Resources tool: 
+## Copyright Options within the 'Resources' tool in Sakai
 
-1. Implement org.sakaiproject.content.api.ContentPrintService 
+When uploading files to the 'Resources' tool, Sakai can offer or require that users consider the copyright of the files they are uploading.
 
-2. Configure implementation in your provider's components.xml - you'll need to first comment out the default implementation in the kernel (kernel-component/src/main/webapp/WEB-INF/content-components.xml), and then configure your provider. This is an example of UM's provider implementation:
+Out of the box, Sakai provides six default copyright options to be selected for files uploaded to the 'Resources' tool:
 
-<beans> 
-   <bean id="org.sakaiproject.content.api.ContentPrintService" 
-class="org.sakaiproject.content.impl.ContentPrintServiceUnivOfMichImpl" 
-singleton="true"> 
- </bean> 
-</beans> 
+1. "Material is in public domain." (public_domain)
+2. "I hold copyright." (hold_copyright)
+3. "I have obtained permission to use this material." (have_permission)
+4. "Copyright status is not yet determined." (not_determined)
+5. "Use copyright below." (use_below)
+6. "Material is subject to fair use exception." (fair_use)
 
-3. Define print_server_url in your sakai.properties 
+For more information on configuring this feature, such as defining the default copyright selection, requiring explicit selection of a copyright selection, defining a custom list of
+copyright options and setting up documentation around copyright options (default or custom), please see the README.md located at:
 
-4. An example provider implementation is available at https://source.sakaiproject.org/svn//msub/umich.edu/ctools/ctools-providers/branches/2.9.x-from-2.7.x/contentprint/ 
+```
+/content/content-copyright/README.md
+```
 
+## Release Notes
 
-=============================================================================
-Release Notes Sakai 2.5
+### Sakai 10.0
+
+SAK-25371 - The feature will add "Print File" action option to the Resources tool for those print-eligible-type resource items.
+The printing will be done on item-by-item base, not with a batch mode. The feature will save user effort of downloading the resource first and then upload to a  server.
+
+The following is required to enable the "Print File" choice in the Resources tool:
+
+1. Implement org.sakaiproject.content.api.ContentPrintService
+2. Configure implementation in your provider's components.xml
+	* You'll need to first comment out the default implementation in the kernel (kernel-component/src/main/webapp/WEB-INF/content-components.xml), and then configure your provider
+	* This is an example of UM's provider implementation:
+
+```
+<beans>
+	<bean id="org.sakaiproject.content.api.ContentPrintService"
+		class="org.sakaiproject.content.impl.ContentPrintServiceUnivOfMichImpl"
+		singleton="true">
+	</bean>
+</beans>
+```
+
+3. Define print_server_url in your sakai.properties
+4. An example provider implementation is available at https://source.sakaiproject.org/svn//msub/umich.edu/ctools/ctools-providers/branches/2.9.x-from-2.7.x/contentprint/
+
+### Sakai 2.5
 
 The following steps are required to run the conversion from 2.4 to 2.5
 database schema for content (ContentHostingService) to improve performance
@@ -37,7 +63,9 @@ need to do at least one Sakai build in order to populate your local
 Maven repository cache with the required library JAR files. The standard
 "runconversion.sh" shell script is needed, and expected to be at:
 
+```
 ../db/db-util/conversion/runconversion.sh
+```
 
 If you want to move that script to another location, or if you want
 to specify different locations for the JAR files, you'll have to
@@ -49,17 +77,21 @@ file on the command line.
 
 A typical full conversion for an Oracle site on Linux might be:
 
+```
    nohup ./content-runconversion.sh \
       -j "$CATALINA_HOME/shared/lib/ojdbc14.jar" \
       -p "$CATALINA_HOME/sakai/sakai.properties" \
       upgradeschema-oracle.config &> ~/content-runconversion.log &
+```
 
 A typical full conversion for a MySQL site might be:
 
+```
    nohup ./content-runconversion.sh \
       -j "$CATALINA_HOME/shared/lib/mysql-connector-java-5.1.5.jar" \
       -p "$CATALINA_HOME/sakai/sakai.properties" \
       upgradeschema-mysql.config &> ~/content-runconversion.log &
+```
 
 For a large site, the script will likely run for many hours, and so
 we recommend that you use no-hangup mode and save all output to a log file.
