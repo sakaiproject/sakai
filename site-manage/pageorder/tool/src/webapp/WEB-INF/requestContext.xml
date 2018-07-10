@@ -14,12 +14,12 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
   </bean>
 
-  <bean id="PageEditProdcuer"
+  <bean id="PageEditProducer"
       class="org.sakaiproject.site.tool.helper.order.rsf.PageEditProducer">
     <property name="handler" ref="SitePageEditHandler" />
   </bean>
 
-  <bean id="PageDelProdcuer" 
+  <bean id="PageDelProducer" 
       class="org.sakaiproject.site.tool.helper.order.rsf.PageDelProducer">
     <property name="handler" ref="SitePageEditHandler" />
   </bean>
