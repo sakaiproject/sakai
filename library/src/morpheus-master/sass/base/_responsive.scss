@@ -206,7 +206,7 @@ body {
     .phone, .tablet, .desktop {
       display: none;
 
-      height: 1px;
+      height: 0;			// removed in SAK-40294 because it caused an extra pixel of unnecessary page height
       width: 1px;
       overflow: hidden;
       position: absolute;
