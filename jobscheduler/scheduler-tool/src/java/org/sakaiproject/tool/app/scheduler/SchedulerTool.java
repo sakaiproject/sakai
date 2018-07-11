@@ -65,8 +65,6 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class SchedulerTool
 {
-  private static final String CRON_CHECK_ASTERISK = "**";
-  private static final String CRON_CHECK_QUESTION_MARK = "??";
   /** The maximum length of a trigger name. */
   private static final int TRIGGER_NAME_LENGTH_LIMIT = 80;
   /** The maximum length of a job name. */
@@ -1395,11 +1393,8 @@ public class SchedulerTool
       try
       {
         String expression = (String) value;
-        CronTrigger trigger = TriggerBuilder.newTrigger()
-                .withSchedule(CronScheduleBuilder.cronSchedule(expression))
-                .build();
 
-        // additional checks 
+        // additional check
         // quartz does not check for more than 7 tokens in expression
         String[] arr = expression.split("\\s");
         if (arr.length > 7)
@@ -1407,19 +1402,21 @@ public class SchedulerTool
           throw new RuntimeException(new ParseException("Expression has more than 7 tokens", 7));
         }
 
-        //(check that last 2 entries are not both * or ? 
-        String trimmed_expression = expression.replaceAll("\\s", ""); // remove whitespace
-        if (trimmed_expression.endsWith(CRON_CHECK_ASTERISK)
-            || trimmed_expression.endsWith(CRON_CHECK_QUESTION_MARK))
-        {
-          throw new RuntimeException(new ParseException("Cannot End in * * or ? ?", 1));
-        }
+        TriggerBuilder.newTrigger()
+                .withSchedule(CronScheduleBuilder.cronSchedule(expression))
+                .build();
+
       }
       catch (RuntimeException e)
       {
-        // not giving a detailed message to prevent line wraps
-        FacesMessage message = new FacesMessage(rb.getString("parse_exception"));
-        message.setSeverity(FacesMessage.SEVERITY_WARN);
+        Throwable cause = e.getCause();
+        String error = e.getMessage();
+        if (cause != null)
+        {
+            error = cause.getMessage();
+        }
+        FacesMessage message = new FacesMessage(rb.getFormattedMessage("parse_exception", error));
+        message.setSeverity(FacesMessage.SEVERITY_ERROR);
         throw new ValidatorException(message);
       }
     }
