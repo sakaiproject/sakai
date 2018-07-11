@@ -130,7 +130,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         else{
             if(siteIds!=null && siteIds.length>0){
-			    List<String> requestedSiteIds = Arrays.asList(siteIds);
+                List<String> requestedSiteIds = Arrays.asList(siteIds);
                 // filter down to just the requested ones
                 allowedSites.retainAll(requestedSiteIds);
             }
