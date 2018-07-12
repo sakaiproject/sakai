@@ -119,21 +119,26 @@ input[type="checkbox"], input[type="radio"]{
 	width: 16px;
 	vertical-align: sub;
 	@include appearance(none);
-	&:checked{
-		border: 1px solid #60b3e3;
+	&:focus
+	{
+		box-shadow: 0px 0px 1px 4px Highlight;
+		outline: 0 none; // to override Bootstrap
+		outline-offset: 0; // to override Bootstrap
 	}
+
 	//SAK-30977
 	&[disabled],&[disabled="disabled"],&[disabled="true"]{
-		opacity: 0.8;
+		opacity: 0.5;
 		& + label{
-			color: lighten($text-color, 10%);
+			cursor: not-allowed;
+			color: $text-color-disabled;
 		}
 	}
 }
 
 label.disabled{
-	color: lighten($text-color, 10%);
 	cursor: not-allowed;
+	color: $text-color-disabled;
 }
 
 input[type="checkbox"]{
@@ -146,7 +151,8 @@ input[type="checkbox"]{
 input[type="radio"]{
 	@include border-radius(24px);
 	&:checked{
-		background: radial-gradient(#60b3e3, #FFF 5px);
+		background: $text-color;                // fallback support
+		background: radial-gradient(circle at center, $text-color 0%, $text-color 48%, $background-color 58%);
 	}
 }
 

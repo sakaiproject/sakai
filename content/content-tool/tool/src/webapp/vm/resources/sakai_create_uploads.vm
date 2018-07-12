@@ -12,6 +12,8 @@
     #if ($itemAlertMessage)
         <div class="messageValidation">$itemAlertMessage</div>
         <div style="display:block;clear:both" ></div>
+    #else
+        <div class="alertMessage"></div>
     #end
     <div id="dragDropWrapper">
     <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
@@ -26,6 +28,33 @@
     <form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
         <input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
         <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+
+        #if($model.resourceTypeDef.hasRightsDialog() && $!copyrightTypes)
+            <h4>
+                <span class="reqStar">*</span>
+                $tlang.getString("cright.status.all")
+            </h4>
+            <div class="form-group">
+                <select class="copyrightStatus" name="copyright" id="copyright">
+            #foreach ($copyright in $copyrightTypes)
+                    <option value="$copyright.getType()" #if($copyright_defaultType == $copyright.getType())selected="selected"#end #if ($!copyright.getLicenseUrl())title="${copyright.getLicenseUrl()}"#end >
+                        $copyright.getText()
+                    </option>
+            #end
+                </select>
+                <small>
+                    (<a href="#" onclick="openMoreInfoCopyrightWindow('copyright');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
+                </small>
+            </div>
+            <div id="copyright_status"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="show"#else class="hide"#end>
+                <h4>$tlang.getString("cright.info")</h4>
+                <div class="form-group">
+                    <textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual">
+                        $validator.escapeHtmlTextarea("$!model.copyrightInfo")
+                    </textarea>
+                </div>
+            </div>
+        #end
 
         <fieldset>
             <legend><h4>$tlang.getString("versioning.title") <small>$tlang.getString("versioning.hint") </small></h4></legend>
@@ -60,35 +89,35 @@
                         </label>
                     </p>
                 #end
-            #elseif($model.isUserSite())
             #else
                 <div class="form">
-                ##<table>
-                    #if($availability_is_enabled)
-                        <fieldset>
-                            <legend><h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4></legend>
-                            <div class="form-group">
-                                <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
-                                <label for="hidden_false">$tlang.getString("avail.show40")</label>
-                                <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
-                                <label for="hidden_true">$tlang.getString("avail.hide40")</label>
-                            </div>
-                        </fieldset>
+                    #if(!$model.isUserSite())
+                        #if($availability_is_enabled)
+                            <fieldset>
+                                <legend><h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4></legend>
+                                <div class="form-group">
+                                    <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
+                                    <label for="hidden_false">$tlang.getString("avail.show40")</label>
+                                    <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
+                                    <label for="hidden_true">$tlang.getString("avail.hide40")</label>
+                                </div>
+                            </fieldset>
+                        #end
+                        <div class="form-group">
+                            <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
+                            <select name="notify" id="notify">
+                                #if ($noti)
+                                    <option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
+                                    <option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
+                                    <option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("gen.email4")</option>
+                                #else
+                                    <option value="r">$tlang.getString("gen.email2")</option>
+                                    <option value="o">$tlang.getString("gen.email3")</option>
+                                    <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+                                #end
+                            </select>
+                        </div>
                     #end
-                    <div class="form-group">
-                        <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
-                        <select name="notify" id="notify">
-							#if ($noti)
-								<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
-								<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
-								<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("gen.email4")</option>
-							#else
-								<option value="r">$tlang.getString("gen.email2")</option>
-								<option value="o">$tlang.getString("gen.email3")</option>
-								<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-							#end							
-						</select>
-                    </div>
                 </div>
             #end
         #end
@@ -204,6 +233,12 @@ Dropzone.options.fileUploader = {
             #else
                 formData.append("hidden", document.querySelector('input[name="hidden"]:checked').value);
             #end
+
+            var copyrightSelect = document.getElementById("copyright");
+            if (copyrightSelect !== null) {
+                var copyrightKey = copyrightSelect.options[copyrightSelect.selectedIndex].value;
+                formData.append( "copyright", copyrightKey );
+            }
         });
 
         this.on("error", function(file, message, xhr) {
@@ -216,9 +251,13 @@ Dropzone.options.fileUploader = {
             file.previewTemplate.appendChild(document.createTextNode(responseText));
         });
 
+        // Client side copyright check
         submitButton.addEventListener("click", function() {
-            submitButton.disabled=true;
-            dz.processQueue(); // Tell Dropzone to process all queued files.
+
+            if (checkCopyright(submitButton))
+            {
+                dz.processQueue(); // Tell Dropzone to process all queued files.
+            }
         });
     }
 };

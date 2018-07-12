@@ -289,6 +289,14 @@
                         </h:panelGroup>
 
                         <h:outputText styleClass="spanValue" value="#{assessment.title}" />
+
+                        <!--Rubrics icon-->
+                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
+                            <h:outputText styleClass="fa fa-table" id="rubrics-assessment-icon" rendered="#{author.assessmentHasRubric(assessment.assessmentBaseId, false)}" title="#{authorFrontDoorMessages.assessment_use_rubric}" style="margin-left:0.5em"/>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
+                            <h:outputText styleClass="fa fa-table" id="rubrics-published-assessment-icon" rendered="#{author.assessmentHasRubric(assessment.publishedAssessmentId, true)}" title="#{authorFrontDoorMessages.assessment_use_rubric}" style="margin-left:0.5em"/>
+                        </h:panelGroup>
                     </strong>
 
                 </t:column>
@@ -504,7 +512,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="For"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_release }"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
@@ -533,7 +541,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="Open"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_date}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>
@@ -548,7 +556,7 @@
                     <f:facet name="header">
                         <h:panelGroup>
                             <f:verbatim><a href="#" onclick="return false;"></f:verbatim>
-                                <h:outputText value="Due"/>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_due}"/>
                             <f:verbatim></a></f:verbatim>
                         </h:panelGroup>
                     </f:facet>

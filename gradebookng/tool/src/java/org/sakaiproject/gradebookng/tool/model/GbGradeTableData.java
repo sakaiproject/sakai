@@ -41,6 +41,7 @@ public class GbGradeTableData {
 	private String defaultIconCSS;
 	private boolean isUserAbleToEditAssessments;
 	private Map<String, Double> courseGradeMap;
+	private Map<Long, Boolean> hasAssociatedRubricMap;
 	private boolean isStudentNumberVisible;
 
 	public GbGradeTableData(final GradebookNgBusinessService businessService,
@@ -84,6 +85,8 @@ public class GbGradeTableData {
 		final Gradebook gradebook = businessService.getGradebook();
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
 
+		hasAssociatedRubricMap = businessService.buildHasAssociatedRubricMap(assignments);
+
 		isStudentNumberVisible = businessService.isStudentNumberVisible();
 	}
 
@@ -125,6 +128,10 @@ public class GbGradeTableData {
 
 	public Map<String, Double> getCourseGradeMap() {
 		return courseGradeMap;
+	}
+
+	public Map<Long, Boolean> getHasAssociatedRubricMap() {
+		return hasAssociatedRubricMap;
 	}
 
 	public boolean isStudentNumberVisible() {

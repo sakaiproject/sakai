@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats</artifactId>
-        <version>13-SNAPSHOT</version><!-- sitestats.version -->
+        <version>19-SNAPSHOT</version><!-- sitestats.version -->
     </parent>
 
     <!-- Packaging -->
@@ -187,7 +187,7 @@
         <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
             <scope>test</scope> </dependency> -->
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <scope>test</scope>
         </dependency>

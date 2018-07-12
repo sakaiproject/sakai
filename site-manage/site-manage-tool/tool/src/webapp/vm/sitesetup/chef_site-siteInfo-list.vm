@@ -282,8 +282,16 @@
 					#end
 				</td>
 			</tr>
- 			<tr>
- 				<th>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.crea")
+				</th>
+				<td>
+					$!siteCreationDate
+				</td>
+			</tr>
+			<tr>
+				<th>
 					$tlang.getString("sitegen.siteinfolist.modify")
 				</th>
 				<td>
@@ -291,37 +299,7 @@
 				</td>
 			</tr>
 		#end
-		
-		#if ($siteJoinable)
-			
-			<tr>
-				<th>
-					&nbsp;
-				</th>
-				<td>
-					
-			#if ($allowUnjoin)
-                    
-					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-					</form>
-                    
-			#else
-                    
-            		<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
-						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" disabled="disabled" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-					</form>
-                    
-			#end
-					
-				</td>
-			</tr>
-				
-		#end
-            
+
 		#if ($!allowUpdate)
 		
 			<tr>
@@ -346,15 +324,7 @@
 					<span class="instruction textPanelFooter" id="displayPublicInfoText" style="display:none">$tlang.getString("ediacc.dismysit.h")</span>
 				</td>
 			</tr>
-			<tr>
-				<th>
-					$tlang.getString("sitegen.siteinfolist.crea")
-				</th>
-				<td>
-					$!siteCreationDate
-				</td>
-			</tr> 
-		
+
 		#if ($!isCourseSite)
 			<tr>
 				<th>
@@ -399,6 +369,32 @@
 				</th>
 				<td>
 					$tlang.getString("sinfo.lessonbuildersubnav.enabled")
+				</td>
+			</tr>
+		#end
+
+		#if ($siteJoinable && $allowUnjoin)
+			<tr>
+				<th>
+					&nbsp;
+				</th>
+				<td>
+					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						<input type="hidden" name="itemReference" value="$siteId"/>
+						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</form>
+				</td>
+			</tr>
+		#end
+
+		#if (!$isPortalNeochatEnabledForSite)
+			<tr class="summary-portal-neochat-disabled">
+				<th>
+					$tlang.getString("sinfo.portalneochat.name")
+				</th>
+				<td>
+					$tlang.getString("sinfo.portalneochat.disabled")
 				</td>
 			</tr>
 		#end

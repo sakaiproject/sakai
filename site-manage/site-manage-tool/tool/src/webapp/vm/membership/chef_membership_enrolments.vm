@@ -1,13 +1,3 @@
-<div id="dialog"></div>
-<script type="text/javascript">
-    $( document ).ready( function()
-    {
-        sakai.getSiteInfo( 'getSiteDesc', 'dialog', '$tlang.getString( "mb.nosd" )', '$tlang.getString( "mb.nold" )' );
-        sakai.setupMessageListener( "messageHolder", "information messageInformation" );
-        sakai.setupSelectList( 'currentSites', 'selunselallid', 'selectedSelected' );
-    });
-</script>
-
 <div class="portletBody">
     <ul class="navIntraTool actionToolBar">
         <li class="firstToolBarItem">
@@ -128,7 +118,7 @@
                 <table class="listHier lines" cellspacing="0" border="0" summary="$summary" >
                     <tr>
                         <th id="term">
-                            <a href="#toolLinkParam( "$action" "doToggle_sort" "sortParam=use_term_sort" )" title="$tlang.getString( "mb.enrolments.sortByTerm" )">
+                            <a href="#toolLinkParam( "$action" "doToggle_sortEnrolments" "sortParam=use_term_sort" )" title="$tlang.getString( "mb.enrolments.sortByTerm" )">
                                 $tlang.getString( "mb.enrolments.columnHeader.term" )
                                 #if( $sortMode.equals( "use_term_sort" ) )
                                     #if( $currentSortAsc )
@@ -142,7 +132,7 @@
                             </a>
                         </th>
                         <th id="section">
-                            <a href="#toolLinkParam( "$action" "doToggle_sort" "sortParam=use_section_sort" )" title="$tlang.getString( "mb.enrolments.sortBySection" )">
+                            <a href="#toolLinkParam( "$action" "doToggle_sortEnrolments" "sortParam=use_section_sort" )" title="$tlang.getString( "mb.enrolments.sortBySection" )">
                                 $tlang.getString( "mb.enrolments.columnHeader.section" )
                                 #if( $sortMode.equals( "use_section_sort" ) )
                                     #if( $currentSortAsc )
@@ -156,7 +146,7 @@
                             </a>
                         </th>
                         <th id="worksite">
-                            <a href="#toolLinkParam( "$action" "doToggle_sort" "sortParam=use_site_sort" )" title="$tlang.getString( "mb.enrolments.sortBySite" )">
+                            <a href="#toolLinkParam( "$action" "doToggle_sortEnrolments" "sortParam=use_site_sort" )" title="$tlang.getString( "mb.enrolments.sortBySite" )">
                                 $tlang.getString( "mb.enrolments.columnHeader.courseSite" )
                                 #if( $sortMode.equals( "use_site_sort" ) )
                                     #if( $currentSortAsc )

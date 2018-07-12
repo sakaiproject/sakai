@@ -906,9 +906,6 @@ ASN.toggleSendFeedbackPanel = function()
     var expandImg = document.getElementById("expandSendFeedback");
     var collapseImg = document.getElementById("collapseSendFeedback");
     ASN.swapDisplay(expandImg, collapseImg);
-    var showLabel = document.getElementById("showSendFeedbackLabel");
-    var hideLabel = document.getElementById("hideSendFeedbackLabel");
-    ASN.swapDisplay(showLabel, hideLabel);
 }
 
 ASN.swapDisplay = function(elem1, elem2)
@@ -998,5 +995,30 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
     {
         header.src = expand;
         content.style.display = "none";
+    }
+}
+
+// rubrics-specific code
+ASN.rubricsEventHandlers = function ()
+{
+    $('body').on('rubrics-event', function(e, payload){
+        if (payload.event == "total-points-updated") {
+            ASN.handleRubricsTotalPointChange(payload.value);
+        }
+        if (payload.event == "rubric-ratings-changed") {
+            console.log('rubric-ratings-changed');
+            ASN.rubricChanged = true;
+        }
+    });
+
+    console.log('Rubrics event handlers loaded');
+}
+
+// handles point changes for assignments, updating the grade field if it exists.
+ASN.handleRubricsTotalPointChange = function (points)
+{
+    var gradeField = $('#grade');
+    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || ASN.rubricChanged)) {
+        gradeField.val(points);
     }
 }

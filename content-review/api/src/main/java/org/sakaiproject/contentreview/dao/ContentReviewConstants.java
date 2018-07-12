@@ -46,4 +46,7 @@ public class ContentReviewConstants {
 	//URKUND PROPERTIES
 	public static final String URKUND_OPTOUT_URL = "URKUND_OPTOUT_URL";
 	public static final String URKUND_REPORT_URL = "URKUND_REPORT_URL";
+	
+	public static final int TURNITIN_PROVIDER_ID = 199481773;
+	public static final int TURNITINOC_PROVIDER_ID = 1571541951;
 }

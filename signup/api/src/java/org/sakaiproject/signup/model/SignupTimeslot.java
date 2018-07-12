@@ -123,7 +123,7 @@ public class SignupTimeslot implements Comparable{
 	 * get the SignupAttendee object according to the attendee's Id
 	 * 
 	 * @param attendeeId
-	 *            a attendee's Id
+	 *            an attendee's Id
 	 * @return a SignupAttendee object
 	 */
 	public SignupAttendee getAttendee(String attendeeId) {

@@ -34,13 +34,9 @@ import org.sakaiproject.user.api.User;
 @Slf4j
 public class FallbackDetailProvider implements CandidateDetailProvider {
 	
-	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
-	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
-	private final static String SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
-	
-	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
-	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
-	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInsitutionalNumericID";
+	private final static String PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
+	private final static String PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
@@ -69,7 +65,7 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	public boolean useInstitutionalAnonymousId(Site site) {
 		log.debug("useInstitutionalAnonymousId from fallback provider");
 		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID))));
+			return (serverConfigurationService.getBoolean(PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(PROP_USE_INSTITUTIONAL_ANONYMOUS_ID))));
 		} catch(Exception ignore) {}
 		return false;
 	}
@@ -80,7 +76,7 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	
 	public boolean isAdditionalNotesEnabled(Site site) {
 		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
+			return (serverConfigurationService.getBoolean(PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(PROP_DISPLAY_ADDITIONAL_INFORMATION))));
 		} catch(Exception ignore) {}
 		return false;
 	}
@@ -107,8 +103,8 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	public boolean isInstitutionalNumericIdEnabled(Site site)
 	{
 		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, false)
-					|| (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID))));
+			return (serverConfigurationService.getBoolean(PROP_USE_INSTITUTIONAL_NUMERIC_ID, false)
+					|| (site != null && Boolean.parseBoolean(site.getProperties().getProperty(PROP_USE_INSTITUTIONAL_NUMERIC_ID))));
 		} catch(Exception ignore) {}
 		return false;
 	}

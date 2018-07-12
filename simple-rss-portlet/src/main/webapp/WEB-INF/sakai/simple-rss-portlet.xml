@@ -10,7 +10,7 @@
 		<configuration name="functions.require" /> 
 		<configuration name="reset.button" value="true"/>
 		<configuration name="allowMultipleInstances" value="true" />
-		<configuration name="feed_url" value="http://sakaiproject.org/feed" />
+		<configuration name="feed_url" value="https://www.sakaiproject.org/feed" />
 
 	</tool>
 

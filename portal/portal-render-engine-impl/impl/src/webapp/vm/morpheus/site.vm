@@ -218,18 +218,17 @@
 
         ${includeExtraHead}
 
+        #if ($loggedIn)
         <!-- Modal popup for profile picture changer -->
         <div class="modal fade" id="profileImageUpload" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header"><h3>${rloader.getString("pic_changer_title")}</h3></div>
+                    <div class="modal-header"><h2>${rloader.getString("pic_changer_title")}</h2></div>
                     <div class="modal-body">
                         <div id="remove-error" class="alert alert-danger">${rloader.getString("pic_changer_remove_error")}</div>
                         <div id="upload-error" class="alert alert-danger">${rloader.getString("pic_changer_upload_error")}</div>
-                        <a id="upload" class="button">
-                            ${rloader.getString("pic_changer_upload")}
-                            <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*">
-                        </a>
+                        <label for="file">${rloader.getString("pic_changer_upload")}</label>
+                        <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*" aria-required="true">
                         <div id="cropme">
                             <img style="maxWidth: 100%" />
                         </div>
@@ -257,7 +256,8 @@
                 </div>
             </div>
         </div>
-
         #parse("/vm/morpheus/connection-manager.vm")
+        #end
+
     </body>
 </html>

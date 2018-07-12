@@ -15,13 +15,18 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeChart;
+import org.sakaiproject.gradebookng.tool.stats.CourseGradeStatistics;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 /**
  * Renders the course grade graph in a modal window
@@ -44,10 +49,13 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 
 		final String siteId = ((Model<String>) getDefaultModel()).getObject();
 
-		CourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.coursegrade.title"));
+		CourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final GbCourseGradeChart chart = new GbCourseGradeChart("gradingSchemaChart", siteId);
+		final CourseGradeChart chart = new CourseGradeChart("gradingSchemaChart", siteId);
 		add(chart);
+
+		final CourseGradeStatistics stats = new CourseGradeStatistics("stats", getData(siteId));
+		add(stats);
 
 		add(new GbAjaxLink<Void>("done") {
 			private static final long serialVersionUID = 1L;
@@ -59,5 +67,21 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 		});
 	}
 
+	/**
+	 * Get the course grade data for the site and wrap it
+	 *
+	 * @param siteId siteId to get data for
+	 * @return
+	 */
+	private IModel<Map<String, Object>> getData(final String siteId) {
+		final Map<String, Object> data = new HashMap<>();
+		data.put("courseGradeMap", this.businessService.getCourseGrades(siteId));
+
+		final GradebookInformation info = this.businessService.getGradebookSettings(siteId);
+		data.put("gradingSchemaName", info.getGradeScale());
+		data.put("bottomPercents", info.getSelectedGradingScaleBottomPercents());
+
+		return Model.ofMap(data);
+	}
 
 }

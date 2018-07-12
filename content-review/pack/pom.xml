@@ -11,7 +11,7 @@
 	<parent>
 		<artifactId>content-review</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -30,6 +30,10 @@
 		<dependency>
 			<groupId>org.sakaiproject.contentreview.vericite</groupId>
 			<artifactId>content-review-vericite-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.turnitin.oc</groupId>
+			<artifactId>content-review-turnitin-oc-impl</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.contentreview.compilatio</groupId>

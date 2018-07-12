@@ -32,7 +32,7 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
 /* Color palette */
 $background-color: 			 #FFFFFF !default;
-$background-color-secondary: #3949AB !default;
+$background-color-secondary: #000036 !default;
 
 $primary-color:    			 #265b81 !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
@@ -41,6 +41,7 @@ $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
 
 $text-color:				 #212121 !default;
+$text-color-disabled:		 #767676 !default;
 
 $body-background-color: #FAFAFA !default;
 
@@ -332,6 +333,9 @@ $hierarchy-size: 3.5em !default;
 
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
+
+/* The standard spacing for items in Sakai */
+$standard-spacing: 10px !default;
 
 $banner-height: 52px !default;
 

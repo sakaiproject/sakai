@@ -795,7 +795,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		try {
 			getHibernateTemplate().delete(o);
 			return true;
-		} catch (DataAccessException e) {
+		} catch (DataAccessException | IllegalArgumentException e) {
 			try {
 				
 				/* If we have multiple objects of the same item, you must merge them
@@ -804,8 +804,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				getHibernateTemplate().delete(getHibernateTemplate().merge(o));
 				
 				return true;
-			}catch(DataAccessException ex) {
-				log.warn("Hibernate could not delete: " + e.toString());
+			}catch(DataAccessException | IllegalArgumentException ex) {
+				log.warn("Hibernate could not delete: " + ex.toString());
 				return false;
 			}
 		}

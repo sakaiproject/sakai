@@ -52,6 +52,8 @@ import javax.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -68,6 +70,7 @@ import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
@@ -145,6 +148,10 @@ public class ItemAuthorBean
 
 
   private String language;
+
+  // Rubrics
+  private String rbcsToken;
+  private String rubricStateDetails;
 
   public String getLanguage() {
     Locale loc = new ResourceLoader().getLocale();
@@ -1602,4 +1609,23 @@ public class ItemAuthorBean
         }
     }
 
+    public String getRbcsToken() {
+        return rbcsToken;
+    }
+
+    public void setRbcsToken(String rbcsToken) {
+        this.rbcsToken = rbcsToken;
+    }
+
+    public String getRubricStateDetails() {
+        if (StringUtils.isNotBlank(this.rubricStateDetails) && !StringUtils.isNotBlank(ContextUtil.lookupParam(SamigoConstants.RBCS_ASSOCIATION_STATE_DETAILS))) {
+            return this.rubricStateDetails;
+        }
+        this.rubricStateDetails = ContextUtil.lookupParam(SamigoConstants.RBCS_ASSOCIATION_STATE_DETAILS);
+        return this.rubricStateDetails;
+    }
+
+    public void setRubricStateDetails(String rubricStateDetails) {
+        this.rubricStateDetails = rubricStateDetails;
+    }
 }

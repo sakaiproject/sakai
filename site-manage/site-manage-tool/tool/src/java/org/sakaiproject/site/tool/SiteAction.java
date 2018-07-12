@@ -159,6 +159,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
@@ -745,7 +746,7 @@ public class SiteAction extends PagedResourceActionII {
 	/** the news tool **/
 	private final static String NEWS_TOOL_ID = "sakai.simple.rss";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG = "javax.portlet-feed_url";
-	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://sakaiproject.org/feed";
+	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "https://www.sakaiproject.org/feed";
 	
    	private final static String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
 
@@ -1213,7 +1214,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
-		
+
+		LessonsSubnavEnabler.removeFromState(state);
+		PortalNeochatEnabler.removeFromState(state);
+
 		state.removeAttribute(STATE_CREATE_FROM_ARCHIVE);
 
 	} // cleanState
@@ -1693,9 +1697,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			//Add flash notification when new site is created
 			if(state.getAttribute(STATE_NEW_SITE_STATUS_ID) != null){
-				String  flashNotifMsg = "<a title=\"" + state.getAttribute(STATE_NEW_SITE_STATUS_TITLE) + "\"href=\"/portal/site/"+
+				String siteTitle = Validator.escapeHtml((String)state.getAttribute(STATE_NEW_SITE_STATUS_TITLE));
+				String  flashNotifMsg = "<a title=\"" + siteTitle + "\"href=\"/portal/site/"+
 				state.getAttribute(STATE_NEW_SITE_STATUS_ID) + "\" target=\"_top\">"+
-				state.getAttribute(STATE_NEW_SITE_STATUS_TITLE)+"</a>" +" "+
+				siteTitle+"</a>" +" "+
 				rb.getString("sitdup.hasbeedup");
 				addFlashNotif(state,flashNotifMsg);
 				StringBuilder sbFlashNotifAction =  new StringBuilder();
@@ -1785,6 +1790,7 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				LessonsSubnavEnabler.addToEditToolsContext(context, site, state);
+				PortalNeochatEnabler.addToEditToolsContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", "12");	// back to site info list page
@@ -1796,6 +1802,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("homeToolId", TOOL_ID_HOME);
 			context.put("toolsByGroup", (LinkedHashMap<String,List>) state.getAttribute(STATE_TOOL_GROUP_LIST));
+			context.put("neoChat", ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 			
 			context.put("toolGroupMultiples", getToolGroupMultiples(state, (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST)));
 			
@@ -2505,6 +2512,7 @@ public class SiteAction extends PagedResourceActionII {
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			LessonsSubnavEnabler.addToSiteInfoContext(context, site, state);
+			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
@@ -2655,6 +2663,7 @@ public class SiteAction extends PagedResourceActionII {
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			LessonsSubnavEnabler.addToSiteInfoContext(context, site, state);
+			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2720,6 +2729,7 @@ public class SiteAction extends PagedResourceActionII {
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			LessonsSubnavEnabler.addToSiteInfoContext(context, site, state);
+			PortalNeochatEnabler.addToSiteInfoContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
@@ -2728,6 +2738,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			context.put("title", site.getTitle());
+			context.put("neoChat", ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 			boolean myworkspace_site = false;
@@ -2744,6 +2755,7 @@ public class SiteAction extends PagedResourceActionII {
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
 			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
 			LessonsSubnavEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
+			PortalNeochatEnabler.addSettingsToEditToolsConfirmationContext(context, site, state);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
@@ -7602,6 +7614,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			LessonsSubnavEnabler.removeFromState(state);
+			PortalNeochatEnabler.removeFromState(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
@@ -8297,6 +8310,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// SAK-22384 mathjax support
 		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
 		LessonsSubnavEnabler.prepareSiteForSave(Site, state);
+		PortalNeochatEnabler.prepareSiteForSave(Site, state);
 				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -9641,11 +9655,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (state.getAttribute(SITE_DUPLICATED) == null) {
 					if ((SecurityService.isSuperUser())&& ((StringUtils.trimToNull(params.getString("newSiteId")) != null)&&(SiteService.siteExists(params.getString("newSiteId"))))){
 					    addAlert(state, rb.getString("sitdup.idused") + " ");
-					} else if (StringUtils.trimToNull(params.getString("title")) == null) {
-					    addAlert(state, rb.getString("java.dupli") + " ");
-					} else {
-						String title = params.getString("title");
-						state.setAttribute(SITE_DUPLICATED_NAME, title);
+					}
+
+					// duplicated site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+					String titleOrig = params.getString("title");
+					String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+					if (isSiteTitleValid(titleOrig, titleStripped, state)) {
+						state.setAttribute(SITE_DUPLICATED_NAME, titleStripped);
 
 						String newSiteId = null;
 						if (StringUtils.trimToNull(params.getString("newSiteId")) == null) {
@@ -9686,7 +9702,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 
 							// set title
-							site.setTitle(title);
+							site.setTitle(titleStripped);
 							
 							// SAK-20797 alter quota if required
 							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
@@ -10540,18 +10556,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// title
 		boolean hasRosterAttached = params.getString("hasRosterAttached") != null ? Boolean.getBoolean(params.getString("hasRosterAttached")) : false;
 		if ((siteTitleEditable(state, siteInfo.site_type) || !hasRosterAttached) && params.getString("title") != null) 	 
-		{ 	 
-			// site titel is editable and could not be null
-			String title = StringUtils.trimToNull(params.getString("title"));
-			siteInfo.title = title;
-			
-			if (title == null) { 	 
-				addAlert(state, rb.getString("java.specify") + " "); 	 
-			} 	 
-			// check for site title length 	 
-			else if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT) 	 
-			{ 	 
-				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[]{SiteConstants.SITE_GROUP_TITLE_LIMIT})); 	 
+		{
+			// site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+			String titleOrig = params.getString("title");
+			String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+			if (isSiteTitleValid(titleOrig, titleStripped, state)) {
+				siteInfo.title = titleStripped;
 			}
 		}
 				
@@ -11356,6 +11366,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		if (LessonsSubnavEnabler.prepareSiteForSave(site, state)) {
+			commitSite(site);
+		}
+
+		if (PortalNeochatEnabler.prepareSiteForSave(site, state)) {
 			commitSite(site);
 		}
 	} // saveFeatures
@@ -12241,6 +12255,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 		LessonsSubnavEnabler.removeFromState(state);
+		PortalNeochatEnabler.removeFromState(state);
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -12449,6 +12464,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// continue
 			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
 			LessonsSubnavEnabler.applyToolSettingsToState(state, site, params);
+			PortalNeochatEnabler.applyToolSettingsToState(state, site, params);
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
@@ -15464,5 +15480,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return true; //backwards compatibility
 	}
 
-	
+	/**
+	 * Responsible for checking validation status of the original versus stripped site title, and
+	 * adding necessary error messages to the STATE.
+	 * @param titleOrig the original site title as entered by the user
+	 * @param titleStripped the produce of passing the original string into FormattedText.stripHtmlFromText(titleOrig, true, true);
+	 * @param true if the stripped title passes all validation; false otherwise
+	 */
+	private boolean isSiteTitleValid(String titleOrig, String titleStripped, SessionState state) {
+		SiteTitleValidationStatus status = SiteService.validateSiteTitle(titleOrig, titleStripped);
+
+		if (null != status) switch(status)
+		{
+			case STRIPPED_TO_EMPTY:
+				addAlert(state, rb.getString("siteTitle.htmlStrippedToEmpty"));
+				return false;
+			case EMPTY:
+				addAlert(state, rb.getString("java.specify"));
+				return false;
+			case TOO_LONG:
+				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[] {SiteConstants.SITE_GROUP_TITLE_LIMIT}));
+				return false;
+		}
+
+		return true;
+	}
 }

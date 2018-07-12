@@ -2,31 +2,40 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
+
 	<import resource="hibernate-hbms.xml" />
 	<import resource="spring-hibernate.xml" />
 	<import resource="turnitin.xml" />
+  	<import resource="turnitin-oc.xml" />
 	<import resource="vericite.xml" />
 	<import resource="compilatio.xml" />
 	<import resource="urkund.xml" />
-	
+
 	<bean id="org.sakaiproject.contentreview.service.ContentReviewQueueService" class="org.sakaiproject.contentreview.service.ContentReviewQueueServiceImpl">
 	   <property name="itemDao" ref="org.sakaiproject.contentreview.dao.ContentReviewItemDao" />
 	</bean>
 
-	<bean id="org.sakaiproject.contentreview.service.ContentReviewService" class="org.sakaiproject.contentreview.service.ContentReviewFederatedServiceImpl" init-method="init">
+	<bean id="org.sakaiproject.contentreview.service.BaseContentReviewService"
+			class="org.sakaiproject.contentreview.service.BaseContentReviewService"
+			abstract="true">
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+
+	<bean id="org.sakaiproject.contentreview.service.ContentReviewService" class="org.sakaiproject.contentreview.service.ContentReviewFederatedServiceImpl"
+			parent="org.sakaiproject.contentreview.service.BaseContentReviewService" init-method="init">
 		<property name="providers">
 			<list>
 				<ref bean="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite" />
 				<ref bean="org.sakaiproject.contentreview.turnitin.ContentReviewServiceTurnitin" />
 				<ref bean="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" />
 				<ref bean="org.sakaiproject.contentreview.urkund.ContentReviewServiceUrkund" />
+        			<ref bean="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC" />
 			</list>
 		</property>
 
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 
 	<bean id="ContentReviewQueue" class="org.sakaiproject.contentreview.service.jobs.ContentReviewQueue">

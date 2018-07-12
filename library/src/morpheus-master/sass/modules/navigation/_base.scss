@@ -38,7 +38,7 @@ body.is-logged-out{
 	}
 
 	.#{$namespace}loginUser{
-		@include display-flex( inline-flex );
+		display: inline-flex;
 		li{
 			display: inline-block;
 			margin: 0 0.8em 0 0;
@@ -211,7 +211,7 @@ body.is-logged-out{
 
 	a
 	{
-		@include display-flex( flex );
+		@include display-flex;
 		@include align-items( center );
 
 		color: $topNav-text-color;
@@ -229,7 +229,7 @@ body.is-logged-out{
 		float: right;
 		height: $banner-height;
 		@include flex-shrink( 0 );
-		@include display-flex( flex );
+		@include display-flex;
 		@include align-items( center );
 		@include justify-content( flex-end );
 
@@ -355,7 +355,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		@include display-flex( flex );
+		@include display-flex;
 		position: fixed;
 		width: 100%;
 		top: 0;
@@ -400,7 +400,7 @@ body.is-logged-out{
 
 	#loginForm{
 
-		@include display-flex( flex );
+		@include display-flex;
 		@include align-items( center );
 		@include justify-content( flex-end );
 
@@ -442,7 +442,7 @@ body.is-logged-out{
 	}
 
 	#loginUser{
-		@include display-flex( flex );
+		@include display-flex;
 		@include align-items( center );
 
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
@@ -468,13 +468,16 @@ body.is-logged-out{
 		position: relative;
 
 		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
-			display: inline-block;
-			max-width: 100px;
-			overflow: hidden;
-			position: relative;
-			text-overflow: ellipsis;
 			text-decoration: none;
-			white-space: nowrap;
+
+			span.textlink {
+				display: inline-block;
+				max-width: 100px;
+				overflow: hidden;
+				position: relative;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
 		}
 	}
 
@@ -764,7 +767,7 @@ body.is-logged-out{
 }
 #topnav_container
 {
-	@include display-flex(flex);
+	@include display-flex;
 	padding-left: 0.5em;
 	background-color: $sites-nav-background;
 	min-height: 52px;
@@ -773,7 +776,7 @@ body.is-logged-out{
 
 #linkNav{
 	ul{
-		@include display-flex(flex);
+		@include display-flex;
 		@include flex-wrap( wrap );
 		font-family: $header-font-family;
 		margin: 0.5em 0 0 0;
@@ -789,7 +792,7 @@ body.is-logged-out{
 			background: $sites-nav-menu-item-background;
 
 			> a.link-container{
-				@include display-flex( flex );
+				@include display-flex;
 				@include align-items( center );
 
 				padding: 0.5em 36px 0.5em 0.5em;

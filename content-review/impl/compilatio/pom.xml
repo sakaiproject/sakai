@@ -9,7 +9,7 @@
 	<parent>
 		<artifactId>content-review-impl</artifactId>
 		<groupId>org.sakaiproject.contentreview</groupId>
-		<version>13-SNAPSHOT</version>
+		<version>19-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -48,6 +48,10 @@
 			<groupId>org.sakaiproject.assignment</groupId>
 			<artifactId>sakai-assignment-api</artifactId>
 		</dependency>
+		<dependency>
+	        <groupId>javax.servlet</groupId>
+	        <artifactId>servlet-api</artifactId>
+	    </dependency>
 		<!-- Apache commons dependencies -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>

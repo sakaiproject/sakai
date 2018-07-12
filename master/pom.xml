@@ -17,10 +17,10 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>13-SNAPSHOT</version>
+  <version>19-SNAPSHOT</version>
 
   <properties>
-    <sakai.version>13-SNAPSHOT</sakai.version>
+    <sakai.version>19-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.apache.httpcomponents.httpclient.version>4.1.4</sakai.apache.httpcomponents.httpclient.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
@@ -47,7 +47,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.16.20</sakai.lombok.version>
+    <sakai.lombok.version>1.18.0</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.mail.version>1.6.0</sakai.mail.version>
     <sakai.org.json.version>20171018</sakai.org.json.version>
@@ -60,13 +60,16 @@
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
     <sakai.spring.version>4.3.14.RELEASE</sakai.spring.version>
-    <sakai.spring.security.version>3.2.10.RELEASE</sakai.spring.security.version>
+    <sakai.spring.data.commons.version>1.13.7.RELEASE</sakai.spring.data.commons.version>
+    <sakai.spring.data.jpa.version>1.11.7.RELEASE</sakai.spring.data.jpa.version>
+    <sakai.spring.data.rest.version>2.6.7.RELEASE</sakai.spring.data.rest.version>
+    <sakai.spring.security.version>4.2.3.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>0.24.0.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.17</sakai.tika.version>
-    <sakai.tomcat.version>8.5.31</sakai.tomcat.version>
+    <sakai.tika.version>1.18</sakai.tika.version>
+    <sakai.tomcat.version>9.0.8</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -102,8 +105,8 @@
     <!-- These should only be updated when the webjars version is updated -->
     <ckeditor.autosave.version>278c922c6d8529edd15a2b2c11b574fb4320e0c2</ckeditor.autosave.version>
     <ckeditor.wordcount.version>136ba881ddcff5aa029e3648c69358c15a982afc</ckeditor.wordcount.version>
-    <ckeditor.a11ychecker.version>1.1.0</ckeditor.a11ychecker.version>
-    <ckeditor.balloonpanel.version>4.6.2</ckeditor.balloonpanel.version>
+    <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
+    <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
     <ckeditor.image2.version>4.9.2</ckeditor.image2.version>
     
   </properties>
@@ -398,6 +401,73 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-webmvc</artifactId>
         <version>${sakai.spring.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-jpa</artifactId>
+        <version>${sakai.spring.data.jpa.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-commons</artifactId>
+        <version>${sakai.spring.data.commons.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.hateoas</groupId>
+        <artifactId>spring-hateoas</artifactId>
+        <version>${sakai.spring.hateoas.version}</version>
+        <scope>provided</scope>
+      </dependency>
+	  <dependency>
+        <groupId>org.springframework.plugin</groupId>
+        <artifactId>spring-plugin-core</artifactId>
+        <version>${sakai.spring.plugin.version}</version>
+        <scope>provided</scope>
+	  </dependency>
+	  <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${sakai.spring.security.version}</version>
+        <scope>provided</scope>
+	  </dependency>
+	  <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-rest-core</artifactId>
+        <version>${sakai.spring.data.rest.version}</version>
+        <scope>provided</scope>
+	  </dependency>
+	  <dependency>
+        <groupId>org.atteo</groupId>
+        <artifactId>evo-inflector</artifactId>
+        <version>1.2.1</version>
+        <scope>provided</scope>
+	  </dependency>
+	  <dependency>
+        <groupId>com.jayway.jsonpath</groupId>
+        <artifactId>json-path</artifactId>
+        <version>${jayway.jsonpath.version}</version>
+        <scope>provided</scope>
+	  </dependency>
+	  <!--<dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>5.0.4</version>
+		<scope>provided</scope>
+      </dependency>-->
+	  <dependency>
+        <groupId>net.minidev</groupId>
+        <artifactId>json-smart</artifactId>
+        <version>2.3</version>
+		<scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.minidev</groupId>
+        <artifactId>asm</artifactId>
+		<scope>provided</scope>
+        <version>1.0.2</version>
       </dependency>
       <dependency>
         <groupId>org.aspectj</groupId>
@@ -442,6 +512,12 @@
 		<version>${sakai.jackson.version}</version>
 		<scope>provided</scope>
 	  </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>${sakai.jackson.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.module</groupId>
         <artifactId>jackson-module-jaxb-annotations</artifactId>
@@ -582,9 +658,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>dom4j</groupId>
+        <groupId>org.dom4j</groupId>
         <artifactId>dom4j</artifactId>
-        <version>1.6.1</version>
+        <version>2.1.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -676,7 +752,7 @@
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
-        <version>1.1.0.Final</version>
+        <version>2.0.1.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -688,7 +764,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.3.4.Final</version>
+        <version>5.3.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -724,7 +800,7 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jandex</artifactId>
-        <version>1.1.0.Final</version>
+        <version>2.0.5.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -791,12 +867,6 @@
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>
         <version>${sakai.jstl.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <version>2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -964,7 +1034,7 @@
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.3.172</version>
+        <version>1.4.197</version>
         <scope>provided</scope>
       </dependency>
       <!-- Elasticsearch -->
@@ -1449,7 +1519,7 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.rubrics</groupId>
-        <artifactId>rubrics-service-client-api</artifactId>
+        <artifactId>rubrics-service-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1724,19 +1794,19 @@
       <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.43</version>
+          <version>5.1.46</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.1.0</version>
+          <version>2.2.5</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.6.3</version>
+        <version>3.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2108,7 +2178,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4</version>
+        <version>1.4.1</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -2153,7 +2223,7 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.7.0</version>
         <configuration>
           <!-- <compilerArguments> <verbose /> </compilerArguments> -->
           <source>${sakai.jdk.version}</source>
@@ -2174,7 +2244,7 @@
         <configuration>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
-	    <lombok.disable>true</lombok.disable>
+            <lombok.disable>true</lombok.disable>
             <!-- Pass through important service-integration test properties. -->
             <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
             <!--suppress MavenModelInspection -->
@@ -2192,10 +2262,14 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
+          <!-- Report is put in the target subdirectory. Can be run at the root of this as:
+            mvn -Pdependency-check-support clean install -Dmaven.test.skip=true
+            mvn -Pdependency-check-support org.owasp:dependency-check-maven:purge
+            mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate
+          -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>3.1.1</version>
+        <version>3.2.1</version>
         <dependencies>
           <dependency>
             <groupId>org.sakaiproject</groupId>
@@ -2208,6 +2282,7 @@
             <!-- This is loaded off the classpath and is provided through the dependency-check-support artifact -->
             <suppressionFile>sakai-suppression.xml</suppressionFile>
           </suppressionFiles>
+          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
         </configuration>
         <executions>
           <execution>

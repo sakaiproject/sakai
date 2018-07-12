@@ -27,6 +27,10 @@ function removeOptionalAttributeBlock(elem) {
 	$(elem).parent("p").remove();
 }
 
+function active_doSave() {
+	var submitButton = USER.get("eventSubmit_doSave"); 
+	submitButton.disabled = false;
+}
 
 </script>
 
@@ -80,7 +84,7 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("usecre.firnam")
 				</label>	
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
+				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end  onkeyup="active_doSave();"/>
 			#else
 				#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
 			#end
@@ -90,7 +94,7 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("usecre.lasnam")
 				</label>
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
+				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end onkeyup="active_doSave();"/>
 			#else
 				#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
 			#end
@@ -100,7 +104,7 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("useconrem.ema")
 				</label>
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();active_doSave();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end/>
                 <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			#else
 				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end

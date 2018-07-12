@@ -86,10 +86,10 @@ to specific sites or users is not yet supported.
 There are four new permissions added to the Sakai Realms to be mapped
 appropriately:
 
-* **rbcs.editor** - Authorized to create, edit and share rubrics.
-* **rbcs.associator** - Authorized to associate rubrics with integrating tool items.
-* **rbcs.evaluator** - Authorized to use a rubric and submit an evaluation with comments based on the rubric.
-* **rbcs.evaluee** - Target of a rubric evaluation, only able to view rubrics and evaluations for their tool item submissions.
+* **rubrics.editor** - Authorized to create, edit and share rubrics.
+* **rubrics.associator** - Authorized to associate rubrics with integrating tool items.
+* **rubrics.evaluator** - Authorized to use a rubric and submit an evaluation with comments based on the rubric.
+* **rubrics.evaluee** - Target of a rubric evaluation, only able to view rubrics and evaluations for their tool item submissions.
 
 Typically an instructor will have all four permissions granted for a site,
 and students will only have evaluee. Those details are left to the Sakai
@@ -108,10 +108,10 @@ Rubrics.
   "sub": "cda94cae-83b8-4d44-9df7-0c0fe9269500",
   "toolId": "sakai.assignment",
   "roles": [
-    "rbcs.editor",
-    "rbcs.associator",
-    "rbcs.evaluator",
-    "rbcs.evaluee"
+    "rubrics.editor",
+    "rubrics.associator",
+    "rubrics.evaluator",
+    "rubrics.evaluee"
   ],
   "contextId": "50100776-7540-4d70-8840-9579d09a5408",
   "contextType": "site",
@@ -230,8 +230,6 @@ The following properties should be overridden:
 spring.datasource.url=jdbc:mysql://server/sakaidb
 spring.datasource.username=sakai
 spring.datasource.password=sakai
-
-rubrics.integration.sakai-rest-url=http://sakai-core:8080/sakai-ws/rest/
 
 rubrics.integration.token-secret=<Unique secret to support JWT signing>
 ```

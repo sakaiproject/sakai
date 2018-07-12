@@ -46,7 +46,6 @@
 	    
   
   <script type="text/JavaScript">
-<!--
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
 
@@ -72,23 +71,8 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick(); 
 }
  
-//-->
 </script>
-
-<style type="text/css">
-        .TableColumn {
-          text-align: center
-        }
-       .TableClass {
-         border-style: dotted;
-         border-width: 0.5px;
-         border-color: light grey;
-       }
-</style>
 </head>
-
-
-
 
 <body 
   onload="document.forms[0].reset(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>; qb_init('print');"

@@ -177,6 +177,10 @@ public class ItemContentsBean implements Serializable {
 
 	private int answerCounter = 1;
 
+	// Rubrics
+	private String rubricStateDetails;
+	private boolean hasAssociatedRubric;
+
 	public ItemContentsBean() {
 	}
 
@@ -1636,5 +1640,21 @@ public class ItemContentsBean implements Serializable {
   public int getAnswerCounter() {
     return answerCounter++;
   }
+
+	public String getRubricStateDetails() {
+		return rubricStateDetails;
+	}
+
+	public void setRubricStateDetails(String rubricStateDetails) {
+		this.rubricStateDetails = rubricStateDetails;
+	}
+
+	public boolean isHasAssociatedRubric() {
+		return hasAssociatedRubric;
+	}
+
+	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
+		this.hasAssociatedRubric = hasAssociatedRubric;
+	}
 }
 

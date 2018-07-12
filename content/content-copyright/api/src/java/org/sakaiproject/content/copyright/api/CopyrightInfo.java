@@ -24,6 +24,7 @@ import java.util.List;
 public interface CopyrightInfo{
 	
 	public void add(CopyrightItem item);
+	public void addToBeginning(CopyrightItem item);
 	public List<CopyrightItem> getItems();
 	
 }

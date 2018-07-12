@@ -129,7 +129,6 @@ public class ResourcesEditItem
 		m_instruction = "";
 		m_ccRightsownership = "";
 		m_ccLicense = "";
-		// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
 
 		m_hidden = false;
 		m_releaseDate = TimeService.newTime();

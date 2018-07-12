@@ -26,7 +26,7 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
   </bean>
    
-  <bean id="ConfirmProdcuer" 
+  <bean id="ConfirmProducer" 
       class="org.sakaiproject.site.tool.helper.participant.rsf.ConfirmProducer">    
     <property name="handler" ref="siteAddParticipantHandler" />
     <property name="messageLocator" ref="messageLocator"/>

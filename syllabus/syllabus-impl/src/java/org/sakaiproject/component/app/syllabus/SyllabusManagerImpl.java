@@ -258,7 +258,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 		  throw new IllegalArgumentException("Null Argument");
 	  }else{
 		  d.setPosition(position);
-	      getHibernateTemplate().update(d);
+	      getHibernateTemplate().merge(d);
 	  }
   }
 
@@ -386,7 +386,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
       if (returnedItem != null){
         returnedItem.getSyllabi().add(syllabusData);
-        session.save(returnedItem);
+        session.merge(returnedItem);
       }
       return null;
     };
@@ -396,7 +396,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     if(updateCalendar){
     	boolean modified = updateCalendarSettings(syllabusData);
     	if(modified){
-    		getHibernateTemplate().saveOrUpdate(syllabusData);
+    		getHibernateTemplate().merge(syllabusData);
     	}
     }
   }  
@@ -420,7 +420,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
       if (returnedItem != null){
         returnedItem.getSyllabi().remove(syllabusData);
-        session.saveOrUpdate(returnedItem);
+        session.merge(returnedItem);
       }
       return null;
     };
@@ -464,7 +464,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    */
   public void saveSyllabusItem(SyllabusItem item)
   {
-    getHibernateTemplate().saveOrUpdate(item);
+    getHibernateTemplate().merge(item);
   }
   
   /**
@@ -481,7 +481,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 		  //calendar check
 		  updateCalendarSettings(data);
 	  }
-	  getHibernateTemplate().saveOrUpdate(data);
+	  getHibernateTemplate().merge(data);
 	  if(updateCalendar){
 		  updateSyllabusAttachmentsViewState(data);
 		  //update calendar attachments
@@ -580,7 +580,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 
   public void saveSyllabusAttachment(SyllabusAttachment attach)
   {
-    getHibernateTemplate().saveOrUpdate(attach);
+    getHibernateTemplate().merge(attach);
   }
   
   public void addSyllabusAttachToSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach)
@@ -595,7 +595,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
       if (returnedData != null){
         returnedData.getAttachments().add(syllabusAttach);
-        session.save(returnedData);
+        session.merge(returnedData);
       }
       return null;
     };
@@ -621,7 +621,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
       if (returnedData != null){
         returnedData.getAttachments().remove(syllabusAttach);
-        session.saveOrUpdate(returnedData);
+        session.merge(returnedData);
       }
       return null;
     };
@@ -881,7 +881,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 		for(SyllabusData data : findPublicSyllabusDataWithCalendarEvent(syllabusId)){
 			boolean updated = updateCalendarSettings(data);
 			if(updated){
-				getHibernateTemplate().saveOrUpdate(data);
+				getHibernateTemplate().merge(data);
 			}
 			if(data.getAttachments() != null && data.getAttachments().size() > 0){
 		    	if(data.getCalendarEventIdStartDate() != null
@@ -936,7 +936,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
 		//calendar check
 		updated = removeCalendarEvents(data);
 		
-		if (data.isLinkCalendar() 
+		if (data.getLinkCalendar()
 				  && !SyllabusData.ITEM_DRAFT.equals(data.getStatus())
 				  && (data.getSyllabusItem().getRedirectURL() == null
 						  || data.getSyllabusItem().getRedirectURL().isEmpty())

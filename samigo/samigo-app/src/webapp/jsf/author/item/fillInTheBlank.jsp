@@ -97,6 +97,8 @@
         </div>
     </div>  
 
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
+
     <!-- 1.2 Min POINTS -->
     <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
         <div class="form-group row">   

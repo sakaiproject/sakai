@@ -86,6 +86,7 @@ public class GbGradebookData {
 		private boolean isIncludedInCourseGrade;
 		private boolean isExtraCredit;
 		private boolean isExternallyMaintained;
+		private boolean hasAssociatedRubric;
 		private String externalId;
 		private String externalAppName;
 		private String externalAppIconCSS;
@@ -191,6 +192,7 @@ public class GbGradebookData {
 	private Map<String, String> toolNameIconCSSMap;
 	private String defaultIconCSS;
 	private Map<String, Double> courseGradeMap;
+	private Map<Long, Boolean> hasAssociatedRubricMap;
 	private boolean isStudentNumberVisible;
 
 	private Component parent;
@@ -211,6 +213,7 @@ public class GbGradebookData {
 
 		this.toolNameIconCSSMap = gbGradeTableData.getToolNameToIconCSS();
 		this.defaultIconCSS = gbGradeTableData.getDefaultIconCSS();
+		this.hasAssociatedRubricMap = gbGradeTableData.getHasAssociatedRubricMap();
 
 		this.columns = loadColumns(gbGradeTableData.getAssignments());
 		this.students = loadStudents(studentGradeInfoList);
@@ -495,6 +498,7 @@ public class GbGradebookData {
 					counted,
 					a1.isExtraCredit(),
 					a1.isExternallyMaintained(),
+					this.hasAssociatedRubricMap.get(a1.getId()),
 					a1.getExternalId(),
 					a1.getExternalAppName(),
 					getIconCSSForExternalAppName(a1.getExternalAppName()),

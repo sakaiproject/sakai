@@ -25,6 +25,19 @@ $(document).ready(function(){
 </script>
 ## Include other javascript specific to this page
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
+
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-student.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<!-- END RUBRICS JAVASCRIPT -->
+
 <div class="portletBody">
 ## submission times
 	#set($dateReturned=false)
@@ -401,6 +414,13 @@ $(document).ready(function(){
 					</ul>
 				</div>
 			#end
+
+			<sakai-rubric-student
+				tool-id="sakai.assignment"
+				entity-id="$assignment.Id"
+				evaluated-item-id="$submission.Id"
+			></sakai-rubric-student>
+
 			#if ($!allowReadAssignmentNoteItem)
 				<h4  id="toggleNotes" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('note.label')</h4>
 				<div class="toggledContent notes">
@@ -555,7 +575,7 @@ $(document).ready(function(){
 							<span style="font-size: smaller; color: blue;">	
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
-									$user.getDisplayName()
+									$validator.escapeHtml($user.getDisplayName()) ($validator.escapeHtml($user.getDisplayId()))
 									##$!userDirectoryService.getUser($user).getDisplayName()
 									#if ($velocityCount < $gusers.size()),#end
 								#end
@@ -614,6 +634,19 @@ $(document).ready(function(){
 										#end
 									</em>
 								</p>
+							#end
+							#if ($plagiarismEULALink)
+								<p class="checkbox highlightPanel form-required">
+									<label for="$name_plagiarism_eula_agreement">
+										#if ($value_plagiarism_eula_agreement.equals("true"))
+											<input id="$name_plagiarism_eula_agreement" type="checkbox" name="$name_plagiarism_eula_agreement" value="true" checked="checked"/>
+										#else
+											<input id="$name_plagiarism_eula_agreement" type="checkbox" name="$name_plagiarism_eula_agreement" value="true"/>
+										#end
+										$tlang.getString("review.eula.agreement")&nbsp;<a href="$plagiarismEULALink" target="_blank">$tlang.getString("review.eula")</a>
+									</label>
+								</p>
+								<input type="hidden" name="$name_check_plagiarism_eula_agreement" id="$name_check_plagiarism_eula_agreement" value="true" checked="checked"/>
 							#end
 							</p>
 							<table border="0">

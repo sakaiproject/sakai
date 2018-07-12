@@ -59,7 +59,12 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * property name for term-eid
 	 */
 	public final static String PROP_SITE_TERM_EID = "term_eid";
-	
+
+	/**
+	 * property name for portal-neochat
+	 */
+	public final static String PROP_SITE_PORTAL_NEOCHAT = "portal.neochat";
+
 	/**
 	 * @return the user who created this.
 	 */

@@ -15,10 +15,6 @@
  */
 package org.sakaiproject.gradebookng.business;
 
-import java.math.RoundingMode;
-import java.security.Permission;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +42,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -63,9 +58,11 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -138,6 +135,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+
+	@Setter
+	private RubricsService rubricsService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
@@ -317,9 +317,10 @@ public class GradebookNgBusinessService {
 	{
 		final List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
 		final List<User> users = getUsers(userUuids);
+		final Site site = getCurrentSite().orElse(null);
 
 		for (final User u : users) {
-			gbUsers.add(new GbUser(u));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
 		}
 
 		return gbUsers;
@@ -778,6 +779,9 @@ public class GradebookNgBusinessService {
 			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
 			rval = GradeSaveResponse.ERROR;
 		}
+
+		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone());
+
 		return rval;
 	}
 
@@ -827,6 +831,16 @@ public class GradebookNgBusinessService {
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final GradebookUiSettings uiSettings) throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
+	}
+
+	public HashMap<Long, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
+		HashMap<Long, Boolean> map = new HashMap<Long, Boolean>();
+		for (Assignment assignment : assignments) {
+			Long assignmentId = assignment.getId();
+			boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric("sakai.gradebookng", assignmentId.toString());
+			map.put(assignmentId, hasAssociatedRubric);
+		}
+		return map;
 	}
 
 	/**
@@ -1697,6 +1711,8 @@ public class GradebookNgBusinessService {
 			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignmentId,
 					Integer.MAX_VALUE);
 
+			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
+
 			return assignmentId;
 
 			// TODO wrap this so we can catch any runtime exceptions
@@ -1940,11 +1956,15 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+
+			EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
+
 			if (original.getCategoryId() != null && assignment.getCategoryId() != null
 					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
 				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
 						Integer.MAX_VALUE);
 			}
+
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -2009,6 +2029,9 @@ public class GradebookNgBusinessService {
 				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
 						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), null);
 			}
+
+			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
+
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -2104,6 +2127,9 @@ public class GradebookNgBusinessService {
 			// could do a check here to ensure we aren't overwriting someone
 			// else's comment that has been updated in the interim...
 			this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
+
+			EventHelper.postUpdateCommentEvent(getGradebook(), assignmentId, studentUuid, comment, getUserRoleOrNone());
+
 			return true;
 		} catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
 			log.error("An error occurred saving the comment. {}: {}", e.getClass(), e.getMessage());
@@ -2154,6 +2180,19 @@ public class GradebookNgBusinessService {
 		}
 
 		return rval;
+	}
+
+	/**
+	 * Get the role of the current user in the given site or GbRole.NONE if the user does not have access
+	 *
+	 * @return GbRole for the current user
+	 */
+	public GbRole getUserRoleOrNone() {
+		try {
+			return getUserRole();
+		} catch (GbAccessDeniedException e) {
+			return GbRole.NONE;
+		}
 	}
 
 	/**
@@ -2253,6 +2292,8 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		this.gradebookService.updateGradebookSettings(gradebook.getUid(), settings);
+
+		EventHelper.postUpdateSettingsEvent(gradebook);
 	}
 
 	/**
@@ -2262,6 +2303,8 @@ public class GradebookNgBusinessService {
 	 */
 	public void removeAssignment(final Long assignmentId) {
 		this.gradebookService.removeAssignment(assignmentId);
+
+		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());
 	}
 
 	/**
@@ -2542,6 +2585,7 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade);
+			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, grade, grade != null);
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred saving the course grade. {}: {}", e.getClass(), e.getMessage());

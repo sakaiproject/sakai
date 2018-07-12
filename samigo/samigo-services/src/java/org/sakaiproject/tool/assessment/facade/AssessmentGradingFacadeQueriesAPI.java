@@ -227,7 +227,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public int getActualNumberRetake(Long publishedAssessmentId, String agentIdString);
   
-  public Map<Long, Long> getActualNumberRetakeHash(String agentIdString);
+  public Map<Long, Integer> getActualNumberRetakeHash(String agentIdString);
   
   public Map<Long, Map<String, Long>> getSiteActualNumberRetakeHash(String siteIdString);
   

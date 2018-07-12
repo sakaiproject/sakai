@@ -122,7 +122,7 @@ public class SyllabusTool
       this.orig_title = en.getTitle();
       this.orig_startDate = en.getStartDate() == null ? null : (Date) en.getStartDate().clone();
       this.orig_endDate = en.getEndDate() == null ? null : (Date) en.getEndDate().clone();
-      this.orig_isLinkCalendar= en.isLinkCalendar();
+      this.orig_isLinkCalendar= en.getLinkCalendar();
       this.orig_status = en.getStatus();
       this.startDateString = en.getStartDate() == null ? "" : DateFormatterUtil.format(en.getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
       this.endDateString = en.getEndDate() == null ? "" : DateFormatterUtil.format(en.getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
@@ -257,7 +257,7 @@ public class SyllabusTool
     
     public boolean getPostToCalendarChanged(){
 		//posted to cal:
-		return !Objects.equals(in_entry.isLinkCalendar(), orig_isLinkCalendar);
+		return !Objects.equals(in_entry.getLinkCalendar(), orig_isLinkCalendar);
     }
     
     public boolean getStatusChanged(){
@@ -2814,7 +2814,7 @@ public class SyllabusTool
 		  SyllabusData syllabusData = entry.getEntry();
 		  if (syllabusData != null)
 		  {
-			  rv = syllabusData.isLinkCalendar();
+			  rv = syllabusData.getLinkCalendar();
 			  alert = false;
 		  }
 	  }

@@ -38,6 +38,7 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -62,6 +63,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewAssignmentStatisticsAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
+import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -97,6 +99,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow addOrEditGradeItemWindow;
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
+	GbModalWindow rubricGradeWindow;
 	GbModalWindow gradeLogWindow;
 	GbModalWindow gradeCommentWindow;
 	GbModalWindow deleteItemWindow;
@@ -106,7 +109,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow courseGradeStatisticsWindow;
 
 	Label liveGradingFeedback;
-	boolean hasAssignmentsAndGrades;
+	boolean hasGradebookItems, hasStudents;
 	private static final AttributeModifier DISPLAY_NONE = new AttributeModifier("style", "display: none");
 
 	Form<Void> form;
@@ -114,6 +117,8 @@ public class GradebookPage extends BasePage {
 	List<PermissionDefinition> permissions = new ArrayList<>();
 	boolean showGroupFilter = true;
 	private GbGradeTable gradeTable;
+
+	private final WebMarkupContainer tableArea;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
@@ -171,6 +176,14 @@ public class GradebookPage extends BasePage {
 		this.updateUngradedItemsWindow = new GbModalWindow("updateUngradedItemsWindow");
 		this.form.add(this.updateUngradedItemsWindow);
 
+		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
+		this.rubricGradeWindow.setPositionAtTop(true);
+		this.form.add(this.rubricGradeWindow);
+
+		String rubricsToken = rubricsService.generateJsonWebToken("sakai.gradebookng");
+		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsToken));
+		this.form.add(rubricsTokenHiddenField);
+
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
 
@@ -195,25 +208,6 @@ public class GradebookPage extends BasePage {
 		this.courseGradeStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.courseGradeStatisticsWindow);
 
-		final GbAjaxButton addGradeItem = new GbAjaxButton("addGradeItem") {
-			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form form) {
-				final GbModalWindow window = getAddOrEditGradeItemWindow();
-				window.setTitle(getString("heading.addgradeitem"));
-				window.setComponentToReturnFocusTo(this);
-				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
-				window.show(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return (businessService.isUserAbleToEditAssessments());
-			}
-		};
-		addGradeItem.setDefaultFormProcessing(false);
-		addGradeItem.setOutputMarkupId(true);
-		this.form.add(addGradeItem);
-
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
@@ -227,28 +221,52 @@ public class GradebookPage extends BasePage {
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 		final List<String> students = this.businessService.getGradeableUsers();
 
-		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !students.isEmpty();
-
+		hasGradebookItems = !assignments.isEmpty();
+		hasStudents = !students.isEmpty();
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// grading type?
 		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
+		tableArea = new WebMarkupContainer("gradeTableArea");
+		if (!hasGradebookItems) {
+			tableArea.add(AttributeAppender.append("class", "gradeTableArea"));
+		}
+		form.add(tableArea);
+
+		final GbAddButton addGradeItem = new GbAddButton("addGradeItem");
+		addGradeItem.setDefaultFormProcessing(false);
+		addGradeItem.setOutputMarkupId(true);
+		tableArea.add(addGradeItem);
+
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
 		noAssignments.setVisible(assignments.isEmpty());
-		this.form.add(noAssignments);
+		tableArea.add(noAssignments);
+		final GbAddButton addGradeItem2 = new GbAddButton("addGradeItem2") {
+			@Override
+			public boolean isVisible() {
+				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+			}
+		};
+		addGradeItem2.setDefaultFormProcessing(false);
+		addGradeItem2.setOutputMarkupId(true);
+		noAssignments.add(addGradeItem2);
 
 		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
 		noStudents.setVisible(students.isEmpty());
-		this.form.add(noStudents);
+		tableArea.add(noStudents);
 
 		// Populate the toolbar
 		final WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
-		this.form.add(toolbar);
+		tableArea.add(toolbar);
+
+		final WebMarkupContainer toolbarColumnTools = new WebMarkupContainer("gbToolbarColumnTools");
+		toolbarColumnTools.setVisible(hasGradebookItems);
+		toolbar.add(toolbarColumnTools);
 
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
-		toolbar.add(toggleGradeItemsToolbarItem);
+		toolbarColumnTools.add(toggleGradeItemsToolbarItem);
 
 		this.gradeTable = new GbGradeTable("gradeTable",
 				new LoadableDetachableModel() {
@@ -258,6 +276,7 @@ public class GradebookPage extends BasePage {
 					}
 				});
 		this.gradeTable.addEventListener("setScore", new GradeUpdateAction());
+		this.gradeTable.addEventListener("gradeRubric", new ViewRubricGradeAction());
 		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
 		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
@@ -276,7 +295,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
 
 
-		this.form.add(this.gradeTable);
+		tableArea.add(this.gradeTable);
 
 		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
 			@Override
@@ -302,7 +321,7 @@ public class GradebookPage extends BasePage {
 				return categoriesEnabled;
 			}
 		};
-		toolbar.add(toggleCategoriesToolbarItem);
+		toolbarColumnTools.add(toggleCategoriesToolbarItem);
 
 		final GbAjaxLink sortGradeItemsToolbarItem = new GbAjaxLink("sortGradeItemsToolbarItem") {
 			@Override
@@ -324,7 +343,7 @@ public class GradebookPage extends BasePage {
 				return (businessService.isUserAbleToEditAssessments());
 			}
 		};
-		toolbar.add(sortGradeItemsToolbarItem);
+		toolbarColumnTools.add(sortGradeItemsToolbarItem);
 
 		// section and group dropdown
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
@@ -405,15 +424,13 @@ public class GradebookPage extends BasePage {
 		groupFilter.setNullValid(false);
 
 		// if only one item, hide the dropdown
-		if (groups.size() == 1 || !this.hasAssignmentsAndGrades) {
-			groupFilter.setVisible(false);
-		}
+		groupFilter.setVisible(groups.size() > 1 && hasStudents);
 
 		final WebMarkupContainer studentFilter = new WebMarkupContainer("studentFilter");
-		studentFilter.setVisible(this.hasAssignmentsAndGrades);
+		studentFilter.setVisible(hasStudents);
 		toolbar.add(studentFilter);
 
-		this.form.add(groupFilter);
+		tableArea.add(groupFilter);
 
 		final Map<String, Object> togglePanelModel = new HashMap<>();
 		togglePanelModel.put("assignments", this.businessService.getGradebookAssignments(sortBy));
@@ -424,17 +441,9 @@ public class GradebookPage extends BasePage {
 			new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", Model.ofMap(togglePanelModel));
 		add(gradeItemsTogglePanel);
 
-		this.form.add(new WebMarkupContainer("captionToggle").setVisible(this.hasAssignmentsAndGrades));
+		tableArea.add(new WebMarkupContainer("captionToggle").setVisible(hasStudents));
 
-		//
-		// hide/show components
-		//
-
-		// Only show the toolbar if there are students and grade items
-		toolbar.setVisible(!assignments.isEmpty());
-
-		// Show the table if there are grade items
-		this.gradeTable.setVisible(!assignments.isEmpty());
+		toolbar.setVisible(hasStudents || hasGradebookItems);
 
 		stopwatch.time("Gradebook page done", stopwatch.getTime());
 	}
@@ -454,6 +463,10 @@ public class GradebookPage extends BasePage {
 
 	public GbModalWindow getUpdateUngradedItemsWindow() {
 		return this.updateUngradedItemsWindow;
+	}
+
+	public GbModalWindow getRubricGradeWindow() {
+		return this.rubricGradeWindow;
 	}
 
 	public GbModalWindow getGradeLogWindow() {
@@ -542,6 +555,8 @@ public class GradebookPage extends BasePage {
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-sorter.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
+		response.render(CssHeaderItem
+				.forUrl(String.format("/rubrics-service/css/sakai-rubrics-associate.css?version=%s", version)));
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		if (!focusAssignmentId.isNull()) {
@@ -560,7 +575,7 @@ public class GradebookPage extends BasePage {
 		// add simple feedback nofication to sit above the table
 		// which is reset every time the page renders
 		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
-		this.liveGradingFeedback.setVisible(this.hasAssignmentsAndGrades);
+		this.liveGradingFeedback.setVisible(hasGradebookItems && hasStudents);
 		this.liveGradingFeedback.setOutputMarkupId(true);
 		this.liveGradingFeedback.add(DISPLAY_NONE);
 
@@ -568,7 +583,7 @@ public class GradebookPage extends BasePage {
 		// need to be the one that displays this message (Wicket will handle
 		// the 'saved' and 'error' messages when a grade is changed
 		this.liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
-		this.form.addOrReplace(this.liveGradingFeedback);
+		tableArea.addOrReplace(this.liveGradingFeedback);
 	}
 
 	public Component updateLiveGradingMessage(final String message) {
@@ -577,5 +592,30 @@ public class GradebookPage extends BasePage {
 			this.liveGradingFeedback.remove(DISPLAY_NONE);
 		}
 		return this.liveGradingFeedback;
+	}
+
+	private class GbAddButton extends GbAjaxButton	{
+
+		public GbAddButton(String id) {
+			super(id);
+		}
+
+		public GbAddButton(String id, Form<?> form) {
+			super(id, form);
+		}
+
+		@Override
+		public void onSubmit(final AjaxRequestTarget target, final Form form) {
+			final GbModalWindow window = getAddOrEditGradeItemWindow();
+			window.setTitle(getString("heading.addgradeitem"));
+			window.setComponentToReturnFocusTo(this);
+			window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
+			window.show(target);
+		}
+
+		@Override
+		public boolean isVisible() {
+			return GradebookPage.this.role == GbRole.INSTRUCTOR && hasGradebookItems;
+		}
 	}
 }
