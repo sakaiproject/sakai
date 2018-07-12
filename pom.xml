@@ -42,6 +42,7 @@
             <modules>
                 <module>master</module>
                 <module>admin-tools</module>
+                <module>admin-su</module>
                 <module>access</module>
                 <module>announcement</module>
                 <module>archive</module>
@@ -111,7 +112,6 @@
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
-                <module>admin-su</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>
@@ -126,6 +126,7 @@
             <modules>
                 <module>master</module>
                 <module>access</module>
+                <module>admin-su</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
@@ -194,7 +195,6 @@
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
-                <module>admin-su</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>

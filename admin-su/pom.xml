@@ -7,8 +7,6 @@
     <version>19-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-tool-tool-su</name>
-  <groupId>org.sakaiproject.su</groupId>
   <artifactId>admin-tool-su</artifactId>
   <organization>
     <name>Sakai Foundation</name>
