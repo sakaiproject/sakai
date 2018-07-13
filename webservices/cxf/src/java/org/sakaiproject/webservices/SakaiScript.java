@@ -4160,7 +4160,50 @@ public class SakaiScript extends AbstractWebService {
         return Xml.writeDocumentToString(dom);
     }
 
+    /**
+     * Get all site IDs for which the criteria fully or partially matches the title, the description or the skin.
+     *
+     * @param sessionid     valid session
+     * @param criteria      string to search for
+     * @return The site IDs
+     */
+    @WebMethod
+    @Path("/findSitesByTitle")
+    @Produces("text/plain")
+    @GET
+    public String findSitesByTitle(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "criteria", partName = "criteria") @QueryParam("criteria") String criteria) {
+        Session s = establishSession(sessionid);
+        return findSiteIDs(criteria);
+    }
 
+    /**
+     * Helper method to find site IDs based on a string criteria
+     *
+     * @param criteria String to be used in the search
+     * @return A comma separated list of site IDs
+     */
+    private String findSiteIDs(String criteria) {
+    	String siteIDs = "";
+        try {
+        	List<String> siteIdsList = siteService.getSiteIds(SelectionType.ANY, null, criteria,
+                    null, SortType.NONE, null);
+        	StringBuilder sb = new StringBuilder();
+            if (siteIdsList != null && siteIdsList.size() > 0) {
+                for (String s : siteIdsList) {
+                	sb.append(s).append(",");
+                }
+                siteIDs = sb.substring(0, sb.length() - 1);
+            }
+
+        } catch (Throwable t) {
+            log.warn(this + ".findSiteIDs: Error encountered " + t.getMessage(), t);
+        }
+        return siteIDs;
+    }
+
+    
     /**
      * Get the placement ID for a given tool in the given site
      *
