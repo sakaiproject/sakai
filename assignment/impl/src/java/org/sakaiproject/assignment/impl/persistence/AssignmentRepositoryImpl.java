@@ -16,13 +16,11 @@
 package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -179,11 +177,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission) {
+    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
+        int numSubLists = userIds.size() / 1000; //oracle can only handle lists of 1000 or less.
+        int remainder = userIds.size() % 1000;
+
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
-                .setProjection(Projections.rowCount())
+                .setProjection(Projections.countDistinct("id"))
                 .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitted", Boolean.TRUE));
+                .add(Restrictions.eq("submitted", Boolean.TRUE))
+                .createAlias("submitters", "s");
 
         if (graded != null) {
             criteria.add(Restrictions.eq("graded", graded));
@@ -195,6 +197,26 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
         if (userSubmission != null) {
             criteria.add(Restrictions.eq("userSubmission", userSubmission));
+        }
+
+        if(numSubLists > 0){
+            List<List<String>> subLists = new ArrayList<>();
+            for(int i = 0; i< numSubLists; i++){
+                int start = i * 1000;
+                int end = start + 1000;
+                subLists.add(userIds.subList(start, end));
+            }
+            if(remainder != 0){
+                subLists.add(userIds.subList(numSubLists * 1000, numSubLists * 1000 + remainder));
+            }
+
+            Disjunction disjunction = Restrictions.disjunction();
+            for(List<String> users: subLists){
+                disjunction.add(Restrictions.in("s.submitter", users));
+            }
+            criteria.add(disjunction);
+        }else {
+            criteria.add(Restrictions.in("s.submitter", userIds));
         }
 
         return ((Number) criteria.uniqueResult()).longValue();
