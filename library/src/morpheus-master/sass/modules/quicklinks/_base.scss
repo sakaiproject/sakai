@@ -1,6 +1,6 @@
 .#{$namespace}quickLinksNav__popup {
   @extend .view-all-sites-btn;
-  border-right: 1px solid $tool-border-color;
+  border-right: 1px solid $topNav-alt-color;
   @media #{$phone}{
     display: inline-block;
   }
