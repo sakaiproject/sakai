@@ -382,7 +382,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		width: 50%;
+		width: calc(100% - #{$logo-width} - 20px);
 	}
 
 	ul{
@@ -484,6 +484,10 @@ body.is-logged-out{
 	.no-avatar
 	{
 		text-decoration: none;
+
+		@media #{$phone} {
+			margin-top: 7px;
+		}
 
 		&::after
 		{
