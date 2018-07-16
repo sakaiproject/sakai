@@ -4175,34 +4175,22 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "criteria", partName = "criteria") @QueryParam("criteria") String criteria) {
         Session s = establishSession(sessionid);
-        return findSiteIDs(criteria);
-    }
-
-    /**
-     * Helper method to find site IDs based on a string criteria
-     *
-     * @param criteria String to be used in the search
-     * @return A comma separated list of site IDs
-     */
-    private String findSiteIDs(String criteria) {
-    	String siteIDs = "";
+        String siteIDs = "";
         try {
-        	List<String> siteIdsList = siteService.getSiteIds(SelectionType.ANY, null, criteria,
+            List<String> siteIdsList = siteService.getSiteIds(SelectionType.ANY, null, criteria,
                     null, SortType.NONE, null);
-        	StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             if (siteIdsList != null && siteIdsList.size() > 0) {
-                for (String s : siteIdsList) {
-                	sb.append(s).append(",");
+                for (String siteId : siteIdsList) {
+                    sb.append(siteId).append(",");
                 }
                 siteIDs = sb.substring(0, sb.length() - 1);
             }
-
         } catch (Throwable t) {
             log.warn(this + ".findSiteIDs: Error encountered " + t.getMessage(), t);
         }
         return siteIDs;
     }
-
     
     /**
      * Get the placement ID for a given tool in the given site
