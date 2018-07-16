@@ -45,14 +45,14 @@ import org.sakaiproject.commons.api.SakaiProxy;
 public class PersistenceManagerImpl implements PersistenceManager {
 
     private static final String POST_SELECT
-        = "SELECT cp.*,cw.ID as COMMONS_ID,cw.SITE_ID,cw.EMBEDDER FROM COMMONS_POST as cp, COMMONS_COMMONS as cw, COMMONS_COMMONS_POST as cwp "
+        = "SELECT cp.*,cw.ID as COMMONS_ID,cw.SITE_ID,cw.EMBEDDER FROM COMMONS_POST cp, COMMONS_COMMONS cw, COMMONS_COMMONS_POST cwp "
             + "WHERE cp.ID = ? AND cp.ID = cwp.POST_ID and cwp.COMMONS_ID = cw.ID";
     private static final String COMMONS_SELECT = "SELECT * FROM COMMONS_COMMONS WHERE ID = ?";
     private static final String COMMONS_POSTS_SELECT
-        = "SELECT cw.ID as COMMONS_ID,cw.SITE_ID,cw.EMBEDDER,cp.* FROM COMMONS_COMMONS as cw,COMMONS_COMMONS_POST as cwp,COMMONS_POST as cp "
+        = "SELECT cw.ID as COMMONS_ID,cw.SITE_ID,cw.EMBEDDER,cp.* FROM COMMONS_COMMONS cw,COMMONS_COMMONS_POST cwp,COMMONS_POST cp "
             + "WHERE cw.ID = ? AND cwp.COMMONS_ID = cw.ID AND cp.ID = cwp.POST_ID ORDER BY CREATED_DATE DESC";
     private static final String SOCIAL_COMMONS_POSTS_SELECT
-        = "SELECT cw.ID as COMMONS_ID,cw.SITE_ID,cw.EMBEDDER,cp.* FROM COMMONS_COMMONS as cw,COMMONS_COMMONS_POST as cwp,COMMONS_POST as cp "
+        = "SELECT cw.ID as COMMONS_ID,cw.SITE_ID,cw.EMBEDDER,cp.* FROM COMMONS_COMMONS cw,COMMONS_COMMONS_POST cwp,COMMONS_POST cp "
             + "WHERE cw.ID = ? AND cwp.COMMONS_ID = cw.ID AND cp.ID = cwp.POST_ID AND CREATOR_ID IN (";
     private static final String COMMONS_POST_INSERT = "INSERT INTO COMMONS_COMMONS_POST VALUES(?,?)";
     private static final String COMMONS_INSERT = "INSERT INTO COMMONS_COMMONS VALUES(?,?,?)";

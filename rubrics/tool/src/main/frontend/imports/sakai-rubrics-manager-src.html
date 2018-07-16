@@ -29,15 +29,15 @@
     </h1>
 
     <div role="tablist">
-      <div id="local-rubrics-title" aria-expanded$="[[localRubricsExpanded]]" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="[[lang('toggle_local_rubrics', 'Toggle local rubrics')]]" tabindex="0" on-tap="showLocalRubrics">
-        <iron-a11y-keys id="a11y" target="[[getNode('#local-rubrics-title')]]" keys="space" on-keys-pressed="showLocalRubrics"></iron-a11y-keys>
+      <div id="site-rubrics-title" aria-expanded$="[[siteRubricsExpanded]]" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="[[lang('toggle_site_rubrics', 'Toggle site rubrics')]]" tabindex="0" on-tap="showLocalRubrics">
+        <iron-a11y-keys id="a11y" target="[[getNode('#site-rubrics-title')]]" keys="space" on-keys-pressed="showLocalRubrics"></iron-a11y-keys>
         <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
-        <sr-lang key="local_rubrics">
-          Local Rubrics
+        <sr-lang key="site_rubrics">
+          Site Rubrics
         </sr-lang>
       </div>
 
-      <iron-collapse role="tabpanel" aria-labelledby="local-rubrics-title" id="local_rubrics">
+      <iron-collapse role="tabpanel" aria-labelledby="site-rubrics-title" id="site_rubrics">
         <sakai-rubrics-list></sakai-rubrics-list>
       </iron-collapse>
 
@@ -70,7 +70,7 @@
       },
       listeners: {
         'sharing-change': 'handleSharingChange',
-        'copy-share-local': 'copyShareLocal',
+        'copy-share-site': 'copyShareSite',
       },
       behaviors: [rubrics.behaviors],
       handleSharingChange: function(e) {
@@ -82,18 +82,18 @@
           this.$$('sakai-rubrics-shared-list').refresh();
         }
       },
-      copyShareLocal: function() {
+      copyShareSite: function() {
         this.$$('sakai-rubrics-list').ready();
       },
       showLocalRubrics: function() {
-        this.$$('#local_rubrics').toggle();
-        var icon = this.$$('#local-rubrics-title .collpase-icon');
+        this.$$('#site_rubrics').toggle();
+        var icon = this.$$('#site-rubrics-title .collpase-icon');
 
-        if (this.$$('#local_rubrics').opened) {
-          this.localRubricsExpanded = "true";
+        if (this.$$('#site_rubrics').opened) {
+          this.siteRubricsExpanded = "true";
           icon && icon.setAttribute('icon','rubrics-icons:expand-more');
         } else {
-          this.localRubricsExpanded = "false";
+          this.siteRubricsExpanded = "false";
           icon && icon.setAttribute('icon','rubrics-icons:chevron-right');
         };
       },
@@ -113,7 +113,7 @@
         };
       },
       ready: function() {
-        this.localRubricsExpanded = "false";
+        this.siteRubricsExpanded = "false";
         this.sharedRubricsExpanded = "false";
         this.showLocalRubrics();
       }

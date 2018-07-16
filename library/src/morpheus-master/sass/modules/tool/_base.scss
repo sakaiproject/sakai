@@ -170,7 +170,8 @@
 	}
 }
 
-.portletBody{
+.portletBody
+{
 	background: $tool-background-color;
 	padding: $default-font-size $default-font-size 40px $default-font-size;
 	@media #{$phone}{
@@ -182,6 +183,19 @@
 	}
 	> .modal {
 		position: fixed;
+	}
+	.page-header
+	{
+		margin: calc(#{$standard-spacing} + 5px) 0; // additional 5px for equallying the header text descenders
+		padding: 0 0 $standard-spacing 0;
+		border-bottom: 1px solid $tool-border-color;
+
+		h1, h2, h3
+		{
+			margin: $standard-spacing 0 0 0; // vertical margins will collapse into one
+			padding: 0;
+			line-height: 1;
+		}
 	}
 }
 

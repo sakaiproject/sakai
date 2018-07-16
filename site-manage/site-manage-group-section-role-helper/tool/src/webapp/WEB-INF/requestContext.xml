@@ -17,7 +17,7 @@
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
    
-  <bean id="GroupEditProdcuer" 
+  <bean id="GroupEditProducer" 
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupEditProducer">
     <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
     <property name="messageLocator" ref="messageLocator"/>
@@ -28,7 +28,7 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
   </bean>
   
-  <bean id="GroupAutoCreateProdcuer" 
+  <bean id="GroupAutoCreateProducer" 
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupAutoCreateProducer">
     <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
     <property name="messageLocator" ref="messageLocator"/>
@@ -57,7 +57,7 @@
     <property name="messageLocator" ref="messageLocator"/>
   </bean>
   
-    <bean id="GroupDelProdcuer" 
+    <bean id="GroupDelProducer" 
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupDelProducer">
     <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
     <property name="messageLocator" ref="messageLocator"/>

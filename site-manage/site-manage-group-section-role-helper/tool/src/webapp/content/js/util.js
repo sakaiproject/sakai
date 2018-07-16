@@ -249,9 +249,6 @@ function resizeFrame(updown){
         }
         $(frame).height(clientH);
     }
-    else {
-        throw ("resizeFrame did not get the frame (using name=" + window.name + ")");
-    }
 }
 
 function toggleCheckboxes( clickedElement )

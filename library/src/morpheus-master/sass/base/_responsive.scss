@@ -2,6 +2,11 @@
 
 body{
 	@media #{$phone}{
+		.#{$namespace}pagebody{
+			min-height: 100vh;										// alternative for browswers who cannot do calculations
+			min-height: calc(100vh - (#{$banner-height} * 3));		// viewport minus the three top banners
+		}
+		
 		&.toolsNav--displayed{
 			// hide the tool body
 			.#{$namespace}pagebody {
@@ -26,7 +31,9 @@ body{
 
 			// show the tool menu
 			#toolMenuWrap{
+				display: block;			// restore the tool menu that was removed when hidden to reduce the height of the page when it isn't visible
 				width: 100%;
+				min-height: auto; 		// to allow the bottom of the tool menu to appear when doesn't have too many tools
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
 				left: 0;
 				z-index: 1001;
@@ -199,7 +206,7 @@ body {
     .phone, .tablet, .desktop {
       display: none;
 
-      height: 1px;
+      height: 0;			// removed in SAK-40294 because it caused an extra pixel of unnecessary page height
       width: 1px;
       overflow: hidden;
       position: absolute;

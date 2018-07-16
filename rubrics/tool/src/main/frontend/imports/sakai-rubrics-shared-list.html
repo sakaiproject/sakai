@@ -25,13 +25,13 @@
     </iron-ajax>
 
     <iron-ajax
-         id="copyShareToLocal"
+         id="copyShareToSite"
          url="/rubrics-service/rest/rubrics/"
          headers$='{"authorization": "[[token]]"}'
          method="POST"
          contentType=""
          handle-as="json"
-         on-response="handleCopyShareToLocal"
+         on-response="handleCopyShareToSite"
          debounce-duration="300">
     </iron-ajax>
 
@@ -48,7 +48,7 @@
       },
       listeners: {
         'active-title': 'activate',
-        'copy-to-local': 'copyShareToLocal',
+        'copy-to-site': 'copyShareToSite',
       },
       listresponse: function(request) {
         this.set('rubricslist', request.detail.response._embedded.rubrics);
@@ -65,14 +65,14 @@
       refresh: function() {
         this.$.getSharedRubrics.generateRequest();
       },
-      copyShareToLocal: function(e) {
+      copyShareToSite: function(e) {
         var index = this.rubricslist.indexOf(e.detail);
-        this.$.copyShareToLocal.headers = { "Content-Type": "application/json" , "x-copy-source": e.detail.id, "Authorization": this.token, "lang": this.locale};
-        this.$.copyShareToLocal.body = '{}'
-        this.$.copyShareToLocal.generateRequest();
+        this.$.copyShareToSite.headers = { "Content-Type": "application/json" , "x-copy-source": e.detail.id, "Authorization": this.token, "lang": this.locale};
+        this.$.copyShareToSite.body = '{}'
+        this.$.copyShareToSitel.generateRequest();
       },
-      handleCopyShareToLocal: function(request) {
-        this.fire('copy-share-local');
+      handleCopyShareToSite: function(request) {
+        this.fire('copy-share-site');
       },
       ready: function() {
         this.locale = rubrics.rubricsLocale;

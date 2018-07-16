@@ -17,7 +17,7 @@
 
       <div class="actions">
         <template is="dom-if" if="{{rubric.metadata.public}}">
-          <iron-icon title="[[lang('copy_to_local', 'Copy to local list')]]: [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="copyToLocal"></iron-icon>
+          <iron-icon title="[[lang('copy_to_site', 'Copy to site list')]]: [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="copyToSite"></iron-icon>
         </template>
         
       </div>
@@ -110,9 +110,9 @@
         e.stopPropagation();
         this.fire('clone-rubric', this.rubric);
       },
-      copyToLocal: function(e) {
+      copyToSite: function(e) {
         e.stopPropagation();
-        this.fire('copy-to-local', this.rubric);
+        this.fire('copy-to-site', this.rubric);
       },
       deactivate: function(e, id) {
         if (!this.$$('#collapse_'+this.rubric.id).opened && this.rubric.id !== id) {

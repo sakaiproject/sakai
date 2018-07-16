@@ -475,14 +475,32 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 			buf.append("<p>");
 		}
 
-		if ((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))||(contentHostingService.EVENT_RESOURCE_ADD.equals(function)))
+		boolean plural = this.fileList.size() > 1;
+		Object[] replacementValues = new Object[] {this.fileList.size()};
+		String numResourcesMsg;
+		if (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) || ContentHostingService.EVENT_RESOURCE_ADD.equals(function))
 		{
-			buf.append(rb.getString("anewresDnD"));
+			if (plural)
+			{
+				numResourcesMsg = rb.getFormattedMessage("anewresDnD.plural", replacementValues);
+			}
+			else
+			{
+				numResourcesMsg = rb.getString("anewresDnD");
+			}
 		}
 		else
 		{
-			buf.append(rb.getString("anewres2DnD"));
+			if (plural)
+			{
+				numResourcesMsg = rb.getFormattedMessage("anewres2DnD.plural", replacementValues);
+			}
+			else
+			{
+				numResourcesMsg = rb.getString("anewres2DnD");
+			}
 		}
+		buf.append(numResourcesMsg);
 		buf.append(" ");
 		buf.append(rb.getString("tothe"));
 		buf.append(" \"");
