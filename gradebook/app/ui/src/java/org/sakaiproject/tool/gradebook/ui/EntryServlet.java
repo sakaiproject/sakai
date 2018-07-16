@@ -23,14 +23,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.sakaiproject.tool.gradebook.facades.Authn;
+import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.sakaiproject.tool.gradebook.facades.ContextManagement;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Redirects the request to the role-appropriate initial view of the gradebook.
@@ -38,42 +36,47 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 @Slf4j
 public class EntryServlet extends HttpServlet {
 
-    public void doPost(HttpServletRequest req, HttpServletResponse resp)
+	@Override
+	public void doPost(final HttpServletRequest req, final HttpServletResponse resp)
 			throws ServletException, java.io.IOException {
 		doGet(req, resp);
 	}
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-        WebApplicationContext appContext = WebApplicationContextUtils.getWebApplicationContext(this.getServletContext());
+	@Override
+	public void doGet(final HttpServletRequest request, final HttpServletResponse response) {
+        final WebApplicationContext appContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 
-        Authn authnService = (Authn)appContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
-		Authz authzService = (Authz)appContext.getBean("org_sakaiproject_tool_gradebook_facades_Authz");
-		ContextManagement contextMgm = (ContextManagement)appContext.getBean("org_sakaiproject_tool_gradebook_facades_ContextManagement");
+        final Authn authnService = (Authn)appContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
+		final Authz authzService = (Authz)appContext.getBean("org_sakaiproject_tool_gradebook_facades_Authz");
 
         authnService.setAuthnContext(request);
-        String gradebookUid = contextMgm.getGradebookUid(request);
+		final String gradebookUid = GradebookBean.getGradebookUid(request);
 
         try {
             if (gradebookUid != null) {
-                StringBuilder path = new StringBuilder(request.getContextPath());
+                final StringBuilder path = new StringBuilder(request.getContextPath());
                 if (authzService.isUserAbleToGrade(gradebookUid)) {
-		            if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
+		            if(log.isDebugEnabled()) {
+						log.debug("Sending user to the overview page");
+					}
                     path.append("/overview.jsf");
                 } else if (authzService.isUserAbleToViewOwnGrades(gradebookUid)) {
-		            if(log.isDebugEnabled()) log.debug("Sending user to the student view page");
+		            if(log.isDebugEnabled()) {
+						log.debug("Sending user to the student view page");
+					}
                     path.append("/studentView.jsf");
                 } else {
 					// The role filter has not been invoked yet, so this could happen here
 //					throw new RuntimeException("User " + authnService.getUserUid() + " attempted to access gradebook " + gradebookUid + " without any role");
                     path.append("/noRole.jsp");
                 }
-                String queryString = request.getQueryString();
+                final String queryString = request.getQueryString();
                 if (queryString != null) {
 					path.append("?").append(queryString);
 				}
                 response.sendRedirect(path.toString());
             }
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             log.error("Could not redirect user: {}", ioe.getMessage(), ioe);
         }
 	}

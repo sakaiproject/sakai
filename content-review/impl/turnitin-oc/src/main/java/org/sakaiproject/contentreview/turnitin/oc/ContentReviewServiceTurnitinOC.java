@@ -147,6 +147,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String ALL_SOURCES = "all_sources";
 	private static final String MODES = "modes";
 	private static final String SIMILARITY = "similarity";
+	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permissions_set";
+	private static final String INSTRUCTOR = "INSTRUCTOR";
+	private static final String LEARNER = "LEARNER";
 	
 	private static final String GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE= "1";
 	private static final String GENERATE_REPORTS_ON_DUE_DATE = "2";	
@@ -276,29 +279,31 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		CONTENT_UPLOAD_HEADERS.putAll(BASE_HEADERS);
 		CONTENT_UPLOAD_HEADERS.put(HEADER_CONTENT, CONTENT_TYPE_BINARY);
 
-		try {
-			// Get the webhook url
-			String webhookUrl = getWebhookUrl(Optional.empty());
-			boolean webhooksSetup = false;
-			// Check to see if any webhooks have already been set up for this url
-			for (Webhook webhook : getWebhooks()) {
-				log.info("Found webhook: " + webhook.getUrl());
-				if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
-					webhooksSetup = true;
-					break;
+		if(StringUtils.isNotEmpty(apiKey) && StringUtils.isNotEmpty(serviceUrl)) {
+			try {
+				// Get the webhook url
+				String webhookUrl = getWebhookUrl(Optional.empty());
+				boolean webhooksSetup = false;
+				// Check to see if any webhooks have already been set up for this url
+				for (Webhook webhook : getWebhooks()) {
+					log.info("Found webhook: " + webhook.getUrl());
+					if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
+						webhooksSetup = true;
+						break;
+					}
 				}
-			}
 
-			if (!webhooksSetup) {
-				// No webhook set up for this url, set one up
-				log.info("No matching webhook for " + webhookUrl);
-				String id = setupWebhook(webhookUrl);
-				if(StringUtils.isNotEmpty(id)) {
-					log.info("successfully created webhook: " + id);
+				if (!webhooksSetup) {
+					// No webhook set up for this url, set one up
+					log.info("No matching webhook for " + webhookUrl);
+					String id = setupWebhook(webhookUrl);
+					if(StringUtils.isNotEmpty(id)) {
+						log.info("successfully created webhook: " + id);
+					}
 				}
+			} catch (Exception e) {
+				log.error(e.getLocalizedMessage(), e);
 			}
-		} catch (Exception e) {
-			log.error(e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -481,6 +486,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				modes.put(ALL_SOURCES, Boolean.TRUE);
 				similarity.put(MODES, modes);
 				data.put(SIMILARITY, similarity);
+				data.put(VIEWER_DEFAULT_PERMISSIONS, isInstructor ? INSTRUCTOR : LEARNER);
 
 				// Check user preference for locale			
 				// If user has no preference set - get the system default

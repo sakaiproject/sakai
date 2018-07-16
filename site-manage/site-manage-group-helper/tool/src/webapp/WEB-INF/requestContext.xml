@@ -16,7 +16,7 @@
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
    
-  <bean id="GroupEditProdcuer" 
+  <bean id="GroupEditProducer" 
       class="org.sakaiproject.site.tool.helper.managegroup.rsf.GroupEditProducer">
     <property name="handler" ref="SiteManageGroupHandler" />
     <property name="messageLocator" ref="messageLocator"/>
@@ -36,7 +36,7 @@
     <property name="messages" ref="targettedMessageList" />
   </bean>
   
-    <bean id="GroupDelProdcuer" 
+    <bean id="GroupDelProducer" 
       class="org.sakaiproject.site.tool.helper.managegroup.rsf.GroupDelProducer">
     <property name="handler" ref="SiteManageGroupHandler" />
     <property name="messageLocator" ref="messageLocator"/>

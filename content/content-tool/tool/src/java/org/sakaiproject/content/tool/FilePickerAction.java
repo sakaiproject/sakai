@@ -200,7 +200,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
 
 	protected static final String STATE_DEFAULT_COLLECTION_ID = PREFIX + "default_collection_id";
-	protected static final String STATE_DEFAULT_COPYRIGHT = PREFIX + "default_copyright";
 	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
 	protected static final String STATE_EXPAND_ALL = PREFIX + "expand_all";
 	protected static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
@@ -358,13 +357,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		else
 		{
 			// complete the create wizard
-			String defaultCopyrightStatus = (String) toolSession.getAttribute(STATE_DEFAULT_COPYRIGHT);
-			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-			{
-				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				toolSession.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-			}
-
 			Time defaultRetractDate = (Time) toolSession.getAttribute(STATE_DEFAULT_RETRACT_TIME);
 			if(defaultRetractDate == null)
 			{

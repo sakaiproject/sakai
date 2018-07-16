@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.tool.component;
+package org.sakaiproject.gradebookng.tool.chart;
 
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -15,19 +15,19 @@ import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Base panel for gradebook charts. See {@link GbCourseGradeChart} or {@link GbAssignmentGradeChart}.
+ * Base panel for gradebook charts. See {@link CourseGradeChart} or {@link AssignmentGradeChart}.
  * 
  * Immediately renders itself with the base data. Subclasses may provide a refresh option.
  */
 @Slf4j
-public abstract class GbBaseChart extends WebComponent {
+public abstract class BaseChart extends WebComponent {
 
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected transient GradebookNgBusinessService businessService;
 
-	public GbBaseChart(final String id) {
+	public BaseChart(final String id) {
 		super(id);
 		setOutputMarkupPlaceholderTag(true);
 	}

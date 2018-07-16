@@ -31,12 +31,12 @@ public interface SyllabusItem
   /**
    * @return Returns the syllabi.
    */
-  public Set getSyllabi();
+  public Set<SyllabusData> getSyllabi();
 
   /**
    * @param syllabi The syllabi to set.
    */
-  public void setSyllabi(Set syllabi);
+  public void setSyllabi(Set<SyllabusData> syllabi);
 
   /**
    * @return Returns the contextId.

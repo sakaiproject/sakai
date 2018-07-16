@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.tool.component;
+package org.sakaiproject.gradebookng.tool.chart;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,13 +14,13 @@ import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 /**
  * Panel that renders the course grade chart for a site.
  */
-public class GbCourseGradeChart extends GbBaseChart {
+public class CourseGradeChart extends BaseChart {
 
 	private static final long serialVersionUID = 1L;
 
 	private final String siteId;
 
-	public GbCourseGradeChart(final String id, final String siteId) {
+	public CourseGradeChart(final String id, final String siteId) {
 		super(id);
 		this.siteId = siteId;
 	}

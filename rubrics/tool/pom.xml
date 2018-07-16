@@ -11,7 +11,6 @@
     </parent>
 
     <name>Sakai Rubrics - Manager Tool</name>
-    <groupId>org.sakaiproject.rubrics</groupId>
     <artifactId>rubrics-service</artifactId>
     <packaging>war</packaging>
 
@@ -215,6 +214,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>

@@ -317,9 +317,10 @@ public class GradebookNgBusinessService {
 	{
 		final List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
 		final List<User> users = getUsers(userUuids);
+		final Site site = getCurrentSite().orElse(null);
 
 		for (final User u : users) {
-			gbUsers.add(new GbUser(u));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
 		}
 
 		return gbUsers;

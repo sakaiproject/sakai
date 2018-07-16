@@ -10,7 +10,7 @@
 %>
 
 <f:view>
-<sakai:view title="#{msgs.tool_title}" toolCssHref="/sakai-calendar-summary-tool/summary-calendar/css/cal.css">
+<sakai:view title="#{msgs.tool_title}">
 	<sakai:script contextBase="/jsf-resource/" path="/inputColor/inputColor.js"/>
 	<sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/>
 	<sakai:script path="/summary-calendar/js/calendar-summary.js"/>
