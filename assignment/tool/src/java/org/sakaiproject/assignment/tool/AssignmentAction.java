@@ -7054,7 +7054,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         try {
                             if (StringUtils.isNotEmpty(assignmentRef)) {
                                 Assignment assignment = assignmentService.getAssignment(assignmentId);
-                                if (assignment != null) {
+                                if (assignment != null && assignment.getScaleFactor() != null) {
                                     scaleFactor = assignment.getScaleFactor();
                                 }
                             }
