@@ -133,12 +133,8 @@ code {
 	padding: .3em 1em .3em .3em;
 }
 
-.itemSummaryHeader {
-	padding: .3em 1em 0em .3em;
-}
-
-.itemSummaryValue {
-	padding: 0em 1em .3em .3em;
+.itemSummaryHeader, .itemSummaryValue {
+	padding: .3em 1em .3em .3em;
 }
 
 table.itemSummary td, td.itemSummaryLite{
@@ -620,19 +616,19 @@ placeholder till more standard way of doing it*/
 }
 
 /*external login form formatting*/
-.login, .join{
+.login{
 	margin: 5em auto;
 	border: 1px solid #555;
 	width: auto;
 }
 
-.login th, .join th{
+.login th{
 	background-color: #eee;
 	padding: .5em;
 	border-bottom: 1px solid #555;
 }
 
-.login td.logo, .join td.logo{
+.login td.logo{
 	width: 13em;
 	background:#fff url(../image/sakai.jpg) top left no-repeat
 }
@@ -645,7 +641,7 @@ placeholder till more standard way of doing it*/
 	color: #fff;
 }
 
-.loginform label, .joinform label{
+.loginform label{
 	color: #fff;
 }
 

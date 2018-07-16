@@ -31,8 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -648,9 +646,9 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      */
     public List<String> getStringList(String name, List<String> dflt) {
 
-        String value = getString(name, null);
-        if (StringUtils.isNotBlank(value)) {
-            return Stream.of(StringUtils.split(value, ",")).collect(Collectors.toList());
+        String[] values = getStrings(name);
+        if (ArrayUtils.isNotEmpty(values)) {
+            return Arrays.asList(values);
         } else {
             return dflt != null ? dflt : new ArrayList<>();
         }

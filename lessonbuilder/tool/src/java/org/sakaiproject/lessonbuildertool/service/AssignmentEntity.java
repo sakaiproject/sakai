@@ -25,7 +25,7 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import lombok.Setter;
@@ -717,7 +717,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    a.setAttachments(attachments);
 	    a.setContext(context);
 	    a.setOpenDate(Instant.now());
-	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
+	    Instant dueDate = ZonedDateTime.now().plusYears(1).toInstant();
+	    a.setDueDate(dueDate);
+	    a.setCloseDate(dueDate);
 	    a.setDraft(hide);
 	    a.setTypeOfAccess(Assignment.Access.SITE);
 	    a.setGroups(new HashSet<>());
@@ -833,7 +835,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 		a.setContext(context);
 	    a.setOpenDate(Instant.now());
-	    a.setDueDate(Instant.now().plus(1, ChronoUnit.YEARS));
+	    Instant dueDate = ZonedDateTime.now().plusYears(1).toInstant();
+	    a.setDueDate(dueDate);
+	    a.setCloseDate(dueDate);
 
 	    a.setDraft(hide);
 	    a.setTypeOfAccess(Assignment.Access.SITE);

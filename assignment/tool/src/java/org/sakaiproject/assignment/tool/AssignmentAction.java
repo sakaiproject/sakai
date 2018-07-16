@@ -38,6 +38,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -1895,15 +1896,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("email_confirmation", serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true));
 
                 if (currentAssignment.getIsGroup()) {
-                    Map<String, User> users = s.getSubmitters().stream().map(u -> {
-                        try {
-                            return userDirectoryService.getUser(u.getSubmitter());
-                        } catch (UserNotDefinedException e) {
-                            log.warn("User not found, {}", u.getSubmitter());
-                            return null;
-                        }
-                    }).filter(Objects::nonNull).collect(Collectors.toMap(User::getId, Function.identity()));
-                    String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
+					final Map<String, User> users = getSubmitters(s,
+							"build_student_view_submission_confirmation_context")
+									.collect(Collectors.toMap(User::getId, Function.identity()));
+                    final String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
                     context.put("submitterNames", formattedText.escapeHtml(submitterNames));
                 }
             }
@@ -2244,6 +2240,12 @@ public class AssignmentAction extends PagedResourceActionII {
         if (asgnAdvisor != null) {
             securityService.popAdvisor(asgnAdvisor);
         }
+        
+        final Map<String, User> users = getSubmitters(submission, "build_instructor_grade_submission_context")
+				.collect(Collectors.toMap(User::getId, Function.identity()));
+        
+        final String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
+        context.put("submitterNames", formattedText.escapeHtml(submitterNames));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_STUDENT_VIEW_GRADE;
@@ -2586,13 +2588,10 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         else {
         	if (!StringUtils.isBlank(maxGrade)){
-        		int scaleFactor = assignmentService.getScaleFactor();
-        		validPointGrade(state, maxGrade, scaleFactor);
-        		maxGrade = scalePointGrade(state, maxGrade, scaleFactor);
         		context.put("value_GradePoints", assignmentService.getGradeDisplay(maxGrade, SCORE_GRADE_TYPE, assignmentService.getScaleFactor()));
         	}    	
-        }
-        context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));        
+        	context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING)); 
+        }      
         context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
 
         //Peer Assessment
@@ -3229,17 +3228,11 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("submission", s);
             context.put("submissionReference", submissionRef);
 
-            Map<String, User> users = s.getSubmitters().stream().map(u -> {
-                try {
-                    return userDirectoryService.getUser(u.getSubmitter());
-                } catch (UserNotDefinedException e) {
-                    log.warn("User not found, {}", u.getSubmitter());
-                    return null;
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toMap(User::getId, Function.identity()));
+            final Map<String, User> users = getSubmitters(s, "build_instructor_grade_submission_context")
+					.collect(Collectors.toMap(User::getId, Function.identity()));
             context.put("users", users);
 
-            String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
+            final String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
 
@@ -3930,15 +3923,8 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
 
-            String submitterNames = submission.getSubmitters().stream().map(u -> {
-                try {
-                    User user = userDirectoryService.getUser(u.getSubmitter());
-                    return user.getDisplayName() + " (" + user.getDisplayId() + ")";
-                } catch (UserNotDefinedException e) {
-                    log.warn("Could not find user = {}, who is a submitter on submission = {}, {}", u, submission.getId(), e.getMessage());
-                }
-                return "";
-            }).collect(Collectors.joining(", "));
+            final String submitterNames = getSubmitters(submission, "build_instructor_preview_grade_submission_context")
+					.map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
 
             setScoringAgentProperties(context, assignment, submission, false);
@@ -4451,16 +4437,9 @@ public class AssignmentAction extends PagedResourceActionII {
             submissionId = s.getId();
             context.put("submission", s);
             context.put("submissionReference", submissionReference);
-
-            String submitterNames = s.getSubmitters().stream().map(u -> {
-                try {
-                    User user = userDirectoryService.getUser(u.getSubmitter());
-                    return user.getDisplayName() + " (" + user.getDisplayName() + ")";
-                } catch (UserNotDefinedException e) {
-                    log.warn("Could not find user = {}, who is a submitter on a submission (build_student_review_edit_context) , {}", u, e.getMessage());
-                }
-                return "";
-            }).collect(Collectors.joining(", "));
+            
+            final String submitterNames = getSubmitters(s, "build_student_review_edit_context")
+					.map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
 
             Map<String, String> p = s.getProperties();
@@ -5079,23 +5058,16 @@ public class AssignmentAction extends PagedResourceActionII {
                             while (submissions.hasNext()) {
                                 AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
                                 if (StringUtils.isNotBlank(aSubmission.getGrade())) {
-                                    User[] submitters = aSubmission.getSubmitters().stream().map(u -> {
-                                        try {
-                                            return userDirectoryService.getUser(u.getSubmitter());
-                                        } catch (UserNotDefinedException e) {
-                                            log.warn("User not found, {}", u.getSubmitter());
-                                            return null;
-                                        }
-                                    }).filter(Objects::nonNull).toArray(User[]::new);
-                                    for (int i = 0; submitters != null && i < submitters.length; i++) {
+                                	 final List<User> submitters = getSubmitters(aSubmission, "integrateGradebook").collect(Collectors.toList());
+                                     for (User submitter :submitters) {
                                         if (isExternalAssociateAssignmentDefined) {
                                             // if the old associated assignment is an external maintained one
-                                            gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[i].getId(), null);
+                                        	gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitter.getId(), null);
                                         } else if (isAssignmentDefined) {
-                                        	final String submitterId = submitters[i].getId();
+                                        	final String submitterId = submitter.getId();
                                         	final Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
                                         	if (gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                        		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, "0", assignmentToolTitle);
+                                        		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter.getId(), "0", assignmentToolTitle);
                                         	}
                                         }
                                     }
@@ -5105,24 +5077,17 @@ public class AssignmentAction extends PagedResourceActionII {
                             // remove only one submission grade
                             AssignmentSubmission aSubmission = getSubmission(submissionRef, "integrateGradebook", state);
                             if (aSubmission != null) {
-                                User[] submitters = aSubmission.getSubmitters().stream().map(u -> {
-                                    try {
-                                        return userDirectoryService.getUser(u.getSubmitter());
-                                    } catch (UserNotDefinedException e) {
-                                        log.warn("User not found, {}", u.getSubmitter());
-                                        return null;
-                                    }
-                                }).filter(Objects::nonNull).toArray(User[]::new);
-                                for (int i = 0; submitters != null && i < submitters.length; i++) {
+                            	final List<User> submitters = getSubmitters(aSubmission, "integrateGradebook").collect(Collectors.toList());
+                            	for (User submitter :submitters) {
                                     if (isExternalAssociateAssignmentDefined) {
                                         // external assignment
-                                        gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[i].getId(), null);
+                                    	gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitter.getId(), null);
                                     } else if (isAssignmentDefined) {
                                     	// gb assignment
-                                    	final String submitterId = submitters[i].getId();
+                                    	final String submitterId = submitter.getId();
                                     	final Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
                                     	if (gradebookService.isUserAbleToGradeItemForStudent(gradebookUid, associateGradebookAssignmentId, submitterId)) {
-                                    		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignmentId, submitterId, "0", "");
+                                    		gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitter.getId(), "0", "");
                                     	}
                                     }
                                 }
@@ -5133,6 +5098,12 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
     } // integrateGradebook
+    
+	private Stream<User> getSubmitters(final AssignmentSubmission aSubmission, final String method) {
+		return userDirectoryService
+				.getUsers(aSubmission.getSubmitters().stream().map(s -> s.getSubmitter()).collect(Collectors.toList()))
+				.stream().filter(Objects::nonNull);
+	}
 
     /**
      * Filter the assignments list by group
@@ -5658,7 +5629,17 @@ public class AssignmentAction extends PagedResourceActionII {
         if (state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID) != null) {
             String peerAssessor = (String) state.getAttribute(PEER_ASSESSMENT_ASSESSOR_ID);
             ParameterParser params = data.getParameters();
-            String submissionId = params.getString("submissionId");
+            String submissionRef = params.getString("submissionId");
+            String submissionId = null;
+            if(submissionRef != null){
+            	submissionRef = submissionRef.endsWith("/") ? StringUtils.chop(submissionRef) : submissionRef;
+                int i = submissionRef.lastIndexOf(Entity.SEPARATOR);
+                if (i == -1){
+                    submissionId = submissionRef;
+                }else{
+                    submissionId = submissionRef.substring(i + 1);
+                }
+            }
             if (submissionId != null) {
                 //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
                 PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, peerAssessor);

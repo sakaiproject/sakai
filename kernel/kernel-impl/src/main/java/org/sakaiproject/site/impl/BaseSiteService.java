@@ -3807,4 +3807,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 			action.notify(notification, event);
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped) {
+		orig = StringUtils.trimToEmpty(orig);
+		stripped = StringUtils.trimToEmpty(stripped);
+
+		if (!orig.equals(stripped) && StringUtils.isBlank(stripped)) {
+			return SiteTitleValidationStatus.STRIPPED_TO_EMPTY;
+		} else if (StringUtils.isBlank(stripped)) {
+			return SiteTitleValidationStatus.EMPTY;
+		} else if (stripped.length() > SITE_TITLE_MAX_LENGTH) {
+			return SiteTitleValidationStatus.TOO_LONG;
+		} else {
+			return SiteTitleValidationStatus.OK;
+		}
+	}
 }

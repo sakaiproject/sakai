@@ -42,6 +42,11 @@
 		if ($("#generalAlert").length <= 0) {
 			SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
 		}
+		window.onload = function() {
+			if( $('#new_assignment_group_submit').is(':checked') ) {
+				ASN.toggleAddOptions('GROUP');
+			}
+		}
 	});
 
     function SetMaxPoint(obj_option, obj_textfield)

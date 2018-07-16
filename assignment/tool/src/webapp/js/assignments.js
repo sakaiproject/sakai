@@ -906,9 +906,6 @@ ASN.toggleSendFeedbackPanel = function()
     var expandImg = document.getElementById("expandSendFeedback");
     var collapseImg = document.getElementById("collapseSendFeedback");
     ASN.swapDisplay(expandImg, collapseImg);
-    var showLabel = document.getElementById("showSendFeedbackLabel");
-    var hideLabel = document.getElementById("hideSendFeedbackLabel");
-    ASN.swapDisplay(showLabel, hideLabel);
 }
 
 ASN.swapDisplay = function(elem1, elem2)

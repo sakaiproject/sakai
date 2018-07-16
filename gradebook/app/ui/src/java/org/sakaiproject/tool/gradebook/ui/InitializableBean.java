@@ -16,13 +16,13 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.jsf.model.PhaseAware;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class InitializableBean implements PhaseAware {
-	private transient boolean notValidated;
+	private boolean notValidated;
 
 	/**
 	 * JSF doesn't provide a way to configure an initialization method which will
@@ -42,14 +42,20 @@ public abstract class InitializableBean implements PhaseAware {
 	 * be of interest to the backing bean. For example, the backing bean
 	 * may choose not to requery and reload data on a validation error.
 	 */
+	@Override
 	public void endProcessValidators() {
 		setNotValidated(true);
-		if (log.isDebugEnabled()) log.debug("endProcessValidators");
+		if (log.isDebugEnabled()) {
+			log.debug("endProcessValidators");
+		}
 	}
 
+	@Override
 	public void endProcessUpdates() {
 		setNotValidated(false);
-		if (log.isDebugEnabled()) log.debug("endProcessUpdates");
+		if (log.isDebugEnabled()) {
+			log.debug("endProcessUpdates");
+		}
 	}
 
 	/**
@@ -57,23 +63,28 @@ public abstract class InitializableBean implements PhaseAware {
 	 * (This should also work to refresh session-scoped beans, but it's
 	 * only been tested with request scope.)
 	 */
+	@Override
 	public void startRenderResponse() {
-		if (log.isDebugEnabled()) log.debug("startRenderResponse notValidated=" + isNotValidated());
+		if (log.isDebugEnabled()) {
+			log.debug("startRenderResponse notValidated=" + isNotValidated());
+		}
 		init();
 	}
 
 	public boolean isNotValidated() {
-		return notValidated;
+		return this.notValidated;
 	}
-	public void setNotValidated(boolean notValidated) {
+	public void setNotValidated(final boolean notValidated) {
 		this.notValidated = notValidated;
 	}
 
 	/**
 	 * Signals that configuration is finished.
 	 */
-	public void setConfigured(boolean isConfigured) {
-		if (log.isDebugEnabled()) log.debug("setConfigured " + isConfigured);
+	public void setConfigured(final boolean isConfigured) {
+		if (log.isDebugEnabled()) {
+			log.debug("setConfigured " + isConfigured);
+		}
 		if (isConfigured) {
 			init();
 		}

@@ -15,10 +15,6 @@
  */
 package org.sakaiproject.gradebookng.business;
 
-import java.math.RoundingMode;
-import java.security.Permission;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +42,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -322,9 +317,10 @@ public class GradebookNgBusinessService {
 	{
 		final List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
 		final List<User> users = getUsers(userUuids);
+		final Site site = getCurrentSite().orElse(null);
 
 		for (final User u : users) {
-			gbUsers.add(new GbUser(u));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
 		}
 
 		return gbUsers;
@@ -804,6 +800,41 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 *
+	 * @param assignmentId
+	 * @param studentUuid
+	 * @param excuse
+	 * @return
+	 */
+	public GradeSaveResponse saveExcuse(final Long assignmentId, final String studentUuid, final boolean excuse){
+		final Gradebook gradebook = this.getGradebook();
+		if (gradebook == null) {
+			return GradeSaveResponse.ERROR;
+		}
+
+		// get current grade
+		final String storedGrade = this.gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
+				studentUuid);
+
+		GradeSaveResponse rval = null;
+
+		// save
+		try {
+			//must pass in the raw grade as the service does conversions between percentage etc
+			this.gradebookService.saveGradeAndExcuseForStudent(gradebook.getUid(), assignmentId, studentUuid,
+					storedGrade, excuse);
+
+			if (rval == null) {
+				// if we don't have some other warning, it was all OK
+				rval = GradeSaveResponse.OK;
+			}
+		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred saving the excuse. " + e.getClass() + ": " + e.getMessage());
+			rval = GradeSaveResponse.ERROR;
+		}
+		return rval;
+	}
+	/**
 	 * Build the matrix of assignments, students and grades for all students
 	 *
 	 * @param assignments list of assignments
@@ -1158,8 +1189,8 @@ public class GradebookNgBusinessService {
 					final Map<Long, String> gradeMap = new HashMap<>();
 					for (final Long assignmentId : categoryAssignmentIds) {
 						final GbGradeInfo gradeInfo = grades.get(assignmentId);
-						if (gradeInfo != null) {
-							gradeMap.put(assignmentId, gradeInfo.getGrade());
+						if (gradeInfo != null && !gradeInfo.isExcused()) {
+								gradeMap.put(assignmentId, gradeInfo.getGrade());
 						}
 					}
 
@@ -2109,6 +2140,26 @@ public class GradebookNgBusinessService {
 			}
 		} catch (GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred retrieving the comment. {}: {}", e.getClass(), e.getMessage());
+		}
+		return null;
+	}
+
+	public String getAssignmentExcuse(final long assignmentId, final String studentUuid){
+		return getAssignmentExcuse(getCurrentSiteId(), assignmentId, studentUuid);
+	}
+
+	public String getAssignmentExcuse(final String siteId, final long assignmentId, final String studentUuid){
+		final Gradebook gradebook = getGradebook(siteId);
+
+		try{
+			final boolean excuse = this.gradebookService.getIsAssignmentExcused(gradebook.getUid(), assignmentId, studentUuid);
+			if(excuse){
+				return "1";
+			}else{
+				return "0";
+			}
+		} catch (GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred retrieving the excuse. " + e.getClass() + ": " + e.getMessage());
 		}
 		return null;
 	}

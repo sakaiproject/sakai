@@ -1,0 +1,213 @@
+@import "_calendar_variables";
+
+.#{$namespace}calendarSynoptic
+{
+	th
+	{
+		text-align: center;
+	}
+
+	.sectionContainerNav
+	{
+		tr
+		{
+			@include display-flex;
+			@include justify-content(space-between);
+			@include flex-wrap(wrap);
+		}
+
+		td
+		{
+			@include display-flex;
+			@include align-items(center);
+		}
+	}
+
+	.calLeft 
+	{
+		vertical-align: middle;
+		text-align: left;
+		width: 50%;
+	}
+
+	.calRight
+	{
+		@include display-flex;
+		@include justify-content(flex-end);
+		vertical-align: middle;
+		text-align: right;
+
+		span
+		{
+			display: block;
+			white-space: nowrap;
+			text-align: right;
+		}
+	}
+
+	.calRight fieldset 
+	{
+		display:inline;
+		margin:0;
+		padding:0;
+	}
+
+	.calRight legend 
+	{
+		position: absolute !important;
+		display:inline;
+		margin:0;
+		padding:0;
+		clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+		clip: rect(1px, 1px, 1px, 1px);
+	}
+
+	.calTop 
+	{
+		vertical-align: top;
+	}
+
+	.mainCalendar
+	{
+		width: 100%;
+		border-collapse: collapse;
+		text-align: center;
+	}
+
+	.calHeader 
+	{
+		text-align: center;
+	}
+
+	.calDay
+	{
+		width: 14%;
+		line-height: 3;		// trying to make the cell square-ish
+		margin: 0;
+		padding: 0;
+		border: 1px solid transparent;		// to space out the cells
+
+		> span
+		{
+			position: relative;
+			@include display-flex;
+			@include justify-content(center);
+			@include align-items(center);
+			width: 100%;
+			height: 100%;
+			border: 1px solid $calendar-day-border-color;	// to style the cell borders
+			text-align: center;
+			
+			&.calOtherDayWithNoActivity
+			{
+				border-color: transparent;
+				font-size: 10px;			// to de-emphasize these days
+				color: #767676;
+			}
+		}
+
+		.calToday 			// today without events
+		{
+			border-color: $calendar-day-today-border-color;
+			background-color: $calendar-day-today-background-color;
+			color: $calendar-day-today-text-color;
+
+			a
+			{
+				color: $calendar-day-today-text-color;
+			}
+
+			&.calSelectedDay		//today selected without activity
+			{
+				border: 1px dashed $calendar-day-today-text-color;
+			}
+		}
+
+		.calDayWithActivity
+		{
+			// background-color will be overriden if:
+			// 1. colors specified for high/medium/low priority events in Options (user preferences)
+			// 2. default colors specified in sakai.properties
+			border-color: $calendar-event-border-color;
+			background-color: #f9f9f9;
+			font-weight: normal;
+			text-align: center;
+
+			a
+			{
+				width: 100%;		// to maximize click area
+				height: 100%;
+				color: $text-color;
+				text-shadow: 0 0 2px rgba(255, 255, 255, 1);			// to be able to see text on dark user-picked background colours
+				text-decoration: none;
+
+				&:hover, &:focus
+				{
+					text-decoration: underline;
+				}
+			}
+
+			&.calSelectedDay
+			{
+				border-style: dashed;
+			}
+
+			&.calToday 			//today with events
+			{
+				border-color: $calendar-today-event-border-color;
+				background-color: $calendar-today-event-background-color;
+
+				a
+				{
+					color: $calendar-today-event-text-color;
+				}
+
+				&.calSelectedDay		//today selected with activity
+				{
+					border-color: $calendar-today-event-text-color;
+				}
+			}
+		}
+	}
+
+	.calDayWithoutActivity 
+	{
+		text-align: center;
+	}
+
+	.eventCount
+	{
+		position: absolute;
+		display: inline-block !important;
+		right: 1px;
+		top: 1px;
+		margin: 0;
+		padding: 0 4px;
+		border-radius: 2px;
+		background-color: #fff;
+		font-size: 10px;
+		font-weight: normal;
+		line-height: 1.5;
+		color: $calendar-column-heading-color;
+	}
+
+	#prefsForm
+	{
+		width: 99%;
+	}
+
+	.calendarEventList
+	{
+		width: 100%;
+
+		td
+		{
+			line-height: 2;
+		}
+
+		span.icon
+		{
+			margin-right: $standard-spacing;
+		}
+	}
+}
