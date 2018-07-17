@@ -34,7 +34,7 @@ should be included in file importing DeliveryMessages
          rendered="#{itemText.sequence==1}">
         <h:column>
             <h:panelGrid columns="2">
-              <h:outputText escape="false" value="#{answer.label}. "/>
+              <h:outputText escape="false" value="#{answer.label}." styleClass="author_mcLabelText" />
               <h:outputText escape="false" value="#{answer.text}" />
             </h:panelGrid>
         </h:column>

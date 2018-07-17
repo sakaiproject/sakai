@@ -62,7 +62,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
@@ -95,14 +94,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.ParameterUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.tool.assessment.ws.Item;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -1209,26 +1206,23 @@ public class ItemAddListener
 	  choicetext.setText(stripPtags(choicebean.getChoice()));
 
 	  // loop through matches for in validAnswers list and add all to this choice
-	  Iterator<MatchItemBean>answeriter = validAnswers.iterator();	  
 	  Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
-	  while (answeriter.hasNext()) {
+	  for (int i = 0; i < validAnswers.size(); i++) {
 		  Answer answer = null;
-		  MatchItemBean answerbean = (MatchItemBean) answeriter.next();
+		  MatchItemBean answerbean = validAnswers.get(i);
 		  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
 				  answerbean.getSequenceStr().equals(choicebean.getControllingSequence())) {
 			  // correct answers
 			  answer = new Answer(choicetext, stripPtags(answerbean
 					  .getMatch()), answerbean.getSequence(), AnswerBean
-					  .getChoiceLabels()[answerbean.getSequence()
-					                     .intValue() - 1], Boolean.TRUE, null, Double.valueOf(
+					  .getChoiceLabels()[i], Boolean.TRUE, null, Double.valueOf(
 					                    		 bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 
 		  } else {
 			  // incorrect answers
 			  answer = new Answer(choicetext, stripPtags(answerbean
 					  .getMatch()), answerbean.getSequence(), AnswerBean
-					  .getChoiceLabels()[answerbean.getSequence()
-					                     .intValue() - 1], Boolean.FALSE, null,  Double.valueOf(
+					  .getChoiceLabels()[i], Boolean.FALSE, null,  Double.valueOf(
 					                    		 bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
 		  }
 
