@@ -22,8 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.hibernate.Criteria;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -143,9 +141,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
-        Session session = sessionFactory.getCurrentSession();
-        Assignment persistedAssignment = (Assignment) session.get(Assignment.class, assignment.getId(), new LockOptions(LockMode.OPTIMISTIC_FORCE_INCREMENT));
-        if (!existsSubmission(submission.getId()) && persistedAssignment != null) {
+        if (!existsSubmission(submission.getId()) && exists(assignment.getId())) {
             submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
             submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
@@ -153,10 +149,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             submittedAttachments.ifPresent(submission::setAttachments);
             properties.ifPresent(submission::setProperties);
 
-            submission.setAssignment(persistedAssignment);
-            persistedAssignment.getSubmissions().add(submission);
+            submission.setAssignment(assignment);
+            assignment.getSubmissions().add(submission);
 
-            session.persist(persistedAssignment);
+            sessionFactory.getCurrentSession().persist(assignment);
         }
     }
 
