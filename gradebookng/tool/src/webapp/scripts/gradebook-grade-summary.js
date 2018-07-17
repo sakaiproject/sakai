@@ -308,7 +308,7 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
       stickyHeaders_filteredToTop: true
     },
     //sort by due date descending and secondarily by assignment title
-    sortList: [[3, 0], [0, 0]],
+      //no default sort order
     textExtraction: function(node) {
       var $node = $(node);
       // sort dates by data-sort-key
