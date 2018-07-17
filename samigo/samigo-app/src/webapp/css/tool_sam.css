@@ -506,6 +506,10 @@ a.hideDivision {
     margin: 0 0 1em 0;
 }
 
+span.author_mcLabelText {
+    padding-right: 0.2em;
+}
+
 .mcColumn1 {
   	width: 40px;
 }
