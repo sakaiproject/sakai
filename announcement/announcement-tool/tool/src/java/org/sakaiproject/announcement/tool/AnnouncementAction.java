@@ -3886,11 +3886,13 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		else
 		{
-			// if the messages are not already sorted by subject, set the sort sequence to be descending
+			// if the messages are not already sorted by field, reset the sort sequence to be ascending
 			state.setCurrentSortedBy(field);
 			state.setCurrentSortAsc(true);
-			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
+			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.TRUE);
 		}
+
+		resetPaging(sstate);
 	} // setupSort
 
 	/**
