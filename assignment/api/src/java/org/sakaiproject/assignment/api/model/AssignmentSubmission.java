@@ -163,5 +163,6 @@ public class AssignmentSubmission {
     @Lob
     @Column(name = "VALUE", length = 65535)
     @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    @Fetch(FetchMode.SUBSELECT)
     private Map<String, String> properties = new HashMap<>();
 }
