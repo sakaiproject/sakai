@@ -98,12 +98,14 @@ public class AssignmentSubmission {
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
     private Set<String> attachments = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT", length = 1024)
     @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
@@ -155,6 +157,7 @@ public class AssignmentSubmission {
     @Column(name = "GROUP_ID", length = 36)
     private String groupId;
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
     @Lob
