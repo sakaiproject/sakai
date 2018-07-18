@@ -80,7 +80,7 @@
     
     <!-- Central storage of cryptographic keys -->
     <bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
-        <constructor-arg value="file:/data/sakai/otherdata/saml/samlKeystore.jks"/>
+        <constructor-arg value="file:/opt/tomcat9/sakai/saml/samlKeystore.jks"/>
         <constructor-arg type="java.lang.String" value="changeit"/>
         <constructor-arg>
             <map>
@@ -110,8 +110,8 @@
     <bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
         <constructor-arg>
             <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
-                <property name="entityId" value="https://sakai.some.domain/saml"/>
-                <property name="entityBaseURL" value="https://sakai.some.domain/sakai-login-tool/container"/>
+                <property name="entityId" value="https://www.myhotelschool.nl/saml"/>
+                <property name="entityBaseURL" value="https://www.myhotelschool.nl/sakai-login-tool/container"/>
                 <property name="requestSigned" value="false"/>
             </bean>
         </constructor-arg>
@@ -134,7 +134,7 @@
                             </constructor-arg>
                             <constructor-arg>
                                 <bean class="org.opensaml.util.resource.FilesystemResource">
-                                    <constructor-arg value="/data/sakai/otherdata/saml/federationmetadata.xml"/>
+                                    <constructor-arg value="/opt/tomcat9/sakai/saml/federationmetadata.xml"/>
                                 </bean>
                             </constructor-arg>
                             <property name="parserPool" ref="parserPool"/>
@@ -151,20 +151,26 @@
             </list>
         </constructor-arg>
         <!-- OPTIONAL property: can tell the system which IDP should be used for authenticating user by default. -->
-        <property name="defaultIDP" value="http://adfs.some.domain/adfs/services/trust"/>
+        <property name="defaultIDP" value="https://sts.windows.net/76fa7ce1-3aee-4a50-9446-7e4e352770e7/"/>
     </bean>
 
     <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
     <bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
         <!-- OPTIONAL property: can be used to store/load user data after login -->
-        <property name="forcePrincipalAsString" value="false" />
+        <property name="forcePrincipalAsString" value="true" />
         <property name="userDetails">
             <bean class="org.sakaiproject.login.filter.UpnSamlFilter" />
         </property>
     </bean>
 
     <!-- Provider of default SAML Context -->
-    <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl"/>
+    <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderLB">
+            <property name="scheme" value="https"/>
+            <property name="serverName" value="www.myhotelschool.nl"/>
+            <property name="serverPort" value="443"/>
+            <property name="includeServerPortInRequestURL" value="false"/>
+            <property name="contextPath" value="/sakai-login-tool"/>
+    </bean>
 
     <!-- Processing filter for WebSSO profile messages -->
     <bean id="samlWebSSOProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter">
