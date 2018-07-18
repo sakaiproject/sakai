@@ -333,6 +333,7 @@ body.is-logged-out{
 
 			#roleSwitchAnchor {
 				text-decoration: none;
+				text-transform: capitalize; 	// standardizes the capitalization of the first letter of each word, regardless of role name (e.g. "access" becomes "Access")
 				@media #{$phone} {
 					color: $primary-color;
 				}
