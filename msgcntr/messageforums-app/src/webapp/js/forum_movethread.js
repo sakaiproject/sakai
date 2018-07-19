@@ -290,6 +290,8 @@ Licenses.
 			buildThreadList();
  			//buildSourceListScroller();
             		$(".topic-picker").dialog("open");
+            		$(".topic-picker").css({ "overflow-y": "auto", height: "calc(100% - 50px)" });
+            		$(".topic-source-picker").css({ "overflow-y": "auto", height: "calc(100% - 50px)" });
             		//saveRestorePoint();
 		}
 		else {
@@ -314,7 +316,7 @@ Licenses.
     };
     
     var initDialog = function () {
-        $(".topic-picker").dialog({ autoOpen: false, width: 680, modal: true, position: 'top'});
+        $(".topic-picker").dialog({ autoOpen: false, width: 680, modal: true, position: "top", draggable: false, resizable: false});
     };
  
     $(function () {

@@ -996,12 +996,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (assignment.getIsGroup()) {
                     Group group = site.getGroup(submitter);
                     if (group != null && assignment.getGroups().contains(group.getReference())) {
-                        for (Member member : group.getMembers()) {
-                            AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
-                            ass.setSubmitter(member.getUserId());
-                            submissionSubmitters.add(ass);
-                        }
-                        submission.setGroupId(submitter);
+                    	group.getMembers().stream()
+                    	.filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                    			|| group.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+                    			&& !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+                    			&& !group.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+                    	.forEach(member -> {
+                			AssignmentSubmissionSubmitter ass = new AssignmentSubmissionSubmitter();
+                    		ass.setSubmitter(member.getUserId());
+                    		submissionSubmitters.add(ass);
+                    	});
+                    	submission.setGroupId(submitter);
                     } else {
                         log.warn("A submission cannot be added to assignment: {}, for group: {}", assignmentId, submitter);
                     }
@@ -1536,12 +1541,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public List<User> getSortedGroupUsers(Group g) {
         List<User> users = new ArrayList<>();
-        for (Member member : g.getMembers())
-            try {
-                users.add(userDirectoryService.getUser(member.getUserId()));
-            } catch (Exception e) {
-                log.warn("Creating a list of users, user = {}, {}", member.getUserId(), e.getMessage());
-            }
+		g.getMembers().stream()
+		.filter(m -> (m.getRole().isAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION)
+				|| g.isAllowed(m.getUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION))
+				&& !m.getRole().isAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION)
+				&& !g.isAllowed(m.getUserId(), SECURE_GRADE_ASSIGNMENT_SUBMISSION))
+		.forEach( member -> {
+			try {
+				users.add(userDirectoryService.getUser(member.getUserId()));
+			} catch (Exception e) {
+				log.warn("Creating a list of users, user = {}, {}", member.getUserId(), e.getMessage());
+			}
+		});
         users.sort(new UserComparator());
         return users;
     }

@@ -2521,7 +2521,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			Date date = null;
 			if (m_lastModifiedInstant != null) {
-				date = new Date(m_lastModifiedInstant.getEpochSecond());
+				date = new Date(m_lastModifiedInstant.toEpochMilli());
 			}
 			return date;
 		}
