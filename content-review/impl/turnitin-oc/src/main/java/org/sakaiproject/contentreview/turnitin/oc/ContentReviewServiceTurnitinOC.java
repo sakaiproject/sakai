@@ -1509,8 +1509,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	@Override
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
-		log.info("providerName: " + providerName + ", custom: " + (customParam.isPresent() ? customParam.get() : ""));
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
+		log.info("providerId: " + providerId + ", custom: " + (customParam.isPresent() ? customParam.get() : ""));
 		int errors = 0;
 		int success = 0;
 		String body = null;
