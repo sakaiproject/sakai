@@ -7001,29 +7001,27 @@ public class AssignmentAction extends PagedResourceActionII {
             // the grade point
             String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
             state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-            if (gradePoints != null) {
-                if (gradeType == SCORE_GRADE_TYPE) {
-                    if ((gradePoints.length() == 0)) {
-                        // in case of point grade assignment, user must specify maximum grade point
-                        addAlert(state, rb.getString("plespethe3"));
-                    } else {
-                        Integer scaleFactor = assignmentService.getScaleFactor();
-                        try {
-                            if (StringUtils.isNotEmpty(assignmentRef)) {
-                                Assignment assignment = assignmentService.getAssignment(assignmentId);
-                                if (assignment != null) {
-                                    scaleFactor = assignment.getScaleFactor();
-                                }
+            if (gradePoints != null && gradeType == SCORE_GRADE_TYPE) {
+                if (gradePoints.length() == 0) {
+                    // in case of point grade assignment, user must specify maximum grade point
+                    addAlert(state, rb.getString("plespethe3"));
+                } else {
+                    Integer scaleFactor = assignmentService.getScaleFactor();
+                    try {
+                        if (StringUtils.isNotEmpty(assignmentRef)) {
+                            Assignment assignment = assignmentService.getAssignment(assignmentId);
+                            if (assignment != null && assignment.getScaleFactor() != null) {
+                                scaleFactor = assignment.getScaleFactor();
                             }
-                        } catch (IdUnusedException | PermissionException e) {
-                            log.error(e.getMessage());
                         }
-
-                        validPointGrade(state, gradePoints, scaleFactor);
-                        // when scale is points, grade must be integer and less than maximum value
-                        gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
-                        state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+                    } catch (IdUnusedException | PermissionException e) {
+                        log.error(e.getMessage());
                     }
+
+                    validPointGrade(state, gradePoints, scaleFactor);
+                    // when scale is points, grade must be integer and less than maximum value
+                    gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
+                    state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
                 }
             }
         }
