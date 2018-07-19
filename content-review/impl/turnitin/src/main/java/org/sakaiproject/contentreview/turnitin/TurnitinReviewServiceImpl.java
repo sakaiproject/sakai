@@ -2586,7 +2586,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	}
 	
 	@Override
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		//Auto-generated method stub
 	}
 }

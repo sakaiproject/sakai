@@ -1000,7 +1000,7 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	}
 
 	@Override
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		// TODO Auto-generated method stub
 		
 	}
