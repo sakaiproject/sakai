@@ -112,7 +112,7 @@ public class LessonsSubNavBuilder {
         if (rs.getTimestamp("pageReleaseDate") != null) {
             final Timestamp releaseDate = rs.getTimestamp("pageReleaseDate");
             if (releaseDate.getTime() > System.currentTimeMillis()) {
-                subnavItem.put("hidden", "true");
+                subnavItem.put("disabled", "true");
                 final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, rb.getLocale());
                 final TimeZone tz = TimeService.getLocalTimeZone();
                 df.setTimeZone(tz);
@@ -132,12 +132,7 @@ public class LessonsSubNavBuilder {
 
         if (rs.getInt("pageHidden") == 1) {
             return true;
-        } else if (rs.getTimestamp("pageReleaseDate") != null) {
-            if (rs.getTimestamp("pageReleaseDate").getTime() > System.currentTimeMillis()) {
-                return true;
-            }
         }
-
         return false;
     }
 

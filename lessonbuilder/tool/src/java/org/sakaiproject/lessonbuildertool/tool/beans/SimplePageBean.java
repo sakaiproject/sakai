@@ -5206,13 +5206,11 @@ public class SimplePageBean {
 		if (item.getType() == SimplePageItem.BREAK)
 		    return true;  // breaks are always visible to all users
 		else if (item.getType() == SimplePageItem.PAGE) {
-		  if (!item.isRequired()) {
 		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
 		    if (itemPage.isHidden())
 			return false;
 		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
-			return false;
-		  }
+			return true;
 		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either

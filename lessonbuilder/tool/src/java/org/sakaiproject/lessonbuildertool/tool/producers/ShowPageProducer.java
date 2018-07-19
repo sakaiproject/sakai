@@ -206,7 +206,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity assignmentEntity;
 	private static LessonEntity bltiEntity;
 	public MessageLocator messageLocator;
-	private LocaleGetter localegetter;
+	private static LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
 	// mp4 means it plays with the flash player if HTML5 doesn't work.
 	// flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
@@ -3755,7 +3755,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    (p.isHidden() || p.getReleaseDate() != null && p.getReleaseDate().after(new Date()))) {
 				    fake = true;
 				}
-				if (available) {
+
+				if (available && !fake) {
 					link = UIInternalLink.make(container, ID, eParams);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					if (i.isPrerequisite()) {
@@ -3957,8 +3958,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 		    // fake and available occurs when prerequisites aren't the issue (it's avaiable)
 		    // so the item must be nonexistent or otherwise unavalable.
-		    if (available)
-			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
+		    if (available) {
+		    	if(i.getType() == SimplePageItem.PAGE){
+					// set up locale
+					Locale M_locale = null;
+					String langLoc[] = localegetter.get().toString().split("_");
+					if (langLoc.length >= 2) {
+						if ("en".equals(langLoc[0]) && "ZA".equals(langLoc[1])) {
+							M_locale = new Locale("en", "GB");
+						} else {
+							M_locale = new Locale(langLoc[0], langLoc[1]);
+						}
+					} else {
+						M_locale = new Locale(langLoc[0]);
+					}
+
+					String releaseString = simplePageBean.getReleaseString(i, M_locale);
+		    		link.decorate(new UITooltipDecorator(releaseString));
+				}else {
+					link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.not_usable")));
+				}
+			}
 		    else
 			link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 		} else

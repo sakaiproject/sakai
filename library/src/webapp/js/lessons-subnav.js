@@ -68,11 +68,11 @@
 
             if (sub_page.hidden == 'true') {
                 $submenu_action.classList.add('is-invisible');
-                if (sub_page.releaseDate) {
-                    title_string += ' ' + self.i18n.hidden_with_release_date.replace(/\{releaseDate\}/, sub_page.releaseDate);
-                } else {
-                    title_string += ' ' + self.i18n.hidden;
-                }
+            }
+
+            if(sub_page.disabled == 'true'){
+                $submenu_action.classList.add('is-invisible');
+                title_string += ' ' + self.i18n.hidden_with_release_date.replace(/\{releaseDate\}/, sub_page.releaseDate);
             }
 
             if(sub_page.required == 'true') {
