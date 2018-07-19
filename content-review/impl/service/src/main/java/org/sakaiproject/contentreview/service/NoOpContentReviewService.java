@@ -281,7 +281,7 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 	}
 
 	@Override
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		String ret = "There is no content review service configured, please see your administrator";
 		log.debug("{} webhookEvent", ret);
 	}
