@@ -5,7 +5,7 @@
 		$tlang.getString("prevassig.preass")
 	</h3>
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+		#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		<div class="clear"></div>
 		<form id="previewAssignmentsForm" name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />

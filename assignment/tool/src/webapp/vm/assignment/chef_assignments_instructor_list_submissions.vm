@@ -59,7 +59,7 @@ function printView(url) {
 		</h1>
 	</div>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 	## reminder of submission download url
 	#if ($download_url_reminder) 
 		<div class="messageInformation">
