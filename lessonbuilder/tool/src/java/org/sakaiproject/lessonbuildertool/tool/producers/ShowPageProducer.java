@@ -183,6 +183,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public TextInputEvolver richTextEvolver;
 	private static LessonBuilderAccessService lessonBuilderAccessService;
 	
+	private List<Long> printedSubpages;
+	
 	private Map<String,String> imageToMimeMap;
 	public void setImageToMimeMap(Map<String,String> map) {
 		this.imageToMimeMap = map;
@@ -1139,7 +1141,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer tableContainer = null;
 
 			boolean first = true;
-								
+					
+			printedSubpages = new ArrayList<Long>();
+			
 			printSubpage(itemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
 					container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
 					M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
@@ -1353,13 +1357,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				{
 					// is a subpage		
 					
-					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
-					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
-							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
-							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
-							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
-					
-					subPageTitleContinue = true;
+					if(!printedSubpages.contains(Long.valueOf(i.getSakaiId())))
+					{					
+						printedSubpages.add(Long.valueOf(i.getSakaiId()));
+						
+						List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
+						printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
+								container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
+								M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
+								addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
+						
+						subPageTitleContinue = true;
+					}
 				}
 				else
 				{
@@ -5609,4 +5618,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return itemText;
 	}
 
+	public List<Long> getPrintedSubpages() {
+		return printedSubpages;
+	}
+
+	public void setPrintedSubpages(List<Long> printedSubpages) {
+		this.printedSubpages = printedSubpages;
+	}
 }
