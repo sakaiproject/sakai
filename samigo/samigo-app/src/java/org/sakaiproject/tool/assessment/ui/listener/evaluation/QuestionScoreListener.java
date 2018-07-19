@@ -548,7 +548,7 @@ import org.sakaiproject.util.ResourceLoader;
 				results.setItemGradingArrayList(answerList);
 				// The list is sorted by item id so that it will come back from the student in a 
 				// predictable order. This is also required by the getCalcQResult method.
-				if (bean.getTypeId().equals("15")) { // CALCULATED_QUESTION
+				if (TypeIfc.CALCULATED_QUESTION.equals(bean.getTypeId())) { // CALCULATED_QUESTION
 					// list is sorted by answer id for calculated question
 					Collections.sort(answerList, new Comparator<ItemGradingData>() {
 						public int compare(ItemGradingData i1, ItemGradingData i2) {
