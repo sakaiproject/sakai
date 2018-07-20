@@ -401,8 +401,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localegetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
 
-		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
-		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery()));
+		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", "/library/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery()));
 
 		UIOutput.make(tofill, "portletBody").decorate(new UIFreeAttributeDecorator("sakaimajor", Integer.toString(majorVersion)))
 		    .decorate(new UIFreeAttributeDecorator("sakaiversion", fullVersion));
