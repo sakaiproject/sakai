@@ -665,7 +665,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     
     
 	public boolean isAllowedViewResults(Poll poll, String userId) {
-		if (externalLogic.isUserAdmin())
+		if (externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()))
 			return true;
 
 		if (poll.getDisplayResult().equals("open"))
