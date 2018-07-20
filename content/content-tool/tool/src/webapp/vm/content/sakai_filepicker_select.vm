@@ -41,6 +41,7 @@ table.listHier .attach {
 }
 </style>
 <script type="text/javascript">includeLatestJQuery('content_filepicker');</script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <script type="text/JavaScript">
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
@@ -179,8 +180,8 @@ $(document).ready(function() {
 					#end
 			</table>
 			<p class="act" >
-				<input type="button" name="attachButton" id="attachButton" accesskey="s"
-					onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doAddattachments")'; submitform('attachForm');"
+				<input type="button" name="attachButton1" id="attachButton1" accesskey="s"
+					onclick="SPNR.disableControlsAndSpin( this, null ); javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doAddattachments")'; submitform('attachForm');"
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
 				<input type="button" name="cancelButton" id="cancelButton" accesskey="x"
 					onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doCancel")'; submitform('attachForm');"
@@ -582,7 +583,7 @@ $(document).ready(function() {
 			</table>
 		
 			<p class="act">
-				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
+				<input type="button" name="attachButton2" id="attachButton2"  accesskey="s"
 					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
 				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"
