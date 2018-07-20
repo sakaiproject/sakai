@@ -41,7 +41,7 @@ public class FibBean
   private String response;
   private String text;
   private Boolean isCorrect;
-  private boolean hasInput;
+  private Boolean hasInput;
   
   public ItemContentsBean getItemContentsBean()
   {
@@ -121,7 +121,7 @@ public class FibBean
     return hasInput;
   }
 
-  public void setHasInput(boolean newin)
+  public void setHasInput(Boolean newin)
   {
     hasInput = newin;
   }

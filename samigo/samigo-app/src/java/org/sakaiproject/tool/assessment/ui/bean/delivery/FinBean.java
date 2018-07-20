@@ -40,7 +40,7 @@ public class FinBean
   private String response;
   private String text;
   private Boolean isCorrect;
-  private boolean hasInput;
+  private Boolean hasInput;
 
   public ItemContentsBean getItemContentsBean()
   {
@@ -120,7 +120,7 @@ public class FinBean
     return hasInput;
   }
 
-  public void setHasInput(boolean newin)
+  public void setHasInput(Boolean newin)
   {
     hasInput = newin;
   }

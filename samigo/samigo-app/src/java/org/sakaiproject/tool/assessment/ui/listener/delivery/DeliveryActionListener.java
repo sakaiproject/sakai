@@ -1990,7 +1990,7 @@ public class DeliveryActionListener
         fbean.setText( (String) texts.toArray()[i++]);
       else
         fbean.setText("");
-      fbean.setHasInput(true);
+      fbean.setHasInput(Boolean.TRUE);
 
       List<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
@@ -2036,7 +2036,7 @@ public class DeliveryActionListener
       fbean.setText( (String) texts.toArray()[i]);
     else
       fbean.setText("");
-    fbean.setHasInput(false);
+    fbean.setHasInput(Boolean.FALSE);
     fibs.add(fbean);
 
     bean.setFibArray(fibs);
@@ -2140,7 +2140,7 @@ public class DeliveryActionListener
         fbean.setText( (String) texts.toArray()[i++]);
       else
         fbean.setText("");
-      fbean.setHasInput(true);
+      fbean.setHasInput(Boolean.TRUE);
 
       List<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
@@ -2191,7 +2191,7 @@ public class DeliveryActionListener
       fbean.setText( (String) texts.toArray()[i]);
      else
       fbean.setText("");
-    fbean.setHasInput(false);
+    fbean.setHasInput(Boolean.FALSE);
     fins.add(fbean);
 
     bean.setFinArray(fins);
@@ -2415,7 +2415,7 @@ public class DeliveryActionListener
           fbean.setItemContentsBean(bean);
           fbean.setAnswer(answer);
           fbean.setText((String) texts.toArray()[i++]);
-          fbean.setHasInput(true); // input box
+          fbean.setHasInput(Boolean.TRUE); // input box
 
           List<ItemGradingData> datas = bean.getItemGradingDataArray();
           if (datas == null || datas.isEmpty())
@@ -2444,7 +2444,7 @@ public class DeliveryActionListener
           fbean.setText( (String) texts.toArray()[i]);
       else
           fbean.setText("");
-      fbean.setHasInput(false);
+      fbean.setHasInput(Boolean.FALSE);
       fins.add(fbean);
 
       bean.setFinArray((ArrayList) fins);
