@@ -39,11 +39,11 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -74,6 +74,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * <code>RosterPOIEntityProvider</code> allows Roster to export to Excel via Apache's POI.
@@ -303,32 +304,51 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		final String enrollmentStatus = dataMap.get("enrollmentStatus");
 		final String enrollmentSetTitle = dataMap.get("enrollmentSetTitle");
 
-		final List<List<String>> dataInRows = new ArrayList<>();
+		final List<List<String>> rosterRows = new ArrayList<>();
+		final List<List<String>> groupsRows = new ArrayList<>();
 
-		createSpreadsheetTitle(dataInRows, site, groupId, viewType);
+		createSpreadsheetTitle(rosterRows, site, groupId, viewType);
 
-		final List<String> header = createColumnHeader(viewType, site.getId());
+		final String siteID = site.getId();
+		List<String> header = createColumnHeader(viewType, siteID, false);
+		List<RosterMember> rosterMembers = Collections.EMPTY_LIST;
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
 
-			final List<RosterMember> rosterMembers = getMembership(currentUserId, site.getId(), groupId, roleId);
+			rosterMembers = getMembership(currentUserId, siteID, groupId, roleId);
 
-			if (null != rosterMembers) {
-				addOverviewRows(dataInRows, rosterMembers, header, site.getId());
+			if (CollectionUtils.isNotEmpty(rosterMembers)) {
+				addOverviewRows(rosterRows, rosterMembers, header, siteID);
 			}
 		} else if (VIEW_ENROLLMENT_STATUS.equals(viewType)) {
 
-			final List<RosterMember> rosterMembers = getEnrolledMembership(currentUserId, site.getId(), enrollmentSetId, enrollmentStatus);
+			rosterMembers = getEnrolledMembership(currentUserId, siteID, enrollmentSetId, enrollmentStatus);
 
-			if (null != rosterMembers) {
-				addEnrollmentStatusRows(dataInRows, rosterMembers, header,
-						enrollmentSetTitle, enrollmentStatus, site.getId());
+			if (CollectionUtils.isNotEmpty(rosterMembers)) {
+				addEnrollmentStatusRows(rosterRows, rosterMembers, header, enrollmentSetTitle, enrollmentStatus, siteID);
 			}
 		}
 
+		final ResourceLoader rl = new ResourceLoader("org.sakaiproject.roster.i18n.ui");
 		final Workbook workBook = new XSSFWorkbook();
-		final Sheet sheet = workBook.createSheet();
+		final Sheet rosterSheet = workBook.createSheet(rl.getString("facet_roster"));
+		addRowsToSheet(rosterSheet, rosterRows);
 
+		final String userId = this.developerHelperService.getCurrentUserId();
+		if (CollectionUtils.isNotEmpty(rosterMembers) && this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteID)) {
+			header = createColumnHeader(viewType, siteID, true);
+			addGroupMembershipByGroupRows(groupsRows, rosterMembers, site, header, viewType);
+		}
+
+		if (groupsRows.size() > 0 ) {
+			Sheet groupsSheet = workBook.createSheet(rl.getString("facet_groups"));
+			addRowsToSheet(groupsSheet, groupsRows);
+		}
+
+		return workBook;
+	}
+
+	private void addRowsToSheet(Sheet sheet, List<List<String>> dataInRows) {
 		for (int i = 0; i < dataInRows.size(); i++) {
 			final Row row = sheet.createRow(i);
 			for (int j = 0; j < dataInRows.get(i).size(); j++) {
@@ -336,8 +356,59 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				cell.setCellValue(dataInRows.get(i).get(j));
 			}
 		}
+	}
 
-		return workBook;
+	private void addGroupMembershipByGroupRows(List<List<String>> dataInRows, List<RosterMember> rosterMembers, RosterSite site, List<String> header, String viewType) {
+		if (site == null || site.getSiteGroups() == null) {
+			return;
+		}
+
+		for (RosterGroup group : site.getSiteGroups()) {
+			List<String> groupTitle = new ArrayList<>();
+			groupTitle.add(group.getTitle());
+
+			dataInRows.add(groupTitle);
+			dataInRows.add(new ArrayList<>()); // blank line
+
+			dataInRows.add(header);
+			dataInRows.add(new ArrayList<>()); // blank line
+
+			for (RosterMember member : rosterMembers) {
+				if (null != member.getGroups().get(group.getId())) {
+					List<String> row = new ArrayList<>();
+
+					if (sakaiProxy.getFirstNameLastName()) {
+						row.add(member.getDisplayName());
+					} else {
+						row.add(member.getSortName());
+					}
+
+					if (sakaiProxy.getViewUserDisplayId()) {
+						row.add(member.getDisplayId());
+					}
+
+					if (this.sakaiProxy.getViewEmail(site.getId())) {
+						row.add(member.getEmail());
+					}
+
+					if (this.sakaiProxy.getViewUserProperty(site.getId())) {
+						List<String> props = member.getUserProperties().entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+						row.add(String.join(",", props));
+					}
+
+					if (VIEW_OVERVIEW.equals(viewType)) {
+						row.add(member.getRole());
+					} else if (VIEW_ENROLLMENT_STATUS.equals(viewType)) {
+						row.add(member.getEnrollmentStatusText());
+						row.add(member.getCredits());
+					}
+					row.add(member.getGroupsToString());
+					dataInRows.add(row);
+				}
+			}
+
+			dataInRows.add(new ArrayList<>()); // blank line
+		}
 	}
 
 	private List<RosterMember> getMembership(final String userId, final String siteId, final String groupId, final String roleId) {
@@ -412,10 +483,6 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 			row.add(member.getRole());
 
-			if (this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
-				row.add(member.getGroups().values().stream().collect(Collectors.joining(", ")));
-			}
-
 			dataInRows.add(row);
 		}
 	}
@@ -472,10 +539,6 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			row.add(member.getEnrollmentStatusText());
 			row.add(member.getCredits());
 
-			if (this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
-				row.add(member.getGroups().values().stream().collect(Collectors.joining(", ")));
-			}
-
 			dataInRows.add(row);
 		}
 	}
@@ -521,7 +584,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		return null;
 	}
 
-	private List<String> createColumnHeader(final String viewType, final String siteId) {
+	private List<String> createColumnHeader(final String viewType, final String siteId, boolean isGroupsSheetHeader) {
 
 		final String userId = this.developerHelperService.getCurrentUserId();
 
@@ -548,7 +611,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			header.add(rl.getString("facet_status"));
 			header.add(rl.getString("facet_credits"));
 		}
-		if (this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
+		if (isGroupsSheetHeader && this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
 			header.add(rl.getString("facet_groups"));
 		}
 
