@@ -47,8 +47,8 @@
         <dependency>
             <!--TODO Move to javax.servlet-api version of master-->
             <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
