@@ -917,7 +917,7 @@ $(document).ready(function(){
 				#end
 			#end
 
-				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted))
+				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted || !$!submitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
 							<h3>$tlang.getString("gen.addinst2")</h3>
