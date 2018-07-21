@@ -13331,6 +13331,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
         boolean zipError = false;
 
+        // generate error when there is no grade file yet it was selected
+        if (!zipHasGradeFile && hasGradeFile) {
+            if ("csv".equals(gradeFileFormat)) {
+                addAlert(state, rb.getString("uploadall.alert.nocsv"));
+            } else {
+                addAlert(state, rb.getString("uploadall.alert.noexcel"));
+            }
+            zipError = true;
+        }
+
         // generate error when there is no grade file and no folder structure
         if (!zipHasGradeFile && !zipHasFolder) {
             addAlert(state, rb.getString("uploadall.alert.incorrectFormat"));
