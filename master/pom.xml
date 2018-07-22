@@ -975,12 +975,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.jcr</groupId>
-        <artifactId>jcr</artifactId>
-        <version>1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>
         <version>1.0</version>
