@@ -26,6 +26,10 @@ import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
 
+/**
+ * @deprecated Use the AutoProvisionJobs class instead.
+ */
+@Deprecated
 public class TriggerWrapperImpl implements TriggerWrapper
 {
   private Trigger trigger;

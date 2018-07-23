@@ -99,13 +99,15 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
       globalJobListeners = new LinkedList<JobListener>();
 
   private LinkedList<SpringInitialJobSchedule>
-      initialJobSchedule = null;
+      initialJobSchedule = new LinkedList<>();
 
 
   // Map from a spring bean ID to a job class.
   private HashMap<String,Class<? extends Job>> migration;
+  // is null before we know.
+  private Boolean isInitialStartup;
 
-  public void init()
+    public void init()
   {
     try
     {
@@ -158,37 +160,12 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
         }
       }
 
-      boolean isInitialStartup = isInitialStartup(sqlService);
+      isInitialStartup = isInitialStartup();
       if (isInitialStartup && autoDdl.booleanValue())
       {
     	  log.info("Performing initial population of the Quartz tables.");
     	  sqlService.ddl(this.getClass().getClassLoader(), "init_locks2");
       }
-      /*
-         Determine whether or not to load the jobs defined in the initialJobSchedules list. These jobs will be loaded
-         under the following conditions:
-            1) the server configuration property "scheduler.loadjobs" is "true"
-            2) "scheduler.loadjobs" is "init" and this is the first startup for the scheduler (eg. this is a new Sakai instance)
-         "scheduler.loadjobs" is set to "init" by default
-       */
-      String
-          loadJobs = serverConfigurationService.getString(SCHEDULER_LOADJOBS, "init").trim();
-
-      List<SpringInitialJobSchedule>
-          initSchedules = getInitialJobSchedules();
-      
-      boolean
-          loadInitSchedules = (initSchedules != null) && (initSchedules.size() > 0) &&
-                                (("init".equalsIgnoreCase(loadJobs) && isInitialStartup) ||
-                                 "true".equalsIgnoreCase(loadJobs));
-
-      if (loadInitSchedules)
-          log.debug ("Preconfigured jobs will be loaded");
-      else
-          log.debug ("Preconfigured jobs will not be loaded");
-      
-      
-
 
       // start scheduler and load jobs
       SchedulerFactory schedFactory = new StdSchedulerFactory(qrtzProperties);
@@ -247,7 +224,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           scheduler.getListenerManager().addJobListener(jListener);
       }
 
-      if (loadInitSchedules)
+      if (isAutoProvisioning())
       {
           log.debug ("Loading preconfigured jobs");
           loadInitialSchedules();
@@ -403,6 +380,13 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
       {
     	  return false;
       }
+  }
+
+  public boolean isInitialStartup() {
+      if (isInitialStartup == null) {
+          isInitialStartup = isInitialStartup(sqlService);
+      }
+      return isInitialStartup;
   }
 
     /**
@@ -744,6 +728,22 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
    public JobBeanWrapper getJobBeanWrapper(String beanWrapperId) {
       return getBeanJobs().get(beanWrapperId);
    }
+
+    @Override
+    public boolean isAutoProvisioning() {
+        /*
+         Determine whether or not to load the jobs defined in the initialJobSchedules list. These jobs will be loaded
+         under the following conditions:
+            1) the server configuration property "scheduler.loadjobs" is "true"
+            2) "scheduler.loadjobs" is "init" and this is the first startup for the scheduler (eg. this is a new Sakai instance)
+         "scheduler.loadjobs" is set to "init" by default
+       */
+        String loadJobs = serverConfigurationService.getString(SCHEDULER_LOADJOBS, "init").trim();
+
+        boolean loadInitSchedules = (("init".equalsIgnoreCase(loadJobs) && isInitialStartup) ||
+                "true".equalsIgnoreCase(loadJobs));
+        return loadInitSchedules;
+    }
 
     public void setJobFactory(JobFactory jobFactory) {
         this.jobFactory = jobFactory;
