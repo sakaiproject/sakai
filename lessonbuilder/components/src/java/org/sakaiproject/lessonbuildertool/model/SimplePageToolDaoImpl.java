@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
@@ -94,6 +95,7 @@ import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.util.LessonsSubNavBuilder;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -1872,7 +1874,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 				" p2.releaseDate AS pageReleaseDate," +
 				" log.complete AS completed," +
 				" i.required," +
-				" i.prerequisite" +
+				" i.prerequisite," +
+				" i.groups" +
 				" FROM lesson_builder_pages p" +
 				" INNER JOIN SAKAI_SITE_TOOL s" +
 				"   ON p.toolId = s.page_id" +
@@ -1893,7 +1896,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			fields[i+1] = pageIds.get(i);
 		}
 
-		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll);
+		ArrayList groups = new ArrayList();
+		try {
+			Collection coll = siteService.getSite(siteId).getGroupsWithMember(userId);
+			Iterator<Group> iterator = coll.iterator();
+			while(iterator.hasNext()){
+				Group currGroup = iterator.next();
+				groups.add(currGroup.getId());
+			}
+		}catch(Exception impossible){
+			log.error("Exception getting groups for site: " + impossible);
+		}
+		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(siteId, canSeeAll, groups);
 
 		sqlService.dbRead(sql, fields, new SqlReader() {
 			public Object readSqlResultRecord(final ResultSet result) {
