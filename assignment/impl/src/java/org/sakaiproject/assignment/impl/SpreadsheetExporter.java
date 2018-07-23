@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
@@ -92,10 +93,17 @@ class CsvExporter extends SpreadsheetExporter {
 
     private final ByteArrayOutputStream gradesBAOS;
     private final CSVWriter gradesBuffer;
+    private static final String BOM = "\uFEFF";
 
     CsvExporter(String title, String gradeType, String csvSep) {
         gradesBAOS = new ByteArrayOutputStream();
-        gradesBuffer = new CSVWriter(new OutputStreamWriter(gradesBAOS), csvSep.charAt(0));
+        OutputStreamWriter osw = new OutputStreamWriter(gradesBAOS, Charset.forName("UTF-8"));
+        try {
+            osw.write(BOM);
+        } catch (IOException e) {
+            // tried
+        }
+        gradesBuffer = new CSVWriter(osw, csvSep.charAt(0));
         addRow(title, gradeType);
         addRow("");
     }
