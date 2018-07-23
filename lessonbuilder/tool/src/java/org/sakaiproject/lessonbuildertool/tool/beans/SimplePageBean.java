@@ -1734,7 +1734,7 @@ public class SimplePageBean {
 				continue;
 			    }
 			}
-			if (after) {
+			if (after && item.getPageId() >= 0) {
 			    item.setSequence(item.getSequence() + 1);
 			    simplePageToolDao.quickUpdate(item);
 			}
