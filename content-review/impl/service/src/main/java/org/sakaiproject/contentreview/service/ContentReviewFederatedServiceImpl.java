@@ -112,8 +112,7 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 			List<String> configProviders = Arrays.asList(configuredProviders.get());
 			for(ContentReviewService provider : providers) {
 				for(String configProviderName : configProviders) {
-					if(configProviderName.equals(provider.getServiceName())
-							|| Math.abs(configProviderName.hashCode()) == provider.getProviderId().intValue()) {
+					if(Math.abs(configProviderName.hashCode()) == provider.getProviderId().intValue()) {
 						enabledProviders.add(provider.getProviderId().intValue());
 					}
 				}
