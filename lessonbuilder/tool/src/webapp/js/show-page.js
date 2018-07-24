@@ -147,6 +147,8 @@ $(document).ready(function() {
 			section.slideToggle();
 			setCollapsedStatus($(this), null); // toggle
 			doIndents();
+            $('.shortAnswerInput').attr('style', '');
+            $('.shortAnswerInput').parent().attr('style', '');
 		}
 	});
 
