@@ -1,7 +1,7 @@
 <!-- start: chef_assignments_instructor_list_deleted_assignments.vm  -->
 <div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "Assignment.mode_list_removed_assignments" )
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 
 	<div class="page-header">
 		<h1>

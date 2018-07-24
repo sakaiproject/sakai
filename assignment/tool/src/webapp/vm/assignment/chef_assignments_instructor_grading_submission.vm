@@ -43,7 +43,7 @@
         </div>
     #end
     #if ($alertMessage)
-        <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+        <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
         <div style="display:block;clear:both"></div>#end
 
     ## the form
