@@ -433,7 +433,7 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 	public String toString()
 	{
 		return "[" + ((m_id == null) ? "" : m_id) + " | " + ((m_server == null) ? "" : m_server) + " | " + ((m_user == null) ? "" : m_user)
-				+ " | " + ((m_ip == null) ? "" : m_ip) + " | " + ((m_userAgent == null) ? "" : m_userAgent) + " | " + m_start.toString()
+				+ " | " + ((m_ip == null) ? "" : m_ip) + " | " + ((m_userAgent == null) ? "" : m_userAgent) + " | " + m_start
 				+ " ]";
 	}
 
