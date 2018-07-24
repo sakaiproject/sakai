@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -2176,6 +2177,10 @@ public abstract class BasicSqlService implements SqlService
 				else if (field instanceof Date) {
 					Date d = (Date) field;
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), m_cal, pos);
+				}
+				else if (field instanceof Instant) {
+					Instant instant = (Instant) field;
+					sqlServiceSql.setTimestamp(pstmt, new Timestamp(instant.toEpochMilli()), m_cal, pos);
 				}
 				else if (field instanceof Long) {
 					long l = (Long) field;
