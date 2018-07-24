@@ -48,7 +48,6 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import javax.faces.component.*;
 import java.util.ArrayList;
 import java.util.List;
 

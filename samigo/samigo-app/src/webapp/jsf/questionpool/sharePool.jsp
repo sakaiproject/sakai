@@ -53,7 +53,7 @@ function checkUpdate()
 }
 
 </script>
-<samigo:script path="/../library/js/spinner.js"/>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
       </head>
 <body onload="collapseAllRows();flagRows();disabledButton();<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">

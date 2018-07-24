@@ -20,7 +20,7 @@
 --%>
 -->
 
-<samigo:script path="/../library/webjars/jquery-blockui/2.65/jquery.blockUI.js"/>
+<script type="text/javascript" src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
 
 <script type="text/javascript">
      var honorPledgeIsChecked = true;

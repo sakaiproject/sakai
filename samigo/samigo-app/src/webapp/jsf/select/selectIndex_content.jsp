@@ -37,7 +37,7 @@
 
     <!--JAVASCRIPT -->
     <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
-    <samigo:script path="/js/naturalSort.js"/>
+    <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
     <script type="text/JavaScript">
         $(document).ready(function() {
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {

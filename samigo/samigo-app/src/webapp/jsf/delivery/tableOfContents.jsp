@@ -32,7 +32,7 @@
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
-    <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
+    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
     <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
     <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
     </head>

@@ -9,8 +9,8 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{sectionActivityMessages.section_activity_report}"/></title>
-      <samigo:script path="/js/eventInfo.js"/>
-      <samigo:stylesheet path="/css/tool_sam.css"/>
+      <script type="text/javascript" src="/samigo-app/js/eventInfo.js"></script>
+      <link rel="stylesheet" type="text/css" href="/samigo-app/css/tool_sam.css">
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 

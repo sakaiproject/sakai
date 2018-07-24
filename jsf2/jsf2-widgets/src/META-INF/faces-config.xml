@@ -50,6 +50,16 @@
   </component>
   <!-- Popup and selectCommand not included -->
 
+  <component>
+    <component-type>org.sakaiproject.Pager</component-type>
+    <component-class>org.sakaiproject.jsf2.component.PagerComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.FlowState</component-type>
+    <component-class>org.sakaiproject.jsf2.component.FlowStateComponent</component-class>
+  </component>
+
   <!-- =================== Renderers ============== -->
 
   <render-kit>
@@ -94,6 +104,12 @@
         <component-family>javax.faces.Output</component-family>
         <renderer-type>org.sakaiproject.SeparatedList</renderer-type>
         <renderer-class>org.sakaiproject.jsf2.renderer.SeparatedListRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+        <component-family>javax.faces.Input</component-family>
+        <renderer-type>org.sakaiproject.Pager</renderer-type>
+        <renderer-class>org.sakaiproject.jsf2.renderer.PagerRenderer</renderer-class>
     </renderer>
 
   </render-kit>

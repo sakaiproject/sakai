@@ -43,16 +43,10 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>samigo-qti</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>javax.faces</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>1.2_15-06</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.faces</groupId>
-			<artifactId>jsf-impl</artifactId>
-			<version>1.2_15-06</version>
-		</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.jsf2</groupId>
+            <artifactId>jsf2-app</artifactId>
+        </dependency>
         <dependency>
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
