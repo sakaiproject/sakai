@@ -65,7 +65,7 @@
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.17</sakai.tika.version>
+    <sakai.tika.version>1.18</sakai.tika.version>
     <sakai.tomcat.version>8.5.31</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
@@ -102,8 +102,8 @@
     <!-- These should only be updated when the webjars version is updated -->
     <ckeditor.autosave.version>278c922c6d8529edd15a2b2c11b574fb4320e0c2</ckeditor.autosave.version>
     <ckeditor.wordcount.version>136ba881ddcff5aa029e3648c69358c15a982afc</ckeditor.wordcount.version>
-    <ckeditor.a11ychecker.version>1.1.0</ckeditor.a11ychecker.version>
-    <ckeditor.balloonpanel.version>4.6.2</ckeditor.balloonpanel.version>
+    <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
+    <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
     <ckeditor.image2.version>4.9.1</ckeditor.image2.version>
     
   </properties>

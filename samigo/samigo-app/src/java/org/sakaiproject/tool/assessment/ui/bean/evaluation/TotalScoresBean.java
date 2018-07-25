@@ -35,15 +35,18 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
 
+import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
@@ -61,7 +64,6 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
-import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>Description: class form for evaluating total scores</p>
@@ -90,10 +92,14 @@ public class TotalScoresBean
   public static final int CALLED_FROM_EXPORT_LISTENER = 6;
   public static final int CALLED_FROM_NOTIFICATION_LISTENER = 7;
 
-  private static final String DELETE_RESTRICTED = "samigo.removeSubmission.restricted";
-  private ResourceProperties siteProperties = null;
-  private boolean sitePropertyExists = false;
-  private boolean delete_is_restricted = false;
+  private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+  private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+  private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+
+  private static final String SAK_PROP_DELETE_RESTRICTED = "samigo.removeSubmission.restricted";
+  private static final boolean SAK_PROP_DELETE_RESTRICTED_DEFAULT = false;
+  
+  private boolean deleteRestrictedForCurrentSite = false;
  
     /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
@@ -166,42 +172,25 @@ public class TotalScoresBean
 	protected void init() {
         defaultSearchString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "search_default_student_search_string");
 
-                try {
-                    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		try {
+			Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			boolean sitePropertyExists = false;
+			if (site != null) {
+				ResourceProperties siteProperties = site.getProperties();
+				if (siteProperties != null) {
+					String prop = StringUtils.trimToEmpty(siteProperties.getProperty(SAK_PROP_DELETE_RESTRICTED));
+					sitePropertyExists = !prop.isEmpty();
+					deleteRestrictedForCurrentSite = StringUtils.equalsIgnoreCase(prop, "true");
+				}
+			}
 
-                    if (site != null) {
-                        siteProperties = site.getProperties();
-                        if (siteProperties != null) {
-                            String prop = siteProperties.getProperty(DELETE_RESTRICTED);
-                            if (prop != null) {
-                                sitePropertyExists = true;
-                                if (prop.toLowerCase().equals("true")) {
-                                   // Submission deletion is restricted
-                                   delete_is_restricted = true;
-                                } else {
-                                   // Submission deletion is not restricted
-                                   delete_is_restricted = false;
-                                }
-                            }
-                        } else {
-                            sitePropertyExists = false;
-                        }
-                    }
+			if (!sitePropertyExists) {
+				deleteRestrictedForCurrentSite = serverConfigurationService.getBoolean(SAK_PROP_DELETE_RESTRICTED, SAK_PROP_DELETE_RESTRICTED_DEFAULT);
+			}
 
-                    if (!sitePropertyExists) {
-                        String s = ServerConfigurationService.getString(DELETE_RESTRICTED);
-                        if (s != null && s.toLowerCase().equals("true")) {
-                            // Submission deletion is restricted
-                            delete_is_restricted = true;
-                        } else {
-                            // Submission deletion is not restricted
-                            delete_is_restricted = false;
-                        }
-                    }
-
-                } catch (Exception ex) {
-                    log.warn(ex.getMessage(), ex);
-                }
+		} catch (Exception ex) {
+			log.warn(ex.getMessage(), ex);
+		}
 
 		if (searchString == null) {
 			searchString = defaultSearchString;
@@ -1241,7 +1230,7 @@ public class TotalScoresBean
 		this.isAnyAssessmentGradingAttachmentListModified = isAnyAssessmentGradingAttachmentListModified;
 	}
 
-        public boolean getRestrictedDelete() {
-            return delete_is_restricted;
-        }
+	public boolean getRestrictedDelete() {
+		return deleteRestrictedForCurrentSite;
+	}
 }

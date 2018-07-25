@@ -2356,19 +2356,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
 
-						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
-
-						//If groupMembers is empty this should be true (individual) even if this is set to being in a group
-						if (groupMembers == null || groupMembers.isEmpty()) {
-							evalIndividual = true;
-						}
+						boolean groupOwnedIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
 
 						// if we should show form. 
 						// individual owned
 						// group owned and eval group
 						// group owned and eval individual and we're in the group
 						// i.e. not eval individual and we're outside group
-						if(!(evalIndividual && !groupMembers.contains(currentUser))) {
+						if(!(groupOwnedIndividual && !groupMembers.contains(currentUser))) {
 						    UIOutput.make(tableRow, "peerReviewRubricStudent");
 						    UIOutput.make(tableRow, "peer-eval-title-student", String.valueOf(i.getAttribute("rubricTitle")));
 						    UIForm peerForm = UIForm.make(tableRow, "peer-review-form");
@@ -2393,7 +2388,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 
 						    List<Target>evalTargets = new ArrayList<Target>();
-						    if (evalIndividual) {
+						    if (groupOwnedIndividual) {
 							String group = simplePageBean.getCurrentPage().getGroup();
 							if (group != null)
 							    group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
@@ -2426,7 +2421,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // for old format entries always need page owner or evaluee
 						    // for new format when evaluating page need groupId
 						    String groupId = null;
-						    if (i.isGroupOwned() && !evalIndividual)
+						    if (i.isGroupOwned() && !groupOwnedIndividual)
 							groupId = simplePageBean.getCurrentPage().getGroup();
 
 						    for (Target target: evalTargets) {
@@ -2437,7 +2432,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// current data to show to target, all evaluations of target
 							// But first see if we should show current data. Only show
 							// user data evaluating him
-							if ((i.isGroupOwned() && !evalIndividual && groupMembers.contains(currentUser)) ||
+							if ((i.isGroupOwned() && !groupOwnedIndividual && groupMembers.contains(currentUser)) ||
 							    target.id.equals(currentUser)) {
 							
 							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id, groupId);
@@ -2445,7 +2440,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    if(evaluations!=null) {
 								for(SimplePagePeerEvalResult eval : evaluations) {
 								    // for individual eval only show results for that one
-									if (evalIndividual && !currentUser.equals(eval.getGradee()))
+									if (groupOwnedIndividual && !currentUser.equals(eval.getGradee()))
 									    continue;
 									Long rowId = eval.getRowId();
 									if (rowId == 0L)
@@ -2490,8 +2485,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 							// keep this is sync with canSubmit in SimplePageBean.savePeerEvalResult
 							boolean canSubmit = (!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
-									     i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
-									     evalIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
+									     i.isGroupOwned() && !groupOwnedIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+									     groupOwnedIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
 
 							makePeerRubric(entry, i, makeStudentRubric, selectedCells, 
 								       dataMap, canSubmit);
@@ -2503,8 +2498,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // group and (not in group or gradingself)
 						    // group individual eval and in group
 						    if(!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
-						       i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
-						       evalIndividual && groupMembers.contains(currentUser)) {
+						       i.isGroupOwned() && !groupOwnedIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+						       groupOwnedIndividual && groupMembers.contains(currentUser)) {
 
 							// can actually submit
 

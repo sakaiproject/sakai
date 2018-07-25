@@ -735,8 +735,8 @@
 								##if ($EnableItemCheckBoxes)  ## SAK-14021. This checks for new ann permission, which is not a requirement to have update and cancel buttons
 									#if ($allow_delete)
 										<p class="act">
-											<input type="submit" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.update")"  accesskey="s" />
-											<input type="reset" class="button" name="reset" id="reset" value="$tlang.getString("gen.cancel")"  accesskey="x" />
+											<input type="submit" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.delete")"  accesskey="s" />
+											<input type="reset" class="button" name="reset" id="reset" value="$tlang.getString("gen.clearSelections")"  accesskey="x" />
 										</p>
 									#end
 								##end

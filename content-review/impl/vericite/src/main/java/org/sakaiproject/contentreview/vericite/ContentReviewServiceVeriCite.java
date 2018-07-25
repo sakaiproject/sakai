@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -562,56 +563,27 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 			}
 		}
 
-		Optional<ContentReviewItem> reviewItem = crqs.getQueuedItem(getProviderId(), contentId);
-		if(score == null){
-			//nothing was found, throw exception for this contentId
-			//remove from queue so that we can start again.
-			if(!preliminarySkipped && needsRequeue(reviewItem)){
-				if(reviewItem.isPresent()){
-					//in order to requeue, we need to delete the old queue:
-					crqs.removeFromQueue(getProviderId(), contentId);
-				}
-				throw new QueueException("No report was found for contentId: " + contentId);
-			}else{
-				return -1;
-			}
-		}else{
-			//update the score in the db so admins can run reports:
-			if(reviewItem.isPresent()){
-				if(reviewItem.get().getReviewScore() == null || reviewItem.get().getReviewScore().intValue() != score.intValue()){
-					//score has changed, update it and save it in the db
-					reviewItem.get().setReviewScore(score);
-					crqs.update(reviewItem.get());
-				}
-			}
-			//score wasn't null and there should have only been one score, so just return that value
-			return score;
-		}
+		return score;
 	}
 	
-	private boolean needsRequeue(Optional<ContentReviewItem> reviewItem){
+	private boolean needsRequeue(ContentReviewItem reviewItem){
 		boolean requeue = false;
-		if(reviewItem.isPresent()){
-			//see whether the queue is old or reties failed:
-			Date submitted = reviewItem.get().getDateSubmitted();
-			if(submitted == null){
-				//check if there is another date
-				submitted = reviewItem.get().getDateQueued();
-			}
-			if(submitted != null){
-				//see how long it has been since queue status
-				Calendar cal = Calendar.getInstance();
-				cal.add(Calendar.HOUR, -2);
-				//if it has been over 3 hours, try again
-				if(cal.getTime().after(submitted)){
-					requeue = true;
-				}
-			}else{
-				//something is weird here since dates are missing, just requeue:
+		//see whether the queue is old or reties failed:
+		Date submitted = reviewItem.getDateSubmitted();
+		if(submitted == null){
+			//check if there is another date
+			submitted = reviewItem.getDateQueued();
+		}
+		if(submitted != null){
+			//see how long it has been since queue status
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -2);
+			//if it has been over 3 hours, try again
+			if(cal.getTime().after(submitted)){
 				requeue = true;
 			}
 		}else{
-			//there is no queue item, so create one!
+			//something is weird here since dates are missing, just requeue:
 			requeue = true;
 		}
 		return requeue;
@@ -977,8 +949,32 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 			
 			//Vericite specific work			
 			try {
-				int score = getReviewScore(contentId, item.getTaskId(), null);
+				//get most up to date score
+				Integer scoreInt = getReviewScore(contentId, item.getTaskId(), null);
+				int score = scoreInt == null ? -1 : scoreInt.intValue();
 				log.debug(" getReviewScore returned a score of: {} ", score);
+				//update the score in the db if it changed (update status as well)
+				if(item.getReviewScore() == null || item.getReviewScore().intValue() != score){
+					//score has changed, update it and save it in the db
+					item.setReviewScore(score);
+					if(score < 0) {
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+					}else {
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+					}
+					crqs.update(item);
+				}
+
+				if(score < 0 && needsRequeue(item)){
+					//need to make sure this content item get's requeued
+					ContentResource cr = contentHostingService.getResource(contentId);
+					if(cr != null) {
+						log.info("Requeuing contentId: " + contentId);
+						//in order to requeue, we need to delete the old queue:
+						removeFromQueue(contentId);
+						queueContent(item.getUserId(), item.getSiteId(), item.getTaskId(), Arrays.asList(cr));
+					}
+				}
 			} catch(Exception e) {
 				log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
 			}
@@ -1004,7 +1000,7 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	}
 
 	@Override
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		// TODO Auto-generated method stub
 		
 	}

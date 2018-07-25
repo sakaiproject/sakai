@@ -1734,7 +1734,7 @@ public class SimplePageBean {
 				continue;
 			    }
 			}
-			if (after) {
+			if (after && item.getPageId() >= 0) {
 			    item.setSequence(item.getSequence() + 1);
 			    simplePageToolDao.quickUpdate(item);
 			}
@@ -8514,6 +8514,10 @@ public class SimplePageBean {
 		    log.info("unable to get members of group {}", group);
 		}
 	    }
+		if (groupMembers == null) {
+			return new ArrayList<String>();
+		}
+		        
 	    return groupMembers;
 	}	    
 

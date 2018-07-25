@@ -406,5 +406,5 @@ public interface ContentReviewService {
 	 * @param customParam
 	 * @param providerId
 	 */
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam);
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam);
 }

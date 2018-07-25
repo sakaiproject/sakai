@@ -7513,6 +7513,7 @@ extends VelocityPortletStateAction
 			isOnWorkspaceTab());
 			
 			sessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST,calRefList);
+			boolean dateDesc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 			
 			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
 			
@@ -7523,7 +7524,8 @@ extends VelocityPortletStateAction
 														printType,
 														timeRangeString,
 														UserDirectoryService.getCurrentUser().getDisplayName(),
-														dailyStartTime);
+														dailyStartTime,
+														dateDesc);
 			
 			bar_print.add(new MenuEntry(rb.getString("java.print"), "").setUrl(accessPointUrl));
 		}
