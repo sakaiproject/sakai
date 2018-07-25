@@ -3065,14 +3065,12 @@ public class SimplePageBean {
 		}
 
 		SimplePageItem i = findItem(itemId);
-		
 		if (i == null) {
 			return "failure";
 		} else {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
-
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
 			i.setNextPage(subpageNext);
@@ -3121,6 +3119,7 @@ public class SimplePageBean {
 						page.setReleaseDate(releaseDate);
 					else
 						page.setReleaseDate(null);
+					page.setHidden(hidePage);
 					update(page);
 				}
 			} else {
