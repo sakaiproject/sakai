@@ -1,5 +1,5 @@
 <!-- start: chef_assignments_instructor_report_submissions.vm  -->
-<div class="portletBody">
+<div class="portletBody sakai-asn-grade-report">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
 	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
@@ -10,63 +10,37 @@
 		</h1>
 	</div>
 
-	<div class="navPanel row">
-		<div class="viewNav col-xs-12">
+	#if ($!submissions.size() == 0)
+		<p class="instruction">$tlang.getString("gen.theare2")</p>
+	#else
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
 			#if (!$hasAtLeastOneAnonAssignment)
-			<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-			<input type="hidden" name="option" id="option" value="x" />
-			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
-			<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-				#if( $!groups.hasNext() )
-				<div class="instruction">
-					$tlang.getString("view_instruction")
-				</div>
-				<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-
-				<div class="spinnerBesideContainer">
-					<select id="view" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
-
-					#if (!$showSubmissionByFilterSearchOnly)
-						<option value="all" #if($!viewString.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
-					#else
-						<option value="" >$tlang.getString('please_select_group')</option>
+				#if ($!groups.hasNext())
+					#define($viewSelectOptions)
+						#if (!$showSubmissionByFilterSearchOnly)
+							<option value="all" #if($!viewString.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+						#else
+							<option value="" >$tlang.getString('please_select_group')</option>
+						#end
+						#foreach($aGroup in $groups)
+							<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+						#end
 					#end
-					#foreach($aGroup in $groups)
-						<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
-					#end
-					</select>
-				</div>
-				<p />
+					#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
 				#end
 
-				<label for="$form_search" class="skip">$tlang.getString("search")</label>
-				<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )"
-					name="search" id="search" type="text" class="searchField" size="20" />
-				<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
-				#if (($!searchString) && (!$searchString.equals("")))
-					<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
-				#end
-				<p />
-
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-
+				#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
 			#end
-			#if ($!submissions.size() == 0)
-				<p class="instruction">
-					$tlang.getString("gen.theare2")
-				</p>
-			#else
-			<br />
-			<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
-
-
+			</div>
+			<div class="sakai-table-toolBar-centre">
+				<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
+			</div>
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
+			</div>
 		</div>
-		<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
-		#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
-		</div>
-	</div>
+
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
 				<p class="instruction">

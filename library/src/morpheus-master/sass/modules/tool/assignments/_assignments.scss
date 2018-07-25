@@ -486,4 +486,11 @@
 		border: 1px solid #aaa;
 		padding: 0.6em;
 	}
+
+	.sakai-asn-controlRow {
+		@include justify-content(space-between);
+		@include align-items(flex-end);
+		-webkit-flex-wrap: wrap;
+		flex-wrap: wrap;
+	}
 }
