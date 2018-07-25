@@ -176,6 +176,7 @@ table{
 		}
 	}
 
+	/* specific breakpoint based on width of pager controls, allows them to stack when there isn't enough room */
 	@media all and (max-width: 400px)
 	{
 		.sakai-table-pagerControls
