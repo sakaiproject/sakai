@@ -161,7 +161,7 @@ public class SiteManageServiceImpl implements SiteManageService {
         if (pageList != null) {
             for (SitePage page : pageList) {
                 List<ToolConfiguration> pageToolList = page.getTools();
-                if (pageToolList != null) {
+                if ((pageToolList != null) && !pageToolList.isEmpty()) {
                     Tool tool = pageToolList.get(0).getTool();
                     String toolId = tool != null ? tool.getId() : "";
                     if (toolId.equalsIgnoreCase("sakai.resources")) {
