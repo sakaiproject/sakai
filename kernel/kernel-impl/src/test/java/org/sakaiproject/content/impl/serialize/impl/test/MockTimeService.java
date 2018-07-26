@@ -21,7 +21,9 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.sakaiproject.time.api.Time;
@@ -198,6 +200,18 @@ public class MockTimeService implements TimeService
 	 */
 	public TimeRange newTimeRange(Time start, Time end)
 	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String dateFormatLong(Date date, Locale locale) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String dateTimeFormatLong(Date date, Locale locale) {
 		// TODO Auto-generated method stub
 		return null;
 	}

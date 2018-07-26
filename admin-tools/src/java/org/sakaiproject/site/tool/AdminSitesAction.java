@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.admintool.util.AdminUtil;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -71,6 +70,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -124,6 +124,7 @@ public class AdminSitesAction extends PagedResourceActionII
 	private SiteService siteService;
 	private EventTrackingService eventTrackingService;
 	private SecurityService securityService;
+	private UserTimeService userTimeService;
 
 	public AdminSitesAction() {
 		super();
@@ -135,6 +136,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		siteService = ComponentManager.get(SiteService.class);
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 		securityService = ComponentManager.get(SecurityService.class);
+		userTimeService = ComponentManager.get(UserTimeService.class);
 		
 		
 	}
@@ -470,7 +472,7 @@ public class AdminSitesAction extends PagedResourceActionII
 	{
 		// put the service in the context (used for allow update calls on each site)
 		context.put("service", siteService);
-		context.put("adminUtil", AdminUtil.class);
+		context.put("userTimeService", userTimeService);
 
 		// prepare the paging of realms
 		List sites = prepPage(state);
@@ -568,7 +570,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("tlang", rb);
 		Site site = (Site) state.getAttribute("site");
 		context.put("site", site);
-		context.put("adminUtil", AdminUtil.class);
+		context.put("userTimeService", userTimeService);
 
 		// name the html form for user edit fields
 		context.put("form-name", "site-form");

@@ -24,8 +24,10 @@ package org.sakaiproject.time.impl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -1007,6 +1009,16 @@ public class BasicTimeService implements TimeService
 		rv.set(GregorianCalendar.MILLISECOND, ms);
 
 		return rv;
+	}
+
+	@Override
+	public String dateFormatLong(Date date, Locale locale) {
+		return userTimeService.dateFormatLong(date, locale);
+	}
+
+	@Override
+	public String dateTimeFormatLong(Date date, Locale locale) {
+		return userTimeService.dateTimeFormatLong(date, locale);
 	}
 
 }

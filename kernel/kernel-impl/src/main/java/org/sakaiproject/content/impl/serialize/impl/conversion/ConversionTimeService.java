@@ -21,7 +21,9 @@
 
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.sakaiproject.time.api.Time;
@@ -182,6 +184,16 @@ public class ConversionTimeService implements TimeService
 	 */
 	public TimeRange newTimeRange(Time start, Time end)
 	{
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateFormatLong(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateTimeFormatLong(Date date, Locale locale) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 

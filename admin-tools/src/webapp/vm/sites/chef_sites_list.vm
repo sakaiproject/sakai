@@ -142,7 +142,7 @@
 						<div class="created-by">
 							<strong>$tlang.getString("sitlis.cre")</strong>
 							<small>
-								#if ($site.CreatedDate) $adminUtil.dateFormatLong($site.CreatedDate, $tlang.Locale) #end
+								#if ($site.CreatedDate) $userTimeService.dateFormatLong($site.CreatedDate, $tlang.Locale) #end
 								#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
 							</small>
 						</div>
