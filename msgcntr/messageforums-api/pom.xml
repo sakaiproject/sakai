@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>msgcntr</artifactId>
 		<groupId>org.sakaiproject.msgcntr</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>12.3</version>
 	</parent>
 	<name>Sakai Message Forums API</name>
 	<groupId>org.sakaiproject.msgcntr</groupId>
