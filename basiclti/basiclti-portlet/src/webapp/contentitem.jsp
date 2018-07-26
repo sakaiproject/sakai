@@ -4,8 +4,9 @@
 <%@ page import="org.sakaiproject.tool.api.Tool" %>
 <%@ page import="org.sakaiproject.portal.util.PortalUtils" %>
 <%@ page import="org.sakaiproject.portal.util.CSSUtils" %>
+<%@ page import="org.sakaiproject.portal.util.ToolUtils" %>
 <title>IMS ContentItem Experimental Support</title>
-<%= CSSUtils.getCssToolSkinLink((String) null) %>        
+<%= CSSUtils.getCssToolSkinLink((String) null, ToolUtils.isInlineRequest(request)) %>
 <script src="<%= PortalUtils.getScriptPath() %>headscripts.js<%= PortalUtils.getCDNQuery() %>"></script>
 <style>
 .card {
@@ -43,7 +44,7 @@
 <%= (String) request.getAttribute("launch_html") %>
 <% } else { %>
 <div id="box">
-<% for (Tool tool : (List<Tool>) request.getAttribute("tools") ) { %>
+<% if (request != null && request.getAttribute("tools") != null) { for (Tool tool : (List<Tool>) request.getAttribute("tools") ) { %>
 <div style="border: 2px, solid, red;" class="card">
 <p>
 <span class="icon-<%= tool.getId().replace(".","-") %>">
@@ -52,7 +53,7 @@
 <center><a href="content.item?install=<%= tool.getId() %>" class="btn btn-default" role="button">Details</a></center>
 </p>
 </div>
-<% } %>
+<% }} %>
 </div>
 <%= PortalUtils.includeLatestJQuery("content.item") %>
 <script type="text/javascript" src="<%= request.getContextPath() %>/static/waterfall-light.js"></script>
