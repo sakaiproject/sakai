@@ -61,6 +61,11 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_SITE_TERM_EID = "term_eid";
 	
 	/**
+	 * property name for mathjax
+	 */
+	public final static String PROP_SITE_MATHJAX_ALLOWED = "mathJaxAllowed";
+
+	/**
 	 * @return the user who created this.
 	 */
 	User getCreatedBy();
