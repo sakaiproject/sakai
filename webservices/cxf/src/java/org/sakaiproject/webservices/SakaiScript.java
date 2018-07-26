@@ -4179,15 +4179,15 @@ public class SakaiScript extends AbstractWebService {
         try {
             List<String> siteIdsList = siteService.getSiteIds(SelectionType.ANY, null, criteria,
                     null, SortType.NONE, null);
-            StringBuilder sb = new StringBuilder();
-            if (siteIdsList != null && siteIdsList.size() > 0) {
+            if (siteIdsList != null && !siteIdsList.isEmpty()) {
+            	StringBuilder sb = new StringBuilder();
                 for (String siteId : siteIdsList) {
                     sb.append(siteId).append(",");
                 }
                 siteIDs = sb.substring(0, sb.length() - 1);
             }
         } catch (Throwable t) {
-            log.warn(this + ".findSiteIDs: Error encountered " + t.getMessage(), t);
+            log.warn("Error encountered {}", t.getMessage());
         }
         return siteIDs;
     }
