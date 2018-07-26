@@ -112,8 +112,7 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 			List<String> configProviders = Arrays.asList(configuredProviders.get());
 			for(ContentReviewService provider : providers) {
 				for(String configProviderName : configProviders) {
-					if(configProviderName.equals(provider.getServiceName())
-							|| Math.abs(configProviderName.hashCode()) == provider.getProviderId().intValue()) {
+					if(Math.abs(configProviderName.hashCode()) == provider.getProviderId().intValue()) {
 						enabledProviders.add(provider.getProviderId().intValue());
 					}
 				}
@@ -307,7 +306,7 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	}
 
 	@Override
-	public void webhookEvent(HttpServletRequest request, String providerName, Optional<String> customParam) {
-		providers.stream().filter(crs -> crs.getServiceName().equals(providerName)).collect(Collectors.toList()).get(0).webhookEvent(request, providerName, customParam);		
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
+		providers.stream().filter(crs -> crs.getProviderId().intValue() == providerId).collect(Collectors.toList()).get(0).webhookEvent(request, providerId, customParam);		
 	}
 }

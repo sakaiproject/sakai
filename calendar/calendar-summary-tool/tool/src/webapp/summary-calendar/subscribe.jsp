@@ -55,7 +55,6 @@
 			<h:commandButton
 				action="#{SubscribeBean.delete}"
 				value="#{msgs.ical_opaqueurl_delete}"
-				styleClass="active"
 				immediate="true"
 				/>        
 			<h:commandButton

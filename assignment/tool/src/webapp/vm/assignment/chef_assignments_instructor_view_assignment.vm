@@ -22,7 +22,7 @@
 	<h3>
 		$tlang.getString("viewassig.viewass1")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 		#if ($allowAddAssignment && !$hideAssignmentFlag)
 		## show assignment content
 		<p class="discTria">
@@ -183,7 +183,7 @@
 			#end
 			<tr> 
 				<th>
-					$tlang.getString("gen.alert")
+					<strong>$tlang.getString("gen.alert")</strong>
 				</th>
 				<td>
 					#if ($!announced == "true")

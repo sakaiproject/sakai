@@ -13,7 +13,6 @@
 <script>includeLatestJQuery('edit_bulk.jsp');</script>
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
 
 	<script type="text/javascript">

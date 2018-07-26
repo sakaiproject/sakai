@@ -27,11 +27,11 @@ import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 
 public enum Role {
 
-    ROLE_EDITOR ("rbcs.editor", Arrays.asList(Rubric.class, Criterion.class, Rating.class)),
-    ROLE_ASSOCIATOR ("rbcs.associator", Arrays.asList(ToolItemRubricAssociation.class)),
-    ROLE_EVALUATOR ("rbcs.evaluator", Arrays.asList(Evaluation.class)),
-    ROLE_EVALUEE ("rbcs.evaluee", Collections.emptyList()),
-    ROLE_SUPERUSER ("rbcs.superuser", Collections.emptyList());
+    ROLE_EDITOR ("rubrics.editor", Arrays.asList(Rubric.class, Criterion.class, Rating.class)),
+    ROLE_ASSOCIATOR ("rubrics.associator", Arrays.asList(ToolItemRubricAssociation.class)),
+    ROLE_EVALUATOR ("rubrics.evaluator", Arrays.asList(Evaluation.class)),
+    ROLE_EVALUEE ("rubrics.evaluee", Collections.emptyList()),
+    ROLE_SUPERUSER ("rubrics.superuser", Collections.emptyList());
 
     private String permissionKey;
     private List<Class> authorizedToCreateOrEditResources;

@@ -47,7 +47,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.16.20</sakai.lombok.version>
+    <sakai.lombok.version>1.18.0</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.mail.version>1.6.0</sakai.mail.version>
     <sakai.org.json.version>20171018</sakai.org.json.version>
@@ -68,7 +68,7 @@
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.17</sakai.tika.version>
+    <sakai.tika.version>1.18</sakai.tika.version>
     <sakai.tomcat.version>9.0.8</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
@@ -1794,19 +1794,19 @@
       <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.43</version>
+          <version>5.1.46</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.1.0</version>
+          <version>2.2.5</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.6.3</version>
+        <version>3.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1936,7 +1936,7 @@
         <plugin>
           <groupId>org.sakaiproject.maven.plugins</groupId>
           <artifactId>sakai</artifactId>
-          <version>1.4.4</version>
+          <version>1.4.5</version>
         </plugin>
         <!-- OTHER maven plugins -->
         <plugin>
@@ -2178,7 +2178,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4</version>
+        <version>1.4.1</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -2223,7 +2223,7 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.7.0</version>
         <configuration>
           <!-- <compilerArguments> <verbose /> </compilerArguments> -->
           <source>${sakai.jdk.version}</source>
@@ -2244,7 +2244,7 @@
         <configuration>
           <systemPropertyVariables>
             <!-- disable lombok during tests -->
-	    <lombok.disable>true</lombok.disable>
+            <lombok.disable>true</lombok.disable>
             <!-- Pass through important service-integration test properties. -->
             <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
             <!--suppress MavenModelInspection -->
@@ -2262,10 +2262,14 @@
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- Can be run as mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate at the root -->
+          <!-- Report is put in the target subdirectory. Can be run at the root of this as:
+            mvn -Pdependency-check-support clean install -Dmaven.test.skip=true
+            mvn -Pdependency-check-support org.owasp:dependency-check-maven:purge
+            mvn -Pdependency-check-support org.owasp:dependency-check-maven:aggregate
+          -->
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>3.1.1</version>
+        <version>3.2.1</version>
         <dependencies>
           <dependency>
             <groupId>org.sakaiproject</groupId>
@@ -2278,6 +2282,7 @@
             <!-- This is loaded off the classpath and is provided through the dependency-check-support artifact -->
             <suppressionFile>sakai-suppression.xml</suppressionFile>
           </suppressionFiles>
+          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
         </configuration>
         <executions>
           <execution>

@@ -156,6 +156,20 @@
           <input type="checkbox" name="isLessonsSubNavEnabledForSite" class="onoffswitch-checkbox" id="isLessonsSubNavEnabledForSite" #if($isLessonsSubNavEnabledForSite)checked="checked"#end>
       </div>
     </div>
+    #if ($neoChat == 'true' || $neoChat == 'false')
+    <div class="portalNeochatToggleArea">
+      <label class="onoffswitch-label" for="isPortalNeochatEnabledForSite">
+          $tlang.getString("sinfo.portalneochat.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          #if ($isPortalNeochatEnabledForSite == 'true')
+              <input type="checkbox" name="isPortalNeochatEnabledForSite" class="onoffswitch-checkbox" id="isPortalNeochatEnabledForSite" checked="checked">
+          #else
+              <input type="checkbox" name="isPortalNeochatEnabledForSite" class="onoffswitch-checkbox" id="isPortalNeochatEnabledForSite" #if(!$existSite && $neoChat == 'true')checked="checked"#end>
+          #end
+      </div>
+    </div>
+    #end
     <script>
         $(function() {
             var lessonsSubNavToggleArea = $('.lessonsSubNavToggleArea');

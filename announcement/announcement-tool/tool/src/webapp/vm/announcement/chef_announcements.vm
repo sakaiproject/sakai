@@ -43,7 +43,7 @@
 		
 
 
-	
+<script type="text/javascript" src="/library/js/spinner.js$!{portalCdnQuery}"></script>
 <div class="portletBody container-fluid">
 	#if ($isOnWorkspaceTab.equals("false"))
 		#if($menu && $EnabledMenuItemExists)
@@ -418,101 +418,29 @@
 			#if ($toolId == "sakai.announcements") ##In tool or admin MOTD...			
 
 				#if ($displayOptions.isShowAllColumns())
-					## <h3>$tlang.getString("gen.announcements")</h3>
-
 					<div class="page-header">
 					  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
 					</div>
 
 					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
-					<div class="navPanel">
-						<div class="viewNav">
-							<form name="viewForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="hidden" name="eventSubmit_doView" value="view" />
-								<label for="view">
-									$tlang.getString("view.label")
-								</label>
-								<span class="skip">$tlang.getString("gen.listnavselect")</span>
-								<select id="view" name="view" size="1" onchange="document.viewForm.submit();">
-									<option value="view.all" #if ($!view == "'view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
-									<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
-									##if ($!groups)
-										<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
-										##end 
-								</select>
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
+
+					<div class="sakai-table-toolBar">
+						<div class="sakai-table-filterContainer">
+							#define($viewSelectOptions)
+							<option value="view.all" #if ($!view == "'view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
+							<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
+							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
+							#end
+							#viewFilterPanel("viewFilterForm", "view", $viewSelectOptions, "doView")
 						</div>
 						#if ($messageListVector.iterator().hasNext())
-							<div class="listNav">
-								<div class="instruction">
-									$tlang.getFormattedMessage("gen.viewing.phrase", $topMsgPos, $btmMsgPos, $allMsgNumber)
-								</div>
-								#if ($pagesize != 0)
-									#if ($goFPButton == "true")
-										<form name="firstpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#else
-										<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#end
-									#if ($goPPButton == "true")
-										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)"  accesskey="p" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#else
-										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#end
-								#end
-							
-								<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-									<span class="skip">$tlang.getString("gen.listnavselect")</span>
-                                    <label for="selectPageSize" class="skip">$tlang.getString("gen.select.label")</label>
-									<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
-										<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "5")</option>
-										<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "10")</option>
-										<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "20")</option>
-										<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "50")</option>
-										<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "100")</option>
-										<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getFormattedMessage("gen.show", "200")</option>
-									</select>
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-								</form>
-								#if ($pagesize != 0)
-									#if ($goNPButton == "true")
-										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)"  accesskey="n" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#else
-										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#end
-									#if ($goLPButton == "true")
-										<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#else
-										<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
-											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-										</form>
-									#end
-								#end
-							</div>
-						</div> ##end navPanel
+						<div class="sakai-table-pagerContainer">
+							#pagerPanel("pager1")
+						</div>
+						#end
+					</div> ##end sakai-table-toolBar
+
+					#if ($messageListVector.iterator().hasNext())
 						<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 						<div class="table-responsive">
 							<table class="table table-hover table-striped table-bordered" summary="$tlang.getString('gen.tablecaptionsite')">
@@ -715,7 +643,6 @@
 						</table>
 						</div>
 						#else
-							</div> ##end navPanel
 							<div class="instruction clear">
 								#if ($!view == "view.public")
 									$tlang.getString("gen.therearepublic")
@@ -729,14 +656,14 @@
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#end	
-						
+
 						#if ($messageListVector.iterator().hasNext())
 							#if ($isOnWorkspaceTab.equals("false"))
 								##if ($EnableItemCheckBoxes)  ## SAK-14021. This checks for new ann permission, which is not a requirement to have update and cancel buttons
 									#if ($allow_delete)
 										<p class="act">
-											<input type="submit" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.update")"  accesskey="s" />
-											<input type="reset" class="button" name="reset" id="reset" value="$tlang.getString("gen.cancel")"  accesskey="x" />
+											<input type="submit" class="button_color active" name="eventSubmit_doDeleteannouncement" value="$tlang.getString("gen.delete")"  accesskey="s" />
+											<input type="reset" class="button" name="reset" id="reset" value="$tlang.getString("gen.clearSelections")"  accesskey="x" />
 										</p>
 									#end
 								##end

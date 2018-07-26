@@ -1,11 +1,5 @@
 //.#{$namespace}
 body.is-logged-out{
-	#toolMenuWrap{
-		//top: 0;
-		@media #{$phone}{
-			//top: $header-size;
-		}
-	}
 	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
 		top: $header-size;
 	}
@@ -28,12 +22,6 @@ body.is-logged-out{
 
 	// LHS tool menu collapsed to show icons only and not tool titles.
 	body.#{$namespace}toolMenu-collapsed{
-
-		#content, .Mrphs-container--footer {
-			margin: 0 0 0 0;
-
-		}
-
 		#toolMenuWrap{
 			max-width: #{ $tool-menu-width-collapsed };
 			min-width: #{ $tool-menu-width-collapsed };
@@ -182,6 +170,8 @@ body.is-logged-out{
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
+	min-height: 100vh;											// alternative for browswers who cannot do calculations
+	min-height: calc(100vh - (#{$banner-height} * 2));	// viewport minus the two top banners
 	@include flex-basis( $tool-menu-width );
 	padding: 5px 0 0 0;
 	text-align: center;
@@ -191,6 +181,7 @@ body.is-logged-out{
 	@media #{$phone}{
 		left: -100%;
 		position: absolute;
+		display: none;			// remove the height of the tool menu from the page to reduce the length of the page
 		padding: 0;
 		margin: 0;
 

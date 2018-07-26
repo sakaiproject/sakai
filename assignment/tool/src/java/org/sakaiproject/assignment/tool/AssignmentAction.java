@@ -4764,6 +4764,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         add2ndToolbarFields(data, context);
 
+        context.put("view", MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
+
         return getContext(data).get("template") + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT;
 
     } // build_instructor_view_students_assignment_context
@@ -5267,13 +5269,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         ParameterParser params = data.getParameters();
         String option = params.getString("option");
-        if ("changeView".equals(option)) {
-            doChange_submission_list_option(data);
-        } else if ("search".equals(option)) {
-            state.setAttribute(VIEW_SUBMISSION_SEARCH, params.getString("search"));
-        } else if ("clearSearch".equals(option)) {
-            state.removeAttribute(VIEW_SUBMISSION_SEARCH);
-        } else if ("download".equals(option)) {
+        if ("download".equals(option)) {
             // go to download all page
             doPrep_download_all(data);
         } else if ("upload".equals(option)) {
@@ -5285,6 +5281,20 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
     } // doView_submission_list_option
+
+	public void doView_submission_list_search(RunData data)
+	{
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        ParameterParser params = data.getParameters();
+        state.setAttribute(VIEW_SUBMISSION_SEARCH, params.getString("search"));
+	}
+
+	public void doView_submission_list_search_clear(RunData data)
+	{
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+        state.removeAttribute(VIEW_SUBMISSION_SEARCH);
+	}
 
     /**
      * Action is to view the content of one specific assignment submission
@@ -7044,29 +7054,27 @@ public class AssignmentAction extends PagedResourceActionII {
             // the grade point
             String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
             state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-            if (gradePoints != null) {
-                if (gradeType == SCORE_GRADE_TYPE) {
-                    if ((gradePoints.length() == 0)) {
-                        // in case of point grade assignment, user must specify maximum grade point
-                        addAlert(state, rb.getString("plespethe3"));
-                    } else {
-                        Integer scaleFactor = assignmentService.getScaleFactor();
-                        try {
-                            if (StringUtils.isNotEmpty(assignmentRef)) {
-                                Assignment assignment = assignmentService.getAssignment(assignmentId);
-                                if (assignment != null) {
-                                    scaleFactor = assignment.getScaleFactor();
-                                }
+            if (gradePoints != null && gradeType == SCORE_GRADE_TYPE) {
+                if (gradePoints.length() == 0) {
+                    // in case of point grade assignment, user must specify maximum grade point
+                    addAlert(state, rb.getString("plespethe3"));
+                } else {
+                    Integer scaleFactor = assignmentService.getScaleFactor();
+                    try {
+                        if (StringUtils.isNotEmpty(assignmentRef)) {
+                            Assignment assignment = assignmentService.getAssignment(assignmentId);
+                            if (assignment != null && assignment.getScaleFactor() != null) {
+                                scaleFactor = assignment.getScaleFactor();
                             }
-                        } catch (IdUnusedException | PermissionException e) {
-                            log.error(e.getMessage());
                         }
-
-                        validPointGrade(state, gradePoints, scaleFactor);
-                        // when scale is points, grade must be integer and less than maximum value
-                        gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
-                        state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+                    } catch (IdUnusedException | PermissionException e) {
+                        log.error(e.getMessage());
                     }
+
+                    validPointGrade(state, gradePoints, scaleFactor);
+                    // when scale is points, grade must be integer and less than maximum value
+                    gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
+                    state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
                 }
             }
         }
@@ -13474,6 +13482,16 @@ public class AssignmentAction extends PagedResourceActionII {
         //This is used so that the "Zip Error" message is only printed once
 
         boolean zipError = false;
+
+        // generate error when there is no grade file yet it was selected
+        if (!zipHasGradeFile && hasGradeFile) {
+            if ("csv".equals(gradeFileFormat)) {
+                addAlert(state, rb.getString("uploadall.alert.nocsv"));
+            } else {
+                addAlert(state, rb.getString("uploadall.alert.noexcel"));
+            }
+            zipError = true;
+        }
 
         // generate error when there is no grade file and no folder structure
         if (!zipHasGradeFile && !zipHasFolder) {

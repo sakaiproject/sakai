@@ -63,12 +63,12 @@ public class MainController {
 	
 	@RequestMapping(value = "/webhooks", method = RequestMethod.POST)
 	public void webhooks(HttpServletRequest request, HttpServletResponse response, Model model, 
-			@RequestParam String providerName, @RequestParam(required=false) String custom) {
-		if(StringUtils.isEmpty(providerName)) {
+			@RequestParam Integer providerId, @RequestParam(required=false) String custom) {
+		if(providerId == null) {
 			throw new InvalidParameterException("Missing providerName");
 		}
 		log.info("webhook provider and custom: " + custom);
-		contentReviewService.webhookEvent(request, providerName, Optional.ofNullable(custom));
+		contentReviewService.webhookEvent(request, providerId, Optional.ofNullable(custom));
 	}
 	
 	@RequestMapping(value = "/viewreport", method = RequestMethod.GET)

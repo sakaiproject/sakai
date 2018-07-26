@@ -7,73 +7,33 @@
 		</h1>
 	</div>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		#if ($!studentMembers.size() == 0)
 			<p class="instruction" style="clear:both">
 				$tlang.getString("theisnostudent")
 			</p>
 		#else
-			<p class="instruction" style="clear:both">
-				$tlang.getString("stulistsunbm.chotri")
-			</p>
-		<div class="navPanel">
-			<div class="viewNav">
-				<form id="viewFormList" name="viewFormList" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doView" value="view" />
-					<div class="spinnerBesideContainer">
-						<label for="view">$tlang.getString("gen.view2")</label>
-						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select name="view" id="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewFormList', null, null, null );">
-							<option value="lisofass1" >$!tlang.getString('lisofass1')</option>
-							<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
-						</select>
-					</div>
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-
-				#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
-					<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-						<input type="hidden" name="option" id="option" value="x" />
-						<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
-						#if( $!groups.hasNext() )
-						<div class="instruction">
-							$tlang.getString("view_instruction")
-						</div>
- 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-
- 						<div class="spinnerBesideContainer">
-							<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">ASN.disableControls( null, 'studentLink' );ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
-
-							#if (!$showSubmissionByFilterSearchOnly)
-								<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
-							#else
-								<option value="" >$tlang.getString('please_select_group')</option>
-							#end
- 							#foreach($aGroup in $groups)
- 								<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
- 							#end
- 							</select>
-						</div>
-						#end
- 						<p />
-
-					#if( !$hasAtLeastOneAnonAssignment )
-					<label for="$form_search" class="skip">$tlang.getString("search")</label>
-					<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )"
-						name="search" id="search" type="text" class="searchField" size="20" />
-					<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
-					#if (($!searchString) && (!$searchString.equals("")))
-						<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
+			#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
+				#define($viewSelectOptions)
+					#if (!$showSubmissionByFilterSearchOnly)
+						<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+					#else
+						<option value="" >$tlang.getString('please_select_group')</option>
 					#end
+					#foreach($aGroup in $groups)
+						<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 					#end
-
-					#end
-
-
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
+				#end
+				#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
+			#end
+			#if( !$hasAtLeastOneAnonAssignment )
+				#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
+			#end
 			</div>
 		</div>
+
 		<form name="studentAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($assignments.size()==0)
 				<p class="instruction">

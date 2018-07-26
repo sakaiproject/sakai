@@ -32,7 +32,7 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	//relative path since it will be used within Sakai
 	private static final String REDIRECT_URL_TEMPLATE =  "/content-review-tool/viewreport?contentId=%s&assignmentRef=%s";
 	//full path since it will be used externally
-	private static final String WEBHOOK_URL_TEMPLATE = "%scontent-review-tool/webhooks?providerName=%s";
+	private static final String WEBHOOK_URL_TEMPLATE = "%scontent-review-tool/webhooks?providerId=%s";
 	
 	@Override
 	public Instant getUserEULATimestamp(String userId) {
@@ -131,6 +131,6 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 		if(!StringUtils.endsWith(sb.toString(), "/")) {
 			sb.append("/");
 		}
-		return String.format(WEBHOOK_URL_TEMPLATE, sb.toString(), getServiceName()) + (customParam.isPresent() ? "&custom=" + customParam.get() : "");
+		return String.format(WEBHOOK_URL_TEMPLATE, sb.toString(), getProviderId()) + (customParam.isPresent() ? "&custom=" + customParam.get() : "");
 	}
 }

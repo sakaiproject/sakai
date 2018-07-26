@@ -58,8 +58,20 @@
 						$tlang.getString("gen.cpr")
 					</th>
 					<td>
-## special escape to fix the &#169; copyright symbol placed by ResourcesAction before 1.1.05 -ggolden
-						<span class="chefPre">$validator.escapeHtmlFixCopyright($item.copyrightInfo)</span>
+						#if (!$item.copyrightStatus.isEmpty() && $item.copyrightStatus != $publicdomain)
+							#set ($found = false)
+							#foreach ($copyrightType in $copyrightTypes)
+								#if ($item.copyrightStatus == $copyrightType.type)
+									#set ($found = true)
+									<span class="chefPre">$validator.escapeHtml($copyrightType.text)</span>
+								#end
+							#end
+							#if (!$found)
+								<span class="chefPre">$tlang.getString("copyright.notDefined")</span>
+							#end
+						#else
+							<span class="chefPre">$tlang.getString("copyright.notDefined")</span>
+						#end
 					</td>
 				</tr>
 			#end

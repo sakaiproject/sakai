@@ -34,7 +34,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -703,7 +702,7 @@ public class PublishedItemData
 					answerKeys.add(
 						question.getSequence()
 							+ ":"
-							+ Character.toString(SamigoConstants.ALPHABET.charAt(answersSorted.size())));
+							+ rb.getString("choice_labels").split(":")[answersSorted.size()]);
 				}
 			}
 

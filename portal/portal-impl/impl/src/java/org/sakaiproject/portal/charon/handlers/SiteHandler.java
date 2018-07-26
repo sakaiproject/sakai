@@ -557,7 +557,7 @@ public class SiteHandler extends WorksiteHandler
 				+ req.getServletPath(), getUrlFragment(),
 				/* resetTools */false);
 
-		portal.includeBottom(rcontext);
+		portal.includeBottom(rcontext, site);
 
 		//Log the visit into SAKAI_EVENT - begin
 		try{
