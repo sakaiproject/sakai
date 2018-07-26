@@ -42,7 +42,6 @@ public class MathJaxEnabler
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
     private static final boolean ENABLED_SAKAI_NEW_SITE_DEFAULT = false;
     
-    private static final String SITE_PROP_MATHJAX_ENABLED = "mathJaxAllowed";
     private static final String STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE = "isMathJaxEnabledForSite";
     private static final String CONTEXT_IS_MATHJAX_INSTALLED_KEY = "isMathJaxInstalled";
     private static final String CONTEXT_SAKAI_SERVICE_KEY = "sakaiService";
@@ -138,9 +137,9 @@ public class MathJaxEnabler
             boolean isMathJaxEnabledForSite = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
             ResourcePropertiesEdit props = site.getPropertiesEdit();
             if (isMathJaxEnabledForSite) {
-                props.addProperty(SITE_PROP_MATHJAX_ENABLED, Boolean.TRUE.toString());
+                props.addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, Boolean.TRUE.toString());
             } else {
-                props.removeProperty(SITE_PROP_MATHJAX_ENABLED);
+                props.removeProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
             }
         }
 
@@ -158,7 +157,7 @@ public class MathJaxEnabler
     	if (ENABLED_AT_SYSTEM_LEVEL && site != null && state != null) {
     		
     		String enabled = String.valueOf(ENABLED_AT_NEW_SITE_CREATION_LEVEL);
-        	site.getProperties().addProperty(SITE_PROP_MATHJAX_ENABLED, enabled);
+        	site.getProperties().addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, enabled);
         	state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(enabled));
     		
     		return true;
@@ -180,19 +179,19 @@ public class MathJaxEnabler
             return false;
         }
 
-        Boolean mathJaxEnabled = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
-        if (mathJaxEnabled == null)
+        Boolean mathJaxAllowed = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
+        if (mathJaxAllowed == null)
         {
             return false;
         }
 
-        if (mathJaxEnabled.booleanValue())
+        if (mathJaxAllowed.booleanValue())
         {
-            site.getPropertiesEdit().addProperty(SITE_PROP_MATHJAX_ENABLED, Boolean.toString(true));
+            site.getPropertiesEdit().addProperty(Site.PROP_SITE_MATHJAX_ALLOWED, Boolean.toString(true));
         }
         else
         {
-            site.getPropertiesEdit().removeProperty(SITE_PROP_MATHJAX_ENABLED);
+            site.getPropertiesEdit().removeProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
         }
 
         return true;
@@ -258,7 +257,7 @@ public class MathJaxEnabler
 
         if (mathJaxEnabled == null) // no state information, read from site properties instead
         {
-            boolean enabled = Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_MATHJAX_ENABLED));
+            boolean enabled = Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
             state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(enabled));
             return enabled;
         }

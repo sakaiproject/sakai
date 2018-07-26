@@ -66,7 +66,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ToolPortal extends HttpServlet
 {
     // SAK-22384
-    private static final String MATHJAX_ENABLED = "mathJaxAllowed";
     private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
@@ -306,15 +305,12 @@ public class ToolPortal extends HttpServlet
 
                 if (site != null)
                 {                           
-                    String strMathJaxEnabledForSite = site.getProperties().getProperty(MATHJAX_ENABLED);
-                    if (StringUtils.isNotBlank(strMathJaxEnabledForSite))
+                    boolean mathJaxAllowedForSite = Boolean.parseBoolean(site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED));
+                    if (mathJaxAllowedForSite)
                     {
-                        if (Boolean.valueOf(strMathJaxEnabledForSite))
-                        {
-                            // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
-                            headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
-                            headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n";
-                        }
+                        // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
+                        headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
+                        headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n";
                     }
                 }
             }
