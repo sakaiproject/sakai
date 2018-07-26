@@ -194,5 +194,6 @@ public interface LessonEntity {
 
     // siteId for the object
     public String getSiteId();
-
+    
+    public void setSimplePageBean(SimplePageBean simplePageBean); 
 }
