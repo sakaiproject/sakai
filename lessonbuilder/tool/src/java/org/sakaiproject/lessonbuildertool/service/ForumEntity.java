@@ -123,6 +123,8 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
 
     private LessonEntity nextEntity = null;
+    private SimplePageBean simplePageBean;
+
     public void setNextEntity(LessonEntity e) {
 	nextEntity = e;
     }
@@ -1211,5 +1213,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return null;
 
     }
+	@Override
+	public void setSimplePageBean(SimplePageBean simplePageBean) {
+		this.simplePageBean = simplePageBean;
+	}
 
 }

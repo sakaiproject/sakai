@@ -205,10 +205,22 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.simplePageBean = bean;
       this.simplePageToolDao = dao;
       this.siteId = bean.getCurrentSiteId();
-      this.quiztool = q;
-      this.topictool = l;
-      this.bltitool = b;
-      this.assigntool = a;
+      if (q != null) {
+    	  this.quiztool = q;
+    	  this.quiztool.setSimplePageBean(bean);
+      }
+      if (l != null) {
+    	  this.topictool = l;
+    	  this.topictool.setSimplePageBean(bean);
+      }
+      if (b != null) {
+    	  this.bltitool = b;
+    	  this.bltitool.setSimplePageBean(bean);
+      }
+      if (a != null) {
+    	  this.assigntool = a;
+    	  this.assigntool.setSimplePageBean(bean);
+      }
       this.importtop = itop;
   }
 
