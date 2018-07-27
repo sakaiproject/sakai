@@ -21,6 +21,8 @@
 
 package org.sakaiproject.event.api;
 
+import java.time.Instant;
+
 import org.sakaiproject.time.api.Time;
 
 /**
@@ -146,6 +148,8 @@ public interface UsageSession extends Comparable
 	 * Access the start time of the session
 	 * 
 	 * @return The time the session started.
+	 * 
+	 * @deprecated {@link #getStartInstant()}
 	 */
 	Time getStart();
 
@@ -153,6 +157,21 @@ public interface UsageSession extends Comparable
 	 * Access the end time of the session.
 	 * 
 	 * @return The time the session ended. If still going, this will .equals() the getStart() value.
+	 * @deprecated {@link #getEndInstant()}
 	 */
 	Time getEnd();
+	
+	/**
+	 * Access the start time of the session
+	 * 
+	 * @return The time the session started.
+	 */
+	Instant getStartInstant();
+	
+	/**
+	 * Access the end time of the session.
+	 * 
+	 * @return The time the session ended. If still going, this will .equals() the getStart() value.
+	 */
+	Instant getEndInstant();
 }
