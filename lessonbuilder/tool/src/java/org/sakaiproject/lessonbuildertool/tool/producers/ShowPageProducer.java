@@ -1353,22 +1353,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    // for first item, if wasn't break, process it
 				}
 				
-				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId()))			
+				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
+						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
 				{
 					// is a subpage		
+															
+					printedSubpages.add(Long.valueOf(i.getSakaiId()));
 					
-					if(!printedSubpages.contains(Long.valueOf(i.getSakaiId())))
-					{					
-						printedSubpages.add(Long.valueOf(i.getSakaiId()));
-						
-						List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
-						printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
-								container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
-								M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
-								addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
-						
-						subPageTitleContinue = true;
-					}
+					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
+					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
+							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
+							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
+							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
+					
+					subPageTitleContinue = true;					
 				}
 				else
 				{
