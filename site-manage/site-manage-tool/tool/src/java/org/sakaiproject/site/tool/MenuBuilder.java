@@ -28,6 +28,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
@@ -334,6 +335,18 @@ public class MenuBuilder
             {
                 // 'User Audit Log'
                 menu.add( buildMenuEntry( rl.getString( "java.userAuditEventLog" ), "doUserAuditEventLog", activeTab.equals( SiteInfoActiveTab.USER_AUDIT_LOG ) ) );
+            }
+
+            if(allowUpdateSite){
+                List<SitePage> pages = site.getPages();
+                for(SitePage page : pages){
+                    if (page.isHomePage()) {
+                        //now we know this site has a home page.
+                        menu.add(new MenuEntry(rl.getString("manage.overview"),
+                                "doManageOverview"));
+                        break;
+                    }
+                }
             }
         }
 

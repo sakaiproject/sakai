@@ -19,6 +19,7 @@
 		<configuration name="help.id" value="sakai.chat" type="final" />
 
         <configuration name="functions.require" value="site.visit" />
+		<category name="widget" />
 
 	</tool>
 
