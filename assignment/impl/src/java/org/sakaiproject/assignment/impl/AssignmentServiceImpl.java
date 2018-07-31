@@ -159,6 +159,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import org.w3c.dom.Document;
@@ -847,8 +849,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
 
                 String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-                // event for tracking
-                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                    public void afterCommit() {
+                        // event for tracking
+                        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
+                    }
+                });
             }
         }
         return assignment;
@@ -892,8 +898,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         assignmentRepository.softDeleteAssignment(assignment.getId());
 
-        // we post the same event as remove assignment
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+            public void afterCommit() {
+                // we post the same event as remove assignment
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+            }
+        });
     }
 
     // TODO removing related content from other tools shouldn't be the concern for assignments service
@@ -1035,7 +1045,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
             String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                public void afterCommit() {
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionReference, true));
+                }
+            });
 
             log.debug("New submission: {} added to assignment: {}", submission.getId(), assignmentId);
             return submission;
@@ -1115,7 +1129,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+            public void afterCommit() {
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
+            }
+        });
 
         assignment.setDateModified(Instant.now());
         assignmentRepository.update(assignment);
@@ -1132,7 +1151,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (!allowUpdateSubmission(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT_SUBMISSION, null);
         }
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+            public void afterCommit() {
+                eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_SUBMISSION, reference, true));
+            }
+        });
 
         submission.setDateModified(Instant.now());
         assignmentRepository.updateSubmission(submission);
@@ -1142,7 +1165,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Instant dateSubmitted = submission.getDateSubmitted();
         if (!submission.getSubmitted()) {
             // if the submission is not submitted then saving a submission event
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                public void afterCommit() {
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SAVE_ASSIGNMENT_SUBMISSION, reference, true));
+                }
+            });
         } else if (dateReturned == null && !submission.getReturned() && (dateSubmitted == null || submission.getDateModified().toEpochMilli() - dateSubmitted.toEpochMilli() > 1000 * 60)) {
             // make sure the last modified time is at least one minute after the submit time
             if (!(StringUtils.trimToNull(submission.getSubmittedText()) == null && submission.getAttachments().isEmpty() && StringUtils.trimToNull(submission.getGrade()) == null && StringUtils.trimToNull(submission.getFeedbackText()) == null && StringUtils.trimToNull(submission.getFeedbackComment()) == null && submission.getFeedbackAttachments().isEmpty())) {
@@ -1154,7 +1181,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
                             // graded and saved before releasing it
                             Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
-                            eventTrackingService.post(event);
+                            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                                public void afterCommit() {
+                                    eventTrackingService.post(event);
+                                }
+                            });
                         } catch (UserNotDefinedException e) {
                             log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                         }
@@ -1170,7 +1201,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
                     	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
                     	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
-                    	eventTrackingService.post(event);
+                        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                            public void afterCommit() {
+                                eventTrackingService.post(event);
+                            }
+                        });
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                     }
@@ -1187,7 +1222,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     LRS_Statement statement = getStatementForUnsubmittedAssignmentGraded(reference, submission.getAssignment(), submission, user);
                     // releasing a submitted assignment or releasing grade to an unsubmitted assignment
                     Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
-                    eventTrackingService.post(event);
+                    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                        public void afterCommit() {
+                            eventTrackingService.post(event);
+                        }
+                    });
                 } catch (UserNotDefinedException e) {
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
                 }
@@ -1196,7 +1235,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             // submitting a submission
             Assignment a = submission.getAssignment();
             LRS_Statement statement = getStatementForSubmitAssignment(a.getId(), serverConfigurationService.getAccessUrl(), a.getTitle());
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement));
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter () {
+                public void afterCommit() {
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement));
+                }
+            });
 
             // only doing the notification for real online submissions
             if (submission.getAssignment().getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
