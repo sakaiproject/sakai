@@ -1,5 +1,7 @@
 package org.sakaiproject.time.api;
 
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -23,4 +25,22 @@ public interface UserTimeService {
      * @return true if successful
      */
     boolean clearLocalTimeZone(String userId);
+    
+    /**
+     * Gets the date formatter with the given formatting style for the default Long locale.
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  dateFormatLong(Date date, Locale locale);
+    
+    /**
+     * Gets the date/time formatter with the given formatting style for the default Long locale. 
+     * @param date
+     * @param locale
+     * @return
+     */
+    public String  dateTimeFormatLong(Date date, Locale locale);
+    
+    
 }
