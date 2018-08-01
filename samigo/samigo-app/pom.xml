@@ -163,7 +163,7 @@
         </dependency>
 		<dependency>
             <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <artifactId>javax.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

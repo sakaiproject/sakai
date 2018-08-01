@@ -547,8 +547,8 @@
       </dependency>
       <dependency>
         <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <version>1.1.1</version>
+        <artifactId>javax.activation-api</artifactId>
+        <version>1.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
