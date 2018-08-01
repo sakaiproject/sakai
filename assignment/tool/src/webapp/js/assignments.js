@@ -1022,3 +1022,25 @@ ASN.handleRubricsTotalPointChange = function (points)
         gradeField.val(points);
     }
 }
+
+ASN.changeVisibleDate = function() 
+{
+	if($("#allowVisibleDateToggle").prop( "checked" ))
+	{
+		$('#new_assignment_visiblemonth').val($('#new_assignment_openmonth').val());
+		$('#new_assignment_visibleday').val($('#new_assignment_openday').val());
+		$('#new_assignment_visibleyear').val($('#new_assignment_openyear').val());
+		$('#new_assignment_visiblehour').val($('#new_assignment_openhour').val());
+		$('#new_assignment_visiblemin').val($('#new_assignment_openmin').val());
+		$('.visibleDatePanel').show();
+		ASN.resizeFrame();
+	}
+	else {
+		$('#new_assignment_visiblemonth').val('');
+		$('#new_assignment_visibleday').val('');
+		$('#new_assignment_visibleyear').val('');
+		$('#new_assignment_visiblehour').val('');
+		$('#new_assignment_visiblemin').val('');
+		$('.visibleDatePanel').hide();
+	}
+}
