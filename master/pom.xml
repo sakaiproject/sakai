@@ -45,7 +45,6 @@
     <sakai.woodstox.version>5.0.3</sakai.woodstox.version>
     <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
-    <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.0</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
@@ -972,12 +971,6 @@
         <groupId>org.codehaus.castor</groupId>
         <artifactId>castor</artifactId>
         <version>1.1.1</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.jcr</groupId>
-        <artifactId>jcr</artifactId>
-        <version>${sakai.jcr.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
