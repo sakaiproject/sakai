@@ -983,7 +983,7 @@
       <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>
-        <version>1.0</version>
+        <version>3.0.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

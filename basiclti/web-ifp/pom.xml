@@ -47,7 +47,6 @@
     <dependency>
       <groupId>javax.portlet</groupId>
       <artifactId>portlet-api</artifactId>
-      <version>1.0</version>
     </dependency>
 <!-- velocity and dependencies (logkit, oro, collections) -->
     <dependency>
