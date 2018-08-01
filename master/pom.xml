@@ -299,8 +299,8 @@
       <!-- common/lib -->
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.2</version>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

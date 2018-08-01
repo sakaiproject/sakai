@@ -95,7 +95,7 @@
 		</dependency>
 		<dependency>
 		  <groupId>javax.servlet.jsp</groupId>
-		  <artifactId>jsp-api</artifactId>
+		  <artifactId>javax.servlet.jsp-api</artifactId>
 		</dependency>
 		<dependency>
 		  <groupId>net.sf.json-lib</groupId>
