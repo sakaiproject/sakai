@@ -38,7 +38,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -113,7 +113,7 @@ public class GradeSheetExporter {
             // no assignments to download
             log.warn("No gradable assignments can be downloaded for reference: {}", reference);
         } else {
-            Workbook wb = new SXSSFWorkbook();
+            Workbook wb = new XSSFWorkbook();
             Sheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 
             // cell 0,0 - title
