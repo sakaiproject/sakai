@@ -1988,7 +1988,7 @@
               <link>http://docs.oracle.com/javaee/5/api/</link>
               <link>http://junit.sourceforge.net/javadoc/</link>
               <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-              <link>http://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
+              <link>http://commons.apache.org/proper/commons-collections/javadocs/api-3.2.2/</link>
             </links>
             <breakiterator>true</breakiterator>
             <verbose>false</verbose>
