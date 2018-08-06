@@ -8677,7 +8677,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setOpenDate(openTime);
         a.setDueDate(dueTime);
         a.setDropDeadDate(dueTime);
-        a.setVisibleDate(visibleTime != null ? visibleTime : openTime);
+        a.setVisibleDate(visibleTime);
         if (closeTime != null) a.setCloseDate(closeTime);
 
         Map<String, String> p = a.getProperties();
@@ -11286,22 +11286,6 @@ public class AssignmentAction extends PagedResourceActionII {
         int month;
         int day;
         int year;
-
-        if (serverConfigurationService.getBoolean("assignment.visible.date.enabled", false)) {
-            Instant tVisible = t.plusSeconds(visibleDateOffset);
-            LocalDateTime ldtVisible = LocalDateTime.ofInstant(tVisible, ZoneId.systemDefault());
-            minute = ldtVisible.getMinute();
-            hour = ldtVisible.getHour();
-            month = ldtVisible.getMonthValue();
-            day = ldtVisible.getDayOfMonth();
-            year = ldtVisible.getYear();
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEMONTH, month);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEDAY, day);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEYEAR, year);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEHOUR, hour);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLEMIN, minute);
-            state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
-        }
 
         // open date is shifted forward by the offset
         Instant tOpen = t.plusSeconds(openDateOffset);
