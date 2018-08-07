@@ -35,8 +35,8 @@ $PBJQ(document).ready(function(){
     };
 
     // Setup the initial ARIA attributes
-    $PBJQ('#roleSwitchDropDownToggle').attr('aria-hidden', 'false');
-    $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'true').attr('aria-label', 'submenu');
+    $PBJQ('#roleSwitchDropDownToggle').attr('aria-hidden', 'false').attr('aria-haspopup', 'true');
+    $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'true');
 
     $PBJQ('#roleSwitchDropDownToggle').click( function(){
       $PBJQ('#roleSwitchDropDown').css('right', $PBJQ(window).width() - 20 - ($PBJQ('#roleSwitchDropDownToggle').offset().left + $PBJQ('#roleSwitchDropDownToggle').width()));
@@ -62,7 +62,7 @@ $PBJQ(document).ready(function(){
 
   $PBJQ('#roleSwitchSelect').on("change", function(){
     if( $PBJQ('option:selected', this ).text() !== '' ){
-      document.location = $PBJQ('option:selected', this ).val();
+      document.location = $PBJQ('option:selected', this ).val() + '#roleSwitch';
     }else{
       $PBJQ(this)[0].selectedIndex = 0;
     }
