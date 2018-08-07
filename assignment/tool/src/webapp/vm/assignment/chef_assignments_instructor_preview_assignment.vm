@@ -132,19 +132,10 @@
 								#if ($!withGrade)
 									<tr>
 										<th>
-												$!tlang.getString('addtogradebook')
+											$!tlang.getString('addtogradebook')
 										</th>
 										<td>
-											#if($!gradebookChoice.equals("no"))
-												## not associating with gradebook
-												$tlang.getString("grading.no")
-											#elseif($!gradebookChoice.equals("add"))
-												## add new entry to gradebook
-												$tlang.getString("grading.add") $tlang.getString("grading.ofcategory") $!categoryTable.get($!value_Category)
-											#elseif($!gradebookChoice.equals("associate"))
-												## associated with one existing entry in Gradebook
-												$tlang.getString("grading.associate"):$validator.escapeHtml($!associateGradebookAssignment)
-											#end
+											$validator.escapeHtml($!gradeName)
 										</td>
 									</tr>
 								#end
