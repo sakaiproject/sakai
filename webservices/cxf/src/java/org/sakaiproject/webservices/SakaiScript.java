@@ -4160,7 +4160,38 @@ public class SakaiScript extends AbstractWebService {
         return Xml.writeDocumentToString(dom);
     }
 
-
+    /**
+     * Get all site IDs for which the criteria fully or partially matches the title, the description or the skin.
+     *
+     * @param sessionid     valid session
+     * @param criteria      string to search for
+     * @return The site IDs
+     */
+    @WebMethod
+    @Path("/findSitesByTitle")
+    @Produces("text/plain")
+    @GET
+    public String findSitesByTitle(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "criteria", partName = "criteria") @QueryParam("criteria") String criteria) {
+        Session s = establishSession(sessionid);
+        String siteIDs = "";
+        try {
+            List<String> siteIdsList = siteService.getSiteIds(SelectionType.ANY, null, criteria,
+                    null, SortType.NONE, null);
+            if (siteIdsList != null && !siteIdsList.isEmpty()) {
+            	StringBuilder sb = new StringBuilder();
+                for (String siteId : siteIdsList) {
+                    sb.append(siteId).append(",");
+                }
+                siteIDs = sb.substring(0, sb.length() - 1);
+            }
+        } catch (Throwable t) {
+            log.warn("Error encountered {}", t.getMessage());
+        }
+        return siteIDs;
+    }
+    
     /**
      * Get the placement ID for a given tool in the given site
      *
