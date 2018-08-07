@@ -3132,8 +3132,9 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("value_assignment_id", assignmentId);
             Assignment a = getAssignment(assignmentId, "build_instructor_preview_assignment_context", state);
             if (a != null) {
+            	context.put("gradeName", getGradeName(a, assignmentId));
                 context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
-                context.put("isDraft", Boolean.valueOf(a.getDraft()));
+                context.put("isDraft", a.getDraft());
                 context.put("value_GradePoints", displayGrade(state, maxGrade, a.getScaleFactor()));
             }
         } else {
@@ -9299,6 +9300,30 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // doEdit_Assignment
 
+    
+	private String getGradeName(final Assignment a, final String assignmentReference) {
+		String gradeName = null;
+		final String gradebookChoice = a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+
+		if (gradebookChoice.equals(GRADEBOOK_INTEGRATION_NO)) {
+			// not associating with gradebook
+			gradeName = rb.getString("grading.no");
+		} else if (gradebookChoice.equals(GRADEBOOK_INTEGRATION_ADD)) {
+			// add new entry to gradebook
+			gradeName = rb.getString("grading.add") + rb.getString("grading.ofcategory")
+					+ categoryTable().get(getAssignmentCategoryAsInt(a));
+		} else if (gradebookChoice.equals(GRADEBOOK_INTEGRATION_ASSOCIATE)) {
+			// associated with one existing entry in Gradebook
+			if (assignmentReference.equals(a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))) {
+				gradeName = rb.getString("grading.associate") + ": " + a.getTitle();
+			} else {
+				gradeName = rb.getString("grading.associate") + ": "
+						+ a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+			}
+		}
+		return gradeName;
+	}
+    
     public List<String> getSubmissionRepositoryOptions() {
         List<String> submissionRepoSettings = new ArrayList<String>();
         String[] propertyValues = serverConfigurationService.getStrings("turnitin.repository.setting");
