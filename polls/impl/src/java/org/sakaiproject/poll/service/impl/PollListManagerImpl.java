@@ -173,6 +173,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             newPoll = true;
             t.setId(idManager.createUuid());
         }
+        if(t.getCreationDate() == null) {
+            t.setCreationDate(new Date());
+        }
 
         try {
             dao.save(t);
