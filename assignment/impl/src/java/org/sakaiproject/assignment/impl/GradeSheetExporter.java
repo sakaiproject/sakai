@@ -38,7 +38,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -113,7 +113,28 @@ public class GradeSheetExporter {
             // no assignments to download
             log.warn("No gradable assignments can be downloaded for reference: {}", reference);
         } else {
-            Workbook wb = new XSSFWorkbook();
+        	// site members excluding those who can add assignments
+            // hashmap which stores the Excel row number for particular user
+
+            String refToCheck = group == null ? site.getReference() : group.getReference();
+            List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(refToCheck);
+            List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
+            boolean isNotesEnabled = candidateDetailProvider != null &&
+                    site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
+            // For details of all the users in the site.
+            Map<String, Submitter> submitterMap = new HashMap<>();
+            members.sort(new UserComparator());
+            for (User user : members) {
+                // put user displayid and sortname in the first two cells
+                Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
+                submitterMap.put(user.getId(), submitter);
+                if (isNotesEnabled) {
+                    Optional<List<String>> additionalNotes = candidateDetailProvider.getAdditionalNotes(user, site);
+                    submitter.setNotes(additionalNotes);
+                }
+            }
+            
+            Workbook wb = new SXSSFWorkbook(6 + members.size());
             Sheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 
             // cell 0,0 - title
@@ -154,27 +175,6 @@ public class GradeSheetExporter {
             cell = row.createCell(cellColumnNum);
             cell.setCellStyle(style);
             cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
-
-            // site members excluding those who can add assignments
-            // hashmap which stores the Excel row number for particular user
-
-            String refToCheck = group == null ? site.getReference() : group.getReference();
-            List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(refToCheck);
-            List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
-            boolean isNotesEnabled = candidateDetailProvider != null &&
-                    site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
-            // For details of all the users in the site.
-            Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserComparator());
-            for (User user : members) {
-                // put user displayid and sortname in the first two cells
-                Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
-                submitterMap.put(user.getId(), submitter);
-                if (isNotesEnabled) {
-                    Optional<List<String>> additionalNotes = candidateDetailProvider.getAdditionalNotes(user, site);
-                    submitter.setNotes(additionalNotes);
-                }
-            }
 
             // We have to build a Map of the results so that we can sort them afterwards so that we don't expose data
             // by having the anonymous results in the same position as the original listing.
