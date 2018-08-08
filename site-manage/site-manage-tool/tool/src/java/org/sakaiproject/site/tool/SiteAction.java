@@ -3689,13 +3689,7 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	public static boolean isSiteMyWorkspace(Site site) {
-		if (SiteService.isUserSite(site.getId())) {
-			if (SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId())) {
-				return true;
-			}
-		}
-
-		return false;
+		return SiteService.isUserSite(site.getId()) && SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId());
 	}
 
 	/**

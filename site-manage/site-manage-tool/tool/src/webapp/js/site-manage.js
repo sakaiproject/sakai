@@ -1354,6 +1354,20 @@ function setupImportSitesForm($form) {
     });
 };
 
+function updateParticipants(buttonElement)
+{
+    SPNR.disableControlsAndSpin(buttonElement, null);
+    document.participantForm.submit();
+    return false;
+}
+
+function cancel(url, buttonElement)
+{
+    SPNR.disableControlsAndSpin(buttonElement, null);
+    location = encodeURI(url);
+    return false;
+}
+
 $(document).ready(function() {
     var $form = $("form[name='importSitesForm']");
     if ($form.length > 0) {

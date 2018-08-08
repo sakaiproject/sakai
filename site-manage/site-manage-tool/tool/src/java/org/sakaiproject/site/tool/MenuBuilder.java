@@ -235,14 +235,11 @@ public class MenuBuilder
             }
         }
 
-        if( allowUpdateSiteMembership && !isMyWorkspace )
+        // If the add participant helper is available, not stealthed and not hidden, show the tab
+        if( allowUpdateSiteMembership && !isMyWorkspace && SiteAction.notStealthOrHiddenTool( SiteAction.getAddUserHelper( site ) ) )
         {
-            // If the add participant helper is available, not stealthed and not hidden, show the tab
-            if( SiteAction.notStealthOrHiddenTool( SiteAction.getAddUserHelper( site ) ) )
-            {
-                // 'Add Participants'
-                menu.add( buildMenuEntry( rl.getString( "java.addp" ), "doParticipantHelper", activeTab.equals( SiteInfoActiveTab.ADD_PARTICIPANTS ) ) );
-            }
+            // 'Add Participants'
+            menu.add( buildMenuEntry( rl.getString( "java.addp" ), "doParticipantHelper", activeTab.equals( SiteInfoActiveTab.ADD_PARTICIPANTS ) ) );
         }
 
         if( allowViewRoster && !isMyWorkspace )
