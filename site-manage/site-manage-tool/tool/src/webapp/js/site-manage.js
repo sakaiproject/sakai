@@ -567,15 +567,15 @@ utils.endDialog = function(ev, dialogTarget){
 utils.checkEnableUnjoin = function()
 {
     var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
-    $( "#reset" ).prop( "disabled", disabled );
-    $( "#unjoin" ).prop( "disabled", disabled );
+    $( ".reset" ).prop( "disabled", disabled );
+    $( ".unjoin" ).prop( "disabled", disabled );
     if( disabled )
     {
-        $( "#unjoin" ).removeClass( "active" );
+        $( ".unjoin" ).removeClass( "active" );
     }
     else
     {
-        $( "#unjoin" ).addClass( "active" );
+        $( ".unjoin" ).addClass( "active" );
     }
 };
 

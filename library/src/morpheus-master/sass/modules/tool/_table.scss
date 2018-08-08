@@ -37,6 +37,14 @@ table{
 	}
 }
 
+.sakai-table-noResultsMessage {
+	border: 1px solid #ddd;
+	border-top: 0 none;
+	padding: $standard-spacing;
+	color: #414141;
+	line-height: 3;
+}
+
 .sakai-table-toolBar
 {
 	@include display-flex();
@@ -81,9 +89,9 @@ table{
 			@include flex-grow(1);
 		}
 
-		input[type=button],	input[type=submit],
+		input[type=button], input[type=submit],
 		input[type=button]:disabled, input[type=submit]:disabled,
-		button,	button:disabled
+		button, button:disabled
 		{
 			margin: 0 4px 0 0;
 		}
@@ -147,9 +155,23 @@ table{
 		@include display-flex();
 		width: 100%;
 
-		input:last-of-type
+		input:last-of-type, button:last-of-type
 		{
 			margin-right: 0;
+		}
+	}
+
+	.sakai-table-buttonContainer {
+		@include display-flex();
+		@include flex-wrap(wrap);
+		@include justify-content(center);
+		input:last-of-type, button:last-of-type
+		{
+			margin-right: 0;
+		}
+
+		input[type=button], input[type=submit], button {
+			margin: 0 calc(#{$standard-spacing} / 2) $standard-spacing 0 !important;
 		}
 	}
 
@@ -212,6 +234,48 @@ table{
 		.sakai-table-searchFilter .sakai-table-searchFilter-searchField
 		{
 			width: 100px;
+		}
+	}
+}
+
+.sakai-table-toolBar.sakai-table-toolBar-bottom
+{
+	@include align-items(flex-start);
+
+	.sakai-table-filterContainer
+	{
+		margin: $standard-spacing auto 0 0;
+	}
+
+	.sakai-table-buttonContainer
+	{
+		margin-top: $standard-spacing;
+	}
+
+	.sakai-table-pagerContainer
+	{
+		@include display-flex();
+		@include flex-direction(column-reverse);
+		margin: $standard-spacing 0 0 auto;
+
+		.sakai-table-pagerLabel
+		{
+			padding: 3px calc(#{$standard-spacing} / 2) 0 calc(#{$standard-spacing} / 2);
+		}
+	}
+
+	@media #{$tablet}
+	{
+		@include align-items(center);
+
+		.sakai-table-filterContainer
+		{
+			margin-right: 0;
+		}
+
+		.sakai-table-pagerContainer
+		{
+			margin-left: 0;
 		}
 	}
 }

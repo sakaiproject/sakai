@@ -80,9 +80,9 @@ SPNR.insertSpinnerAfter = function( clickedElement, escapeList, overrideSpinnerL
  * 
  * If no escapes are needed, pass in null for the escapeList parameter.
  * 
- * @param {type} clickedElement - the element being interacted with
- * @param {type} escapeList - array of IDs you do not wish to be disabled
- * @param {type} allocatedID - the ID of the div manually added to the page to contain the spinner
+ * @param {DOM Element} clickedElement - the element being interacted with
+ * @param {Array[String]} escapeList - array of IDs you do not wish to be disabled
+ * @param {String} allocatedID - the ID of the div manually added to the page to contain the spinner
  */
 SPNR.insertSpinnerInPreallocated = function( clickedElement, escapeList, allocatedID )
 {
@@ -331,4 +331,3 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
         parent.insertBefore( newElement, element );
     }
 };
-

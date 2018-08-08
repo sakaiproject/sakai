@@ -1,5 +1,6 @@
 ##<!-- $Header: Exp $ -->
 <div class="portletBody">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("sitinfimp.reuse.user")
 	</h3>

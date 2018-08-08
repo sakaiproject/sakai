@@ -542,7 +542,9 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 		boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
 		context.put("goLPButton", Boolean.toString(goLPButton));
 
-		context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
+		int pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+		context.put("pagesize", Integer.toString(pageSize));
+		context.put("pagesizeInt", pageSize);
 		context.put("pagesizes", PAGESIZES);
 
 	} // pagingInfoToContext

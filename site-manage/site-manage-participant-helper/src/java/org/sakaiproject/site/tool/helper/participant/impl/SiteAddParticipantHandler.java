@@ -52,6 +52,7 @@ import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -336,6 +337,10 @@ public class SiteAddParticipantHandler {
     public String processCancel() {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+
+         // Go to Site Info landing page on 'Cancel'
+        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+
         resetTargettedMessageList();
         reset();
 
@@ -745,7 +750,11 @@ public class SiteAddParticipantHandler {
 		{
 			// time to reset user inputs
 			reset();
-			
+
+			// After succesfully adding participants, return to the 'Manage Participants' UI rather than whatever the previously selected tab was
+			ToolSession session = sessionManager.getCurrentToolSession();
+			session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, SiteConstants.MANAGE_PARTICIPANTS_TEMPLATE_INDEX);
+
 	        return "done";
 		}
 		else

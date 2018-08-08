@@ -670,6 +670,16 @@ scheduleUpdate();
 #macro (pagerPanel $panelName)
 #set($libLink="#libraryLink('js/sakai-table-toolbar/pagerPanelMacro.js')")
 <script type='text/javascript' src='$libLink' defer></script>
+#if(!$allMsgNumber)#set($allMsgNumber = 0)#end
+#if(!$topMsgPos || $allMsgNumber == 0) #set($topMsgPos = 0) #end
+#if(!$btmMsgPos || $allMsgNumber == 0) #set($btmMsgPos = 0) #end
+#if($allMsgNumber == 0)
+	#set($goFPButton = "false")
+	#set($goPPButton = "false")
+	#set($goNPButton = "false")
+	#set($goLPButton = "false")
+#end
+#if(!$goLPButton) #set($goLPButton = "false") #end
 <div class="sakai-table-pagerLabel">$tlang.getFormattedMessage("gen.viewing.phrase", $topMsgPos, $btmMsgPos, $allMsgNumber)</div>
 <div class="sakai-table-pagerControls">
 	<span class="skip">$tlang.getString("gen.first")</span>
@@ -683,7 +693,8 @@ scheduleUpdate();
 	<label for="selectPageSize_$panelName">$tlang.getString("gen.select.label")</label>
 	<span class="skip">$tlang.getString("gen.listnavselect")</span>
 	<div class="sakai-table-pagerPageSize">
-		<select id="selectPageSize_$panelName" name="selectPageSize_$panelName" onchange="VM_PP.doChangePageSize('#toolLink("$action", "doChange_pagesize")', this);">
+		<select id="selectPageSize_$panelName" name="selectPageSize_$panelName" #if ($allMsgNumber == 0) disabled="disabled" #end
+			onchange="VM_PP.doChangePageSize('#toolLink("$action", "doChange_pagesize")', this);">
 		#foreach ($i in $!pagesizes)
 			<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getFormattedMessage("gen.show", $i)</option>
 		#end

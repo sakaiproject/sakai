@@ -5,156 +5,93 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
-		sakai.setupMessageListener("messageHolder", "information messageInformation");
 		sakai.setupSelectList('currentSites','selunselallid','selectedSelected');
 	});
+
+	function unjoin(buttonElement)
+	{
+		SPNR.disableControlsAndSpin(buttonElement, null);
+		document.currentSitesForm.submit();
+		return false;
+	}
 </script>
 
-<div class="portletBody">
-	<ul class="navIntraTool actionToolbar">
-	<li class="firstToolBarItem"><span class="current">$tlang.getString("mb.cursit")</span></li>
-		<li><span><a href="#toolLink( "$action" "doGoto_enrolments" )" title="$tlang.getString( 'mb.enrolments' )">$tlang.getString( 'mb.enrolments' )</a></span></li>
-		<li><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
-	</ul>
+<div class="portletBody specialLink container-fluid">
+	#if($menu)#toolbar($menu)#end
 
-	#if ($unjoinableSites.size() > 0 || $search.length() > 0)
-	<div class="navPanel">
-		<div class="floatLeft">
-			<h3 class="toolHeading">
-				$tlang.getString("mb.cursit") 
-			</h3>
-		</div>
+	<div class="membershipContent">
 
-		<div class="floatRight">
-			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
-			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
-			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
-			<input id="btnSearch" type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form> 
-		</div>
-	</div>
-	#end
+		#if ($alertMessage)
+			<div class="alertMessage">$validator.escapeHtml($alertMessage)</div>
+			<div class="clear"></div>
+		#end
 
-	#if ($unjoinableSites.size()>0)
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
+				#if(!$unjoinableSites.isEmpty() || !$search.isEmpty())
+					#searchFilterPanel("searchFilter1", $search, "doSearch", "doSearch_clear")
+				#end
+			</div>
 
-		<div class="navPanel">
-			#if ($alertMessage)
-				<p class="information messageInformation" id="messageHolder">
-					$validator.escapeHtml($alertMessage)
-				</p>
+			#set ($checkboxCount = 0)
+			#foreach ($site in $!unjoinableSites)
+				#if(!$disableUnjoinSelection && !($!site.Type && $!disableUnjoinSiteTypes.contains($!site.Type)) && $SiteService.allowUnjoinSite($site.Id))
+					#set ($checkboxCount = 1)
+					#break
+				#end
 			#end
+			<div class="sakai-table-buttonContainer">
+				<input type="button" class="unjoin" value="$tlang.getString('mb.unjoin')" accesskey="s" disabled="disabled" onclick="unjoin(this);" />
+				<input type="button" class="reset" value="$tlang.getString('mb.clear')" accesskey="x" disabled="disabled" onclick="utils.clearSelections();" />
+			</div>
 
-			<div class="listNav">
-				<div>
-					$tlang.getString("mb.list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("mb.list.of") $allMsgNumber $tlang.getString("mb.list.sites")
-					<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
-				</div>
-				<div class="innerPannel">
-					#if ($pagesize != 0)
-						#if ($goPPButton == "true")
-							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("mb.list.pager.first")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-						#if ($goPPButton == "true")
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("mb.list.pager.prev") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-					#end
-					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-						<label class="skip" for="pagerSelect">$tlang.getString("mb.list.select")</label>
-						<select name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();" id="pagerSelect">
-						<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("mb.list.pager.show5")</option>
-							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("mb.list.pager.show10")</option>
-							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("mb.list.pager.show20")</option>
-							<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("mb.list.pager.show50")</option>
-							<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("mb.list.pager.show100")</option>
-							<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("mb.list.pager.show200")</option>
-						</select>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-					#if ($pagesize != 0)
-						#if ($goNPButton == "true")
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("mb.list.pager.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-						#if ($goNPButton == "true")
-							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("mb.list.pager.last")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-					#end
-				</div>
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
 			</div>
 		</div>
 
-		<form action="#toolForm("$action")" method="post">
+		<form action="#toolForm("$action")" method="post" name="currentSitesForm" id="currentSitesForm">
 			<div class="table-responsive">
-				<table class="table table-bordered table-hover table-striped" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
-					<tr>
-						<th id="checkbox" scope="col" class="screenOnly attach">
-							<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
-						</th>
-						<th id="worksite" scope="col" class="attach">
-							<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')">
-								$tlang.getString("gen.worksite")
-								#if ($currentSortAsc) 
-									<img src="#imageLink("sakai/sortascending.gif")" title="$tlang.getString('list.stasc')" alt="$tlang.getString('list.stasc')" /> 
-								#else 
-									<img src="#imageLink("sakai/sortdescending.gif")" title="$tlang.getString('list.stdesc')" alt="$tlang.getString('list.stdesc')" /> 
-								#end
-							</a>
-						</th>
-						<th scope="col" id="description">$tlang.getString("gen.description")</th>
-					</tr>
+				<table class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString('joinable.list.summary')" id="currentSites">
+					<thead>
+						<tr>
+							#if ($checkboxCount > 0)
+								<th id="checkbox" scope="col" class="screenOnly attach">
+									<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
+								</th>
+							#end
+							<th id="worksite" scope="col" class="attach">
+								<a href="#toolLink("$action" "doToggle_sort")" title="$tlang.getString('list.sortbytitle')">
+									$tlang.getString("gen.worksite")
+									#if ($currentSortAsc)
+										<img src="#imageLink("sakai/sortascending.gif")" title="$tlang.getString('list.stasc')" alt="$tlang.getString('list.stasc')" />
+									#else
+										<img src="#imageLink("sakai/sortdescending.gif")" title="$tlang.getString('list.stdesc')" alt="$tlang.getString('list.stdesc')" />
+									#end
+								</a>
+							</th>
+							<th scope="col" id="description">$tlang.getString("gen.description")</th>
+						</tr>
+					</thead>
 					<tbody>
 						#set ($rowCount =0)
-						#set ($checkboxCount = 0)
 						#foreach ($site in $unjoinableSites)
-						#set ($rowCount =$rowCount + 1)
+							#set ($rowCount =$rowCount + 1)
 							<tr>
-								<td headers="checkbox" class="screenOnly attach">
-									#set($siteType=$site.Type)
-									## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
-									#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
-									  <label for="check-$rowCount" class="sr-only">$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)</label>
-										<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
-										#set ($checkboxCount = $checkboxCount + 1)
-									#end
-								</td>
+								#if ($checkboxCount > 0)
+									<td headers="checkbox" class="screenOnly attach">
+										#set($siteType=$site.Type)
+										## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
+										#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
+											<label for="check-$rowCount" class="sr-only">$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)</label>
+											<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
+										#end
+									</td>
+								#end
 
-								<th scope="row" headers="worksite" class="attach noWrap" id="mcstR-$rowCount">
+								<td scope="row" headers="worksite" class="attach noWrap" id="mcstR-$rowCount">
 									<a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
-								</th>
+								</td>
 
 								<td headers="description mcstR-$rowCount" class="specialLink">
 									#if ($validator.escapeHtml($site.Description) != '')
@@ -166,20 +103,31 @@
 						#end
 					</tbody>
 				</table>
+
+				#if (!$search.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</div>
+				#elseif ($unjoinableSites.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nomembs')</div>
+				#end
 			</div>
 
-		#if( $checkboxCount > 0 )
-			<p class="act">
-				<input type="submit" id="unjoin" name="eventSubmit_doGoto_unjoinconfirm" value="$tlang.getString('mb.unjoin')" accesskey="s" disabled="disabled" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				<input type="button" id="reset" name="reset" value="$tlang.getString('mb.clear')" accesskey="x" disabled="disabled" onclick="utils.clearSelections();" />
-			</p>
-		#end
-
+			<input type="hidden" name="sakai_action" id="sakai_action" value="doGoto_unjoinconfirm" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
-	#elseif ($search.length() > 0)
-		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
-	#else
-		<p class="instruction">$tlang.getString('mb.list.nomembs')</p>
-	#end
+
+		#if ($unjoinableSites.size() > 10 && $pagesizeInt > 10)
+			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+				<div class="sakai-table-filterContainer">
+					#searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
+				</div>
+				<div class="sakai-table-buttonContainer">
+					<input type="button" class="unjoin" value="$tlang.getString('mb.unjoin')" disabled="disabled" onclick="unjoin(this);" />
+					<input type="button" class="reset" value="$tlang.getString('mb.clear')" disabled="disabled" onclick="utils.clearSelections();" />
+				</div>
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager2")
+				</div>
+			</div>
+		#end
+	</div>
 </div>
