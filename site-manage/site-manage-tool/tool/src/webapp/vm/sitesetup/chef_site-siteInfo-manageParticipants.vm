@@ -15,7 +15,7 @@
 
         ## download link for print out participant list
         <div>
-            <a href="$printParticipantUrl" title="$!tlang.getString('print')" target="_blank" rel="noreferrer">$!tlang.getString('print')</a><i class="icon-sakai--pdf"></i>
+            <a href="$downloadParticipantsPDF_URL" title="$!tlang.getString('print')" target="_blank" rel="noreferrer">$!tlang.getString('print')</a><i class="icon-sakai--pdf"></i>
         </div>
     </div>
 

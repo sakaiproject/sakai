@@ -338,15 +338,23 @@ public class SiteAddParticipantHandler {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 
-         // Go to Site Info landing page on 'Cancel'
-        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+        // Go to Site Info landing page on 'Cancel'
+        setNextPage(SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
         resetTargettedMessageList();
         reset();
 
         return "done";
     }
-    
+
+    /*
+     * Utility method; sets the template index (in the tool session) of the desired page to transfer the user to.
+     */
+    private void setNextPage(String nextPageTemplateIndex) {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, nextPageTemplateIndex);
+    }
+
     private boolean validCsrfToken() {
 		return StringUtils.equals(csrfToken, getCsrfToken());
     }
@@ -752,8 +760,7 @@ public class SiteAddParticipantHandler {
 			reset();
 
 			// After succesfully adding participants, return to the 'Manage Participants' UI rather than whatever the previously selected tab was
-			ToolSession session = sessionManager.getCurrentToolSession();
-			session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, SiteConstants.MANAGE_PARTICIPANTS_TEMPLATE_INDEX);
+			setNextPage(SiteConstants.MANAGE_PARTICIPANTS_TEMPLATE_INDEX);
 
 	        return "done";
 		}

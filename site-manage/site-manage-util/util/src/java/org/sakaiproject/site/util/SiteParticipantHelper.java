@@ -233,6 +233,8 @@ public class SiteParticipantHelper {
 	private static void conditionallyAddParticipantToMap(Map<String, Participant> participantsMap, String filterType, String filterID, String userID,
 															Participant participant, Set<Member> groupMembership) {
 
+		// If a section filter is selected, the section filtering has already been applied prior to calling this method.
+		// Therefore, in this case all members passed to this function belong to the desired section; so we always add them to the map in this case.
 		if ((SiteConstants.PARTICIPANT_FILTER_TYPE_ROLE.equals(filterType) && participant.role.equals(filterID))
 				|| SiteConstants.PARTICIPANT_FILTER_TYPE_ALL.equals(filterType)
 				|| StringUtils.isEmpty(filterType)

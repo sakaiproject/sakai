@@ -1771,7 +1771,7 @@ public class SiteAction extends PagedResourceActionII {
 				PortalNeochatEnabler.addToEditToolsContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
-				context.put("backIndex", "12");	// back to site info list page
+				context.put("backIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
 			}
 			else
 			{
@@ -1959,8 +1959,8 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-manageParticipants.vm
 			 */
 
-			// Put the link for downloading participant into the context
-			putPrintParticipantLinkIntoContext(context, data, site);
+			// Put the link for downloading participant list PDF into the context
+			putDownloadParticipantPDFLinkIntoContext(context, data, site);
 
 			boolean allowUpdateSiteMembership = SiteService.allowUpdateSiteMembership(site.getId());
 			boolean allowUpdateSite = SiteService.allowUpdateSite(site.getId());
@@ -2005,12 +2005,9 @@ public class SiteAction extends PagedResourceActionII {
 					sortedAsc = Boolean.TRUE.toString();
 					state.setAttribute(SORTED_ASC, sortedAsc);
 				}
-				if (sortedBy != null) {
-					context.put("currentSortedBy", sortedBy);
-				}
-				if (sortedAsc != null) {
-					context.put("currentSortAsc", sortedAsc);
-				}
+
+				context.put("currentSortedBy", sortedBy);
+				context.put("currentSortAsc", sortedAsc);
 				context.put("participantListSize", participantsCollection.size());
 				context.put("participantList", prepPage(state));
 
@@ -2507,9 +2504,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("title", siteInfo.title);
 			
 			// get updated language
-			String new_locale_string = (String) state.getAttribute("locale_string");			
-			if("".equals( new_locale_string )  || new_locale_string == null)							
-				context.put("new_locale", "");			
+			String new_locale_string = (String) state.getAttribute("locale_string");
+			if(StringUtils.isBlank(new_locale_string))
+				context.put("new_locale", "");
 			else
 			{
 				Locale new_locale = getLocaleFromString(new_locale_string);
@@ -2517,10 +2514,10 @@ public class SiteAction extends PagedResourceActionII {
 			}
 						
 			// get site language saved
-			ResourcePropertiesEdit props = site.getPropertiesEdit();					
-			String oLocale_string = props.getProperty(PROP_SITE_LANGUAGE);			
-			if("".equals( oLocale_string ) || oLocale_string == null)				
-				context.put("oLocale", "");			
+			ResourcePropertiesEdit props = site.getPropertiesEdit();
+			String oLocale_string = props.getProperty(PROP_SITE_LANGUAGE);
+			if(StringUtils.isBlank(oLocale_string))
+				context.put("oLocale", "");
 			else
 			{
 				Locale oLocale = getLocaleFromString(oLocale_string);
@@ -2817,7 +2814,7 @@ public class SiteAction extends PagedResourceActionII {
 			List<String> importableToolsIdsInDestinationSite = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			if (existingSite) {
 				// revising a existing site's tool
-				context.put("continue", "12");
+				context.put("continue", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				context.put("step", "2");
 				context.put("currentSite", site);
 
@@ -2949,7 +2946,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			if (site != null) {
 				// revising a existing site's tool
-				context.put("continue", "12");
+				context.put("continue", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				context.put("back", "28");
 				context.put("step", "2");
 				context.put("currentSite", site);
@@ -3663,7 +3660,7 @@ public class SiteAction extends PagedResourceActionII {
 			/*
 			 * build context for chef_site-importUser.vm
 			 */
-			context.put("toIndex", "12");
+			context.put("toIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
@@ -3833,7 +3830,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 		context.put("oldSelectedHome", state
 				.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME));
-		context.put("continueIndex", "12");
+		context.put("continueIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		if (state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null) {
 			context.put("emailId", state
 					.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
@@ -4603,7 +4600,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
 		state.removeAttribute(SESSION_CONTEXT_ID);
 
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 	}
 
@@ -7473,13 +7470,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex)))
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			LessonsSubnavEnabler.removeFromState(state);
 			PortalNeochatEnabler.removeFromState(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -7489,7 +7486,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// htripath: added '"45".equals(currentIndex)' for import from file
 		// cancel
 		else if ("45".equals(currentIndex)) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("4".equals(currentIndex)) {
 			// from adding class
 			if (((String) state.getAttribute(STATE_SITE_MODE))
@@ -7509,12 +7506,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 				} else {
 					// in editing site process
-					state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+					state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				}
 			} else if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				// site info
-				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 			}
 			state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 			state.removeAttribute(STATE_IMPORT_SITES);
@@ -7526,7 +7523,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 			} else {
 				// from revising site
-				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 			}
 			removeEditToolState(state);
 		} else if ("37".equals(currentIndex) || "44".equals(currentIndex) || "53".equals(currentIndex) || "36".equals(currentIndex)) {
@@ -7537,12 +7534,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} else if (STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS.equals(currentIndex)) {
 			state.removeAttribute(SITE_USER_SEARCH);
 			state.removeAttribute(STATE_SITE_PARTICIPANT_FILTER);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		}
 		// if all fails to match
-		else if (isTemplateVisited(state, "12")) {
+		else if (isTemplateVisited(state, SiteConstants.SITE_INFO_TEMPLATE_INDEX)) {
 			// go to site info list view
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else {
 			// go to WSetup list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
@@ -7857,7 +7854,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		state.removeAttribute(STATE_SELECTED_USER_LIST);
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 	} // doMenu_siteInfo_cancel_access
 
@@ -7934,7 +7931,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	public void doMenu_siteInfo(RunData data) {
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 	}
 
 	public void do_manageParticipants_changeFilter(RunData data) {
@@ -8212,7 +8209,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 
 			// back to site info view
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 			// Need to refresh the entire page because, e.g. the current site's name
 			// may have changed. This is problematic, though, b/c the current 
@@ -8403,7 +8400,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
 				templates.add("0"); // the default page of WSetup tool
 			} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
-				templates.add("12");// the default page of Site Info tool
+				templates.add(SiteConstants.SITE_INFO_TEMPLATE_INDEX);// the default page of Site Info tool
 			}
 
 			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
@@ -8480,7 +8477,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		// one site has been selected
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 	} // getReviseSite
 
@@ -9062,7 +9059,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// publishing a published site
 					EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, sEdit.getReference(), true));
 				}
-				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 				// TODO: hard coding this frame id is fragile, portal dependent,
 				// and needs to be fixed -ggolden
@@ -9331,16 +9328,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 * actionForTemplate chef_site-newSiteConfirm.vm
 			 * 
 			 */
-			if (!forward) {
-			}
 			break;
 		case STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS_INT:
 			/*
 			 * actionForTemplate chef_siteInfo-manageParticipants.vm
 			 *
 			 */
-			if (!forward) {
-			}
 			break;
 		case 12:
 			/*
@@ -9385,8 +9378,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 * actionForTemplate chef_siteInfo-editAccess.vm
 			 * 
 			 */
-			if (!forward) {
-			}
 			break;
 		case 24:
 			/*
@@ -9719,7 +9710,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					// return to the list view
-					state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+					state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				}
 			}
 			break;
@@ -14719,10 +14710,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return true;
 	}
 	
-	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
+	private void putDownloadParticipantPDFLinkIntoContext(Context context, RunData data, Site site) {
 		// the status servlet reqest url
 		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
-		context.put("printParticipantUrl", url);
+		context.put("downloadParticipantsPDF_URL", url);
 	}
 	
 	/**

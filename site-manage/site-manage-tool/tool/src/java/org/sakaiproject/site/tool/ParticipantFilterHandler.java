@@ -99,16 +99,19 @@ public class ParticipantFilterHandler
         {
             // Identify the selected filter type and ID
             String[] parts = selectedFilter.split( "]" );
-            String filterType = identifyFilterType( selectedFilter );
-            String filterID = SiteConstants.PARTICIPANT_FILTER_TYPE_ALL.equals( filterType ) ? "" : parts[1];
 
-            // Get the participants using the selected filter
-            return SiteParticipantHelper.prepareParticipants( siteID, providerCourseIDs, filterType, filterID );
+            // Only perform the filtering if the filter string has the required information
+            if( parts != null && parts.length == 2 )
+            {
+                String filterType = identifyFilterType( selectedFilter );
+                String filterID = SiteConstants.PARTICIPANT_FILTER_TYPE_ALL.equals( filterType ) ? "" : parts[1];
+
+                // Get the participants using the selected filter
+                return SiteParticipantHelper.prepareParticipants( siteID, providerCourseIDs, filterType, filterID );
+            }
         }
-        else
-        {
-            return SiteParticipantHelper.prepareParticipants( siteID, providerCourseIDs );
-        }
+
+        return SiteParticipantHelper.prepareParticipants( siteID, providerCourseIDs );
     }
 
     /**
@@ -166,10 +169,8 @@ public class ParticipantFilterHandler
         {
             return SiteConstants.PARTICIPANT_FILTER_TYPE_ROLE;
         }
-        else
-        {
-            return SiteConstants.PARTICIPANT_FILTER_TYPE_ALL;
-        }
+
+        return SiteConstants.PARTICIPANT_FILTER_TYPE_ALL;
     }
 
     /**
@@ -191,7 +192,7 @@ public class ParticipantFilterHandler
                 for( Group group : groups )
                 {
                     String prop = group.getProperties().getProperty( SiteConstants.GROUP_PROP_WSETUP_CREATED );
-                    if( StringUtils.isNotBlank( prop ) && Boolean.TRUE.toString().equals( prop ) )
+                    if( Boolean.TRUE.toString().equals( prop ) )
                     {
                         entries.put( SiteConstants.PARTICIPANT_FILTER_TYPE_GROUP + group.getId(), group.getTitle() + " " + groupTitlePostfix );
                     }
@@ -232,7 +233,7 @@ public class ParticipantFilterHandler
         if( site != null )
         {
             List<String> sectionIDs = SiteParticipantHelper.getProviderCourseList( site.getId() );
-            if( sectionIDs != null )
+            if( !sectionIDs.isEmpty() )
             {
                 List<Section> sections = new ArrayList<>( sectionIDs.size() );
                 for( String sectionID : sectionIDs )
