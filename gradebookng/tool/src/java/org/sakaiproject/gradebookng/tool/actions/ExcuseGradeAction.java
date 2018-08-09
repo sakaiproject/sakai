@@ -37,7 +37,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         private List<Long> droppedItems;
 
         public ExcuseGradeResponse(final String courseGrade, final String points, final boolean isOverride, final String categoryScore,
-                                   List<Long> droppedItems){
+                                   List<Long> droppedItems) {
             this.courseGrade = courseGrade;
             this.categoryScore = categoryScore;
             this.points = points;
@@ -45,7 +45,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             this.droppedItems = droppedItems;
         }
 
-        public String getStatus(){
+        public String getStatus() {
             return "OK";
         }
 
@@ -56,7 +56,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             ArrayNode courseGradeArray = mapper.createArrayNode();
             courseGradeArray.add(courseGrade);
             courseGradeArray.add(points);
-            courseGradeArray.add(isOverride ? 1: 0);
+            courseGradeArray.add(isOverride ? 1 : 0);
 
             result.put("courseGrade", courseGradeArray);
             result.put("categoryScore", categoryScore);
@@ -81,9 +81,9 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         final String categoryId = params.has("categoryId") ? params.get("categoryId").asText() : null;
 
         boolean hasExcuse = false;
-        if(StringUtils.equals(excuse, "1")){
+        if (StringUtils.equals(excuse, "1")) {
             excuse = "0";
-        } else if(StringUtils.equals(excuse, "0")){
+        } else if (StringUtils.equals(excuse, "0")) {
             excuse = "1";
             hasExcuse = true;
         }
@@ -91,7 +91,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         final GradeSaveResponse result = businessService.saveExcuse(Long.valueOf(assignmentId),
                 studentUuid, hasExcuse);
 
-        if(result.equals(GradeSaveResponse.NO_CHANGE)){
+        if (result.equals(GradeSaveResponse.NO_CHANGE)) {
             target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
         }
 
@@ -102,20 +102,10 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
 
         boolean isOverride = false;
-        String grade = "-";
+        String grade = getGrade(studentCourseGrade, page);
         String points = "0";
 
-        if(studentCourseGrade != null){
-            final GradebookUiSettings uiSettings = page.getUiSettings();
-            final Gradebook gradebook = businessService.getGradebook();
-            final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-                    gradebook,
-                    page.getCurrentRole(),
-                    businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
-                    uiSettings.getShowPoints(),
-                    true);
-
-            grade = courseGradeFormatter.format(studentCourseGrade);
+        if (studentCourseGrade != null) {
             if (studentCourseGrade.getPointsEarned() != null) {
                 points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
             }
@@ -124,19 +114,8 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             }
         }
 
-        String categoryScore = "-";
-
-        if (categoryId != null) {
-            final Optional<CategoryScoreData> averageData = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
-            if (averageData.isPresent()) {
-                double average = averageData.get().score;
-                categoryScore = FormatHelper.formatDoubleToDecimal(average);
-            }
-        }
-
-        Optional<CategoryScoreData> catData = categoryId == null ?
-                Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
-        List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
+        String categoryScore = getCategoryScore(categoryId, studentUuid);
+        List<Long> droppedItems = getDroppedItems(categoryId, studentUuid);
         target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
 
         return new ExcuseGradeAction.ExcuseGradeResponse(
@@ -145,5 +124,38 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 isOverride,
                 categoryScore,
                 droppedItems);
+    }
+
+    private String getGrade(CourseGrade studentCourseGrade, GradebookPage page) {
+
+        final GradebookUiSettings uiSettings = page.getUiSettings();
+        final Gradebook gradebook = businessService.getGradebook();
+        final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+                gradebook,
+                page.getCurrentRole(),
+                businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
+                uiSettings.getShowPoints(),
+                true);
+        if (studentCourseGrade != null)
+            return courseGradeFormatter.format(studentCourseGrade);
+        else
+            return "-";
+    }
+
+    private String getCategoryScore(String categoryId, String studentId) {
+        if (categoryId != null) {
+            final Optional<CategoryScoreData> averageData = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId);
+            if (averageData.isPresent()) {
+                double average = averageData.get().score;
+                return FormatHelper.formatDoubleToDecimal(average);
+            }
+        }
+        return "-";
+    }
+
+    private List<Long> getDroppedItems(String categoryId, String studentId){
+        Optional<CategoryScoreData> catData = categoryId == null ?
+                Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId);
+        List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
     }
 }
