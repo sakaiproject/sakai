@@ -156,6 +156,6 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
     private List<Long> getDroppedItems(String categoryId, String studentId){
         Optional<CategoryScoreData> catData = categoryId == null ?
                 Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId);
-        List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
+        return catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
     }
 }
