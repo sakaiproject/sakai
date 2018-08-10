@@ -25,8 +25,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -37,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.TimeZone;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -88,7 +85,6 @@ import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsAuthz;
-import org.sakaiproject.sitestats.api.StatsDates;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
@@ -103,7 +99,7 @@ import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
 import org.sakaiproject.sitestats.impl.report.fop.ReportXMLReader;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -139,7 +135,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private UserDirectoryService	M_uds;
 	private ContentHostingService	M_chs;
 	private ToolManager				M_tm;
-	private TimeService				M_ts;
+	private UserTimeService			M_uts;
 	private EventTrackingService	M_ets;
 	private MemoryService			M_ms;
 	
@@ -177,11 +173,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public void setToolManager(ToolManager toolManager) {
 		this.M_tm = toolManager;
 	}
-	
-	public void setTimeService(TimeService timeService) {
-		this.M_ts = timeService; 
+
+	public void setUserTimeService(UserTimeService timeService) {
+		M_uts = timeService;
 	}
-	
+
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.M_ets = eventTrackingService;
 	}
@@ -810,7 +806,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				row.createCell(ix++).setCellValue(rs.getResourceAction());			
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
-				row.createCell(ix++).setCellValue(se.getDate().toString());			
+				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
+				row.createCell(ix++).setCellValue(M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)) {
 				row.createCell(ix++).setCellValue(dateMonthFrmt.format(se.getDate()));			
@@ -819,7 +816,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				row.createCell(ix++).setCellValue(dateYearFrmt.format(se.getDate()));		
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
-				row.createCell(ix++).setCellValue(se.getDate().toString());			
+				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
+				row.createCell(ix++).setCellValue(M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
 			}
             if(report.getReportDefinition().getReportParams().getSiteId() != null && !"".equals(report.getReportDefinition().getReportParams().getSiteId())) {
             }
@@ -1046,7 +1044,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				if(!isFirst) {
 					sb.append(",");
 				}
-				appendQuoted(sb, se.getDate().toString());
+				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
+				appendQuoted(sb, M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
 				isFirst = false;
 			}
 			// date (year-month)
@@ -1070,7 +1069,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				if(!isFirst) {
 					sb.append(",");
 				}
-				appendQuoted(sb, se.getDate().toString());
+				java.sql.Date sqlDate = (java.sql.Date) se.getDate();
+				appendQuoted(sb, M_uts.shortLocalizedDate(sqlDate.toLocalDate(), msgs.getLocale()));
 				isFirst = false;
 			}
 			// total
@@ -1357,8 +1357,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				report.setReportGenerationDate(new Date());
 			}
 			Instant time = report.getReportGenerationDate().toInstant();
-			TimeZone userTz = M_ts.getLocalTimeZone();
-			return StatsDates.shortLocalizedTimestamp(time, userTz, msgs.getLocale());
+			return M_uts.shortLocalizedTimestamp(time, msgs.getLocale());
 		}
 
 		/* (non-Javadoc)
@@ -1544,10 +1543,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				ReportParams rp = report.getReportDefinition().getReportParams();
 				ZonedDateTime from = ZonedDateTime.ofInstant(rp.getWhenFrom().toInstant(), ZoneId.systemDefault());
 				ZonedDateTime to = ZonedDateTime.ofInstant(rp.getWhenTo().toInstant(), ZoneId.systemDefault());
-				DateTimeFormatter fmt = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(msgs.getLocale());
 				String timeZoneMsg = msgs.getFormattedMessage("report_server_time_zone", M_sm.getLocalSakaiName());
 
-				return from.format(fmt) + " - " + to.format(fmt) + " " + timeZoneMsg;
+				return M_uts.shortLocalizedDate(from.toLocalDate(), msgs.getLocale())
+						+ " - " + M_uts.shortLocalizedDate(to.toLocalDate(), msgs.getLocale()) + " " + timeZoneMsg;
 			}
 		}
 		

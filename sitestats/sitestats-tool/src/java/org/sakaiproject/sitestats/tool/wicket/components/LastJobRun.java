@@ -26,11 +26,11 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.sitestats.api.StatsDates;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.pages.NotAuthorizedPage;
+import org.sakaiproject.time.api.UserTimeService;
 
 
 /**
@@ -80,9 +80,9 @@ public class LastJobRun extends Panel {
 		if(lastJobRunVisible) {
 			try{
 				Date d = statsUpdateManager.getEventDateFromLatestJobRun();
-				TimeZone userTz = Locator.getFacade().getTimeService().getLocalTimeZone();
-				String dStr = StatsDates.shortLocalizedTimestamp(d.toInstant(), userTz, getSession().getLocale());
-				String serverDateStr = StatsDates.shortLocalizedTimestamp(d.toInstant(), TimeZone.getDefault(), getSession().getLocale());
+				UserTimeService timeServ = Locator.getFacade().getUserTimeService();
+				String dStr = timeServ.shortLocalizedTimestamp(d.toInstant(), getSession().getLocale());
+				String serverDateStr = timeServ.shortLocalizedTimestamp(d.toInstant(), TimeZone.getDefault(), getSession().getLocale());
 				lastJobRunDate.setDefaultModel(new Model(dStr));
 				String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
 				StringResourceModel model = new StringResourceModel("lastJobRun_server_time", getPage(), null,

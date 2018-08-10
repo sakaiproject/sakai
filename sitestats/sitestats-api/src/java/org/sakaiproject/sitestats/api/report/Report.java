@@ -25,7 +25,6 @@ import java.util.List;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
-import org.sakaiproject.time.cover.TimeService;
 
 
 public class Report implements Serializable {	
@@ -59,10 +58,7 @@ public class Report implements Serializable {
 	public Date getReportGenerationDate() {
 		return reportGenerationDate;
 	}	
-	/** Get the localized date the report was generated. */
-	public String getLocalizedReportGenerationDate() {
-		return TimeService.newTime(reportGenerationDate.getTime()).toStringLocalFull();
-	}	
+
 	/** Set the localized date the report was generated. */
 	public void setReportGenerationDate(Date reportGenerationDate) {
 		this.reportGenerationDate = reportGenerationDate;
