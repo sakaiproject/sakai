@@ -285,15 +285,29 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	}
 
 	@EntityCustomAction(action = "get-search-index", viewKey = EntityView.VIEW_SHOW)
-	public Object getSearchIndex(EntityReference reference) {
+	public Object getSearchIndex(final EntityReference reference, final Map<String, Object> actionParams) {
 
-        String siteId = reference.getId();
+		final String siteId = reference.getId();
 
 		if (null == siteId || DEFAULT_ID.equals(siteId)) {
 			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());
 		}
 
-        return sakaiProxy.getSearchIndex(siteId);
+		final String userId = developerHelperService.getCurrentUserId();
+		String groupId = null;
+		String roleId = null;
+		String enrollmentSetId = null;
+		String enrollmentStatus = "all";
+		
+		if(actionParams != null){
+			groupId = (String) actionParams.get(KEY_GROUP_ID);
+			roleId = (String) actionParams.get(KEY_ROLE_ID);
+			enrollmentSetId = (String) actionParams.get(KEY_ENROLLMENT_SET_ID);
+			if(actionParams.get(KEY_ENROLLMENT_STATUS) != null) {
+				enrollmentStatus = (String) actionParams.get(KEY_ENROLLMENT_STATUS);
+			}
+		}
+		return sakaiProxy.getSearchIndex(siteId, userId, groupId, roleId, enrollmentSetId, enrollmentStatus);
 	}
 
     /*

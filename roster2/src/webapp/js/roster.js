@@ -168,6 +168,8 @@
                     } else {
                         roster.renderGroupMembership(this.value);
                     }
+                    
+                    roster.updateUserFilter();
                 });
 
                 $('#roster-roles-selector').change(function (e) {
@@ -862,4 +864,31 @@
     $(window).resize(function () {
         roster.alignMobileLabels();
     });
+    
+    roster.updateUserFilter = function () {
+	    var url = '/direct/roster-membership/' + roster.siteId + '/get-search-index.json?';
+	    
+	    if (roster.groupToView) {
+	        url += "&groupId=" + roster.groupToView;
+	    } else if (roster.enrollmentSetToView) {
+	        url += "&enrollmentSetId=" + roster.enrollmentSetToView;
+	    }
+	
+	    if (roster.roleToView) {
+	        url += "&roleId=" + encodeURIComponent(roster.roleToView);
+	    }
+	
+	    if (roster.enrollmentStatus) {
+	        url += '&enrollmentStatus=' + roster.enrollmentStatus;
+	    }
+	
+	    $.get(url, function (data) {
+	    	roster.searchIndex = data.data;
+	        roster.searchIndexKeys = Object.keys(data.data);
+	        roster.readySearchField();
+	    }).fail(function(){
+	    	console.log("error");
+	    });
+    };
+    
 }) (jQuery);
