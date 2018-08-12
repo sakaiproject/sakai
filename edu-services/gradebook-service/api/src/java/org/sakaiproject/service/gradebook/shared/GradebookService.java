@@ -262,6 +262,17 @@ public interface GradebookService {
 	public CommentDefinition getAssignmentScoreComment(String gradebookUid, Long assignmentId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
+	/**
+	 *
+	 * @param gradebookUid
+	 * @param assignmentId
+	 * @param studentUid
+	 * @return
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public boolean getIsAssignmentExcused(String gradebookUid, Long assignmentId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * Provide a student-viewable comment on the score (or lack of score) associated with the given assignment.
@@ -607,6 +618,9 @@ public interface GradebookService {
 	 */
 	public void saveGradesAndComments(String gradebookUid, Long assignmentId, List<GradeDefinition> gradeDefList)
 			throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
+
+	public void saveGradeAndExcuseForStudent(String gradebookUid, Long assignmentId, String studentId, String grade, boolean excuse)
+		throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 *

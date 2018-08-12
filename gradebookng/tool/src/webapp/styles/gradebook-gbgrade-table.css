@@ -281,7 +281,17 @@
   content: '\f0fe';
   color: rgb(200,144,0);
 }
-.gb-flag-external:before {
+#gradeTableWrapper .gb-excused {
+  text-decoration: line-through;
+  color: #555;
+}
+
+.gb-flag-excused::before {
+  content: '\e600';
+}
+
+
+ .gb-flag-external:before {
   content: '\f045';
 }
 .gb-flag-read-only:before {

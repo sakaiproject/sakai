@@ -16,6 +16,7 @@
 
 package org.sakaiproject.service.gradebook.shared;
 
+import org.apache.commons.lang3.BooleanUtils;
 import java.util.Date;
 
 /**
@@ -29,6 +30,7 @@ public class GradeDefinition {
 	private String gradeComment;
 	private int gradeEntryType;
 	private boolean gradeReleased;
+	private boolean excused;
 	
 	public String getStudentUid() {
 		return studentUid;
@@ -115,5 +117,14 @@ public class GradeDefinition {
 		this.gradeReleased = gradeReleased;
 	}
 	
-	
+	public void setExcused(Boolean excuse){
+		this.excused = BooleanUtils.toBoolean(excuse);
+	}
+
+	/**
+	 * @return true if this grade is excused
+	 */
+	public boolean isExcused(){
+		return excused;
+	}
 }

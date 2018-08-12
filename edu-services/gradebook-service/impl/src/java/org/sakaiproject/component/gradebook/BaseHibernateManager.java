@@ -37,58 +37,60 @@
 package org.sakaiproject.component.gradebook;
 
  import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+ import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.HashSet;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Set;
+ import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.hibernate.HibernateCriterionUtils;
-import org.sakaiproject.section.api.SectionAwareness;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookHelper;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
-import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.Category;
-import org.sakaiproject.tool.gradebook.Comment;
-import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.GradebookAssignment;
-import org.sakaiproject.tool.gradebook.GradebookProperty;
-import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
-import org.sakaiproject.tool.gradebook.Permission;
-import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+ import org.apache.commons.lang3.BooleanUtils;
+ import org.apache.commons.lang3.StringUtils;
+ import org.hibernate.HibernateException;
+ import org.hibernate.Session;
+ import org.hibernate.StaleObjectStateException;
+ import org.hibernate.criterion.Projections;
+ import org.hibernate.criterion.Restrictions;
+ import org.sakaiproject.component.api.ServerConfigurationService;
+ import org.sakaiproject.hibernate.HibernateCriterionUtils;
+ import org.sakaiproject.section.api.SectionAwareness;
+ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+ import org.sakaiproject.section.api.facade.Role;
+ import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+ import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
+ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+ import org.sakaiproject.service.gradebook.shared.GradebookHelper;
+ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+ import org.sakaiproject.service.gradebook.shared.GradebookService;
+ import org.sakaiproject.service.gradebook.shared.GraderPermission;
+ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+ import org.sakaiproject.tool.gradebook.GradebookAssignment;
+ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+ import org.sakaiproject.tool.gradebook.Category;
+ import org.sakaiproject.tool.gradebook.Comment;
+ import org.sakaiproject.tool.gradebook.CourseGrade;
+ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+ import org.sakaiproject.tool.gradebook.GradableObject;
+ import org.sakaiproject.tool.gradebook.GradeMapping;
+ import org.sakaiproject.tool.gradebook.Gradebook;
+ import org.sakaiproject.tool.gradebook.GradebookProperty;
+ import org.sakaiproject.tool.gradebook.GradingEvent;
+ import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
+ import org.sakaiproject.tool.gradebook.Permission;
+ import org.sakaiproject.tool.gradebook.facades.Authn;
+ import org.sakaiproject.event.api.EventTrackingService;
+ import org.springframework.orm.hibernate4.HibernateCallback;
+ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import lombok.extern.slf4j.Slf4j;
+ import lombok.extern.slf4j.Slf4j;
+
 
  /**
  * Provides methods which are shared between service business logic and application business
@@ -1372,6 +1374,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             return null;
         });
 	}
+
+	public boolean getIsAssignmentExcused(final String gradebookUid, final Long assignmentId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+        if(gradebookUid == null || assignmentId == null || studentUid == null){
+            throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment. Values are gradebookUid:" + gradebookUid + " assignmentId:" + assignmentId + " studentUid:"+ studentUid);
+        }
+        GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+        AssignmentGradeRecord agr = getAssignmentGradeRecord(assignment, studentUid);
+
+        if(agr == null){
+            return false;
+        }else{
+            return BooleanUtils.toBoolean(agr.isExcludedFromGrade());
+        }
+    }
 
 	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
 		getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
