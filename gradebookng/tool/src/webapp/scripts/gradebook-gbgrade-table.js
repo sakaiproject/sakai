@@ -375,6 +375,13 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
       externalId: column.externalId,
       externalAppName: column.externalAppName,
     });
+    // Mark negative scores as invalid
+    if (typeof value == 'string' && value[0] == '-') {
+      $cellDiv.addClass('gb-external-invalid');
+      notifications.push({
+        type: 'external-invalid'
+      });
+    }
   } else if (isReadOnly) {
     $cellDiv.addClass("gb-read-only");
     notifications.push({
