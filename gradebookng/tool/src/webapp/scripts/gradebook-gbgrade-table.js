@@ -23,7 +23,7 @@ GbGradeTable.unpackJsonScores = function (s, rowCount, columnCount) {
             currentRow = []
         }
 
-        currentRow.push(parsedArray[i] < 0 ? "" : GbGradeTable.localizeNumber(parsedArray[i]));
+        currentRow.push(parsedArray[i] == null ? "" : GbGradeTable.localizeNumber(parsedArray[i]));
     }
 
     result.push(currentRow);
