@@ -4531,6 +4531,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-required", "#{simplePageBean.required}", false);
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
+		UIBoundBoolean.make(form, "page-item-required", "#{simplePageBean.required}", false);
+		UIBoundBoolean.make(form, "page-item-prerequisites", "#{simplePageBean.prerequisite}", false);
 		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
 
 		UISelect radios = UISelect.make(form, "format-select",
@@ -4549,10 +4551,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
 		UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
+		UISelect.make(form, "page-indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
 
 		// If current user is an admin show the css class input box
 		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
+		UIInput pageCustomCssClass = UIInput.make(form, "page-customCssClass", "#{simplePageBean.customCssClass}");
 		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
+		UIOutput.make(form, "page-custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
 		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);

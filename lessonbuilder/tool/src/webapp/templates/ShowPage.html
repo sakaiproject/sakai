@@ -1218,19 +1218,19 @@
 
                     <div class="">
 
-                        <p class="shorttext required">
-                            <label rsf:id="name-label" class="pageTitle" for="name"></label>
-                            <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="255" class="edit-form-input" /><br />
-                        </p>
-                        
-                        <p id="pathdiv">
+                        <p id="pathdiv" class="row">
                             <label rsf:id="msg=simplepage.path" for="path">Path</label>
                             <span id="path" class="instruction"></span>
                         </p>
+
+                        <p class="shorttext required row">
+                            <label rsf:id="name-label" class="col-sm-1" for="name"></label>
+                            <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="255" class="edit-form-input col-sm-2" /><br />
+                        </p>
                     
-                        <p class="shorttext required">
-                            <label rsf:id="description-label" for="description" class="block"></label>
-                            <textarea name="description" id="description" rsf:id="description" class="edit-form-input" rows="5" cols ="25" style="width:99%">
+                        <p class="shorttext required row">
+                            <label rsf:id="description-label" for="description" class="col-sm-1"></label>
+                            <textarea name="description" id="description" rsf:id="description" class="edit-form-input col-sm-2" rows="5" cols ="25" style="width:99%">
                             </textarea>
                         </p>
 
@@ -1256,7 +1256,7 @@
                             </p>
 
                             <p class="shorttext required" id="change-page-p">
-                                <a role="button" href="#" rsf:id="change-page" id="change-page"><span rsf:id="msg.simplepage.change_page"></span></a>
+                                <a role="button" href="#" rsf:id="change-page" id="change-page" class="change-link"><span rsf:id="msg.simplepage.change_page"></span></a>
                             </p>
                         </div>
 
@@ -1269,22 +1269,61 @@
                             </p>
 
                         <div id="pagestuff">
-                        <input type="checkbox" name="item-next" id="item-next" rsf:id="item-next" />
-                        <label for="item-next" id="label-item-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
-                        <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
-                        <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
-                        <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
-                        <label for="releaseDate2:1:date-field"><span rsf:id="msg=simplepage.page.releasedate2"></span></label><br />
-                        <div id="releaseDiv2" style="margin-left:3em">
-                            <span rsf:id="releaseDate2:" id="releaseDate2">
-                                <span style="display:none" rsf:id="sbReleaseDate" id="sbReleaseDate"></span>
-                                <input rsf:id="release_date2" type="text" id="release_date2"/>
-                            </span>
-                        </div>
-                        <p class="checkbox">
-                            <input type="checkbox" id="hide2" rsf:id="hide2" />
-                            <label for="hide2"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
-                        </p>
+                            <div class="row-no-margin">
+                                <input type="checkbox" name="item-next" id="item-next" rsf:id="item-next" />
+                                <label for="item-next" id="label-item-next"><span rsf:id="msg=simplepage.subpage-next"></span></label>
+                            </div>
+                            <div class="row-no-margin edit-header">
+                                <span rsf:id="msg=simplepage.layoutstyle"></span>
+                            </div>
+                            <div class="row-no-margin">
+                                <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
+                                <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
+                            </div>
+                            <div id="page-stylingstuff" class="stylingstuff">
+                                <p class="shorttext">
+                                    <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
+                                    <select rsf:id="page-indent-level" name="indent-level" id="indent-level"/>
+                                </p>
+                                <p class="shorttext">
+                                    <label for="customCssClass" rsf:id="custom-css-label"></label>
+                                    <input rsf:id="page-customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
+                                </p>
+                            </div>
+                            <div class="row-no-margin edit-header">
+                                <span rsf:id="msg=simplepage.prereqs"></span>
+                            </div>
+                            <div class="row-no-margin">
+                                <div id="page-prereqstuff">
+                                    <p class="checkbox">
+                                        <input type="checkbox" name="page-item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
+                                        <label for="page-item-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                                    </p>
+
+                                    <p class="checkbox">
+                                        <input type="checkbox" name="item-required" id="item-required" rsf:id="item-required" />
+                                        <label for="item-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row-no-margin edit-header">
+                                <span rsf:id="msg=simplepage.visibility"></span>
+                            </div>
+                            <div class="row-no-margin">
+                                <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
+                                <label for="releaseDate2:1:date-field"><span rsf:id="msg=simplepage.page.releasedate2"></span></label>
+                                <div id="releaseDiv2" style="margin-left:3em">
+                                    <span rsf:id="releaseDate2:" id="releaseDate2">
+                                        <span style="display:none" rsf:id="sbReleaseDate" id="sbReleaseDate"></span>
+                                        <input rsf:id="release_date2" type="text" id="release_date2"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="checkbox row-no-margin">
+                                <input type="checkbox" id="hide2" rsf:id="hide2" />
+                                <label for="hide2"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
+                            </p>
                         </div>
 
                         <div id="newwindowstuff">
@@ -1292,8 +1331,8 @@
                         <label for="item-newwindow" id="label-item-newwindow"><span rsf:id="msg=simplepage.usenewwindow"></span></label><br />
                         </div>
                         <div id="formatstuff">
-                          <p rsf:id="msg=simplepage.format.heading"></p>
-                          <span rsf:id="format-select" />
+                          <p rsf:id="msg=simplepage.format.heading" class="edit-header"></p>
+                          <span rsf:id="format-select"/>
                           <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format"/>
                           <label for="format-window"><span rsf:id="msg=simplepage.format.window"></span></label><br />
                           <input rsf:id="format-inline" type="radio" name="format" value="inline" id="format-inline" class="format"/>
@@ -1310,7 +1349,11 @@
 
                     </div>
 
+
                     <div id="stylingstuff" class="stylingstuff">
+                        <div class="row-no-margin edit-header">
+                            <span rsf:id="msg=simplepage.layoutstyle"></span>
+                        </div>
                         <p class="shorttext">
                             <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
                             <select rsf:id="indent-level" name="indent-level" id="indent-level"/>
@@ -1325,6 +1368,9 @@
                     
                     <div rsf:id="permDiv" class="">
                          <div id="prereqstuff">
+                             <div class="row-no-margin edit-header">
+                                 <span rsf:id="msg=simplepage.prereqs"></span>
+                             </div>
                              <p class="checkbox">
                                 <input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
                                 <label for="item-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1351,7 +1397,10 @@
                         </p>
                         
                         <p id="editgroups" class="edit-group">
-                          <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+                        <div class="row-no-margin edit-header" id="visibility-header">
+                            <span rsf:id="msg=simplepage.visibility"></span>
+                        </div>
+                          <a role="button" href="javascript:void(0);"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
                         <p id="resource-group-inherited" rsf:id="msg=simplepage.resource-group-inherited"></p>
                         <div id="grouplist" rsf:id="grouplist" class="grouplist">

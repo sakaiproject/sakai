@@ -197,7 +197,17 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
     border: 1px solid transparent;
 }
 .controlsPanel .shorttext, .controlsPanel .longtext, .controlsPanel .filepicker{
-    margin:.4em 0
+    margin:.4em 0 1em 0;
+}
+
+.controlsPanel .change-link {
+    font-size: 16px;
+}
+
+.controlsPanel .edit-header {
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 20px;
 }
 .controlsPanel .act {
     margin:1em 0;
@@ -2219,7 +2229,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 .stylingstuff {
     padding: .5em;
     margin: .5em 0;
-    border: 1px solid #ccc;
 }
 
 .Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
@@ -2362,4 +2371,13 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
 
 #addContentDiv .panel-heading h4 {
     margin: 0 !important;
+}
+
+body div[role="dialog"] {
+    width: 60% !important;
+    left: 20% !important;
+}
+
+#path.instruction {
+    margin: 5px;
 }

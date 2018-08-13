@@ -1714,6 +1714,9 @@ $(document).ready(function() {
 			$("#edit-height").hide();
 			$("#pathdiv").hide();
 			$("#editgroups").after($("#grouplist"));
+            $("#stylingstuff").show();
+            $("#prereqstuff").show();
+            $("#visibility-header").show();
 			
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
@@ -1751,6 +1754,9 @@ $(document).ready(function() {
 			
 			if(type === 'page') {
 	                    $("#pagestuff").show();
+	                    $("#stylingstuff").hide();
+	                    $("#prereqstuff").hide();
+	                    $("#visibility-header").hide();
 
 				var sbpgreleasedate = row.find(".subpagereleasedate").text();
 				if(sbpgreleasedate === '') {
