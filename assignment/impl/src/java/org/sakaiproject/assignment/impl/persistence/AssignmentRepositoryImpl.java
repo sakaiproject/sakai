@@ -27,6 +27,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -178,9 +179,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
-        int numSubLists = userIds.size() / 1000; //oracle can only handle lists of 1000 or less.
-        int remainder = userIds.size() % 1000;
-
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .setProjection(Projections.countDistinct("id"))
                 .add(Restrictions.eq("assignment.id", assignmentId))
@@ -190,35 +188,13 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (graded != null) {
             criteria.add(Restrictions.eq("graded", graded));
         }
-
         if (hasSubmissionDate != null) {
             criteria.add(hasSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"));
         }
-
         if (userSubmission != null) {
             criteria.add(Restrictions.eq("userSubmission", userSubmission));
         }
-
-        if(numSubLists > 0){
-            List<List<String>> subLists = new ArrayList<>();
-            for(int i = 0; i< numSubLists; i++){
-                int start = i * 1000;
-                int end = start + 1000;
-                subLists.add(userIds.subList(start, end));
-            }
-            if(remainder != 0){
-                subLists.add(userIds.subList(numSubLists * 1000, numSubLists * 1000 + remainder));
-            }
-
-            Disjunction disjunction = Restrictions.disjunction();
-            for(List<String> users: subLists){
-                disjunction.add(Restrictions.in("s.submitter", users));
-            }
-            criteria.add(disjunction);
-        }else {
-            criteria.add(Restrictions.in("s.submitter", userIds));
-        }
-
+        criteria.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds));
         return ((Number) criteria.uniqueResult()).longValue();
     }
 
