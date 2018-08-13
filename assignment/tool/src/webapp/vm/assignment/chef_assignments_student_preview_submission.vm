@@ -144,28 +144,6 @@
 
     <p></p>
     <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-        #if ($!assignment.HonorPledge)
-            #if ($honor_pledge_yes.equals("true"))
-                <p class="checkbox highlightPanel">
-                    <label for="yes">
-                        <input name="Yes" type="checkbox" value="" checked="checked" id="yes"  disabled="disabled" />
-                        <input type="hidden" name="Assignment.view_submission_honor_pledge_yes" value="true" />
-                        $honor_pledge_text
-                    </label>
-                </p>
-            #else
-                <div class="alertMessage indnt1" style="width:40%">
-                    $tlang.getString("gen.honple2val")
-                </div>
-                <p class="checkbox highlightPanel">
-                    <label for="yes">
-                        <input name="Yes" type="checkbox" value="" disabled="disabled" />
-                        $honor_pledge_text
-                    </label>
-                </p>
-
-            #end
-        #end
 	    #if ($plagiarismNote)
 			<p>
 				<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>

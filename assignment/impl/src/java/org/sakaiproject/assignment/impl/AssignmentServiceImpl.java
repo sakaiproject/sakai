@@ -1506,8 +1506,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         // show "no submission" to graders
                         status = resourceLoader.getString("listsub.nosub");
                     } else {
-                        // show "not started" to students
-                        status = resourceLoader.getString("gen.notsta");
+                        if (assignment.getHonorPledge() && submission.getHonorPledge()) {
+                            status = resourceLoader.getString("gen.hpsta");
+                        } else {
+                            // show "not started" to students
+                            status = resourceLoader.getString("gen.notsta");
+                        }
                     }
                 }
             }
@@ -1532,9 +1536,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 if (allowGrade)
                     status = resourceLoader.getString("ungra");
-                else
-                    // submission saved, not submitted.
-                    status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                else {
+                    // TODO add a submission state of draft so we can eliminate the date check here
+                    if (assignment.getHonorPledge() && submission.getHonorPledge() && submission.getDateCreated().equals(submission.getDateModified())) {
+                        status = resourceLoader.getString("gen.hpsta");
+                    } else {
+                        // submission saved, not submitted,
+                        status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                    }
+                }
             }
         }
 
@@ -1769,14 +1779,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public boolean canSubmit(String context, Assignment a, String userId) {
+    public boolean canSubmit(Assignment a, String userId) {
+        if (a == null) return false;
         // submissions are never allowed to non-electronic assignments
         if (a.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
             return false;
         }
 
         // return false if not allowed to submit at all
-        if (!allowAddSubmissionCheckGroups(a) && !allowAddAssignment(context)) return false;
+        if (!allowAddSubmissionCheckGroups(a) && !allowAddAssignment(a.getContext())) return false;
 
         //If userId is not defined look it up
         if (userId == null) {
@@ -1784,7 +1795,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         // if user can submit to this assignment
-        Collection visibleAssignments = getAssignmentsForContext(context); // , userId); // TODO need to come up with a generic method for getting assignments for everyone
+        Collection visibleAssignments = getAssignmentsForContext(a.getContext()); // , userId); // TODO need to come up with a generic method for getting assignments for everyone
         if (visibleAssignments == null || !visibleAssignments.contains(a)) return false;
 
         try {
@@ -1854,8 +1865,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public boolean canSubmit(String context, Assignment a) {
-        return canSubmit(context, a, null);
+    public boolean canSubmit(Assignment a) {
+        return canSubmit(a, null);
     }
 
     @Override

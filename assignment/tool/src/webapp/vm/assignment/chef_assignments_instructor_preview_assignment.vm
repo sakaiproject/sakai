@@ -315,11 +315,6 @@
 								<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" accesskey="a" disabled="disabled" />
 							</div>
 						#end
-						## if honor pledge is required
-						#if ($value_CheckAddHonorPledge)
-							<p class="checkbox">$honor_pledge_text<input name="Yes" id="yes" type="checkbox" value="" disabled="disabled" /><label for="yes"> $tlang.getString("gen.yes")</label>
-							<br />$tlang.getString("gen.youmus")</p>
-						#end
 					#end
 					</div>
 				#else
