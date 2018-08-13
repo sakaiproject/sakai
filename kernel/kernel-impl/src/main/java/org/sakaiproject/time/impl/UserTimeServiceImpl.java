@@ -1,6 +1,13 @@
 package org.sakaiproject.time.impl;
 
 import java.text.DateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.FormatStyle;
+import java.time.format.TextStyle;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -116,4 +123,24 @@ public class UserTimeServiceImpl implements UserTimeService {
         return d;
     }
 
+    @Override
+    public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+        ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, timezone.toZoneId());
+        DateTimeFormatter userFormatter = new DateTimeFormatterBuilder()
+                .appendLocalized(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                .appendLiteral(" ").appendZoneText(TextStyle.SHORT)
+                .toFormatter(locale);
+        return userDate.format(userFormatter);
+    }
+
+    @Override
+    public String shortLocalizedTimestamp(Instant instant, Locale locale) {
+        return shortLocalizedTimestamp(instant, getLocalTimeZone(), locale);
+    }
+
+    @Override
+    public String shortLocalizedDate(LocalDate date, Locale locale) {
+        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale);
+        return date.format(df);
+    }
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +34,16 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -110,7 +115,19 @@ public abstract class WidgetTabTemplate extends Panel {
 	public abstract boolean useChartReportDefinitionForTable();
 	
 	public abstract List<Integer> getFilters();
-	
+
+	/**
+	 * Gets an optional message that will be displayed at the bottom of the tab.
+	 * @return a model containing the message string
+	 */
+	protected Optional<IModel<String>> getFooterMsg()
+	{
+		String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
+		StringResourceModel model = new StringResourceModel("widget_server_time_msg", getPage(), null, 
+				new Object[] {localSakaiName});
+		return Optional.of(model);
+	}
+
 	@Override
 	protected void onBeforeRender() {
 		// update data
@@ -138,6 +155,9 @@ public abstract class WidgetTabTemplate extends Panel {
 		renderTable();
 		tabTemplateRendered = true;
 		
+		Optional<IModel<String>> footerModel = getFooterMsg();
+		add(new Label("widgetFooterMsg", footerModel.orElseGet(() -> Model.of(""))).setVisible(footerModel.isPresent()));
+
 		super.onBeforeRender();
 	}
 

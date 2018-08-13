@@ -21,17 +21,19 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.AttributeModifier;
@@ -63,8 +65,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.convert.converter.IntegerConverter;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -88,12 +88,12 @@ import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptions;
 import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptionsGroup;
+import org.sakaiproject.sitestats.tool.wicket.components.SakaiDateTimeField;
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -128,10 +128,8 @@ public class ReportsEditPage extends BasePage {
 	private boolean					usersLoaded		= false;
 
 	private transient Collator		collator		= Collator.getInstance();
-	
-	private static String 			HIDDEN_WHENFROM_ISO8601 = "whenFromISO8601";
-	private static String 			HIDDEN_WHENTO_ISO8601 = "whenToISO8601";
-	private static String 			DATEPICKER_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+	private ZonedDateTime startDate, endDate;
 	
 	{
 		try{
@@ -210,8 +208,6 @@ public class ReportsEditPage extends BasePage {
         onDomReady.append("checkHowSelection();");
         onDomReady.append("checkReportDetails();");
         onDomReady.append("checkHowChartSelection();");
-        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenFrom", DateFormatterUtil.format(getReportParams().getWhenFrom(), DATEPICKER_FORMAT, getSession().getLocale())));
-        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenTo", DateFormatterUtil.format(getReportParams().getWhenTo(), DATEPICKER_FORMAT, getSession().getLocale())));
 		response.render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
 	}
 	
@@ -553,10 +549,23 @@ public class ReportsEditPage extends BasePage {
 		when.setMarkupId("when");
 		when.setOutputMarkupId(true);
 		form.add(when);
+
+		String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
+		StringResourceModel model = new StringResourceModel("report_server_time_zone", getPage(), null,
+						new Object[] {localSakaiName});
+		form.add(new Label("reportParams.when.serverTimeZone", model));
 		
 		// custom dates
-		form.add(new TextField<String>("whenFrom", Model.of("")));
-		form.add(new TextField<String>("whenTo", Model.of("")));
+		// date range for reports uses the server time zone to match how the events are counted
+		ZoneId sys = ZoneId.systemDefault();
+		startDate = ZonedDateTime.ofInstant(getReportParams().getWhenFrom().toInstant(), sys);
+		endDate = ZonedDateTime.ofInstant(getReportParams().getWhenTo().toInstant(), sys);
+		SakaiDateTimeField startDateField = new SakaiDateTimeField("whenFrom", new PropertyModel<>(this, "startDate"), sys);
+		startDateField.setUseTime(false);
+		form.add(startDateField);
+		SakaiDateTimeField endDateField = new SakaiDateTimeField("whenTo", new PropertyModel<>(this, "endDate"), sys);
+		endDateField.setUseTime(false);
+		form.add(endDateField);
 	}
 	
 	
@@ -1364,15 +1373,8 @@ public class ReportsEditPage extends BasePage {
 	}
 
 	private void setISODates(){
-		String whenFrom = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENFROM_ISO8601).toString("");
-		String whenTo = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENTO_ISO8601).toString("");
-		if(DateFormatterUtil.isValidISODate(whenFrom)){
-			getReportParams().setWhenFrom(DateFormatterUtil.parseISODate(whenFrom));
-		}
-
-		if(DateFormatterUtil.isValidISODate(whenTo)){
-			getReportParams().setWhenTo(DateFormatterUtil.parseISODate(whenTo));
-		}
+		getReportParams().setWhenFrom(Date.from(startDate.toInstant()));
+		getReportParams().setWhenTo(Date.from(endDate.toInstant()));
 	}
 }
 
