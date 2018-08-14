@@ -45,7 +45,7 @@ GbGradeTable.unpackPackedScores = function (s, rowCount, columnCount) {
         var currentRow = [];
 
         for (var column = 0; column < columnCount; column++) {
-            if (blob[readIndex].charCodeAt() == 127) {
+            if (typeof blob[readIndex] === 'undefined' || blob[readIndex].charCodeAt() == 127) {
                 // This is a sentinel value meaning "null"
                 currentRow[writeIndex] = "";
                 readIndex += 1;
