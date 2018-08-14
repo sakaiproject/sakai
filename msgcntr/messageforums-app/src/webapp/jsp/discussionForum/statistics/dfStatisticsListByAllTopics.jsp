@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>	
@@ -10,7 +10,7 @@
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
   		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
@@ -18,7 +18,7 @@
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
-			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			      <h:outputText value="#{msgs.stat_list}" />
 			    <f:verbatim></h3></f:verbatim>
           </h:panelGroup>

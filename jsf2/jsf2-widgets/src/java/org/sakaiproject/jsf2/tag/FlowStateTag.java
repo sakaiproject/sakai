@@ -59,5 +59,3 @@ public class FlowStateTag extends UIComponentTag {
 		return null;
 	}
 }
-
-

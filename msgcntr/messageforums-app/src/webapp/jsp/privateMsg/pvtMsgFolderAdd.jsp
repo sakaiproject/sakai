@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
@@ -10,8 +10,8 @@
 <!--jsp/privateMsg/pvtMsgFolderAdd.jsp-->
 		<h:form id="pvtMsgFolderAdd">
 		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+					<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+					<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 			  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_create_folder}" />
 			 
 				<div class="instruction">
@@ -33,8 +33,8 @@
 			  </h:panelGrid>
 			     
 				<sakai:button_bar>
-			  	  <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldCreate}" value="#{msgs.pvt_add}" accesskey="s"  styleClass="active"/>
-			    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReturnToMainOrHp}" value="#{msgs.pvt_cancel}" accesskey="x" />
+			  	  <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFldCreate}" value="#{msgs.pvt_add}" accesskey="s"  styleClass="active"/>
+			    <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReturnToMainOrHp}" value="#{msgs.pvt_cancel}" accesskey="x" />
 			  </sakai:button_bar>   
            
 		 </h:form>

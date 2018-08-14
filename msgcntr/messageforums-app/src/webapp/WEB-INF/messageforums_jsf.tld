@@ -506,7 +506,6 @@
   <tag>
     <name>hierDataTable</name>
     <tag-class>org.sakaiproject.tool.messageforums.jsf.HierDataTableTag</tag-class>
-    <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class>
     <body-content>JSP</body-content>
     <description>
     </description>
@@ -930,11 +929,10 @@
     </attribute>
     
   </tag>
-  
+
   <tag>
     <name>hierPvtMsgDataTable</name>
     <tag-class>org.sakaiproject.tool.messageforums.jsf.HierPvtMsgDataTableTag</tag-class>
-    <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class>
     <body-content>JSP</body-content>
     <description>
     </description>
@@ -1311,5 +1309,5 @@
       </description>
     </attribute>
   </tag>
-  
+
 </taglib>

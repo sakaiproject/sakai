@@ -2,7 +2,7 @@
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
                  
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -41,7 +41,7 @@
   	   </div>
   	   
        <sakai:button_bar>
-         <sakai:button_bar_item action="#{ForumTool.processPost}" value="Post" />         
+         <h:commandButton action="#{ForumTool.processPost}" value="Post" />         
       </sakai:button_bar>
   	     		  
       </h:form>

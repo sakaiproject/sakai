@@ -1,12 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
-
-
-
-
-
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -16,7 +11,7 @@
   <sakai:view id="synopticView">
 <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
-<f:verbatim>
+
  <%
   	String thisId = request.getParameter("panel");
   	if (thisId == null) 
@@ -217,10 +212,8 @@ function mySetMainFrameHeightViewCell(id)
 	}
 }
 </script> 
- 
- 
- </f:verbatim>
-<sakai:script contextBase="/messageforums-tool" path="/js/synopticLite.js"/>
+
+<script type="text/javascript" src="/messageforums-tool/js/synopticLite.js"></script>
 <link rel="stylesheet" type="text/css" href="css/TableSorter.css" />
 <link rel="stylesheet" type="text/css" href="css/msgcntr.css" />
 
