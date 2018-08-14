@@ -37,7 +37,6 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -52,7 +51,6 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.Web;
@@ -192,7 +190,7 @@ public class EntitySite implements Site {
         this.maintainRole = site.getMaintainRole();
         this.providerGroupId = site.getProviderGroupId();
         this.owner = site.getCreatedBy() == null ? null : site.getCreatedBy().getId();
-        this.lastModified = site.getModifiedTime() == null ? System.currentTimeMillis() : site.getModifiedTime().getTime();
+        this.lastModified = site.getModifiedDate() == null ? System.currentTimeMillis() : site.getModifiedDate().getTime();
         getUserRoles(); // populate the user roles
         // properties
         ResourceProperties rp = site.getProperties();
@@ -270,7 +268,7 @@ public class EntitySite implements Site {
     @EntityLastModified
     public long getLastModified() {
         if (site != null) {
-            this.lastModified = site.getModifiedTime() == null ? lastModified : site.getModifiedTime().getTime();
+            this.lastModified = site.getModifiedDate() == null ? lastModified : site.getModifiedDate().getTime();
         }
         return lastModified;
     }
@@ -515,12 +513,6 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
-    public Time getCreatedTime() {
-        if (site != null) {
-            return site.getCreatedTime();
-        }
-        throw new UnsupportedOperationException();
-    }
 
     public Date getCreatedDate() {
         if (site != null) {
@@ -575,13 +567,6 @@ public class EntitySite implements Site {
     public User getModifiedBy() {
         if (site != null) {
             return site.getModifiedBy();
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public Time getModifiedTime() {
-        if (site != null) {
-            return site.getModifiedTime();
         }
         throw new UnsupportedOperationException();
     }
