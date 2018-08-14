@@ -18,20 +18,17 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -65,6 +62,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.convert.converter.IntegerConverter;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -92,8 +91,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.SakaiDateTimeField;
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.sitestats.tool.wicket.util.Comparators;
 import org.sakaiproject.util.Web;
 
 /**
@@ -127,17 +125,7 @@ public class ReportsEditPage extends BasePage {
 	private final ReentrantLock		ajaxUpdateLock	= new ReentrantLock();
 	private boolean					usersLoaded		= false;
 
-	private transient Collator		collator		= Collator.getInstance();
-
 	private ZonedDateTime startDate, endDate;
-	
-	{
-		try{
-			collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-		}catch(ParseException e){
-			log.error("Unable to create RuleBasedCollator");
-		}		
-	}
 	
 	public ReportsEditPage() {
 		this(null, null, null);
@@ -659,7 +647,7 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}			
 		};
-		Collections.sort(roles, getChoiceRendererComparator(collator, rolesRenderer));
+		Collections.sort(roles, Comparators.getChoiceRendererComparator(rolesRenderer));
 		DropDownChoice whoRoleId = new DropDownChoice("reportParams.whoRoleId", roles, rolesRenderer);
 		whoRoleId.setEnabled(roles.size() > 0);
 		if(getReportParams().getWhoRoleId() == null) {
@@ -686,7 +674,7 @@ public class ReportsEditPage extends BasePage {
 				return (String) object;
 			}		
 		};
-		Collections.sort(groups, getChoiceRendererComparator(collator, groupsRenderer));
+		Collections.sort(groups, Comparators.getChoiceRendererComparator(groupsRenderer));
 		DropDownChoice whoGroupId = new DropDownChoice("reportParams.whoGroupId", groups, groupsRenderer);
 		if(groups.size() == 0) {
 			whoGroupTr.setVisible(false);
@@ -831,6 +819,19 @@ public class ReportsEditPage extends BasePage {
 					return trim(input[0]);
 				}
 			}
+			@Override
+			public IConverter<Integer> getConverter(Class type) {
+				return new IntegerConverter() {
+					@Override
+					public Integer convertToObject(String value, Locale locale) {
+						if (value != null) {
+							return super.convertToObject(value, locale);
+						}
+
+						return 0;
+					}
+				};
+			}
 		};
 		howMaxResults.setMarkupId("howMaxResults");
 		howMaxResults.setOutputMarkupId(true);
@@ -957,7 +958,7 @@ public class ReportsEditPage extends BasePage {
 				return null;
 			}		
 		};
-		Collections.sort(tools, getOptionRendererComparator(collator, optionRenderer));
+		Collections.sort(tools, Comparators.getOptionRendererComparator(optionRenderer));
 		// "all" tools (insert in position 0
 		tools.add(0, new SelectOption("option", new ToolModel(ReportManager.WHAT_EVENTS_ALLTOOLS, ReportManager.WHAT_EVENTS_ALLTOOLS)));
 		StylableSelectOptions selectOptions = new StylableSelectOptions("selectOptions", tools, optionRenderer);
@@ -968,7 +969,7 @@ public class ReportsEditPage extends BasePage {
 	@SuppressWarnings("serial")
 	private void addEvents(final RepeatingView rv) {
 		List<ToolInfo> siteTools = Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
-		Collections.sort(siteTools, getToolInfoComparator(collator));
+		Collections.sort(siteTools, Comparators.getToolInfoComparator());
 		// add events
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
@@ -1046,18 +1047,7 @@ public class ReportsEditPage extends BasePage {
 					if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
 						return Web.escapeHtml( (String) new ResourceModel("user_anonymous_access").getObject() );
 					}else{
-						User u = null;
-						try{
-							u = Locator.getFacade().getUserDirectoryService().getUser(userId);
-						}catch(UserNotDefinedException e){
-							return Web.escapeHtml(userId);
-						}
-						StringBuilder buff = new StringBuilder();
-						buff.append(Locator.getFacade().getStatsManager().getUserNameForDisplay(u));
-						buff.append(" (");
-						buff.append(u.getDisplayId());
-						buff.append(")");
-						return Web.escapeHtml(buff.toString());
+						return Web.escapeHtml(Locator.getFacade().getStatsManager().getUserInfoForDisplay(userId, siteId));
 					}
 				}
 				public IModel getModel(Object value) {
@@ -1065,7 +1055,7 @@ public class ReportsEditPage extends BasePage {
 					return new Model( (String) opt.getDefaultModel().getObject() );
 				}			
 			};
-			Collections.sort(users, getOptionRendererComparator(collator, optionRenderer));
+			Collections.sort(users, Comparators.getOptionRendererComparator(optionRenderer));
 			SelectOptions selectOptions = new SelectOptions("selectOptions", users, optionRenderer);
 			selectOptions.setRenderBodyOnly(true);
 			optgroupItem.add(selectOptions);
@@ -1187,54 +1177,15 @@ public class ReportsEditPage extends BasePage {
 			while (i.hasNext()){
 				ToolInfo t = i.next();
 				if(t.getToolId().equals(toolInfo.getToolId())){
-					EventParserTip parserTip = t.getEventParserTip();
-					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)){
+					boolean match = t.getEventParserTips().stream()
+									.anyMatch(tip -> StatsManager.PARSERTIP_FOR_CONTEXTID.equals(tip.getFor()));
+					if(match){
 						return true;
 					}
 				}
 			}
 		}
 		return false;
-	}
-	
-	public static final Comparator<String> getStringComparator(final Collator collator){
-		return new Comparator<String>(){
-			public int compare(String o1, String o2) {
-				return collator.compare(o1, o2);
-			}		
-		};
-	}
-	
-	public static final Comparator<ToolInfo> getToolInfoComparator(final Collator collator){
-		return new Comparator<ToolInfo>(){
-			public int compare(ToolInfo o1, ToolInfo o2) {
-				String toolName1 = Locator.getFacade().getEventRegistryService().getToolName(o1.getToolId());
-				String toolName2 = Locator.getFacade().getEventRegistryService().getToolName(o2.getToolId());				
-				return collator.compare(toolName1, toolName2);
-			}		
-		};
-	}
-	
-	public static final Comparator<Object> getOptionRendererComparator(final Collator collator, final IOptionRenderer renderer){
-		return new Comparator<Object>(){
-			public int compare(Object o1, Object o2) {
-				return collator.compare(
-						renderer.getDisplayValue(o1),
-						renderer.getDisplayValue(o2)
-						);
-			}		
-		};
-	}
-	
-	public static final Comparator<Object> getChoiceRendererComparator(final Collator collator, final IChoiceRenderer renderer){
-		return new Comparator<Object>(){
-			public int compare(Object o1, Object o2) {
-				return collator.compare(
-						renderer.getDisplayValue(o1),
-						renderer.getDisplayValue(o2)
-						);
-			}		
-		};
 	}
 
 	private PrefsData getPrefsdata() {

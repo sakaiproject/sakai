@@ -45,11 +45,13 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
 	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
+	private static ResourceLoader		EVENT_MSGS					= new ResourceLoader("Events");
 
 	/** Event Registry members */
 	private Set<String>					toolEventIds				= null;
 	private Set<String>					anonymousToolEventIds		= null;
 	private Map<String, ToolInfo>		eventIdToolMap				= null;
+	private Map<String, EventInfo>		eventIdEventMap				= null;
 	private Map<String, String>			toolIdIconMap				= null;
 	private boolean						checkLocalEventNamesFirst	= false;
 
@@ -212,9 +214,14 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getToolName(java.lang.String)
 	 */
+	@Override
 	public String getToolName(String toolId) {
 		if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
-			return msgs.getString("all");
+			return msgs.getString("prefs_useAllTools");
+		}else if(ReportManager.WHAT_EVENTS_ALLTOOLS_EXCLUDE_CONTENT_READ.equals(toolId)) {
+			return msgs.getFormattedMessage("de_allTools_excludeContentRead", EVENT_MSGS.getString("content.read"));
+		}else if(StatsManager.PRESENCE_TOOLID.equals(toolId)) {
+			return msgs.getString("overview_title_visits");
 		}else{
 			String toolName;
 			try{
@@ -344,20 +351,36 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.event.EventRegistryService#getEventIdToolMap()
 	 */
+	@Override
 	public Map<String, ToolInfo> getEventIdToolMap() {
 		if(eventIdToolMap == null){
-			eventIdToolMap = new HashMap<String, ToolInfo>();
-			Iterator<ToolInfo> i = getMergedEventRegistry().iterator();
-			while (i.hasNext()){
-				ToolInfo t = i.next();
-				Iterator<EventInfo> iE = t.getEvents().iterator();
-				while(iE.hasNext()){
-					EventInfo e = iE.next();
-					eventIdToolMap.put(e.getEventId(), t);
-				}
-			}
+			buildEventIdMaps();
 		}
 		return eventIdToolMap;
+	}
+
+	@Override
+	public Map<String, EventInfo> getEventIdEventMap() {
+		if (eventIdEventMap == null) {
+			buildEventIdMaps();
+		}
+
+		return eventIdEventMap;
+	}
+
+	private void buildEventIdMaps()	{
+		eventIdToolMap = new HashMap<>();
+		eventIdEventMap = new HashMap<>();
+		Iterator<ToolInfo> i = getMergedEventRegistry().iterator();
+		while (i.hasNext()){
+			ToolInfo t = i.next();
+			Iterator<EventInfo> iE = t.getEvents().iterator();
+			while(iE.hasNext()){
+				EventInfo e = iE.next();
+				eventIdToolMap.put(e.getEventId(), t);
+				eventIdEventMap.put(e.getEventId(), e);
+			}
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -379,6 +402,12 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	 */
 	public boolean isRegisteredEvent(String eventId) {
 		return getEventIds().contains(eventId);
+	}
+
+	@Override
+	public boolean isResolvableEvent(String eventId) {
+		EventInfo event = getEventIdEventMap().get(eventId);
+		return event != null && event.isResolvable();
 	}
 
 	// ################################################################

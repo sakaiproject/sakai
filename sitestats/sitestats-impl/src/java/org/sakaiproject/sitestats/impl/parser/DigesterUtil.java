@@ -91,7 +91,7 @@ public class DigesterUtil {
 	    EventParserTipFactoryImpl eventParserTipFactoryImpl = new EventParserTipFactoryImpl();
 	    digester.addFactoryCreate("toolEventsDef/tool/eventParserTip", eventParserTipFactoryImpl);
 	    digester.addSetNestedProperties("toolEventsDef/tool/eventParserTip");
-	    digester.addSetNext("toolEventsDef/tool/eventParserTip", "setEventParserTip" );
+	    digester.addSetNext("toolEventsDef/tool/eventParserTip", "addEventParserTip" );
 	    
 	    return (List<ToolInfo>) digester.parse( input );
 	}

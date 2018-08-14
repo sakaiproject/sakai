@@ -49,6 +49,7 @@ public interface ReportManager {
 	public static final String	WHAT_EVENTS_BYTOOL			= "what-events-bytool";
 	public static final String	WHAT_EVENTS_ALLEVENTS		= "all";
 	public static final String	WHAT_EVENTS_ALLTOOLS		= "all";
+	public static final String	WHAT_EVENTS_ALLTOOLS_EXCLUDE_CONTENT_READ = "all-exclude-content-read";
 	public static final String	WHAT_EVENTS					= "what-events";
 	public static final String	WHAT_VISITS					= "what-visits";
 	public static final String	WHAT_PRESENCES				= "what-presences";

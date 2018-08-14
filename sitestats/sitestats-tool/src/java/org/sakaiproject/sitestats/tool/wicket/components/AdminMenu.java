@@ -58,21 +58,21 @@ public class AdminMenu extends Panel {
 		// Admin page
 		boolean adminPageVisible = 
 			Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
-		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, true);
+		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, true, null);
 		adminPage.setVisible(adminPageVisible);
 		add(adminPage);
 		
 		// Admin reports
 		boolean reportsPageVisible = 
 			Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
-		MenuItem reportsPage = new MenuItem("reportsPage", new ResourceModel("menu_adminreports"), AdminReportsPage.class, pageParameters, false);
+		MenuItem reportsPage = new MenuItem("reportsPage", new ResourceModel("menu_adminreports"), AdminReportsPage.class, pageParameters, false, null);
 		reportsPage.setVisible(reportsPageVisible);
 		add(reportsPage);
 		
 		// Admin ServerWide page
 		boolean serverWidePageVisible = 
 			Locator.getFacade().getStatsManager().isServerWideStatsEnabled();
-		MenuItem serverWidePage = new MenuItem("serverWidePage", new ResourceModel("menu_serverwide"), ServerWidePage.class, pageParameters, false);
+		MenuItem serverWidePage = new MenuItem("serverWidePage", new ResourceModel("menu_serverwide"), ServerWidePage.class, pageParameters, false, null);
 		serverWidePage.setVisible(serverWidePageVisible);
 		add(serverWidePage);		
 	}

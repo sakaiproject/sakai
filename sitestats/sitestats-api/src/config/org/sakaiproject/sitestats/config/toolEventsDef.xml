@@ -15,6 +15,8 @@
 					 <tool><event><eventId> ==> event id from SAKAI_EVENT.EVENT (translated using bundle
 					 					in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/)
 					 <tool><event><selected> ==> select by default on new sites to be processed as activity
+					 <tool><event><anonymous> ==> statistics do not reveal the identity of the user for this event, event does not appear in User Activity
+					 <tool><event><resolvable> ==> event reference can be resolved to provide additional details on the User Actitivy page
  -->
 <toolEventsDef>
 
@@ -23,13 +25,16 @@
 	<tool 
 		toolId="sakai.announcements"
 		selected="true">
-		<event eventId="annc.read" selected="true"/>
-		<event eventId="annc.new" selected="true"/>
-		<event eventId="annc.revise.own" selected="true"/>
-		<event eventId="annc.revise.any" selected="true"/>
-		<event eventId="annc.delete.own" selected="true"/>
-		<event eventId="annc.delete.any" selected="true"/>
+		<event eventId="annc.read" selected="true" resolvable="true"/>
+		<event eventId="annc.new" selected="true" resolvable="true"/>
+		<event eventId="annc.revise.own" selected="true" resolvable="true"/>
+		<event eventId="annc.revise.any" selected="true" resolvable="true"/>
+		<event eventId="annc.delete.own" selected="true" resolvable="true"/>
+		<event eventId="annc.delete.any" selected="true" resolvable="true"/>
+		<!-- Format: /announcment/msg/<siteID>/<channelID>/<messageID> -->
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="subContextId" separator="/" index="4"/>
+		<eventParserTip for="entityId" separator="/" index="5"/>
 	</tool>
 			
 			
@@ -41,13 +46,19 @@
 		<!-- available in sakai 2.3+ (see SAK-10806) -->
 		<!-- removed in sakai 2.5 (see SAK-11180) -->
 		<!--<event eventId="asn.read" selected="true"/>-->
-		<event eventId="asn.new.assignment" selected="true"/>
-		<event eventId="asn.revise.assignment" selected="true"/>
-		<event eventId="asn.delete.assignment" selected="true"/>
-		<event eventId="asn.submit.submission" selected="true"/>
-		<event eventId="asn.save.submission" selected="true"/>
-		<event eventId="asn.grade.submission" selected="true"/>
-		<eventParserTip for="contextId" separator="/" index="3"/>
+		<event eventId="asn.new.assignment" selected="true" resolvable="true"/>
+		<event eventId="asn.revise.assignment" selected="true" resolvable="true"/>
+		<event eventId="asn.delete.assignment" selected="true" resolvable="true"/>
+		<event eventId="asn.submit.submission" selected="true" resolvable="true"/>
+		<event eventId="asn.save.submission" selected="true" resolvable="true"/>
+		<event eventId="asn.grade.submission" selected="true" resolvable="true"/>
+		<!-- new events tracked for Sakai 20 -->
+		<event eventId="asn.read.assignment" selected="true" resolvable="true"/>
+		<event eventId="asn.read.submission" selected="true" resolvable="true"/>
+		<!-- Formats: /assignment/a/<context>/<id>, /assignment/s/<context>/<container>/<id>,
+		 /assignment/s/<context>/<id> (unlikely), /assignment/submissions/<context>/<id> (unlikely)-->
+		<!-- possibly other formats ...-->
+		<eventParserTip for="contextId" separator="/" index="4"/>
 	</tool>
 
 
@@ -116,6 +127,27 @@
 		<eventParserTip for="contextId" separator="/" index="2"/>
 	</tool>
 
+	<!-- lessons -->
+	<tool
+		toolId="sakai.lessonbuildertool"
+		selected="true">
+		<event eventId="lessonbuilder.page.create" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.page.read" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.page.update" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.page.delete" selected="true" resolvable="false"/> <!-- page details cannot be retrieved -->
+		<event eventId="lessonbuilder.item.create" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.item.update" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.item.delete" selected="true" resolvable="false"/> <!-- item details cannot be retrieved -->
+		<event eventId="lessonbuilder.comment.create" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.comment.read" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.comment.update" selected="true" resolvable="true"/>
+		<event eventId="lessonbuilder.comment.delete" selected="true" resolvable="true"/>
+		<!-- Format: /announcment/msg/<siteID>/<channelID>/<messageID> -->
+		<eventParserTip for="contextId" separator="/" index="1"/>
+		<eventParserTip for="subContextId" separator="/" index="2"/>
+		<eventParserTip for="entityId" separator="/" index="3"/>
+	</tool>
+
 
 	<!-- mail -->
 	<tool 
@@ -145,9 +177,11 @@
 		toolId="sakai.simple.rss"
 		additionalToolIds="sakai.news"
 		selected="true">
-		<event eventId="news.read" selected="true"/>
-		<event eventId="news.revise" selected="true"/>
+		<event eventId="news.read" selected="true" resolvable="true"/>
+		<event eventId="news.revise" selected="true" resolvable="true"/>
+		<!-- /news/site/<siteID>/placement/<toolID> -->
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="subContextId" separator="/" index="5"/>
 	</tool>
 
 
@@ -182,29 +216,40 @@
 	<tool 
 		toolId="sakai.forums"
 		selected="true">
-		<event eventId="forums.new" selected="true"/>
-		<event eventId="forums.read" selected="true"/>
-		<event eventId="forums.response" selected="true"/>
-        <event eventId="forums.grade" selected="true"/>
-        <event eventId="forums.newtopic" selected="true"/>
-        <event eventId="forums.revisetopic" selected="true"/>
-        <event eventId="forums.delete" selected="true"/>
-        <event eventId="forums.deleteforum" selected="true"/>
-        <event eventId="forums.deletetopic" selected="true"/>
+		<event eventId="forums.new" selected="true" resolvable="true"/>
+		<event eventId="forums.read" selected="true" resolvable="true"/>
+		<event eventId="forums.response" selected="true" resolvable="true"/>
+		<event eventId="forums.grade" selected="true" resolvable="true"/>
+		<event eventId="forums.newtopic" selected="true" resolvable="true"/>
+		<event eventId="forums.revisetopic" selected="true" resolvable="true"/>
+		<event eventId="forums.delete" selected="true" resolvable="true"/>
+		<event eventId="forums.deleteforum" selected="true" resolvable="true"/>
+		<event eventId="forums.deletetopic" selected="true" resolvable="true"/>
+		<!-- Format: /forums/site/<site_id>/<level>/<item_id>/<user_id> -->
+		<eventParserTip for="tool" separator="/" index="1"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="subContextId" separator="/" index="4"/>
+		<eventParserTip for="entityId" separator="/" index="5"/>
+		<eventParserTip for="userId" separator="/" index="6"/>
 	</tool>
 	
 	<!-- messages -->
 	<tool 
 		toolId="sakai.messages"
 		selected="true">
+		<!-- NOTE: private messages events are by default not marked as resolvable due to privacy concerns -->
 		<event eventId="messages.new" selected="true"/>
 		<event eventId="messages.newfolder" selected="true"/>
 		<event eventId="messages.delete" selected="true"/>
 		<event eventId="messages.reply" selected="true"/>
         <event eventId="messages.forward" selected="true"/>
         <event eventId="messages.read" selected="true"/>
+		<!-- Format: /messages/site/<site_id>/<level>/<item_id>/<user_id> -->
+		<eventParserTip for="tool" separator="/" index="1"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="subContextId" separator="/" index="4"/>
+		<eventParserTip for="entityId" separator="/" index="5"/>
+		<eventParserTip for="userId" separator="/" index="6"/>
 	</tool>
 	
     <!-- melete (Melete 2.6+) -->
@@ -307,12 +352,16 @@
 	<tool 
 		toolId="sakai.podcasts"
 		selected="true">
-		<event eventId="podcast.add" selected="true"/> <!-- (see SAK-10807) -->
-		<event eventId="podcast.revise" selected="true"/>
-		<event eventId="podcast.delete" selected="true"/>
+		<event eventId="podcast.add" selected="true" resolvable="true"/> <!-- (see SAK-10807) -->
+		<event eventId="podcast.revise" selected="true" resolvable="true"/>
+		<event eventId="podcast.delete" selected="true" resolvable="true"/>
 		<event eventId="podcast.read.public" selected="true"/>
 		<event eventId="podcast.read.site" selected="true"/>
+		<!-- Format: /content/group/<siteID>/Podcasts/<fileName> OR
+		/content/group/<siteID>/Podcasts/<userID>//content/group/<siteID>/Podcasts/<fileName> (podcast.add) -->
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="entityId" separator="content" index="1"/>
+		<eventParserTip for="resourceId" separator="content" index="2"/>
 	</tool>	
 	
 	
@@ -321,25 +370,29 @@
 	<tool 
 		toolId="sakai.poll"
 		selected="true">
-		<event eventId="poll.vote" selected="true" anonymous="true"/>
-		<event eventId="poll.add" selected="true"/>
-		<event eventId="poll.update" selected="true"/>
-		<event eventId="poll.delete" selected="true"/>
-		<event eventId="poll.viewResult" selected="true"/> <!-- sakai 2.5+ -->
+		<event eventId="poll.vote" selected="true" resolvable="true" anonymous="true"/>
+		<event eventId="poll.add" selected="true" resolvable="true"/>
+		<event eventId="poll.update" selected="true" resolvable="true"/>
+		<event eventId="poll.delete" selected="true" resolvable="true"/>
+		<event eventId="poll.viewResult" selected="true" resolvable="true"/> <!-- sakai 2.5+ -->
+		<!-- Format: /poll/site/<siteID>/poll/<pollID> -->
 		<eventParserTip for="contextId" separator="/" index="2"/>
-	</tool>	
-
+		<eventParserTip for="entityId" separator="/" index="4"/>
+	</tool>
 
 	<!-- resources and dropbox -->
 	<tool 
 		toolId="sakai.resources"
 		additionalToolIds="sakai.dropbox"
 		selected="true">
-		<event eventId="content.new" selected="true"/>
-		<event eventId="content.read" selected="true"/>
-		<event eventId="content.revise" selected="true"/>
-		<event eventId="content.delete" selected="true"/>
+		<event eventId="content.new" selected="true" resolvable="true"/>
+		<event eventId="content.read" selected="true" resolvable="true"/>
+		<event eventId="content.revise" selected="true" resolvable="true"/>
+		<event eventId="content.delete" selected="true" resolvable="true"/>
+		<!-- Format: varies, but generally conforms to:
+		/content/<content_reference> where <content_reference> typically contains <site_id> -->
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="entityId" separator="content" index="1"/>
 	</tool>
 
 
@@ -359,27 +412,30 @@
 		selected="true">
 		<event eventId="sam.setting.edit" selected="true"/>
 		<event eventId="sam.email" selected="true"/>
-		<event eventId="sam.assessment.create" selected="true"/>
-		<event eventId="sam.assessment.revise" selected="true"/>
-		<event eventId="sam.assessment.submit" selected="true"/>
-		<event eventId="sam.assessment.submit.via_url" selected="true"/>
-		<event eventId="sam.assessment.submit.checked" selected="true"/>
-		<event eventId="sam.assessment.submit.click_sub" selected="true"/>
-		<event eventId="sam.assessment.submit.auto" selected="true"/>
-		<event eventId="sam.assessment.submit.from_last" selected="true"/>
-		<event eventId="sam.assessment.submit.from_toc" selected="true"/>
-		<event eventId="sam.assessment.submit.timer" selected="true"/>
-		<event eventId="sam.assessment.submit.timer.url" selected="true"/>
-		<event eventId="sam.assessment.submit.timer.thrd" selected="true"/>
-		<event eventId="sam.assessment.publish" selected="true"/>
-		<event eventId="sam.assessment.take" selected="true"/>
-		<event eventId="sam.assessment.take.via_url" selected="true"/>
+		<event eventId="sam.assessment.create" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.revise" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.via_url" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.checked" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.click_sub" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.auto" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.from_last" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.from_toc" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.timer" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.timer.url" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.submit.timer.thrd" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.publish" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.take" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.take.via_url" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.resume" selected="true" resolvable="true"/>
+		<event eventId="sam.assessment.review" selected="true" resolvable="true"/>
 		<event eventId="sam.pubassessment.confirm_edit" selected="true"/>
-		<event eventId="sam.pubassessment.revise" selected="true"/>
-		<event eventId="sam.pubsetting.edit" selected="true"/>
+		<event eventId="sam.pubassessment.revise" selected="true" resolvable="true"/>
+		<event eventId="sam.pubsetting.edit" selected="true" />
 		<event eventId="sam.student.score.update" selected="true"/>
 		<event eventId="sam.question.score.update" selected="true"/>
 		<event eventId="sam.total.score.update" selected="true"/>
+		<!-- Format varies greatly, requires custom parsing for resolvable events -->
 	</tool>
 	
 	
@@ -391,14 +447,18 @@
 	</tool>
 	
 	
-	<!-- scheduler -->
+	<!-- calendar -->
 	<tool 
 		toolId="sakai.schedule"
 		selected="true">
-		<event eventId="calendar.new" selected="true"/>
-		<event eventId="calendar.revise" selected="true"/>
-		<event eventId="calendar.read" selected="true"/>
+		<event eventId="calendar.new" selected="true" resolvable="true"/>
+		<event eventId="calendar.revise" selected="true" resolvable="true"/>
+		<event eventId="calendar.read" selected="true" resolvable="true"/>
+		<!-- Format: /calendar/event/<siteID>/<calendarID>/<eventID> -->
+		<!-- Except calendar.read which will need custom parsing -->
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="subContextId" separator="/" index="4"/>
+		<eventParserTip for="entityId" separator="/" index="5"/>
 	</tool>
 	
 	
@@ -442,11 +502,13 @@
 		selected="true">
 		<event eventId="syllabus.post.new" selected="true"/>
 		<event eventId="syllabus.post.change" selected="true"/>
-		<event eventId="syllabus.read" selected="true"/>
+		<event eventId="syllabus.read" selected="true" resolvable="false"/> <!-- additional details cannot be retrieved -->
 		<event eventId="syllabus.delete" selected="true"/>
 		<event eventId="syllabus.draft.new" selected="true"/>
 		<event eventId="syllabus.draft.change" selected="true"/>
+		<!-- Format: /syllabus/<siteID>/<syllabusDataID> -->
 		<eventParserTip for="contextId" separator="/" index="2"/>
+		<eventParserTip for="entityId" separator="/" index="3"/>
 	</tool>
 	
 	
@@ -515,10 +577,12 @@
 	<tool 
 		toolId="sakai.rwiki"
 		selected="true">
-		<event eventId="wiki.new" selected="true"/>
-		<event eventId="wiki.read" selected="true"/>
-		<event eventId="wiki.revise" selected="true"/>
+		<event eventId="wiki.new" selected="true" resolvable="true"/>
+		<event eventId="wiki.read" selected="true" resolvable="true"/>
+		<event eventId="wiki.revise" selected="true" resolvable="true"/>
+		<!-- Format: /wiki/site/<siteID>/<pageName> -->
 		<eventParserTip for="contextId" separator="/" index="3"/>
+		<eventParserTip for="entityId" separator="/" index="4"/>
 	</tool>
 	
 	<!-- yaft -->
@@ -544,6 +608,7 @@
         <event eventId="sitestats.report.delete" selected="false"/>
         <event eventId="sitestats.report.view" selected="false"/>
         <event eventId="sitestats.prefs.edit" selected="false"/>
+		<event eventId="sitestats.track" selected="false"/>
         <eventParserTip for="contextId" separator="/" index="2"/>
     </tool>
     <!-- profile 2 -->
@@ -587,14 +652,17 @@
 		toolId="sakai.iframe"
 		selected="true"
 		additionalToolIds="sakai.iframe.service,sakai.iframe.myworkspace,sakai.iframe.site">
-        <event eventId="webcontent.read" selected="true"/>
-        <event eventId="webcontent.revise" selected="true"/>
-        <event eventId="webcontent.service.read" selected="true"/>
-        <event eventId="webcontent.service.revise" selected="true"/>
-        <event eventId="webcontent.myworkspace.read" selected="true"/>
-        <event eventId="webcontent.myworkspace.revise" selected="true"/>
-        <event eventId="webcontent.site.read" selected="true"/>
-        <event eventId="webcontent.site.revise" selected="true"/>
+        <event eventId="webcontent.read" selected="true" resolvable="true"/>
+        <event eventId="webcontent.revise" selected="true" resolvable="true"/>
+        <event eventId="webcontent.service.read" selected="true" resolvable="true"/>
+        <event eventId="webcontent.service.revise" selected="true" resolvable="true"/>
+        <event eventId="webcontent.myworkspace.read" selected="true" resolvable="true"/>
+        <event eventId="webcontent.myworkspace.revise" selected="true" resolvable="true"/>
+        <event eventId="webcontent.site.read" selected="true" resolvable="true"/>
+        <event eventId="webcontent.site.revise" selected="true" resolvable="true"/>
+        <!-- Format: /web/<siteID>/id/<toolID>/url/<urlOrFile> -->
         <eventParserTip for="contextId" separator="/" index="2"/>
+        <eventParserTip for="subContextId" separator="/" index="4"/>
+        <eventParserTip for="entityId" separator="/" index="6"/>
 	</tool>
 </toolEventsDef>

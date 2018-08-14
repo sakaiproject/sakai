@@ -73,6 +73,7 @@ import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
+import org.sakaiproject.sitestats.api.UserId;
 import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -117,6 +118,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						isEventContextSupported					= false;
 	private boolean						enableReportExport						= true;
 	private boolean						sortUsersByDisplayName					= false;
+	private boolean						displayDetailedEvents					= false;
 
 	/** Controller fields */
 	private boolean						showAnonymousAccessEvents				= true;
@@ -336,6 +338,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return enableReportExport;
 	}
 
+	public void setDisplayDetailedEvents(boolean value) {
+		displayDetailedEvents = value;
+	}
+
+	@Override
+	public boolean isDisplayDetailedEvents() {
+		return displayDetailedEvents;
+	}
 	
 	// ################################################################
 	// Spring init/destroy methods
@@ -553,6 +563,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return user.getDisplayName();
 		}else{
 			return user.getSortName();
+		}
+	}
+
+	@Override
+	public String getUserInfoForDisplay(String userId, String siteId) {
+		try{
+			User u = M_uds.getUser(userId);
+			return msgs.getFormattedMessage("user_info", getUserNameForDisplay(u), u.getDisplayId(siteId));
+		}catch (UserNotDefinedException e){
+			return msgs.getFormattedMessage("user_info", msgs.getString("user_unknown"), userId);
 		}
 	}
 	
@@ -3874,6 +3894,11 @@ if (log.isDebugEnabled()) {
 				ref.append(LOG_OBJ_REPORTDEF);
 				ref.append('/');
 				ref.append(((ReportDef) object).getId());
+			}else if(object instanceof UserId) {
+				ref.append('/');
+				ref.append(LOG_OBJ_USER);
+				ref.append('/');
+				ref.append(((UserId) object).uuid);
 			}else if(object instanceof String) {
 				String str = ((String) object).toLowerCase();
 				event.append('.');

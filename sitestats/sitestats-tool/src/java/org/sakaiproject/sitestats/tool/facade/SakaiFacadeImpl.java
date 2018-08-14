@@ -27,6 +27,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -44,6 +45,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private transient ChartService			chartService;
 	private transient StatsUpdateManager		statsUpdateManager;
 	private transient ServerWideReportManager serverWideReportManager;
+	private transient DetailedEventsManager detailedEventsManager;
 
 	// Sakai services
 	private transient SessionManager			sessionManager;
@@ -108,6 +110,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 	public final void setServerWideReportManager(ServerWideReportManager serverWideReportManager) {
 		this.serverWideReportManager = serverWideReportManager;
+	}
+
+	public final DetailedEventsManager getDetailedEventsManager() {
+		return detailedEventsManager;
+	}
+
+	public final void setDetailedEventsManager(DetailedEventsManager value) {
+		detailedEventsManager = value;
 	}
 
 	public final SessionManager getSessionManager() {

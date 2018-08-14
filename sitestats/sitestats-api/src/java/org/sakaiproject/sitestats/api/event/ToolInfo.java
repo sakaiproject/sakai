@@ -32,16 +32,18 @@ public class ToolInfo implements Serializable, Cloneable {
 	private List<String>				additionalToolIds;
 	private List<EventInfo>				eventInfos;
 	private boolean						selected;
-	private EventParserTip				eventParserTip;
+	private final List<EventParserTip> 	eventParserTips;
 	
 	public ToolInfo(String toolId) {
 		this.toolId = toolId;
-		eventInfos = new ArrayList<EventInfo>();
+		eventInfos = new ArrayList<>();
+		eventParserTips = new ArrayList<>(3);
 	}
 	public ToolInfo(String toolId, List<String> additionalToolIds) {
 		this.toolId = toolId;
 		this.additionalToolIds = additionalToolIds;
-		eventInfos = new ArrayList<EventInfo>();
+		eventInfos = new ArrayList<>();
+		eventParserTips = new ArrayList<>(3);
 	}
 
 	public ToolInfo(ToolInfo tool) {
@@ -52,7 +54,11 @@ public class ToolInfo implements Serializable, Cloneable {
 			eventInfos.add(info.clone());
 		}
 		selected = tool.selected;
-		eventParserTip = tool.eventParserTip != null ? tool.eventParserTip.clone() : null;
+		eventParserTips = new ArrayList<>(tool.eventParserTips.size());
+		for (EventParserTip tip : tool.eventParserTips) {
+			eventParserTips.add(tip.clone());
+		}
+
 	}
 
 	@Override
@@ -123,13 +129,13 @@ public class ToolInfo implements Serializable, Cloneable {
 	public int hashCode() {
 		return getToolId().hashCode();
 	}
-	
-	public EventParserTip getEventParserTip() {
-		return eventParserTip;
+
+	public List<EventParserTip> getEventParserTips() {
+		return eventParserTips;
 	}
 
-	public void setEventParserTip(EventParserTip eventParserTip) {
-		this.eventParserTip = eventParserTip;
+	public void addEventParserTip(EventParserTip tip) {
+		eventParserTips.add(tip);
 	}
 	
 	public String toString() {

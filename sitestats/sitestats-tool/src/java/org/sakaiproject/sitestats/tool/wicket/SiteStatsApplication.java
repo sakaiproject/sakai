@@ -44,6 +44,7 @@ import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.UserActivityPage;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -68,6 +69,7 @@ public class SiteStatsApplication extends WebApplication {
 		// Mount pages
 		mountPage("/home", OverviewPage.class);
 		mountPage("/reports", ReportsPage.class);
+		mountPage("/useractivity", UserActivityPage.class);
 		mountPage("/preferences", PreferencesPage.class);
 		
 		// On wicket session timeout, redirect to main page

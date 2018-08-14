@@ -207,7 +207,7 @@ public class EventUtil {
 				// tool not found, add tool and its events
 				toBeAdded.add(newTool);
 			}else if(foundTool && replaceEventsForTool){
-				// tool found, replace its events (but keep the event anonymous flag)
+				// tool found, replace its events (but keep the event anonymous and resolvable flags)
 				Iterator<EventInfo> newToolEvents = newTool.getEvents().iterator();
 				while(newToolEvents.hasNext()){
 					EventInfo newEvent = newToolEvents.next();
@@ -220,8 +220,9 @@ public class EventUtil {
 							break;
 						}
 					}
-					if(foundEvent && existingEvent != null && existingEvent.isAnonymous()){
-						newEvent.setAnonymous(true);
+					if(foundEvent && existingEvent != null){
+						newEvent.setAnonymous(existingEvent.isAnonymous());
+						newEvent.setResolvable(existingEvent.isResolvable());
 					}
 				}
 				existingTool = newTool;
