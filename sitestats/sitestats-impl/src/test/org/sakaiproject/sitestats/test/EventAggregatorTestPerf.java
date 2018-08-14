@@ -122,7 +122,8 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 		expect(M_ss.getSite(siteId)).andStubReturn(siteA);
 		expect(M_ss.isUserSite(siteId)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(siteId)).andStubReturn(false);
-		Mockito.when(siteA.getCreatedTime()).thenReturn(Mockito.any(Time.class));
+		//Mockito.when(siteA.getCreatedTime()).thenReturn(Mockito.any(Time.class));
+		Mockito.when(siteA.getCreatedDate()).thenReturn(Mockito.any(Date.class));
 		// Site 'non_existent_site' doesn't exist
 		expect(M_ss.isUserSite("non_existent_site")).andStubReturn(false);
 		expect(M_ss.isSpecialSite("non_existent_site")).andStubReturn(false);
