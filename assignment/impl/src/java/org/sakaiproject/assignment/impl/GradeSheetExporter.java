@@ -364,22 +364,7 @@ public class GradeSheetExporter {
     }
 
 	private String getGrade(final AssignmentSubmissionSubmitter submissionSubmitter) {
-		final Assignment assignment = submissionSubmitter.getSubmission().getAssignment();
-		if (StringUtils
-				.isNotBlank(assignment.getProperties()
-						.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
-				&& assignmentService.getGradeForUserInGradeBook(assignment.getId(),
-						submissionSubmitter.getSubmitter()) != null) {
-			return assignmentService.getGradeForUserInGradeBook(assignment.getId(), submissionSubmitter.getSubmitter());
-		}
-		// TODO originally called submission.getGradeForUser(userId);
-		else if (submissionSubmitter.getGrade() != null) {
-			return assignmentService.getGradeDisplay(submissionSubmitter.getGrade(), assignment.getTypeOfGrade(),
-					assignment.getScaleFactor());
-		} else {
-			return assignmentService.getGradeDisplay(submissionSubmitter.getSubmission().getGrade(),
-					assignment.getTypeOfGrade(), assignment.getScaleFactor());
-		}
+        return assignmentService.getGradeForSubmitter(submissionSubmitter.getSubmission(), submissionSubmitter.getSubmitter());
 	}
 
     // This small holder is so that we can hold details about a floating point number while building up the list.

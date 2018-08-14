@@ -1351,7 +1351,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * @return
      */
     private AssignmentSubmission getSubmission(String submissionReference, String callingFunctionName, SessionState state) {
-        log.info("function {} requesting submission with reference = {}", callingFunctionName, submissionReference);
+        log.debug("function {} requesting submission with reference = {}", callingFunctionName, submissionReference);
         AssignmentSubmission rv = null;
         String submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionReference).reckon().getId();
         try {
@@ -1497,17 +1497,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     String currentUser = userDirectoryService.getCurrentUser().getId();
 
-                    String gradeOverride = null;
-                    // if this assignment is associated with the gradebook get grade from gradebook
-                    if (StringUtils.isNotBlank(assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
-                            && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE)) {
-                        gradeOverride = assignmentService.getGradeForUserInGradeBook(assignment.getId(), currentUser);
-                    }
-                    // if no grade from gradebook then check submission
-                    if (StringUtils.isBlank(gradeOverride)) {
-                        Optional<AssignmentSubmissionSubmitter> sub = s.getSubmitters().stream().filter(p -> p.getSubmitter().equals(currentUser)).findFirst();
-                        if (sub.isPresent()) gradeOverride = sub.get().getGrade();
-                    }
+                    String gradeOverride = assignmentService.getGradeForSubmitter(s, currentUser);
+
                     // if still no grade then there is no override
                     if (gradeOverride != null) {
                         context.put("override", gradeOverride);
@@ -2140,25 +2131,10 @@ public class AssignmentAction extends PagedResourceActionII {
             submission.getFeedbackAttachments().forEach(r -> submissionFeedbackAttachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionFeedbackAttachmentReferences", submissionFeedbackAttachmentReferences);
 
-            if (assignment.getIsGroup()) {
-                String currentUser = userDirectoryService.getCurrentUser().getId();
+            String currentUser = userDirectoryService.getCurrentUser().getId();
+            String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
+            context.put("grade", grade);
 
-                String gradeOverride = null;
-                // if this assignment is associated with the gradebook get grade from gradebook
-                if (StringUtils.isNotBlank(assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
-                        && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE)) {
-                    gradeOverride = assignmentService.getGradeForUserInGradeBook(assignment.getId(), currentUser);
-                }
-                // if no grade from gradebook then check submission
-                if (StringUtils.isBlank(gradeOverride)) {
-                    Optional<AssignmentSubmissionSubmitter> sub = submission.getSubmitters().stream().filter(p -> p.getSubmitter().equals(currentUser)).findFirst();
-                    if (sub.isPresent()) gradeOverride = sub.get().getGrade();
-                }
-                // if still no grade then there is no override
-                if (gradeOverride != null) {
-                    context.put("override", gradeOverride);
-                }
-            }
             // can the student view model answer or not
             canViewAssignmentIntoContext(context, assignment, submission);
 
@@ -3300,14 +3276,9 @@ public class AssignmentAction extends PagedResourceActionII {
             // try to put in grade overrides
             if (a.getIsGroup()) {
                 Map<String, Object> grades = new HashMap<>();
-                for (  String userId : users.keySet()) {
+                for (String userId : users.keySet()) {
                     if (state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId) != null) {
-                        grades.put(
-                                userId,
-                                gradeType == SCORE_GRADE_TYPE
-                                        ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId), a.getScaleFactor())
-                                        : state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId)
-                        );
+                        grades.put(userId, state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId));
                     }
                 }
                 context.put("value_grades", grades);
@@ -3340,8 +3311,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
 
         // format to show one decimal place in grade
-        context.put("value_grade", (gradeType == SCORE_GRADE_TYPE) ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())
-                : state.getAttribute(GRADE_SUBMISSION_GRADE));
+        context.put("value_grade", state.getAttribute(GRADE_SUBMISSION_GRADE));
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
@@ -4123,11 +4093,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (ss != null && ss.getSubmission() != null) {
                         List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
                         for (String user : users) {
-                            String agrade = (StringUtils.isNotBlank(p.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))) && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) ?
-                                    assignmentService.getGradeForUserInGradeBook(assignment.getId(), user) != null
-                                            ? assignmentService.getGradeForUserInGradeBook(assignment.getId(), user) :
-                                            ss.getGradeForUser(user)
-                                    : ss.getGradeForUser(user);
+                            String agrade = assignmentService.getGradeForSubmitter(ss.getSubmission(), user);
                             if (agrade != null) {
                                 ugrades.put(user, agrade);
                             }
@@ -9858,31 +9824,20 @@ public class AssignmentAction extends PagedResourceActionII {
                 s.getFeedbackAttachments().forEach(f -> v.add(entityManager.newReference(f)));
                 state.setAttribute(ATTACHMENTS, v);
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, v);
-                state.setAttribute(GRADE_SUBMISSION_GRADE, s.getGrade());
+                String grade = assignmentService.getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor());
 
                 // populate grade overrides if they exist
-                if (a.getIsGroup()) {
-                    Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
-                    Map<String, String> p = a.getProperties();
-                    for (AssignmentSubmissionSubmitter submitter : submitters) {
-                        String grade_override = null;
-                        if (a.getTypeOfGrade() == SCORE_GRADE_TYPE
-                                && StringUtils.isNotBlank(p.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))
-                                && assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()) != null
-                                && !(assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()).equals(displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())))
-                                && state.getAttribute(GRADE_SUBMISSION_GRADE) != null) {
-                            // grade from gradebook
-                            grade_override = assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter());
+                for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
+                    String gradeOverride = assignmentService.getGradeForSubmitter(s, submitter.getSubmitter());
+                    if (!StringUtils.equals(grade, gradeOverride)) {
+                        if (a.getIsGroup()) {
+                            state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
                         } else {
-                            if (submitter.getGrade() != null) {
-                                grade_override = submitter.getGrade();
-                            }
-                        }
-                        if (StringUtils.isNotBlank(grade_override)) {
-                            state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), grade_override);
+                            grade = gradeOverride;
                         }
                     }
                 }
+                state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 
                 // put the resubmission info into state
                 assignment_resubmission_option_into_state(a, s, state);
@@ -14713,26 +14668,8 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         public String getGradeForUser(String id) {
-        	String grade = null;
-
-        	if (submission != null) {
-        		Assignment a = submission.getAssignment();
-        		String g = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        		if (StringUtils.isNotBlank(g) && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
-        			// check if they already have a gb entry
-        			grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
-        		}
-        		if (grade == null) {
-        			AssignmentSubmissionSubmitter submitter = submission.getSubmitters().stream()
-        					.filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
-        			// if the submitter has a specific grade then use that one first
-        			grade = StringUtils.isNotBlank(submitter.getGrade()) ? submitter.getGrade() : submission.getGrade();
-        		}
-        		return assignmentService.getGradeDisplay(grade, a.getTypeOfGrade(), a.getScaleFactor());
-        	}
-        	return grade;
+            return assignmentService.getGradeForSubmitter(submission, id);
         }
-        
     }
 
     /**

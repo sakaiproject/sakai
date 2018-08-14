@@ -225,11 +225,7 @@ $(document).ready(function(){
 							<div class="itemSummaryValue highlight">
 								<strong>
 									#if ($gradeScale != 1)
-										#if ($!override)
-											$!service.getGradeDisplay($override, $!assignment.TypeOfGrade, $!assignment.ScaleFactor)
-										#else
-											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
-										#end
+										$!grade
 									#else
 										$tlang.getString("gen.nograd")
 									#end
