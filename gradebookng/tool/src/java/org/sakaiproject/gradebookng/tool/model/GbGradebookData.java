@@ -620,7 +620,7 @@ public class GbGradebookData {
 		}
 
 		public boolean isLarge() {
-			return score != null && Double.valueOf(score) > 16384;
+			return score != null && Double.valueOf(score) >= 16384;
 		}
 
         public boolean isExcused() {
