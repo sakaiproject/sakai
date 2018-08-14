@@ -2,7 +2,7 @@
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -19,10 +19,10 @@ if (thisId == null)
       <h:form id="revise">
                 <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 
-       		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 			<%--			--%>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 
 		<script type="text/javascript">
 			$(document).ready(function(){

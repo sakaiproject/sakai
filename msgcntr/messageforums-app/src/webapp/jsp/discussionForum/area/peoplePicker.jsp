@@ -1,5 +1,4 @@
 
-<f:verbatim>
     <h:outputText escape="false" value='<div class="sakai-ppkr" id="sakai-ppkr-messages" title="#{msgs.rank_picker_assign_individuals}">'/>
         <div class="sakai-ppkr-filter">
             <div class="sakai-ppkr-header sakai-ppkr-filter-header">
@@ -70,4 +69,3 @@
     <div id="data" style="display: none">
         <h:outputText escape="false" value="#{ForumTool.totalAssignToListJSON}" />
     </div>
-</f:verbatim>

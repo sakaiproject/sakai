@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
@@ -8,8 +8,8 @@
 	<sakai:view_content>
 		<h:form enctype="multipart/form-data">
 		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 		  <sakai:tool_bar>
 		  	<sakai:tool_bar_message value="Attachment from a Local File" /> 
 		  </sakai:tool_bar>
@@ -32,10 +32,10 @@
 				</sakai:group_box>
 
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{PrivateMessagesTool.processUploadConfirm}"
 						value="Attach" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{PrivateMessagesTool.processUploadCancel}"
 						value="Cancel" />
 				</sakai:button_bar>

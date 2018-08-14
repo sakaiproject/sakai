@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -22,12 +22,12 @@
 <script type="text/javascript" src="/messageforums-tool/js/frameAdjust.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/forum_movethread.js"></script>
 
-<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
 		<script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
-		<sakai:script contextBase="/messageforums-tool" path="/js/forumTopicThreadsSorter.js"/>
+		<script type="text/javascript" src="/messageforums-tool/js/forumTopicThreadsSorter.js"></script>
  		<script type="text/javascript">
  		jQuery(document).ready(function(){
  			//sort forum threads
@@ -88,7 +88,7 @@
 
 	<%--//
 		//plugin required below
-		<sakai:script contextBase="/messageforums-tool" path="/js/pxToEm.js"/>
+		<script type="text/javascript" src="/messageforums-tool/js/pxToEm.js"></script>
 		
 		/*
 		gsilver: get a value representing max indents
@@ -166,13 +166,13 @@
 			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_discussion_forums}" rendered="#{ForumTool.forumsTool}" >
 							<h:outputText value="#{msgs.cdfm_discussion_forums}"/>
 						</h:commandLink>
-      			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+      			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" title="#{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
 						<h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
 					  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
-					  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+					  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 					  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 						<%--//designNote: up arrow should go here - get decent image and put title into link. --%>
 						<h:commandLink action="#{ForumTool.processActionDisplayForum}"  title="#{msgs.cdfm_up_level_title}" rendered="#{ForumTool.showForumLinksInNav}" style="margin-left:.3em">

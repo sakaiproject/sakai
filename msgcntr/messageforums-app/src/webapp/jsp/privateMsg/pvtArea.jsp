@@ -5,7 +5,7 @@
   <mf:forum_bar_link value="#{msgs.pvt_statistics}" action="#{PrivateMessagesTool.processPvtMsgStatistics}"/> &nbsp;
  --%>
         		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
   <mf:forum_bar_link value="#{msgs.pvt_settings}" action="#{PrivateMessagesTool.processPvtMsgSettings}"
                      rendered="#{PrivateMessagesTool.atMain}"/> &nbsp;
 <!--jsp/privateMsg/pvtArea.jsp-->

@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -11,12 +11,12 @@
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_topic_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>      
+	<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>      
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
-	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
+	<script type="text/javascript" src="/messageforums-tool/js/permissions_header.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	
@@ -102,13 +102,13 @@
 				      		rendered="#{ForumTool.messagesandForums}" />
 				      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 				      		rendered="#{ForumTool.forumsTool}" />
-			  			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			  			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 						  <h:commandLink action="#{ForumTool.processActionDisplayForum}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
 							  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 							  <h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
 						  </h:commandLink>
 						  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
-						  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+						  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 						  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 							<h:outputText value="#{msgs.cdfm_discussion_topic_settings}" />
 			
@@ -205,12 +205,12 @@
 			</h:panelGroup>
 
 			<p class="act" style="padding:0 0 1em 0;">
-				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" 
+				<h:commandButton action="#{ForumTool.processAddAttachmentRedirect}" 
 					value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" 
 					accesskey="a" 
 					 rendered="#{!empty ForumTool.attachments}"
 					 style="font-size:95%"/>
-				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" 
+				<h:commandButton action="#{ForumTool.processAddAttachmentRedirect}" 
 					value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
 					accesskey="a" 
 					 rendered="#{empty ForumTool.attachments}" 

@@ -6,7 +6,7 @@
                  org.sakaiproject.tool.cover.ToolManager" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>	
@@ -120,7 +120,7 @@
 			}
 		</script>
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
+			<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
 			<script type="text/javascript" src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
@@ -182,16 +182,16 @@
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
-			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
-			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
 				    <f:param value="" name="topicId"/>
 				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
 				    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsForumTitle}" />
 		      	  </h:commandLink>
 			      <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId}">
-	    			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+	    			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			   		  <h:outputText value="#{mfStatisticsBean.selectedAllTopicsTopicTitle}" />
 		   		  </h:panelGroup>
 			    <f:verbatim></h3></f:verbatim>
@@ -352,7 +352,7 @@
 		  <h:panelGroup styleClass="itemNav" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">
 		  	<h:commandButton action="#{mfStatisticsBean.proccessActionSubmitGrades}" value="#{msgs.stat_forum_submit_grades}" accesskey="s"
 		  		onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" />
-		  	<h:commandButton action="" value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="c"
+		  	<h:commandButton value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="c"
 		  		onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" />
 		  </h:panelGroup>	
         </h:panelGrid>  
