@@ -3478,6 +3478,31 @@ public class SimplePageBean {
 
 	    return ret;
 	}
+	
+	public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
+		String subPageTitle = "";
+		List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(String.valueOf(item.getPageId()));
+		while(items != null && items.size()>0)
+		{
+			if("".equals(subPageTitle) && subPageTitleContinue)
+			{
+				subPageTitle = items.get(0).getName() + " (" + messageLocator.getMessage("simplepage.printall.continuation") + ")";
+			}
+			else if("".equals(subPageTitle))
+			{
+				subPageTitle = items.get(0).getName();
+			}
+			else
+			{
+				subPageTitle = items.get(0).getName() +" > "+ subPageTitle;
+			}
+			items = simplePageToolDao.findItemsBySakaiId(String.valueOf(items.get(0).getPageId()));
+		}
+				
+		if("".equals(subPageTitle)) subPageTitle = null;
+			
+		return subPageTitle;
+	}
 
     // too much existing code to convert to throw at the moment
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
