@@ -80,6 +80,7 @@ public class SiteStatsPersistenceConfig {
         return new String[] {
                 "org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml",
                 "org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml",
+                "org/sakaiproject/sitestats/impl/hbm/DetailedEventImpl.hbm.xml",
                 "org/sakaiproject/sitestats/impl/hbm/LessonBuilderStatImpl.hbm.xml",
                 "org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml",
                 "org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml",

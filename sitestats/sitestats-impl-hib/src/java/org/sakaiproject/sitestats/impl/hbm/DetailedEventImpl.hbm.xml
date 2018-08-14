@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+	PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.sitestats.impl.DetailedEventImpl"
+		table="SST_DETAILED_EVENTS"
+		lazy="true">
+		<id name="id" type="long" column="ID" unsaved-value="0">
+			<generator class="native">
+				<param name="sequence">SST_DETAILED_EVENTS_ID</param>
+			</generator>
+		</id>
+		<property name="siteId" type="string" not-null="true" index="IDX_DE_SITE_ID_DATE">
+			<column name="SITE_ID" length="99" not-null="true" index="IDX_DE_SITE_ID_USER_ID_DATE" />
+		</property>
+		<property name="userId" type="string" not-null="true">
+			<column name="USER_ID" length="99" not-null="true" index="IDX_DE_SITE_ID_USER_ID_DATE" />
+		</property>
+		<property name="eventId" type="string" not-null="true">
+			<column name="EVENT_ID" length="32" not-null="true" />
+		</property>
+		<property name="eventDate" type="timestamp" not-null="true" index="IDX_DE_SITE_ID_DATE">
+			<column name="EVENT_DATE" not-null="true" index="IDX_DE_SITE_ID_USER_ID_DATE" />
+		</property>
+		<property name="eventRef" type="string" not-null="true">
+			<column name="EVENT_REF" length="512" not-null="true" />
+		</property>
+	</class>
+</hibernate-mapping>

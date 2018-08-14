@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+    <wicket:panel>
+        <ul class="eventDetailsList">
+            <li wicket:id="detailsList">
+                <span class="eventDetailsKey"><span wicket:id="key">key</span>:</span><span wicket:id="details" class="eventDetailsDescription">value</span>
+            </li>
+        </ul>
+    </wicket:panel>
+
+    <wicket:fragment wicket:id="text">
+        <span wicket:id="displayValue">Display Value</span>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="link">
+        <a wicket:id="displayLink">Display Link</a>
+    </wicket:fragment>
+    </body>
+</html>

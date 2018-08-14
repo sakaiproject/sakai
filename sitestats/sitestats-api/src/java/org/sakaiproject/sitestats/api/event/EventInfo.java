@@ -25,6 +25,7 @@ public class EventInfo implements Serializable, Cloneable {
 	private String				eventId;
 	private boolean				selected;
 	private boolean				anonymous;
+	private boolean				resolvable = false;
 
 	public EventInfo(String eventId) {
 		this.eventId = eventId.trim();
@@ -34,6 +35,7 @@ public class EventInfo implements Serializable, Cloneable {
 		eventId = info.eventId;
 		selected = info.selected;
 		anonymous = info.anonymous;
+		resolvable = info.resolvable;
 	}
 
 	@Override
@@ -64,6 +66,14 @@ public class EventInfo implements Serializable, Cloneable {
 	public void setAnonymous(boolean anonymous) {
 		this.anonymous = anonymous;
 	}
+
+	public boolean isResolvable() {
+		return resolvable;
+	}
+
+	public void setResolvable(boolean value) {
+		resolvable = value;
+	}
 	
 	@Override
 	public boolean equals(Object arg0) {
@@ -81,9 +91,8 @@ public class EventInfo implements Serializable, Cloneable {
 	}
 
 	public String toString() {
-		StringBuffer buff = new StringBuffer();
-		buff.append("	-> EventInfo: "+getEventId()+" ["+isSelected()+"]\n");
-		return buff.toString();
+		String template = "	-> EventInfo: %s [s:%b] [r:%b] [a:%b]\n";
+		return String.format(template, eventId, selected, resolvable, anonymous);
 	}
 	
 }
