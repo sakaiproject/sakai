@@ -25,7 +25,7 @@
     <!-- we are running a webapp in a servlet container so we need the servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- third party dependencies -->

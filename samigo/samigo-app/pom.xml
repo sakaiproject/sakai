@@ -163,26 +163,26 @@
         </dependency>
 		<dependency>
             <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <artifactId>javax.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
         </dependency>
-	<dependency>
+	    <dependency>
             <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-	    <scope>provided</scope>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+	        <scope>provided</scope>
         </dependency>
-	<dependency>
+	    <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <scope>compile</scope>
         </dependency>
 		<dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>jdom</groupId>

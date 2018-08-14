@@ -42,12 +42,11 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
     <dependency>
       <groupId>javax.portlet</groupId>
       <artifactId>portlet-api</artifactId>
-      <version>1.0</version>
     </dependency>
 <!-- velocity and dependencies (logkit, oro, collections) -->
     <dependency>

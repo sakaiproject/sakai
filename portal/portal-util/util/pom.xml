@@ -41,8 +41,10 @@
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
         <dependency>
+            <!--TODO Move to javax.servlet-api version of master-->
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
         </dependency>
     </dependencies>
 

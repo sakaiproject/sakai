@@ -67,7 +67,7 @@
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
     </dependency>
   </dependencies>
   <reports />

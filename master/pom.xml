@@ -45,11 +45,9 @@
     <sakai.woodstox.version>5.0.3</sakai.woodstox.version>
     <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
-    <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.0</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
-    <sakai.mail.version>1.6.0</sakai.mail.version>
     <sakai.org.json.version>20171018</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.3</sakai.quartz.version>
@@ -299,14 +297,14 @@
       <!-- common/lib -->
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.2</version>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.4</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.1</version>
         <scope>provided</scope>
       </dependency>
       <!-- parser API inconsistancies -->
@@ -549,8 +547,8 @@
       </dependency>
       <dependency>
         <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <version>1.1.1</version>
+        <artifactId>javax.activation-api</artifactId>
+        <version>1.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -878,7 +876,7 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>javax.mail</artifactId>
-        <version>${sakai.mail.version}</version>
+        <version>1.6.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -976,15 +974,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.jcr</groupId>
-        <artifactId>jcr</artifactId>
-        <version>${sakai.jcr.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>
-        <version>1.0</version>
+        <version>3.0.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
