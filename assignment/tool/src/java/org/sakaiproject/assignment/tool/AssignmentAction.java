@@ -5555,14 +5555,11 @@ public class AssignmentAction extends PagedResourceActionII {
             ParameterParser params = data.getParameters();
             String submissionRef = params.getString("submissionId");
             String submissionId = null;
+            String assignmentRef = null;
+            AssignmentSubmission submission = null;
             if(submissionRef != null){
             	submissionRef = submissionRef.endsWith("/") ? StringUtils.chop(submissionRef) : submissionRef;
-                int i = submissionRef.lastIndexOf(Entity.SEPARATOR);
-                if (i == -1){
-                    submissionId = submissionRef;
-                }else{
-                    submissionId = submissionRef.substring(i + 1);
-                }
+            	submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionRef).reckon().getId();
             }
             if (submissionId != null) {
                 //call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
@@ -5574,15 +5571,14 @@ public class AssignmentAction extends PagedResourceActionII {
                         //item was part of the calculation, re-calculate
                         boolean saved = assignmentPeerAssessmentService.updateScore(submissionId, peerAssessor);
                         if (saved) {
-                            //we need to make sure the GB is updated correctly (or removed)
-                            String assignmentId = item.getAssignmentId();
-                            if (assignmentId != null) {
-                                Assignment a = getAssignment(assignmentId, "saveReviewGradeForm", state);
-                                if (a != null) {
-                                    String aReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+                        	submission = getSubmission(submissionRef, "saveReviewGradeForm", state);
+                        	Assignment a = submission.getAssignment();
+                        	if (a != null) {
+                        		assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+                                if (assignmentRef != null) {
                                     String associateGradebookAssignment = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                     // update grade in gradebook
-                                    integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1);
+                                    integrateGradebook(state, assignmentRef, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1);
                                 }
                             }
                         }
