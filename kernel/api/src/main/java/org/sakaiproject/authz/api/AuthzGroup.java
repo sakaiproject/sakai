@@ -88,12 +88,6 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	User getCreatedBy();
 
 	/**
-	 * @return the time created.
-	 * @deprecated use {#link {@link #getCreatedDate()}
-	 */
-	Time getCreatedTime();
-	
-	/**
 	 * Get the date created
 	 * @return
 	 */
@@ -132,12 +126,6 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 */
 	User getModifiedBy();
 
-	/**
-	 * @return the time last modified.
-	 * @deprecated see {@link #getModifiedDate()}
-	 */
-	Time getModifiedTime();
-	
 	/**
 	 * Get date last modified
 	 * @return

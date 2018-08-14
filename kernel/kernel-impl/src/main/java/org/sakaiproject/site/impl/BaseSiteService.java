@@ -22,6 +22,8 @@
 package org.sakaiproject.site.impl;
 
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -250,7 +252,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		String current = sessionManager().getCurrentSessionUserId();
 
 		site.m_lastModifiedUserId = current;
-		site.m_lastModifiedTime = timeService().newTime();
+		site.m_lastModifiedTime = Instant.now();
 	}
 
 	/**
@@ -263,9 +265,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 		site.m_createdUserId = current;
 		site.m_lastModifiedUserId = current;
 
-		Time now = timeService().newTime();
-		site.m_createdTime = now;
-		site.m_lastModifiedTime = (Time) now.clone();
+		site.m_createdTime = Instant.now();
+		site.m_lastModifiedTime = Instant.now();
 	}
 
 	/**
@@ -2481,9 +2482,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 		try
 		{
 			Site site = getSite(ref.getId());
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, rb.getLocale());
 			rv = rb.getFormattedMessage("entdsc.sit_usr", new Object[]{
 					site.getTitle() + " (" + site.getId() + ")",
-					site.getCreatedTime().toStringLocalFull(),
+					df.format(site.getCreatedDate()),
 					site.getCreatedBy().getDisplayName() + " (" + site.getCreatedBy().getDisplayId() + ")",
 					StringUtil.limit((site.getDescription() == null ? "" : site.getDescription()), 30)});
 		}
