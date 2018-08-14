@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -173,9 +174,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		azGroup.m_createdUserId = current;
 		azGroup.m_lastModifiedUserId = current;
 
-		Time now = timeService().newTime();
-		azGroup.m_createdTime = now;
-		azGroup.m_lastModifiedTime = (Time) now.clone();
+		azGroup.m_createdTime = Instant.now();
+		azGroup.m_lastModifiedTime = Instant.now();
 	}
 
 	/**
@@ -186,7 +186,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		String current = sessionManager().getCurrentSessionUserId();
 
 		azGroup.m_lastModifiedUserId = current;
-		azGroup.m_lastModifiedTime = timeService().newTime();
+		azGroup.m_lastModifiedTime = Instant.now();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

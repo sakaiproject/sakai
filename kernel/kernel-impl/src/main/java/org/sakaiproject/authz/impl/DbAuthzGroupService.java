@@ -24,16 +24,32 @@ package org.sakaiproject.authz.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupFullException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.MemberWithRoleId;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SimpleRole;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -45,12 +61,13 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -1876,7 +1893,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
 
-				Time now = timeService().newTime();
+				Instant now = Instant.now();
 
 				rv[1] = "";
 				rv[2] = "";
@@ -1892,8 +1909,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				rv[2] = StringUtil.trimToZero(edit.m_maintainRole);
 				rv[3] = StringUtil.trimToZero(edit.m_createdUserId);
 				rv[4] = StringUtil.trimToZero(edit.m_lastModifiedUserId);
-				rv[5] = edit.getCreatedTime();
-				rv[6] = edit.getModifiedTime();
+				rv[5] = edit.getCreatedDate();
+				rv[6] = edit.getModifiedDate();
 			}
 
 			return rv;
@@ -1916,16 +1933,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				String createdBy = result.getString(4);
 				String modifiedBy = result.getString(5);
 				java.sql.Timestamp ts = result.getTimestamp(6, sqlService().getCal());
-				Time createdOn = null;
+				Instant createdOn = null;
 				if (ts != null)
 				{
-					createdOn = timeService().newTime(ts.getTime());
+					createdOn = Instant.ofEpochMilli(ts.getTime());
 				}
 				ts = result.getTimestamp(7, sqlService().getCal());
-				Time modifiedOn = null;
+				Instant modifiedOn = null;
 				if (ts != null)
 				{
-					modifiedOn = timeService().newTime(ts.getTime());
+					modifiedOn = Instant.ofEpochMilli(ts.getTime());
 				}
 
 				// the special local integer 'db' id field, read after the field list
