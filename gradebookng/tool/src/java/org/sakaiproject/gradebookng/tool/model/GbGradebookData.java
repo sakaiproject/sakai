@@ -496,7 +496,7 @@ public class GbGradebookData {
 				counted = false;
 			}
 			result.add(new AssignmentDefinition(a1.getId(),
-					a1.getName(),
+					FormatHelper.stripLineBreaks(a1.getName()),
 					FormatHelper.abbreviateMiddle(a1.getName()),
 					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
