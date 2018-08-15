@@ -396,8 +396,6 @@ nav#subSites{
 				}
 
 				&:before{
-					border-left: $tool-menu-item-border-left;
-					content: '';
 					height: 100%;
 					display: inline-block;
 					position: absolute;
@@ -491,14 +489,11 @@ nav#subSites{
 			&.is-current{
 				position: relative;
 				margin-right: -1px;
+				border-left: $tool-menu-item-selected-border-left;
 
 				.Mrphs-toolsNav__menuitem--link{
 					color: $tool-menu-item-selected-text-color;
 					background: $tool-menu-item-selected-background-color;
-
-					&:before{
-						border-left: $tool-menu-item-selected-border-left;
-					}
 
 					.#{$namespace}toolsNav__menuitem--icon{
 						color: $tool-menu-item-selected-icon-color;
