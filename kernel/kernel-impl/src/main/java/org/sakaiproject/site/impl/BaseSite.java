@@ -838,12 +838,12 @@ public class BaseSite implements Site
 
 	@Override
 	public Date getCreatedDate() {
-		return new Date(m_createdTime.getEpochSecond());
+		return new Date(m_createdTime.toEpochMilli());
 	}
 	
 	@Override
 	public Date getModifiedDate() {
-		return new Date(m_lastModifiedTime.getEpochSecond());
+		return new Date(m_lastModifiedTime.toEpochMilli());
 	}
 	/**
 	 * @inheritDoc

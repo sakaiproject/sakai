@@ -121,7 +121,6 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringService;
-import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -154,7 +153,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -231,11 +229,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
 			.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
-
-	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager
-			.get(ShortenedUrlService.class);
-
-	private PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
 
 	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager
 			.get(DeveloperHelperService.class);
@@ -1376,12 +1369,15 @@ public class SiteAction extends PagedResourceActionII {
 				ServerConfigurationService.getBoolean("site.setup.creation.expand.template", false));
 
 		// the last visited template index
-		if (preIndex != null)
+		if (preIndex != null) {
 			context.put("backIndex", preIndex);
+		}
 
 		// SAK-16600 adjust index for toolGroup mode
-		if (index == 3)
+		if (index == 3) {
 			index = 4;
+		}
+		
 		context.put("templateIndex", String.valueOf(index));
 
 		// If cleanState() has removed SiteInfo, get a new instance into state
@@ -1929,11 +1925,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("hasProviderSet", Boolean.FALSE);
 				}
 				boolean isMyWorkspace = false;
-				if (SiteService.isUserSite(site.getId())) {
-					if (SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId())) {
+				if (SiteService.isUserSite(site.getId()) && (SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId()))) {
 						isMyWorkspace = true;
 						context.put("siteUserId", SiteService.getSiteUserId(site.getId()));
-					}
 				}
 				context.put("isMyWorkspace", Boolean.valueOf(isMyWorkspace));
 

@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.time.api.Time;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.user.api.User;
 
 /**
