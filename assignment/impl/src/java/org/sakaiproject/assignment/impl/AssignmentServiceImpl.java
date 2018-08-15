@@ -1333,8 +1333,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public AssignmentSubmission getSubmission(String submissionId) throws IdUnusedException, PermissionException {
-        return assignmentRepository.findSubmission(submissionId);
+    public AssignmentSubmission getSubmission(String submissionId) throws PermissionException {
+        AssignmentSubmission submission = assignmentRepository.findSubmission(submissionId);
+        if (submission != null) {
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            if (allowGetSubmission(reference)) {
+                return submission;
+            } else {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference);
+            }
+        } else {
+            // submission not found
+            log.debug("Submission ID does not exist {}", submissionId);
+        }
+
+        return null;
     }
 
     @Override
@@ -1458,7 +1471,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         AssignmentSubmission submission;
         try {
             submission = getSubmission(submissionId);
-        } catch (IdUnusedException | PermissionException e) {
+        } catch (PermissionException e) {
             log.warn("Could not get submission with id {}, {}", submissionId, e.getMessage());
             return status;
         }
