@@ -475,7 +475,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 emails.add(u.getEmail());
             }
 
-            if (emails.isEmpty()) return pronunceMap;
+            if (emails.isEmpty()) { return pronunceMap; }
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 URIBuilder builder = new URIBuilder(serverConfigurationService.getString("namecoach.url", "https://name-coach.com/api/private/v4/participants"));
