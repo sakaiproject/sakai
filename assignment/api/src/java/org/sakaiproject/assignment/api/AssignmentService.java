@@ -549,20 +549,18 @@ public interface AssignmentService extends EntityProducer {
 
     /**
      * Whether a specific user can submit
-     * @param context
      * @param a
      * @param userId
      * @return
      */
-    public boolean canSubmit(String context, Assignment a, String userId);
+    public boolean canSubmit(Assignment a, String userId);
 
     /**
      * Whether the current user can submit
-     * @param context
      * @param a
      * @return
      */
-    public boolean canSubmit(String context, Assignment a);
+    public boolean canSubmit(Assignment a);
 
 
     /**

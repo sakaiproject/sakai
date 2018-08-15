@@ -441,17 +441,7 @@
 							<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" disabled="disabled" />
 						</p>
 					#end
-					## if honor pledge is required
-					#if ($assignment.HonorPledge)
-						<p class="checkbox highlightPanel">
-							<label for="yes">
-							<input name="Yes" type="checkbox" id="yes" value="" />
-							$honor_pledge_text</label>
-							<br />
-							$tlang.getString("gen.youmus")
-						</p>	
-					#end
-				</div>	
+				</div>
 		#else
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">

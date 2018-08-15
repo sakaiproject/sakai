@@ -493,4 +493,11 @@
 		-webkit-flex-wrap: wrap;
 		flex-wrap: wrap;
 	}
+
+	#honor-pledge-agreement {
+		h4 {
+			font-size: $jumbotron-heading-font-size;
+		}
+		margin-bottom: 0;
+	}
 }
