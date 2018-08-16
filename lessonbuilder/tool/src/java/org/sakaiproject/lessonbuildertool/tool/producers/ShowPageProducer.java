@@ -4554,9 +4554,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// If current user is an admin show the css class input box
 		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
-		UIInput pageCustomCssClass = UIInput.make(form, "page-customCssClass", "#{simplePageBean.customCssClass}");
 		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
-		UIOutput.make(form, "page-custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
 		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
