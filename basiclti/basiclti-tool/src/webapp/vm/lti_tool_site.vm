@@ -155,7 +155,7 @@ ${includeLatestJQuery}
 					 $validator.escapeHtml($launch)
 				#else
 					#set($tool=false)
-					#set($tool=$ltiService.getTool($content.get("tool_id_long")))
+					#set($tool=$ltiService.getTool($content.get("tool_id_long"), $content.get("SITE_ID")))
 					#if ($!tool)
 						 $validator.escapeHtml($tool.get("launch"))
 					#end
