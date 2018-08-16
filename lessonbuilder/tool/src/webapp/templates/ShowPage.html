@@ -1280,16 +1280,6 @@
                                 <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
                                 <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
                             </div>
-                            <div id="page-stylingstuff" class="stylingstuff">
-                                <p class="shorttext">
-                                    <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
-                                    <select rsf:id="page-indent-level" name="indent-level" id="indent-level"/>
-                                </p>
-                                <p class="shorttext">
-                                    <label for="customCssClass" rsf:id="custom-css-label"></label>
-                                    <input rsf:id="page-customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
-                                </p>
-                            </div>
                             <div class="row-no-margin edit-header">
                                 <span rsf:id="msg=simplepage.prereqs"></span>
                             </div>
@@ -1533,12 +1523,17 @@
                     </div>
                 </form>			    
 			</div>
-			
+
 
             <div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog" class="lessonsDialog">
                 <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
                   <input type="hidden" rsf:id="csrf10" />
                     <div class="">
+                        <p class="shorttext required mm-path">
+                            <label rsf:id="msg=simplepage.path" for="path">Path</label>
+                            <span id="mm-path" class="instruction"></span><br />
+                        </p>
+
                         <p class="shorttext required" id="width-p">
                             <label rsf:id="width-label" for="width">Page Title</label>
                             <input type="text" name="width" rsf:id="width" id="width" length="30" class="edit-multimedia-input" /><br />
@@ -1556,11 +1551,6 @@
                             <input type="text" name="alt" rsf:id="alt" id="alt" class="edit-multimedia-input wideinput" /><br />
                         </p>
                         
-                        <p class="shorttext required mm-path">
-                            <label rsf:id="msg=simplepage.path" for="path">Path</label>
-                            <span id="mm-path" class="instruction"></span><br />
-                        </p>
-                        
                         <p class="shorttext required">
                             <label rsf:id="description2-label" for="description2">Page Title</label><br />
                             <textarea name="description2" rsf:id="description2" id="description2" rows="5" class="edit-multimedia-input" style="width:98%"></textarea>
@@ -1568,12 +1558,22 @@
                         <p class="shorttext required" id="change-resource-mm-p">
                           <a role="button" href="#" rsf:id="change-resource-mm" id="change-resource-mm"><span rsf:id="msg.simplepage.change_resource"></span></a>
                          </p>
+
+                        <div class="row-no-margin edit-header">
+                            <span rsf:id="msg=simplepage.prereqs"></span>
+                        </div>
+
+                        <p rsf:id="multi-prerequisite-section" class="checkbox">
+                            <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
+                            <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                        </p>
+
+                        <div class="row-no-margin edit-header">
+                            <span rsf:id="msg=simplepage.visibility"></span>
+                        </div>
+
                         <p id="editgroups-mm" class="edit-group">
                           <a role="button" href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
-                        </p>
-                        <p rsf:id="multi-prerequisite-section" class="checkbox">
-                          <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
-                          <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                         </p>
 
                     </div>

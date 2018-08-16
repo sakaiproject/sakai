@@ -4551,7 +4551,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
 		UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
-		UISelect.make(form, "page-indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
 
 		// If current user is an admin show the css class input box
 		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");

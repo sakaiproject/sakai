@@ -1754,7 +1754,6 @@ $(document).ready(function() {
 			
 			if(type === 'page') {
 	                    $("#pagestuff").show();
-	                    $("#stylingstuff").hide();
 	                    $("#prereqstuff").hide();
 	                    $("#visibility-header").hide();
 
