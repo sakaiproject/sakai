@@ -90,7 +90,7 @@
 }
 
 .select{
-	background-color: $button-background-color;
+	background-color: $background-color;
 	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
 	background-repeat: no-repeat;
@@ -105,6 +105,16 @@
 	@include border-radius(3px);
 	&::-ms-expand {
 	    display: none;
+	}
+	
+	&[multiple], &[size] {
+		background-image: none;
+	}
+	
+	&[disabled="disabled"],&[disabled],&[disabled="true"] {
+		opacity: 0.7;
+		background-color: #f3f3f3;
+		cursor: not-allowed;
 	}
 }
 
