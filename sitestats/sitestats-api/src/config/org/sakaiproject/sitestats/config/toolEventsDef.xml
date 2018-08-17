@@ -129,7 +129,7 @@
 
 	<!-- news -->
 	<tool 
-		toolId="sakai.news"
+		toolId="sakai.simple.rss"
 		selected="true">
 		<event eventId="news.read" selected="true"/>
 		<event eventId="news.revise" selected="true"/>

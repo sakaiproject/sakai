@@ -46,6 +46,11 @@ import au.edu.anu.portal.portlets.rss.utils.Messages;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 
 /**
  * SimpleRssPortlet
@@ -77,6 +82,15 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	private final String PREF_FEED_URL = "feed_url";
 	private final String PREF_MAX_ITEMS = "max_items";
 
+	// events
+	private static final String NEWS_READ_EVENT = "news.read";
+	private static final String NEWS_REVISE_EVENT = "news.revise";
+	private static final String EVENT_REF_TEMPLATE = "/news/site/%s/placement/%s";
+
+	private EventTrackingService eventServ;
+	private SiteService siteServ;
+	private ToolManager toolMan;
+
 	public void init(PortletConfig config) throws PortletException {	   
 	   super.init(config);
 	   log.info("Simple RSS Portlet init()");
@@ -91,6 +105,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	   memoryService = ComponentManager.get(MemoryService.class);
 	   feedCache = memoryService.getCache(FEED_CACHE_NAME);
 	   mediaCache = memoryService.getCache(MEDIA_CACHE_NAME);
+
+	   // setup event tracking
+	   eventServ = ComponentManager.get(EventTrackingService.class);
+	   siteServ = ComponentManager.get(SiteService.class);
+	   toolMan = ComponentManager.get(ToolManager.class);
 	   
 	}
 
@@ -139,7 +158,9 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		request.setAttribute("SyndFeed", feed);
 		request.setAttribute("Media", media);
 		request.setAttribute("maxItems", maxItems);
-		
+
+		postEvent(NEWS_READ_EVENT);
+
 		dispatch(request, response, viewUrl);
 	}	
 	
@@ -233,6 +254,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			try {
 				prefs.store();
 				response.setPortletMode(PortletMode.VIEW);
+				postEvent(NEWS_REVISE_EVENT);
 				
 			} catch (ValidatorException e) {
 				//PORT-672 present entered data on the form again
@@ -473,6 +495,19 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		} catch (IllegalArgumentException e){
 			log.debug("Preference does not exist: " + prefName);
 			return false;
+		}
+	}
+
+	private void postEvent(String eventType) {
+
+		try {
+			Placement placement = toolMan.getCurrentPlacement();
+			String siteId = siteServ.getSite(placement.getContext()).getId();
+			String eventRef = String.format(EVENT_REF_TEMPLATE, siteId, placement.getId());
+			eventServ.post(eventServ.newEvent(eventType, eventRef, false));
+		}
+		catch (IdUnusedException e) {
+			log.debug("Failed to post " + eventType + " due to invalid siteId", e);
 		}
 	}
 	
