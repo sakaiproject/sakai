@@ -2384,6 +2384,7 @@ p.noTopSpacing {
 legend.noBottomSpacing {
     padding-bottom: 0px;
 }
+
 .itemDesc {
     padding-left: 0px !important; /* important needed to override bootstrap grid-layout */
 }
