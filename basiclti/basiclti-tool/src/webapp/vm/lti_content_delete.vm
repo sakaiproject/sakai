@@ -18,7 +18,7 @@
         <p class="shorttext">
         	$tlang.getString("bl_launch"):
         	#set($tool=false)
-			#set($tool=$ltiService.getTool($content.get("tool_id_long")))
+			#set($tool=$ltiService.getTool($tool_id_long, $content.get("SITE_ID")))
 			#if ($!tool)
 				$tool.get("launch")
 			#end
