@@ -159,7 +159,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		request.setAttribute("Media", media);
 		request.setAttribute("maxItems", maxItems);
 
-		postEvent(NEWS_READ_EVENT);
+		postEvent(NEWS_READ_EVENT, false);
 
 		dispatch(request, response, viewUrl);
 	}	
@@ -254,7 +254,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			try {
 				prefs.store();
 				response.setPortletMode(PortletMode.VIEW);
-				postEvent(NEWS_REVISE_EVENT);
+				postEvent(NEWS_REVISE_EVENT, true);
 				
 			} catch (ValidatorException e) {
 				//PORT-672 present entered data on the form again
@@ -498,13 +498,13 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		}
 	}
 
-	private void postEvent(String eventType) {
+	private void postEvent(String eventType, boolean modification) {
 
 		try {
 			Placement placement = toolMan.getCurrentPlacement();
 			String siteId = siteServ.getSite(placement.getContext()).getId();
 			String eventRef = String.format(EVENT_REF_TEMPLATE, siteId, placement.getId());
-			eventServ.post(eventServ.newEvent(eventType, eventRef, false));
+			eventServ.post(eventServ.newEvent(eventType, eventRef, modification));
 		}
 		catch (IdUnusedException e) {
 			log.debug("Failed to post " + eventType + " due to invalid siteId", e);
