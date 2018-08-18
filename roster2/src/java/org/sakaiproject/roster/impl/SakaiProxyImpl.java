@@ -717,8 +717,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setSortName(user.getSortName());
 
 		// See if there is a pronunciation available for the user
-		String pronunceEmbed = pronunceMap.containsKey(user.getEmail()) ? pronunceMap.get(user.getEmail()) : null;
-		rosterMember.setPronunciation(pronunceEmbed);
+		rosterMember.setPronunciation(pronunceMap.get(user.getEmail()));
 
 		Map<String, String> userPropertiesMap = new HashMap<>();
 		ResourceProperties props = user.getProperties();
