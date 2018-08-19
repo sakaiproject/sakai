@@ -1113,6 +1113,8 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 				The Time object the Release Date is set to
 	 */
 	private ContentResource setReleaseDate(String siteId, ContentResource aResource, Instant displayDate) {
+		log.debug("setReleaseDate( " + siteId +", " + aResource +", " +  displayDate +")");
+		
 		ContentResource refreshedResource = null;
 		ContentResourceEdit aResourceEdit = null;
 		
@@ -1136,7 +1138,7 @@ public class PodcastServiceImpl implements PodcastService {
 		catch (Exception e1) {
 			// catches  PermissionException	IdUnusedException
 			//			TypeException		InUseException
-			log.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + siteId + ". ", e1);
+			log.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + siteId + ". DisplayDate: " + displayDate, e1);
 			
 			if (aResourceEdit != null) {
 				contentHostingService.cancelResource(aResourceEdit);						
