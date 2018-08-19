@@ -1032,7 +1032,7 @@ public class PodcastServiceImpl implements PodcastService {
 				// Also, if hidden property set, release date becomes null.
 				if (aResource.getReleaseInstant() == null) {
 					if (itsProperties.getProperty(DISPLAY_DATE) == null) {
-						aResource = setDISPLAY_DATE(siteId, aResource.getId(), null);
+						aResource = setDisplayDate(siteId, aResource.getId(), null);
 						itsProperties = aResource.getProperties();
 					}
 					
@@ -1049,7 +1049,7 @@ public class PodcastServiceImpl implements PodcastService {
 				}
 				else {
 					if (itsProperties.getProperty(DISPLAY_DATE) == null) {
-						aResource = setDISPLAY_DATE(siteId, aResource.getId(), null);
+						aResource = setDisplayDate(siteId, aResource.getId(), null);
 						itsProperties = aResource.getProperties();
 					}
 				}
@@ -1059,7 +1059,7 @@ public class PodcastServiceImpl implements PodcastService {
 				log.info("DISPLAY_DATE does not exist for " + aResource.getId() + " attempting to add.");
 
 				try {
-					aResource = setDISPLAY_DATE(siteId, aResource.getId(), null);
+					aResource = setDisplayDate(siteId, aResource.getId(), null);
 				
 					if (aResource.getReleaseInstant() == null && ! aResource.isHidden()) {
 						if (! aResource.isHidden()) {
@@ -1120,7 +1120,7 @@ public class PodcastServiceImpl implements PodcastService {
 			aResourceEdit = getAResourceEdit(aResource.getId());
 
 			if (aResourceEdit.getReleaseInstant() == null) {
-				Instant releaseDate = getDISPLAY_DATE(aResourceEdit.getPropertiesEdit());
+				Instant releaseDate = getDisplayDate(aResourceEdit.getPropertiesEdit());
 				
 				aResourceEdit.setReleaseInstant(releaseDate);
 
@@ -1162,7 +1162,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param ResourceProperties
 	 *            The ResourceProperties that need DISPLAY_DATE added
 	 */
-	private ContentResource setDISPLAY_DATE(String siteId, String resourceId, Instant releaseDate) {
+	private ContentResource setDisplayDate(String siteId, String resourceId, Instant releaseDate) {
 		ContentResource refreshedResource = null;
 		final SimpleDateFormat formatterProp = getSimpleDateFormat();
 		Date tempDate = null;
@@ -1218,7 +1218,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param ResourceProperties
 	 *            The ResourceProperties to get DISPLAY_DATE from
 	 */
-	private	Instant getDISPLAY_DATE(ResourceProperties rp) {
+	private	Instant getDisplayDate(ResourceProperties rp) {
 
 		Date tempDate = null;
 
