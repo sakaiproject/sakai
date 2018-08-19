@@ -22,6 +22,10 @@
 package org.sakaiproject.authz.impl;
 
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,12 +34,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -50,6 +54,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -91,10 +98,10 @@ public class BaseAuthzGroup implements AuthzGroup
 	protected String m_lastModifiedUserId = null;
 
 	/** The time created. */
-	protected Time m_createdTime = null;
+	protected Instant m_createdTime = null;
 
 	/** The time last modified. */
-	protected Time m_lastModifiedTime = null;
+	protected Instant m_lastModifiedTime = null;
 
 	/** Set while the azGroup is not fully loaded from the storage. */
 	protected boolean m_lazy = false;
@@ -172,8 +179,8 @@ public class BaseAuthzGroup implements AuthzGroup
 	 * @param modifiedOn
 	 *        The time modified.
 	 */
-	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, Integer dbid, String id, String providerId, String maintainRole, String createdBy, Time createdOn,
-			String modifiedBy, Time modifiedOn)
+	public BaseAuthzGroup(BaseAuthzGroupService baseAuthzGroupService, Integer dbid, String id, String providerId, String maintainRole, String createdBy, Instant createdOn,
+			String modifiedBy, Instant modifiedOn)
 	{
 		this.baseAuthzGroupService = baseAuthzGroupService;
 		this.userDirectoryService = baseAuthzGroupService.userDirectoryService();
@@ -227,13 +234,15 @@ public class BaseAuthzGroup implements AuthzGroup
 		String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 		if (time != null)
 		{
-			m_createdTime = timeService.newTimeGmt(time);
+			Time t = timeService.newTimeGmt(time);
+			m_createdTime = Instant.ofEpochMilli(t.getTime());
 		}
 
 		time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 		if (time != null)
 		{
-			m_lastModifiedTime = timeService.newTimeGmt(time);
+			Time t = timeService.newTimeGmt(time);
+			m_lastModifiedTime = Instant.ofEpochMilli(t.getTime());
 		}
 
 		// process the children (properties, grants, abilities, roles)
@@ -407,7 +416,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		{
 			try
 			{
-				m_createdTime = m_properties.getTimeProperty("DAV:creationdate");
+				m_createdTime = m_properties.getInstantProperty("DAV:creationdate");
 			}
 			catch (Exception ignore)
 			{
@@ -417,7 +426,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		{
 			try
 			{
-				m_lastModifiedTime = m_properties.getTimeProperty("DAV:getlastmodified");
+				m_lastModifiedTime = m_properties.getInstantProperty("DAV:getlastmodified");
 			}
 			catch (Exception ignore)
 			{
@@ -431,17 +440,17 @@ public class BaseAuthzGroup implements AuthzGroup
 		// make sure we have our times
 		if ((m_createdTime == null) && (m_lastModifiedTime != null))
 		{
-			m_createdTime = (Time) m_lastModifiedTime.clone();
+			m_createdTime = (Instant) m_lastModifiedTime;
 		}
 
 		if (m_createdTime == null)
 		{
-			m_createdTime = timeService.newTime();
+			m_createdTime = Instant.now();
 		}
 
 		if (m_lastModifiedTime == null)
 		{
-			m_lastModifiedTime = (Time) m_createdTime.clone();
+			m_lastModifiedTime = (Instant) m_createdTime;
 		}
 
 		// and our users
@@ -539,9 +548,9 @@ public class BaseAuthzGroup implements AuthzGroup
 		m_createdUserId = ((BaseAuthzGroup) azGroup).m_createdUserId;
 		m_lastModifiedUserId = ((BaseAuthzGroup) azGroup).m_lastModifiedUserId;
 		if (((BaseAuthzGroup) azGroup).m_createdTime != null)
-			m_createdTime = (Time) ((BaseAuthzGroup) azGroup).m_createdTime.clone();
+			m_createdTime = (Instant) ((BaseAuthzGroup) azGroup).m_createdTime;
 		if (((BaseAuthzGroup) azGroup).m_lastModifiedTime != null)
-			m_lastModifiedTime = (Time) ((BaseAuthzGroup) azGroup).m_lastModifiedTime.clone();
+			m_lastModifiedTime = (Instant) ((BaseAuthzGroup) azGroup).m_lastModifiedTime;
 
 		// make a deep copy of the roles as new Role objects
 		m_roles = new HashMap();
@@ -605,8 +614,13 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		azGroup.setAttribute("created-id", m_createdUserId);
 		azGroup.setAttribute("modified-id", m_lastModifiedUserId);
-		azGroup.setAttribute("created-time", m_createdTime.toString());
-		azGroup.setAttribute("modified-time", m_lastModifiedTime.toString());
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+		
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(m_createdTime, ZoneId.of("UTC"));
+		azGroup.setAttribute("created-time", localDateTime.format(dtf));
+		
+		localDateTime = LocalDateTime.ofInstant(m_lastModifiedTime, ZoneId.of("UTC"));
+		azGroup.setAttribute("modified-time", localDateTime.format(dtf));
 
 		// properties
 		getProperties().toXml(doc, stack);
@@ -727,33 +741,29 @@ public class BaseAuthzGroup implements AuthzGroup
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+
+	/*@Override
 	public Time getCreatedTime()
 	{
 		return m_createdTime;
-	}
+	}*/
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Date getCreatedDate()
 	{
-		return new Date(m_createdTime.getTime());
+		return new Date(m_createdTime.getEpochSecond());
 	}
-	/**
-	 * {@inheritDoc}
-	 */
+	
+	/*@Override
 	public Time getModifiedTime()
 	{
 		return m_lastModifiedTime;
-	}
+	}*/
 
 	
-
+	@Override
 	public Date getModifiedDate() {
-		return new Date(m_lastModifiedTime.getTime());
+		return new Date(m_lastModifiedTime.getEpochSecond());
 	}
 	
 	/**

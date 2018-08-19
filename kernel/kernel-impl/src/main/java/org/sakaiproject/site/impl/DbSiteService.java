@@ -23,6 +23,7 @@ package org.sakaiproject.site.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -2583,8 +2584,8 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[13] = isUserSite(id) ? "1" : "0";
 				rv[14] = StringUtil.trimToZero(((BaseSite) edit).m_createdUserId);
 				rv[15] = StringUtil.trimToZero(((BaseSite) edit).m_lastModifiedUserId);
-				rv[16] = edit.getCreatedTime();
-				rv[17] = edit.getModifiedTime();
+				rv[16] = edit.getCreatedDate();
+				rv[17] = edit.getModifiedDate();
 				rv[18] = edit.isCustomPageOrdered() ? "1" : "0";
 				rv[19] = edit.isSoftlyDeleted() ? "1" : "0";
 				rv[20] = edit.getSoftlyDeletedDate();
@@ -2679,16 +2680,16 @@ public abstract class DbSiteService extends BaseSiteService
 				String createdBy = result.getString(15);
 				String modifiedBy = result.getString(16);
 				java.sql.Timestamp ts = result.getTimestamp(17, sqlService().getCal());
-				Time createdOn = null;
+				Instant createdOn = null;
 				if (ts != null)
 				{
-					createdOn = timeService().newTime(ts.getTime());
+					createdOn = Instant.ofEpochMilli(ts.getTime());
 				}
 				ts = result.getTimestamp(18, sqlService().getCal());
-				Time modifiedOn = null;
+				Instant modifiedOn = null;
 				if (ts != null)
 				{
-					modifiedOn = timeService().newTime(ts.getTime());
+					modifiedOn = Instant.ofEpochMilli(ts.getTime());
 				}
 				boolean customPageOrdered = "1".equals(result.getString(19)) ? true : false;
 				boolean isSoftlyDeleted = "1".equals(result.getString(20)) ? true : false;

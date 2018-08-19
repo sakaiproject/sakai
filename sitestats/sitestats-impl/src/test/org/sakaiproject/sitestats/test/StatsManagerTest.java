@@ -157,7 +157,7 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 			expect(M_ss.getSite(FakeData.SITE_C_ID)).andStubReturn(siteC);
 			expect(M_ss.isUserSite(FakeData.SITE_C_ID)).andStubReturn(false);
 			expect(M_ss.isSpecialSite(FakeData.SITE_C_ID)).andStubReturn(false);
-			expect(siteC.getCreatedTime()).andStubReturn((Time)anyObject());
+			expect(siteC.getCreatedDate()).andStubReturn((Date)anyObject());
 		}
 		
 		// Site 'non_existent_site' doesn't exist

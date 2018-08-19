@@ -3779,7 +3779,7 @@ if (log.isDebugEnabled()) {
 	public Date getInitialActivityDate(String siteId) {
 		Date date = null;
 		try{
-			date = new Date(M_ss.getSite(siteId).getCreatedTime().getTime());
+			date = M_ss.getSite(siteId).getCreatedDate();
 		}catch(Exception e){
 			return new Date(0);
 		}

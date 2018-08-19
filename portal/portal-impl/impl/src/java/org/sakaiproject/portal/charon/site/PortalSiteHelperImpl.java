@@ -23,17 +23,19 @@ package org.sakaiproject.portal.charon.site;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,8 +46,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
@@ -55,33 +55,33 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
+import org.sakaiproject.portal.charon.PortalStringUtil;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.MapUtil;
-import org.sakaiproject.util.Web;
-import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Validator;
-
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.util.Web;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1090,11 +1090,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		else
 		{
-			Time modDate = site.getModifiedTime();
+			Date modDate = site.getModifiedDate();
 			// Yes, some sites have never been modified
 			if (modDate != null)
 			{
-				m.put("rssPubDate", (modDate.toStringRFC822Local()));
+				m.put("rssPubDate", (new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z").format(modDate)));
 			}
 			return false;
 		}
