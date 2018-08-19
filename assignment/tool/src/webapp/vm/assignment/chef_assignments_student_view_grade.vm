@@ -49,7 +49,7 @@
     </h3>
 
     #if ($alertMessage)
-        <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+        <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end
 
     #set($submitTime=false)

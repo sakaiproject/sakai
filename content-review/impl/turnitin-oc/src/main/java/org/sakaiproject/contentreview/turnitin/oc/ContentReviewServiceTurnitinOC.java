@@ -178,7 +178,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	//Caches requests for instructors so that we don't have to send a request for every student
 	private Cache EULA_CACHE;
 	private static final String EULA_LATEST_KEY = "latest";
-	private static final String EULA_DEFAULT_LOCALE = "en-EN";
+	private static final String EULA_DEFAULT_LOCALE = "en-US";
 	
 	
 	// Define Turnitin's acceptable file extensions and MIME types, order of these arrays DOES matter
@@ -1471,33 +1471,49 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// If user has no preference set - get the system default
 		Locale locale = Optional.ofNullable(preferencesService.getLocale(userId))
 				.orElse(Locale.getDefault());
-		//find available EULA langauges:
-		Map<String, Object> eula = getLatestEula();
-		if(eula != null && eula.containsKey("available_languages") && eula.get("available_languages") instanceof List) {
-			for(String eula_locale : (List<String>) eula.get("available_languages")) {
-				if(locale.getLanguage().equalsIgnoreCase(eula_locale)) {
-					//found exact match
-					userLocale = eula_locale;
-					break;
-				}
+		if(locale != null && StringUtils.isNotEmpty(locale.getCountry())) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(locale.getLanguage());
+			if(StringUtils.isNotEmpty(locale.getCountry())) {
+				sb.append("-" + locale.getCountry());
 			}
-			//if we do not find the exact match, find a match based on the first part
-			if(locale.getLanguage().length() >= 2) {
-				String userLanguage = locale.getLanguage().substring(0, 2);
+			userLocale = sb.toString();
+		}
+		//find available EULA langauges:
+		boolean found = false;
+		if(StringUtils.isNotEmpty(userLocale)) {
+			Map<String, Object> eula = getLatestEula();
+			if(eula != null && eula.containsKey("available_languages") && eula.get("available_languages") instanceof List) {
+
 				for(String eula_locale : (List<String>) eula.get("available_languages")) {
-					if(eula_locale.toLowerCase().startsWith(userLanguage.toLowerCase())) {					
-						//found language match
+					if(userLocale.equalsIgnoreCase(eula_locale)) {
+						//found exact match
 						userLocale = eula_locale;
+						found = true;
 						break;
+					}
+				}
+				if(!found
+						&& StringUtils.isNotEmpty(locale.getLanguage())
+						&& locale.getLanguage().length() >= 2) {
+					//if we do not find the exact match, find a match based on the country code
+					String userLanguage = locale.getLanguage().substring(0, 2);
+					for(String eula_locale : (List<String>) eula.get("available_languages")) {
+						if(eula_locale.toLowerCase().startsWith(userLanguage.toLowerCase())) {					
+							//found language match
+							userLocale = eula_locale;
+							found = true;
+							break;
+						}
 					}
 				}
 			}
 		}
-		if(StringUtils.isEmpty(userLocale)) {
-			//default to english:
+		if(!found) {
+			//user's locale was null or their langauge was not found, set default to english:
 			userLocale = EULA_DEFAULT_LOCALE;
 		}
-			
+
 		return userLocale;
 	}
 

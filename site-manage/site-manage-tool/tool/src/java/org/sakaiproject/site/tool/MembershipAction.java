@@ -510,7 +510,8 @@ public class MembershipAction extends PagedResourceActionII
 				// SAK-24423 - joinable site settings - join the site
 				if( JoinableSiteSettings.doJoinForMembership( id ) )
 				{
-					addAlert( state, RB.getString( "mb.youhave2" ) + " " + SITE_SERV.getSite( id ).getTitle() );
+					String msg = RB.getFormattedMessage( "mb.youhave2", new Object[] {SITE_SERV.getSite( id ).getTitle()} );
+					addAlert( state, msg );
 				}
 				else
 				{

@@ -26,7 +26,7 @@
 			#end
 		</div>
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div style="display:block;clear:both"></div>#end
 	
 	## the form
     <form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">

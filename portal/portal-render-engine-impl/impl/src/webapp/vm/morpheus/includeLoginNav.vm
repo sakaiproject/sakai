@@ -75,8 +75,10 @@
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
                                         <div id="loginUser" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)" tabindex="-1"></a>
-                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username" aria-haspopup="true">${loginUserFirstName}</a>
+                                            <a href="javascript:void(0);" role="button" aria-haspopup="true" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">
+                                                <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                <span class="textlink">${loginUserFirstName}</span>
+                                            </a>
                                         </div>
 
                                     #else
@@ -96,8 +98,9 @@
                                     <div class="Mrphs-userNav__submenuitem--profile-and-image">
                                         #if (${tabsSites.mrphs_profileToolUrl})
                                             <div class="has-avatar">
-                                                <a role="menuitem" class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}">
-                                                    <span class="Mrphs-userNav__submenuitem--profilepicture Mrphs-userNav__pic-changer" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)" tabindex="-1"></span>
+                                                <a role="menuitem" class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}" aria-haspopup="dialog">
+                                                    <span class="Mrphs-userNav__submenuitem--profilepicture Mrphs-userNav__pic-changer" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)"></span>
+                                                    <span class="sr-only">${rloader.pic_changer_title}</span>
                                                 </a>
                                             </div>
                                             <div class="Mrphs-userNav__submenuitem--profile">
@@ -118,7 +121,7 @@
                                 </li>
 
                                 <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                    <a role="menuitem" href="javascript:;" id="Mrphs-userNav__submenuitem--connections">
+                                    <a role="menuitem" href="javascript:;" id="Mrphs-userNav__submenuitem--connections" aria-haspopup="dialog">
                                         <span>${rloader.sit_connections}</span>
                                     </a>
                                 </li>
@@ -146,7 +149,7 @@
                                     #if (${tabsSites.tutorial})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                            <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial">
+                                            <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial" aria-haspopup="dialog">
                                                 <span>${rloader.sit_tutorial}</span>
                                             </a>
                                         </li>

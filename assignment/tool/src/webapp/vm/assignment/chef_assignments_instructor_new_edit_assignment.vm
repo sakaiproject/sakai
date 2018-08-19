@@ -119,7 +119,7 @@
 
 	#if ($alertMessage)
 		<div class="alertMessage" id="generalAlert">
-			<strong>$tlang.getString("gen.alert")</strong> <small> $alertMessage </small>
+			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end
 

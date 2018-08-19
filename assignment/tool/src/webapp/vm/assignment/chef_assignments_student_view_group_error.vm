@@ -1,6 +1,6 @@
 <!-- start: chef_assignments_student_view_group_error.vm -->
 <div class="portletBody">
-    #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+    #if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $validator.escapeHtml($alertMessage)</div>#end
     <table class="itemSummary"  summary="$tlang.getString("gen.theassinf")">
 				<tr>
 					<th>

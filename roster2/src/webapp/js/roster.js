@@ -103,7 +103,7 @@
         }
         
         // permissions
-        if (roster.siteMaintainer) {
+        if (roster.showPermsToMaintainers) {
             $('#navbar_permissions_link').show();
         } else {
             $('#navbar_permissions_link').hide();
