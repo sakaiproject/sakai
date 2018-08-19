@@ -19,9 +19,6 @@
 		<property name="sessionManager">
 			<ref bean="org.sakaiproject.tool.api.SessionManager" />
 		</property>
-		<property name="timeService">
-			<ref bean="org.sakaiproject.time.api.TimeService" />
-		</property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService" />
 		</property>
@@ -41,8 +38,8 @@
 		<property name="userDirectoryService">
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
 		</property>
-		<property name="timeService">
-			<ref bean="org.sakaiproject.time.api.TimeService" />
+		<property name="userTimeService">
+			<ref bean="org.sakaiproject.time.api.UserTimeService" />
 		</property>
 		<!-- needed to get information about the site -->
 		<property name="siteService">
