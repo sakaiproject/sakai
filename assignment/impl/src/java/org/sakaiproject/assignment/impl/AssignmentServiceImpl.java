@@ -3035,7 +3035,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
 
             // Write the header
-            sheet.addHeader("Group", resourceLoader.getString("grades.eid"), resourceLoader.getString("grades.members"),
+            sheet.addHeader(resourceLoader.getString("group"), resourceLoader.getString("grades.eid"), resourceLoader.getString("grades.members"),
                     resourceLoader.getString("grades.grade"), resourceLoader.getString("grades.submissionTime"), resourceLoader.getString("grades.late"));
 
             // allow add assignment members
@@ -3063,7 +3063,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }).filter(Objects::nonNull).toArray(User[]::new);
 
-                        final String submitterString = submitters[0].getDisplayName();// TODO gs.getGroup().getTitle() + " (" + gs.getGroup().getId() + ")";
+                        final String groupTitle = siteService.getSite(s.getAssignment().getContext()).getGroup(s.getGroupId()).getTitle();
                         final StringBuilder submittersString = new StringBuilder();
                         final StringBuilder submitters2String = new StringBuilder();
 
@@ -3087,13 +3087,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         final String gradeDisplay = getGradeDisplay(s.getGrade(), s.getAssignment().getTypeOfGrade(), s.getAssignment().getScaleFactor());
                         
                         //Adding the row
-
-                        sheet.addRow(submitterString, submittersString.toString(), submitters2String.toString(), // TODO gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
+                        sheet.addRow(groupTitle, s.getGroupId(), submitters2String.toString(),
                         		gradeDisplay, s.getDateSubmitted() != null ? s.getDateSubmitted().toString(): StringUtils.EMPTY, latenessStatus);
 
 
-                        if (StringUtils.trimToNull(submitterString) != null) {
-                            submittersName.append(StringUtils.trimToNull(submitterString));
+                        if (StringUtils.trimToNull(groupTitle) != null) {
+                            submittersName.append(StringUtils.trimToNull(groupTitle)).append(" (").append(s.getGroupId()).append(")");
                             final String submittedText = s.getSubmittedText();
 
                             submittersName.append("/");
@@ -3108,7 +3107,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // include student submission text
                                 if (withStudentSubmissionText) {
                                     // create the text file only when a text submission is allowed
-                                	final String zipEntryName = submittersName + submitterString + "_submissionText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE;
+                                	final String zipEntryName = submittersName + groupTitle + "_submissionText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE;
                                 	createTextZipEntry(out, zipEntryName, submittedText);
                                 }
 
