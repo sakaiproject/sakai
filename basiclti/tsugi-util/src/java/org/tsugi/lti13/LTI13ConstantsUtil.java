@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013- Charles R. Severance
+ * Copyright (c) 2018- Charles R. Severance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package org.tsugi.lti13;
 
-public class LTI13Constants {
+public class LTI13ConstantsUtil {
 
   public static final String KEY_ISS = "iss";
   public static final String KEY_SUB = "sub";

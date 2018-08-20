@@ -1,12 +1,10 @@
 package org.tsugi.lti13;
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.tsugi.lti13.LTI13Constants;
 import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13JacksonUtil;
 
@@ -30,10 +28,6 @@ import java.security.Key;
 public class LTI13ObjectTest {
 
         Pattern base64url_pattern = Pattern.compile("^[A-Za-z0-9.\\-_]+$");
-
-	@Before
-	public void setUp() throws Exception {
-	}
 
 	// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/package-summary.html
 	@Test

@@ -1,10 +1,8 @@
 package org.tsugi.lti13;
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Properties;
 import java.util.UUID;
 
 import org.json.simple.JSONArray;
@@ -17,12 +15,11 @@ import java.security.Key;
 import java.security.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Locale;
 
 
-import org.tsugi.lti13.LTI13Constants;
+import org.tsugi.lti13.LTI13ConstantsUtil;
 
 public class LTI13JJWTTest {
 
@@ -37,10 +34,6 @@ public class LTI13JJWTTest {
 	Pattern lower_hex_pattern = Pattern.compile("^[a-f0-9]+$");
 	Pattern jws_pattern = Pattern.compile("^[a-f0-9]+$");
 	Pattern uuid_pattern = Pattern.compile("^[a-f0-9\\-]+$");
-
-	@Before
-	public void setUp() throws Exception {
-	}
 
 	// https://github.com/jwtk/jjwt
 	@Test
@@ -112,8 +105,8 @@ public class LTI13JJWTTest {
 			.setAudience(client_id)
 			.setIssuedAt(now)
 			.setExpiration(new Date(now.getTime()+600000L)) // Milliseconds
-			.claim(LTI13Constants.KEY_NONCE, nonce)
-			.claim(LTI13Constants.KEY_LOCALE, locale)
+			.claim(LTI13ConstantsUtil.KEY_NONCE, nonce)
+			.claim(LTI13ConstantsUtil.KEY_LOCALE, locale)
 			.signWith(key)
 			.compact();
 

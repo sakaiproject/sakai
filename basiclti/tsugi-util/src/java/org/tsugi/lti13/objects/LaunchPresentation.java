@@ -1,16 +1,8 @@
 
 package org.tsugi.lti13.objects;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Generated;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -37,9 +29,5 @@ public class LaunchPresentation {
     public Integer width;
     @JsonProperty("return_url")
     public String return_url;
-
-    // Constructor
-    public LaunchPresentation() {
-    }
 
 }
