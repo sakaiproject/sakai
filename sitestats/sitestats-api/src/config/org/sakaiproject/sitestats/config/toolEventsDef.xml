@@ -23,6 +23,7 @@
 	<tool 
 		toolId="sakai.announcements"
 		selected="true">
+		<event eventId="annc.read" selected="true"/>
 		<event eventId="annc.new" selected="true"/>
 		<event eventId="annc.revise.own" selected="true"/>
 		<event eventId="annc.revise.any" selected="true"/>
