@@ -42,6 +42,7 @@ public class LTI13ObjectTest {
 		lj.launch_presentation.width = 42;
 		lj.issuer = "https://www.sakaiproject.org/";
 		lj.audience = "42_34989754987548";  // Client Id
+		lj.deployment_id = "42_this_field_sucks";  // Client Id
 		lj.subject = "142";  // formerly user_id in LTI 1.1
 		lj.name = "Fred";
 		lj.email = "Zippy@zippy.com";
@@ -84,7 +85,7 @@ public class LTI13ObjectTest {
                         .signWith(key)
                         .compact();
 
-		assertEquals(1810, jws.length());
+		assertEquals(1916, jws.length());
                 Matcher m = base64url_pattern.matcher(jws);
                 good = m.find();
                 if ( ! good ) System.out.println("Bad JWS:\n"+jws);

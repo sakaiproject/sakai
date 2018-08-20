@@ -22,6 +22,9 @@ public class LaunchJWT extends BaseJWT {
     public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner";
     public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor";
 
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
+    public String deployment_id;
+
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/message_type")
     public String message_type;
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/version")
