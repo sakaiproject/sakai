@@ -1,11 +1,7 @@
-
 package org.tsugi.lti13.objects;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Generated;
 
@@ -16,18 +12,27 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Generated("com.googlecode.jsonschema2pojo")
 
 /*
-    "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
-        "id": "5",
-        "title": "poiuytrewq",
-        "description": ""
+    "https://purl.imsglobal.org/spec/lti/claim/context": {
+        "id": "6",
+        "label": "12345",
+        "title": "qwertyuio",
+        "type": [
+            "0987654321"
+        ]
     },
 */
 
-public class ResourceLink {
+public class Context {
+
+    public static String COURSE_OFFERING = "http://purl.org/CourseOffering";
+
     @JsonProperty("id")
     public String id;
+    @JsonProperty("label")
+    public String label;
     @JsonProperty("title")
     public String title;
-    @JsonProperty("description")
-    public String description;
+    @JsonProperty("type")
+    public List<String> type = new ArrayList<String>();
 }
+

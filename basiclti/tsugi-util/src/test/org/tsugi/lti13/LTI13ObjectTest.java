@@ -10,6 +10,8 @@ import org.tsugi.lti13.LTI13Constants;
 import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13JacksonUtil;
 import org.tsugi.lti13.objects.LaunchJWT;
+import org.tsugi.lti13.objects.Context;
+import org.tsugi.lti13.objects.ToolPlatform;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,8 +37,12 @@ public class LTI13ObjectTest {
 		lj.email = "Zippy@zippy.com";
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 600L;
-		lj.resource_link.id = "23098439084309809854";
 		lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+		lj.resource_link.id = "23098439084309809854";
+		lj.context.id = "83934984398";
+		lj.context.type.add(Context.COURSE_OFFERING);
+		lj.tool_platform.name = "Sakai";
+		lj.tool_platform.url = "https://www.sakaiproject.org";
 
 		String ljs = LTI13JacksonUtil.toString(lj);
 System.out.println("jls="+ljs);

@@ -9,18 +9,12 @@ import java.util.Map;
 
 import javax.annotation.Generated;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
-@JsonPropertyOrder({
-    "https://purl.imsglobal.org/spec/lti/claim/message_type",
-    "given_name"
-})
+
 public class LaunchJWT extends BaseJWT {
 
     public static String CLAIM_PREFIX = "https://purl.imsglobal.org/spec/lti/claim/";
@@ -55,25 +49,11 @@ public class LaunchJWT extends BaseJWT {
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/resource_link")
     public ResourceLink resource_link;
 
-    // @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/context")
-    // public Context context;
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/context")
+    public Context context;
 
-/*
-    "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
-        "id": "5",
-        "title": "poiuytrewq",
-        "description": ""
-    },
-    "https://purl.imsglobal.org/spec/lti/claim/context": {
-        "id": "6",
-        "label": "12345",
-        "title": "qwertyuio",
-        "type": [
-            "0987654321"
-        ]
-    },
-
-*/
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/tool_platform")
+    public ToolPlatform tool_platform;
 
     // Constructor
     public LaunchJWT() {
@@ -81,6 +61,8 @@ public class LaunchJWT extends BaseJWT {
         this.version = "1.3.0";
         this.launch_presentation = new LaunchPresentation();
         this.resource_link = new ResourceLink();
+        this.context = new Context();
+        this.tool_platform = new ToolPlatform();
     }
 
 }
