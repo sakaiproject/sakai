@@ -59,6 +59,9 @@ public class LaunchJWT extends BaseJWT {
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lis")
     public LaunchLIS lis;
 
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/basic_outcome")
+    public BasicOutcome basic_outcome;
+
     // Constructor
     public LaunchJWT() {
         this.message_type = "LtiResourceLinkRequest";
@@ -67,7 +70,6 @@ public class LaunchJWT extends BaseJWT {
         this.resource_link = new ResourceLink();
         this.context = new Context();
         this.tool_platform = new ToolPlatform();
-        this.lis = new LaunchLIS();
     }
 
 }

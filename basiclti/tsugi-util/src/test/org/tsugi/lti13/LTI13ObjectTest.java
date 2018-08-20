@@ -14,6 +14,7 @@ import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.LaunchLIS;
+import org.tsugi.lti13.objects.BasicOutcome;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -45,7 +46,14 @@ public class LTI13ObjectTest {
 		lj.context.type.add(Context.COURSE_OFFERING);
 		lj.tool_platform.name = "Sakai";
 		lj.tool_platform.url = "https://www.sakaiproject.org";
-		lj.lis.person_sourcedid = "person:12345:chuck";
+		LaunchLIS lis = new LaunchLIS();
+		lis.person_sourcedid = "person:12345:chuck";
+		lj.lis = lis;
+
+		BasicOutcome outcome = new BasicOutcome();
+		outcome.lis_result_sourcedid = "58489";
+		outcome.lis_outcome_service_url = "http://call.me.back";
+		lj.basic_outcome = outcome;
 
 		String ljs = LTI13JacksonUtil.toString(lj);
 System.out.println("jls="+ljs);
