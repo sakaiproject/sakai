@@ -19,6 +19,7 @@ public class LaunchJWT extends BaseJWT {
 
     public static String CLAIM_PREFIX = "https://purl.imsglobal.org/spec/lti/claim/";
 
+    public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner";
     public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor";
 
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/message_type")
@@ -55,6 +56,9 @@ public class LaunchJWT extends BaseJWT {
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/tool_platform")
     public ToolPlatform tool_platform;
 
+    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lis")
+    public LaunchLIS lis;
+
     // Constructor
     public LaunchJWT() {
         this.message_type = "LtiResourceLinkRequest";
@@ -63,6 +67,7 @@ public class LaunchJWT extends BaseJWT {
         this.resource_link = new ResourceLink();
         this.context = new Context();
         this.tool_platform = new ToolPlatform();
+        this.lis = new LaunchLIS();
     }
 
 }

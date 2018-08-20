@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.tsugi.lti13.LTI13Constants;
 import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13JacksonUtil;
+
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.ToolPlatform;
+import org.tsugi.lti13.objects.LaunchLIS;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -43,6 +45,7 @@ public class LTI13ObjectTest {
 		lj.context.type.add(Context.COURSE_OFFERING);
 		lj.tool_platform.name = "Sakai";
 		lj.tool_platform.url = "https://www.sakaiproject.org";
+		lj.lis.person_sourcedid = "person:12345:chuck";
 
 		String ljs = LTI13JacksonUtil.toString(lj);
 System.out.println("jls="+ljs);

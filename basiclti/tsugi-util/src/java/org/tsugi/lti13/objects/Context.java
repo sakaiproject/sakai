@@ -24,7 +24,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class Context {
 
-    public static String COURSE_OFFERING = "http://purl.org/CourseOffering";
+    // Per Viktor, the short form is deprecated in LTI 1.3
+    public static String COURSE_OFFERING = "http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering";
 
     @JsonProperty("id")
     public String id;
