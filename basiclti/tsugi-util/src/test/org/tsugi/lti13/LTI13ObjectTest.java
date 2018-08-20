@@ -11,6 +11,7 @@ import org.tsugi.lti13.LTI13JwtUtil;
 import org.tsugi.lti13.LTI13JacksonUtil;
 
 import org.tsugi.lti13.objects.LaunchJWT;
+import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.LaunchLIS;
@@ -49,14 +50,22 @@ public class LTI13ObjectTest {
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 600L;
 		lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+
+		lj.resource_link = new ResourceLink();
 		lj.resource_link.id = "23098439084309809854";
+
+		lj.context = new Context();
 		lj.context.id = "83934984398";
 		lj.context.type.add(Context.COURSE_OFFERING);
+
+	        lj.tool_platform = new ToolPlatform();
 		lj.tool_platform.name = "Sakai";
 		lj.tool_platform.url = "https://www.sakaiproject.org";
+
 		LaunchLIS lis = new LaunchLIS();
 		lis.person_sourcedid = "person:12345:chuck";
 		lj.lis = lis;
+
 		Endpoint ep = new Endpoint();
 		ep.lineitem = "https://www.tsugicloud.org/lineitems/1234/999/";
 		lj.endpoint = ep;

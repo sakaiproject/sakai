@@ -73,9 +73,6 @@ public class LaunchJWT extends BaseJWT {
         this.message_type = "LtiResourceLinkRequest";
         this.version = "1.3.0";
         this.launch_presentation = new LaunchPresentation();
-        this.resource_link = new ResourceLink();
-        this.context = new Context();
-        this.tool_platform = new ToolPlatform();
     }
 
 }
