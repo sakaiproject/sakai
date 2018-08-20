@@ -19,9 +19,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class BaseJWT {
 
     @JsonProperty("iss")
-    public String issuer;
+    public String issuer;  // The url of the LMS or product
+    @JsonProperty("aud")
+    public String audience;  // The Client ID
     @JsonProperty("sub")
-    public String subject;
+    public String subject;   // The user_id
     @JsonProperty("nonce")
     public String nonce;
     @JsonProperty("iat")

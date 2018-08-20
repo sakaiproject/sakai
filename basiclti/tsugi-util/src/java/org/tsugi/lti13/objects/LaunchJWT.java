@@ -59,8 +59,8 @@ public class LaunchJWT extends BaseJWT {
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lis")
     public LaunchLIS lis;
 
-    @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/basic_outcome")
-    public BasicOutcome basic_outcome;
+    @JsonProperty("https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome")
+    public BasicOutcome basicoutcome;
 
     // Constructor
     public LaunchJWT() {

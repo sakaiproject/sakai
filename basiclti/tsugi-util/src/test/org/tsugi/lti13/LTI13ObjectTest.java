@@ -35,7 +35,8 @@ public class LTI13ObjectTest {
 		LaunchJWT lj = new LaunchJWT();
 		lj.launch_presentation.width = 42;
 		lj.issuer = "https://www.sakaiproject.org/";
-		lj.subject = "Bob";
+		lj.audience = "42_34989754987548";  // Client Id
+		lj.subject = "142";  // formerly user_id in LTI 1.1
 		lj.name = "Fred";
 		lj.email = "Zippy@zippy.com";
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
@@ -53,7 +54,7 @@ public class LTI13ObjectTest {
 		BasicOutcome outcome = new BasicOutcome();
 		outcome.lis_result_sourcedid = "58489";
 		outcome.lis_outcome_service_url = "http://call.me.back";
-		lj.basic_outcome = outcome;
+		lj.basicoutcome = outcome;
 
 		String ljs = LTI13JacksonUtil.toString(lj);
 System.out.println("jls="+ljs);
