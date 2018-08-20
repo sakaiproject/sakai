@@ -128,8 +128,10 @@
 
 
 	<!-- news -->
+	<!-- sakai.simple.rss = current id, sakai.news = legacy id -->
 	<tool 
 		toolId="sakai.simple.rss"
+		additionalToolIds="sakai.news"
 		selected="true">
 		<event eventId="news.read" selected="true"/>
 		<event eventId="news.revise" selected="true"/>
