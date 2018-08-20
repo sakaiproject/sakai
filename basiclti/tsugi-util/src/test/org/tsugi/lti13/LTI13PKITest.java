@@ -36,11 +36,11 @@ public class LTI13PKITest {
 		for (int i = 0; i < publicKey.length; ++i) {
 			retString.append(Integer.toHexString(0x0100 + (publicKey[i] & 0x00FF)).substring(1));
 		}
-		System.out.println(retString);
-		System.out.println(retString.length());
 		assertEquals(188, retString.length());
 		Matcher m = lower_hex_pattern.matcher(retString);
-		assertTrue(m.find());
+		boolean good = m.find();
+                if ( ! good ) System.out.println("Bad retString:\n"+retString);
+                assertTrue(good);
 	}
 
 	// https://www.novixys.com/blog/how-to-generate-rsa-keys-java/

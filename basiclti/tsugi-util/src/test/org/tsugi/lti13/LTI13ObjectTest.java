@@ -17,6 +17,9 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Endpoint;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -24,6 +27,8 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 
 public class LTI13ObjectTest {
+
+        Pattern base64url_pattern = Pattern.compile("^[A-Za-z0-9.\\-_]+$");
 
 	@Before
 	public void setUp() throws Exception {
@@ -61,26 +66,39 @@ public class LTI13ObjectTest {
 		lj.basicoutcome = outcome;
 
 		String ljs = LTI13JacksonUtil.toString(lj);
-System.out.println("jls="+ljs);
+		boolean good = ljs.contains("call.me.back");
+		if ( ! good ) System.out.println("Bad Payload: "+ljs);
+		assertTrue(good);
+
 		String ljsp = LTI13JacksonUtil.toStringPretty(lj);
-System.out.println("jlsp="+ljsp);
+		good = ljsp.contains("call.me.back");
+		if ( ! good ) System.out.println("Bad pretty payload: "+ljsp);
+		assertTrue(good);
 
 		Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-		// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html#setPayload-java.lang.String-
+		// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html
 		String jws = Jwts.builder()
+			.setHeaderParam("kid", "42_42_42")
 			.setPayload(ljs)
                         .signWith(key)
                         .compact();
 
-System.out.println("jws="+jws);
+		assertEquals(1810, jws.length());
+                Matcher m = base64url_pattern.matcher(jws);
+                good = m.find();
+                if ( ! good ) System.out.println("Bad JWS:\n"+jws);
+                assertTrue(good);
+
                 String body = LTI13JwtUtil.getBodyAsString(jws, key);
-System.out.println("body "+body);
+		good = body.contains("call.me.back");
+		if ( ! good ) System.out.println("Bad body: "+body);
+		assertTrue(good);
+
                 String header = LTI13JwtUtil.getHeaderAsString(jws, key);
-System.out.println("header "+header);
-
-		// LaunchPresentation lp = new LaunchPresentation(
-
+		good = header.contains("42_42_42");
+		if ( ! good ) System.out.println("Bad header: "+header);
+		assertTrue(good);
 	}
 }
 

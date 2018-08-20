@@ -118,12 +118,9 @@ public class LTI13JJWTTest {
 			.compact();
 
 		String body = getBody(jws, key);
-System.out.println("body "+body);
-
-	}
-
-	@Test
-	public void testFive() throws NoSuchAlgorithmException, NoSuchProviderException {
+                good = body.contains(LTI_13_ISSUER);
+                if ( ! good ) System.out.println("Bad body: "+body);
+                assertTrue(good);
 	}
 }
 
