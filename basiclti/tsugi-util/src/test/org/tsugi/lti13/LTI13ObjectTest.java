@@ -15,6 +15,7 @@ import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.ToolPlatform;
 import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.BasicOutcome;
+import org.tsugi.lti13.objects.Endpoint;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -50,6 +51,9 @@ public class LTI13ObjectTest {
 		LaunchLIS lis = new LaunchLIS();
 		lis.person_sourcedid = "person:12345:chuck";
 		lj.lis = lis;
+		Endpoint ep = new Endpoint();
+		ep.lineitem = "https://www.tsugicloud.org/lineitems/1234/999/";
+		lj.endpoint = ep;
 
 		BasicOutcome outcome = new BasicOutcome();
 		outcome.lis_result_sourcedid = "58489";
