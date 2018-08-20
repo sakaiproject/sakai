@@ -539,10 +539,14 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		}
 
 		Map<String, User> userMap = getUserMap(membership);
+
+		// Audio URL for how to pronunce each name
+		Map<String, String> pronunceMap = getPronunciationMap(userMap);
+
 		Collection<Group> groups = site.getGroups();
 		for (Member member : membership) {
 			try {
-				RosterMember rosterMember = getRosterMember(userMap, groups, member, site, null);
+				RosterMember rosterMember = getRosterMember(userMap, groups, member, site, pronunceMap);
 				rosterMembers.put(rosterMember.getEid(), rosterMember);
 			} catch (UserNotDefinedException e) {
 				log.warn("user not found: " + e.getId());
@@ -713,8 +717,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setSortName(user.getSortName());
 
 		// See if there is a pronunciation available for the user
-		String pronunceEmbed = pronunceMap.containsKey(user.getEmail()) ? pronunceMap.get(user.getEmail()) : null;
-		rosterMember.setPronunciation(pronunceEmbed);
+		rosterMember.setPronunciation(pronunceMap.get(user.getEmail()));
 
 		Map<String, String> userPropertiesMap = new HashMap<>();
 		ResourceProperties props = user.getProperties();
