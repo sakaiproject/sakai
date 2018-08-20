@@ -24,9 +24,6 @@
 **********************************************************************************/
 --%>
 -->
-  <f:view>
-   <f:verbatim>
-      <samigo:colorPickerPopup/>
-    </f:verbatim>
-  </f:view>
-
+<f:view>
+    <samigo:colorPickerPopup/>
+</f:view>

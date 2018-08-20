@@ -48,7 +48,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.jsf.model.PhaseAware;
+import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;

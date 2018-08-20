@@ -16,14 +16,14 @@
   <h:outputText value="Quiz: #{pdfAssessmentBean.title}" />
   </title>
   
-  <samigo:stylesheet path="/css/print/print.css"/>
+  <link rel="stylesheet" type="text/css" href="/samigo-app/css/print/print.css">
   
     
   <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
   
-	<samigo:script path="/js/selection.author.preview.js"/>
+	<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
 		
-	<samigo:stylesheet path="/css/imageQuestion.author.css"/>
+	<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 		
 	<script type="text/JavaScript">		
 		jQuery(window).load(function(){

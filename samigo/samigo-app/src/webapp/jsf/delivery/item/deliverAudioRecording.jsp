@@ -25,11 +25,11 @@ should be included in file importing DeliveryMessages
 --%>
 -->
 
-<samigo:script path="/../library/js/swfobject/swfobject.js"/>
-<samigo:script path="/../library/js/recorder/recorder.js"/>
-<samigo:script path="/../library/js/recorder/jRecorder.js"/>
-<samigo:script path="/../library/js/sakai-recorder.js"/>
-<samigo:script path="/../library/js/sakai-recorder.js"/>
+<script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
+<script type="text/javascript" src="/library/js/recorder/recorder.js"></script>
+<script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
+<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
+<script type="text/javascript" src="/library/js/sakai-recorder.js"></script>
 <script type="text/javascript">includeWebjarLibrary('featherlight');</script>
 <script>
   $(document).ready(function() {

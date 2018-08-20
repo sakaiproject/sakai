@@ -71,7 +71,7 @@
                 <f:param name="partnumber" value="#{part.number}" />
                 <f:param name="questionnumber" value="#{question.number}" />
               </h:commandLink>
-                  <h:commandButton styleClass="linearButton" type="reset" rendered="#{delivery.navigation eq '1'}">
+                  <h:commandButton styleClass="linearButton" type="reset" rendered="#{delivery.navigation eq '1'}" value="">
                       <h:outputText escape="false" value="#{question.sequence} " >
                           <f:convertNumber maxFractionDigits="2"/>
                       </h:outputText>
@@ -93,7 +93,11 @@
 </div>
 
 <f:verbatim></div></f:verbatim>
-
-<f:verbatim><div id='questionProgressClick'>
-<p class="rotateQP"><span id="qpOpen">&#9660; <h:outputText escape="false" value="#{deliveryMessages.qprogress}"/> &#9660;</span><span id="qpClose">&#9650; <h:outputText escape="false" value="#{deliveryMessages.qprogress}"/> &#9650;</span></p>
-</div><br/>&nbsp;</f:verbatim>
+<f:verbatim>
+  <div id='questionProgressClick'>
+    <p class="rotateQP">
+      <span id="qpOpen">&#9660; </f:verbatim><h:outputText escape="false" value="#{deliveryMessages.qprogress}"/><f:verbatim> &#9660;</span>
+      <span id="qpClose">&#9650; </f:verbatim><h:outputText escape="false" value="#{deliveryMessages.qprogress}"/><f:verbatim> &#9650;</span>
+    </p>
+  </div><br/>&nbsp;
+</f:verbatim>

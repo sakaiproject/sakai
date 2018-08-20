@@ -23,11 +23,11 @@ include file for displaying fill in the numeric questions
 --%>
 -->
 
-<samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-<samigo:script path="/js/selection.author.preview.js"/>
-<samigo:script path="/js/selection.student.preview.js"/>
-<samigo:stylesheet path="/css/imageQuestion.author.css"/>
-<samigo:stylesheet path="/css/imageQuestion.student.css"/>
+<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+<script type="text/javascript" src="/samigo-app/js/selection.student.preview.js"></script>
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
 
 <f:verbatim>
 <script type="text/JavaScript">	

@@ -67,4 +67,19 @@
 		</component> 
 	</tag>
 
+	<tag>
+		<tag-name>pager</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Pager</component-type> 
+			<renderer-type>org.sakaiproject.Pager</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>flowState</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.FlowState</component-type> 
+		</component> 
+	</tag>
+
 </facelet-taglib>
