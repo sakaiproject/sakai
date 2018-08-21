@@ -474,6 +474,7 @@ public class Foorm {
 			sb.append("\" id=\"");
 			sb.append(id);
 			sb.append("-input\" value=\"" + i + "\" ");
+			sb.append(checked);
 			sb.append("/> <label for=\"");
 			sb.append(id);
 			sb.append("-input\">");
@@ -820,7 +821,7 @@ public class Foorm {
 	 * @param loader
 	 */
 	public void formOutputStart(StringBuffer sb, String field, String label, Object loader) {
-		sb.append("<p class=\"row\">\n");
+		sb.append("<p class=\"row\" id=\""+field+"\">\n");
 		if (label != null) {
 			sb.append("<b>");
 			sb.append(getI18N(label, loader));
