@@ -1972,21 +1972,19 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.4</version>
+          <version>3.0.1</version>
           <configuration>
-            <debug>false</debug>
             <links>
               <link>http://docs.oracle.com/javase/8/docs/api/</link>
               <link>http://docs.oracle.com/javaee/5/api/</link>
               <link>http://junit.sourceforge.net/javadoc/</link>
               <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-              <link>http://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
+              <link>http://commons.apache.org/proper/commons-collections/apidocs/</link>
             </links>
             <breakiterator>true</breakiterator>
-            <verbose>false</verbose>
             <minmemory>256m</minmemory>
             <maxmemory>2048m</maxmemory>
-            <additionalparam>-Xdoclint:none</additionalparam>
+            <doclint>none</doclint>
             <failOnError>false</failOnError>
           </configuration>
         </plugin>
