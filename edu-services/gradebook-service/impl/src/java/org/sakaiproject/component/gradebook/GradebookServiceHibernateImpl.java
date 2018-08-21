@@ -1909,7 +1909,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
       } else {
       	  gradeDef.setExcused(false);
       }
-      aveGradesAndComments(gradebookUid, gradableObjectId, gradeDefList);
+      saveGradesAndComments(gradebookUid, gradableObjectId, gradeDefList);
   }
 
   @Override
