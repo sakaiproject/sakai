@@ -45,33 +45,4 @@
     </dependencies>
   </dependencyManagement>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <reportSets>
-          <reportSet>
-            <id>aggregate</id>
-            <configuration>
-              <encoding>UTF-8</encoding>
-              <links>
-                <link>http://download.oracle.com/javase/6/docs/api/</link>
-                <link>http://docs.oracle.com/javaee/5/api/</link>
-                <link>http://junit.sourceforge.net/javadoc/</link>
-              </links>
-              <breakiterator>true</breakiterator>
-              <verbose>false</verbose>
-              <maxmemory>512m</maxmemory>
-              <additionalJOption>-J-Xmx512m -J-XX:MaxPermSize=160m</additionalJOption>
-            </configuration>
-            <reports>
-              <report>aggregate</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
-
 </project>
