@@ -493,10 +493,12 @@ $(document).ready(function() {
 			$("#change-blti-p").hide();
 			$("#change-page-p").hide();
 			$("#pagestuff").hide();
+			$(".pageItem").hide();
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
 			$("#edit-height").hide();
 			$("#prereqstuff").hide();
+			$(".reqCheckbox").hide();
 			$("#pathdiv").hide();
 			$("#editgroups").hide();
 			$("#resource-group-inherited").hide();
@@ -1692,6 +1694,7 @@ $(document).ready(function() {
 			$(this).closest('div.item').addClass('editInProgress');
 			$("#require-label2").hide();
 			$("#item-required2").hide();
+            $(".reqCheckbox").hide();
 			$("#assignment-dropdown-selection").hide();
 			$("#assignment-points").hide();
 			$("#assignment-points").hide();
@@ -1709,6 +1712,7 @@ $(document).ready(function() {
 			$("#edit-item-object-p").hide();	
 			$("#edit-item-settings-p").hide();	
 			$("#pagestuff").hide();
+			$(".pageItem").hide();
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
 			$("#edit-height").hide();
@@ -1717,7 +1721,7 @@ $(document).ready(function() {
             $("#stylingstuff").show();
             $("#prereqstuff").show();
             $("#visibility-header").show();
-			
+
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
 
@@ -1754,8 +1758,9 @@ $(document).ready(function() {
 			
 			if(type === 'page') {
 	                    $("#pagestuff").show();
+	                    $(".pageItem").show();
+	                    $(".reqCheckbox").hide();
 	                    $("#prereqstuff").hide();
-	                    $("#visibility-header").hide();
 
 				var sbpgreleasedate = row.find(".subpagereleasedate").text();
 				if(sbpgreleasedate === '') {
@@ -1893,6 +1898,7 @@ $(document).ready(function() {
 					}
 					
 					$("#item-required2").show();
+                    $(".reqCheckbox").show();
 					
 					$("#assignment-points").show();
 					$("#assignment-points-label").show();
@@ -1909,6 +1915,7 @@ $(document).ready(function() {
 					}
 				}else if(type === '4') {
 					// Pass / Fail
+                    $(".reqCheckbox").show();
 					$("#require-label2").show();
 					$("#require-label2").html(msg("simplepage.require_pass_assignment"));
 					$("#item-required2").show();
@@ -1923,7 +1930,7 @@ $(document).ready(function() {
 					}
 				}else if(type === '2') {
 					// Letter Grade
-					
+					$(".reqCheckbox").show();
 					$("#require-label2").show();
 					$("#require-label2").text(msg("simplepage.require_atleast"));
 					$("#item-required2").show();
@@ -1944,6 +1951,7 @@ $(document).ready(function() {
 					// Nothing more that we need to do
 				}else if(type === '5') {
 					// Checkmark
+                    $(".reqCheckbox").show();
 					$("#require-label2").show();
 					$("#require-label2").text(msg("simplepage.require_checkmark"));
 					$("#item-required2").show();
@@ -2801,6 +2809,7 @@ $(document).ready(function() {
 	$('#subpage-error-container').hide();
 	$("#require-label2").hide();
 	$("#item-required2").hide();
+    $(".reqCheckbox").hide();
 	$("#assignment-dropdown-selection").hide();
 	$("#edit-youtube-error-container").hide();
 	$("#messages").hide();

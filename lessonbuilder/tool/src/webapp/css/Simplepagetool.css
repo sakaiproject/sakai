@@ -22,7 +22,7 @@
 }
 
 .ui-dialog label {
-   padding-left: 0.5em;  
+   padding-left: 0px;
    padding-right: 0.5em;
    font-weight: normal;
 }
@@ -197,7 +197,7 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
     border: 1px solid transparent;
 }
 .controlsPanel .shorttext, .controlsPanel .longtext, .controlsPanel .filepicker{
-    margin:.4em 0 1em 0;
+    margin:.4em 0 0 0;
 }
 
 .controlsPanel .change-link {
@@ -2227,7 +2227,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 }
 
 .stylingstuff {
-    padding: .5em;
     margin: .5em 0;
 }
 
@@ -2380,4 +2379,28 @@ body div[role="dialog"] {
 
 #path.instruction {
     margin: 5px;
+}
+
+p.noTopSpacing {
+    margin-top: 0px;
+}
+
+legend.noBottomSpacing {
+    padding-bottom: 0px;
+}
+.itemDesc {
+    padding-left: 0px !important; /* important needed to override bootstrap grid-layout */
+}
+
+.edit-form-input.description{
+    width: 99%;
+    margin-bottom: 10px;
+}
+
+p.checkbox{
+    margin-top: 0px;
+}
+
+#mm-path {
+    margin: 0px;
 }
