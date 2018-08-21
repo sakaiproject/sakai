@@ -663,6 +663,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String formInput = ltiService.formInput(tool, mappingForm);
 
 		context.put("formInput", formInput);
+
+		String clientId = UUID.randomUUID().toString();
+		context.put("clientId", clientId);
+		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + clientId;
+		context.put("keySetUrl", keySetUrl);
+		String makeKeys = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keys";
+		context.put("makeKeys", makeKeys);
+
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}
@@ -757,6 +765,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = ltiService.formInput(previousPost, mappingForm);
 		context.put("formInput",formInput);
+		String clientId = UUID.randomUUID().toString();
+		context.put("clientId", clientId);
+		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + clientId;
+		context.put("keySetUrl", keySetUrl);
+		String makeKeys = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keys";
+		context.put("makeKeys", makeKeys);
+
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
