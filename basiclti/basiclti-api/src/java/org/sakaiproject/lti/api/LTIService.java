@@ -80,8 +80,8 @@ public interface LTIService extends LTISubstitutionsFilter {
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:choices=off,on",
             // LTI 1.3 expansion space (See SAK-33772)
-            "lti13:radio:label=bl_lti13:role=admin",
-            "lti13_settings:text:maxlength=1M:role=admin",
+            "lti13:radio:hidden=true:label=bl_lti13:role=admin",
+            "lti13_settings:text:hidden=true:maxlength=1M:role=admin",
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -149,8 +149,13 @@ public interface LTIService extends LTISubstitutionsFilter {
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:choices=off,on,content",
             // LTI 1.3 expansion space (See SAK-33772)
-            "lti13:radio:label=bl_lti13:choices=off,on,content:role=admin",
-            "lti13_settings:text:maxlength=1M:role=admin",
+            "lti13:radio:hidden=true:label=bl_lti13:role=admin",
+            "lti13_settings:text:hidden=true:maxlength=1M:role=admin",
+            "lti13_client_id:text:maxlength=1024:role=admin",
+            "lti13_consumer_public:text:maxlength=1M:role=admin",
+            "lti13_consumer_private:text:maxlength=1M:role=admin",
+            "lti13_provider_public:text:maxlength=1M:role=admin",
+            "lti13_provider_private:text:maxlength=1M:role=admin",  // This will stay null
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             "created_at:autodate",
