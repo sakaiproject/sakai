@@ -346,11 +346,10 @@ public class ExternalLogic {
         return courses;
     }
 
-    @SuppressWarnings("deprecation")
     private Course makeCourseFromSite(Site site) {
         long createdTime = System.currentTimeMillis() / 1000;
-        if (site.getCreatedTime() != null) {
-            createdTime = site.getCreatedTime().getTime() / 1000;
+        if (site.getCreatedDate() != null) {
+            createdTime = site.getCreatedDate().getTime() / 1000;
         }
         Course c = new Course(site.getId(), 
                 site.getTitle(), 
