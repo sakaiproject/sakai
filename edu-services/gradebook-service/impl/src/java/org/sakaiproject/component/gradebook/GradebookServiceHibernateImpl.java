@@ -1905,11 +1905,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
       AssignmentGradeRecord record = getAssignmentGradeRecord(assignment, studentUid);
       if(record != null) {
-		  gradeDef.setExcused(BooleanUtils.toBoolean(record.isExcludedFromGrade()));
-	  }else{
+      	  gradeDef.setExcused(BooleanUtils.toBoolean(record.isExcludedFromGrade()));
+      } else {
       	  gradeDef.setExcused(false);
-	  }
-	  saveGradesAndComments(gradebookUid, gradableObjectId, gradeDefList);
+      }
+      aveGradesAndComments(gradebookUid, gradableObjectId, gradeDefList);
   }
 
   @Override
