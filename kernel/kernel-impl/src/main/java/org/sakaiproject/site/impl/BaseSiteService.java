@@ -3559,10 +3559,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * regenerate that user's cache since the assumption is generally that the user would have
 	 * clicked a site link presented to them before their access was revoked.
 	 *
-	 * @param _ The Observable, which is effectively nothing with ETS
+	 * @param o The Observable, which is effectively nothing with ETS
 	 * @param eventObj The event from ETS; will be checked and no-op if null or not an Event
 	 */
-	public void update(Observable _, Object eventObj) {
+	public void update(Observable o, Object eventObj) {
 		if (eventObj == null || !(eventObj instanceof Event))
 		{
 			return;
