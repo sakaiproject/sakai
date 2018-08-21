@@ -189,14 +189,6 @@ public class RenderBean
 	 */
 	public String getRenderedPage()
 	{
-	    // SAK-23566 capture the view wiki page events
-	    if (rwo != null && rwo.getName() != null) {
-	        // KNOWN ISSUE: getRenderedPage is also called when editing, there doesn't seem to be a way to tell the difference
-	        EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
-	        if (ets != null) {
-	            ets.post(ets.newEvent("wiki.read", StringUtils.abbreviate(rwo.getName(), 250), false));
-	        }
-	    }
 		return toolRenderService.renderPage(rwo);
 	}
 
