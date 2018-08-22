@@ -14,6 +14,12 @@
 		setQPToggleOn(!getQPToggleOn());
 	});
 
+	$("#questionProgressClick").keypress(function(event) {
+		if (event.keyCode === 13) {
+			$("#questionProgressClick").click();
+		}
+	});
+
 	function toggle(animateTimer) {
 		var QPToggleOn = getQPToggleOn();
 		var wrapWidth = document.getElementById("delivAssessmentWrapper").offsetWidth;
@@ -35,11 +41,11 @@
 		// Position the clickTab
 		if (!QPToggleOn) {
 			$("#questionProgressClick").animate({marginTop: 0, right: panelWidth}, animateTimer);
-			$("#delivAssessmentWrapper").animate({width: newWrapWidth}, animateTimer);
+			//$("#delivAssessmentWrapper").animate({width: newWrapWidth}, animateTimer);
 		}
 		else {
 			$("#questionProgressClick").animate({marginTop: 0, right: 0}, animateTimer);
-			$("#delivAssessmentWrapper").animate({width: origWrapWidth}, animateTimer);
+			//$("#delivAssessmentWrapper").animate({width: origWrapWidth}, animateTimer);
 		}
 	}
 
@@ -57,6 +63,7 @@
 		$(event.data.downArrow).slideToggle();
 		$(event.data.item).slideToggle();
 		event.preventDefault();
+		event.target.blur();
 	}
 
 	function selectAllPartTableDivs() {
@@ -148,7 +155,7 @@
 				document.getElementById('questionProgressPanel').style.display = "block";
 			}
 
-			document.getElementById('delivAssessmentWrapper').style.width = newWrapWidth + "px";
+			//document.getElementById('delivAssessmentWrapper').style.width = newWrapWidth + "px";
 			document.getElementById('questionProgressClick').style.marginTop = clickPos + "px";
 
 			setUpClickHandlersForParts();
@@ -176,7 +183,7 @@
 
 	questionProgress.disableLink = function(link) {
 		link.style.display = 'none';
-		link.parentNode.firstChild.style.display = 'block';
+		link.parentNode.firstChild.style.display = 'inline-block';
 		return true;
 	};
 }( window.questionProgress = window.questionProgress || {}, jQuery )) ;
