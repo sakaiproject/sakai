@@ -123,9 +123,23 @@ public class LTI13Util {
                 Base64.Encoder encoder = Base64.getEncoder();
 
                 String privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n" +
-                        encoder.encodeToString(encodeArray) +
-                        "\n-----END RSA PRIVATE KEY-----\n";
+                        breakKeyIntoLines(encoder.encodeToString(encodeArray)) +
+                        "-----END RSA PRIVATE KEY-----\n";
 		return privateRSA;
+	}
+
+	public static String breakKeyIntoLines(String inp)
+	{
+		int len=65;
+		StringBuffer ret = new StringBuffer();
+
+		for(int i=0; i<inp.length(); i+=len ) {
+			int end=i+len;
+			if ( end > inp.length() ) end = inp.length();
+			ret.append(inp.substring(i, end));
+			ret.append("\n");
+		}
+		return ret.toString();
 	}
 
 	public static Key string2PrivateKey(String keyString)
