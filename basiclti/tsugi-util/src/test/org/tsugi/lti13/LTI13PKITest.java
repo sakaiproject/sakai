@@ -51,17 +51,17 @@ public class LTI13PKITest {
 
 	// https://www.novixys.com/blog/how-to-generate-rsa-keys-java/
 	@Test
-	public void testRSAKeyPrivate1() throws
+	public void testRSAChrisMaurer() throws
 		NoSuchAlgorithmException, NoSuchProviderException, java.security.spec.InvalidKeySpecException
 	{
 
 		// http://www.bouncycastle.org/wiki/display/JA1/Provider+Installation
 		// Security.addProvider(new BouncyCastleProvider());
 
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-		keyGen.initialize(2048);
-		Key privateKey = keyGen.genKeyPair().getPrivate();
+		KeyPair kp = LTI13Util.generateKeyPair();
+		Key privateKey = kp.getPrivate();
 
+		// Hand construct the PKCS8 string
 		byte[] privateByte = privateKey.getEncoded();
 		Base64.Encoder encoder = Base64.getEncoder();
 		String privateEncoded = encoder.encodeToString(privateByte);
@@ -70,20 +70,21 @@ public class LTI13PKITest {
 		if ( ! good ) System.out.println("Bad Encode: "+privateEncoded);
 
 		assertTrue(good);
-		String privateString = encoder.encodeToString(privateByte);
-		String privatePKCS8 = "-----BEGIN RSA PRIVATE KEY-----\n" +
-			privateString +
-			"\n-----END RSA PRIVATE KEY-----\n";
-		// assertEquals(1685, begin.length());
 
-		String privateStringNew = LTI13Util.stripPKCS8(privatePKCS8);
-		// https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa
-		if ( ! privateString.equals(privateStringNew) ) {
-			System.out.println("privatePKCS8\n"+privatePKCS8);
-			System.out.println("privateStringNew\n"+privateStringNew);
+		// Get the version with the -----BEGIN...
+		String privatePKCS8 = LTI13Util.getPrivateEncoded(kp);
+
+		// Go back to the PKCS8 format
+		String privateEncoded2 = LTI13Util.stripPKCS8(privatePKCS8);
+
+		if ( ! privateEncoded.equals(privateEncoded2) ) {
+			System.out.println("privateEncoded\n"+privateEncoded);
+			System.out.println("privateEncoded2\n"+privateEncoded2);
 		}
-		assertEquals(privateStringNew, privateString);
-		byte[] newPrivateByte = Base64.getDecoder().decode(privateStringNew);
+		assertEquals(privateEncoded, privateEncoded2);
+
+		// Decode and check the bytes...
+		byte[] newPrivateByte = Base64.getDecoder().decode(privateEncoded);
 
 		assertEquals(privateByte.length,newPrivateByte.length);
 		for(int i=0; i < privateByte.length; i++ ) {
@@ -94,11 +95,14 @@ public class LTI13PKITest {
 			}
 		}
 
-		// https://stackoverflow.com/questions/49330180/generating-a-jwt-using-an-existing-private-key-and-rs256-algorithm
-		Key newKey = LTI13Util.string2PrivateKey(privateString);
+		// De serialize the key
+		Key newPrivateKey = LTI13Util.string2PrivateKey(privateEncoded);
+
+		assertEquals(privateKey.getFormat(), newPrivateKey.getFormat());
+		assertEquals(privateKey.getAlgorithm(), newPrivateKey.getAlgorithm());
 
                 String jws = Jwts.builder().setSubject("Joe").signWith(privateKey).compact();
-                String newJws = Jwts.builder().setSubject("Joe").signWith(newKey).compact();
+                String newJws = Jwts.builder().setSubject("Joe").signWith(newPrivateKey).compact();
 
 		if ( ! jws.equals(newJws) ) {
 			System.out.println("Mismatch\n");
@@ -108,6 +112,51 @@ public class LTI13PKITest {
 		assertEquals(jws,newJws);
 
 
+		// Lets do Public Keys ------
+		Key publicKey = kp.getPublic();
+
+		// Hand construct the PKCS8 string
+		byte[] publicByte = publicKey.getEncoded();
+		String publicEncoded = encoder.encodeToString(publicByte);
+		m = base64_pattern.matcher(publicEncoded);
+		good = m.find();
+		if ( ! good ) System.out.println("Bad Encode: "+publicEncoded);
+
+		assertTrue(good);
+
+		// Get the version with the -----BEGIN...
+		String publicPKCS8 = LTI13Util.getPublicEncoded(kp);
+
+		// Go back to the PKCS8 format
+		String publicEncoded2 = LTI13Util.stripPKCS8(publicPKCS8);
+
+		if ( ! publicEncoded.equals(publicEncoded2) ) {
+			System.out.println("publicEncoded\n"+publicEncoded);
+			System.out.println("publicEncoded2\n"+publicEncoded2);
+		}
+		assertEquals(publicEncoded, publicEncoded2);
+
+		// Decode and check the bytes...
+		byte[] newPublicByte = Base64.getDecoder().decode(publicEncoded);
+
+		assertEquals(publicByte.length,newPublicByte.length);
+		for(int i=0; i < publicByte.length; i++ ) {
+			if ( publicByte[i] != newPublicByte[i] ) {
+				System.out.println("Error in position "+i+" of "+publicByte.length);
+				assertEquals(publicByte[i], newPublicByte[i]);
+				break;
+			}
+		}
+
+		// De serialize the key
+		Key newPublicKey = LTI13Util.string2PublicKey(publicEncoded);
+		assertEquals(publicKey.getFormat(), newPublicKey.getFormat());
+		assertEquals(publicKey.getAlgorithm(), newPublicKey.getAlgorithm());
+
+		// Now lets verify the string....
+
+		String subject = Jwts.parser().setSigningKey(newPublicKey).parseClaimsJws(jws).getBody().getSubject();
+                assertEquals("Joe",subject);
 
 	}
 
