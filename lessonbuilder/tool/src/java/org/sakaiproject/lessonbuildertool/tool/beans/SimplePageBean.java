@@ -6246,7 +6246,7 @@ public class SimplePageBean {
                         return;
                 }
 
-                Map<String, Object> tool = ltiService.getTool(toolKey, getCurrentSiteId());
+                Map<String, Object> tool = ltiService.getTool(toolKey);
                 if ( tool == null ) {
 			setErrKey("simplepage.lti-import-error-id", toolId);
                         return;
