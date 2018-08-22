@@ -27,13 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 import lombok.extern.slf4j.Slf4j;
-
-import org.tsugi.lti13.LTI13Util;
 
 /**
  *
@@ -45,8 +39,6 @@ public class LTI13Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-        private static final String APPLICATION_JSON = "application/json";
-
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
@@ -54,7 +46,6 @@ public class LTI13Servlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		String rpi = request.getPathInfo();
 		String uri = request.getRequestURI(); // /imsblis/lti13/keys
 		// String launch_url = request.getParameter("launch_url");
 

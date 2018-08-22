@@ -764,7 +764,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel(getSiteId(state));
 
-		mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*|.*:hide=insert.*");
+		mappingForm = foorm.filterForm(mappingForm, null, ".*:only=edit.*|.*:only=lti2.*|.*:hide=insert.*|.*:hideen=insert.*");
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = ltiService.formInput(previousPost, mappingForm);
@@ -840,7 +840,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			old_lti13_platform_public = StringUtils.trimToNull((String) tool.get("lti13_platform_public"));
 			old_lti13_platform_private = StringUtils.trimToNull((String) tool.get("lti13_platform_private"));
 		}
-		String clientId = UUID.randomUUID().toString();
 
 		if ( "1".equals(form_lti13) ) {
 			KeyPair kp = null;
@@ -908,7 +907,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("reg_state",new Integer(0));
 		String [] mappingForm = ltiService.getDeployModel();
 
-		mappingForm = foorm.filterForm(mappingForm, null, ".*:hide=insert.*");
+		mappingForm = foorm.filterForm(mappingForm, null, ".*:hide=insert.*|.*:hidden=insert.*");
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = ltiService.formInput(previousPost, mappingForm);
