@@ -31,7 +31,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.faces.component.UIViewRoot;
-import java.util.Map;
 
 /**
  * <p>Description: </p>
@@ -97,44 +96,6 @@ public class TimerBarRenderer extends Renderer
           writer.writeAttribute("id", clientId, "id");
         }
 
-        Map attrMap = component.getAttributes();
-
-         writer.write("\n");
-         writer.write("\n<script type=\"text/javascript\">");
-         writer.write("\n// Timer Bar - Version 1.0");
-         writer.write("\n// Based on Script by Brian Gosselin of http://scriptasylum.com");
-         writer.write("\n  var loadedcolor='gray' ;            // PROGRESS BAR COLOR");
-
-
-         writer.write("\n  var unloadedcolor='green';         // COLOR OF UNLOADED AREA");
-
-         writer.write("\n  var bordercolor='navy';            // COLOR OF THE BORDER");
-         writer.write("\n  var barheight = " + attrMap.get("height") + "; // HEIGHT OF PROGRESS BAR IN PIXELS");
-         writer.write("\n  var barwidth = " + attrMap.get("width") + "; // WIDTH OF THE BAR IN PIXELS");
-         writer.write("\n  var waitTime = " + attrMap.get("wait") + "; // NUMBER OF SECONDS FOR PROGRESSBAR");
-         writer.write("\n  var loaded = " + attrMap.get("elapsed") + "*10; // TENTHS OF A SECOND ELAPSED");
-         writer.write("\n  var timeUpMessage = \"" + attrMap.get("timeUpMessage") + "\"; // I18N message for time's up");
-         writer.write("\n// THE FUNCTION BELOW CONTAINS THE ACTION(S) TAKEN ONCE BAR REACHES 100.");
-         writer.write("\n");
-         writer.write("\n  var action = function()");
-         writer.write("\n {");
-         writer.write("\n   " + attrMap.get("expireScript") + "clickSubmitForGrade();");
-         writer.write("\n }");
-         writer.write("\n");
-         writer.write("\n  var action2 = function()");
-         writer.write("\n {");
-         writer.write ("\n showTimeDueWarning (function (){");
-         writer.write("\n   " + attrMap.get("expireScript") + ";");
-         writer.write("\n });}");
-         writer.write("\n");
-         writer.write("\n// THE FUNCTION BELOW CONTAINS THE ACTION TAKEN WHERE THERE ARE 5 MINUTES LEFT.");
-         writer.write("\n");
-         writer.write("\n  var fiveMinutesAction = function()");
-         writer.write("\n {");
-         writer.write("\n showTimerWarning();");
-         writer.write("\n }");
-         writer.write("\n");
-         writer.write("\n</script>");
          String contextPath = context.getExternalContext().getRequestContextPath();
          writer.write("\n<script type=\"text/javascript\" src=\"" +
            contextPath + SCRIPT_PATH + "timerbar.js\"></script>");
