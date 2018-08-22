@@ -147,9 +147,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.3 expansion space (See SAK-33772)
             "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
-            "lti13_client_id:text:hidden=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
+            "lti13_client_id:text:hide=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
             "lti13_tool_public:textarea:label=bl_lti13_tool_public:maxlength=1M:role=admin",
-            "lti13_tool_private:textarea:hidden=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
+            "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
             "lti13_platform_public:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",

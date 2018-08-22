@@ -21,7 +21,6 @@ package org.tsugi.lti13;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

@@ -13,6 +13,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Base64;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import org.tsugi.lti13.LTI13Util;
+
+// import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class LTI13PKITest {
 
@@ -45,18 +51,64 @@ public class LTI13PKITest {
 
 	// https://www.novixys.com/blog/how-to-generate-rsa-keys-java/
 	@Test
-	public void testRSAKeyPrivate1() throws NoSuchAlgorithmException, NoSuchProviderException {
+	public void testRSAKeyPrivate1() throws
+		NoSuchAlgorithmException, NoSuchProviderException, java.security.spec.InvalidKeySpecException
+	{
+
+		// http://www.bouncycastle.org/wiki/display/JA1/Provider+Installation
+		// Security.addProvider(new BouncyCastleProvider());
+
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		keyGen.initialize(2048);
-		byte[] privateKey = keyGen.genKeyPair().getPrivate().getEncoded();
+		Key privateKey = keyGen.genKeyPair().getPrivate();
+
+		byte[] privateByte = privateKey.getEncoded();
 		Base64.Encoder encoder = Base64.getEncoder();
-		String encoded = encoder.encodeToString(privateKey);
-		Matcher m = base64_pattern.matcher(encoded);
-		assertTrue(m.find());
-		String begin = "-----BEGIN RSA PUBLIC KEY-----\n" + 
-			encoder.encodeToString(privateKey) + 
-			"\n-----END RSA PUBLIC KEY-----\n";
+		String privateEncoded = encoder.encodeToString(privateByte);
+		Matcher m = base64_pattern.matcher(privateEncoded);
+		boolean good = m.find();
+		if ( ! good ) System.out.println("Bad Encode: "+privateEncoded);
+
+		assertTrue(good);
+		String privateString = encoder.encodeToString(privateByte);
+		String privatePKCS8 = "-----BEGIN RSA PRIVATE KEY-----\n" +
+			privateString +
+			"\n-----END RSA PRIVATE KEY-----\n";
 		// assertEquals(1685, begin.length());
+
+		String privateStringNew = LTI13Util.stripPKCS8(privatePKCS8);
+		// https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa
+		if ( ! privateString.equals(privateStringNew) ) {
+			System.out.println("privatePKCS8\n"+privatePKCS8);
+			System.out.println("privateStringNew\n"+privateStringNew);
+		}
+		assertEquals(privateStringNew, privateString);
+		byte[] newPrivateByte = Base64.getDecoder().decode(privateStringNew);
+
+		assertEquals(privateByte.length,newPrivateByte.length);
+		for(int i=0; i < privateByte.length; i++ ) {
+			if ( privateByte[i] != newPrivateByte[i] ) {
+				System.out.println("Error in position "+i+" of "+privateByte.length);
+				assertEquals(privateByte[i], newPrivateByte[i]);
+				break;
+			}
+		}
+
+		// https://stackoverflow.com/questions/49330180/generating-a-jwt-using-an-existing-private-key-and-rs256-algorithm
+		Key newKey = LTI13Util.string2PrivateKey(privateString);
+
+                String jws = Jwts.builder().setSubject("Joe").signWith(privateKey).compact();
+                String newJws = Jwts.builder().setSubject("Joe").signWith(newKey).compact();
+
+		if ( ! jws.equals(newJws) ) {
+			System.out.println("Mismatch\n");
+			System.out.println("JWT with original key\n"+jws);
+			System.out.println("JWT with serialized key\n"+newJws);
+		}
+		assertEquals(jws,newJws);
+
+
+
 	}
 
 	@Test
