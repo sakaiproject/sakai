@@ -1,3 +1,42 @@
+
+button.partLink {
+  background-color: transparent !important;
+  color: #022f6a !important;
+}
+button.partLink:hover {
+  background-color: transparent !important;
+  color: #022f6a !important;
+}
+button.partLink:active {
+  background-color: transparent !important;
+  color: #022f6a !important;
+}
+button.partLink:focus {
+  background-color: transparent !important;
+  color: #022f6a !important;
+}
+div#questionProgressPanel a {
+  color: #022f6a;
+  text-decoration: none;
+}
+div#questionProgressPanel p.progressItem {
+  padding-right: 10px;
+}
+#questionProgressPanel img {
+  padding-bottom: 1px;
+}
+div#questionProgressPanel>div.tier1>table>tbody>tr {
+  border-bottom: solid grey 1px;
+}
+#questionProgressPanel a[href]:hover {
+  text-decoration: none;
+}
+div#questionProgressPanel>div.tier1>table>tbody>tr:hover {
+  background: #bcd8ff;
+}
+.partTitle .arrow {
+  display: none !important;
+}
 .samigo-subheading {
   font-weight: 400;
   border-bottom: 1px solid #999;
@@ -578,10 +617,6 @@ span.author_mcLabelText {
 	color: #000 !important;
 }
 
-#timer-expired-warning{
-	text-align: center;	
-}
-
 #audio-recorder-header {
     text-align: center;
     border-bottom: 1px solid black;
@@ -1135,15 +1170,18 @@ td.feedbackColumn2 {
 }
 
 #questionProgressPanel {
-	min-height: 200px;
+	min-height: 220px;
 	max-height:auto;
-	width: 295px;
-	background: #ddd;
+	width: 300px;
+	background: #eaf1fb;
 	right:0px;
 	display: none;
-	position: fixed;
-	border: 2px solid #004B8D;
+	position: absolute;
 	padding-bottom: 1em;
+	top:20px;
+       color: #022f6a;
+        border: 1px solid #022f6a;
+        border-bottom-left-radius: 10px;
 }
 
 div#questionProgressPanel div.tier1 {
@@ -1153,10 +1191,10 @@ div#questionProgressPanel div.tier1 {
 #questionProgressClick {
 	height: 200px;
 	width: 40px;
-	background: #004B8D;
+	background: #022f6a;
 	right:299px;
 	margin-top: 200px;
-	position: fixed;
+	position: absolute;
 	display: none;
 	font-weight: bold;
 	-moz-border-radius-topleft: 15px;
@@ -1164,25 +1202,26 @@ div#questionProgressPanel div.tier1 {
 	-moz-border-radius-bottomleft: 15px;
 	border-bottom-left-radius: 15px;
 	cursor: pointer;
+	top: 20px
 }
 .currentQuestion {
-	border: 1px solid #004B8D;
+	border: 1px solid #74acde;
 	padding: 2px;
-	background-color:#d6ebff;
-	border-radius: 2px;
+	background-color:#d3ecff;
+	border-radius: 5px;
 }
 .questionProgressTable {
 
 }
 .questionProgressTable td, .questionProgressTable_linear td {
-	border: 1px solid #ddd;
+	border: 0;
 	text-align: right;
-	background-color: #ddd;
+	background-color: #transparent;
 }
 .questionProgressTable td:hover {
 	background-color: #d6ebff;
-	border-color: #d6ebff;
 	cursor: pointer;
+	border-radius: 5px;
 }
 .questionProgressTable a {
 	text-decoration: none;
@@ -1232,7 +1271,6 @@ button.partLink {
 	padding: 0 !important;
 	color: #069;
 	cursor: pointer;
-	background-color: transparent;
 	display: inline;
 	outline: none;
 	outline-offset: 0;
@@ -1244,14 +1282,16 @@ button.partLink {
 	width: 160px;
 }
 
-button.partLink:hover {
-	color: #30a7fc;
+button.partLink:focus {
+        outline: 0 !important;
 }
 
 button.partLink::-moz-focus-inner {
 	border: none;
 	padding: 0;
+	outline: 0;
 }
+
 
 div[id^='partTable'] {
 	display: none;
@@ -1260,14 +1300,14 @@ div[id^='partTable'] {
 
 .numberOfQuestionsInPart {
 	position: absolute;
-	right: 5px;
+	right: 20px;
 }
 .partTitle {
-	border-bottom: solid grey 1px;
 	display: inline-block;
-	width: 295px;
+	width: 270px;
 	margin-bottom: 3px;
-	padding-bottom: 5px;
+	padding-bottom: 4px;
+	padding-top: 3px;
 	line-height: 1;
 }
 
