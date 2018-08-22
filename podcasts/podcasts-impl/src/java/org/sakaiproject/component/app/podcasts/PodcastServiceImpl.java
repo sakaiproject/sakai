@@ -23,8 +23,11 @@ package org.sakaiproject.component.app.podcasts;
 
 import static org.sakaiproject.component.app.podcasts.Utilities.checkSet;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -777,10 +780,7 @@ public class PodcastServiceImpl implements PodcastService {
 		resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION,
 				description);
 
-		final SimpleDateFormat formatter = getSimpleDateFormat();
-		
-		resourceProperties.addProperty(DISPLAY_DATE, formatter
-				.format(displayDate));
+		resourceProperties.addProperty(DISPLAY_DATE, getSimpleDateFormat(displayDate));
 
 		cr.setReleaseInstant(Instant.ofEpochMilli(displayDate.getTime()));
 		
@@ -939,9 +939,7 @@ public class PodcastServiceImpl implements PodcastService {
 			if (date != null) {
 				podcastResourceEditable.removeProperty(DISPLAY_DATE);
 
-				final SimpleDateFormat formatter = getSimpleDateFormat();
-
-				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter.format(date));
+				podcastResourceEditable.addProperty(DISPLAY_DATE, getSimpleDateFormat(date));
 
 				podcastEditable.setReleaseInstant(Instant.ofEpochMilli(date.getTime()));
 			}
@@ -1138,7 +1136,7 @@ public class PodcastServiceImpl implements PodcastService {
 		catch (Exception e1) {
 			// catches  PermissionException	IdUnusedException
 			//			TypeException		InUseException
-			log.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + siteId + ". DisplayDate: " + displayDate, e1);
+			log.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site {}. DisplayDate: {}", siteId, displayDate, e1);
 			
 			if (aResourceEdit != null) {
 				contentHostingService.cancelResource(aResourceEdit);						
@@ -1166,7 +1164,6 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	private ContentResource setDisplayDate(String siteId, String resourceId, Instant releaseDate) {
 		ContentResource refreshedResource = null;
-		final SimpleDateFormat formatterProp = getSimpleDateFormat();
 		Date tempDate = null;
 
 		try {
@@ -1183,7 +1180,7 @@ public class PodcastServiceImpl implements PodcastService {
 				tempDate = new Date(releaseDate.toEpochMilli());
 			}
 
-			rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
+			rp.addProperty(DISPLAY_DATE, getSimpleDateFormat(tempDate));
 
 			contentHostingService.commitResource(aResource, NotificationService.NOTI_NONE);
 			
@@ -1248,16 +1245,18 @@ public class PodcastServiceImpl implements PodcastService {
 		return null;
 	}
 	
-	
+
 	/**
 	 * Format: "yyyyMMddHHmmssSSS"
+	 * @param date
 	 * @return
 	 */
-	private SimpleDateFormat getSimpleDateFormat() {
-
-		final SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		formatterProp.setTimeZone(userTimeService.getLocalTimeZone());
-		return formatterProp;
+	private static String getSimpleDateFormat(Date date) {
+		DateTimeFormatter sss = new DateTimeFormatterBuilder()
+				.appendPattern("yyyyMMddHHmmssSSS")
+				.toFormatter(resbud.getLocale());
+		LocalDateTime userDate1 = LocalDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+		return userDate1.format(sss);
 	}
 
 	/**
