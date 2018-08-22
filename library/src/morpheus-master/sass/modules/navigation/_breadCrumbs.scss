@@ -86,6 +86,7 @@
 	}
 
 	@media #{$phone}{
+		@include display-flex;	// flexing this so parent site/subsites breadcrumbs don't overlap for the first layer; more work needs to be done to improve this
 		background-color: transparent;
 		box-shadow: none;
 		position: absolute;

@@ -264,12 +264,14 @@ $all-sites-close-action-hover-color:                      #4C4C4C !default;
 /* Wide tool menu, icons on left */
 $tool-menu-icon-on-left: true !default;
 $tool-menu-width: 200px !default;
-$tool-menu-width-collapsed: $tool-menu-width / 4 !default;
+$tool-menu-width-collapsed: 42px !default;
+$tool-menu-collapseButton-height: $tool-menu-width-collapsed !default;
 
 /* Narrow tool menu, icons centered */
 @if not($tool-menu-icon-on-left) {
     $tool-menu-width: 8em;
-    $tool-menu-width-collapsed: $tool-menu-width / 2;
+    $tool-menu-width-collapsed: 42px;
+    $tool-menu-collapseButton-height: $tool-menu-width-collapsed;
 }
 
 $tool-menu-item-separator-color:                           #E5E5E5 !default;
@@ -282,14 +284,14 @@ $tool-menu-item-hover-text-color:                          #191919 !default;
 $tool-menu-item-hover-icon-color:                          #424242 !default;
 $tool-menu-item-hover-background-color:                    #ECECEC !default;
 $tool-menu-item-hover-border-left:                         4px solid #7F7F7F !default;
-$tool-menu-item-hidden-text-color:                         #9A9A9A !default;
-$tool-menu-item-hidden-icon-color:                         #A9A9A9 !default;
-$tool-menu-item-hidden-background-color:                   #FAFAFA !default;
-$tool-menu-item-hidden-border-left:                        4px solid transparent !default;
-$tool-menu-item-hidden-hover-color:                        #808080 !default;
-$tool-menu-item-hidden-hover-icon-color:                   #929292 !default;
-$tool-menu-item-hidden-hover-background-color:             #ECECEC !default;
-$tool-menu-item-hidden-hover-border-left:                  4px solid #7F7F7F !default;
+$tool-menu-item-hidden-text-color:                         $tool-menu-item-text-color !default;
+$tool-menu-item-hidden-icon-color:                         $tool-menu-item-icon-color !default;
+$tool-menu-item-hidden-background-color:                   $tool-menu-item-background-color !default;
+$tool-menu-item-hidden-border-left:                        $tool-menu-item-border-left !default;
+$tool-menu-item-hidden-hover-text-color:                   $tool-menu-item-hover-text-color !default;
+$tool-menu-item-hidden-hover-icon-color:                   $tool-menu-item-hover-icon-color !default;
+$tool-menu-item-hidden-hover-background-color:             $tool-menu-item-hover-background-color !default;
+$tool-menu-item-hidden-hover-border-left:                  $tool-menu-item-hover-border-left !default;
 $tool-menu-item-selected-text-color:                       #15597e !default;
 $tool-menu-item-selected-icon-color:                       #15597e !default;
 $tool-menu-item-selected-background-color:                 #FFFFFF !default;
@@ -376,6 +378,7 @@ $instruction-background-color: #fff !default;
 // Accessibility
 // This should be visible based on your button colors and is based on webkit's default
 
+$focus-outline-width: 5px !default;
 $focus-outline-color: #5b9dd9;
 
 
