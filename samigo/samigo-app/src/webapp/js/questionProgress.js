@@ -35,11 +35,11 @@
 		// Position the clickTab
 		if (!QPToggleOn) {
 			$("#questionProgressClick").animate({marginTop: 0, right: panelWidth}, animateTimer);
-			$("#delivAssessmentWrapper").animate({width: newWrapWidth}, animateTimer);
+			//$("#delivAssessmentWrapper").animate({width: newWrapWidth}, animateTimer);
 		}
 		else {
 			$("#questionProgressClick").animate({marginTop: 0, right: 0}, animateTimer);
-			$("#delivAssessmentWrapper").animate({width: origWrapWidth}, animateTimer);
+			//$("#delivAssessmentWrapper").animate({width: origWrapWidth}, animateTimer);
 		}
 	}
 
@@ -148,7 +148,7 @@
 				document.getElementById('questionProgressPanel').style.display = "block";
 			}
 
-			document.getElementById('delivAssessmentWrapper').style.width = newWrapWidth + "px";
+			//document.getElementById('delivAssessmentWrapper').style.width = newWrapWidth + "px";
 			document.getElementById('questionProgressClick').style.marginTop = clickPos + "px";
 
 			setUpClickHandlersForParts();
@@ -176,7 +176,7 @@
 
 	questionProgress.disableLink = function(link) {
 		link.style.display = 'none';
-		link.parentNode.firstChild.style.display = 'block';
+		link.parentNode.firstChild.style.display = 'inline-block';
 		return true;
 	};
 }( window.questionProgress = window.questionProgress || {}, jQuery )) ;
