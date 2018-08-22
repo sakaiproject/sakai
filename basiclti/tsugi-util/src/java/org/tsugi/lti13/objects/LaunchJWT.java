@@ -38,6 +38,8 @@ public class LaunchJWT extends BaseJWT {
     public String email;
     @JsonProperty("name")
     public String name;
+    @JsonProperty("locale")
+    public String locale;
 
     @JsonProperty("https://purl.imsglobal.org/spec/lti/claim/roles")
     public List<String> roles = new ArrayList<String>();

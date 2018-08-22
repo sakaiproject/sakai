@@ -29,6 +29,8 @@ $(document).ready( function() {
                 setMainFrameHeight('sakai-basiclti-admin-iframe');
         });
         $('#lti13_tool_private').hide();
+        $('#lti13_tool_public').css('font-family', '"Courier New", monospace');
+        $('#lti13_tool_public').css('white-space', 'pre');
 });
 </script>
 #end

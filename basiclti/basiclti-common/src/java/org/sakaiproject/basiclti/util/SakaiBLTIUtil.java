@@ -1543,45 +1543,88 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.")+"</p>");
 		}
 
+/* 
+context_id: mercury
+context_label: mercury site
+context_title: mercury site
+context_type: Group
+ext_ims_lis_basic_outcome_url: http://localhost:8080/imsblis/service/
+ext_ims_lis_memberships_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
+ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
+ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
+ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
+ext_lms: sakai-19-SNAPSHOT
+ext_sakai_academic_session: OTHER
+ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/morpheus-default/tool.css?version=49b21ca5
+ext_sakai_role: maintain
+ext_sakai_server: http://localhost:8080
+ext_sakai_serverid: MacBook-Pro-92.local
+launch_presentation_css_url: http://localhost:8080/library/skin/tool_base.css
+launch_presentation_locale: en_US
+launch_presentation_return_url: http://localhost:8080/imsblis/service/return-url/site/mercury
+lis_course_offering_sourcedid: mercury
+lis_course_section_sourcedid: mercury
+lis_outcome_service_url: http://localhost:8080/imsblis/service/
+lis_person_name_family: Administrator
+lis_person_name_full: Sakai Administrator
+lis_person_name_given: Sakai
+lis_person_sourcedid: admin
+lti_version: LTI-1p0
+resource_link_description: Tsugi Breakout
+resource_link_id: content:3
+resource_link_title: Tsugi Breakout
+roles: Instructor,Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator
+user_id: admin
+
+*/
+		// Lets make a JWT from the LTI 1.x data
 		LaunchJWT lj = new LaunchJWT();
-                lj.launch_presentation.width = 42;
+		lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
+		lj.locale = ltiProps.getProperty("launch_presentation_locale");
+		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
                 lj.issuer = "https://www.sakaiproject.org/";
-                lj.audience = "42_34989754987548";  // Client Id
-                lj.deployment_id = "42_this_field_sucks";  // Client Id
-                lj.subject = "142";  // formerly user_id in LTI 1.1
-                lj.name = "Fred";
+                lj.audience = client_id;
+                lj.deployment_id = org_guid;
+                lj.subject = ltiProps.getProperty("user_id");
+                lj.name = ltiProps.getProperty("lis_person_name_full");
                 lj.nonce = new Long(System.currentTimeMillis()) + "_42";
-                lj.email = "Zippy@zippy.com";
+                lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
                 lj.issued = new Long(System.currentTimeMillis() / 1000L);
                 lj.expires = lj.issued + 600L;
                 lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
 
                 lj.resource_link = new ResourceLink();
-                lj.resource_link.id = "23098439084309809854";
+                lj.resource_link.id = ltiProps.getProperty("resource_link_id");
+                lj.resource_link.title = ltiProps.getProperty("resource_link_title");
+                lj.resource_link.description = ltiProps.getProperty("resource_link_description");
 
                 lj.context = new Context();
-                lj.context.id = "83934984398";
+                lj.context.id = ltiProps.getProperty("context_id");
+                lj.context.label = ltiProps.getProperty("context_label");
+                lj.context.title = ltiProps.getProperty("context_title");
                 lj.context.type.add(Context.COURSE_OFFERING);
 
+// XXX
                 lj.tool_platform = new ToolPlatform();
                 lj.tool_platform.name = "Sakai";
-                lj.tool_platform.url = "https://www.sakaiproject.org";
+                lj.tool_platform.version = ltiProps.getProperty("tool_consumer_info_version");
+                lj.tool_platform.product_family_code = ltiProps.getProperty("tool_consumer_info_product_family_code");
+                lj.tool_platform.url = org_url;
+                lj.tool_platform.description = org_desc;
 
                 LaunchLIS lis = new LaunchLIS();
-                lis.person_sourcedid = "person:12345:chuck";
+                lis.person_sourcedid = ltiProps.getProperty("lis_person_sourcedid");
+                lis.course_offering_sourcedid = ltiProps.getProperty("lis_course_offering_sourcedid");
+                lis.course_section_sourcedid = ltiProps.getProperty("lis_course_section_sourcedid");
                 lj.lis = lis;
 
-                Endpoint ep = new Endpoint();
-                ep.lineitem = "https://www.tsugicloud.org/lineitems/1234/999/";
-                lj.endpoint = ep;
-
                 BasicOutcome outcome = new BasicOutcome();
-                outcome.lis_result_sourcedid = "58489";
-                outcome.lis_outcome_service_url = "http://call.me.back";
+                outcome.lis_result_sourcedid = ltiProps.getProperty("lis_result_sourcedid");
+                outcome.lis_outcome_service_url = ltiProps.getProperty("lis_outcome_service_url");
                 lj.basicoutcome = outcome;
 
                 String ljs = LTI13JacksonUtil.toString(lj);
-		// System.out.println("ljs"); System.out.println(ljs);
+		System.out.println("ljs"); System.out.println(ljs);
 
 		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
 		Key publicKey = LTI13Util.string2PublicKey(platform_public);
