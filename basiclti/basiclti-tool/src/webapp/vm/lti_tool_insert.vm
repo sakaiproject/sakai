@@ -15,9 +15,6 @@
         <p class="act">
             <input type="submit" accesskey ="s" class="active" name="$doToolAction"
                 value="$tlang.getString('gen.save')" />
-            <input type="submit" accesskey ="l" class="active" value="$tlang.getString('gen.set.lti13')"
-                onclick="loadLTI13Keys(); return false;"
-            />
             <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')"
                  onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
         </p>
@@ -64,21 +61,6 @@ $(document).ready( function() {
     var toolorderspinner = $("#toolorder").spinner({min:0,max:99});
 
 });
-
-function loadLTI13Keys() {
-    console.log('Yada');
-    if ( $('#lti13_keyset_url').val() == '' || $('#lti13_client_id').val() == '' ) {
-        $('#lti13_keyset_url').val('$keySetUrl');
-        $('#lti13_client_id').val('$clientId');
-    }
-    ${d}.getJSON('$makeKeys', function(data) {
-        console.log('data', data);
-        $('#lti13_tool_public').val(data.tool_public);
-        $('#lti13_tool_private').val(data.tool_private);
-        $('#lti13_platform_public').val(data.platform_public);
-        $('#lti13_platform_private').val(data.platform_private);
-    });
-}
 
 </script>
 </div>

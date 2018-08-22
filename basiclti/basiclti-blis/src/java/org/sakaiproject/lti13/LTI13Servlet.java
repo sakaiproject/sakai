@@ -58,32 +58,9 @@ public class LTI13Servlet extends HttpServlet {
 	{
 		String rpi = request.getPathInfo();
 		String uri = request.getRequestURI(); // /imsblis/lti13/keys
-		String launch_url = request.getParameter("launch_url");
-System.out.println("launch_url "+launch_url);
+		// String launch_url = request.getParameter("launch_url");
+
                 String [] parts = uri.split("/");
-
-		if ( parts.length > 2 && "keys".equals(parts[3])) {
-			PrintWriter out = null;
-			Map<String, String> retval = null;
-			try {
-				out = response.getWriter();
-				retval = LTI13Util.generateKeys();
-			} catch(Exception e) {
-				log.error(e.getMessage(), e);
-				return;
-			}
-
-	                String jsonText = JSONValue.toJSONString(retval);
-
-			response.setContentType(APPLICATION_JSON);
-			try {
-				out.println(jsonText);
-			}
-			catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-			return;
-		}
 
                 response.setContentType("text/html");
                 try {

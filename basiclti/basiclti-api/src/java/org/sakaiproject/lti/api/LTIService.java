@@ -77,9 +77,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
-            // LTI 1.3 expansion space (See SAK-33772)
-            "lti13:radio:hidden=true:label=bl_lti13:role=admin",
-            "lti13_settings:text:hidden=true:maxlength=1M:role=admin",
+            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on",
             "created_at:autodate",
@@ -148,16 +146,13 @@ public interface LTIService extends LTISubstitutionsFilter {
             "allowcustom:checkbox:label=bl_allowcustom",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             // LTI 1.3 expansion space (See SAK-33772)
-            "lti13:radio:hidden=true:label=bl_lti13:role=admin",
-            "lti13_settings:text:hidden=true:maxlength=1M:role=admin",
-            "lti13_tool_header:header:label=bl_lti13_tool_header:fields=lti13_client_id,lti13_keyset_url, lti13_tool_private",
-            "lti13_client_id:text:label=bl_lti13_client_id:maxlength=1024:role=admin",
-            "lti13_keyset_url:url:label=bl_lti13_keyset_url:maxlength=1024:role=admin",
-            "lti13_tool_private:textarea:label=bl_lti13_tool_private:maxlength=1M:role=admin",  // This will stay null
-            "lti13_platform_header:header:label=bl_lti13_platform_header:fields=lti13_tool_public,lti13_platform_public,lti13_platform_private",
+            "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
+            "lti13_client_id:text:hidden=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
             "lti13_tool_public:textarea:label=bl_lti13_tool_public:maxlength=1M:role=admin",
-            "lti13_platform_public:textarea:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_private:textarea:label=bl_lti13_platform_private:maxlength=1M:role=admin",
+            "lti13_tool_private:textarea:hidden=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
+            "lti13_platform_public:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
+            "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
+            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",

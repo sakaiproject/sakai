@@ -88,4 +88,38 @@ public class LTI13Util {
  
 	}
 
+	public static KeyPair generateKeyPair()
+	{
+		try {
+	                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+			keyGen.initialize(2048);
+			KeyPair kp = keyGen.genKeyPair();
+			return kp;
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	public static String getPublicEncoded(KeyPair kp)
+        {
+                byte[] encodeArray = kp.getPublic().getEncoded();
+                Base64.Encoder encoder = Base64.getEncoder();
+
+                String publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n" +
+                        encoder.encodeToString(encodeArray) +
+                        "\n-----END RSA PUBLIC KEY-----\n";
+		return publicRSA;
+	}
+
+	public static String getPrivateEncoded(KeyPair kp)
+        {
+                byte[] encodeArray = kp.getPrivate().getEncoded();
+                Base64.Encoder encoder = Base64.getEncoder();
+
+                String privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n" +
+                        encoder.encodeToString(encodeArray) +
+                        "\n-----END RSA PRIVATE KEY-----\n";
+		return privateRSA;
+	}
+
 }
