@@ -24,22 +24,10 @@ import java.util.TreeMap;
 import java.util.Base64;
 import java.security.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 import lombok.extern.slf4j.Slf4j;
-
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.BasicLTIConstants;
-import org.tsugi.lti2.objects.StandardServices;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 @Slf4j
 public class LTI13Util {
-
-	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
 	public static Map<String, String> generateKeys()
 		throws java.security.NoSuchAlgorithmException

@@ -20,8 +20,6 @@ package org.sakaiproject.lti13;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -77,9 +75,6 @@ public class LTI13Servlet extends HttpServlet {
 		throws ServletException, IOException 
 	{
                         log.error("Yada");
-	}
-
-	public void destroy() {
 	}
 
 }
