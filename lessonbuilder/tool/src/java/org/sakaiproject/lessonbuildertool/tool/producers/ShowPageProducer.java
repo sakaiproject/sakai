@@ -63,6 +63,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -1283,7 +1284,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			boolean subPageTitleIncluded = false;
 			boolean subPageTitleContinue = false;
-		
+
+			boolean forceButtonColor = false;
+			String color = null;
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
@@ -1291,7 +1294,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			        // break or a normal item
 				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
-				    String color = i.getAttribute("colcolor");
+				    forceButtonColor = BooleanUtils.toBoolean(i.getAttribute("forceBtn"));
+				    color = i.getAttribute("colcolor");
 				    if (first || "section".equals(i.getFormat())) {
 					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
 					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
@@ -1323,7 +1327,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 					if (!needIcon)
 					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
-					sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
+					if(forceButtonColor){
+						sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header hasColor")));
+					}else{
+						sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
+					}
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
@@ -1545,7 +1553,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// way things are
 					// done so the user never has to request a refresh.
 					//   FYI: this actually puts in an IFRAME for inline BLTI items
-					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status) || showRefresh;
+					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status, forceButtonColor, color) || showRefresh;
 					UILink.make(tableRow, "copylink", i.getName(), "http://lessonbuilder.sakaiproject.org/" + i.getId() + "/").
 					    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.copylink2").replace("{}", i.getName())));
 
@@ -3703,8 +3711,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		this.httpServletResponse = httpServletResponse;
 	}
 
-	private boolean makeLink(UIContainer container, String ID, SimplePageItem i, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
-		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status);
+	private boolean makeLink(UIContainer container, String ID, SimplePageItem i, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status){
+		return makeLink(container, ID, i, canEditPage, currentPage, notDone, status, false, null);
+	}
+	private boolean makeLink(UIContainer container, String ID, SimplePageItem i, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
+		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status, forceButtonColor, color);
+	}
+
+	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
+									  boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
+		return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status, false, null);
 	}
 
 	/**
@@ -3717,7 +3733,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @return Whether or not this item is available.
 	 */
 	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator,
-			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
+			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status, boolean forceButtonColor, String color) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
 		boolean usable = available || canEditPage;
@@ -3795,6 +3811,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					if (i.isPrerequisite()) {
 						simplePageBean.checkItemPermissions(i, true);
+					}
+					if(!forceButtonColor){
+						link.decorate(new UIStyleDecorator(i.getAttribute("btnColor")));
+					}else{
+						link.decorate(new UIStyleDecorator(color));
 					}
 					// at this point we know the page isn't available, i.e. user
 					// hasn't
@@ -4438,6 +4459,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
 		UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
 
+		UISelect buttonColors = UISelect.make(form, "subpage-btncolor", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
+
 		UIInput.make(form, "subpage-add-before", "#{simplePageBean.addBefore}");
 		UICommand.make(form, "create-subpage", messageLocator.getMessage("simplepage.create"), "#{simplePageBean.createSubpage}");
 		UICommand.make(form, "cancel-subpage", messageLocator.getMessage("simplepage.cancel"), null);
@@ -4555,6 +4578,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// If current user is an admin show the css class input box
 		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
 		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
+
+		UISelect buttonColors = UISelect.make(form, "btncolor", SimplePageBean.NewColors, SimplePageBean.NewColorLabels, "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
 
 		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
@@ -5252,6 +5277,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "layout-section-collapsible", "#{simplePageBean.layoutSectionCollapsible}", false);
 		UIBoundBoolean.make(form, "layout-section-start-collapsed", "#{simplePageBean.layoutSectionStartCollapsed}", false);
 		UIBoundBoolean.make(form, "layout-section-show-borders", "#{simplePageBean.layoutSectionShowBorders}", true);
+		UIBoundBoolean.make(form, "layout-section-force-button-color", "#{simplePageBean.forceButtonColor}", false);
 
 		UISelect layouts = UISelect.make(form, "layout-select-layout",
 				new String[] {"single-column", "two-equal", "left-double", "right-double", "three-equal"},

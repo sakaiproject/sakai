@@ -1199,6 +1199,10 @@
                     <label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label></p>
                     <p class="checkbox"><input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
                     <label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label></p>
+                    <label for="subpage-btncolor" rsf:id="msg=simplepage.btncolor" id="subpage-buttonColorLabel"></label>
+                    <select rsf:id="subpage-btncolor" id="subpage-btncolor">
+                    </select>
+                    <p rsf:id="msg=simplepage.needbtn" id="subpage-needbtn" style="display: none"></p>
 
 		    <input type="hidden" rsf:id="subpage-add-before" id="subpage-add-before"/>
                     <div class="act">
@@ -1323,6 +1327,14 @@
                         <div class="row-no-margin pageItem">
                             <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
                             <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
+                            <br />
+                            <label for="btncolor" rsf:id="msg=simplepage.btncolor" id="buttonColorLabel"></label>
+                            <select rsf:id="btncolor" id="btncolor">
+                            </select>
+                            <br />
+                            <p rsf:id="msg=simplepage.forcebtn.forced" id="btncolor-forced" style="display: none"></p>
+                            <p rsf:id="msg=simplepage.needbtn" id="needbtn" style="display: none"></p>
+                            <br />
                         </div>
                         <p class="shorttext">
                             <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
@@ -2343,6 +2355,10 @@
                             <div class="form-group">
                                 <label><input rsf:id="layout-section-show-borders" id="layout-section-show-borders" type="checkbox" /> <span rsf:id="msg=simplepage.layout.show.borders"></span></label>
                             </div>
+                            <div class="form-group">
+                                <input type="checkbox" rsf:id="layout-section-force-button-color" id="layout-section-force-button-color" />
+                                <label for="layout-section-force-button-color" rsf:id="msg=simplepage.forcebutton"></label>
+                            </div>
                         </div>
                     </div>
 
@@ -2484,6 +2500,11 @@
 		      <option value="yellow" id="columnyellow"><span rsf:id="msg=simplepage.columnyellow">yellow</span></option>
 		    </select>
             <br />
+
+            <input type="checkbox" id="force-button-color" />
+            <label for="force-button-color" rsf:id="msg=simplepage.forcebutton"></label>
+            <br />
+
             <input type="checkbox" id="show-borders" />
             <label for="show-borders" rsf:id="msg=simplepage.layout.show.borders"></label>
 		</div>

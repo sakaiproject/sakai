@@ -1685,7 +1685,45 @@ $(document).ready(function() {
 			setupdialog($("#movie-dialog"));
 			return false;
 		});
-		
+
+        $("#subpage-button").click(function(){
+            if($(this).is(":checked")){
+                if($("#subpage-btncolor-forced").is(":visible")){
+                    //do nothing, color selector still needs hidden.
+                }else{
+                    $("#subpage-buttonColorLabel").removeClass("disabled");
+                    $("#subpage-btncolor-selection").removeClass("disabled");
+                }
+                //remove button warning regardless
+                $("#subpage-needbtn").hide();
+            }else{
+                //if its not checked, make sure "disabled" class is there.
+
+                $("#subpage-buttonColorLabel").addClass("disabled");
+                $("#subpage-btncolor-selection").addClass("disabled");
+                $("#subpage-needbtn").show();
+            }
+        });
+
+		$("#item-button").click(function(){
+			if($(this).is(":checked")){
+				if($("#btncolor-forced").is(":visible")){
+					//do nothing, color selector still needs hidden.
+				}else{
+					$("#buttonColorLabel").removeClass("disabled");
+					$("#btncolor-selection").removeClass("disabled");
+				}
+				//remove button warning regardless
+				$("#needbtn").hide();
+			}else{
+				//if its not checked, make sure "disabled" class is there.
+
+                $("#buttonColorLabel").addClass("disabled");
+                $("#btncolor-selection").addClass("disabled");
+				$("#needbtn").show();
+			}
+		});
+
 		$(".edit-link").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -1731,6 +1769,36 @@ $(document).ready(function() {
 			$("select[name=indent-level-selection]").val(row.find(".indentLevel").text());
 			$("#customCssClass").val(row.find(".custom-css-class").text());
 
+			var colorArray = ["none",
+                "ngray",
+                "nblack",
+                "nblue",
+                "nblue2",
+                "nred",
+                "nrudy",
+                "nnavy",
+                "nnavy2",
+                "ngreen"];
+			var classList = row.find(".usebutton").attr('class').split(' ');
+
+			var color = null;
+            classList.forEach(function(source){
+            	if(colorArray.indexOf(source) != -1 && color === null){
+            		color = source;
+				}
+			});
+
+            if(color !== null){
+            	$("select[name=btncolor-selection]").val(color);
+			}else{
+            	$("select[name=btncolor-selection]").val("none");
+			}
+
+			var forcedColorSection = row.parent().parent().parent().parent().parent().find('.sectionHeader');
+            var shouldBeDisabled = false;
+            if(forcedColorSection.hasClass("hasColor")){
+            	shouldBeDisabled = true;
+			}
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq === "true") {
@@ -1794,11 +1862,28 @@ $(document).ready(function() {
 
 			    var pagebutton = row.find(".page-button").text();
 			    if(pagebutton === "true") {
-				$("#item-button").prop("checked", true);
-				$("#item-button").attr("defaultChecked", true);
-			    }else {
-				$("#item-button").prop("checked", false);
-			    }
+					$("#item-button").prop("checked", true);
+					$("#item-button").attr("defaultChecked", true);
+					if(!shouldBeDisabled) {
+                        $("#buttonColorLabel").removeClass("disabled");
+                        $("#btncolor-selection").removeClass("disabled");
+                        $("#btncolor-selection").prop("disabled", false);
+                        $("#btncolor-forced").hide();
+                    }else{
+                        $("#buttonColorLabel").addClass("disabled");
+                        $("#btncolor-selection").addClass("disabled");
+                        $("#btncolor-selection").prop("disabled", true);
+                        $("#btncolor-forced").show();
+					}
+					$("#needbtn").hide();
+			    }else{
+                    $("#item-button").prop("checked", false);
+                    $("#buttonColorLabel").addClass("disabled");
+                    $("#btncolor-selection").addClass("disabled");
+                    $("#btncolor-selection").prop("disabled", true);
+					$("#needbtn").show();
+                }
+
 
 			    var pagehidden = row.find(".page-hidden").text();
 			    if(pagehidden === "true") {
@@ -2622,6 +2707,7 @@ $(document).ready(function() {
 		});
 	    $('#collapsible').prop('checked', col.parent('.section').hasClass('collapsible'));
 	    $('#defaultClosed').prop('checked', col.parent('.section').hasClass('defaultClosed'));
+        $('#force-button-color').prop('checked', col.parent('.section').prev().hasClass("hasColor"));
 	    $('#sectionTitle').val(col.parent('.section').prev().find('.sectionHeaderText').text());
 		if(!$("#sectionTitle").val()) {
 			$("#collapsible").prop('checked', false);
@@ -2655,6 +2741,7 @@ $(document).ready(function() {
 		var header = section.prev('.sectionHeader');
 		var color_index = $('#columnbackground')[0].selectedIndex; 
 		var color = '';
+		var forceBtnColor = $("#force-button-color").prop('checked');
 		if (color_index !== 0) {
             color = $('#columnbackground').val();
 		}
@@ -2669,7 +2756,7 @@ $(document).ready(function() {
                 color = color + '-trans';
             }
         }
-		setColumnProperties(itemid, width, split, color);
+		setColumnProperties(itemid, width, split, color, forceBtnColor);
 		if (width === 2)
 		    col.addClass('double');		    
 		else
@@ -2729,6 +2816,7 @@ $(document).ready(function() {
 			$('#expandCollapseButtons').hide();
 		}
 		$('#column-dialog').dialog('close');
+		$document.reload();
 		return false;
 	    });
 
@@ -3602,7 +3690,7 @@ function deleteBreak(itemId, type) {
 	    }});
 }
 
-function setColumnProperties(itemId, width, split, color) {
+function setColumnProperties(itemId, width, split, color, forceBtnColor) {
     var errors = '';
     var url = location.protocol + '//' + location.host + 
 	'/lessonbuilder-tool/ajax';
@@ -3611,7 +3699,7 @@ function setColumnProperties(itemId, width, split, color) {
     $.ajax({type: "POST",
 	    async: false,
 	    url: url,
-		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf, color: color},
+		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf, color: color, forceBtn: forceBtnColor},
 	    success: function(data){
 		ok = data;
 	    }});

@@ -323,6 +323,8 @@ public class SimplePageBean {
 
 	private String indentLevel;
 	private String customCssClass;
+	private String buttonColor;
+	private boolean forceButtonColor = false;
 
 	private String alt = null;
 	private String order = null;
@@ -895,6 +897,14 @@ public class SimplePageBean {
 		this.customCssClass = customCssClass;
 	}
 
+	public String getButtonColor() {
+		return buttonColor;
+	}
+
+	public void setButtonColor(String buttonColor) {
+		this.buttonColor = buttonColor;
+	}
+
 	public void setHidePage(boolean hide) {
 		hidePage = hide;
 	}
@@ -1126,6 +1136,14 @@ public class SimplePageBean {
 
 	public void setLayoutSectionShowBorders(boolean layoutSectionShowBorders) {
 		this.layoutSectionShowBorders = layoutSectionShowBorders;
+	}
+
+	public boolean isButtonColorForced(){
+		return forceButtonColor;
+	}
+
+	public void setForceButtonColor(boolean forceButtonColor){
+		this.forceButtonColor = forceButtonColor;
 	}
 
 	public String getLayoutSelect() {
@@ -1421,6 +1439,8 @@ public class SimplePageBean {
 
 		// Set the custom css class
 		item.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
+
+		item.setAttribute(SimplePageItem.BUTTONCOLOR, buttonColor);
 
 		// Is the name hidden from students
 		item.setAttribute(SimplePageItem.NAMEHIDDEN, String.valueOf(nameHidden));
@@ -2883,6 +2903,10 @@ public class SimplePageBean {
 			i.setFormat("button");
 		    else
 			i.setFormat("");
+
+		    if(StringUtils.isNotEmpty(buttonColor)){
+		    	i.setAttribute("btnColor", buttonColor);
+			}
 		} else {
 		    // when itemid is specified, we're changing pages for existing entry
 		    i.setSakaiId(selectedEntity);
@@ -3091,6 +3115,7 @@ public class SimplePageBean {
 			// Set the custom css class
 			i.setAttribute(SimplePageItem.CUSTOMCSSCLASS, customCssClass);
 
+			i.setAttribute(SimplePageItem.BUTTONCOLOR, buttonColor);
 			// currently we only display HTML in the same page
 			if (i.getType() == SimplePageItem.RESOURCE)
 			    i.setSameWindow(!newWindow);
@@ -4641,7 +4666,7 @@ public class SimplePageBean {
 		}
 
 		newSection.setAttribute("colcolor", colorScheme);
-
+		newSection.setAttribute("forceBtn", Boolean.toString(this.forceButtonColor));
 		saveOrUpdate(newSection);
 
 		if (!StringUtils.equals(this.layoutSelect, "single-column")) {
@@ -4652,6 +4677,7 @@ public class SimplePageBean {
 				col1.setAttribute("colwidth", "2");
 			}
 			col1.setAttribute("colcolor", colorScheme);
+			col1.setAttribute("forceBtn", Boolean.toString(forceButtonColor));
 			saveOrUpdate(col1);
 
 			if (StringUtils.equals(this.layoutSelect, "three-equal")) {
@@ -4659,6 +4685,7 @@ public class SimplePageBean {
 				col2.setFormat("column");
 				col2.setSequence(col1.getSequence()+1);
 				col2.setAttribute("colcolor", colorScheme);
+				col2.setAttribute("forceBtn", Boolean.toString(this.forceButtonColor));
 				saveOrUpdate(col2);
 			}
 		}
