@@ -279,8 +279,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		});
 
 		// Delete the assessment.
-		hibTempl.flush();
-		hibTempl.clear();
 		hibTempl.delete(asn);
 
 		log.info("External assessment removed from gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
@@ -339,8 +337,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			log.debug("updateExternalAssessmentScores sent {} records, actually changed {}", studentIds.size(), changedStudents.size());
 
 			// Sync database.
-			session.flush();
-			session.clear();
 			return null;
 		});
 	}
@@ -405,8 +401,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			log.debug("updateExternalAssessmentScores sent {} records, actually changed {}", studentIds.size(), changedStudents.size());
 
 			// Sync database.
-			session.flush();
-			session.clear();
 			return null;
 		});
 	}
@@ -479,8 +473,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			log.debug("updateExternalAssessmentScores sent {} records, actually changed {}", studentIds.size(), changedStudents.size());
 
 			// Sync database.
-			session.flush();
-			session.clear();
 			return null;
 		});
 	}
@@ -892,8 +884,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				session.saveOrUpdate(agr);
 
 				// Sync database.
-				session.flush();
-				session.clear();
 				postUpdateGradeEvent(gradebookUid, asn.getName(), studentUid, newPointsEarned);
 			} else {
 				log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
