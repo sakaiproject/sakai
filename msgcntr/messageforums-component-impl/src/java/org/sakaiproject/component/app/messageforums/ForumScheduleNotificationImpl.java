@@ -158,7 +158,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 				String siteId = forumManager.getContextForForumById(forumId);
 				HashMap<String, Integer> beforeChangeHM = SynopticMsgcntrManagerCover
 						.getUserToNewMessagesForForumMap(siteId, forum.getId(), null);
-				forumManager.saveForum(forum, forum.getDraft(), siteId, false, "-forumScheduler-");
+				forum = forumManager.saveForum(forum, forum.getDraft(), siteId, false, "-forumScheduler-");
 				updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forum.getId(), null, beforeChangeHM,
 						SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 			}
