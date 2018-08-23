@@ -102,7 +102,7 @@ public class LTI13Util {
 			KeyPair kp = keyGen.genKeyPair();
 			return kp;
 		} catch(Exception e) {
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -112,7 +112,7 @@ public class LTI13Util {
                 Base64.Encoder encoder = Base64.getEncoder();
 
                 String publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n" +
-                        encoder.encodeToString(encodeArray) +
+                        breakKeyIntoLines(encoder.encodeToString(encodeArray)) +
                         "\n-----END RSA PUBLIC KEY-----\n";
 		return publicRSA;
 	}
@@ -124,40 +124,49 @@ public class LTI13Util {
 
                 String privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n" +
                         breakKeyIntoLines(encoder.encodeToString(encodeArray)) +
-                        "-----END RSA PRIVATE KEY-----\n";
+                        "\n-----END RSA PRIVATE KEY-----\n";
 		return privateRSA;
 	}
 
-	public static String breakKeyIntoLines(String inp)
+	public static String breakKeyIntoLines(String rawkey)
 	{
 		int len=65;
 		StringBuffer ret = new StringBuffer();
 
-		for(int i=0; i<inp.length(); i+=len ) {
+		String trimmed = rawkey.trim();
+		for(int i=0; i<trimmed.length(); i+=len ) {
 			int end=i+len;
-			if ( end > inp.length() ) end = inp.length();
-			ret.append(inp.substring(i, end));
-			ret.append("\n");
+			if ( ret.length() > 0 ) ret.append("\n");
+			if ( end > trimmed.length() ) end = trimmed.length();
+			ret.append(trimmed.substring(i, end));
 		}
 		return ret.toString();
 	}
 
 	public static Key string2PrivateKey(String keyString)
-		throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
-		KeyFactory kf = KeyFactory.getInstance("RSA");
+		try {
+			KeyFactory kf = KeyFactory.getInstance("RSA");
 
-		PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyString.getBytes()));
-		return (Key) kf.generatePrivate(keySpecPKCS8);
+			keyString = stripPKCS8(keyString);
+			PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyString.getBytes()));
+			return (Key) kf.generatePrivate(keySpecPKCS8);
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static Key string2PublicKey(String keyString)
-		throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
-		KeyFactory kf = KeyFactory.getInstance("RSA");
+		try {
+			KeyFactory kf = KeyFactory.getInstance("RSA");
 
-		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(keyString));
-		return (Key) kf.generatePublic(keySpecX509);
+			keyString = stripPKCS8(keyString);
+			X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(keyString));
+			return (Key) kf.generatePublic(keySpecX509);
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

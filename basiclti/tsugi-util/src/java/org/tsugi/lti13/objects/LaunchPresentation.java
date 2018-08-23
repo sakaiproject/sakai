@@ -30,4 +30,7 @@ public class LaunchPresentation {
     @JsonProperty("return_url")
     public String return_url;
 
+    @JsonProperty("css_url")
+    public String css_url;
+
 }

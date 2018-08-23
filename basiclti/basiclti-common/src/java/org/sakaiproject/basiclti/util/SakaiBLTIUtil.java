@@ -56,6 +56,24 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti2.SakaiLTI2Config;
 
+import org.tsugi.lti13.LTI13Util;
+import org.tsugi.lti13.LTI13JwtUtil;
+import org.tsugi.lti13.LTI13JacksonUtil;
+
+import org.tsugi.lti13.objects.LaunchJWT;
+import org.tsugi.lti13.objects.ResourceLink;
+import org.tsugi.lti13.objects.Context;
+import org.tsugi.lti13.objects.ToolPlatform;
+import org.tsugi.lti13.objects.LaunchLIS;
+import org.tsugi.lti13.objects.BasicOutcome;
+import org.tsugi.lti13.objects.Endpoint;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -809,9 +827,11 @@ public class SakaiBLTIUtil {
 		proxyBinding = ltiService.getProxyBindingDao(toolKey,context);
 
 		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
+		Long longLTI13 = getLongNull(tool.get(LTIService.LTI13));
 		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
 		boolean isLTI2 = ! isLTI1;  // In case there is an LTI 3
-		log.debug("toolVersion={} isLTI1={}", toolVersion, isLTI1);
+		boolean isLTI13 = longLTI13.equals(1L);  // In case there is an LTI 3
+		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
 
 		// If we are doing LTI2, We will need a ToolProxyBinding
 		ToolProxyBinding toolProxyBinding = null;
@@ -1039,6 +1059,9 @@ public class SakaiBLTIUtil {
 		}
 
 		log.debug("LAUNCH TYPE {}", (isLTI1 ? "LTI 1" : "LTI 2"));
+		if ( isLTI13 ) {
+			return postLaunchJWT(toolProps, ltiProps, tool, rb);
+		}
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}
 
@@ -1493,6 +1516,131 @@ public class SakaiBLTIUtil {
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
 
 		String [] retval = { postData, launch_url };
+		return retval;
+	}
+
+	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps, Map<String,Object> tool, ResourceLoader rb)
+	{
+
+		String launch_url = toolProps.getProperty("secure_launch_url");
+		if ( launch_url == null ) launch_url = toolProps.getProperty("launch_url");
+		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>");
+
+		String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",
+			ServerConfigurationService.getString("serverName", null));
+		String org_desc = ServerConfigurationService.getString("basiclti.consumer_instance_description",null);
+		String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",
+			ServerConfigurationService.getString("serverUrl", null));
+
+		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
+		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
+		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
+		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
+		System.out.println("platform_public="+platform_public);
+
+		if (  platform_private == null ){
+			return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.")+"</p>");
+		}
+
+/* 
+context_id: mercury
+context_label: mercury site
+context_title: mercury site
+context_type: Group
+ext_ims_lis_basic_outcome_url: http://localhost:8080/imsblis/service/
+ext_ims_lis_memberships_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
+ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
+ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
+ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
+ext_lms: sakai-19-SNAPSHOT
+ext_sakai_academic_session: OTHER
+ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/morpheus-default/tool.css?version=49b21ca5
+ext_sakai_role: maintain
+ext_sakai_server: http://localhost:8080
+ext_sakai_serverid: MacBook-Pro-92.local
+launch_presentation_css_url: http://localhost:8080/library/skin/tool_base.css
+launch_presentation_locale: en_US
+launch_presentation_return_url: http://localhost:8080/imsblis/service/return-url/site/mercury
+lis_course_offering_sourcedid: mercury
+lis_course_section_sourcedid: mercury
+lis_outcome_service_url: http://localhost:8080/imsblis/service/
+lis_person_name_family: Administrator
+lis_person_name_full: Sakai Administrator
+lis_person_name_given: Sakai
+lis_person_sourcedid: admin
+lti_version: LTI-1p0
+resource_link_description: Tsugi Breakout
+resource_link_id: content:3
+resource_link_title: Tsugi Breakout
+roles: Instructor,Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator
+user_id: admin
+
+*/
+		// Lets make a JWT from the LTI 1.x data
+		LaunchJWT lj = new LaunchJWT();
+		lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
+		lj.locale = ltiProps.getProperty("launch_presentation_locale");
+		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
+                lj.issuer = "https://www.sakaiproject.org/";
+                lj.audience = client_id;
+                lj.deployment_id = org_guid;
+                lj.subject = ltiProps.getProperty("user_id");
+                lj.name = ltiProps.getProperty("lis_person_name_full");
+                lj.nonce = new Long(System.currentTimeMillis()) + "_42";
+                lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
+                lj.issued = new Long(System.currentTimeMillis() / 1000L);
+                lj.expires = lj.issued + 600L;
+                lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+
+                lj.resource_link = new ResourceLink();
+                lj.resource_link.id = ltiProps.getProperty("resource_link_id");
+                lj.resource_link.title = ltiProps.getProperty("resource_link_title");
+                lj.resource_link.description = ltiProps.getProperty("resource_link_description");
+
+                lj.context = new Context();
+                lj.context.id = ltiProps.getProperty("context_id");
+                lj.context.label = ltiProps.getProperty("context_label");
+                lj.context.title = ltiProps.getProperty("context_title");
+                lj.context.type.add(Context.COURSE_OFFERING);
+
+// XXX
+                lj.tool_platform = new ToolPlatform();
+                lj.tool_platform.name = "Sakai";
+                lj.tool_platform.version = ltiProps.getProperty("tool_consumer_info_version");
+                lj.tool_platform.product_family_code = ltiProps.getProperty("tool_consumer_info_product_family_code");
+                lj.tool_platform.url = org_url;
+                lj.tool_platform.description = org_desc;
+
+                LaunchLIS lis = new LaunchLIS();
+                lis.person_sourcedid = ltiProps.getProperty("lis_person_sourcedid");
+                lis.course_offering_sourcedid = ltiProps.getProperty("lis_course_offering_sourcedid");
+                lis.course_section_sourcedid = ltiProps.getProperty("lis_course_section_sourcedid");
+                lj.lis = lis;
+
+                BasicOutcome outcome = new BasicOutcome();
+                outcome.lis_result_sourcedid = ltiProps.getProperty("lis_result_sourcedid");
+                outcome.lis_outcome_service_url = ltiProps.getProperty("lis_outcome_service_url");
+                lj.basicoutcome = outcome;
+
+                String ljs = LTI13JacksonUtil.toString(lj);
+		System.out.println("ljs"); System.out.println(ljs);
+
+		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
+		Key publicKey = LTI13Util.string2PublicKey(platform_public);
+
+                String jws = Jwts.builder().setPayload(ljs).signWith(privateKey).compact();
+		// System.out.println("jws"); System.out.println(jws);
+		// String subject = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody().getSubject();
+		// System.out.println("subject="+subject);
+
+
+		String html = "<form action=\""+launch_url+"\" method=\"POST\">\n"+ 
+		"    <input type=\"hidden\" name=\"id_token\" value=\""+BasicLTIUtil.htmlspecialchars(jws)+"\" />\n" + 
+		"    <input type=\"submit\" value=\"Go!\" />\n" +
+		"</form>\n";
+
+		String [] retval = { html, launch_url };
 		return retval;
 	}
 

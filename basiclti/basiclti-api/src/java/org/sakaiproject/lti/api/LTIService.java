@@ -150,7 +150,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_client_id:text:hide=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
             "lti13_tool_public:textarea:label=bl_lti13_tool_public:maxlength=1M:role=admin",
             "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
-            "lti13_platform_public:textarea:hidden=true:label=bl_lti13_platform_public:maxlength=1M:role=admin",
+            "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
@@ -291,6 +291,14 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT = "Department";
     String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
     String LTI_SITE_ATTRIBUTION_PROPERTY_NAME_DEFAULT = "content.attribution";
+
+    // LTI 1.3
+    String LTI13 = "lti13";
+    String LTI13_CLIENT_ID = "lti13_client_id";
+    String LTI13_TOOL_PUBLIC = "lti13_tool_public";
+    String LTI13_TOOL_PRIVATE = "lti13_tool_private";
+    String LTI13_PLATFORM_PUBLIC = "lti13_platform_public";
+    String LTI13_PLATFORM_PRIVATE = "lti13_platform_private";
 
     // For Instructors, this model is filtered down dynamically based on
     // Tool settings
