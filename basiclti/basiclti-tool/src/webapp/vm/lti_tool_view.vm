@@ -33,6 +33,9 @@ $(document).ready( function() {
         $('#lti13_tool_public').css('font-family', '"Courier New", monospace');
         $('#lti13_tool_public').css('white-space', 'pre');
 
+        $('#lti13_tool_private').css('font-family', '"Courier New", monospace');
+        $('#lti13_tool_private').css('white-space', 'pre');
+
         $('#lti13_platform_public').css('font-family', '"Courier New", monospace');
         $('#lti13_platform_public').css('white-space', 'pre');
 });
