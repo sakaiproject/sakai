@@ -253,9 +253,6 @@ public class SakaiIFrame extends GenericPortlet {
 	 */
 	private Map<String, Object> patchContentItem(Long key, Placement placement)
 	{
-		// Get out tool configuration so we can fix things up...
-		ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-
 		// Look up the content item, bypassing authz checks
 		Map<String, Object> content = m_ltiService.getContentDao(key);
 		if ( content == null ) return null;
@@ -263,7 +260,8 @@ public class SakaiIFrame extends GenericPortlet {
 
 		// Look up the tool associated with the Content Item
 		// checking Authz to see is we can touch this tool
-		Map<String, Object> tool = m_ltiService.getTool(tool_id, placement.getContext());
+		String siteId = placement.getContext();
+		Map<String, Object> tool = m_ltiService.getTool(tool_id, siteId);
 		if ( tool == null ) return null;
 
 		// Now make a content item from this tool inheriting from the other content item
@@ -276,11 +274,13 @@ public class SakaiIFrame extends GenericPortlet {
 			props.put(k, value.toString());
 		}
 		props.put(LTIService.LTI_TOOL_ID, tool_id.toString());
-		props.put(LTIService.LTI_SITE_ID, placement.getContext());
+		props.put(LTIService.LTI_SITE_ID, siteId);
 		props.put(LTIService.LTI_PLACEMENT, placement.getId());
 
-		Object retval = m_ltiService.insertContent(props, placement.getContext());
-		if ( retval instanceof String ) {
+		// The current user may not be a maintainer in the current site, but we want to still be able to
+		// correct the source on the LTI tool
+		Object retval = m_ltiService.insertContentDao(props, siteId, m_ltiService.isAdmin(siteId), true);
+		if ( retval == null || retval instanceof String ) {
 			log.error("Unable to insert LTILinkItem tool={} placement={}",tool_id,placement.getId());
 			placement.getPlacementConfig().setProperty(SOURCE,"");
 			placement.save();
@@ -288,7 +288,7 @@ public class SakaiIFrame extends GenericPortlet {
 		}
 
 		Long contentKey = (Long) retval;
-		Map<String,Object> newContent = m_ltiService.getContent(contentKey, placement.getContext());
+		Map<String,Object> newContent = m_ltiService.getContent(contentKey, siteId);
 		String contentUrl = m_ltiService.getContentLaunch(newContent);
 		if ( newContent == null || contentUrl == null ) {
 			log.error("Unable to set contentUrl tool={} placement={}",tool_id,placement.getId());
