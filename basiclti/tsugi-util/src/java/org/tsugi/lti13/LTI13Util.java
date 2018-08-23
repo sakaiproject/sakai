@@ -108,23 +108,33 @@ public class LTI13Util {
 
 	public static String getPublicEncoded(KeyPair kp)
         {
-                byte[] encodeArray = kp.getPublic().getEncoded();
+		return getPublicEncoded(kp.getPublic());
+	}
+
+	public static String getPublicEncoded(Key key)
+        {
+                byte[] encodeArray = key.getEncoded();
                 Base64.Encoder encoder = Base64.getEncoder();
 
-                String publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n" +
+                String publicRSA = "-----BEGIN PUBLIC KEY-----\n" +
                         breakKeyIntoLines(encoder.encodeToString(encodeArray)) +
-                        "\n-----END RSA PUBLIC KEY-----\n";
+                        "\n-----END PUBLIC KEY-----\n";
 		return publicRSA;
 	}
 
 	public static String getPrivateEncoded(KeyPair kp)
         {
-                byte[] encodeArray = kp.getPrivate().getEncoded();
+		return getPrivateEncoded(kp.getPrivate());
+	}
+
+	public static String getPrivateEncoded(Key key)
+        {
+                byte[] encodeArray = key.getEncoded();
                 Base64.Encoder encoder = Base64.getEncoder();
 
-                String privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n" +
+                String privateRSA = "-----BEGIN PRIVATE KEY-----\n" +
                         breakKeyIntoLines(encoder.encodeToString(encodeArray)) +
-                        "\n-----END RSA PRIVATE KEY-----\n";
+                        "\n-----END PRIVATE KEY-----\n";
 		return privateRSA;
 	}
 
