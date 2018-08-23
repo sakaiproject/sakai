@@ -618,12 +618,12 @@ public class podHomeBean {
 
 		// get release/publish date - else part needed for podcasts created before release/retract dates
 		// feature implemented
-		if (podcastResource.getReleaseDate() == null) {
+		if (podcastResource.getReleaseInstant() == null) {
 			tempDate = podcastService.getGMTdate(podcastProperties
-													.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+													.getInstantProperty(PodcastService.DISPLAY_DATE).toEpochMilli());
 		} 
 		else {
-			tempDate = new Date(podcastResource.getReleaseDate().getTime());
+			tempDate = new Date(podcastResource.getReleaseInstant().toEpochMilli());
 		}
 
 		// store result of hidden property OR after retract date OR before release date
@@ -700,7 +700,7 @@ public class podHomeBean {
 				podcastInfo.setType("UNK");
 			}
 
-			tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+			tempDate = podcastProperties.getDateProperty(ResourceProperties.PROP_MODIFIED_DATE);
 
 			podcastInfo.setPostedDatetime(DateFormatterUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
 
