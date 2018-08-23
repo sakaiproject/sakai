@@ -105,7 +105,7 @@
     <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet-shaded</artifactId>
-        <version>3.0.4.Final</version>
+        <version>3.0.5.Final</version>
     </dependency>
   </dependencies>
   <build>
