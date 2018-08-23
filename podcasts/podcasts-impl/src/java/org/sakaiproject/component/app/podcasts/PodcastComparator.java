@@ -22,15 +22,19 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import java.time.Instant;
 import java.util.Comparator;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.time.api.Time;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * 
+ *
+ */
 @Slf4j
 public class PodcastComparator implements Comparator {
 
@@ -61,11 +65,11 @@ public class PodcastComparator implements Comparator {
 		int rv = 0;
 
 		try {
-			Time t1 = ((ContentResource) o1).getReleaseDate();
-			if (t1 == null)	 t1 = ((ContentResource) o1).getProperties().getTimeProperty(m_property);
+			Instant t1 = ((ContentResource) o1).getReleaseInstant();
+			if (t1 == null)	 t1 = ((ContentResource) o1).getProperties().getInstantProperty(m_property);
 			
-			Time t2 = ((ContentResource) o2).getReleaseDate();
-			if (t2 == null)  t2 = ((ContentResource) o2).getProperties().getTimeProperty(m_property);
+			Instant t2 = ((ContentResource) o2).getReleaseInstant();
+			if (t2 == null)  t2 = ((ContentResource) o2).getProperties().getInstantProperty(m_property);
 			
 			rv = t1.compareTo(t2);
 
