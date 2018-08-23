@@ -124,7 +124,7 @@ public class MessageForums extends AbstractWebService {
                     area.setAutoMarkThreadsRead(false);
                     area.setSendEmailOut(Boolean.TRUE);
                     area.setAvailabilityRestricted(Boolean.FALSE);
-                    areaManager.saveArea(area);
+                    area = areaManager.saveArea(area);
                     log.debug("Created area...");
                 }
 
