@@ -45,12 +45,12 @@ public class LTI13Util {
                 byte[] privateKey = kp.getPrivate().getEncoded();
                 Base64.Encoder encoder = Base64.getEncoder();
 
-                String publicRSA = "-----BEGIN RSA PUBLIC KEY-----\n" +
+                String publicRSA = "-----BEGIN PUBLIC KEY-----\n" +
                         encoder.encodeToString(privateKey) +
-                        "\n-----END RSA PUBLIC KEY-----\n";
-                String privateRSA = "-----BEGIN RSA PRIVATE KEY-----\n" +
+                        "\n-----END PUBLIC KEY-----\n";
+                String privateRSA = "-----BEGIN PRIVATE KEY-----\n" +
                         encoder.encodeToString(privateKey) +
-                        "\n-----END RSA PRIVATE KEY-----\n";
+                        "\n-----END PRIVATE KEY-----\n";
 
 		// If we need a pem style for these keys
                 // String pemBase64 = javax.xml.bind.DatatypeConverter.printBase64Binary(publicKey);
