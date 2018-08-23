@@ -2,13 +2,13 @@
 // will use SPNR (spinner.js) if it is already loaded
 var VM_VFP = VM_VFP || {};
 
-VM_VFP.doChangeView = function (url, selectElement)
+VM_VFP.doChangeView = VM_VFP.doChangeView || function(url, selectElement)
 {
 	if (typeof SPNR !== "undefined")
 	{
 		SPNR.disableControlsAndSpin(selectElement, null);
 	}
 	var selectedView = selectElement.options[selectElement.selectedIndex].value;
-	location = url + "&" + selectElement.name + "=" + selectedView;
+	location = encodeURI(url + "&" + selectElement.name + "=" + selectedView);
 	return true;
 };

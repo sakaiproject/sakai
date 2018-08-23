@@ -1,249 +1,257 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_list.vm,v 1.2 2005/06/06 16:26:15 suiyy.umich.edu Exp $ -->
 <div id="dialog"></div>
 <script type="text/javascript" language="JavaScript">
-	focus_path = ["search"];
-    $(document).ready(function () {
+	$(document).ready(function () {
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
-    });
+	});
 </script>
-	
-<div class="portletBody">
-	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem"><span><a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;"  title ="$tlang.getString('list.search')">$tlang.getString("list.search")</a></span></li>
-	</ul>
-	<h3>$tlang.getString("list.results")</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert")$validator.escapeHtml($alertMessage)</div>#end
-	#if ($sites.size() > 0)
-		<div class="navPanel">
-			<div class="viewNav">
-				<p class="instruction">
-				#if ("$!siteType" == "") #set($siteType="Any") #end
-					#if($siteType=="Any")
-						#set($siteTypeDisplay=$tlang.getString("se.any"))
-					#else
-						#set($siteTypeDisplay=$siteType)
-					#end
-					#if ($termSelection)
-						#if ($termSelection == "Any")
-							#set ($termDisplay = $tlang.getString("se.any"))
-						#else
-							#set( $termDisplay = $termsmap.get( $termSelection ) )
-						#end
-						## SAK-28997
-						#if( $searchText )
-							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
-						#else
-							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
-						#end
-					#else
-						#set( $termDisplay = $tlang.getString( "list.noterm" ) )
-						#if( $searchText )
-							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
-						#else
-							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
-						#end
-					#end
-				</p>
-			</div>
-			<div class="listNav">
-				<div>
-					$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")
-					<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
-				</div>
-				#if ($pagesize != 0)
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString("list.previous") $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("list.previous") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" #if ($goPPButton == "false") disabled="disabled" #end/></fieldset>
-							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						</form>
-				#end
-				<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
-					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-						<label for="select" class="skip">$tlang.getString("list.select")</label>
-						<select name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();" id="select">
-							<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("list.show1")</option>
-							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("list.show2")</option>
-							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("list.show3")</option>
-							<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("list.show4")</option>
-							<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("list.show5")</option>
-							<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("list.show6")</option>
-						</select>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-				
-				#if ($pagesize != 0)
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<fieldset><legend>$tlang.getString("list.next") $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("list.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" #if ($goNPButton == "false") disabled="disabled" #end/></fieldset>
-						</form>
-				#end
 
+#if ("$!siteType" == "")
+	#set($siteType="Any")
+#end
+#if($siteType=="Any")
+	#set($siteTypeDisplay=$tlang.getString("se.any"))
+#else
+	#set($siteTypeDisplay=$siteType)
+#end
+#if ($termSelection)
+	#if ($termSelection == "Any")
+		#set ($termDisplay = $tlang.getString("se.any"))
+	#else
+		#set( $termDisplay = $termsmap.get( $termSelection ) )
+	#end
+#else
+	#set( $termDisplay = $tlang.getString( "list.noterm" ) )
+#end
+
+<div class="portletBody specialLink container-fluid">
+
+	#if ($alertMessage)
+		<div class="alertMessage">$validator.escapeHtml($alertMessage)</div>
+	#end
+
+	<form action="#toolForm("$action")" method="post">
+		<div class="sakai-table-toolBar">
+			<div class="searchResultsLabel">
+				#if (!$sites.isEmpty())
+					<span>
+						#if ($termSelection)
+							#if( $searchText )
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+							#else
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+							#end
+						#else
+							#if( $searchText )
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+							#else
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+							#end
+						#end
+
+						<a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;" title="$tlang.getString('list.back')">$tlang.getString("list.back")</a>
+					</span>
+				#end
+			</div>
+			<div class="sakai-table-buttonContainer">
+				#if ($helperMode)
+					<input type="submit" class="active" name="eventSubmit_doSelect" value="$tlang.getString("list.select")" #if ($sites.size() == 0) disabled="true" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("list.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				#end
+			</div>
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
 			</div>
 		</div>
-<form action="#toolForm("$action")" method="post">
-	#set ($siteCount = 0)
-		<table summary ="$tlang.getString("list.summary")" class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0">
-		#if ($helperMode)
-			<th scope="col" id="selected"></th>
-		#end
-			<tr>
-				<th scope="col" id="title">$tlang.getString("list.work")</th>
-				<th scope="col" id="type">$tlang.getString("list.type")</th>
-				<th scope="col" id="owner">$tlang.getString("list.owner")</th>
-				<th scope="col" id="joinable">$tlang.getString("list.joinable")</th>
-				<th scope="col" id="term">$tlang.getString("list.term")</th>
-				<th scope="col" id="description">$tlang.getString("list.description")</th>
-			</tr>
-			#foreach ($site in $sites)
-                #set ($siteCount=$siteCount + 1)
-                #set ($shortDesc = "")
-                #set ($desc = "")
-                <tr>
-                	#if ($helperMode)
-	                		<td headers="selected">
-	               				<input type="radio" name="siteId" value="$site.Id">
-	                		</td>
-	                #end
-                        <td headers="title">
-							<h4>
-                                <a href="$site.Url" target="_top">
-                                $validator.escapeHtml($site.getTitle())
-                                </a>
-                                <a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
-                                    <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
-                                </a>
-							  </h4> 
-                       </td>
 
-                        <td headers="type">
-                        #set($type = $site.Type)
-                     	$validator.escapeHtml($!type)
-                        </td>
-                        
-                        <td headers="owner">
-                        	$validator.escapeHtml($site.CreatedBy.DisplayName)
-                        </td>
-                        
-                        <td headers="joinable">
-                        #if( $site.isJoinable() )
-                    	
-                    		## SAK-24423 - if site browser joining is disabled, just use the normal strings
-                    		#if( !$siteBrowserJoinEnabled )
-                    			$tlang.getString( "list.joinable" )
-                    			
-                    		## SAK-24423 - otherwise, provide the ability to join from the site browser
-                        #else
-	                    		#if( !$currentUser.Id || $currentUser.Id == "" )
-	                    			<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )" 
-	                    				title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
-	                    				$tlang.getString( "join.joinNow" )
-	                    			</a>
-	                    		#else
-	                    			
-	                    			## Check if they're already a member of the site
-	                    			#set( $currentUserEid = $currentUser.Eid )
-	                    			#set( $alreadyMember = false )
-	                    			#set( $members = $site.Members )
-	                    			#foreach( $member in $members )
-	                    				#if( $member.UserEid == $currentUserEid )
-	                    					#set( $alreadyMember = true )
-	                    					#break
-                        #end
-	                    			#end
-	                    			
-	                    			## Check if the site is joinable but public excluded
-	                    			#set( $publicExcluded = false )
-	                    			#foreach( $key in $siteMap.keySet() )
-	                    				#if( $key == $site.Id )
-	                    					#set( $publicExcluded = $siteMap.get( $key ) )
-	                    					#break
-	                    				#end
-	                    			#end
-	                    			
-	                    			#if( $alreadyMember )
-	                    				$tlang.getString( "list.alreadyMember" )
-	                    				
-	                    			#elseif( $publicExcluded )
-	                    				$tlang.getString( "list.joinableButExclude" )	
-	                    			
-	                    			#else
-	                    				<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )" 
-	                    					title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
-	                    					$tlang.getString( "join.joinNow" )
-	                    				</a>
-	                    			#end
-	                    		#end
-	                    	#end
-                    	#else
-                    		#if( !$siteBrowserJoinEnabled )
-                        		$tlang.getString( "list.notjoinable" )
-                        	#else
-                        		$tlang.getString( "join.notJoinable" )
-                        	#end
-                        #end
-                        </td>
-
-						<td headers="term">
-							## SAK-28997
-							#if( $termProp && $site.getProperties().getProperty( $termProp ) )
-								#set( $termprop = $site.getProperties().getProperty( $termProp ) )
-								#set( $termDisplay = $termsmap.get( $termprop ) )
-							#else
-								#set( $termDisplay = $tlang.getString( "list.noterm" ) )
+		#set ($siteCount = 0)
+		<div class="table-responsive">
+			<table id="siteList" summary="$tlang.getString("list.summary")" class="table table-responsive table-bordered table-striped table-hover">
+				<thead>
+					<tr>
+						#if ($helperMode)
+							<th scope="col" id="selected"></th>
+						#end
+						<th scope="col" id="title">$tlang.getString("list.work")</th>
+						<th scope="col" id="type">$tlang.getString("list.type")</th>
+						<th scope="col" id="owner">$tlang.getString("list.owner")</th>
+						<th scope="col" id="joinable">$tlang.getString("list.joinable")</th>
+						<th scope="col" id="term">$tlang.getString("list.term")</th>
+						<th scope="col" id="description">$tlang.getString("list.description")</th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach ($site in $sites)
+						#set ($siteCount=$siteCount + 1)
+						#set ($shortDesc = "")
+						#set ($desc = "")
+						<tr>
+							#if ($helperMode)
+								<td headers="selected">
+									<input type="radio" name="siteId" value="$site.Id">
+								</td>
 							#end
-							$termDisplay
-						</td>
+							<td headers="title">
+								<a href="$site.Url" target="_top">
+									$validator.escapeHtml($site.getTitle())
+								</a>
+								<a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
+									<img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
+								</a>
+							</td>
 
-                        <td headers="description">
-													#set ($desc = $site.Description)
-													$siteBrowserTextEdit.doPlainTextAndLimit($desc,50,$tlang.getString("list.desc.ellipse")) 
-                        </td>
-                </tr>
-			#end ##foreach
-		</table>
-		#if ($helperMode)
-			<p class="act">
-			 <input type="submit" class="active" name="eventSubmit_doSelect" value="Select" #if ($sites.size() == 0) disabled="true" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
-			 <input type="submit" class="inactive" name="eventSubmit_doCancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			</p>
+							<td headers="type">
+								#set($type = $site.Type)
+								$validator.escapeHtml($!type)
+							</td>
+
+							<td headers="owner">
+								$validator.escapeHtml($site.CreatedBy.DisplayName)
+							</td>
+
+							<td headers="joinable">
+							#if( $site.isJoinable() )
+
+								## SAK-24423 - if site browser joining is disabled, just use the normal strings
+								#if( !$siteBrowserJoinEnabled )
+									$tlang.getString( "list.joinable" )
+
+								## SAK-24423 - otherwise, provide the ability to join from the site browser
+								#else
+									#if( !$currentUser.Id || $currentUser.Id == "" )
+										<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )"
+											title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
+											$tlang.getString( "join.joinNow" )
+										</a>
+									#else
+
+										## Check if they're already a member of the site
+										#set( $currentUserEid = $currentUser.Eid )
+										#set( $alreadyMember = false )
+										#set( $members = $site.Members )
+										#foreach( $member in $members )
+											#if( $member.UserEid == $currentUserEid )
+												#set( $alreadyMember = true )
+												#break
+											#end
+										#end
+
+										## Check if the site is joinable but public excluded
+										#set( $publicExcluded = false )
+										#foreach( $key in $siteMap.keySet() )
+											#if( $key == $site.Id )
+												#set( $publicExcluded = $siteMap.get( $key ) )
+												#break
+											#end
+										#end
+
+										#if( $alreadyMember )
+											$tlang.getString( "list.alreadyMember" )
+
+										#elseif( $publicExcluded )
+											$tlang.getString( "list.joinableButExclude" )
+
+										#else
+											<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )"
+												title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
+												$tlang.getString( "join.joinNow" )
+											</a>
+										#end
+									#end
+								#end
+							#else
+								#if( !$siteBrowserJoinEnabled )
+									$tlang.getString( "list.notjoinable" )
+								#else
+									$tlang.getString( "join.notJoinable" )
+								#end
+							#end
+							</td>
+
+							<td headers="term">
+								## SAK-28997
+								#if( $termProp && $site.getProperties().getProperty( $termProp ) )
+									#set( $termprop = $site.getProperties().getProperty( $termProp ) )
+									#set( $termDisplay = $termsmap.get( $termprop ) )
+								#else
+									#set( $termDisplay = $tlang.getString( "list.noterm" ) )
+								#end
+								$termDisplay
+							</td>
+
+							<td headers="description">
+								#set ($desc = $site.Description)
+								$siteBrowserTextEdit.doPlainTextAndLimit($desc,50,$tlang.getString("list.desc.ellipse"))
+							</td>
+						</tr>
+					#end ##foreach
+				</tbody>
+			</table>
+		</div>
+
+		#if ($sites.size() > 10 && $pagesizeInt > 10)
+			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+				<div class="searchResultsLabel bottom">
+					<span>
+						#if ($termSelection)
+							#if( $searchText )
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+							#else
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
+							#end
+						#else
+							#if( $searchText )
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+							#else
+								$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+							#end
+						#end
+
+						<a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;" title="$tlang.getString('list.back')">$tlang.getString("list.back")</a>
+					<span>
+				</div>
+				<div class="sakai-table-buttonContainer">
+					#if ($helperMode)
+						<input type="submit" class="active" name="eventSubmit_doSelect" value="$tlang.getString("list.select")" #if ($sites.size() == 0) disabled="true" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("list.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					#end
+				</div>
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager2")
+				</div>
+			</div>
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-#else
-		<p class="instruction">
-            #if ("$!siteType" == "") #set($siteType="Any") #end
-            #if($siteType=="Any")
-                #set($siteTypeDisplay=$tlang.getString("se.any"))
-            #else
-                #set($siteTypeDisplay=$siteType)
-            #end
-            #if ($termSelection)
-                #if ($termSelection == "Any")
-                    #set ($termDisplay = $tlang.getString("se.any"))
-                #else
-                    #set ($termDisplay = $termSelection)
-                #end
-				## SAK-28997
-				#if( $searchText )
-					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termDisplay)" $tlang.getString("list.aca")
-				#else
-					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") $tlang.getString("list.text") $validator.escapeHtml("$termDisplay") $tlang.getString("list.aca")
-				#end
-			#else
-				#if( $searchText )
-					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
-				#else
-					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
-				#end
-			#end
-		</p>
-		#if ($helperMode)
-			<p class="act">
-				<form action="#toolForm("$action")" method="post">		
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				<input type="submit" class="inactive" name="eventSubmit_doCancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
-				</form>
-			</p>
-		#end
-#end
 
+	#if ($sites.isEmpty())
+		<div class="sakai-table-noResultsMessage">
+			<span>
+				#if ($termSelection)
+					#if( $searchText )
+						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termDisplay)" $tlang.getString("list.aca")
+					#else
+						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") $tlang.getString("list.text") $validator.escapeHtml("$termDisplay") $tlang.getString("list.aca")
+					#end
+				#else
+					#if( $searchText )
+						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+					#else
+						$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+					#end
+				#end
+
+				<a href="#" onclick="location='#toolLink("$action" "doShow_simple_search")';return false;" title="$tlang.getString('list.back')">$tlang.getString("list.back")</a>
+			</span>
+		</div>
+
+		#if ($helperMode)
+			<div class="act">
+				<form action="#toolForm("$action")" method="post">
+					<input type="submit" class="inactive" name="eventSubmit_doCancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			</div>
+		#end
+	#end
 </div>

@@ -2,7 +2,7 @@
 // will use SPNR (spinner.js) if it is already loaded
 var VM_SFP = VM_SFP || {};
 
-VM_SFP.spinButton = function(buttonElement)
+VM_SFP.spinButton = VM_SFP.spinButton || function(buttonElement)
 {
     // if SPNR is available, use it
     if (typeof SPNR !== "undefined")
@@ -13,7 +13,7 @@ VM_SFP.spinButton = function(buttonElement)
     }
 };
 
-VM_SFP.keyupListener = function(event)
+VM_SFP.keyupListener = VM_SFP.keyupListener || function(event)
 {
     if (event.keyCode === 13) // Enter
     {
@@ -27,18 +27,18 @@ Array.prototype.forEach.call(searchFields, function(field) {
     field.addEventListener("keyup", VM_SFP.keyupListener);
 });
 
-VM_SFP.doSearch = function (url, buttonElementId, textElementId)
+VM_SFP.doSearch = VM_SFP.doSearch || function(url, buttonElementId, textElementId)
 {
-	var buttonElement = document.getElementById(buttonElementId);
-	VM_SFP.spinButton(buttonElement);
-	var searchText = document.getElementById(textElementId).value;
-	location = url + "&search=" + searchText;
-	return true;
+    var buttonElement = document.getElementById(buttonElementId);
+    VM_SFP.spinButton(buttonElement);
+    var searchText = document.getElementById(textElementId).value;
+    location = encodeURI(url + "&search=" + searchText);
+    return true;
 };
 
-VM_SFP.doClearSearch = function(url, buttonElement)
+VM_SFP.doClearSearch = VM_SFP.doClearSearch || function(url, buttonElement)
 {
     VM_SFP.spinButton(buttonElement);
-    location = url;
+    location = encodeURI(url);
     return false;
 };

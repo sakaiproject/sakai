@@ -20,7 +20,7 @@
                 #set ($escapedKey = $mapEntry.key.replaceAll(" ", "_"))
                     <li id="$escapedKey" class="">
                         <h4 class="$escapedKey specialLink">
-                            <a  #if ($groupCount ==1) class="open toggleNone"#elseif ($!expandedGroups.contains($mapEntry.key)) class="open" #else href="#" #end>
+                            <a #if ($groupCount == 1 || $!expandedGroups.contains($mapEntry.key)) class="open" #end href="#">
                                 <span class="catTitle">$mapEntry.key</span>
                                 <span class="checkedCount"></span>
                                 #if ($groupCount == 1) 

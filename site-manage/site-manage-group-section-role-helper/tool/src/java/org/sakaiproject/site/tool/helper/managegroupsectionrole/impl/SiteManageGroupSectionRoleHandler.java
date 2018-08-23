@@ -18,7 +18,6 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.impl;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,7 +74,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -593,6 +591,9 @@ public class SiteManageGroupSectionRoleHandler {
     	
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+
+        // Go to Site Info landing page on 'Cancel'
+        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
         return "done";
     }

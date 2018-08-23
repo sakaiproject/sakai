@@ -26,7 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -45,6 +47,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.tool.EnrolmentsHandler.Enrolment;
 import org.sakaiproject.site.tool.EnrolmentsHandler.EnrolmentsWrapper;
+import org.sakaiproject.site.tool.MenuBuilder.MembershipActiveTab;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -237,13 +240,16 @@ public class MembershipAction extends PagedResourceActionII
 		}
 		context.put(SEARCH_TERM, state.getAttribute(SEARCH_TERM));
 
+		MembershipActiveTab activeTab = MembershipActiveTab.CURRENT_SITES;
 		String mode = (String) state.getAttribute( STATE_VIEW_MODE );
 		if( MY_ENROLMENTS_MODE.equals( mode ) )
 		{
+			activeTab = MembershipActiveTab.OFFICIAL_ENROLMENTS;
 			template = buildMyEnrolmentsContext( portlet, context, rundata, state );
 		}
 		else if( JOINABLE_MODE.equals( mode ) )
 		{
+			activeTab = MembershipActiveTab.JOINABLE_SITES;
 			template = buildJoinableContext(portlet, context, rundata, state);
 		}
 		else
@@ -283,6 +289,9 @@ public class MembershipAction extends PagedResourceActionII
 		context.put("tlang", RB);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("membershipTextEdit", new SiteTextEditUtil());
+
+		// Add the menu to the vm
+		MenuBuilder.buildMenuForMembership(portlet, rundata, state, context, RB, activeTab);
 
 		return template;
 
@@ -427,7 +436,7 @@ public class MembershipAction extends PagedResourceActionII
 	}
 
 	/**
-	 * Handle the eventSubmit_doGoto_unJoinable command to shwo the list of site which are unjoinable.
+	 * Handle the eventSubmit_doGoto_unJoinable command to show the list of site which are unjoinable.
 	 * @param data
 	 */
 	public void doGoto_unjoinable(RunData data)

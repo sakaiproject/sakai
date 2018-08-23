@@ -3,179 +3,92 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
-		sakai.setupMessageListener("messageHolder", "information messageInformation");
-		sakai.setupSelectList('currentSites','selunselallid','selectedSelected');
+		sakai.setupMessageListener("messageHolder", "messageInformation");
 	});
 </script>
 
-<div class="portletBody">
-	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a></span></li>
-		<li><span><a href="#toolLink( "$action" "doGoto_enrolments" )" title="$tlang.getString( 'mb.enrolments' )">$tlang.getString( 'mb.enrolments' )</a></span></li>
-		<li><span class="current">$tlang.getString("mb.joisit")</span></li>		
-	</ul>
+<div class="portletBody specialLink container-fluid">
+	#if($menu)#toolbar($menu)#end
 
-	<div class="navPanel">
-		<div class="floatLeft">
-			<h3 class="toolHeading">
-				$tlang.getString("mb.joinable")
-			</h3>
-		</div>
-		<div class="floatRight">
-	#if ($openSites.size() > 0 || $search.length() > 0)
-			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
-			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
-			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
-			<input id="btnSearch" type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form> 
-	#end
-		</div>
-	</div>
+	<div class="membershipContent">
 
-	#if ($openSites.size() > 0)
-		<div class="navPanel">
-			<div class="instruction">
-			#if ($search.length() > 0)
-				$tlang.getString("mb.listsearchjoin")${search}$tlang.getString("mb.listsearchjoin2")
-			#else
-				$tlang.getString("mb.listjoin")
-			#end
+		## join/unjoin action info is the only value of "alertMessage", so style it as information rather than error
+		#if ($alertMessage)
+			<div class="messageInformation" id="messageHolder">$validator.escapeHtml($alertMessage)</div>
+		#end
+
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
+				#if (!$openSites.isEmpty() || !$search.isEmpty())
+					#searchFilterPanel("searchFilter1", $search, "doSearch", "doSearch_clear")
+				#end
 			</div>
 
-			## join/unjoin action info normally is the only value of "alertMessage"
-			#if ($alertMessage)
-				<p class="information messageInformation" id="messageHolder">
-					$validator.escapeHtml($alertMessage)
-				</p>
-			#end
-
-			<div class="listNav">
-				<div class="instruction">
-					$tlang.getString("mb.list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("mb.list.of") $allMsgNumber $tlang.getString("mb.list.sites")
-					<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
-				</div>
-				<div class="innerPannel">
-					#if ($pagesize != 0)
-						#if ($goPPButton == "true")
-							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("mb.list.pager.first")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-						#if ($goPPButton == "true")
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("mb.list.pager.prev") $pagesize" accesskey="p" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-					#end
-					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-						<label class="skip" for="pagerSelect">$tlang.getString("mb.list.select")</label>
-						<select name="selectPageSize" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'pagerSpinner' );document.pagesizeForm.submit();" id="pagerSelect">
-						<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("mb.list.pager.show5")</option>
-							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("mb.list.pager.show10")</option>
-							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("mb.list.pager.show20")</option>
-							<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("mb.list.pager.show50")</option>
-							<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("mb.list.pager.show100")</option>
-							<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("mb.list.pager.show200")</option>
-						</select>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-					</form>
-					#if ($pagesize != 0)
-						#if ($goNPButton == "true")
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("mb.list.pager.next") $pagesize" accesskey="n" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-						#if ($goNPButton == "true")
-							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("mb.list.pager.last")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#else
-							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
-								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-							</form>
-						#end
-					#end
-				</div>
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
 			</div>
 		</div>
+
 		<form action="#toolForm("$action")" method="post">
 			<div class="table-responsive">
-				<table class = "table table-bordered table-hover table-striped" cellspacing="0" border="0"  summary ="$tlang.getString("mb.list.joinable.summary")">
-					<tr>
-						<th id="worksite" class="attach">
-							<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')">
-								$tlang.getString("gen.worksite")
-								#if ($currentSortAsc) 
-									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
-								#else 
-									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
-								#end
-							</a>
-						</th>
-						<th id="description">$tlang.getString("gen.description")</th>
-					</tr>
-					#foreach ($site in $openSites)
+				<table id="joinableSites" class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString("mb.list.joinable.summary")">
+					<thead>
 						<tr>
-							<td headers="worksite" class="attach noWrap">
-								## Note: joinable site shouldn't be clickable because of the permission issues
-								## <a href="$site.Url" target="_top" title="Go to site $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
-								<h4>$validator.escapeHtml($site.Title)</h4>
-								<div class="itemAction">
-									<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
-								</div>
-							</td>
-							<td headers="description" class="specialLink">
-								#if ($validator.escapeHtml($site.Description) != '')
-									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
-									<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
-								#end
-							</td>
+							<th id="worksite" class="attach">
+								<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')">
+									$tlang.getString("gen.worksite")
+									#if ($currentSortAsc)
+										<img src="#imageLink("sakai/sortascending.gif")" border="0" title="$tlang.getString('list.stasc')" alt="$tlang.getString('list.stasc')" />
+									#else
+										<img src="#imageLink("sakai/sortdescending.gif")" border="0" title="$tlang.getString('list.stdesc')" alt="$tlang.getString('list.stdesc')" />
+									#end
+								</a>
+							</th>
+							<th id="action">$tlang.getString("mb.join.action")</th>
+							<th id="description">$tlang.getString("gen.description")</th>
 						</tr>
-					#end
+					</thead>
+					<tbody>
+						#foreach ($site in $openSites)
+							<tr>
+								<td headers="worksite" class="attach noWrap">
+									$validator.escapeHtml($site.Title)
+								</td>
+								<td headers="action">
+									<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")"
+											title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">
+										$tlang.getString('mb.join')
+									</a>
+								</td>
+								<td headers="description" class="specialLink">
+									#if ($validator.escapeHtml($site.Description) != '')
+										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
+									#end
+								</td>
+							</tr>
+						#end
+					</tbody>
 				</table>
+
+				#if (!$search.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosearchjoinablesites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</div>
+				#elseif ($openSites.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosites')</div>
+				#end
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
-	#elseif ($search.length() > 0)
-		<p class="instruction">$tlang.getString('mb.list.nosearchjoinablesites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
-		<br>
-		## join/unjoin action info normally is the only value of "alertMessage"
-		#if ($alertMessage)
-			<p class="information messageInformation" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
-				$validator.escapeHtml($alertMessage)
-			</p>
+
+		#if ($openSites.size() > 10 && $pagesizeInt > 10)
+			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+				<div class="sakai-table-filterContainer">
+					#searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
+				</div>
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager2")
+				</div>
+			</div>
 		#end
-	#else
-		<p class="instruction">$tlang.getString('mb.list.nosites')</p>
-		<br>
-		## join/unjoin action info normally is the only value of "alertMessage"
-		#if ($alertMessage)
-			<p class="information messageInformation" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
-				$validator.escapeHtml($alertMessage)
-			</p>
-		#end
-	#end
+	</div>
 </div>

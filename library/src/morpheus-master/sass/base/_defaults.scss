@@ -223,6 +223,7 @@ button[class="disabled"]:hover,
 	box-shadow: none !important;
 	cursor: not-allowed;
 	text-decoration: none;
+	white-space: nowrap;
 }
 
 ul, ol {

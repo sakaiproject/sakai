@@ -1,16 +1,85 @@
+// Membership namespace
 .#{$namespace}sakai-membership {
   //SAK-29873
   .unpublishedLabel {
     opacity:0.2;
   }
 
-	#membership {
-		td[headers="checkbox"] {
-			border: none;
-		}
-	}
-}
+  #membership {
+    td[headers="checkbox"] {
+      border: none;
+    }
+  }
 
+  form#currentSitesForm th#checkbox {
+      width: 2.5em;
+  }
+
+  // Override bootstrap bottom table margin; should probably be removed globally at some point
+  table#currentSites, table#joinableSites, table#enrolments {
+    margin-bottom: 0;
+  }
+
+  div.membershipContent {
+    padding-top: $standard-spacing;
+  }
+}
+// end Membership namespace
+
+// Site Browser namespace
+.#{$namespace}sakai-sitebrowser {
+  div.searchResultsLabel {
+    @include display-flex();
+    margin: 0 auto $standard-spacing 0;
+    font-size: 12px;
+    color: #505050;
+
+    a {
+        margin-left: 4px;
+    }
+  }
+
+  div.searchResultsLabel.bottom {
+    margin: $standard-spacing auto 0 0;
+  }
+
+  h3.heading {
+    margin: 0;
+    padding: 0;
+  }
+
+  form.siteSearchForm {
+    div.radio label {
+      text-transform: capitalize;
+      font-weight: bold;
+      padding: 4px 0 4px 0;
+    }
+
+    div.radio.indnt3 {
+      margin-top: $standard-spacing;
+    }
+
+    select#selectTerm {
+      margin-left: 1em;
+    }
+
+    div.siteTitleSearch, div.act {
+      padding-left: calc(#{$standard-spacing} * 2);
+
+      input#searchbox {
+        margin-left: 0.8em;
+      }
+    }
+  }
+
+  // Override bootstrap bottom table margin; should probably be removed globally at some point
+  table#siteList {
+    margin-bottom: 0;
+  }
+}
+// end Site Browser namespace
+
+// Site Info and Worksite Setup namespaces
 .#{$namespace}sakai-siteinfo, .#{$namespace}sakai-sitesetup {
   .toggledContent {
     margin: 0;
@@ -406,9 +475,6 @@
   .unpublishedLabel {
     opacity: 0.2;
   }
-  .actionsContainer {
-    margin-top: 1em;
-  }
   #summary {
     border: none;
     tr {
@@ -519,7 +585,6 @@
   label.onoffswitch-label {
     font-weight: normal;
   }
-
   legend {
     font-size: 16px;
 
@@ -567,4 +632,62 @@
       }
     }
   }
+
+  // Override bootstrap bottom table margin; should probably be removed globally at some point
+  table#siteMembers, table#siteList {
+    margin-bottom: 0;
+  }
+
+  div.participantsHeader {
+    @include display-flex();
+    @include flex-direction(column);
+    @include align-items(flex-end);
+
+    @media #{$tablet} {
+      @include flex-wrap(wrap);
+      @include flex-direction(row);
+      @include align-items(center);
+      @include justify-content(space-between);
+      margin-bottom: calc(#{$standard-spacing} * 2);
+
+      em {
+        margin-right: $standard-spacing;
+      }
+    }
+
+    @media all and (max-width: 400px) {
+      @include flex-direction(column);
+      @include align-items(center);
+
+      em {
+        margin-right: 0;  // Removing margin-right from previous breakpoint
+      }
+    }
+  }
+
+  i.icon-sakai--pdf {
+    padding-left: 0.2em;
+  }
+
+  div.siteInfoContent, div.worksiteSetupContent {
+    padding-top: $standard-spacing;
+  }
+
+  div.worksiteSetupContent div.sakai-table-viewFilter select {
+    margin-right: 4px;
+  }
+
+  div.worksiteSetupContent div.sakai-table-viewFilter input[type=submit],
+  div.worksiteSetupContent div.sakai-table-viewFilter button,
+  div.worksiteSetupContent div.sakai-table-searchFilter input[type=submit]:last-of-type,
+  div.worksiteSetupContent div.sakai-table-searchFilter button:last-of-type {
+    margin-right: 0;
+  }
+
+  div.worksiteSetupContent {
+    .sakai-table-toolBar .sakai-table-viewFilter ~ .sakai-table-searchFilter {
+      margin-top: 0;
+    }
+  }
 }
+// end Site Info and Worksite Setup namespaces

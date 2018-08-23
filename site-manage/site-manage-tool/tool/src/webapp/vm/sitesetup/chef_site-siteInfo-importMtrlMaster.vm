@@ -1,8 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMtrlMaster.vm,v 1.2 2005/06/06 20:06:02 htripath.indiana.edu Exp $ -->
 <div class="portletBody">
-	<h3>
-		$tlang.getString("sitedicla.import_materials")
-	</h3>
+	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 		<div class="clear"></div>

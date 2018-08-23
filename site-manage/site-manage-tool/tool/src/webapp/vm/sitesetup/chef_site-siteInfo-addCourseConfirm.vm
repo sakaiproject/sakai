@@ -1,6 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-addCourseConfirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
 ##Confirmation page for adding  classes
 <div class ="portletBody">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("sitegen.addcourse.adding") $validator.escapeHtml($siteTitle)...
 	</h3>
