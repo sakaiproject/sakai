@@ -135,7 +135,7 @@ public class MessageForums extends AbstractWebService {
                 selectedForum.setDraft(false);
                 selectedForum.setModerated(false);
                 selectedForum.setPostFirst(false);
-                messageForumsForumManager.saveDiscussionForum(selectedForum);
+                selectedForum = messageForumsForumManager.saveDiscussionForum(selectedForum);
                 log.debug("Created forum=" + forum);
                 dTopic = messageForumsForumManager.createDiscussionForumTopic(selectedForum);
                 dTopic.setTitle(topic);
