@@ -819,17 +819,17 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * Save a discussion forum
      */
-    public void saveDiscussionForum(DiscussionForum forum) {
-        saveDiscussionForum(forum, false);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum) {
+        return saveDiscussionForum(forum, false);
     }
 
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft) {
-    	saveDiscussionForum(forum, draft, false);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft) {
+        return saveDiscussionForum(forum, draft, false);
     }
     
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) {
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) {
     	String currentUser = getCurrentUser();
-    	saveDiscussionForum(forum, draft, logEvent, currentUser);
+        return saveDiscussionForum(forum, draft, logEvent, currentUser);
     }
     
     public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser) {

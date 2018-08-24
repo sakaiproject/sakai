@@ -208,7 +208,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     	forum.setDraft(false);
     	forum.setModerated(area.getModerated());
     	forum.setPostFirst(area.getPostFirst());
-        forumManager.saveDiscussionForum(forum);
+        forum = forumManager.saveDiscussionForum(forum);
     	DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
     	topic.setTitle(getResourceBundleString("default_topic"));
     	//MSGCNTR-453
