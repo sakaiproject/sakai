@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.impl.event;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.collections4.ListUtils;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -77,8 +78,7 @@ public class EventUtil {
 			ToolInfo t = iTED.next();
 			Iterator<ToolConfiguration> iST = siteTools.iterator();
 			while (iST.hasNext()){
-				ToolConfiguration tc = iST.next();
-				if(tc.getToolId().equals(t.getToolId())){
+				if(intersects(iST.next().getToolId(), t)){
 					intersected.add(t);
 					break;
 				}
@@ -107,8 +107,7 @@ public class EventUtil {
 			ToolInfo t = iTED.next();
 			Iterator<org.sakaiproject.tool.api.Tool> iST = sakaiTools.iterator();
 			while (iST.hasNext()){
-				org.sakaiproject.tool.api.Tool tc = iST.next();
-				if(tc.getId().equals(t.getToolId())){
+				if(intersects(iST.next().getId(), t)) {
 					intersected.add(t);
 					break;
 				}
@@ -116,6 +115,11 @@ public class EventUtil {
 		}
 	
 		return intersected;
+	}
+
+	private static boolean intersects(String siteToolId, ToolInfo regTool) {
+		List<String> aliasIds = ListUtils.emptyIfNull(regTool.getAdditionalToolIds());
+		return siteToolId.equals(regTool.getToolId()) || aliasIds.contains(siteToolId);
 	}
 
 	/**
