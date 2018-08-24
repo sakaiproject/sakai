@@ -1328,12 +1328,15 @@
                             <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
                             <label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label>
                             <br />
-                            <label for="btncolor" rsf:id="msg=simplepage.btncolor" id="buttonColorLabel"></label>
-                            <select rsf:id="btncolor" id="btncolor">
-                            </select>
-                            <br />
-                            <p rsf:id="msg=simplepage.forcebtn.forced" id="btncolor-forced" style="display: none"></p>
-                            <p rsf:id="msg=simplepage.needbtn" id="needbtn" style="display: none"></p>
+                            <div class="row-no-margin color-select-section">
+                                <label for="btncolor" rsf:id="msg=simplepage.btncolor" class="col-sm-1"id="buttonColorLabel"></label>
+                                <select rsf:id="btncolor" class="col-sm-1" id="btncolor">
+                                </select>
+                                <div class="col-sm-5">
+                                    <p rsf:id="msg=simplepage.forcebtn.forced" id="btncolor-forced" class="force-btn-msg" style="display: none"></p>
+                                    <p rsf:id="msg=simplepage.needbtn" id="needbtn" class="force-btn-msg" style="display: none;"></p>
+                                </div>
+                            </div>
                             <br />
                         </div>
                         <p class="shorttext">

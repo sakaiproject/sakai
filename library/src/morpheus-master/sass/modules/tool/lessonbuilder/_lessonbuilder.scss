@@ -353,6 +353,7 @@
 		}
 	}
 
+	/*these won't touch the dialog menus in lessons if they're in the namespace as dialogs are outside of any tool content on the page. */
 	#buttonColorLabel, #subpage-buttonColorLabel {
 		margin-left: 20px;
 
@@ -366,6 +367,16 @@
 			cursor: not-allowed;
 			color: #ccc;
 		}
+	}
+
+	.force-btn-msg {
+		padding-left: 20px;
+		font-style: italic;
+	}
+
+	.color-select-section {
+		padding-top: 10px;
+		padding-bottom: 10px;
 	}
 
 	#content {

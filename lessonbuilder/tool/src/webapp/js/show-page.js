@@ -1712,6 +1712,7 @@ $(document).ready(function() {
 				}else{
 					$("#buttonColorLabel").removeClass("disabled");
 					$("#btncolor-selection").removeClass("disabled");
+					$("#btncolor-selection").removeProp("disabled");
 				}
 				//remove button warning regardless
 				$("#needbtn").hide();
@@ -1794,11 +1795,10 @@ $(document).ready(function() {
             	$("select[name=btncolor-selection]").val("none");
 			}
 
-			var forcedColorSection = row.parent().parent().parent().parent().parent().find('.sectionHeader');
-            var shouldBeDisabled = false;
-            if(forcedColorSection.hasClass("hasColor")){
-            	shouldBeDisabled = true;
-			}
+			var forcedColorSection = row.parent().parent().parent().parent();
+            var forcedColumnColor = row.parent().parent().parent();
+            var forcedColor = (forcedColorSection.hasClass("hasColor")  && !forcedColumnColor.hasClass("noColor"));
+
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq === "true") {
@@ -1864,10 +1864,10 @@ $(document).ready(function() {
 			    if(pagebutton === "true") {
 					$("#item-button").prop("checked", true);
 					$("#item-button").attr("defaultChecked", true);
-					if(!shouldBeDisabled) {
+					if(!forcedColor) {
                         $("#buttonColorLabel").removeClass("disabled");
                         $("#btncolor-selection").removeClass("disabled");
-                        $("#btncolor-selection").prop("disabled", false);
+                        $("#btncolor-selection").removeProp("disabled");
                         $("#btncolor-forced").hide();
                     }else{
                         $("#buttonColorLabel").addClass("disabled");
@@ -1882,6 +1882,9 @@ $(document).ready(function() {
                     $("#btncolor-selection").addClass("disabled");
                     $("#btncolor-selection").prop("disabled", true);
 					$("#needbtn").show();
+					if(forcedColor){
+						$("#btncolor-forced").show();
+					}
                 }
 
 
@@ -2707,7 +2710,12 @@ $(document).ready(function() {
 		});
 	    $('#collapsible').prop('checked', col.parent('.section').hasClass('collapsible'));
 	    $('#defaultClosed').prop('checked', col.parent('.section').hasClass('defaultClosed'));
-        $('#force-button-color').prop('checked', col.parent('.section').prev().hasClass("hasColor"));
+	    if(col.hasClass('noColor')){
+            $('#force-button-color').prop('checked', false);
+		}else {
+            $('#force-button-color').prop('checked', col.parent('.section').hasClass("hasColor"));
+        }
+
 	    $('#sectionTitle').val(col.parent('.section').prev().find('.sectionHeaderText').text());
 		if(!$("#sectionTitle").val()) {
 			$("#collapsible").prop('checked', false);

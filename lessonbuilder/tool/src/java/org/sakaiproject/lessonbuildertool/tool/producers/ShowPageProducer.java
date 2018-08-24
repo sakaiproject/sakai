@@ -1311,6 +1311,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
 					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
 					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
+						if(forceButtonColor){
+							sectionContainer.decorate(new UIStyleDecorator("hasColor"));
+						}
 					boolean needIcon = false;
 					if (collapsible) {
 						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
@@ -1327,17 +1330,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 					if (!needIcon)
 					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
-					if(forceButtonColor){
-						sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header hasColor")));
-					}else{
-						sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
-					}
+
+					sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
 				    } else if ("column".equals(i.getFormat()))
 					colnum++;
-				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
+				    String colForceBtnColor = i.getAttribute("forceBtn");
+				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");
+				    if(StringUtils.isEmpty(colForceBtnColor) || StringUtils.equalsIgnoreCase(colForceBtnColor, "false")){
+				    	columnContainer.decorate(new UIStyleDecorator("noColor"));
+					}
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
 				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
