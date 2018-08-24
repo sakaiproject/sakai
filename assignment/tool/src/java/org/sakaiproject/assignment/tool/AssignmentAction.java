@@ -1970,6 +1970,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put resubmit information into context
             assignment_resubmission_option_into_context(context, state);
+
+            Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
+            assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
         }
 
         if (taggingManager.isTaggable() && assignment != null) {
@@ -4413,6 +4417,10 @@ public class AssignmentAction extends PagedResourceActionII {
             factor = assignment.getScaleFactor();
             dec = (int) Math.log10(factor);
             context.put("peerAssessmentInstructions", StringUtils.isEmpty(assignment.getPeerAssessmentInstructions()) ? "" : assignment.getPeerAssessmentInstructions());
+
+            Map<String, Reference> assignmentAttachmentReferences = new HashMap<>();
+            assignment.getAttachments().forEach(r -> assignmentAttachmentReferences.put(r, entityManager.newReference(r)));
+            context.put("assignmentAttachmentReferences", assignmentAttachmentReferences);
         }
         String submissionId = "";
         SecurityAdvisor secAdv = (userId, function, reference) -> {
