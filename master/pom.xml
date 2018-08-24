@@ -45,11 +45,9 @@
     <sakai.woodstox.version>5.0.3</sakai.woodstox.version>
     <sakai.stax2.version>3.1.4</sakai.stax2.version>
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
-    <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.0</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
-    <sakai.mail.version>1.6.0</sakai.mail.version>
     <sakai.org.json.version>20171018</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.3</sakai.quartz.version>
@@ -79,7 +77,7 @@
     <sakai.mockito.version>2.18.3</sakai.mockito.version>
     <sakai.powermock.version>2.0.0-beta.5</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.9.9</joda.time.version>
+    <joda.time.version>2.10</joda.time.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
@@ -299,14 +297,14 @@
       <!-- common/lib -->
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.2</version>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.4</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.1</version>
         <scope>provided</scope>
       </dependency>
       <!-- parser API inconsistancies -->
@@ -549,8 +547,8 @@
       </dependency>
       <dependency>
         <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <version>1.1.1</version>
+        <artifactId>javax.activation-api</artifactId>
+        <version>1.2.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -878,7 +876,7 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>javax.mail</artifactId>
-        <version>${sakai.mail.version}</version>
+        <version>1.6.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -976,15 +974,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.jcr</groupId>
-        <artifactId>jcr</artifactId>
-        <version>${sakai.jcr.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>javax.portlet</groupId>
         <artifactId>portlet-api</artifactId>
-        <version>1.0</version>
+        <version>3.0.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1936,7 +1928,7 @@
         <plugin>
           <groupId>org.sakaiproject.maven.plugins</groupId>
           <artifactId>sakai</artifactId>
-          <version>1.4.4</version>
+          <version>1.4.5</version>
         </plugin>
         <!-- OTHER maven plugins -->
         <plugin>
@@ -1980,21 +1972,19 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.4</version>
+          <version>3.0.1</version>
           <configuration>
-            <debug>false</debug>
             <links>
               <link>http://docs.oracle.com/javase/8/docs/api/</link>
               <link>http://docs.oracle.com/javaee/5/api/</link>
               <link>http://junit.sourceforge.net/javadoc/</link>
               <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-              <link>http://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
+              <link>http://commons.apache.org/proper/commons-collections/apidocs/</link>
             </links>
             <breakiterator>true</breakiterator>
-            <verbose>false</verbose>
             <minmemory>256m</minmemory>
             <maxmemory>2048m</maxmemory>
-            <additionalparam>-Xdoclint:none</additionalparam>
+            <doclint>none</doclint>
             <failOnError>false</failOnError>
           </configuration>
         </plugin>

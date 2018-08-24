@@ -46,8 +46,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!--TODO Move to javax.servlet-api version of master-->
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.velocity</groupId>

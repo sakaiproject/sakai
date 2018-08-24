@@ -1,12 +1,10 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-duplicate.vm,v 1.2 2005/04/29 13:44:25 zqian.umich.edu Exp $ -->
 ## enter the site title for duplicated site.
 <div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
 	<form name = "duplicateSiteForm" method = "post" action="#toolForm($action)">
 		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
-		<h3>
-			$tlang.getString("sitdup.dupsit") <span class="highlight">$validator.escapeHtml($siteTitle)</span>
-		</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $alertMessage</div>#end
 			#if (!$!siteDuplicated)
 				<p class="instruction">

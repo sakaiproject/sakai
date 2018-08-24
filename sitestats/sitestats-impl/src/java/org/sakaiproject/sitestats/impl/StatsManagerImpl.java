@@ -3885,6 +3885,14 @@ if (log.isDebugEnabled()) {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getLocalSakaiName()
+	 */
+	@Override
+	public String getLocalSakaiName() {
+		return M_scs.getString("ui.service", "Sakai");
+	}
+
 	private void checkForEventContextSupport() {
 		try{
 			Event.class.getMethod("getContext", null);

@@ -950,12 +950,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 														dfForum.setArea(area);
 														if (!getImportAsDraft())
 														{
-															forumManager.saveDiscussionForum(dfForum, dfForum.getDraft());
+															dfForum = forumManager.saveDiscussionForum(dfForum, dfForum.getDraft());
 														}
 														else
 														{
 															dfForum.setDraft(Boolean.valueOf("true"));
-															forumManager.saveDiscussionForum(dfForum, true);
+															dfForum = forumManager.saveDiscussionForum(dfForum, true);
 														}
 													}
 													hasTopic = true;
@@ -1346,7 +1346,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					
 					if(updateForum){
 						//update forum
-						dfManager.saveForum(fromForum, fromForum.getDraft(), toContext, false, currentUserId);
+						fromForum = dfManager.saveForum(fromForum, fromForum.getDraft(), toContext, false, currentUserId);
 					}
 					
 					List topics = fromForum.getTopics();

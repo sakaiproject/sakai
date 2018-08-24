@@ -549,20 +549,18 @@ public interface AssignmentService extends EntityProducer {
 
     /**
      * Whether a specific user can submit
-     * @param context
      * @param a
      * @param userId
      * @return
      */
-    public boolean canSubmit(String context, Assignment a, String userId);
+    public boolean canSubmit(Assignment a, String userId);
 
     /**
      * Whether the current user can submit
-     * @param context
      * @param a
      * @return
      */
-    public boolean canSubmit(String context, Assignment a);
+    public boolean canSubmit(Assignment a);
 
 
     /**
@@ -662,12 +660,9 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getXmlAssignment(Assignment assignment);
 
-    /**
-     * @param assignmentId
-     * @param userId
-     * @return
-     */
-    public String getGradeForUserInGradeBook(String assignmentId, String userId);
+    String getGradeForSubmitter(String submissionId, String submitter);
+
+    String getGradeForSubmitter(AssignmentSubmission submission, String submitter);
 
     /**
      * @param grade

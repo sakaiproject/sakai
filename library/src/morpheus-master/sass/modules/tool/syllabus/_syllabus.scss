@@ -6,43 +6,6 @@
     }
   }
 
-  /* css for timepicker */
-  .ui-timepicker-div {
-    .ui-widget-header {
-      margin-bottom: 8px;
-    }
-    dl {
-      text-align: left;
-      dt {
-        height: 25px;
-        margin-bottom: -25px;
-      }
-      dd {
-        margin: 0 10px 10px 65px;
-      }
-    }
-    td {
-      font-size: 90%;
-    }
-  }
-
-  .ui-tpicker-grid-label {
-    background: none;
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .ui-timepicker-rtl {
-    direction: rtl;
-    dl {
-      text-align: right;
-      dd {
-        margin: 0 65px 10px 10px;
-      }
-    }
-  }
-
   .editItem:hover {
     padding-right: 18px;
 

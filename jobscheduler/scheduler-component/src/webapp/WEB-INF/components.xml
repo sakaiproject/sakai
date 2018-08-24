@@ -115,11 +115,6 @@
         <property name="jobFactory">
             <ref bean="org.sakaiproject.component.app.scheduler.AutowiringSpringBeanJobFactory"/>
         </property>
-        <property name="initialJobSchedules">
-            <list>
-                <ref bean="eventPurgeScheduling"/>
-            </list>
-        </property>
     </bean>
 
 
@@ -175,18 +170,6 @@
       <property name="schedulerManager">
          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
       </property>
-    </bean>
-
-    <bean id="eventPurgeScheduling" class="org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule">
-        <property name="jobBeanWrapper"><ref bean="eventPurgeJobWrapper"/></property>
-        <property name="jobName" value="Event Log Purge"/>
-        <property name="triggerName" value="Nightly Log Purge Trigger"/>
-        <property name="cronExpression" value="0 0 0 * * ? *"/>
-        <property name="configuration">
-            <map>
-                <entry key="number.days" value="7"/>
-            </map>
-        </property>
     </bean>
 
    <!-- Conditions Job -->
@@ -446,6 +429,15 @@
     </bean>
 
 
+    <!-- Automatically create event purge job -->
+    <bean class="org.sakaiproject.scheduler.util.AutoProvisionJobs" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="files">
+            <list>
+                <value>/event-log-purge.xml</value>
+            </list>
+        </property>
+    </bean>
 
     <import resource="backfill-tool.xml"/>
     <import resource="cm-components.xml"/>

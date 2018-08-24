@@ -19,8 +19,10 @@
 package org.sakaiproject.sitestats.api.report;
 
 import java.io.Serializable;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -65,14 +67,12 @@ public class ReportParams implements Serializable {
 	public ReportParams(String siteId){
 		this.siteId = siteId;
 		whatToolIds.add(ReportManager.WHAT_EVENTS_ALLTOOLS);
-		whenFrom = new Date();
-		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DAY_OF_MONTH, -1);
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.SECOND, 0);
-		whenFrom = c.getTime();
-		whenTo = new Date();
+		// events are counted against a particular date using the server time zone, so initialize the date
+		// range based on the current date in that time zone
+		ZonedDateTime today = ZonedDateTime.now(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS);
+		ZonedDateTime yesterday = today.minusDays(1);
+		whenFrom = Date.from(yesterday.toInstant());
+		whenTo = Date.from(today.toInstant());
 	}
 	
 	public ReportParams(String siteId, String what, List<String> whatToolIds, List<String> whatEventIds, String whatResourceAction, List<String> whatResourceIds, String when, Date whenFrom, Date whenTo, String who, String whoRoleId, String whoGroupId, List<String> whoUserIds) {

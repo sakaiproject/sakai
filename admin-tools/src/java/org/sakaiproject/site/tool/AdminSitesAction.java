@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.tool;
 
+import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,17 +33,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -58,8 +57,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -68,21 +67,21 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -119,11 +118,27 @@ public class AdminSitesAction extends PagedResourceActionII
 
 	private AliasService aliasService;
 	private AuthzGroupService authzGroupService;
+	private UserDirectoryService userDirectoryService;
+	private ToolManager toolManager;
+	private SessionManager sessionManager;
+	private SiteService siteService;
+	private EventTrackingService eventTrackingService;
+	private SecurityService securityService;
+	private UserTimeService userTimeService;
 
 	public AdminSitesAction() {
 		super();
 		aliasService = ComponentManager.get(AliasService.class);
 		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		toolManager = ComponentManager.get(ToolManager.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
+		siteService = ComponentManager.get(SiteService.class);
+		eventTrackingService = ComponentManager.get(EventTrackingService.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		userTimeService = ComponentManager.get(UserTimeService.class);
+		
+		
 	}
 
 	/**
@@ -144,7 +159,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			List rv = new Vector();
 			try
 			{
-				Site site = SiteService.getSite(siteId);
+				Site site = siteService.getSite(siteId);
 				rv.add(site);
 			}
 			catch (IdUnusedException e)
@@ -169,14 +184,14 @@ public class AdminSitesAction extends PagedResourceActionII
 		// search for non-user sites, using the criteria
 		else if (search != null)
 		{
-			return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, null, search, null,
+			return siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, null, search, null,
 					org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, new PagingPosition(first, last));
 		}
 
 		// otherwise just show a page of all
 		else
 		{
-			return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, search, null,
+			return siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, search, null,
 					org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, new PagingPosition(first, last));
 		}
 	}
@@ -196,7 +211,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			try
 			{
-				Site site = SiteService.getSite(siteId);
+				siteService.getSite(siteId);
 				return 1;
 			}
 			catch (IdUnusedException e)
@@ -217,12 +232,12 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		else if (search != null)
 		{
-			return SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, null, search, null);
+			return siteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, null, search, null);
 		}
 
 		else
 		{
-			return SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, search, null);
+			return siteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, search, null);
 		}
 	}
 
@@ -269,7 +284,7 @@ public class AdminSitesAction extends PagedResourceActionII
     protected User findUserByPk(String userPk) {
         
         try {
-            User user = UserDirectoryService.getUser(userPk);
+            User user = userDirectoryService.getUser(userPk);
             return user;
         } catch ( UserNotDefinedException e ) {
 			log.debug("Failed to find a user record by PK [pk = {}]", userPk, e);
@@ -290,7 +305,7 @@ public class AdminSitesAction extends PagedResourceActionII
     protected User findUserByEid(String eid) {
         
         try {
-            User user = UserDirectoryService.getUserByEid(eid);
+            User user = userDirectoryService.getUserByEid(eid);
             return user;
         } catch ( UserNotDefinedException e ) {
 			log.debug("Failed to find a user record by EID [eid = {}]", eid, e);
@@ -309,9 +324,9 @@ public class AdminSitesAction extends PagedResourceActionII
     protected Site findUserSite(User knownUser) {
         String userDbId =  knownUser.getId();
         String userEid = knownUser.getEid();
-        String userMyWorkspaceSiteDbId = SiteService.getUserSiteId(userDbId);
+        String userMyWorkspaceSiteDbId = siteService.getUserSiteId(userDbId);
         try {
-            Site userSite = SiteService.getSite(userMyWorkspaceSiteDbId); // exceptional if no results
+            Site userSite = siteService.getSite(userMyWorkspaceSiteDbId); // exceptional if no results
             return userSite;
         } catch ( IdUnusedException e ) {
 			log.debug("Failed to locate a workspace for user [user id = {}][user eid = {}][site id = {}]", userDbId, userEid, userMyWorkspaceSiteDbId, e);
@@ -350,19 +365,13 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("tlang", rb);
 		
 		// if not logged in as the super user, we won't do anything
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			context.put("tlang",rb);
 			return (String) getContext(rundata).get("template") + "_noaccess";
 		}
 
 		String template = null;
-
-		// get the Sakai session
-		Session session = SessionManager.getCurrentSession();
-
-		// get the Tool session
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
 		// check mode and dispatch
 		String mode = (String) state.getAttribute("mode");
@@ -462,7 +471,8 @@ public class AdminSitesAction extends PagedResourceActionII
 	private String buildListContext(SessionState state, Context context)
 	{
 		// put the service in the context (used for allow update calls on each site)
-		context.put("service", SiteService.getInstance());
+		context.put("service", siteService);
+		context.put("userTimeService", userTimeService);
 
 		// prepare the paging of realms
 		List sites = prepPage(state);
@@ -473,7 +483,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// build the menu
 		Menu bar = new MenuImpl();
-		if (SiteService.allowAddSite(null))
+		if (siteService.allowAddSite(null))
 		{
 			bar.add(new MenuEntry(rb.getString("sitact.newsit"), "doNew"));
 		}
@@ -560,6 +570,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put("tlang", rb);
 		Site site = (Site) state.getAttribute("site");
 		context.put("site", site);
+		context.put("userTimeService", userTimeService);
 
 		// name the html form for user edit fields
 		context.put("form-name", "site-form");
@@ -586,7 +597,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// build the menu
 		// we need the form fields for the remove...
 		Menu bar = new MenuImpl();
-		if (site!= null && SiteService.allowRemoveSite(site.getId()))
+		if (site!= null && siteService.allowRemoveSite(site.getId()))
 		{
 			bar.add(new MenuEntry(rb.getString("sitact.remsit"), null, true, MenuItem.CHECKED_NA, "doRemove", null));
 		}
@@ -881,12 +892,12 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		
 		// get all tools
-		Set all = ToolManager.findTools(null, null);
+		Set all = toolManager.findTools(null, null);
 
 		// get the helpers
 		Set categories = new HashSet();
 		categories.add("sakai.helper");
-		Set helpers = ToolManager.findTools(categories, null);
+		Set helpers = toolManager.findTools(categories, null);
 
 		// remove the helpers from all
 		all.removeAll(helpers);
@@ -954,12 +965,12 @@ public class AdminSitesAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		String id = data.getParameters().getString("id");
 
-		if (SiteService.allowUpdateSite(id))
+		if (siteService.allowUpdateSite(id))
 		{
 			// get the site
 			try
 			{
-				Site site = SiteService.getSite(id);
+				Site site = siteService.getSite(id);
 				state.setAttribute("site", site);
 
 				// RealmEdit realm = authzGroupService.editRealm("/site/" + id); // %%% use a site service call -ggolden
@@ -1024,14 +1035,14 @@ public class AdminSitesAction extends PagedResourceActionII
 		if (currentSitePublished && !afterSitePublished)
 		{
 			// site unpublished
-			EventTrackingService.post(EventTrackingService.newEvent(
+			eventTrackingService.post(eventTrackingService.newEvent(
 					SiteService.EVENT_SITE_UNPUBLISH,
 					site.getReference(), true));
 		}
 		else if (!currentSitePublished && afterSitePublished)
 		{
 			// site published
-			EventTrackingService.post(EventTrackingService.newEvent(
+			eventTrackingService.post(eventTrackingService.newEvent(
 					SiteService.EVENT_SITE_PUBLISH,
 					site.getReference(), true));
 		}
@@ -1131,7 +1142,7 @@ public class AdminSitesAction extends PagedResourceActionII
 					}
 				}
 				
-				SiteService.save(site);
+				siteService.save(site);
 			}
 			catch (PermissionException | IdUnusedException e)
 			{
@@ -1192,7 +1203,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		try
 		{
 			// make a new site with this id and as a structural copy of site
-			Site newSite = SiteService.addSite(id, site);
+			siteService.addSite(id, site);
 		}
 		catch (IdUsedException e)
 		{
@@ -1264,7 +1275,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				// remove the site
 				try
 				{
-					SiteService.removeSite(site);
+					siteService.removeSite(site);
 				}
 				catch (PermissionException e)
 				{
@@ -1326,7 +1337,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// remove the site
 		try
 		{
-			SiteService.removeSite(site);
+			siteService.removeSite(site);
 		}
 		catch (PermissionException e)
 		{
@@ -1390,7 +1401,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
 		String titleOrig = data.getParameters().getString("title");
 		String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
-		SiteTitleValidationStatus status = SiteService.validateSiteTitle(titleOrig, titleStripped);
+		SiteTitleValidationStatus status = siteService.validateSiteTitle(titleOrig, titleStripped);
 
 		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
 			addAlert(state, rb.getString("siteTitle.htmlStrippedToEmpty"));
@@ -1411,7 +1422,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			try
 			{
-				site = SiteService.addSite(id, type);
+				site = siteService.addSite(id, type);
 				// mark the site as new, so on cancel it can be deleted
 				site.getPropertiesEdit().addProperty("new", "true");
 
@@ -2600,8 +2611,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		// if the feature has changed, update the default configuration
 		if ((t == null) || (!feature.equals(t.getId())))
 		{
-			tool.setTool(feature, ToolManager.getTool(feature));
-			tool.setTitle(ToolManager.getTool(feature).getTitle());
+			tool.setTool(feature, toolManager.getTool(feature));
+			tool.setTitle(toolManager.getTool(feature).getTitle());
 			tool.getPlacementConfig().clear();
 		}
 
@@ -2640,7 +2651,7 @@ public class AdminSitesAction extends PagedResourceActionII
 	private List layoutsList()
 	{
 		List rv = new Vector();
-		String[] layoutNames = SiteService.getLayoutNames();
+		String[] layoutNames = siteService.getLayoutNames();
 		for (int i = 0; i < layoutNames.length; i++)
 		{
 			rv.add(layoutNames[i]);
@@ -2699,8 +2710,8 @@ public class AdminSitesAction extends PagedResourceActionII
 					addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 				} catch (PermissionException ee) {
-					addAlert(state, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
-					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
+					addAlert(state, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{sessionManager.getCurrentSessionUserId()}));
+					log.warn("{}.setSiteAlias: {}", this, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{sessionManager.getCurrentSessionUserId()}));
 				}
 			}
 		}

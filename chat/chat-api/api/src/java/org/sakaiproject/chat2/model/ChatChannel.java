@@ -119,7 +119,7 @@ public class ChatChannel implements org.sakaiproject.entity.api.Entity {
    @Column(name = "ENABLE_USER_OVERRIDE", nullable = false)
    private boolean enableUserOverride = true;
 
-   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "chatChannel")
+   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "chatChannel")
    @BatchSize(size = 50)
    private Set<ChatMessage> messages;
 

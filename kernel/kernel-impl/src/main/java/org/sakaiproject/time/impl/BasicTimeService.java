@@ -24,8 +24,12 @@ package org.sakaiproject.time.impl;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -1009,4 +1013,28 @@ public class BasicTimeService implements TimeService
 		return rv;
 	}
 
+	@Override
+	public String dateFormatLong(Date date, Locale locale) {
+		return userTimeService.dateFormatLong(date, locale);
+	}
+
+	@Override
+	public String dateTimeFormatLong(Date date, Locale locale) {
+		return userTimeService.dateTimeFormatLong(date, locale);
+	}
+
+	@Override
+	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+		return userTimeService.shortLocalizedTimestamp(instant, timezone, locale);
+	}
+
+	@Override
+	public String shortLocalizedTimestamp(Instant instant, Locale locale) {
+		return userTimeService.shortLocalizedTimestamp(instant, locale);
+	}
+
+	@Override
+	public String shortLocalizedDate(LocalDate date, Locale locale) {
+		return userTimeService.shortLocalizedDate(date, locale);
+	}
 }

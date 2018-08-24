@@ -364,7 +364,7 @@ public class EnrolmentsHandler
         List<Enrolment> retVal = new ArrayList<>();
         for( AcademicSession session : sessions )
         {
-            Collections.sort( buckets.get( session.getEid() ), SECTION_COMP );
+            Collections.sort( buckets.get( session.getEid() ), sortAsc ? SECTION_COMP : Collections.reverseOrder( SECTION_COMP ) );
             retVal.addAll( buckets.get( session.getEid() ) );
         }
 

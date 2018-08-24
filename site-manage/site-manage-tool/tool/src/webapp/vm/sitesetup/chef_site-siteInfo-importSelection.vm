@@ -1,8 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importSelection.vm,v 1.0 2007/10/29 08:00:00 tnguyen.iupui.edu Exp $ -->
 <div class="portletBody">
-	<h3>
-		$tlang.getString("sitinfimp.importgrades")
-	</h3>
+	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 		<div class="clear"></div>

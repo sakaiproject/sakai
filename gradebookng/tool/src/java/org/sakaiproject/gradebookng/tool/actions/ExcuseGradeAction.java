@@ -37,6 +37,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         private List<Long> droppedItems;
 
         public ExcuseGradeResponse(final String courseGrade, final String points, final boolean isOverride, final String categoryScore,
+
                                    List<Long> droppedItems){
             this.courseGrade = courseGrade;
             this.categoryScore = categoryScore;
@@ -45,7 +46,9 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             this.droppedItems = droppedItems;
         }
 
+
         public String getStatus(){
+
             return "OK";
         }
 
@@ -56,6 +59,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             ArrayNode courseGradeArray = mapper.createArrayNode();
             courseGradeArray.add(courseGrade);
             courseGradeArray.add(points);
+
             courseGradeArray.add(isOverride ? 1: 0);
 
             result.put("courseGrade", courseGradeArray);
@@ -81,9 +85,11 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         final String categoryId = params.has("categoryId") ? params.get("categoryId").asText() : null;
 
         boolean hasExcuse = false;
+
         if(StringUtils.equals(excuse, "1")){
             excuse = "0";
         } else if(StringUtils.equals(excuse, "0")){
+
             excuse = "1";
             hasExcuse = true;
         }
@@ -91,7 +97,9 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         final GradeSaveResponse result = businessService.saveExcuse(Long.valueOf(assignmentId),
                 studentUuid, hasExcuse);
 
+
         if(result.equals(GradeSaveResponse.NO_CHANGE)){
+
             target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
         }
 
@@ -102,6 +110,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
         final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
 
         boolean isOverride = false;
+
         String grade = "-";
         String points = "0";
 
@@ -116,6 +125,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                     true);
 
             grade = courseGradeFormatter.format(studentCourseGrade);
+
             if (studentCourseGrade.getPointsEarned() != null) {
                 points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
             }
@@ -123,6 +133,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 isOverride = true;
             }
         }
+
 
         String categoryScore = "-";
 

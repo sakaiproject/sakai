@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai"%>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -44,9 +44,9 @@
 	var emiAuthoring = true;
 </script>
 
-<samigo:script path="/js/authoring.js" />
-<samigo:script path="/js/utils-emi.js" />
-<samigo:script path="/js/authoring-emi.js" />
+<script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+<script type="text/javascript" src="/samigo-app/js/utils-emi.js"></script>
+<script type="text/javascript" src="/samigo-app/js/authoring-emi.js"></script>
 </head>
 <body onload="<%=request.getAttribute("html.body.onload")%>">
     
@@ -255,7 +255,7 @@
 						<samigo:wysiwyg rows="140"
 							value="#{itemauthor.currentItem.emiAnswerOptionsRich}"
 							hasToggle="yes" mode="author">
-							<f:validateLength minimum="1" maximum="64000" />
+							<f:validateLength maximum="64000" />
 						</samigo:wysiwyg>
 					</h:panelGrid>
 
@@ -347,7 +347,7 @@
 			<h:panelGrid>
 				<samigo:wysiwyg identity="lead_in_statement" rows="140"
 					value="#{itemauthor.currentItem.leadInStatement}" hasToggle="yes" mode="author">
-					<f:validateLength minimum="1" maximum="64000" />
+					<f:validateLength maximum="64000" />
 				</samigo:wysiwyg>
 			</h:panelGrid>
 			<br />
@@ -560,7 +560,6 @@
 			<!-- METADATA -->
 			<h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}"
 				styleClass="longtext">
-				<f:verbatim></f:verbatim>
 				<h:outputLabel value="Metadata" />
 				<br />
 

@@ -260,6 +260,16 @@ public class FormatHelper {
 	}
 
 	/**
+	 * Strips out line breaks
+	 *
+	 * @param s String to abbreviate
+	 * @return string without line breaks
+	 */
+	public static String stripLineBreaks(final String s) {
+		return s.replaceAll("\\r\\n|\\r|\\n", "");
+	}
+
+	/**
 	 * Abbreviate a string via {@link StringUtils#abbreviateMiddle(String, String, int)}
 	 *
 	 * Set at 45 chars

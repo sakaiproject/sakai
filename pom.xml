@@ -42,6 +42,7 @@
             <modules>
                 <module>master</module>
                 <module>admin-tools</module>
+                <module>admin-su</module>
                 <module>access</module>
                 <module>announcement</module>
                 <module>archive</module>
@@ -111,7 +112,6 @@
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
-                <module>tool</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>
@@ -126,6 +126,7 @@
             <modules>
                 <module>master</module>
                 <module>access</module>
+                <module>admin-su</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
@@ -194,7 +195,6 @@
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
-                <module>tool</module>
                 <module>user</module>
                 <module>userauditservice</module>
                 <module>usermembership</module>
@@ -238,26 +238,5 @@
                 <module>pack/pack-src</module>
             </modules>
         </profile>
-
     </profiles>
-    <reporting>
-        <plugins>
-            <plugin>
-                <!-- javadocs -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8.1</version>
-                <configuration>
-                    <debug>true</debug>
-                    <links>
-                        <link>http://download.oracle.com/javase/6/docs/api/</link>
-                    </links>
-                    <breakiterator>true</breakiterator>
-                    <verbose>false</verbose>
-                    <maxmemory>1024m</maxmemory>
-                    <additionalJOption>-J-Xms168m -J-Xmx1024m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>

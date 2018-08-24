@@ -33,9 +33,11 @@ import java.util.Set;
 import javax.faces.event.ActionEvent;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.util.Precision;
-import org.sakaiproject.jsf.model.PhaseAware;
+
+import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;

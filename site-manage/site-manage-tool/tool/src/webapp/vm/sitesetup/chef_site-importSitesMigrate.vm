@@ -1,5 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-importSitesMigrate.vm,v 1.3 2007/11/05 10:36:30 tnguyen.iupui.edu Exp $ -->
 <div class="portletBody">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("import.reuse")
 	</h3>

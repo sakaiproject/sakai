@@ -6,6 +6,7 @@
 #javascript("/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js")
 #css("/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css")
 #css("/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css")
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("multipleTools.custom")
 	</h3>           

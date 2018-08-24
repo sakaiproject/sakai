@@ -72,6 +72,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	private static ResourceLoader rb = new ResourceLoader("siteemaanc");
 	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
 
+	private static final String SAK_PROP_EMAIL_TO_MATCHES_FROM = "announcement.notification.email.to.matches.from";
+	private static final boolean SAK_PROP_EMAIL_TO_MATCHES_FROM_DEFAULT = false;
+
 	private EntityManager entityManager;
 	private SecurityService securityService;
 	private NotificationService notificationService;
@@ -206,7 +209,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				buf.append(rb.getFormattedMessage("noti.header.update", title, url));
 			}
 		}
-		buf.append(" " + rb.getString("at_date") + " ");
+		buf.append(" ").append(rb.getString("at_date")).append(" ");
 		buf.append(hdr.getDate().toStringLocalFull());
 		buf.append(newline);
 		buf.append(msg.getBody());
@@ -216,14 +219,13 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		List<Reference> attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
-			buf.append(newline + rb.getString("Attachments") + newline);
-			for (Iterator<Reference> iAttachments = attachments.iterator(); iAttachments.hasNext();)
+			buf.append(newline).append(rb.getString("Attachments")).append(newline);
+			for (Reference attachment : attachments)
 			{
-				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append("<a href=\"" + attachment.getUrl() + "\">");
+				buf.append("<a href=\"").append(attachment.getUrl()).append("\">");
 				buf.append(attachmentTitle);
-				buf.append("</a>" + newline);
+				buf.append("</a>").append(newline);
 			}
 		}
 
@@ -290,10 +292,17 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		rv.add("Subject: " + getSubject(event));
 		
 		// from
-		rv.add(getFromAddress(event));
+		rv.add(getAddress(event, AddressField.FROM));
 
 		// to
-		rv.add(getTo(event));
+		if (ServerConfigurationService.getBoolean(SAK_PROP_EMAIL_TO_MATCHES_FROM, SAK_PROP_EMAIL_TO_MATCHES_FROM_DEFAULT))
+		{
+			rv.add(getAddress(event, AddressField.TO));
+		}
+		else
+		{
+			rv.add(getTo(event));
+		}
 
 		return rv;
 	}
@@ -348,13 +357,22 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	}
 	
 	/**
-	 * Format the announcement notification from address.
-	 * 
-	 * @param event
-	 *        The event that matched criteria to cause the notification.
-	 * @return the announcement notification from address.
+	 * Defines the possible parameters for getAddress() to determine if we're getting the address for the 'From' or the 'To' field
 	 */
-	protected String getFromAddress(Event event)
+	private enum AddressField
+	{
+		FROM,
+		TO;
+	}
+
+	/**
+	 * Gets the address for either the "From:" or "To:" field in an announcement notification email.
+	 * They are formatted as follows:
+	 * From/To: "display address" <email address>
+	 * @param event the announcement event backing the notification
+	 * @param field specifies if we are getting the 'From' or the 'To' address
+	 */
+	private String getAddress(Event event, AddressField field)
 	{
 		Reference ref = entityManager.newReference(event.getResource());
 		
@@ -371,17 +389,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		
 		String userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
-		//String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
-		//String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
-		String from = "From: Sakai"; // fallback value
-		 if (title!=null && !title.equals("")){ 
-		     from = "From: \"" + title + "\" <" + userEmail + ">"; 
-		 } else {
-		     String fromVal = getFrom(event); // should not return null but better safe than sorry
-	         if (fromVal != null) {
-	             from = fromVal;
-	         }
-		 }
+		String address = field == AddressField.FROM ? "From: " : "To: ";
+		if (title!=null && !title.equals("")){
+			address = address + "\"" + title + "\" <" + userEmail + ">";
+		} else {
+			String val = field == AddressField.FROM ? getFrom(event) : getTo(event);
+			if (val != null)
+			{
+				address = val;
+			}
+		}
 		
 		// get the message
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
@@ -391,7 +408,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// SAK-20988 - emailFromReplyable@org.sakaiproject.event.api.NotificationService is deprecated
 		boolean notificationEmailFromReplyable = ServerConfigurationService.getBoolean("notify.email.from.replyable", false);
 		if (notificationEmailFromReplyable 
-		        && from.contains(userEmail)
+		        && address.contains(userEmail)
 		        && userId != null) 
 		{
 				try
@@ -402,16 +419,20 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
 					
 				} catch (UserNotDefinedException e) {
-					log.warn("Failed to load user from announcement header: {}. Will send from no-reply@{} instead.", userId, ServerConfigurationService.getServerName());
+					log.warn("Failed to load user from announcement header: {}. Will send with no-reply@{} instead.", userId, ServerConfigurationService.getServerName());
 				}
 				
 				// some fallback positions
 				if (userEmail == null) userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
-				from="From: \"" + userDisplay + "\" <" + userEmail + ">";
+
+				address = field == AddressField.FROM ? "From: \"" : "To: \"";
+				// 'From' should display the user; 'To' should display the site title; if the title is unavailable, fallback to the user
+				String display = (field == AddressField.FROM || StringUtils.isBlank(title)) ? userDisplay : title;
+				address = address + display + "\" <" + userEmail + ">";
 		}
 		
-		return from;
+		return address;
 	}
 
 	/**
@@ -555,7 +576,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			}
 		}
 		
-        buf.append(" " + rb.getString("at_date") + " ");
+		buf.append(" ").append(rb.getString("at_date")).append(" ");
         buf.append(hdr.getDate().toStringLocalFull());
 		buf.append(newline);
 		buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getBody()));
@@ -565,12 +586,12 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		List attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
-			buf.append(newline + rb.getString("Attachments") + newline);
+			buf.append(newline).append(rb.getString("Attachments")).append(newline);
 			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 			{
 				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append(attachmentTitle + ": " +attachment.getUrl() + newline);
+				buf.append(attachmentTitle).append(": ").append(attachment.getUrl()).append(newline);
 			}
 		}
 

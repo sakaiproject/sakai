@@ -1904,6 +1904,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
       });
 
       AssignmentGradeRecord record = getAssignmentGradeRecord(assignment, studentUid);
+
       gradeDef.setExcused(BooleanUtils.toBoolean(record.isExcludedFromGrade()));
 	  saveGradesAndComments(gradebookUid, gradableObjectId, gradeDefList);
   }
@@ -2340,24 +2341,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public String getAssignmentScoreStringByNameOrId(final String gradebookUid, final String assignmentName, final String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException {
-		// TODO Auto-generated method stub
-		String assignment = null;
+		String score = null;
 		try {
-			assignment = getAssignmentScoreString(gradebookUid, assignmentName, studentUid);
+			score = getAssignmentScoreString(gradebookUid, assignmentName, studentUid);
 		}
 		catch (final AssessmentNotFoundException e) {
 			//Don't fail on this exception
 			log.debug("Assessment not found by name", e);
 		}
 
-		if (assignment == null) {
+		if (score == null) {
 			//Try to get the assignment by id
 			if (NumberUtils.isCreatable(assignmentName)) {
 				final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
-				return getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+				score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
 			}
 		}
-		return null;
+		return score;
 	}
 
   	@Override

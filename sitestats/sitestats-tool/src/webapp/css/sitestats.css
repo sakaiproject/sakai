@@ -326,7 +326,7 @@ table.formContainer  {
     font-weight: bold;
     text-align: right;
     width: 150px;
-    vertical-align:top;
+    vertical-align:middle;
 }
 .formContainer select{
     margin: 0.1em 0.3em;
@@ -529,3 +529,14 @@ label.indnt1 {
   text-align: right;
   width: 49%;
 }
+button.ui-datepicker-trigger {
+	margin: 0;
+	padding: 0;
+}
+.sakai-datetimefield {
+	min-width: 200px;
+}
+.widget .sitestats-widgetFooterMsg {
+	float: none;
+}
+

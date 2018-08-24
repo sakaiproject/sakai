@@ -90,7 +90,7 @@
 }
 
 .select{
-	background-color: $button-background-color;
+	background-color: $background-color;
 	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
 	background-repeat: no-repeat;
@@ -105,6 +105,16 @@
 	@include border-radius(3px);
 	&::-ms-expand {
 	    display: none;
+	}
+	
+	&[multiple], &[size] {
+		background-image: none;
+	}
+	
+	&[disabled="disabled"],&[disabled],&[disabled="true"] {
+		opacity: 0.7;
+		background-color: #f3f3f3;
+		cursor: not-allowed;
 	}
 }
 
@@ -266,11 +276,11 @@ a.noPointers, input.noPointers {
 	to {transform: rotate(360deg);}
 }
 
-.spinButton {
+.spinButton, .spinSelect {
 	position: relative;
 }
 
-.spinButton:after, .spinPlaceholder:after {
+.spinButton:after, .spinPlaceholder:after, .spinSelect:after {
 	content: "";
 	background: url("images/ring58.png") center center no-repeat;
 	-moz-animation-name: rotate;
@@ -294,6 +304,12 @@ a.noPointers, input.noPointers {
 	height: 100%;
 }
 
+.spinSelect:after {
+	left: initial;
+	right: 4px;
+	width: 16px;
+}
+
 .spinPlaceholder, .allocatedSpinPlaceholder {
 	position: relative;
 	display: inline-block;
@@ -312,6 +328,7 @@ a.noPointers, input.noPointers {
 		margin-bottom: 0px;
 	}
 }
+
 /*** End button spinner overlay ***/
 .ui-dialog.ui-widget {
 	@media #{$phone}{

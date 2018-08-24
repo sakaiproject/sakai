@@ -47,7 +47,7 @@ function textCounter(field, maxlimit) {
 }
 
 </script>
-<samigo:script path="/../library/js/spinner.js"/>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
           <script type="text/javascript">
               function flagFolders() {
                   collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}"/>);

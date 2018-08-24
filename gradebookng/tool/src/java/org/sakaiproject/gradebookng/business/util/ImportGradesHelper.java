@@ -287,7 +287,7 @@ public class ImportGradesHelper {
 					}
 					break;
 				case USER_NAME:
-					row.setStudentName(lineVal);
+					row.setStudentName(StringUtils.trimToEmpty(lineVal));
 					break;
 				case GB_ITEM_WITH_POINTS:
 					// fall into next case (same impl)

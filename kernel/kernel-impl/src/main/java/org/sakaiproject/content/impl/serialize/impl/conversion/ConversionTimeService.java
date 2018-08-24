@@ -21,7 +21,11 @@
 
 package org.sakaiproject.content.impl.serialize.impl.conversion;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.sakaiproject.time.api.Time;
@@ -185,4 +189,28 @@ public class ConversionTimeService implements TimeService
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
 
+	@Override
+	public String dateFormatLong(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String dateTimeFormatLong(Date date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String shortLocalizedTimestamp(Instant instant, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String shortLocalizedDate(LocalDate date, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
 }

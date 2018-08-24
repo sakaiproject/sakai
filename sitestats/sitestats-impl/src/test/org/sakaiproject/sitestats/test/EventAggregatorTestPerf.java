@@ -32,15 +32,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-import org.mockito.Mockito;
 import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-
+import org.mockito.Mockito;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -53,9 +48,12 @@ import org.sakaiproject.sitestats.impl.StatsManagerImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+
+import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration(locations = {"/hibernate-test.xml"})
 @Slf4j
@@ -122,7 +120,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 		expect(M_ss.getSite(siteId)).andStubReturn(siteA);
 		expect(M_ss.isUserSite(siteId)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(siteId)).andStubReturn(false);
-		Mockito.when(siteA.getCreatedTime()).thenReturn(Mockito.any(Time.class));
+		Mockito.when(siteA.getCreatedDate()).thenReturn(Mockito.any(Date.class));
 		// Site 'non_existent_site' doesn't exist
 		expect(M_ss.isUserSite("non_existent_site")).andStubReturn(false);
 		expect(M_ss.isSpecialSite("non_existent_site")).andStubReturn(false);

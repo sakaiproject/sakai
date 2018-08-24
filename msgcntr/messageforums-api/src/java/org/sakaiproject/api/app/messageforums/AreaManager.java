@@ -41,8 +41,8 @@ public interface AreaManager
 	 * Save an area
 	 * @param area
 	 */
-	public void saveArea(Area area);
-	public void saveArea(Area area, String currentUser);
+	public Area saveArea(Area area);
+	public Area saveArea(Area area, String currentUser);
 	
 	/**
 	 * Create an area of the given type in the given context

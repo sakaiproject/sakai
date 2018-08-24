@@ -40,7 +40,7 @@
         <!-- HEADINGS -->
         <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
         <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
-        <samigo:script path="/js/info.js"/>
+        <script type="text/javascript" src="/samigo-app/js/info.js"></script>
 
         <div class="samigo-container">
             <p>
@@ -66,10 +66,10 @@
                     <!-- SAM-2487 mark them up manually -->
                     <ul class="creation-mode-list no-list">
                         <li>
-                            <t:radio for="creationMode" index="0" />
+                            <t:radio renderLogicalId="true" for="creationMode" index="0" />
                         </li>
                         <li>
-                            <t:radio for="creationMode" index="1" />
+                            <t:radio renderLogicalId="true" for="creationMode" index="1" />
                         </li>
                     </ul>
                 </div>

@@ -62,7 +62,7 @@ $(document).ready(function(){
 	#end
 
 	#if ($!canSubmit)
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 		#if ($!submission && $dateSubmitted)
 			## if there is a submitted submission
 			## get the properies
@@ -225,11 +225,7 @@ $(document).ready(function(){
 							<div class="itemSummaryValue highlight">
 								<strong>
 									#if ($gradeScale != 1)
-										#if ($!override)
-											$!service.getGradeDisplay($override, $!assignment.TypeOfGrade, $!assignment.ScaleFactor)
-										#else
-											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
-										#end
+										$!grade
 									#else
 										$tlang.getString("gen.nograd")
 									#end
@@ -937,7 +933,7 @@ $(document).ready(function(){
 				#end
 			#end
 
-				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted))
+				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted || !$!submitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
 							<h3>$tlang.getString("gen.addinst2")</h3>
@@ -1010,29 +1006,6 @@ $(document).ready(function(){
 							$!previousGrades
 						</div>
 					#end
-				#end
-				#if ($!assignment.HonorPledge)
-					<p class="checkbox highlightPanel">
-						<label for="$name_submission_honor_pledge_yes">
-							#if (!$!canSubmit)
-								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
-								#if ($value_submission_honor_pledge_yes.equals("false"))
-									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
-								#else
-									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
-								#end
-							#else
-								#if ($value_submission_honor_pledge_yes.equals("false"))
-									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
-								#else
-									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
-								#end
-							#end
-							$honor_pledge_text
-						</label>
-						<br />
-						$tlang.getString("gen.youmus")
-					</p>
 				#end
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)

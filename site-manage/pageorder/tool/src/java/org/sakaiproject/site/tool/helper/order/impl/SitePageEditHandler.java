@@ -317,9 +317,19 @@ public class SitePageEditHandler {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 
+        // Go to Site Info landing page on 'Save'
+        setNextPage(session, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+
         return "done";
     }
-    
+
+    /*
+     * Utility method; sets the template index (in the tool session) of the desired page to transfer the user to.
+     */
+    private void setNextPage(ToolSession session, String nextPageTemplateIndex) {
+        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, nextPageTemplateIndex);
+    }
+
     /**
      * Allows the Cancel button to return control to the tool calling this helper
      *
@@ -327,6 +337,9 @@ public class SitePageEditHandler {
     public String cancel() {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+
+        // Go to Site Info landing page on 'Cancel'
+        setNextPage(session, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
         return "done";
     }

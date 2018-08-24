@@ -23,6 +23,7 @@
 	<tool 
 		toolId="sakai.announcements"
 		selected="true">
+		<event eventId="annc.read" selected="true"/>
 		<event eventId="annc.new" selected="true"/>
 		<event eventId="annc.revise.own" selected="true"/>
 		<event eventId="annc.revise.any" selected="true"/>
@@ -128,8 +129,10 @@
 
 
 	<!-- news -->
+	<!-- sakai.simple.rss = current id, sakai.news = legacy id -->
 	<tool 
-		toolId="sakai.news"
+		toolId="sakai.simple.rss"
+		additionalToolIds="sakai.news"
 		selected="true">
 		<event eventId="news.read" selected="true"/>
 		<event eventId="news.revise" selected="true"/>
@@ -383,7 +386,7 @@
 		selected="true">
 		<event eventId="calendar.new" selected="true"/>
 		<event eventId="calendar.revise" selected="true"/>
-		<!--<event eventId="calendar.read" selected="true"/>-->
+		<event eventId="calendar.read" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	

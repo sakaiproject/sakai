@@ -34,10 +34,10 @@
       <head><%= request.getAttribute("html.head") %>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <samigo:script path="/../sakai-editor/editor-bootstrap.js"/>
-      <samigo:script path="/../sakai-editor/editor.js"/>
-      <samigo:script path="/../sakai-editor/editor-launch.js"/>
-	  <samigo:script path="/js/saveForm.js"/>	  	  
+      <script type="text/javascript" src="/sakai-editor/editor-bootstrap.js"></script>
+      <script type="text/javascript" src="/sakai-editor/editor.js"></script>
+      <script type="text/javascript" src="/sakai-editor/editor-launch.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>
 
     <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
       <script>
@@ -220,8 +220,8 @@ document.links[newindex].onclick();
 	</f:verbatim>
 </h:panelGroup>
 
-<samigo:stylesheet path="/css/imageQuestion.student.css"/>
-<samigo:stylesheet path="/css/imageQuestion.author.css"/>
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
 <script type="text/JavaScript">
 	var dynamicListMap = [];		
@@ -582,7 +582,7 @@ document.links[newindex].onclick();
 <!-- end content -->
 </div>
 <f:verbatim></div></f:verbatim>
-<samigo:script path="/js/questionProgress.js"/>
+<script type="text/javascript" src="/samigo-app/js/questionProgress.js"></script>
 <script type="text/JavaScript">
 	<%= request.getAttribute("html.body.onload") %> 
 	setLocation(); 

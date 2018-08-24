@@ -1557,20 +1557,12 @@ public class DiscussionForumTool
     saveForumAttach(forum);  
     setObjectPermissions(forum);
     if (draft)
-      forumManager.saveForumAsDraft(forum);
+      forum = forumManager.saveForumAsDraft(forum);
     else
-      forumManager.saveForum(forum);
-    //forumManager.saveForumControlPermissions(forum, forumControlPermissions);
-    //forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
-    if (isNew)
-    {
-      String forumUuid = forum.getUuid();
-      forum = null;
-      forum = forumManager.getForumByUuid(forumUuid);
-    }else{    	
-    	if(beforeChangeHM != null){    		
-    		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-    	}        
+      forum = forumManager.saveForum(forum);
+
+    if (!isNew && beforeChangeHM != null) {
+      updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
 
     //RUBRICS, Save the binding between the forum and the rubric

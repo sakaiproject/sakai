@@ -1,6 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMtrlCopyConfirm.vm,v 1.2 2005/06/06 20:06:02 htripath.indiana.edu Exp $ -->
 ## Might want to get these dynamically 
 <div class="portletBody">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 	Confirm Tools
 	</h3>

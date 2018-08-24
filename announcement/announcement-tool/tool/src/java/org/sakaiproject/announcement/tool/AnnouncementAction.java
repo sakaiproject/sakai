@@ -1345,7 +1345,14 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			context.put("announcementItemRangeArray", viewValues);
 		}
-		// context.put("jsfutil", JsfUtil.this);
+
+		if (sstate.getAttribute("updating_sort") == Boolean.TRUE) {
+			state.setCurrentSortedBy(SORT_MESSAGE_ORDER);
+			state.setCurrentSortAsc(false);
+			sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_MESSAGE_ORDER);
+			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
+			sstate.setAttribute("updating_sort", Boolean.FALSE);
+		}
 
 	} // buildSortedContext
 
@@ -3886,11 +3893,13 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		else
 		{
-			// if the messages are not already sorted by subject, set the sort sequence to be descending
+			// if the messages are not already sorted by field, reset the sort sequence to be ascending
 			state.setCurrentSortedBy(field);
 			state.setCurrentSortAsc(true);
-			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
+			sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.TRUE);
 		}
+
+		resetPaging(sstate);
 	} // setupSort
 
 	/**
@@ -4321,6 +4330,9 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		String peid = ((JetspeedRunData) rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+		// set updating_sort state so state.getCurrentSortedBy() and state.getCurrentSortAsc() can be reset after buildSortedContext() finishes
+		sstate.setAttribute("updating_sort", Boolean.TRUE);
 
 		// Storing the re-ordered sequence of the announcements
 		if (state.getIsListVM())

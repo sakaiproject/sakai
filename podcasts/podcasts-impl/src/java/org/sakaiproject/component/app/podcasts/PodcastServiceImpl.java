@@ -23,15 +23,17 @@ package org.sakaiproject.component.app.podcasts;
 
 import static org.sakaiproject.component.app.podcasts.Utilities.checkSet;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
@@ -46,12 +48,11 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -65,12 +66,13 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PodcastServiceImpl implements PodcastService {
@@ -109,7 +111,7 @@ public class PodcastServiceImpl implements PodcastService {
 	private SessionManager sessionManager;
 	private PodcastPermissionsService podcastPermissionsService;
 	private UserDirectoryService userDirectoryService;
-	private TimeService timeService;
+	private UserTimeService userTimeService;
 	private SecurityService securityService;
 	private SiteService siteService;
 	private EventTrackingService eventTrackingService;
@@ -144,8 +146,8 @@ public class PodcastServiceImpl implements PodcastService {
 	}
 
 	/** Injects the TimeService into this service **/
-	public void setTimeService(TimeService ts) {
-		this.timeService = ts;
+	public void setUserTimeService(UserTimeService ts) {
+		this.userTimeService = ts;
 	}
 
 	/** Injects the SecurityService into this service **/
@@ -215,7 +217,7 @@ public class PodcastServiceImpl implements PodcastService {
 	public List filterPodcasts(List resourcesList, String siteId) {
 		List filteredPodcasts = new ArrayList();
 
-		final Time now = timeService.newTime();
+		final Instant now = Instant.now();
 
 		// loop to check if DISPLAY_DATE has been set. If not, set it
 		final Iterator podcastIter = resourcesList.iterator();
@@ -229,21 +231,21 @@ public class PodcastServiceImpl implements PodcastService {
 			itsProperties = aResource.getProperties();
 
 			try {
-				Time podcastTime = aResource.getReleaseDate();
+				Instant podcastTime = aResource.getReleaseInstant();
 				
 				if (podcastTime == null) {
-					podcastTime = itsProperties.getTimeProperty(DISPLAY_DATE);
+					podcastTime = itsProperties.getInstantProperty(DISPLAY_DATE);
 				}
 
 				// has it been published or does user have hidden permission
-				if (podcastTime.getTime() <= now.getTime() || 
+				if (podcastTime.toEpochMilli() <= now.toEpochMilli() || 
 					podcastPermissionsService.hasPerm(PodcastPermissionsService.HIDDEN_PERMISSIONS, 
 													  retrievePodcastFolderId(siteId), siteId)) {
 					
 					// check if there is a retract date and if so, we have not
 					// passed it
-					final Time retractDate = aResource.getRetractDate();
-					if (retractDate == null || retractDate.getTime() >= now.getTime()) {
+					final Instant retractDate = aResource.getRetractInstant();
+					if (retractDate == null || retractDate.toEpochMilli() >= now.toEpochMilli()) {
 						filteredPodcasts.add(aResource);
 					}
 				}
@@ -450,8 +452,8 @@ public class PodcastServiceImpl implements PodcastService {
 		
 		if (isStudent) {
 			Date tempDate = null;
-			if (podcastFolder.getRetractDate() != null) {
-				tempDate = new Date(podcastFolder.getRetractDate().getTime());
+			if (podcastFolder.getRetractInstant() != null) {
+				tempDate = new Date(podcastFolder.getRetractInstant().toEpochMilli());
 			}
 
 			boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
@@ -778,13 +780,9 @@ public class PodcastServiceImpl implements PodcastService {
 		resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION,
 				description);
 
-		final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		formatter.setTimeZone(timeService.getLocalTimeZone());
-		
-		resourceProperties.addProperty(DISPLAY_DATE, formatter
-				.format(displayDate));
+		resourceProperties.addProperty(DISPLAY_DATE, getSimpleDateFormat(displayDate));
 
-		cr.setReleaseDate(timeService.newTime(displayDate.getTime()));
+		cr.setReleaseInstant(Instant.ofEpochMilli(displayDate.getTime()));
 		
 		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH,
 				new Integer(body.length).toString());
@@ -941,12 +939,9 @@ public class PodcastServiceImpl implements PodcastService {
 			if (date != null) {
 				podcastResourceEditable.removeProperty(DISPLAY_DATE);
 
-				final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-				formatter.setTimeZone(timeService.getLocalTimeZone());
+				podcastResourceEditable.addProperty(DISPLAY_DATE, getSimpleDateFormat(date));
 
-				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter.format(date));
-
-				podcastEditable.setReleaseDate(timeService.newTime(date.getTime()));
+				podcastEditable.setReleaseInstant(Instant.ofEpochMilli(date.getTime()));
 			}
 
 			// REMOVED SINCE IF FILENAME CHANGED, ENTIRELY NEW RESOURCE CREATED SO THIS CODE SHOULD NEVER BE EXECUTED
@@ -1033,14 +1028,14 @@ public class PodcastServiceImpl implements PodcastService {
 				// so if null, need to check if old Podcast, ie uses
 				// DISPLAY_DATE property.
 				// Also, if hidden property set, release date becomes null.
-				if (aResource.getReleaseDate() == null) {
+				if (aResource.getReleaseInstant() == null) {
 					if (itsProperties.getProperty(DISPLAY_DATE) == null) {
-						aResource = setDISPLAY_DATE(siteId, aResource.getId(), null);
+						aResource = setDisplayDate(siteId, aResource.getId(), null);
 						itsProperties = aResource.getProperties();
 					}
 					
 					if (! aResource.isHidden()) {
-						setReleaseDate(siteId, aResource, itsProperties.getTimeProperty(DISPLAY_DATE));
+						setReleaseDate(siteId, aResource, itsProperties.getInstantProperty(DISPLAY_DATE));
 						
 						try {
 							aResource = getAResource(id);
@@ -1052,7 +1047,7 @@ public class PodcastServiceImpl implements PodcastService {
 				}
 				else {
 					if (itsProperties.getProperty(DISPLAY_DATE) == null) {
-						aResource = setDISPLAY_DATE(siteId, aResource.getId(), null);
+						aResource = setDisplayDate(siteId, aResource.getId(), null);
 						itsProperties = aResource.getProperties();
 					}
 				}
@@ -1062,11 +1057,11 @@ public class PodcastServiceImpl implements PodcastService {
 				log.info("DISPLAY_DATE does not exist for " + aResource.getId() + " attempting to add.");
 
 				try {
-					aResource = setDISPLAY_DATE(siteId, aResource.getId(), null);
+					aResource = setDisplayDate(siteId, aResource.getId(), null);
 				
-					if (aResource.getReleaseDate() == null && ! aResource.isHidden()) {
+					if (aResource.getReleaseInstant() == null && ! aResource.isHidden()) {
 						if (! aResource.isHidden()) {
-							setReleaseDate(siteId, aResource, itsProperties.getTimeProperty(DISPLAY_DATE));
+							setReleaseDate(siteId, aResource, itsProperties.getInstantProperty(DISPLAY_DATE));
 							aResource = getAResource(id);
 						}
 					}
@@ -1115,21 +1110,19 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param displayDate
 	 * 				The Time object the Release Date is set to
 	 */
-	private ContentResource setReleaseDate(ContentResource aResource, Time displayDate) {
-		return setReleaseDate(getSiteId(), aResource, displayDate);
-	}
-	
-	private ContentResource setReleaseDate(String siteId, ContentResource aResource, Time displayDate) {
+	private ContentResource setReleaseDate(String siteId, ContentResource aResource, Instant displayDate) {
+		log.debug("setReleaseDate( " + siteId +", " + aResource +", " +  displayDate +")");
+		
 		ContentResource refreshedResource = null;
 		ContentResourceEdit aResourceEdit = null;
 		
 		try {
 			aResourceEdit = getAResourceEdit(aResource.getId());
 
-			if (aResourceEdit.getReleaseDate() == null) {
-				Time releaseDate = getDISPLAY_DATE(aResourceEdit.getPropertiesEdit());
+			if (aResourceEdit.getReleaseInstant() == null) {
+				Instant releaseDate = getDisplayDate(aResourceEdit.getPropertiesEdit());
 				
-				aResourceEdit.setReleaseDate(releaseDate);
+				aResourceEdit.setReleaseInstant(releaseDate);
 
 				contentHostingService.commitResource(aResourceEdit, NotificationService.NOTI_NONE);
 			
@@ -1143,7 +1136,7 @@ public class PodcastServiceImpl implements PodcastService {
 		catch (Exception e1) {
 			// catches  PermissionException	IdUnusedException
 			//			TypeException		InUseException
-			log.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + siteId + ". ", e1);
+			log.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site {}. DisplayDate: {}", siteId, displayDate, e1);
 			
 			if (aResourceEdit != null) {
 				contentHostingService.cancelResource(aResourceEdit);						
@@ -1169,14 +1162,8 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param ResourceProperties
 	 *            The ResourceProperties that need DISPLAY_DATE added
 	 */
-	public ContentResource setDISPLAY_DATE(String resourceId, Time releaseDate) {
-		return setDISPLAY_DATE(getSiteId(), resourceId, releaseDate);
-	}
-	
-	public ContentResource setDISPLAY_DATE(String siteId, String resourceId, Time releaseDate) {
+	private ContentResource setDisplayDate(String siteId, String resourceId, Instant releaseDate) {
 		ContentResource refreshedResource = null;
-		
-		final SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		Date tempDate = null;
 
 		try {
@@ -1185,14 +1172,15 @@ public class PodcastServiceImpl implements PodcastService {
 
 			// Convert GMT time stored by Resources into local time
 			if (releaseDate == null) {
-				tempDate = formatterProp.parse(rp.getTimeProperty(
-							ResourceProperties.PROP_MODIFIED_DATE).toString());
+				Date date = rp.getDateProperty(
+						ResourceProperties.PROP_MODIFIED_DATE);
+				tempDate = date;
 			}
 			else {
-				tempDate = new Date(releaseDate.getTime());
+				tempDate = new Date(releaseDate.toEpochMilli());
 			}
 
-			rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
+			rp.addProperty(DISPLAY_DATE, getSimpleDateFormat(tempDate));
 
 			contentHostingService.commitResource(aResource, NotificationService.NOTI_NONE);
 			
@@ -1229,24 +1217,22 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param ResourceProperties
 	 *            The ResourceProperties to get DISPLAY_DATE from
 	 */
-	public Time getDISPLAY_DATE(ResourceProperties rp) {
-		final SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		formatterProp.setTimeZone(timeService.getLocalTimeZone());
+	private	Instant getDisplayDate(ResourceProperties rp) {
 
 		Date tempDate = null;
 
 		try {
 			// Convert GMT time stored by Resources into local time
-			tempDate = formatterProp.parse(rp.getTimeProperty(DISPLAY_DATE).toStringLocal());
+			tempDate = rp.getDateProperty(DISPLAY_DATE);
 			
-			return timeService.newTime(tempDate.getTime());
+			return Instant.ofEpochMilli(tempDate.getTime());
 		}
 		catch (Exception e) {
 			try {
-				tempDate = formatterProp.parse(rp.getTimeProperty(
-						ResourceProperties.PROP_MODIFIED_DATE).toStringLocal());
+				tempDate = rp.getDateProperty(
+						ResourceProperties.PROP_MODIFIED_DATE);
 
-				return timeService.newTime(tempDate.getTime());
+				return Instant.ofEpochMilli(tempDate.getTime());
 			} 
 			catch (Exception e1) {
 				// catches EntityPropertyNotDefinedException
@@ -1257,6 +1243,20 @@ public class PodcastServiceImpl implements PodcastService {
 		}
 
 		return null;
+	}
+	
+
+	/**
+	 * Format: "yyyyMMddHHmmssSSS"
+	 * @param date
+	 * @return
+	 */
+	private static String getSimpleDateFormat(Date date) {
+		DateTimeFormatter sss = new DateTimeFormatterBuilder()
+				.appendPattern("yyyyMMddHHmmssSSS")
+				.toFormatter(resbud.getLocale());
+		LocalDateTime userDate1 = LocalDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+		return userDate1.format(sss);
 	}
 
 	/**
@@ -1355,7 +1355,7 @@ public class PodcastServiceImpl implements PodcastService {
 		checkSet(securityService, "securityService");
 		checkSet(sessionManager, "sessionManager");
 		checkSet(siteService, "siteService");
-		checkSet(timeService, "timeService");
+		checkSet(userTimeService, "timeService");
 		checkSet(toolManager, "toolManager");
 		checkSet(userDirectoryService, "userDirectoryService");
 /*		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -1495,8 +1495,8 @@ public class PodcastServiceImpl implements PodcastService {
 		ContentCollection podcastFolder = getContentCollection(siteId);
 		
 		Date tempDate = null;
-		if (podcastFolder.getReleaseDate() != null) {
-			tempDate = new Date(podcastFolder.getReleaseDate().getTime());
+		if (podcastFolder.getReleaseInstant() != null) {
+			tempDate = new Date(podcastFolder.getReleaseInstant().toEpochMilli());
 		}
 
 		boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
@@ -1564,7 +1564,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 			The Date object set in GMT time
 	 */
 	public Date getGMTdate(long date) {
-		final Calendar cal = Calendar.getInstance(timeService.getLocalTimeZone());
+		final Calendar cal = Calendar.getInstance(userTimeService.getLocalTimeZone());
 		cal.setTimeInMillis(date);
 		
 		int gmtoffset = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);

@@ -645,3 +645,88 @@ scheduleUpdate();
 
 #macro (siteLink $siteId)${config.getPortalUrl()}/site/${siteId}#end
 
+#* -----------------------------------------------------------------------------------
+#  Adds a view filter dropdown to the page. Intended for use in a sakai-table-toolbar.
+#  Requires spinner.js to be loaded on the page.
+#  -----------------------------------------------------------------------------------
+*#
+#macro (viewFilterPanel $panelName $selectName $selectOptions $actionKey)
+#set($libLink="#libraryLink('js/sakai-table-toolbar/viewFilterPanelMacro.js')")
+<script type='text/javascript' src='$libLink' defer></script>
+<div class="sakai-table-viewFilter">
+	<label for="viewFilter_$panelName">$tlang.getString("view.label")</label>
+	<span class="skip">$tlang.getString("gen.listnavselect")</span>
+	<select id="viewFilter_$panelName" name="$selectName" onchange="VM_VFP.doChangeView('#toolLink("$action", "$actionKey")', this);">
+		$selectOptions
+	</select>
+</div>
+#end ## viewFilterPanel
+
+#* -----------------------------------------------------------------------------------
+#  Adds a table pager to the page. Intended for use in a sakai-table-toolbar.
+#  Requires spinner.js to be loaded on the page.
+#  -----------------------------------------------------------------------------------
+*#
+#macro (pagerPanel $panelName)
+#set($libLink="#libraryLink('js/sakai-table-toolbar/pagerPanelMacro.js')")
+<script type='text/javascript' src='$libLink' defer></script>
+#if(!$allMsgNumber)#set($allMsgNumber = 0)#end
+#if(!$topMsgPos || $allMsgNumber == 0) #set($topMsgPos = 0) #end
+#if(!$btmMsgPos || $allMsgNumber == 0) #set($btmMsgPos = 0) #end
+#if($allMsgNumber == 0)
+	#set($goFPButton = "false")
+	#set($goPPButton = "false")
+	#set($goNPButton = "false")
+	#set($goLPButton = "false")
+#end
+#if(!$goLPButton) #set($goLPButton = "false") #end
+<div class="sakai-table-pagerLabel">$tlang.getFormattedMessage("gen.viewing.phrase", $topMsgPos, $btmMsgPos, $allMsgNumber)</div>
+<div class="sakai-table-pagerControls">
+	<span class="skip">$tlang.getString("gen.first")</span>
+	<input type="button" name="eventSubmit_doList_first" value="&#124;&lt;" title="$tlang.getString("gen.first")"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_first")', this);" #if ($goFPButton != "true") disabled="disabled" #end />
+
+	<span class="skip">$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</span>
+	<input type="button" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_prev")', this);" #if ($goPPButton != "true") disabled="disabled" #end />
+
+	<label for="selectPageSize_$panelName">$tlang.getString("gen.select.label")</label>
+	<span class="skip">$tlang.getString("gen.listnavselect")</span>
+	<div class="sakai-table-pagerPageSize">
+		<select id="selectPageSize_$panelName" name="selectPageSize_$panelName" #if ($allMsgNumber == 0) disabled="disabled" #end
+			onchange="VM_PP.doChangePageSize('#toolLink("$action", "doChange_pagesize")', this);">
+		#foreach ($i in $!pagesizes)
+			<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getFormattedMessage("gen.show", $i)</option>
+		#end
+		</select>
+	</div>
+
+	<span class="skip">$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</span>
+	<input type="button" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_next")', this);" #if($goNPButton != "true") disabled="disabled" #end />
+
+	<span class="skip">$tlang.getString('gen.last')</span>
+	<input type="button" name="eventSubmit_doList_last" value="&gt;&#124;" title="$tlang.getString('gen.last')"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_last")', this);" #if ($goLPButton != "true") disabled="disabled" #end />
+</div>
+#end ## pagerPanel
+
+#* -----------------------------------------------------------------------------------
+#  Adds a search filter to the page. Intended for use in a sakai-table-toolbar.
+#  Requires spinner.js to be loaded on the page.
+#  -----------------------------------------------------------------------------------
+*#
+#macro (searchFilterPanel $panelName $userSearchTerm $searchActionKey $clearSearchActionKey)
+<div class="sakai-table-searchFilter">
+	<label for="$panelName">$tlang.getString("search.label")</label>
+	<div class="sakai-table-searchFilterControls">
+		<input type="text" name="$panelName" id="$panelName" value="$validator.escapeHtml($!userSearchTerm)" class="sakai-table-searchFilter-searchField" />
+		<input type="button" id="btnSearch_$panelName" value="$tlang.getString('search.button')" onclick="VM_SFP.doSearch('#toolLink("$action" "$searchActionKey")', 'btnSearch_$panelName', '$panelName');" />
+		#if($!userSearchTerm && !$userSearchTerm.isEmpty())
+			<input type="button" value="$tlang.getString("search.clear")" onclick="VM_SFP.doClearSearch('#toolLink("$action" "$clearSearchActionKey")', this);" />
+		#end
+	</div>
+</div>
+#set($libLink="#libraryLink('js/sakai-table-toolbar/searchFilterPanelMacro.js')")
+<script type='text/javascript' src='$libLink' defer></script>
+#end ## searchFilterPanel
