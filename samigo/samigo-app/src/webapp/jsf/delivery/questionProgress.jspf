@@ -94,7 +94,7 @@
 
 <f:verbatim></div></f:verbatim>
 <f:verbatim>
-  <div id='questionProgressClick'>
+  <div tabindex='0' id='questionProgressClick'>
     <p class="rotateQP">
       <span id="qpOpen">&#9660; </f:verbatim><h:outputText escape="false" value="#{deliveryMessages.qprogress}"/><f:verbatim> &#9660;</span>
       <span id="qpClose">&#9650; </f:verbatim><h:outputText escape="false" value="#{deliveryMessages.qprogress}"/><f:verbatim> &#9650;</span>
