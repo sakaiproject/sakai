@@ -107,7 +107,7 @@
 	    display: none;
 	}
 	
-	&[multiple], &[size] {
+	&[multiple], &[size]:not([size='1']) {
 		background-image: none;
 	}
 	
