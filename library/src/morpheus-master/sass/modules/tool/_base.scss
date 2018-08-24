@@ -1,25 +1,21 @@
-
 .#{$namespace}pageColumns--single {
 	.#{$namespace}toolTitleNav__button_container {
-		top: -34px;
-		right: 10px;
-		position: absolute;
-		float: none;
-		left: initial;
+		@include display-flex;
+		@include align-items(center);
+		margin-top: -48px;			// position the buttons beside the tool title
+		
+		@media #{$phone} {	// position the buttons for mobile
+			margin-top: 0;
+			margin-bottom: -22px;
+		}
 	}
 }
 
 .#{$namespace}multipleTools{
-	padding-top: 4px;
-
 	.#{$namespace}container {
 		border: 1px solid $overview-portlet-border-color;
 		box-shadow: $overview-portlet-shadow;
-		margin-bottom: 20px;
-
-		@media #{$tablet} {
-		  margin: 0 7px 10px !important;
-		}
+		margin-bottom: $standard-spacing;
 
 		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
 			border-top: 0;
@@ -30,35 +26,38 @@
 		}
 
 		.#{$namespace}container--toolTitleNav {
+			@include display-flex;
+			@include align-items(center);
+			@include justify-content(space-between);
 			background-color: $overview-portlet-title-background-color;
 			border-bottom: 1px solid $overview-portlet-border-color;
-			padding: 0.6em;
-  	}
+			padding: $standard-spacing;
+		}
 
 		.#{$namespace}toolBody {
 			border-bottom: none;
 		}
-  }
+	}
 
 	.#{$namespace}toolTitleNav__button_container {
-		position: absolute;
-		float: right;
-		top: 0;
-		right: 4px;
+		@include display-flex;
+		@include align-items(center);
+		margin: 0;		// to override the single column if both single and multiple classes apply to the same element
 
 		@media #{$tablet}{
 			font-size: 1.2em;
 		}
-  }
+	}
 
 	.#{$namespace}toolTitleNav{
 		.#{$namespace}toolTitleNav__title{
 			display: inline-block;
-			font-size: 0.9em;
+			font-size: 1em;
 			font-weight: 400;
+			color: $tool-nav-link-color;
 			margin: 0;
 			position: relative;
-			width: calc(100% - 90px);
+			
 			a{
 				margin-right: 0.25em;
 			}
@@ -67,8 +66,10 @@
 }
 
 .#{$namespace}toolTitleNav{
-	margin: 0;
 	position: relative;
+	@include display-flex;
+	@include justify-content(flex-end);
+
 	.#{$namespace}toolTitleNav__title{
 		display: none;
 		& ~ .#{$namespace}toolTitleNav__button_container > .#{$namespace}directUrl__dropDown{
@@ -77,37 +78,42 @@
 				color: #952525;
 				cursor: pointer;
 				float: right;
+				font-size: 1.5em;
+				
 				@media #{$phone}{
 					font-size: 1.4em;
 				}
 			}
 			&.active{
-				padding: 0.8em;
+				padding: $standard-spacing;
 				position:   absolute;
 				display:    block;
-				background: #FFF;
+				background: $background-color;
 				width: 250px;
 				margin: 10px 0 0 -250px;
 				z-index: 2;
 				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+				
 				label{
 					font-size: $default-font-size;
-					margin: -4px 0 0 5px;
-					vertical-align: middle;
+					font-weight: normal;
+					margin: 0 0 $standard-spacing 0;
+					
 					&.dropDown_title {
 						display: block;
-					    font-size: 1.1rem;
-					    font-weight: 500;
-					    margin: 0;
-					    padding: 1px 0 5px 0;
+					    font-weight: bold;
 					    white-space: nowrap;
 					}
+				}
+				input[type="checkbox"] {
+					margin: 0 $standard-space 0 0;		// space between checkbox and label
 				}
 				textarea{
 					display: block;
 					height: 120px;
-					margin: 0.5em 0 0 0;
-					width: 98%;
+					margin: 0;
+					padding: $standard-space;
+					width: 100%;
 				}
 				@media #{$phone}{
 					margin: -1px 0 0 -214px;
@@ -118,11 +124,13 @@
 
 	.#{$namespace}toolTitleNav__link{
 		@include sakai_secondary_button();
-
-		margin-right: 0.25em;
-		padding: 0.4em 0.8em 0.45em 0.8em;
+		// override some button properties below:
+		@include display-flex;
+		@include align-items(center);
+		margin: 0 0 0 $standard-space;
+		padding: $standard-spacing;
 		vertical-align: 0%;
-		line-height: 1em;
+		line-height: 1;
 
 		&:before {
 			@extend .fa;
@@ -152,10 +160,12 @@
 			font-size: 0.9em;
 			float: left;
 		}
+		
 		.#{$namespace}itemTitle{
 			@media #{$tablet}{
 				display: none;
 			}
+			margin-left: $standard-space;	// space between text and icon
 		}
 	}
 
@@ -164,7 +174,8 @@
 .#{$namespace}toolBody{
 	background: $tool-background-color;
 	border-bottom: 1px solid $tool-border-color;
-	iframe{
+	.portletMainIframe{
+		padding: $standard-spacing;
 		margin: 0 0 0 0;
 		width: 100%;
 	}
@@ -173,13 +184,12 @@
 .portletBody
 {
 	background: $tool-background-color;
-	padding: $default-font-size $default-font-size 40px $default-font-size;
+	padding: 0;
 	@media #{$phone}{
 		margin: 2.3em 0 0 0;
 	}
 	> * {
 		position: relative;
-		top: -2px;
 	}
 	> .modal {
 		position: fixed;

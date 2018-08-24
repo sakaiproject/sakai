@@ -26,8 +26,6 @@
 
     <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 )Mrphs-multipleTools #end" role="main">
 
-        #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
-
         <div id="$pageColumnLayout" class="${columnClasses}">
 
             #foreach ( $tool in $pageColumn0Tools )

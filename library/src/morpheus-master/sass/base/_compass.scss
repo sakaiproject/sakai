@@ -26,6 +26,13 @@
     -webkit-flex-wrap: $p;
     flex-wrap: $p;
 }
+@mixin flex-shorthand($f-grow:0, $f-shrink:1, $f-basis: auto) {
+	-webkit-box-flex: $f-grow;
+	-moz-box-flex: $f-grow;
+	-webkit-flex: $f-grow $f-shrink $f-basis;
+	-ms-flex: $f-grow $f-shrink $f-basis;
+	flex: $f-grow $f-shrink $f-basis;
+}
 @mixin appearance($p: none) {
 	-moz-appearance: $p;
 	-webkit-appearance: $p;

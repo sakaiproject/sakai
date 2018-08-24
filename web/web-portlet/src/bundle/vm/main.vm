@@ -76,7 +76,7 @@ $tlang.getString("gen.trouble.loading")
     id="id$placement"
     title="$tlang.getString("gen.info.title.message")"
     width="100%"
-    style="width:100%;padding:0 !important; height:$height"
+    style="width:100%;height:$height"
     frameborder="0"
     marginwidth="0"
     marginheight="0"
