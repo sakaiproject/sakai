@@ -214,7 +214,7 @@ public class UserAuditEventLog {
 		}
 	
 		public String getAuditStamp() {
-			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.FULL, rb.getLocale());
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, rb.getLocale());
 			return df.format(auditStamp);
 		}
 		
