@@ -329,11 +329,13 @@
   content: "\f06a" !important;
   color: rgb(204,0,0) !important;
 }
-#gradeTableWrapper .gb-save-invalid {
+#gradeTableWrapper .gb-save-invalid,
+#gradeTableWrapper .gb-external-invalid {
   background-color: #FCF8E3 !important;
 }
 #gradeTableWrapper .gb-save-invalid .gb-notification:before,
-.gb-flag-save-invalid:before {
+.gb-flag-save-invalid:before,
+#gradeTableWrapper .gb-external-invalid .gb-notification:before {
   font-family: "gradebook-icons";
   content: "\f071" !important;
   color: rgb(200,144,0) !important;

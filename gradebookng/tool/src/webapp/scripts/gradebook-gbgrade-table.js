@@ -23,7 +23,7 @@ GbGradeTable.unpackJsonScores = function (s, rowCount, columnCount) {
             currentRow = []
         }
 
-        currentRow.push(parsedArray[i] < 0 ? "" : GbGradeTable.localizeNumber(parsedArray[i]));
+        currentRow.push(parsedArray[i] == null ? "" : GbGradeTable.localizeNumber(parsedArray[i]));
     }
 
     result.push(currentRow);
@@ -365,6 +365,13 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
       externalId: column.externalId,
       externalAppName: column.externalAppName,
     });
+    // Mark negative scores as invalid
+    if (typeof value == 'string' && value[0] == '-') {
+      $cellDiv.addClass('gb-external-invalid');
+      notifications.push({
+        type: 'external-invalid'
+      });
+    }
   } else if (isReadOnly) {
     $cellDiv.addClass("gb-read-only");
     notifications.push({

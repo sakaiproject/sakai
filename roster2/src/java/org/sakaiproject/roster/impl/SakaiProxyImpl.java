@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -1149,7 +1151,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	/**
 	 * {@inheritDoc}
 	 */
-    public Map<String, String> getSearchIndex(String siteId) {
+    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus) {
 
         try {
             // Try and load the sorted memberships from the cache
@@ -1160,14 +1162,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             }
 
             Map<String, String> index
-                = (Map<String, String>) cache.get(siteId);
+                = (Map<String, String>) cache.get(siteId+groupId);
 
-            if (index == null) {
-                index = new HashMap<String, String>();
-                for (User user : getSiteUsers(siteId)) {
-                    index.put(user.getDisplayName(), user.getId());
-                }
-                cache.put(siteId, index);
+            if (MapUtils.isEmpty(index)) {
+                final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
+                index = membership.stream().collect(Collectors.toMap(RosterMember::getDisplayName , RosterMember::getUserId));
+                cache.put(siteId+groupId, index);
             }
 		
 		    return index;

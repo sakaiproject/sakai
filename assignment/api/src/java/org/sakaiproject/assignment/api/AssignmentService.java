@@ -662,12 +662,9 @@ public interface AssignmentService extends EntityProducer {
      */
     public String getXmlAssignment(Assignment assignment);
 
-    /**
-     * @param assignmentId
-     * @param userId
-     * @return
-     */
-    public String getGradeForUserInGradeBook(String assignmentId, String userId);
+    String getGradeForSubmitter(String submissionId, String submitter);
+
+    String getGradeForSubmitter(AssignmentSubmission submission, String submitter);
 
     /**
      * @param grade

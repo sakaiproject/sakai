@@ -57,20 +57,20 @@
 								#if($item.IsChecked)
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
 									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-										<span class="chefToolBarToggle $prevItemWasField $current"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+										<span class="chefToolBarToggle $prevItemWasField $current">#if(!$item.IsCurrent)<a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">#end$item.Title#if(!$item.IsCurrent)</a>#end</span>
 									</li>
 								## unchecked item support
 								#else
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
 									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-										<span class="$prevItemWasField $current"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+										<span class="$prevItemWasField $current">#if(!$item.IsCurrent)<a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">#end$item.Title#if(!$item.IsCurrent)</a>#end</span>
 									</li>
 								#end
 							## url support (i.e. to another place, another window)
 							#else
 								#set( $toolbaritemCount=$toolbaritemCount + 1)
 								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-									<span class="externalLink $prevItemWasField $current"><a href="$item.Url" title="$item.AccessibilityLabel" target="_blank">$item.Title</a></span>
+									<span class="externalLink $prevItemWasField $current">#if(!$item.IsCurrent)<a href="$item.Url" title="$item.AccessibilityLabel" target="_blank">#end$item.Title#if(!$item.IsCurrent)</a>#end</span>
 								</li>	
 							#end
 							#set ($formItem=0)

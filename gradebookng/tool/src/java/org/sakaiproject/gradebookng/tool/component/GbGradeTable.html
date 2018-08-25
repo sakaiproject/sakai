@@ -376,6 +376,10 @@
                                             </dl>
                                         {/if}
                                     </li>
+                                {elseif notification.type == 'external-invalid'}
+                                    <li>
+                                        <span class="gb-flag-save-invalid"></span> <wicket:message key="grade.notifications.externalinvalid"/>
+                                    </li>
                                 {elseif notification.type == 'external'}
                                     <li class="gb-external-app-wrapper">
                                         <span class="gb-flag-external"></span> <wicket:message key="grade.notifications.isexternal"/>
