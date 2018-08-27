@@ -71,6 +71,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -122,6 +123,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private SessionFactory sessionFactory;
     @Setter
     private TransactionTemplate transactionTemplate;
+    @Setter
+    private SessionManager sessionManager;
 
     private Object commonsManager = null;
     private Method commonsManagerGetPostMethod = null;
@@ -658,5 +661,17 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 .executeUpdate();
         countCache.remove(userId);
         return true;
+    }
+
+    private void switchToAdmin() {
+
+        org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
+        session.setUserId(UserDirectoryService.ADMIN_ID);
+    }
+
+    private void switchToNull() {
+
+        org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
+        session.setUserId(null);
     }
 }
