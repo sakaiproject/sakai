@@ -663,6 +663,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		List<Map> l = new ArrayList<Map>();
 
 		String addMoreToolsUrl = null;
+		String manageOverviewUrl = null;
+
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 
@@ -686,6 +688,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					addMoreToolsUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, 
 						resetTools, effectiveSiteId, null);
 					addMoreToolsUrl += "?sakai_action=doMenu_edit_site_tools&panel=Shortcut";
+					manageOverviewUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, resetTools, effectiveSiteId, null);
+					manageOverviewUrl += "?sakai_action=doManageOverview";
 				}
 			}
 			if ( count != 1 ) {
@@ -727,7 +731,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					}
 				}
 
-				if ( ! siteUpdate ) addMoreToolsUrl = null;
+				if ( ! siteUpdate ){
+					addMoreToolsUrl = null;
+					manageOverviewUrl = null;
+				}
 
 				boolean legacyAddMoreToolsPropertyValue = ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false);
 				if ( ! ServerConfigurationService.getBoolean("portal.addmoretools.enable", legacyAddMoreToolsPropertyValue) ) addMoreToolsUrl = null;
@@ -848,6 +855,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			theMap.put("pageNavCanAddMoreTools", true);
 		} else {
 			theMap.put("pageNavCanAddMoreTools", false);
+		}
+
+		if(manageOverviewUrl != null){
+			theMap.put("manageOverviewUrl", manageOverviewUrl);
+			theMap.put("canManageOverview", true);
+		}else{
+			theMap.put("canManageOverview", false);
 		}
 
 		theMap.put("pageNavTools", l);

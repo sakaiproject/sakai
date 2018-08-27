@@ -6,6 +6,10 @@
 		position: absolute;
 		float: none;
 		left: initial;
+
+		&.home {
+			top: 0px;
+		}
 	}
 }
 
