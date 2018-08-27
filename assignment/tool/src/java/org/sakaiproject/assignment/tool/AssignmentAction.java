@@ -7813,7 +7813,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
                 }
 
-                boolean aOldDraft = a.getDraft();
 
                 // persist the Assignment changes
                 commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,

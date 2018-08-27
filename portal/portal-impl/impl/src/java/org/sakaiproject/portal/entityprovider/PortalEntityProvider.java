@@ -250,33 +250,6 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		return new ActionReturn(counts);
 	}
 
-	@EntityCustomAction(action = "resetCurrentUserAcademicAlertCounts", viewKey = EntityView.VIEW_LIST)
-	public boolean resetCurrentUserAcademicAlertCounts() {
-
-		String currentUserId = getCheckedCurrentUser();
-
-		try {
-			return bullhornService.clearAcademicAlertCount(currentUserId);
-		} catch (Exception e) {
-			log.error("Failed to clear bullhorn counts for user", e);
-		}
-
-		return false;
-	}
-
-	@EntityCustomAction(action = "markAsRead", viewKey = EntityView.VIEW_LIST)
-	public boolean markAsRead(Map<String, Object> params) {
-
-		try {
-			long alertId = Long.parseLong((String) params.get("alertId"));
-			return bullhornService.markAlertAsRead(alertId);
-		} catch (Exception e) {
-			log.error("Failed to mark alert as read.", e);
-		}
-
-		return false;
-	}
-
 	private String getCheckedCurrentUser() throws SecurityException {
 
 		String currentUserId = developerHelperService.getCurrentUserId();

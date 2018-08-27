@@ -23,7 +23,7 @@
 .portal-bullhorns.qtip {
     border: 1px solid #E0E0E0;
     box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
-    background-color: $background-color;
+    background-color: $tool-tab-background-color;
     font-family: $font-family;
     font-size: $default-font-size;
     color: $tool-tab-background-color;
@@ -36,7 +36,7 @@
     }
 
     .qtip-content {
-        background-color: $background-color;
+        background-color: $tool-tab-background-color;
         padding: 0;
         color: $text-color;
     }
@@ -57,10 +57,6 @@
         padding: 5px;
         background-color: $background-color;
         color: $tool-nav-link-color;
-
-        &.unreadAlert {
-            background-color: #EDF2FA;
-        }
 
         a[href] {
             color: $tool-nav-link-color;
@@ -130,8 +126,8 @@
                 }
             }
         }
-        .portal-bullhorn-clear, .portal-bullhorn-mark {
-            display: inline-block;
+        .portal-bullhorn-clear {
+            float: left;
             width: 5px;
             margin-left: 5px;
             padding-right: 2px;
@@ -183,5 +179,4 @@
 #alert-container {
     max-height: 550px;
     overflow-y: auto;
-    border-top: 2px solid #E0E0E0;
 }

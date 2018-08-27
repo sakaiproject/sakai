@@ -74,12 +74,6 @@ public interface BullhornService {
     public List<BullhornAlert> getAcademicAlerts(String userId);
 
     /**
-     * @param alertId The id of the bullhorn alert to mark as read
-     * @return the success of the action
-     */
-    public boolean markAlertAsRead(long alertId);
-
-    /**
      * @param userId The user to clear the alert for
      * @param alertId The alert to clear
      * @return boolean to indicate success
