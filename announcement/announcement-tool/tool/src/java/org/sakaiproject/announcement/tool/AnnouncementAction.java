@@ -2980,6 +2980,8 @@ public class AnnouncementAction extends PagedResourceActionII
 				AnnouncementChannel channel = null;
 				AnnouncementMessageEdit msg = null;
 
+				boolean fromDraftToPost = false;
+
 				// if a new created announcement to be posted
 				if (state.getIsNewAnnouncement())
 				{
@@ -3014,6 +3016,12 @@ public class AnnouncementAction extends PagedResourceActionII
 					// draft status changed
 					availabilityChanged = true;
 				}
+
+				if (oDraft && !tempHidden) {
+					// Used to be in draft status and now is posted
+					fromDraftToPost = true;
+				}
+
 				header.setDraft(tempHidden);
 				header.replaceAttachments(state.getAttachments());
 				header.setFrom(userDirectoryService.getCurrentUser());
@@ -3204,6 +3212,11 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (!state.getIsNewAnnouncement())
 				{
 					state.setEdit(null);
+
+					if (fromDraftToPost) {
+						// We are editing an announcement from draft to post
+						eventTrackingService.post(eventTrackingService.newEvent(AnnouncementService.SECURE_ANNC_POST, msg.getReference(), true));
+					}
 				} // if-else
 				
 				// for event tracking

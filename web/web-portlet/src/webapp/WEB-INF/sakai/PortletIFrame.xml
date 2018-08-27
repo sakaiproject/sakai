@@ -93,6 +93,8 @@
         <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
         <configuration name="webcontent.revise" value="webcontent.site.revise" />
 
+		<category name="widget" />
+		
     </tool>
 
 </registration>

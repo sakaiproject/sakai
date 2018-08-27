@@ -93,6 +93,17 @@
 				
 				a.#{$namespace}skipNav--toolName {
 					color: $link-color;
+				}
+				a.manage-overview-link-mobile {
+					color: $link-color;
+					cursor: pointer;
+					display: inline-block;
+					font-family: "Open Sans", sans-serif;
+
+					span {
+						padding-right: 5px;
+					}
+
 					&::after {
 						border-right: 0px none;
 					}

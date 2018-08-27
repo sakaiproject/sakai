@@ -21,14 +21,19 @@
 }
 
 .portal-bullhorns.qtip {
-    border: 0 none;
-    box-shadow: 0 0 4px rgba( $text-color ,0.35);
+    border: 1px solid #E0E0E0;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
     background-color: $tool-tab-background-color;
     font-family: $font-family;
     font-size: $default-font-size;
     color: $tool-tab-background-color;
     max-width: 450px;
     z-index: 100003 !important;
+
+    @media #{$phone} {
+        max-width: calc(100% - 4px);
+        width: calc(100% - 4px);
+    }
 
     .qtip-content {
         background-color: $tool-tab-background-color;
@@ -38,12 +43,11 @@
 }
 
 .portal-bullhorn-social-alerts, .portal-bullhorn-academic-alerts {
-    padding-bottom: 5px;
     @media #{$nonPhone} {
         width: 450px;
     }
     @media #{$phone} {
-        width: 240px;
+        width: calc(100% - 4px);
     }
 
     .portal-bullhorn-social-alert, .portal-bullhorn-academic-alert {
@@ -51,6 +55,12 @@
         border: solid #E0E0E0;
         border-width: 0px 0px 1px 0px;
         padding: 5px;
+        background-color: $background-color;
+        color: $tool-nav-link-color;
+
+        a[href] {
+            color: $tool-nav-link-color;
+        }
 
         .portal-bullhorn-photo {
             float: left;
@@ -71,7 +81,7 @@
                 width: 390px;
             }
             @media #{$phone} {
-                width: 180px;
+                width: calc(100% - 50px);
             }
 
             .portal-bullhorn-message {
@@ -89,6 +99,21 @@
                 font-size: $default-font-size - 3px;
                 white-space: nowrap;
                 font-style: italic;
+                color: $tool-menu-item-icon-color;
+                display: inline-block;
+                @media #{$tablet} {
+                    margin-top: 0;
+                }
+            }
+            .portal-bullhorn-site {
+                padding-left: 6px;
+                margin-top: 5px;
+                font-size: $default-font-size - 3px;
+                white-space: nowrap;
+                font-style: normal;
+                font-weight: bold;
+                color: $tool-menu-item-icon-color;
+                display: inline-block;
             }
             .portal-bullhorn-options {
                 padding-left: 5px;
@@ -113,6 +138,30 @@
 
 #portal-bullhorn-clear-all {
     padding: 5px;
+    text-align: right;
+    border-bottom: 1px solid #E0E0E0;
+    position: absolute;
+    right: 0;
+    @media #{$tablet} {
+      display: block;
+      position: relative;
+    }
+    display: inline-block;
+    padding: 5px 10px;
+    text-align: right;
+    position: absolute;
+    right: 0;
+}
+
+#portal-bullhorn-title {
+    display: inline-block;
+    padding: 5px 10px;
+    font-style: normal;
+    font-weight: bold;
+    color: #707070;
+    @media #{$tablet} {
+      display: none;
+    }
 }
 
 .portal-bullhorn-no-alerts {
@@ -123,7 +172,11 @@
 #portal-bullhorns-label {
     @extend .all-sites-label;
     padding-top: 3px;
-    @media #{$phone} {
+    @media #{$tablet} {
         display: none;
     }
+}
+#alert-container {
+    max-height: 550px;
+    overflow-y: auto;
 }

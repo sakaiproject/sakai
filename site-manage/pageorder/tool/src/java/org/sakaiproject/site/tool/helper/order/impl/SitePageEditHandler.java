@@ -53,7 +53,7 @@ public class SitePageEditHandler {
     public ServerConfigurationService serverConfigurationService;
     public ContentHostingService contentHostingService;
     public AuthzGroupService authzGroupService;
-    private Map<String, SitePage> pages;
+    private ArrayList<SitePage> pages;
     public String[] selectedTools = new String[] {};
     private Set<String> unhideables;
     private Set<String> uneditables;
@@ -119,30 +119,48 @@ public class SitePageEditHandler {
     public String getCurrentPlacementId() {
         return Web.escapeJavascript("Main" + toolManager.getCurrentPlacement().getId());
     }
-    
+
+
+
     /**
      * Gets the pages for the current site
+     * @param int type - 0 for regular pages, 1 for site-settings pages, 2 for feedback-tool
      * @return Map of pages (id, page)
      */
-    public Map<String, SitePage> getPages() {
+    public Map<String, SitePage> getPages(){
         if (site == null) {
             init();
         }
+        Map<String, SitePage> sitePages = new LinkedHashMap<>();
         if (update) {
-            pages = new LinkedHashMap<>();
+
             if (site != null)
-            {    
+            {
                 List<SitePage> pageList = site.getOrderedPages();
                 for (int i = 0; i < pageList.size(); i++) {
-                    
+
                     SitePage page = pageList.get(i);
-                    pages.put(page.getId(), page);
+                    sitePages.put(page.getId(), page);
                 }
             }
         }
-        return pages;
+        return sitePages;
     }
-    
+
+    private boolean isSiteSettingTool(String toolId){
+        boolean result = false;
+        if(StringUtils.equalsIgnoreCase(toolId, "sakai.siteinfo"))
+            result = true;
+        else if(StringUtils.equalsIgnoreCase(toolId, "sakai.site.roster2"))
+            result = true;
+        else if(StringUtils.equalsIgnoreCase(toolId, "sakai.sitestats"))
+            result = true;
+        else if(StringUtils.equalsIgnoreCase(toolId, "tsugi.todolist"))
+            result = true;
+        else if(StringUtils.equalsIgnoreCase(toolId, "sakai.sections"))
+            result = true;
+        return result;
+    }
     /**
      * Initialization method, just gets the current site in preperation for other calls
      *
@@ -317,19 +335,9 @@ public class SitePageEditHandler {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 
-        // Go to Site Info landing page on 'Save'
-        setNextPage(session, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
-
         return "done";
     }
-
-    /*
-     * Utility method; sets the template index (in the tool session) of the desired page to transfer the user to.
-     */
-    private void setNextPage(ToolSession session, String nextPageTemplateIndex) {
-        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, nextPageTemplateIndex);
-    }
-
+    
     /**
      * Allows the Cancel button to return control to the tool calling this helper
      *
@@ -337,9 +345,6 @@ public class SitePageEditHandler {
     public String cancel() {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-
-        // Go to Site Info landing page on 'Cancel'
-        setNextPage(session, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
         return "done";
     }
@@ -423,7 +428,7 @@ public class SitePageEditHandler {
         List<String> permissions = getRequiredPermissions(page);
         for (String permission : permissions) {
             for (Role role : roles) {
-                if (role.isAllowed(permission)) {
+                if (role.isAllowed(StringUtils.trim(permission))) {
                     return true; // If any one of the permissions is allows for any role.
                 }
             }
@@ -505,7 +510,11 @@ public class SitePageEditHandler {
             ToolConfiguration toolConfiguration = tools.get(0);
             String functions = toolConfiguration.getConfig().getProperty(TOOL_CFG_FUNCTIONS);
             if (functions != null && functions.length() > 0) {
-                return new ArrayList<>(Arrays.asList(StringUtils.split(functions, ',')));
+                if (StringUtils.contains(functions, "|")) {
+                    return new ArrayList<>(Arrays.asList(StringUtils.split(functions, '|')));
+                }else {
+                    return new ArrayList<>(Arrays.asList(StringUtils.split(functions, ',')));
+                }
             }
         }
         // Don't use Collections.EMPTY_LIST as it needs to be mutable.
