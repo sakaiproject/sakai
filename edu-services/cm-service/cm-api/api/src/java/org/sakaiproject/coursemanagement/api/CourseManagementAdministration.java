@@ -390,6 +390,17 @@ public interface CourseManagementAdministration {
 	 * @param status
 	 */
     public Membership addOrUpdateSectionMembership(String userId, String role, String sectionEid, String status);
+
+	/**
+	 * Adds a user to a Section.  If the user is already a member of the Section,
+	 * update the user's role.
+	 *
+	 * @param userId
+	 * @param role
+	 * @param sec
+	 * @param status
+	 */
+    public Membership addOrUpdateSectionMembership(String userId, String role, Section sec, String status);
 	
 	/**
 	 * Removes a user from a Section.
