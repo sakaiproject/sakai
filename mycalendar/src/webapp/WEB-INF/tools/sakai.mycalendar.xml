@@ -2,7 +2,7 @@
 
 <registration>
     <tool id="sakai.mycalendar"
-        title="My Calendar"
+        title="Calendar"
         description="A widget that shows a user's calendar and upcoming events">
 
         <configuration name="reset.button" value="false" />
@@ -11,6 +11,5 @@
 
         <configuration name="renderInline" value="true" />
         <configuration name="suppressTitle" value="true" />
-
     </tool>
 </registration>

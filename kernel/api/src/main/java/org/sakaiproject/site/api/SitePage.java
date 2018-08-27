@@ -85,6 +85,8 @@ public interface SitePage extends Edit, Serializable
 	 */
 	Collection<ToolConfiguration> getTools(String[] toolIds);
 
+	public void setTools(List tools);
+
 	/** @return the skin to use for this page. */
 	public String getSkin();
 
