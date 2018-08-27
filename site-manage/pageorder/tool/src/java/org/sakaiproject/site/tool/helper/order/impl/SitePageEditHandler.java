@@ -19,7 +19,6 @@ import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.site.tool.helper.order.impl.exceptions.InvalidArgumentException;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 import org.sakaiproject.authz.api.*;
@@ -122,56 +121,30 @@ public class SitePageEditHandler {
     }
 
 
-    /**
-     *
-     */
-    public ArrayList<SitePage> getPages() throws InvalidArgumentException{
-        return getPages(0);
-    }
 
     /**
      * Gets the pages for the current site
      * @param int type - 0 for regular pages, 1 for site-settings pages, 2 for feedback-tool
      * @return Map of pages (id, page)
      */
-    public ArrayList<SitePage> getPages(int type) throws InvalidArgumentException{
+    public Map<String, SitePage> getPages(){
         if (site == null) {
             init();
         }
-        pages = new ArrayList<>();
-        ArrayList<SitePage> siteSettingsPages = new ArrayList<>();
-        ArrayList<SitePage> feedbackTool = new ArrayList<>();
+        Map<String, SitePage> sitePages = new LinkedHashMap<>();
         if (update) {
+
             if (site != null)
-            {    
+            {
                 List<SitePage> pageList = site.getOrderedPages();
-
                 for (int i = 0; i < pageList.size(); i++) {
-                    SitePage page = pageList.get(i);
-                    String pageToolId = null;
-                    if(page.getTools().size() > 0) {
-                        pageToolId = page.getTools().get(0).getToolId();
-                    }
-                    if(StringUtils.equalsIgnoreCase(pageToolId, "sakai.feedback")){
-                        feedbackTool.add(page);
-                    }else if(isSiteSettingTool(pageToolId)){
-                        siteSettingsPages.add(page);
-                    }else {
-                        pages.add(page);
-                    }
-                }
 
+                    SitePage page = pageList.get(i);
+                    sitePages.put(page.getId(), page);
+                }
             }
         }
-        if(type == 0){
-            return pages;
-        }else if(type == 1){
-            return siteSettingsPages;
-        }else if(type == 2) {
-            return feedbackTool;
-        }else{
-            throw new InvalidArgumentException("Invalid argument for getPages. Passed in: " + type);
-        }
+        return sitePages;
     }
 
     private boolean isSiteSettingTool(String toolId){
