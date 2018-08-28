@@ -275,7 +275,7 @@
          });
 
         if ($li.classList.contains('is-current')) {
-            $expandedMenuPlaceholder.style.display = 'block';
+            $expandedMenuPlaceholder.style.display = 'flex';
             $menu.style.display = 'none';
 
             $li.classList.add('expanded');

@@ -49,17 +49,19 @@ $PBJQ(document).ready(function () {
             var _top = ( -1 * ( $PBJQ('#toolMenu').height() - position.top ) );
             var subsitesPosition = ( MorpheusViewportHelper.isPhone() ) ? {
             	'display': 'block',
-            	'left': '-0.7rem',
             	'top': 0,
-            	'margin-top' : '0.3rem',
             	'overflow' : 'hidden'
             }:{
             	'display': 'block',
-            	'left': position.left + subsitesLink.width() + 6 + 'px',
+            	'left': $PBJQ('#toolMenu').width() + 7 + 'px',	// width of arrow border
             	'top': _top + 'px'
             }
             $PBJQ('#subSites').css(subsitesPosition);
             $PBJQ('#subSites').addClass('floating');
+			
+            // focus on first subsite for accessibility recommendations
+            $PBJQ('#subSites').find('li a').first().focus();
+			
             if ($PBJQ("#toggleSubsitesLink").position().top < 240) {
                 $PBJQ("#subSites.floating").addClass('ontop');
             }
