@@ -284,7 +284,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	content = ltiService.getContent(key);
 	if ( content == null ) return;
 	Long toolKey = getLongNull(content.get("tool_id"));
-	if (toolKey != null ) tool = ltiService.getTool(toolKey, ToolManager.getCurrentPlacement().getContext());
+	if (toolKey != null ) tool = ltiService.getTool(toolKey);
     }	
 
     // properties of entities
@@ -508,7 +508,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		if ( result instanceof String ) {
 			log.info("Could not insert tool - "+result);
 		}
-		if ( result instanceof Long ) theTool = ltiService.getTool((Long) result, simplePageBean.getCurrentSiteId());
+		if ( result instanceof Long ) theTool = ltiService.getTool((Long) result);
 	}
 
 	Map<String,Object> theContent = null;
@@ -521,7 +521,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
 		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
-		Object result = ltiService.insertContent(props, getSiteId());
+		Object result = ltiService.insertContent(props);
 		if ( result instanceof String ) {
 			log.info("Could not insert content - "+result);
 		}

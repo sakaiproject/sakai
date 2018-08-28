@@ -585,14 +585,8 @@ public abstract class BaseLTIService implements LTIService {
 		throw new java.lang.RuntimeException("getTool(String url) not implemented");
 	}
 
-	public Map<String, Object> getTool(Long key, String siteId) {
-		boolean isAdmin = false;
-		if (siteId != null) {
-			isAdmin = isAdmin(siteId);
-		} else {
-			isAdmin = isAdmin();
-		}
-		return getToolDao(key, getContext(), isAdmin);
+	public Map<String, Object> getTool(Long key) {
+		return getToolDao(key, getContext(), isAdmin());
 	}
 
 	public Map<String, Object> getToolDao(Long key, String siteId)
@@ -633,14 +627,8 @@ public abstract class BaseLTIService implements LTIService {
 		return getToolsDao(search, order, first, last, siteId, true);
 	}
 
-	public Object insertContent(Properties newProps, String siteId) {
-		boolean isAdmin = false;
-		if (siteId != null) {
-			isAdmin = isAdmin(siteId);
-		} else {
-			isAdmin = isAdmin();
-		}
-		return insertContentDao(newProps, getContext(), isAdmin, isMaintain());
+	public Object insertContent(Properties newProps) {
+		return insertContentDao(newProps, getContext(), isAdmin(), isMaintain());
 	}
 
 	public Object insertContentDao(Properties newProps, String siteId)
