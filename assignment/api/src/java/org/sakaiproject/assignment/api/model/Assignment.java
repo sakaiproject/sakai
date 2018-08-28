@@ -35,6 +35,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
@@ -89,7 +90,9 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name = "ASN_ASSIGNMENT")
+@Table(name = "ASN_ASSIGNMENT", indexes = {
+        @Index(name = "IDX_ASN_ASSIGNMENT_CONTEXT", columnList = "CONTEXT")
+})
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
