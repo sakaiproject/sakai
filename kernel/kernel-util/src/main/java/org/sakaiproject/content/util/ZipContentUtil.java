@@ -152,7 +152,7 @@ public class ZipContentUtil {
 					newResourceId += ZIP_EXTENSION;
 					newResourceName += ZIP_EXTENSION;
 					ContentCollectionEdit currentEdit;
-					if(reference.getId().split(Entity.SEPARATOR).length>3 && ContentHostingService.isInDropbox(reference.getId())) {
+					if(reference.getId().split(Entity.SEPARATOR).length>3) {
 						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
 						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
 						if (displayName != null && displayName.length() > 0) {
