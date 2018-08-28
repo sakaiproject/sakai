@@ -451,8 +451,13 @@ public class CourseManagementAdministrationHibernateImpl extends
 		}
 	}
 	
-    public Membership addOrUpdateSectionMembership(String userId, String role, String sectionEid, String status) {
-		SectionCmImpl sec = (SectionCmImpl)getObjectByEid(sectionEid, SectionCmImpl.class.getName());
+	public Membership addOrUpdateSectionMembership(String userId, String role, String sectionEid, String status) {
+		Section section = (Section)getObjectByEid(sectionEid, SectionCmImpl.class.getName());
+		return addOrUpdateSectionMembership(userId, role, section, status);
+	}
+
+	public Membership addOrUpdateSectionMembership(String userId, String role, Section section, String status) {
+		SectionCmImpl sec = (SectionCmImpl) section;
 		MembershipCmImpl member =getMembership(userId, sec);
 		if(member == null) {
 			// Add the new member
