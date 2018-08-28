@@ -5110,11 +5110,11 @@ public class SimplePageBean {
 
 		Collection<String>itemGroups = null;
 		SecurityAdvisor advisor = null;
+		LessonEntity entity = null;
 		try {
 		    // need to do this before pushing the advisor, or we get bad results
 		    boolean canSeeAll = canSeeAll();
 		    advisor = pushAdvisorAlways();
-		    LessonEntity entity = null;
 		    if (!canSeeAll && !item.isRequired()) {
 			switch (item.getType()) {
 			case SimplePageItem.ASSIGNMENT:
@@ -5138,6 +5138,11 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
+		} finally {
+			popAdvisor(advisor);
+		}
+
+		try {
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
@@ -5146,9 +5151,8 @@ public class SimplePageBean {
 		    // basically you can't group restrict an item until it exists
 		    visibleCache.put(item.getId(), item.isRequired());
 		    return item.isRequired();
-		} finally {
-		    popAdvisor(advisor);
 		}
+
 		if (itemGroups == null || itemGroups.isEmpty()) {
 		    // this includes items for which for which visibility doesn't apply
 		    visibleCache.put(item.getId(), true);
