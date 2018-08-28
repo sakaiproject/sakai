@@ -48,6 +48,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -74,6 +75,8 @@ public class UserAuditEventLog {
 	private transient SiteService siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
 	private transient ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+	
+	private ResourceLoader rb = new ResourceLoader("UserAuditMessages");
 	
 	static {
 		displayNameComparatorEL = new Comparator<EventLog>() {
@@ -211,7 +214,7 @@ public class UserAuditEventLog {
 		}
 	
 		public String getAuditStamp() {
-			DateFormat df = DateFormat.getDateTimeInstance();
+			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, rb.getLocale());
 			return df.format(auditStamp);
 		}
 		
