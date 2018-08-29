@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Base64;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
@@ -157,7 +158,9 @@ public class LTI13Util {
 			keyString = stripPKCS8(keyString);
 			PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyString.getBytes()));
 			return (Key) kf.generatePrivate(keySpecPKCS8);
-		} catch (Exception e) {
+		} catch (IllegalArgumentException | InvalidKeySpecException e) {
+			return null;
+		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -169,9 +172,24 @@ public class LTI13Util {
 			keyString = stripPKCS8(keyString);
 			X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(keyString));
 			return (Key) kf.generatePublic(keySpecX509);
-		} catch (Exception e) {
+		} catch (IllegalArgumentException | InvalidKeySpecException e) {
+			return null;
+		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	public static String sha256(String input) {
+
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			// return Base64.getEncoder().encodeToString((md.digest(convertme));
+			// md.update(input.getBytes());
+			// byte[] output = Base64.encode(md.digest());
+			String hash = Base64.getEncoder().encodeToString(md.digest(input.getBytes()));
+			return hash;
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

@@ -3,6 +3,7 @@ package org.tsugi.lti13;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
+import org.junit.Test;
 
 import java.security.*;
 import java.util.regex.Pattern;
@@ -22,6 +23,7 @@ public class LTI13UtilTest {
 	public void setUp() throws Exception {
 	}
 
+	@Test
 	public void testRSAFromString() throws
 			NoSuchAlgorithmException, NoSuchProviderException, java.security.spec.InvalidKeySpecException {
 		String serialized = "-----BEGIN PUBLIC KEY-----\n"
@@ -32,12 +34,24 @@ public class LTI13UtilTest {
 				+ "It75B8cd+35iQAUm8B4sw8zGs1bFpBy3A8rhCYcBAOdK2iSSudK2WEfW1E7RWnnNv\n"
 				+ "w3ykMoVh1pq7zwL4P0IHXevvPnja+PmAT9zTwgU8WhiiIKl7YtJzkR9pEWtTwIDAQ\n"
 				+ "AB\n"
-				+ "-----END PUBLIC KEY-----";
+				+ "-----END PUBLIC KEY-----\n";
 
 		Key publicKey = LTI13Util.string2PublicKey(serialized);
 		// Make sure casting works
 		RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
 		String newSer = LTI13Util.getPublicEncoded(rsaPublic);
+		if ( ! newSer.equals(serialized) ) {
+			System.out.println("New serialized key");
+			System.out.println(newSer);
+		}
 		assertEquals(serialized, newSer);
+	}
+
+	@Test
+	public void testSHA256() {
+		String hash = LTI13Util.sha256("Yada");
+		System.out.println("Yada "+hash);
+		assertNotNull(hash);
+		assertEquals("Imdd9E/bze9+h6T8tofJSwKbLKbiKSaX45BquGq8tNk=", hash);
 	}
 }

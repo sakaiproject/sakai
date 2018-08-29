@@ -18,8 +18,10 @@
  */
 package org.tsugi.lti13;
 
-import java.util.ArrayList;
+import java.security.Key;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Map;
+import java.util.TreeMap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -29,22 +31,22 @@ import org.json.simple.JSONValue;
 @Slf4j
 public class LTI13KeySetUtil {
 
-	public static String getKeySetJSON(RSAPublicKey key)
-			throws java.security.NoSuchAlgorithmException {
-		ArrayList<RSAPublicKey> keys = new ArrayList<>();
-		keys.add(key);
-		return getKeySetJSON(keys);
+	public static String getPublicKID(Key key) {
+		String publicEncoded = LTI13Util.getPublicEncoded(key);
+		return new Integer(publicEncoded.hashCode()).toString();
 	}
 
-	public static String getKeySetJSON(ArrayList<RSAPublicKey> keys)
+	public static String getKeySetJSON(Map<String, RSAPublicKey> keys)
 			throws java.security.NoSuchAlgorithmException {
 		JSONArray jar = new JSONArray();
 
-		for (RSAPublicKey key : keys) {
+		for (Map.Entry<String, RSAPublicKey> entry : keys.entrySet()) {
+			RSAPublicKey key = (RSAPublicKey) entry.getValue();
 			com.nimbusds.jose.jwk.RSAKey rsaKey = new com.nimbusds.jose.jwk.RSAKey.Builder(key).build();
 			String keyStr = rsaKey.toJSONString();
 
 			JSONObject kobj = (JSONObject) JSONValue.parse(keyStr);
+			kobj.put("kid", (String) entry.getKey());
 			jar.add(kobj);
 		}
 
@@ -53,6 +55,21 @@ public class LTI13KeySetUtil {
 
 		String keySetJSON = keyset.toString();
 		return keySetJSON;
+	}
+
+	public static String getKeySetJSON(String kid, RSAPublicKey key)
+			throws java.security.NoSuchAlgorithmException {
+		Map<String, RSAPublicKey> keys = new TreeMap<>();
+		keys.put(kid, key);
+		return getKeySetJSON(keys);
+	}
+	
+	public static String getKeySetJSON(RSAPublicKey key)
+			throws java.security.NoSuchAlgorithmException {
+		Map<String, RSAPublicKey> keys = new TreeMap<>();
+		String kid = getPublicKID(key);
+		keys.put(kid, key);
+		return getKeySetJSON(keys);
 	}
 
 }

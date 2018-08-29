@@ -91,4 +91,34 @@ public class LTI13NimbusTest {
 		}
 		assertTrue(good);
 	}
+
+	@Test
+	public void testBrokenDeserialization() {
+		String bad_serialized = "-----BEGIN PUBLIC KEY-----\n"
+				+ "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApgviDRUN1Z6hIOBg5uj1k\n"
+				+ "KSJjfJjayEJeJR7A06sm5K4QjYKYMve55LaD8CMqf98l/gnZ0vIaCuf4G9mkphc/y\n"
+				+ "V0cgFY65wQmecPxv3IZ77-sakaiger-was-here--o++cj/hSBznXecQTXQNV9d51r\n"
+				+ "Ca65+PQ+YL1oRnrpUuLNPbdnc8kT/ZUq5Ic0WJM+NprN1tbbn2LafBY+igqbRQVox\n"
+				+ "It75B8cd+35iQAUm8B4sw8zGs1bFpBy3A8rhCYcBAOdK2iSSudK2WEfW1E7RWnnNv\n"
+				+ "w3ykMoVh1pq7zwL4P0IHXevvPnja+PmAT9zTwgU8WhiiIKl7YtJzkR9pEWtTwIDAQ\n"
+				+ "AB\n"
+				+ "-----END PUBLIC KEY-----";
+
+		Key publicKey = LTI13Util.string2PublicKey(bad_serialized);
+		assertNull(publicKey);
+
+		String yuck_but_works = "-----BEGIN OAUTH 1.0 KEY-----\n"
+				+ "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApgviDRUN1Z6hIOBg5uj1k\n"
+				+ "KSJjfJjayEJeJR7A06sm5K4QjYKYMve55LaD8CMqf98l/gnZ0vIaCuf4G9mkphc/y\n"
+				+ "V0cgFY65wQmecPxv3IZ77wbJ+g5lL5vuCVTbh55nD++cj/hSBznXecQTXQNV9d51r\n"
+				+ "Ca65+PQ+YL1oRnrpUuLNPbdnc8kT/ZUq5Ic0WJM+NprN1tbbn2LafBY+igqbRQVox\n"
+				+ "It75B8cd+35iQAUm8B4sw8zGs1bFpBy3A8rhCYcBAOdK2iSSudK2WEfW1E7RWnnNv\n"
+				+ "w3ykMoVh1pq7zwL4P0IHXevvPnja+PmAT9zTwgU8WhiiIKl7YtJzkR9pEWtTwIDAQ\n"
+				+ "AB\n"
+				+ "-----END OAUTH 1.0 KEY-----";
+
+		publicKey = LTI13Util.string2PublicKey(yuck_but_works);
+		assertNotNull(publicKey);
+
+	}
 }
