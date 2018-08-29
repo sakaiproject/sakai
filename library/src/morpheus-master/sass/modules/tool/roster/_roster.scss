@@ -35,12 +35,12 @@
                 fieldset.roundedBorder {
                     border: 2px solid #c8c8c8;
                     @include border-radius(5px);
-                    padding: calc(#{$standard-spacing} / 2);
+                    padding: 5px;
                     white-space: nowrap;
 
                     legend {
-                        padding: 0 calc(#{$standard-spacing} / 2) 0 calc(#{$standard-spacing} / 2);
-                        font-size: 14px;
+                        padding: 0 5px 0 5px;
+                        font-size: $default-font-size;
                         font-weight: normal;
                         color: #505050;
                     }
@@ -67,7 +67,7 @@
                         @include align-items(flex-start);
 
                         input[type=radio] {
-                            margin: 0 calc(#{$standard-spacing} / 2) 0 0;
+                            margin: 0 5px 0 0;
                         }
                     }
                 }
@@ -103,7 +103,7 @@
         }
 
         .roster-table-row {
-            margin-bottom: calc(#{$standard-spacing} / 2);
+            margin-bottom: 5px;
 
             .roster-table-cell {
                 .roster-name-cell .namePronunciation {
@@ -141,11 +141,11 @@
         }
 
         .roster-table-row {
-            background: #FAFAFA;
+            background: $body-background-color;
             border: 1px solid #ccc;
             @include border-radius(5px);
-            padding: calc(#{$standard-spacing} / 2);
-            margin-right: calc(#{$standard-spacing} / 2);
+            padding: 5px;
+            margin-right: 5px;
 
             .roster-picture-cell .roster-picture {
                 width: 74px;
@@ -177,12 +177,12 @@
 
             .roster-table-cell .roster-mobile-label {
                 display: inline;
-                margin-right: calc(#{$standard-spacing} * 2);
+                margin-right: 20px;
             }
 
             .roster-picture-cell {
                 float: left;
-                margin-right: calc(#{$standard-spacing} / 2);
+                margin-right: 5px;
             }
 
             .roster-name-cell, .roster-userId-cell, .roster-role-cell, .roster-groups-cell, .roster-email-cell {
@@ -238,7 +238,7 @@
     .view_mode_spreadsheet {
         .roster-table {
             display: table;
-            border-spacing: calc(#{$standard-spacing} / 2);
+            border-spacing: 5px;
 
             .roster-table-header-group {
                 display: table-header-group;
@@ -247,7 +247,7 @@
 
                 .roster-table-cell {
                     border-bottom: 1px solid;
-                    margin-bottom: calc(#{$standard-spacing} / 2);
+                    margin-bottom: 5px;
                     text-overflow: ellipsis;
                 }
 
@@ -266,7 +266,7 @@
                 .roster-table-cell {
                     display: table-cell;
                     vertical-align: middle;
-                    padding: 0 calc(#{$standard-spacing} / 2);
+                    padding: 0 5px;
                     text-overflow: ellipsis;
                     word-break: break-all;
 
