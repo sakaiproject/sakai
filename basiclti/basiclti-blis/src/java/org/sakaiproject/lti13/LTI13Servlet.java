@@ -65,8 +65,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsblis/lti13/keyset/84389-client-id-6955698
-		System.out.println("parts.length=" + parts.length);
+		// /imsblis/lti13/keyset/42
 
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
 			PrintWriter out = null;
