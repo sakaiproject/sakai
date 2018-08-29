@@ -389,6 +389,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin(getSiteId(state))) );
+		// SAK-40065 - Deprecate and remove support for LTI 2.0
+		context.put("showLTI2", new Boolean(serverConfigurationService.getBoolean("basiclti.lti2.show", false)));
 		context.put("allowMaintainerAddToolSite", serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_TOOL_SITE, true));
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
@@ -541,6 +543,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin(getSiteId(state))) );
+		// SAK-40065 - Deprecate and remove support for LTI 2.0
+		context.put("showLTI2", new Boolean(serverConfigurationService.getBoolean("basiclti.lti2.show", false)));
 		// by default, site maintainer can add system-wide LTI tool
 		context.put("allowMaintainerAddSystemTool", new Boolean(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext", contextString);
