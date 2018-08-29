@@ -1,69 +1,98 @@
-<table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
-	<thead>
-		<tr>
-			<th width="45%"><a href="#">{{translate 'facet_name'}}</a></th>
-			{{#if viewDisplayId}}
-			<th width="10%"><a href="#">{{translate 'facet_userId'}}</a></th>
-			{{/if}}
-			{{#if viewEmail}}
-				<th width="20%"><a href="#">{{translate 'facet_email'}}</a></th>
-			{{/if}}
-			{{#if viewUserProperty}}
-				<th width="20%"><a href="#">{{translate 'facet_userProperties'}}</a></th>
-			{{/if}}
-            <th width="12.5%"><a href="#">{{translate 'facet_status'}}</a></th>
-            <th width="12.5%"><a href="#">{{translate 'facet_credits'}}</a></th>
-		</tr>
-	</thead>
-	<tbody>
-	{{#unless enrollment.length}}
-		<tr>
-			<td>{{translate 'no_participants'}}</td>
-			{{#if viewDisplayId}}
-			<td></td>
-			{{/if}}
-			{{#if viewEmail}}
-				<td></td>
-			{{/if}}
-			{{#if viewUserProperty}}
-				<td></td>
-			{{/if}}
-			<td></td>
-			<td></td>
-		</tr>
-	{{else}}
-		{{#each enrollment}}
-			{{#if canViewEnrollment}}
-			    <tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
-					<td>
-                    {{#if ../../viewProfile}}
-                        <a href="javascript:;" class="profile" data-user-id="{{userId}}">
-                    {{/if}}
-                    {{#if ../../firstNameLastName}}
-                        {{displayName}}
-                    {{else}}
-                        {{sortName}}
-                    {{/if}}
-                    {{#if ../../viewProfile}}
-                        </a>
-                    {{/if}}
-					</td>
-                    {{#if ../../viewDisplayId}}
-                    <td>{{displayId}}</td>
-                    {{/if}}
-					{{#if ../../viewEmail}}
-                    <td><a href="mailto:{{email}}">{{email}}</a></td>
-					{{/if}}
-					{{#if ../../viewUserProperty}}
-                        {{#each userProperties}}
-                            <li>{{@key}}: {{this}}</li>
-                        {{/each}}
-                    {{/if}}
-					<td>{{enrollmentStatus}}</td>
-					<td>{{credits}}</td>
-				</tr>
-			{{/if}}
-		{{/each}}
-	{{/unless}}
-	</tbody>
-</table>
+<!-- top toolbar -->
+<div class="sakai-table-toolBar">
+    <div class="sakai-table-filterContainer">
+        <div class="sakai-table-viewFilter">
+            <label for="roster-enrollmentset-selector">{{translate 'enrollment_set_filter_label'}}</label>
+            <span class="skip">{{translate 'screenreader_comboBox'}}</span>
+            <select id="roster-enrollmentset-selector">
+                {{#each enrollmentSets}}
+                    <option value="{{id}}">{{title}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="sakai-table-viewFilter">
+            <label for="roster-status-selector">{{translate 'enrollment_status_filter_label'}}</label>
+            <span class="skip">{{translate 'screenreader_comboBox'}}</span>
+            <select id="roster-status-selector">
+                <option selected="selected" value="">{{translate 'roster_enrollment_status_all'}}</option>
+                {{#each enrollmentStatusCodes}}
+                    <option value="{{@key}}">{{this}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="sakai-table-searchFilter">
+            <label for="roster-search-field">{{translate 'roster_search_text'}}</label>
+            <div class="sakai-table-searchFilterControls">
+                <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" class="sakai-table-searchFilter-searchField" />
+                <input id="roster-search-button" class="active" type="button" value="{{translate 'roster_search_button'}}" />
+                <input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" />
+            </div>
+        </div>
+    </div>
+
+    <div class="sakai-table-buttonContainer">
+        <div id="roster_hide_options" class="sakai-table-viewFilter">
+            <input type="checkbox" id="roster-hide-pictures-checkbox" />
+            <label for="roster-hide-pictures-checkbox">{{translate 'roster_hide_pictures'}}</label>
+
+            <input type="checkbox" id="roster-hide-names-checkbox" />
+            <label for="roster-hide-names-checkbox">{{translate 'roster_hide_names'}}</label>
+        </div>
+
+        <div id="buttonContainer">
+            <button class="roster-print-button" title="{{translate 'print_roster_tooltip'}}">{{translate 'print_roster'}}</button>
+            <button id="roster-export-button" title="{{translate 'export_roster_tooltip'}}">{{translate 'export_roster'}}</button>
+        </div>
+    </div>
+
+    <div class="displayFilterContainer">
+        {{#if viewOfficialPhoto}}
+        <div id="roster_type_selector" class="sakai-table-viewFilter">
+            <fieldset class="roundedBorder">
+                <legend>{{translate 'picture_source_group'}}</legend>
+                <span>
+                    <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}} />
+                    <label for="roster_official_picture_button">{{translate 'roster_show_official_pictures'}}</label>
+                </span>
+
+                <span>
+                    <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}} />
+                    <label for="roster_profile_picture_button">{{translate 'roster_show_profile_pictures'}}</label>
+                </span>
+            </fieldset>
+        </div>
+        {{/if}}
+
+        <div class="sakai-table-viewFilter">
+            <fieldset class="roundedBorder">
+                <legend>{{translate 'layout_group'}}</legend>
+                <span>
+                    <input type="radio" id="roster-card-view-radio" name="roster_view_type" />
+                    <label for="roster-card-view-radio">{{translate 'roster_card_view'}}</label>
+                </span>
+
+                <span>
+                    <input type="radio" id="roster-photo-view-radio" name="roster_view_type" />
+                    <label for="roster-photo-view-radio">{{translate 'roster_photo_view'}}</label>
+                </span>
+
+                <span>
+                    <input type="radio" id="roster-spreadsheet-view-radio" name="roster_view_type" checked />
+                    <label for="roster-spreadsheet-view-radio">{{translate 'roster_spreadsheet_view'}}</label>
+                </span>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<div class="roster-filter-totals">
+    <span id="roster-members-total">{{membersTotal}}</span> -
+    <span id="roster-role-totals">({{roleFragments}})</span>
+</div>
+<!-- end top toolbar -->
+
+<!-- content -->
+<div id="roster-members-content"></div>
+<div id="roster-loading-image"><img src="/sakai-roster2-tool/images/ajax-loader.gif" /></div>
+<!-- end content -->

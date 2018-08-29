@@ -1,95 +1,211 @@
-.noprint  { display: none; }
-
-#skipNav, .Mrphs-mainHeader, #toolMenuWrap, #footer, #selectSiteModal, .Mrphs-siteHierarchy {
-    display: none !important;
-}
-
-#roster_navbar, #roster-filters, #roster-search-group, .roster-connections-cell, .roster-print-button {
-    display: none !important;
-}
-
-#roster_type_selector {
-    display: none !important;
+#skipNav, .Mrphs-mainHeader, #toolMenuWrap, #footer, #selectSiteModal, .Mrphs-siteHierarchy,
+#roster_navbar, .sakai-table-toolBar, .roster-filter-totals, .roster-connections-cell, #roster-loading-image,
+#profileImageUpload, #connection-manager, .Mrphs-container--toolTitleNav {
+    display: none;
 }
 
 .roster-table {
-        display: table;
+    width: 100%
 }
-
-.roster-table-header-group {
+.roster-table .roster-table-header-group {
+    display: none;
+}
+.roster-table .roster-table-row, .roster-table .roster-member {
+    margin-bottom: calc(10px / 2);
+}
+.roster-table .roster-table-row .roster-table-cell .roster-mobile-label {
+    display: none
+}
+.roster-table .roster-table-row .roster-table-cell .roster-user-properties {
+    list-style: none;
+}
+.roster-table .roster-table-row .roster-table-cell .roster-no-groups-label {
+    font-size: smaller;
+    font-weight: bold
+}
+.roster-table .roster-table-row .roster-last-visit-time-cell {
+    font-size: 0.9em;
+}
+.roster-table .roster-member:nth-child(odd) {
+    background: #FAFAFA;
+}
+.view_mode_cards #roster-members, .view_mode_photogrid #roster-members {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+.view_mode_cards .roster-table-row, .view_mode_photogrid .roster-table-row {
+    background: #FAFAFA;
+    border: 1px solid #ccc;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    padding: calc(10px / 2);
+    margin-right: calc(10px / 2);
+}
+.view_mode_cards .roster-table-row .roster-picture-cell .roster-picture,
+.view_mode_photogrid .roster-table-row .roster-picture-cell .roster-picture {
+    width: 74px;
+    height: 94px;
+    object-fit: cover;
+    border: 1px solid #BBB;
+}
+.view_mode_cards .roster-table-row .roster-name-cell .roster-mobile-label ~ span,
+.view_mode_cards .roster-table-row .roster-name-cell .roster-mobile-label ~ a,
+.view_mode_cards .roster-table-row .roster-userId-cell .roster-mobile-label ~ span,
+.view_mode_cards .roster-table-row .roster-userId-cell .roster-mobile-label ~ a,
+.view_mode_cards .roster-table-row .roster-role-cell .roster-mobile-label ~ span,
+.view_mode_cards .roster-table-row .roster-role-cell .roster-mobile-label ~ a,
+.view_mode_cards .roster-table-row .roster-email-cell .roster-mobile-label ~ span,
+.view_mode_cards .roster-table-row .roster-email-cell .roster-mobile-label ~ a,
+.view_mode_photogrid .roster-table-row .roster-name-cell .roster-mobile-label ~ span,
+.view_mode_photogrid .roster-table-row .roster-name-cell .roster-mobile-label ~ a,
+.view_mode_photogrid .roster-table-row .roster-userId-cell .roster-mobile-label ~ span,
+.view_mode_photogrid .roster-table-row .roster-userId-cell .roster-mobile-label ~ a,
+.view_mode_photogrid .roster-table-row .roster-role-cell .roster-mobile-label ~ span,
+.view_mode_photogrid .roster-table-row .roster-role-cell .roster-mobile-label ~ a,
+.view_mode_photogrid .roster-table-row .roster-email-cell .roster-mobile-label ~ span,
+.view_mode_photogrid .roster-table-row .roster-email-cell .roster-mobile-label ~ a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.view_mode_cards .roster-table-row .roster-status-cell,
+.view_mode_cards .roster-table-row .roster-credits-cell,
+.view_mode_cards .roster-table-row .roster-total-visits-cell,
+.view_mode_cards .roster-table-row .roster-last-visit-cell,
+.view_mode_cards .roster-table-row .roster-user-props-cell,
+.view_mode_photogrid .roster-table-row .roster-status-cell,
+.view_mode_photogrid .roster-table-row .roster-credits-cell,
+.view_mode_photogrid .roster-table-row .roster-total-visits-cell,
+.view_mode_photogrid .roster-table-row .roster-last-visit-cell,
+.view_mode_photogrid .roster-table-row .roster-user-props-cell {
+    display: none;
+}
+.view_mode_cards .roster-table-row {
+    width: 340px;
+    max-height: 128px;
+}
+.view_mode_cards .roster-table-row .roster-table-cell .roster-mobile-label {
+    display: inline;
+    margin-right: calc(10px * 2);
+}
+.view_mode_cards .roster-table-row .roster-picture-cell {
+    float: left;
+    margin-right: calc(10px / 2);
+}
+.view_mode_cards .roster-table-row .roster-name-cell,
+.view_mode_cards .roster-table-row .roster-userId-cell,
+.view_mode_cards .roster-table-row .roster-role-cell,
+.view_mode_cards .roster-table-row .roster-groups-cell,
+.view_mode_cards .roster-table-row .roster-email-cell {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    max-width: 250px;
+}
+.view_mode_cards .roster-table-row .roster-groups-cell .roster-group-cell {
+    display: inline;
+}
+.view_mode_cards .roster-table-row .roster-groups-cell .roster-group-cell .roster-groups-selector {
+    max-width: 174px;
+}
+@media all and (max-width: 375px) {
+    .view_mode_cards .roster-table-row .roster-groups-cell .roster-group-cell .roster-groups-selector {
+        max-width:95px;
+    }
+}
+.view_mode_photogrid .roster-table-row {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+    width: 155px;
+    max-height: 172px;
+}
+.view_mode_photogrid .roster-table-row .roster-table-cell {
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.view_mode_photogrid .roster-table-row .roster-groups-cell,
+.view_mode_photogrid .roster-table-row .roster-email-cell,
+.view_mode_photogrid .roster-table-row .roster-mobile-label {
+    display: none;
+}
+.view_mode_photogrid .roster-hide-names {
+    display: none;
+}
+.view_mode_spreadsheet .roster-table {
+    display: table;
+    border-spacing: calc(10px / 2);
+}
+.view_mode_spreadsheet .roster-table .roster-table-header-group {
     display: table-header-group;
     font-weight: bold;
     padding-bottom: 10px;
 }
-
-.roster-table-row-group {
+.view_mode_spreadsheet .roster-table .roster-table-header-group .roster-table-cell {
+    border-bottom: 1px solid;
+    margin-bottom: calc(10px / 2);
+    text-overflow: ellipsis;
+}
+.view_mode_spreadsheet .roster-table .roster-table-header-group .roster-hide-pictures {
+    display: none;
+}
+.view_mode_spreadsheet .roster-table .roster-table-row-group {
     display: table-row-group;
 }
-
-.roster-table-row {
+.view_mode_spreadsheet .roster-table .roster-table-row {
     display: table-row;
-    page-break-inside: avoid;
 }
-
-.roster-table-cell {
+.view_mode_spreadsheet .roster-table .roster-table-row .roster-table-cell {
     display: table-cell;
-    padding-right: 10px;
-    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0 calc(10px / 2);
+}
+.view_mode_spreadsheet .roster-table .roster-table-row .roster-table-cell .roster-picture {
+    width: 30px;
+    height: 24px;
+    padding: 0;
+}
+.view_mode_spreadsheet .roster-table .roster-table-row .roster-picture-cell {
+    text-align:center;
+}
+.view_mode_spreadsheet .roster-table .roster-table-row .roster-hide-pictures {
+    display: none;
 }
 
-.roster-member {
+/*
+    The following rules are hacks to avoid the following:
+
+    1) Firefox truncates flexed elements; see https://bugzilla.mozilla.org/show_bug.cgi?id=1089549
+
+        Basically, any container which is flex will be truncated by Firefox for print view.
+        Everything after the first page of content within the flexed element will be not
+        be printed.
+
+    2) Browsers currently do not obey the "page-break-*" CSS properties for flexed containers.
+
+        The "page-break-*" properties are only adhered to when the container is either a table,
+        a floating element, inline-block, or block level.
+
+
+    Aside from the first issue, all other browsers print the different views quite nicely. The
+    spreadsheet view is not affected by any of these issues, because it's not flexed. The second
+    issue is evident in other browsers only on the last row of each page.
+
+.Mrphs-sakai-site-roster2 .view_mode_cards div#roster-members, .Mrphs-sakai-site-roster2 .view_mode_photogrid div#roster-members {
+    display: block;
+}*/
+
+.Mrphs-sakai-site-roster2 .view_mode_cards .roster-table .roster-member.roster-table-row, .Mrphs-sakai-site-roster2 .view_mode_photogrid .roster-table .roster-member.roster-table-row {
     page-break-inside: avoid;
-}
-
-.roster-member:nth-child(odd) {
-    background: #F8F8F8;
-}
-
-.roster-picture {
-    width: 80px;
-    min-height: 60px;
-    max-height: 140px;
-    padding: 5px 0px 5px 5px;
-}
-
-.roster-pictureview-picture img {
-    width: 150px;
-    min-height: 100px;
-    max-height: 150px;
-    padding: 5px 0px 5px 5px;
-}
-
-.roster-pictureview {
-    display: inline-block;
-}
-
-.roster-name {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.roster-mobile-label {
-    display: none;
-    font-weight: bold;
-    padding-right: 10px;
-}
-.roster-last-visit-time-cell {
-    font-size: 0.9em;
-}
-
-#roster-pictures-only-label {
-    display: none;
-}
-
-#roster-role-totals {
-    display: none;
-}
-
-#roster-members-total {
-    display: none;
-}
-
-#profileImageUpload {
-    display: none;
 }

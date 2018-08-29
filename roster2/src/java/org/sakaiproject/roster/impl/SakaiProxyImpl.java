@@ -344,15 +344,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		return serverConfigurationService.getBoolean(
 				"roster.display.officialPicturesByDefault", true);
     }
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public int getPageSize() {
-		return serverConfigurationService.getInt(
-				"roster.display.pageSize", 10);
-	}
-	
+
 	public RosterMember getMember(String siteId, String userId, String enrollmentSetId) {
 
         User user = null;

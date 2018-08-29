@@ -34,7 +34,6 @@
 
 package org.sakaiproject.roster.tool.entityprovider;
 
-import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -55,10 +54,8 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.roster.api.RosterData;
 import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterMember;
-import org.sakaiproject.roster.api.RosterMemberComparator;
 import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
-import org.sakaiproject.user.api.User;
 
 /**
  * <code>EntityProvider</code> to allow Roster to access site, membership, and
@@ -85,6 +82,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	public final static String KEY_ALL                          = "all";
 	public final static String KEY_ENROLLMENT_SET_ID			= "enrollmentSetId";
 	public final static String KEY_ENROLLMENT_STATUS			= "enrollmentStatus";
+	public final static String KEY_PAGE_SIZE					= "pageSize";
 
     @Setter
 	private SakaiProxy sakaiProxy;
@@ -122,7 +120,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		}
 
 		String enrollmentSetId = null;
-		if (parameters != null && parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
+		if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
 			enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
 		}
 
@@ -131,7 +129,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         }
 
 		String enrollmentStatus = null;
-		if (parameters != null && parameters.containsKey(KEY_ENROLLMENT_STATUS)) {
+		if (parameters.containsKey(KEY_ENROLLMENT_STATUS)) {
 			enrollmentStatus = parameters.get(KEY_ENROLLMENT_STATUS).toString();
 		}
 
@@ -157,12 +155,21 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         int membershipsSize = membership.size();
         log.debug("memberships.size(): {}", membershipsSize);
 
-        List<RosterMember> subList = null;
+        List<RosterMember> subList;
 
+        int pageSize = 10;
         if (returnAll) {
             subList = membership;
         } else {
-            int pageSize = sakaiProxy.getPageSize();
+            if (parameters.containsKey(KEY_PAGE_SIZE)) {
+                String strPageSize = parameters.get(KEY_PAGE_SIZE).toString();
+                try {
+                    pageSize = Integer.parseInt(strPageSize);
+                } catch (NumberFormatException ex) {
+                    log.error("Invalid page size: {}. Falling back to default page size of {}.", strPageSize, pageSize);
+                }
+            }
+
             int start  = page * pageSize;
             log.debug("start: {}", start);
 
@@ -184,7 +191,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         RosterData data = new RosterData();
         data.setMembers(subList);
         data.setMembersTotal(membershipsSize);
-        data.setPageSize(sakaiProxy.getPageSize());
+        data.setPageSize(pageSize);
 
         boolean showVisits = sakaiProxy.getShowVisits();
 
@@ -242,7 +249,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		}
 
 		String enrollmentSetId = null;
-		if (parameters != null && parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
+		if (parameters.containsKey(KEY_ENROLLMENT_SET_ID)) {
 			enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
 		}
 
