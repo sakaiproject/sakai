@@ -17,12 +17,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
             "0987654321"
         ]
     },
-*/
-
+ */
 public class BasicOutcome {
-    @JsonProperty("lis_result_sourcedid")
-    public String lis_result_sourcedid;
-    @JsonProperty("lis_outcome_service_url")
-    public String lis_outcome_service_url;
-}
 
+	@JsonProperty("lis_result_sourcedid")
+	public String lis_result_sourcedid;
+	@JsonProperty("lis_outcome_service_url")
+	public String lis_outcome_service_url;
+}

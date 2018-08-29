@@ -17,20 +17,19 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
         "product_family_code": "",
         "version": "1.0"
     },
-*/
-
+ */
 public class ToolPlatform {
-    @JsonProperty("name")
-    public String name;
-    @JsonProperty("contact_email")
-    public String contact_email;
-    @JsonProperty("description")
-    public String description;
-    @JsonProperty("url")
-    public String url;
-    @JsonProperty("product_family_code")
-    public String product_family_code;
-    @JsonProperty("version")
-    public String version;
-}
 
+	@JsonProperty("name")
+	public String name;
+	@JsonProperty("contact_email")
+	public String contact_email;
+	@JsonProperty("description")
+	public String description;
+	@JsonProperty("url")
+	public String url;
+	@JsonProperty("product_family_code")
+	public String product_family_code;
+	@JsonProperty("version")
+	public String version;
+}

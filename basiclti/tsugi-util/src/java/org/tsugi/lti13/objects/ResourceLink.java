@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
         "title": "poiuytrewq",
         "description": ""
     },
-*/
-
+ */
 public class ResourceLink {
-    @JsonProperty("id")
-    public String id;
-    @JsonProperty("title")
-    public String title;
-    @JsonProperty("description")
-    public String description;
+
+	@JsonProperty("id")
+	public String id;
+	@JsonProperty("title")
+	public String title;
+	@JsonProperty("description")
+	public String description;
 }
