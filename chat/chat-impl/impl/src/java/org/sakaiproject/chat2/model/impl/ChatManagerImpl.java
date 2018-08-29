@@ -995,7 +995,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         ZonedDateTime ldt = ZonedDateTime.ofInstant(item.getMessageDate().toInstant(), ZoneId.of(getUserTimeZone()));
         Locale locale = rl.getLocale();
         
-        String newText = body + ", " + user.getDisplayName() + ", " + ldt.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(locale));
+        String newText = body + ", " + user.getDisplayName(item.getChatChannel().getContext()) + ", " + ldt.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(locale));
         return newText;
     }
 
@@ -1109,11 +1109,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                     String displayName = us.getUserDisplayId();
                     String userId = us.getUserId();
                     try {
-                        displayName = userDirectoryService.getUser(us.getUserId()).getDisplayName();
+                        displayName = userDirectoryService.getUser(us.getUserId()).getDisplayName(siteId);
                         //if user stored in heartbeat is different to the presence one
                         if(!userId.equals(sessionUserId)) {
                             userId += ":"+sessionUserId;
-                            displayName += " (" + userDirectoryService.getUser(sessionUserId).getDisplayName() + ")";
+                            displayName += " (" + userDirectoryService.getUser(sessionUserId).getDisplayName(siteId) + ")";
                         }
                     }catch(Exception e){
                         log.error("Error getting user "+sessionUserId, e);

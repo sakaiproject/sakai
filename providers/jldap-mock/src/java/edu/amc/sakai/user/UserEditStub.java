@@ -153,11 +153,15 @@ class UserEditStub implements UserEdit {
 		return this.id;
 	}
     
-    public String getDisplayId() {
-        return this.eid;
-    }
-         
-    public String getDisplayName() {
+	public String getDisplayId() {
+		return this.eid;
+	}
+
+	public String getDisplayId(String context) {
+		return this.eid;
+	}
+
+	public String getDisplayName() {
 
 		// This was copied from BaseUserDirectoryService
 
@@ -176,7 +180,10 @@ class UserEditStub implements UserEdit {
 		}
 
 	}
-    
+
+	public String getDisplayName(String context) {
+		return getDisplayName();
+	}
 
 	public ResourceProperties getProperties() {
 		return this.properties;
