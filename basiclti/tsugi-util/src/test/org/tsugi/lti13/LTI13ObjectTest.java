@@ -20,6 +20,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
 public class LTI13ObjectTest {
 
@@ -65,6 +68,23 @@ public class LTI13ObjectTest {
 		outcome.lis_outcome_service_url = "http://call.me.back";
 		lj.basicoutcome = outcome;
 
+		Properties ltiProps = new Properties();
+		ltiProps.setProperty("normal_x","42");
+		ltiProps.setProperty("custom_x","42");
+		ltiProps.setProperty("custom_y","142");
+
+		lj.custom = new TreeMap<String, String>();
+		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
+			System.out.println(entry.getKey() + " : " + entry.getValue());
+			String custom_key = (String) entry.getKey();
+			String custom_val = (String) entry.getValue();
+			if (!custom_key.startsWith("custom_")) {
+				continue;
+			}
+			custom_key = custom_key.substring(7);
+			lj.custom.put(custom_key, custom_val);
+		}
+
 		String ljs = LTI13JacksonUtil.toString(lj);
 		boolean good = ljs.contains("call.me.back");
 		if (!good) {
@@ -88,7 +108,7 @@ public class LTI13ObjectTest {
 				.signWith(key)
 				.compact();
 
-		assertEquals(1916, jws.length());
+		assertEquals(2012, jws.length());
 		Matcher m = base64url_pattern.matcher(jws);
 		good = m.find();
 		if (!good) {

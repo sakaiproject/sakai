@@ -1,12 +1,14 @@
 package org.tsugi.lti13.objects;
 
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 import javax.annotation.Generated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
@@ -39,6 +41,9 @@ public class LaunchJWT extends BaseJWT {
 	public String name;
 	@JsonProperty("locale")
 	public String locale;
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/custom")
+	// @JsonSerialize(using = MapSerializer.class)
+	public Map<String, String> custom;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/roles")
 	public List<String> roles = new ArrayList<String>();

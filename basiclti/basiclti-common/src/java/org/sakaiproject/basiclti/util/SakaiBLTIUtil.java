@@ -1652,6 +1652,8 @@ context_id: mercury
 context_label: mercury site
 context_title: mercury site
 context_type: Group
+custom_x=42
+custom_y=043040450
 ext_ims_lis_basic_outcome_url: http://localhost:8080/imsblis/service/
 ext_ims_lis_memberships_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
 ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
@@ -1724,6 +1726,16 @@ user_id: admin
 		lis.version.add("1.1.0");
 		lj.lis = lis;
 
+		lj.custom = new TreeMap<String, String>();
+		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
+			System.out.println(entry.getKey() + " : " + entry.getValue());
+			String custom_key = (String) entry.getKey();
+			String custom_val = (String) entry.getValue();
+			if ( ! custom_key.startsWith("custom_") ) continue;
+			custom_key = custom_key.substring(7);
+			lj.custom.put(custom_key, custom_val);
+		}
+
 		BasicOutcome outcome = new BasicOutcome();
 		outcome.lis_result_sourcedid = ltiProps.getProperty("lis_result_sourcedid");
 		outcome.lis_outcome_service_url = ltiProps.getProperty("lis_outcome_service_url");
@@ -1731,6 +1743,7 @@ user_id: admin
 
 		String ljs = LTI13JacksonUtil.toString(lj);
 		log.debug("ljs = {}", ljs);
+System.out.println("ljs ="+ljs);
 
 		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
 		Key publicKey = LTI13Util.string2PublicKey(platform_public);
