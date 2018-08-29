@@ -1,12 +1,8 @@
 package org.tsugi.lti13;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.tsugi.lti13.LTI13JwtUtil;
-import org.tsugi.lti13.LTI13JacksonUtil;
 
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.ResourceLink;
@@ -24,10 +20,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
 public class LTI13ObjectTest {
 
-        Pattern base64url_pattern = Pattern.compile("^[A-Za-z0-9.\\-_]+$");
+	Pattern base64url_pattern = Pattern.compile("^[A-Za-z0-9.\\-_]+$");
 
 	// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/package-summary.html
 	@Test
@@ -41,7 +40,7 @@ public class LTI13ObjectTest {
 		lj.subject = "142";  // formerly user_id in LTI 1.1
 		lj.name = "Fred";
 		lj.email = "Zippy@zippy.com";
-		lj.issued = new Long(System.currentTimeMillis() / 1000L);
+		lj.issued = System.currentTimeMillis() / 1000L;
 		lj.expires = lj.issued + 600L;
 		lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
 
@@ -52,7 +51,7 @@ public class LTI13ObjectTest {
 		lj.context.id = "83934984398";
 		lj.context.type.add(Context.COURSE_OFFERING);
 
-	        lj.tool_platform = new ToolPlatform();
+		lj.tool_platform = new ToolPlatform();
 		lj.tool_platform.name = "Sakai";
 		lj.tool_platform.url = "https://www.sakaiproject.org";
 
@@ -69,40 +68,66 @@ public class LTI13ObjectTest {
 		outcome.lis_outcome_service_url = "http://call.me.back";
 		lj.basicoutcome = outcome;
 
+		Properties ltiProps = new Properties();
+		ltiProps.setProperty("normal_x","42");
+		ltiProps.setProperty("custom_x","42");
+		ltiProps.setProperty("custom_y","142");
+
+		lj.custom = new TreeMap<String, String>();
+		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
+			System.out.println(entry.getKey() + " : " + entry.getValue());
+			String custom_key = (String) entry.getKey();
+			String custom_val = (String) entry.getValue();
+			if (!custom_key.startsWith("custom_")) {
+				continue;
+			}
+			custom_key = custom_key.substring(7);
+			lj.custom.put(custom_key, custom_val);
+		}
+
 		String ljs = LTI13JacksonUtil.toString(lj);
 		boolean good = ljs.contains("call.me.back");
-		if ( ! good ) System.out.println("Bad Payload: "+ljs);
+		if (!good) {
+			System.out.println("Bad Payload: " + ljs);
+		}
 		assertTrue(good);
 
 		String ljsp = LTI13JacksonUtil.toStringPretty(lj);
 		good = ljsp.contains("call.me.back");
-		if ( ! good ) System.out.println("Bad pretty payload: "+ljsp);
+		if (!good) {
+			System.out.println("Bad pretty payload: " + ljsp);
+		}
 		assertTrue(good);
 
 		Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
 		// http://javadox.com/io.jsonwebtoken/jjwt/0.4/io/jsonwebtoken/JwtBuilder.html
 		String jws = Jwts.builder()
-			.setHeaderParam("kid", "42_42_42")
-			.setPayload(ljs)
-                        .signWith(key)
-                        .compact();
+				.setHeaderParam("kid", "42_42_42")
+				.setPayload(ljs)
+				.signWith(key)
+				.compact();
 
-		assertEquals(1916, jws.length());
-                Matcher m = base64url_pattern.matcher(jws);
-                good = m.find();
-                if ( ! good ) System.out.println("Bad JWS:\n"+jws);
-                assertTrue(good);
-
-                String body = LTI13JwtUtil.getBodyAsString(jws, key);
-		good = body.contains("call.me.back");
-		if ( ! good ) System.out.println("Bad body: "+body);
+		assertEquals(2012, jws.length());
+		Matcher m = base64url_pattern.matcher(jws);
+		good = m.find();
+		if (!good) {
+			System.out.println("Bad JWS:\n" + jws);
+		}
 		assertTrue(good);
 
-                String header = LTI13JwtUtil.getHeaderAsString(jws, key);
+		String body = LTI13JwtUtil.getBodyAsString(jws, key);
+		good = body.contains("call.me.back");
+		if (!good) {
+			System.out.println("Bad body: " + body);
+		}
+		assertTrue(good);
+
+		String header = LTI13JwtUtil.getHeaderAsString(jws, key);
 		good = header.contains("42_42_42");
-		if ( ! good ) System.out.println("Bad header: "+header);
+		if (!good) {
+			System.out.println("Bad header: " + header);
+		}
 		assertTrue(good);
 	}
 }
-

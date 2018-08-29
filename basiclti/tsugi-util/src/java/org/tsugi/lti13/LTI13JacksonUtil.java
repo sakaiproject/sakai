@@ -16,43 +16,43 @@
  */
 package org.tsugi.lti13;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class LTI13JacksonUtil {
 
 	/**
-	 * 
+	 *
 	 */
 	public static String toString(Object jackson) {
-                // https://www.baeldung.com/jackson-object-mapper-tutorial
+		// https://www.baeldung.com/jackson-object-mapper-tutorial
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			String retval = objectMapper.writeValueAsString(jackson);
 			return retval;
-		} catch (Exception e) {
-                        // log.error(e.getMessage(), e);
+		} catch (JsonProcessingException e) {
+			// log.error(e.getMessage(), e);
 			return null;
 		}
-        }
+	}
 
-        // http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
+	// http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
 	public static String toStringPretty(Object jackson) {
 
-                ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();
 
-                ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-                // ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
-                // ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+		// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
+		// ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
 
-                try {
-                        String retval = writer.writeValueAsString(jackson);
+		try {
+			String retval = writer.writeValueAsString(jackson);
 			return retval;
-                }
-                catch (Exception e) {
-                        // log.error(e.getMessage(), e);
+		} catch (JsonProcessingException e) {
+			// log.error(e.getMessage(), e);
 			return null;
-                }
+		}
 	}
 
 }

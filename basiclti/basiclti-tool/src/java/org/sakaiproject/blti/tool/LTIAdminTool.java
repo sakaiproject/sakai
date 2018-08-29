@@ -617,10 +617,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 
-		String clientId = (String) tool.get("lti13_client_id");
-		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + clientId;
+		String keySetUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset/" + tool.get(LTIService.LTI_ID);
 		context.put("keySetUrl", keySetUrl);
-		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + clientId;
+		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
 		context.put("tokenUrl", tokenUrl);
 
 		state.removeAttribute(STATE_SUCCESS);

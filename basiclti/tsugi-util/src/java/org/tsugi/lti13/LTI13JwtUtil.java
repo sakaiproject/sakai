@@ -23,17 +23,17 @@ import io.jsonwebtoken.Jwts;
 public class LTI13JwtUtil {
 
 	/**
-	 * 
+	 *
 	 */
-        public static String getBodyAsString(String jws, Key key) {
-                return  Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getBody().toString();
-        }
+	public static String getBodyAsString(String jws, Key key) {
+		return Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getBody().toString();
+	}
 
 	/**
-	 * 
+	 *
 	 */
-        public static String getHeaderAsString(String jws, Key key) {
-                return  Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getHeader().toString();
-        }
+	public static String getHeaderAsString(String jws, Key key) {
+		return Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getHeader().toString();
+	}
 
 }

@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.tsugi.basiclti.BasicLTIUtil;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.TimeZone;

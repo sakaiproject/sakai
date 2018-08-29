@@ -21,20 +21,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
         "lineitems": "https:\/\/lti-ri.imsglobal.org\/platforms\/7\/contexts\/6\/line_items",
         "lineitem": "https:\/\/lti-ri.imsglobal.org\/platforms\/7\/contexts\/6\/line_items\/9"
     },
-*/
-
+ */
 public class Endpoint {
 
-    // TODO: What do these mean?
-    public static String SCOPE_LINEITEM = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
-    public static String SCORE_RESULT_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
-    public static String SCORE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
+	// TODO: What do these mean?
+	public static String SCOPE_LINEITEM = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
+	public static String SCORE_RESULT_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
+	public static String SCORE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
 
-    @JsonProperty("scope")
-    public List<String> scope = new ArrayList<String>();
-    @JsonProperty("lineitems")
-    public String lineitems;
-    @JsonProperty("lineitem")
-    public String lineitem;
+	@JsonProperty("scope")
+	public List<String> scope = new ArrayList<String>();
+	@JsonProperty("lineitems")
+	public String lineitems;
+	@JsonProperty("lineitem")
+	public String lineitem;
 }
-
