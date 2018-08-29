@@ -1728,7 +1728,6 @@ user_id: admin
 
 		lj.custom = new TreeMap<String, String>();
 		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
-			System.out.println(entry.getKey() + " : " + entry.getValue());
 			String custom_key = (String) entry.getKey();
 			String custom_val = (String) entry.getValue();
 			if ( ! custom_key.startsWith("custom_") ) continue;
@@ -1743,7 +1742,6 @@ user_id: admin
 
 		String ljs = LTI13JacksonUtil.toString(lj);
 		log.debug("ljs = {}", ljs);
-System.out.println("ljs ="+ljs);
 
 		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
 		Key publicKey = LTI13Util.string2PublicKey(platform_public);

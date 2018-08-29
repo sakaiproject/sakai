@@ -42,7 +42,6 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("locale")
 	public String locale;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/custom")
-	// @JsonSerialize(using = MapSerializer.class)
 	public Map<String, String> custom;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/roles")
