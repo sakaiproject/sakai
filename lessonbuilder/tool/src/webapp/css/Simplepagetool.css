@@ -203,10 +203,14 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 .controlsPanel .edit-header {
     font-weight: bold;
     font-size: 16px;
-    margin-top: 20px;
+}
+
+span.group-name{
+    margin-left: 10px;
 }
 .controlsPanel .act {
-    margin:1em 0;
+    margin: 0;
+    padding: 0;
 }
 .controlsPanel .act .deleteButton, .act .deleteButton {
     background: none !important;
@@ -2005,9 +2009,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     margin-left: 2em;
 }
 
-.stylingstuff {
-    margin: .5em 0;
-}
 
 .Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
     margin-top: 20px;
