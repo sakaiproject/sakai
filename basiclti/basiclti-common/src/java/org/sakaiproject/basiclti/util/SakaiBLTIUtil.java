@@ -826,11 +826,29 @@ public class SakaiBLTIUtil {
 		Long toolKey = getLongKey(tool.get(LTIService.LTI_ID));
 		proxyBinding = ltiService.getProxyBindingDao(toolKey,context);
 
-		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
-		Long longLTI13 = getLongNull(tool.get(LTIService.LTI13));
+		// See if there are the necessary items
+		String secret = (String) content.get(LTIService.LTI_SECRET);
+		if ( secret == null ) secret = (String) tool.get(LTIService.LTI_SECRET);
+		String key = (String) content.get(LTIService.LTI_CONSUMERKEY);
+		if ( key == null ) key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+
+		if ( LTIService.LTI_SECRET_INCOMPLETE.equals(key) && LTIService.LTI_SECRET_INCOMPLETE.equals(secret) ) {
+			return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool item is incomplete, missing a key and secret.")+"</p>" );
+		}
+
+		// Picking the launch is a little tricky...
+		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));  // LTI 1.x OR 2.x
+		// 0=inherit from tool, 1=LTI 1.1, 2=LTI 1.3
+		Long contentLTI13 = getLongNull(content.get(LTIService.LTI13));
+		Long toolLTI13 = getLongNull(tool.get(LTIService.LTI13));
+
 		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
 		boolean isLTI2 = ! isLTI1;  // In case there is an LTI 3
-		boolean isLTI13 = longLTI13.equals(1L);  // In case there is an LTI 3
+		boolean isLTI13 = toolLTI13.equals(1L) && ! contentLTI13.equals(1L);
+		if ( secret == null || key == null && toolLTI13.equals(1L) ) {
+			isLTI13 = true;  // No way to launch LTI 1.1
+		}
+
 		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
 
 		// If we are doing LTI2, We will need a ToolProxyBinding
@@ -896,7 +914,6 @@ public class SakaiBLTIUtil {
 		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
 		addUserInfo(ltiProps, lti2subst, tool);
 
-
 		// This is for 1.2 - Not likely to be used
 		// http://www.imsglobal.org/lti/ltiv1p2/ltiIMGv1p2.html
 		if ( deploy != null ) {
@@ -910,15 +927,6 @@ public class SakaiBLTIUtil {
 		setProperty(lti2subst,"ResourceLink.id",resource_link_id);
 
 		setProperty(toolProps, "launch_url", launch_url);
-
-		String secret = (String) content.get(LTIService.LTI_SECRET);
-		if ( secret == null ) secret = (String) tool.get(LTIService.LTI_SECRET);
-		String key = (String) content.get(LTIService.LTI_CONSUMERKEY);
-		if ( key == null ) key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-
-		if ( LTIService.LTI_SECRET_INCOMPLETE.equals(key) && LTIService.LTI_SECRET_INCOMPLETE.equals(secret) ) {
-			return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool item is incomplete, missing a key and secret.")+"</p>" );
-		}
 
 		setProperty(toolProps, LTIService.LTI_SECRET, secret );
 		setProperty(toolProps, "key", key );
@@ -1603,7 +1611,6 @@ user_id: admin
                 lj.context.title = ltiProps.getProperty("context_title");
                 lj.context.type.add(Context.COURSE_OFFERING);
 
-// XXX
                 lj.tool_platform = new ToolPlatform();
                 lj.tool_platform.name = "Sakai";
                 lj.tool_platform.version = ltiProps.getProperty("tool_consumer_info_version");
@@ -1615,6 +1622,9 @@ user_id: admin
                 lis.person_sourcedid = ltiProps.getProperty("lis_person_sourcedid");
                 lis.course_offering_sourcedid = ltiProps.getProperty("lis_course_offering_sourcedid");
                 lis.course_section_sourcedid = ltiProps.getProperty("lis_course_section_sourcedid");
+		lis.version = new ArrayList<String> ();
+                lis.version.add("1.0.0");
+                lis.version.add("1.1.0");
                 lj.lis = lis;
 
                 BasicOutcome outcome = new BasicOutcome();
