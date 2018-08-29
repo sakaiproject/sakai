@@ -3,6 +3,8 @@ package org.tsugi.lti13.objects;
 
 import javax.annotation.Generated;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -24,4 +26,6 @@ public class LaunchLIS {
     public String course_offering_sourcedid;
     @JsonProperty("course_section_sourcedid")
     public String course_section_sourcedid;
+    @JsonProperty("version")
+    public List<String> version;
 }

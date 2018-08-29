@@ -77,6 +77,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
+	    // LTI 1.3 support 
+	    // 0=inherit, 1=LTI 1.1, 2=LTI 1.3
+            "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on",
@@ -153,6 +156,10 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
+	    // The tool keyset is a future feature - we can unhide it in the UI when Sakai supports this
+            "lti13_tool_keyset:textarea:hidden=true:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
+	    // The tool kid is internal (comes through on launch and we store it and cache the public key)
+            "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
