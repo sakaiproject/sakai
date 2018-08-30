@@ -29,8 +29,6 @@ import org.sakaiproject.content.api.*;
 import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.SakaiFsService;
 import org.sakaiproject.elfinder.sakai.SiteVolume;
-import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
-import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -267,6 +265,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 }
                 Date date = contentEntity.getProperties().getDateProperty(ResourceProperties.PROP_MODIFIED_DATE);
                 return date.getTime() / 1000;
+            } catch (PermissionException pe) {
+                log.info("Permission denied getting last modified date for: {}", id);
             } catch (IdUnusedException iue) {
                 log.debug("Failed to find item to get last modified date for: "+ id);
             } catch (SakaiException se) {
@@ -391,6 +391,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                         return true;
                     }
                 }
+            } catch (PermissionException pe) {
+                log.info("Permission denied checking for child folders: {}", id);
             } catch (IdUnusedException iue) {
                 log.debug("Couldn't find resource to look for child folders: "+ id);
             } catch (SakaiException se) {
