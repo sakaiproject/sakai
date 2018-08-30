@@ -181,13 +181,6 @@ public interface SakaiProxy {
 	 * @return the value of the <code>roster.display.officialPicturesByDefault</code> Sakai property.
 	 */
     public Boolean getOfficialPicturesByDefault();
-	
-	/**
-	 * Returns the value of the <code>roster.display.pageSize</code> Sakai property.
-	 * 
-	 * @return the value of the <code>roster.display.pageSize</code> Sakai property.
-	 */
-	public int getPageSize();
 
 	public Site getSite(String siteId);
 		

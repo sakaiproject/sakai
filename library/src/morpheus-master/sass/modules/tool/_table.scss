@@ -150,6 +150,19 @@ table{
 		width: 100%;
 	}
 
+	.sakai-table-viewFilter input[type=radio], .sakai-table-viewFilter input[type=checkbox]
+	{
+		margin: 0;
+	}
+
+	.sakai-table-viewFilter
+	{
+		input[type=radio] ~ label, input[type=checkbox] ~ label
+		{
+			margin-right: calc(#{$standard-spacing} / 2);
+		}
+	}
+
 	.sakai-table-searchFilterControls
 	{
 		@include display-flex();
