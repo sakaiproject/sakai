@@ -51,10 +51,10 @@ public class FormatHelper {
 	 */
 	public static String formatDoubleToDecimal(final Double score) {
 		if (score == null) {
-            return "";
+                        return "";
 		}
 		else {
-            return formatDoubleToDecimal(score, 2);
+                        return formatDoubleToDecimal(score, 2);
 		}
 	}
 
