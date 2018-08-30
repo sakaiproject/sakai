@@ -50,7 +50,12 @@ public class FormatHelper {
 	 * @return double to decimal places
 	 */
 	public static String formatDoubleToDecimal(final Double score) {
-		return formatDoubleToDecimal(score, 2);
+		if (score == null) {
+            return "";
+		}
+		else {
+            return formatDoubleToDecimal(score, 2);
+		}
 	}
 
 	/**
