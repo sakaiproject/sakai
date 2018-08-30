@@ -227,11 +227,11 @@ public class PublishedItemEntityProviderImpl implements PublishedItemEntityProvi
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[]{Formats.JSON};
+        return new String[]{Formats.JSON, Formats.JSONP};
     }
 
     public String[] getHandledInputFormats() {
-        return new String[]{Formats.JSON};
+        return new String[]{Formats.JSON, Formats.JSONP};
     }
 
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
