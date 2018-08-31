@@ -3588,23 +3588,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 */
 	@Override
 	public List<GradingEvent> getGradingEvents(final List<Long> assignmentIds, final Date since) {
-		List<GradingEvent> rval;
-
-		if (since == null) {
-			log.debug("No `since` timestamp was specified.  Returning null");
-			return null;
+		if (assignmentIds == null || assignmentIds.isEmpty() || since == null) {
+			return new ArrayList<>();
 		}
 
-		final HibernateCallback<List<GradingEvent>> hc = session -> {
-            final Query q = session.createQuery("from GradingEvent as ge where ge.dateGraded >= :since" +
-                " and ge.gradableObject.id in (:assignmentIds)");
-            q.setParameter("since", since);
-            q.setParameterList("assignmentIds", assignmentIds);
-            return q.list();
-        };
-
-		rval = getHibernateTemplate().execute(hc);
-		return rval;
+		return getHibernateTemplate().execute(session -> session.createCriteria(GradingEvent.class)
+				.createAlias("gradableObject", "go")
+				.add(Restrictions.and(
+						Restrictions.ge("dateGraded", since),
+						HibernateCriterionUtils.CriterionInRestrictionSplitter("go.id", assignmentIds)))
+				.list());
 	}
 
 	/**
