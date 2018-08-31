@@ -240,7 +240,7 @@ RESTful, ActionsExecutable {
 
         List<EntityData> l = getEntities(new EntityReference(PREFIX, ""), new Search(
                 CollectionResolvable.SEARCH_LOCATION_REFERENCE, locationReference));
-        ActionReturn actionReturn = new ActionReturn(l, Formats.JSON);
+        ActionReturn actionReturn = new ActionReturn(l, view.getFormat());
         if ((extraResponseHeaders != null) && !extraResponseHeaders.isEmpty()) {
             actionReturn.setHeaders(extraResponseHeaders);
         }
@@ -991,11 +991,11 @@ RESTful, ActionsExecutable {
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.JSONP, Formats.FORM };
     }
 
     public String[] getHandledInputFormats() {
-        return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
+        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.JSONP };
     }
 
     public EntityMember getMember(String userId, String locationReference) {

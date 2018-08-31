@@ -1156,11 +1156,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     }
 
     public String[] getHandledInputFormats() {
-        return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
+        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.JSONP };
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM };
+        return new String[] { Formats.XML, Formats.JSON, Formats.JSONP, Formats.HTML, Formats.FORM };
     }
 
     private Site getSiteById(String siteId) {
