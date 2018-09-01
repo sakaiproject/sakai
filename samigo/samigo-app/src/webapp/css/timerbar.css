@@ -1,0 +1,123 @@
+.ui-progressbar {
+	position: relative;
+	background: #A0A0A0;
+	margin-bottom: 15px;
+}
+
+.progress-label {
+	position: absolute;
+	width: 100%;
+	top: 3px;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 #fff;
+	text-align: center;
+}
+
+#dialog-timeout {
+	display: none;
+}
+
+#timeoutWarning {
+	display: none;
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	color: #a94442;
+	padding: 15px;
+	margin-bottom: 20px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	margin: 10px 15px 0px 15px;
+}
+
+#progressbar {
+	width: 98%;
+	margin: auto;
+	margin-top: 10px;
+}
+
+#timerBlock {
+	position: absolute;
+	top: 0px;
+	width: 75%;
+	background-color: #000036; 
+	margin: 0;
+	margin-left: 15px;
+	padding: 0;
+	z-index: 2;
+}
+
+#timerBlank {
+	height: 110px;
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+#showHide {
+	text-align: center;
+	margin-top: 8px;
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+/* Un-Comment this block to enable a more visible keyboard focus indicator
+div#showHide:focus {
+	outline: 3px solid #fff;
+	margin: 14px;
+}
+*/
+
+#showHideText {
+	padding-right: 3px;
+	padding-left: 3px;
+	font-family: sans-serif;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+.showHideSym {
+	color: #ffffff;
+}
+
+.ajaxImg {
+	vertical-align: middle;
+}
+
+#warnClose {
+	float: right;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.ui-progressbar .ui-progressbar-value {
+	margin: 0px !important;
+}
+
+.timerSubmissionInfoCol1 {
+	width: 240px;
+	vertical-align: top;
+	padding-top: 2px;
+	padding-left: 2px;
+}
+
+.timerSubmissionInfoCol2 {
+	width: 240px;
+	vertical-align: top;
+}
+
+tr.timerSubmission:nth-child(even) {
+	background-color: #eee;
+}
+
+@media only screen and (max-width: 770px) {
+	#timerBlock {
+		position: absolute;
+		top: 0px;
+		width: 100%;
+		background-color: #022f6a;
+		margin: 0;
+		padding: 0;
+		z-index: 2;
+		left: 0px;
+	}
+}

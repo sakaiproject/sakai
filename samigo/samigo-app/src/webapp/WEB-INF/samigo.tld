@@ -129,11 +129,6 @@
     <required>true</required>
     <rtexprvalue>false</rtexprvalue>
   </attribute>
-  <attribute>
-    <name>timeUpMessage</name>
-    <required>true</required>
-    <rtexprvalue>false</rtexprvalue>
-  </attribute>
   </tag>
 
   <tag>
