@@ -2352,6 +2352,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			//Don't fail on this exception
 			log.debug("Assessment not found by name", e);
 		}
+		catch (GradebookSecurityException gse) {
+			log.debug("Student has not permission to retrieve score for unreleased assignment", gse);
+			return score = "";
+		}
 
 		if (score == null) {
 			//Try to get the assignment by id
