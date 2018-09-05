@@ -55,6 +55,7 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.sakaiproject.event.api.NotificationService;
 
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
