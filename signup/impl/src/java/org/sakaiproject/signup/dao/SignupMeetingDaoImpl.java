@@ -268,11 +268,11 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		getHibernateTemplate().deleteAll(mergeAll(meetings));
 	}
 
-    private Collection mergeAll(Collection entities) {
-        List merged = new ArrayList();
-        entities.forEach(ent->merged.add(getHibernateTemplate().merge(ent)));
-        return merged;
-    }
+	private Collection mergeAll(Collection entities) {
+		List merged = new ArrayList();
+		entities.forEach(ent->merged.add(getHibernateTemplate().merge(ent)));
+		return merged;
+	}
 
 	/**
 	 * {@inheritDoc}
