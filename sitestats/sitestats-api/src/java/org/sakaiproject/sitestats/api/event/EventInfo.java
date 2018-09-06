@@ -30,6 +30,12 @@ public class EventInfo implements Serializable {
 		this.eventId = eventId.trim();
 	}
 
+	public EventInfo(EventInfo info) {
+		eventId = info.eventId;
+		selected = info.selected;
+		anonymous = info.anonymous;
+	}
+
 	public String getEventId() {
 		return eventId;
 	}

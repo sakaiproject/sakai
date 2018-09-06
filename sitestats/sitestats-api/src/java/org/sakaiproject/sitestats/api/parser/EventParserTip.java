@@ -37,6 +37,12 @@ public class EventParserTip implements Serializable {
 		this.index = index;
 	}
 
+	public EventParserTip(EventParserTip tip) {
+		forWhat = tip.forWhat;
+		separator = tip.separator;
+		index = tip.index;
+	}
+
 	public String getFor() {
 		return forWhat;
 	}

@@ -44,6 +44,17 @@ public class ToolInfo implements Serializable {
 		eventInfos = new ArrayList<EventInfo>();
 	}
 
+	public ToolInfo(ToolInfo tool) {
+		toolId = tool.toolId;
+		additionalToolIds = tool.additionalToolIds != null ? new ArrayList<>(tool.additionalToolIds) : null;
+		eventInfos = new ArrayList<>(tool.eventInfos.size());
+		for (EventInfo info : tool.eventInfos) {
+			eventInfos.add(new EventInfo(info));
+		}
+		selected = tool.selected;
+		eventParserTip = tool.eventParserTip != null ? new EventParserTip(tool.eventParserTip) : null;
+	}
+
 	public List<EventInfo> getEvents() {
 		return eventInfos;
 	}
@@ -132,5 +143,4 @@ public class ToolInfo implements Serializable {
 		}
 		return buff.toString();
 	}
-	
 }

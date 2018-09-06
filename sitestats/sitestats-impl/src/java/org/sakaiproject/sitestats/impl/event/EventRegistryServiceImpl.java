@@ -402,9 +402,17 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		}
 		// STAT-380 ensure we do not return a null from this method
 		if (eventRegistry == null) {
-			eventRegistry = new ArrayList<ToolInfo>(0);
+			return new ArrayList<>(0);
 		}
-		return eventRegistry;
+
+		// defensively deep copy the event registry before returning it, this prevents outside code from
+		// mutating the cached registry entries
+		List<ToolInfo> cloneRegistry = new ArrayList<>(eventRegistry.size());
+		for (ToolInfo t : eventRegistry) {
+			cloneRegistry.add(new ToolInfo(t));
+		}
+
+		return cloneRegistry;
 	}
 	
 	/** Process event registry expired notifications */
