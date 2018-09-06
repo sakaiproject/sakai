@@ -70,10 +70,7 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
 			LdapAttributeMapper mapper) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapLdapEntryToSakaiUserType(): [entry DN = " + 
-					ldapEntry.getDN() + "]");
-		}
+		log.debug("mapLdapEntryToSakaiUserType(): [entry DN = {}]", ldapEntry.getDN());
 		
 		String dnString = ldapEntry.getDN();
 
@@ -109,29 +106,18 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	 */
 	protected String mapRdn(String rdnValue) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapRdn(): mapping [rdn value = " +
-					rdnValue + "]");
-		}
+		log.debug("mapRdn(): mapping [rdn value = {}]", rdnValue);
 		
 		if ( rdnToSakaiUserTypeMap == null || rdnToSakaiUserTypeMap.isEmpty() ) {
-			
 			String mappedValue = returnLiteralRdnValueIfNoMapping ? rdnValue : null;
-			if ( log.isDebugEnabled() ) {
-				log.debug("mapRdn(): no mappings assigned [rdn value = " + rdnValue + 
-					"][returning = " + mappedValue + "]");
-			}
+			log.debug("mapRdn(): no mappings assigned [rdn value = {}][returning = {}]", rdnValue, mappedValue);
 			return mappedValue;
-			
 		}
 		
 		String mappedValue = rdnToSakaiUserTypeMap.get(rdnValue);
 		if ( mappedValue == null ) {
 			mappedValue = returnLiteralRdnValueIfNoMapping ? rdnValue : null;
-			if ( log.isDebugEnabled() ) {
-				log.debug("mapRdn(): no valid mapping [rdn value = " + rdnValue + 
-					"][returning = " + mappedValue + "]");
-			}
+			log.debug("mapRdn(): no valid mapping [rdn value = {}][returning = {}]", rdnValue, mappedValue);
 		}
 		return mappedValue;
 	}

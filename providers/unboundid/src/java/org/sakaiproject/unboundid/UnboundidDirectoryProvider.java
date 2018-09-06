@@ -201,9 +201,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	private boolean authenticateWithProviderFirst = DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST;
 
 	public UnboundidDirectoryProvider() {
-		if ( log.isDebugEnabled() ) {
-			log.debug("instantating UnboundidDirectoryProvider");
-		}
+		log.debug("instantating UnboundidDirectoryProvider");
 	}
 
 	/**
@@ -217,9 +215,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	public void init()
 	{
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("init()");
-		}
+		log.debug("init()");
 
 		// We don't want to allow people to break their config by setting the batch size to be more than the maxResultsSize.
 		if (batchSize > maxResultSize) {
@@ -276,9 +272,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	protected void initLdapAttributeMapper() {
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("initLdapAttributeMapper()");
-		}
+		log.debug("initLdapAttributeMapper()");
 
 		if ( ldapAttributeMapper == null ) {
 			// emulate what Spring should really be doing
@@ -296,10 +290,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 * @return a new {@link LdapAttributeMapper}
 	 */
 	protected LdapAttributeMapper newDefaultLdapAttributeMapper() {
-		if ( log.isDebugEnabled() ) {
-			log.debug(
-			"newDefaultLdapAttributeMapper(): returning a new SimpleLdapAttributeMapper");
-		}
+		log.debug("newDefaultLdapAttributeMapper(): returning a new SimpleLdapAttributeMapper");
 		return new SimpleLdapAttributeMapper();
 	}
 
@@ -307,12 +298,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 * Typically called by Spring to signal bean destruction.
 	 *
 	 */
-	public void destroy()
-	{
-		if ( log.isDebugEnabled() ) {
-			log.debug("destroy()");
-		}
-
+	public void destroy() {
+		log.debug("destroy()");
 	}
 
 	/**
@@ -342,20 +329,15 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	{
 		com.unboundid.ldap.sdk.LDAPConnection lc = null;
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("authenticateUser(): [userLogin = " + userLogin + "]");
-		}
+		log.debug("authenticateUser(): [userLogin = {}]", userLogin);
 
 		if ( !(allowAuthentication) ) {
 			log.debug("authenticateUser(): denying authentication attempt [userLogin = " + userLogin + "]. All authentication has been disabled via configuration");
 			return false;
 		}
 		
-		if ( StringUtils.isBlank(password) )
-		{
-			if ( log.isDebugEnabled() ) {
-				log.debug("authenticateUser(): returning false, blank password");
-			}
+		if ( StringUtils.isBlank(password) ) {
+			log.debug("authenticateUser(): returning false, blank password");
 			return false;
 		}
 
@@ -368,20 +350,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			final String endUserDN = lookupUserBindDn(userLogin);
 
 			if ( endUserDN == null ) {
-				if ( log.isDebugEnabled() ) {
-					log.debug("authenticateUser(): failed to find bind dn for login [userLogin = " + userLogin + "], returning false");
-				}
+				log.debug("authenticateUser(): failed to find bind dn for login [userLogin = {}], returning false", userLogin);
 				return false;
 			}
 
-			if ( log.isDebugEnabled() ) {
-				log.debug("authenticateUser(): returning connection to pool [userLogin = " + userLogin + "]");
-			}
-
-			if ( log.isDebugEnabled() ) {
-				log.debug("authenticateUser(): attempting to allocate bound connection [userLogin = " + 
-						userLogin + "][bind dn [" + endUserDN + "]");
-			}
+			log.debug("authenticateUser(): attempting to allocate bound connection [userLogin = {}][bind dn [{}]", userLogin, endUserDN);
 			
 			lc = connectionPool.getConnection();
 			BindResult bindResult = lc.bind(endUserDN, password);
@@ -389,20 +362,13 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 				return true;
 			}
 
-			if ( log.isDebugEnabled() ) {
-				log.debug("authenticateUser(): unsuccessfull bind attempt [userLogin = " + 
-						userLogin + "][bind dn [" + endUserDN + "]");
-			}
+			log.debug("authenticateUser(): unsuccessfull bind attempt [userLogin = {}][bind dn [{}]", userLogin, endUserDN);
 			return false;
-
 		}
 		catch (com.unboundid.ldap.sdk.LDAPException e)
 		{
 			if (e.getResultCode().intValue() == LDAPException.INVALID_CREDENTIALS) {
-				if ( log.isWarnEnabled() ) {
-					log.warn("authenticateUser(): invalid credentials [userLogin = "
-							+ userLogin + "]");
-				}
+				log.warn("authenticateUser(): invalid credentials [userLogin = {}]", userLogin);
 				return false;
 			} else {
 				throw new RuntimeException(
@@ -470,15 +436,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			}
 		
 			if ( resolvedEntry == null ) {
-				if ( log.isDebugEnabled() ) {
-					log.debug("findUserByEmail(): failed to find user by email [email = " + email + "]");
-				}
+				log.debug("findUserByEmail(): failed to find user by email [email = {}]", email);
 				return false;
 			}
 
-			if ( log.isDebugEnabled() ) {
-				log.debug("findUserByEmail(): found user by email [email = " + email + "]");
-			}
+			log.debug("findUserByEmail(): found user by email [email = {}]", email);
 
 			if ( edit != null ) {
 				mapUserDataOntoUserEdit(resolvedEntry, edit);
@@ -553,9 +515,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	public void getUsers(Collection<UserEdit> users)
 	{
-		if ( log.isDebugEnabled() ) {
-			log.debug("getUsers(): [Collection size = " + users.size() + "]");
-		}
+		log.debug("getUsers(): [Collection size = {}]", users.size());
 
 		boolean abortiveSearch = false;
 		int maxQuerySize = getMaxObjectsToQueryFor();
@@ -609,9 +569,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			
 			// Finally clean up the original collection and remove and users we could not find
 			for (UserEdit userRemove : usersToRemove) {
-				if (log.isDebugEnabled()) {
-					log.debug("Unboundid getUsers could not find user: " + userRemove.getEid());
-				}
+				log.debug("Unboundid getUsers could not find user: {}", userRemove.getEid());
 				users.remove(userRemove);
 			}
 			
@@ -629,9 +587,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		} finally {
 			// no sense in returning a partially complete search result
 			if ( abortiveSearch ) {
-				if ( log.isDebugEnabled() ) {
-					log.debug("getUsers(): abortive search, clearing received users collection");
-				}
+				log.debug("getUsers(): abortive search, clearing received users collection");
 				users.clear();
 			}
 		}
@@ -654,9 +610,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	public boolean userExists(String eid)
 	{
-		if ( log.isDebugEnabled() ) {
-			log.debug("userExists(): [eid = " + eid + "]");
-		}
+		log.debug("userExists(): [eid = {}]", eid);
 
 		try {
 
@@ -759,10 +713,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	protected String lookupUserBindDn(String eid) 
 	throws LDAPException {
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("lookupUserEntryDN(): [eid = " + eid + 
-					"]");
-		}
+			log.debug("lookupUserEntryDN(): [eid = {}]", eid);
 
 		LdapUserData foundUserData;
 		if (enableAid) {
@@ -772,10 +723,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		}
 
 		if ( foundUserData == null ) {
-			if ( log.isDebugEnabled() ) {
-				log.debug("lookupUserEntryDN(): no directory entried found [eid = " + 
-						eid + "]");
-			}
+			log.debug("lookupUserEntryDN(): no directory entried found [eid = {}]", eid);
 			return null;
 		}
 		return ldapAttributeMapper.getUserBindDn(foundUserData);
@@ -800,10 +748,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			String searchBaseDn)
 	throws LDAPException {
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("searchDirectoryForSingleEntry(): [filter = " + filter + 
-					"]");
-		}
+		log.debug("searchDirectoryForSingleEntry(): [filter = {}]", filter);
 
 		List<LdapUserData> results = searchDirectory(filter,
 				mapper,
@@ -865,14 +810,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 				dr = DereferencePolicy.ALWAYS;
 			}
 
-			if ( log.isDebugEnabled() ) {
-				log.debug("searchDirectory(): [baseDN = " + 
-						searchBaseDn + "][filter = " + filter + 
-						"][return attribs = " + 
-						Arrays.toString(scrubbedPhysicalAttributeNames) + 
-						"][max results = " + maxResults + "]" +
-						"][search scope = " + searchScope + "]");
-			}
+			log.debug("searchDirectory(): [baseDN = {}][filter = {}][return attribs = {}][max results = {}][search scope = {}]",
+				searchBaseDn, filter, Arrays.toString(scrubbedPhysicalAttributeNames), maxResults, searchScope);
 			long start = System.currentTimeMillis();
 			
 			SearchResult searchResult = null;
@@ -911,9 +850,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 				}
 				mappedResults.add((LdapUserData) mappedResult);
 			}
-			if (log.isDebugEnabled()) {
-				log.debug("Query took: "+ (System.currentTimeMillis() - start)+ "ms.");
-			}
+			log.debug("Query took: {}ms",  (System.currentTimeMillis() - start));
 			
 			return mappedResults;
 
@@ -982,9 +919,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	protected LdapUserData mapLdapEntryOntoUserData(LDAPEntry ldapEntry) {
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapLdapEntryOntoUserData() [dn = " + ldapEntry.getDN() + "]");
-		}
+		log.debug("mapLdapEntryOntoUserData() [dn = {}]", ldapEntry.getDN());
 
 		LdapUserData userData = newLdapUserData();
 		ldapAttributeMapper.mapLdapEntryOntoUserData(ldapEntry, userData);
@@ -1012,10 +947,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	protected void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 
-		if ( log.isDebugEnabled() ) {
-			//  std. UserEdit impl has no meaningful toString() impl
-			log.debug("mapUserDataOntoUserEdit() [userData = " + userData + "]");
-		}
+		//  std. UserEdit impl has no meaningful toString() impl
+		log.debug("mapUserDataOntoUserEdit() [userData = {}]", userData);
 
 		// delegate to the LdapAttributeMapper since it knows the most
 		// about how the LdapUserData instance was originally populated

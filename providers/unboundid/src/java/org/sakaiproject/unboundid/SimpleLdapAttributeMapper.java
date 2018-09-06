@@ -103,30 +103,20 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 */
 	public void init() {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("init()");
-		}
+		log.debug("init()");
 		
 		if ( attributeMappings == null || attributeMappings.isEmpty() ) {
-			if ( log.isDebugEnabled() ) {
-				log.debug("init(): creating default attribute mappings");
-			}
+			log.debug("init(): creating default attribute mappings");
 			setAttributeMappings(AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS);
 		}
 		 
 		if ( userTypeMapper == null ) {
 			userTypeMapper = new EmptyStringUserTypeMapper();
-			if ( log.isDebugEnabled() ) {
-				log.debug("init(): created default user type mapper [mapper = " + 
-						userTypeMapper + "]");
-			}
+			log.debug("init(): created default user type mapper [mapper = {}]", userTypeMapper);
 		}
 		if ( valueMappings == null ) {
 			valueMappings = Collections.emptyMap();
-			if ( log.isDebugEnabled() ) {
-				log.debug("init(): created default value mapper [mapper = " +
-						valueMappings + "]");
-			}
+				log.debug("init(): created default value mapper [mapper = {}]", valueMappings);
 		} else {
 			// Check we have good value mappings and throw any out that aren't (warning user).
 			Iterator<Entry<String, MessageFormat>> iterator = valueMappings.entrySet().iterator();
@@ -196,10 +186,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 */
 	public void mapLdapEntryOntoUserData(LDAPEntry ldapEntry, LdapUserData userData) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapLdapEntryOntoUserData(): mapping entry [dn = " + 
-					ldapEntry.getDN() + "]");
-		}
+			log.debug("mapLdapEntryOntoUserData(): mapping entry [dn = {}]", ldapEntry.getDN());
         
 		setUserDataDn(ldapEntry, userData);
         
@@ -265,17 +252,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
             LdapUserData userData, Collection<String> logicalAttrNames) {
         
         if ( logicalAttrNames == null || logicalAttrNames.isEmpty() ) {
-            if ( log.isDebugEnabled() ) {
-                log.debug("No logical name for attribute. [physical name = " + 
-                        attribute.getName() + "]");
-            }
+            log.debug("No logical name for attribute. [physical name = {}]", attribute.getName());
             return;
         }
-        
+
         for ( String logicalAttrName : logicalAttrNames ) {
         	mapLdapAttributeOntoUserData(attribute, userData, logicalAttrName);
         }
-        
+
     }
     
     /**
@@ -295,84 +279,47 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         MessageFormat format = valueMappings.get(logicalAttrName);
         if (format != null && attrValue != null) {
             format = (MessageFormat)format.clone();
-            if ( log.isDebugEnabled() ) {
-                log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = " +
-                        attrValue + "; format=" + format.toString() + "]");
-            }
+            log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = {}; format={}]", attrValue, format.toString());
             attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
         }
-        
-        if ( log.isDebugEnabled() ) {
-        	log.debug("mapLdapAttributeOntoUserData() preparing to map: [logical attr name = " + logicalAttrName + 
-        			"][physical attr name = " + attribute.getName() + "][value = " + attrValue + "]");
-        }
+
+        log.debug("mapLdapAttributeOntoUserData() preparing to map: [logical attr name = {}][physical attr name = {}][value = {}]",
+            logicalAttrName, attribute.getName(), attrValue);
         
         if ( logicalAttrName.equals(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: " +
-        				"[logical attr name = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
             userData.setEid(attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstName: " +
-        				"[logical attr name = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstName: [logical attr name = {}][physical attr name = [}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
             userData.setFirstName(attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.PREFERRED_FIRST_NAME_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-            	log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstNamePreferred: " +
-            			"[logical attr name = " + logicalAttrName + 
-            			"][physical attr name = " + attribute.getName() + 
-            			"][value = " + attrValue + "]");
-            }
-        	userData.setPreferredFirstName(attrValue);
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstNamePreferred: logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
+            userData.setPreferredFirstName(attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.lastName: " +
-        				"[logical attr name = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.lastName: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
             userData.setLastName(attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.email: " +
-        				"[logical attr name = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.email: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
             userData.setEmail(attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_ID_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display Id: " +
-        				"[logical attr name = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display Id: logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
             userData.setProperty(UnboundidDirectoryProvider.DISPLAY_ID_PROPERTY, attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_NAME_ATTR_MAPPING_KEY) ) {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display name: " +
-        				"[logical attr name = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
-        	userData.setProperty(UnboundidDirectoryProvider.DISPLAY_NAME_PROPERTY, attrValue);
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display name: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
+            userData.setProperty(UnboundidDirectoryProvider.DISPLAY_NAME_PROPERTY, attrValue);
         } else {
-        	if ( log.isDebugEnabled() ) {
-        		log.debug("mapLdapAttributeOntoUserData() mapping attribute to a User property: " +
-        				"[logical attr name (and property name) = " + logicalAttrName + 
-        				"][physical attr name = " + attribute.getName() + 
-        				"][value = " + attrValue + "]");
-        	}
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to a User property: [logical attr name (and property name) = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
             userData.setProperty(logicalAttrName, attrValue);
         }
-        
+
     }
 
 	
@@ -397,9 +344,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 */
 	public void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapUserDataOntoUserEdit(): [userData = " + userData + "]");
-		}
+		log.debug("mapUserDataOntoUserEdit(): [userData = {}]", userData);
 		
 		userEdit.setEid(userData.getEid());
 		userEdit.setFirstName(userData.getFirstName());
@@ -492,12 +437,9 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         cachePhysicalAttributeNames();
         cacheReverseAttributeLookupMap();
         
-        if (log.isDebugEnabled()) {
-        	log.debug("setAttributeMappings(): [attrib map = " + this.attributeMappings + "]");
-        	log.debug("setAttributeMappings(): [reverse attrib map = " + this.reverseAttributeMappings + "]");
-        	log.debug("setAttributeMappings(): [cached phys attrb names = " + Arrays.toString(this.physicalAttrNames) + "]");
-        }
-        
+       	log.debug("setAttributeMappings(): [attrib map = {}]", this.attributeMappings);
+       	log.debug("setAttributeMappings(): [reverse attrib map = {}]", this.reverseAttributeMappings);
+       	log.debug("setAttributeMappings(): [cached phys attrb names = {}]", Arrays.toString(this.physicalAttrNames));
 	}
 	
 	/**
@@ -579,14 +521,10 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 */
 	protected String usePreferredFirstName(LdapUserData userData) {
 		if(StringUtils.isNotBlank(userData.getPreferredFirstName())) {
-			 if (log.isDebugEnabled()) {
-				 log.debug("usePreferredFirstName() using firstNamePreferred.");
-			 }
+			log.debug("usePreferredFirstName() using firstNamePreferred.");
 			return userData.getPreferredFirstName();
 		} else {
-			 if (log.isDebugEnabled()) {
-				 log.debug("usePreferredFirstName() using firstName.");
-			 }
+			 log.debug("usePreferredFirstName() using firstName.");
 			return userData.getFirstName();
 		}
 	}
@@ -653,9 +591,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		
 		sb.append(")");
 		
-		if (log.isDebugEnabled()) {
-			log.debug("getManyUsersInOneSearch() completed filter: " + sb.toString());
-		}
+		log.debug("getManyUsersInOneSearch() completed filter: {}", sb.toString());
 		
 		return sb.toString();
 	}
