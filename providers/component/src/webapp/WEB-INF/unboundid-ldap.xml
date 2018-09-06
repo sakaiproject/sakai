@@ -7,22 +7,18 @@
 		class="org.sakaiproject.unboundid.UnboundidDirectoryProvider" init-method="init"
 		destroy-method="destroy">
 		
-		<!-- Required. Round-robin set of hostnames that will be placed into Unboundid connection pool. -->
+		<!-- Required. Uses Unboundid SingleServerSet by default. Easy to modify code to use FailoverServerSet or RoundRobinServerSet. -->
 		<property name="ldapHost">
 			<list>
 				<value>10.1.1.1</value>
-				<value>10.2.1.1</value>
-				<value>10.3.1.1</value>
 			</list>
 		</property>
 
-		<!-- Required. LDAP connection ports. Typically defaults to 
-			UnboundidDirectoryProvider.DEFAULT_LDAP_PORT (389). Secured
-			connections are usually on 636 -->
+		<!-- Required. LDAP connection port. Typically defaults to 
+			UnboundidDirectoryProvider.DEFAULT_LDAP_PORT (389). Secure
+			connection is usually on 636 -->
 		<property name="ldapPort">
 			<list>
-				<value>389</value>
-				<value>389</value>
 				<value>389</value>
 			</list>
 		</property>
