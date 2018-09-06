@@ -111,11 +111,11 @@ extends SimpleLdapAttributeMapper implements EidDerivedEmailAddressHandler {
 	 * @param string
 	 * @return
 	 */
-	public String deriveAddressFromEid(String eid) {
+	public String deriveAddressFromEid(final String rawEid) {
 		if ( defaultAddressDomain == null ) {
 			return null;
 		}
-		eid = StringUtils.trimToNull(eid);
+		String eid = StringUtils.trimToNull(rawEid);
 		if ( eid == null ) {
 			return null;
 		}

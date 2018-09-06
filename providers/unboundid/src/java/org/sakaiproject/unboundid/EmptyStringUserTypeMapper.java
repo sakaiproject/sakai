@@ -21,7 +21,6 @@
 
 package org.sakaiproject.unboundid;
 
-import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
 import lombok.extern.slf4j.Slf4j;
 
 /**
