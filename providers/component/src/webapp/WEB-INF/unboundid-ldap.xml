@@ -59,9 +59,9 @@
 		</property -->
 
 		<!-- Optional. LDAP operation timeout in millis. Defaults 
-			to UnboundidDirectoryProvider.DEFAULT_OPERATION_TIMEOUT_MILLIS (5000) -->
+			to UnboundidDirectoryProvider.DEFAULT_OPERATION_TIMEOUT_MILLIS (9000) -->
 		<!-- property name="operationTimeout">
-			<value>5000</value>
+			<value>9000</value>
 		</property -->
 		
 		<!-- Optional. Control depth of all searches. Possible values:
