@@ -89,18 +89,18 @@
 
               if (enabled) {
                   $('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
-                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  $('#assessmentSettingsAction\\:markForReview1').parent().removeClass("placeholder");
                   QuesFormatRadios.forEach( function(v, i, a) {
-                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $('label[for="' + v + '"]').removeClass("placeholder");
                       $("#" + v).removeAttr("disabled");
                   });
               } else {
                   $('#assessmentSettingsAction\\:markForReview1').attr("disabled", true);
-                  $('#assessmentSettingsAction\\:markForReview1').attr("checked", false);
-                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  $('#assessmentSettingsAction\\:markForReview1').prop("checked", false);
+                  $('#assessmentSettingsAction\\:markForReview1').parent().addClass("placeholder");
                   QuesFormatRadios.forEach( function(v, i, a) {
                       $('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
-                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $('label[for="' + v + '"]').addClass("placeholder");
                       $("#" + v).attr("disabled", true);
                   });
               }
@@ -168,10 +168,6 @@
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
 
-          // SAM-2121: Lockdown the question layout and mark for review if necessary
-          var navVal = $('#assessmentSettingsAction\\:itemNavigation input:radio:checked').val();
-          lockdownQuestionLayout(navVal);
-          lockdownMarkForReview(navVal);
           showHideReleaseGroups();
           initTimedCheckBox();
           checkUncheckTimeBox();
@@ -687,7 +683,7 @@
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
       <div class="col-md-10">
-        <t:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="spread" onclick="setBlockDivs();updateItemNavigation(true);lockdownQuestionLayout(this.value);lockdownMarkForReview(this.value);">
+        <t:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="spread" onclick="setBlockDivs();updateItemNavigation(true);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
         </t:selectOneRadio>
