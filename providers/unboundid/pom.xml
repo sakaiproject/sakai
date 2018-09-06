@@ -4,7 +4,7 @@
   <parent>
     <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version>
+    <version>19-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-unboundid-provider</name>
@@ -32,13 +32,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-     </dependency>
     <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
@@ -50,7 +43,7 @@
     <dependency>
       <groupId>com.unboundid</groupId>
       <artifactId>unboundid-ldapsdk</artifactId>
-      <version>3.1.0</version>
+      <version>4.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.jmock</groupId>
@@ -74,7 +67,7 @@
     <dependency>
       <groupId>org.zapodot</groupId>
       <artifactId>embedded-ldap-junit</artifactId>
-      <version>0.5.2</version>
+      <version>0.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

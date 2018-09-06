@@ -21,10 +21,8 @@
 
 package org.sakaiproject.unboundid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Essentially a null impl, which always returns an empty
@@ -33,10 +31,8 @@ import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
  * @author Dan McCallum, Unicon
 
  */
+@Slf4j
 public class EmptyStringUserTypeMapper extends StringUserTypeMapper {
-	
-	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(EmptyStringUserTypeMapper.class);
 	
 	/**
 	 * Initializes the cached user type <code>String</code> to an
@@ -57,8 +53,8 @@ public class EmptyStringUserTypeMapper extends StringUserTypeMapper {
 	 */
 	@Override
 	public void setUserType(String userType) {
-		if ( M_log.isWarnEnabled() ) {
-			M_log.warn("Ignoring setUserType() call. EmptyStringUserTypeMapper cannot be reconfigured. Proposed user type value [" + userType + "]");
+		if ( log.isWarnEnabled() ) {
+			log.warn("Ignoring setUserType() call. EmptyStringUserTypeMapper cannot be reconfigured. Proposed user type value [" + userType + "]");
 		}
 	}
 
