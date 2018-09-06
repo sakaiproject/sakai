@@ -47,13 +47,9 @@
       <version>2.8.2</version>
       <scope>test</scope>
     </dependency>
-<!-- This exists strictly so we can control logging
-    	levels in Maven-executed unit tests -->
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
