@@ -27,20 +27,6 @@
 			</list>
 		</property>
 
-		<!--  If secureConnection is true, a keystore location must be provided
-			unless javax.net.ssl.trustStore system property has already been 
-			set -->
-		<!--property name="keystoreLocation">
-			<value>/usually/set/at/startup</value>
-		</property-->
-
-		<!--  If secureConnection is true, a keystore password must be provided
-			unless javax.net.ssl.trustStorePassword system property has already
-			been set -->
-		<!--property name="keystorePassword">
-			<value>usually-set-at-startup</value>
-		</property-->
-
 		<!-- Optional. DN to which to bind for directory searches. 
 			Typically only necessary if autoBind is true -->
 		<!-- property name="ldapUser">
@@ -100,15 +86,6 @@
 			<value>2</value>
 		</property -->
 
-		<!-- Setting a cacheTTL in jldap-beans.xml is longer supported! 
-			 If you are attempting to cache your users for one hour instead of the default of 5 minutes, 
-			 set the central UserDirectoryService.callCache
-			 memory.org.sakaiproject.user.api.UserDirectoryService.callCache=timeToLiveSeconds=3600
-		-->
-
-		<!-- Setting caseSensitiveCacheKeys is no longer supported!
-			 We assume that user jdoe is the same as user JDoe!! -->
-		
 		<!--  Optional. Control the return value of 
 		      UnboundidDirectoryProvider.authenticateWithProviderFirst(String)
 		      on a global basis. Defaults to
