@@ -88,7 +88,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	public static final SearchScope DEFAULT_SEARCH_SCOPE = SearchScope.SUB;
 
 	/** Default LDAP maximum number of connections in the pool */
-	public static final int DEFAULT_POOL_MAX_CONNS = 30;
+	public static final int DEFAULT_POOL_MAX_CONNS = 10;
 	
 	/** Default LDAP maximum number of objects in a result */
 	public static final int DEFAULT_MAX_RESULT_SIZE = 1000;
@@ -700,23 +700,20 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	protected LdapUserData getUserByEid(String eid) 
 	throws LDAPException {
-		if ( log.isDebugEnabled() ) {
-			log.debug("getUserByEid(): [eid = " + eid + "]");
-		}
 
 		if ( !(isSearchableEid(eid)) ) {
 			if (eid == null)
 			{
 				log.debug("User EID not searchable (eid is null)");
+				return null;
 			}
-			else if ( log.isInfoEnabled() ) {
-				log.info("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [" + eid + "]");
-			}
+
+			log.info("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [{}]", eid);
 			return null;
 		}
 
-		String filter = 
-			ldapAttributeMapper.getFindUserByEidFilter(eid);
+		log.debug("getUserByEid(): [eid = {}]", eid);
+		String filter = ldapAttributeMapper.getFindUserByEidFilter(eid);
 
 		// takes care of caching and everything
 		return (LdapUserData)searchDirectoryForSingleEntry(filter, 

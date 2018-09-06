@@ -40,15 +40,6 @@
 			<value>false</value>
 		</property -->
 
-		<!-- Optional. If secureConnection is true, this socket factory
-			will be assigned globally to LDAPConnections. Defaults to an
-			instance of com.novell.ldap.LDAPJSSESecureSocketFactory, which
-			is appropriate for SSL connections. Use 
-			com.novell.ldap.LDAPJSSEStartTLSFactory for TLS. -->
-		<!-- property name="secureSocketFactory">
-			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
-		</property -->
-
 		<!-- Optional. Indicate if connection allocation should
 			implicitly bind as ${ldapUser}. Defaults to false -->
 		<!-- property name="autoBind">
@@ -106,15 +97,7 @@
 			<bean class="org.sakaiproject.unboundid.SimpleLdapConnectionManager" />
 		</property -->
 
-		<!-- Optional. Use Connection Pooling?
-			Defaults to UnboundidDirectoryProvider.DEFAULT_POOLING (false). 
-			Has no effect if ldapConnectionManager has been explicitly
-			assigned (unless that object honors this flag, of course). -->
-		<!--  property name="pooling">
-			<value>false</value>
-		</property -->
-
-		<!-- Optional. Maxmimum number of connections in the pool
+		<!-- Maxmimum number of connections in the pool
 			Defaults to UnboundidDirectoryProvider.DEFAULT_POOL_MAX_CONNS (10) -->
 		<!--  property name="poolMaxConns">
 			<value>10</value>
