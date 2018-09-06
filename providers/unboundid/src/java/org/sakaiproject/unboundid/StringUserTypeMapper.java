@@ -20,10 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.unboundid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Very simple {@link UserTypeMapper} which generates the same
@@ -32,10 +30,8 @@ import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
  * 
  * @author dmccallum
  */
+@Slf4j
 public class StringUserTypeMapper implements UserTypeMapper {
-	
-	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(StringUserTypeMapper.class);
 	
 	private String userType;
 	
@@ -67,8 +63,8 @@ public class StringUserTypeMapper implements UserTypeMapper {
 	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
 			LdapAttributeMapper mapper) {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapLdapEntryToSakaiUserType(): returning user type [" + userType + 
+		if ( log.isDebugEnabled() ) {
+			log.debug("mapLdapEntryToSakaiUserType(): returning user type [" + userType + 
 					"] for [entry DN = " + ldapEntry.getDN() + "]");
 		}
 		
