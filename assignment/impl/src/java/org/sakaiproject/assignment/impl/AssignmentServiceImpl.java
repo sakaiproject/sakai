@@ -2276,26 +2276,32 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public String getGradeForSubmitter(AssignmentSubmission submission, String submitter) {
         if (submission == null || StringUtils.isBlank(submitter)) return null;
 
-        String grade;
+        String grade = null;
         Assignment assignment = submission.getAssignment();
 
-        // if this assignment is associated to the gradebook always use that score
+        // if this assignment is associated to the gradebook always use that score first
         String gradebookAssignmentName = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
         if (StringUtils.isNotBlank(gradebookAssignmentName) && !gradebookExternalAssessmentService.isExternalAssignmentDefined(assignment.getContext(), gradebookAssignmentName)) {
             // associated gradebook item
             grade = gradebookService.getAssignmentScoreStringByNameOrId(assignment.getContext(), gradebookAssignmentName, submitter);
+        }
+
+        if (StringUtils.isNotBlank(grade)) {
+            // exists a grade in the gradebook so we use that
             if (StringUtils.isNumeric(grade)) {
                 Integer score = Integer.parseInt(grade);
+                // convert gradebook to an asssignments score using the scale factor
                 grade = Integer.toString(score * assignment.getScaleFactor());
             }
         } else {
-            // grade maintained by assignments or is considered externally mananged
+            // otherwise use grade maintained by assignments or is considered externally mananged or is not released
             grade = submission.getGrade(); // start with submission grade
             Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
             if (submissionSubmitter.isPresent()) {
                 grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
             }
         }
+
         Integer scale = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : getScaleFactor();
         grade = getGradeDisplay(grade, assignment.getTypeOfGrade(), scale);
 

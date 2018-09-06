@@ -1477,19 +1477,13 @@ public class AssignmentAction extends PagedResourceActionII {
             if (s != null) {
                 log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", user);
                 context.put("submission", s);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(s, currentUser);
+                context.put("grade", grade);
                 if (assignment.getIsGroup()) {
                     context.put("selectedGroup", s.getGroupId());
                     context.put("originalGroup", s.getGroupId());
                     context.put("submitterId", s.getGroupId());
-
-                    String currentUser = userDirectoryService.getCurrentUser().getId();
-
-                    String gradeOverride = assignmentService.getGradeForSubmitter(s, currentUser);
-
-                    // if still no grade then there is no override
-                    if (gradeOverride != null) {
-                        context.put("override", gradeOverride);
-                    }
                 }
 
                 setScoringAgentProperties(context, assignment, s, false);
@@ -1979,6 +1973,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentSubmission submission = getSubmission(aReference, user, "build_student_preview_submission_context", state);
             if (submission != null) {
                 context.put("submission", submission);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
+                context.put("grade", grade);
                 context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
             }
 

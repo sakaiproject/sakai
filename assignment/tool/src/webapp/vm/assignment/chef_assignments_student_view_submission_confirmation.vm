@@ -187,13 +187,7 @@
             #end
         #end
 
-        #if ($!linkInvoked)
-            <p class="act">
-                <input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();"
-                       name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")"
-                       class="active"/>
-            </p>
-        #else
+        #if (!$!linkInvoked)
             <p class="act">
                 <input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission"
                        value="$tlang.getString('gen.backtolist')" class="active"
