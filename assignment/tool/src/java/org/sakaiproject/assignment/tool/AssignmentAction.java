@@ -14405,10 +14405,17 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String gradebookUid = toolManager.getCurrentPlacement().getContext();
             boolean scoringAgentEnabled = scoringAgent != null && scoringAgent.isEnabled(gradebookUid, null);
-            String studentId = submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter();
+            Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+            String currentUser = sessionManager.getCurrentSessionUserId();
+            AssignmentSubmissionSubmitter submitter = submitters.stream()
+                    .filter(s -> s.getSubmitter().equals(currentUser)).findAny()
+                    .orElseGet(() -> submitters.stream()
+                            .filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+                            .orElse(null));
 
-            if (scoringAgentEnabled) {
+            if (scoringAgentEnabled && submitter != null) {
                 String gbItemName;
+                String studentId = submitter.getSubmitter();
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
                 if (aRef.equals(associatedGbItem)) {
                     // this gb item is controlled by this tool
