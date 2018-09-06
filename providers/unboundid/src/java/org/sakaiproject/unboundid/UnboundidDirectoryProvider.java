@@ -229,7 +229,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 
 		if (isSecureConnection()) {
 			try {
-				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+				// If testing locally only, could use `new TrustAllTrustManager()` as contructor parameter to SSLUtil
+				SSLUtil sslUtil = new SSLUtil();
 				SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
 
 				serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], sslSocketFactory);
