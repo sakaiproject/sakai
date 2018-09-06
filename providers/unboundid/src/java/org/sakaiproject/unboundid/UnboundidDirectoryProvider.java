@@ -44,6 +44,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
 
 import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.DereferencePolicy;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
@@ -75,7 +76,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	public static final boolean DEFAULT_IS_SECURE_CONNECTION = false;
 
 	/**  Default LDAP access timeout in milliseconds */
-	public static final int DEFAULT_OPERATION_TIMEOUT_MILLIS = 5000;
+	public static final int DEFAULT_OPERATION_TIMEOUT_MILLIS = 9000;
 
 	/** Default referral following behavior */
 	public static final boolean DEFAULT_IS_FOLLOW_REFERRALS = false;
@@ -226,9 +227,14 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			log.warn("Unboundid batchSize is larger than maxResultSize, batchSize has been reduced from: "+ batchSize + " to: "+ maxResultSize);
 		}
 
-		// Create a new LDAP connection pool with 10 connections spanning multiple
-		// servers using a server set.
+		// Create a new LDAP connection pool with 10 connections
 		ServerSet serverSet = null;
+
+		// Set some sane defaults to better handle timeouts. Unboundid will wait 30 seconds by default on a hung connection.
+		LDAPConnectionOptions connectOptions = new LDAPConnectionOptions();
+		connectOptions.setAbandonOnTimeout(true);
+		connectOptions.setConnectTimeoutMillis(operationTimeout);
+		connectOptions.setResponseTimeoutMillis(operationTimeout); // Sakai should not be making any giant queries to LDAP
 
 		if (isSecureConnection()) {
 			try {
@@ -236,13 +242,13 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 				SSLUtil sslUtil = new SSLUtil();
 				SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
 
-				serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], sslSocketFactory);
+				serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], sslSocketFactory, connectOptions);
 			} catch (GeneralSecurityException ex) {
 				log.error("Error while initializing LDAP SSLSocketFactory");
 				throw new RuntimeException(ex);
 			}
 		} else {
-			serverSet = new SingleServerSet(ldapHost[0], ldapPort[0]);
+			serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], connectOptions);
 		}
 
 		SimpleBindRequest bindRequest = new SimpleBindRequest(ldapUser, ldapPassword);
