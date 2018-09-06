@@ -63,10 +63,7 @@ public class StringUserTypeMapper implements UserTypeMapper {
 	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
 			LdapAttributeMapper mapper) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapLdapEntryToSakaiUserType(): returning user type [" + userType + 
-					"] for [entry DN = " + ldapEntry.getDN() + "]");
-		}
+			log.debug("mapLdapEntryToSakaiUserType(): returning user type [{}] for [entry DN = {}]", userType, ldapEntry.getDN());
 		
 		return userType;
 	}
