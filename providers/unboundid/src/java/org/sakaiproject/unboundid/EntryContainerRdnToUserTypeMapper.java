@@ -165,7 +165,7 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	/**
 	 * {@see mapRdn(String,String)}
 	 */
-	public void setReturnLiteralRdnIfNoMapping(boolean returnLiteralRdnValueIfNoMapping) {
+	public void setReturnLiteralRdnValueIfNoMapping(boolean returnLiteralRdnValueIfNoMapping) {
 		this.returnLiteralRdnValueIfNoMapping = returnLiteralRdnValueIfNoMapping;
 	}
 
