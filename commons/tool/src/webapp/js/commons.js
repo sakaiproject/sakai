@@ -323,10 +323,8 @@ commons.switchState = function (state, arg) {
                     return;
                 }
 
-                if (commons.isUserSite) {
-                    $("#commons-toolbar").hide();
-                } else {
-                    $("#commons-toolbar").toggle(commons.currentUserPermissions.updateSite);
+                if (!commons.isUserSite) {
+                    $('#commons-toolbar').removeClass('hidden').toggle(commons.currentUserPermissions.updateSite);
                 }
 
                 if (commons.currentUserPermissions.postReadAny || commons.currentUserPermissions.postCreate) {
