@@ -80,10 +80,7 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 	public String mapLdapEntryToSakaiUserType(LDAPEntry ldapEntry,
 			LdapAttributeMapper mapper) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapLdapEntryToSakaiUserType(): [entry DN = " + 
-					ldapEntry.getDN() + "]");
-		}
+			log.debug("mapLdapEntryToSakaiUserType(): [entry DN = {}]", ldapEntry.getDN());
 		
 		LDAPAttribute userTypeAttr = 
 			getUserTypeAttribute(ldapEntry, mapper);
@@ -96,11 +93,8 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 			getUserTypeAttribute(ldapEntry, mapper).getStringValueArray();
 		
 		String userType = mapUserTypeAttributeValues(userTypeAttrValues);
-		if ( log.isDebugEnabled() ) {
-			log.debug("mapLdapEntryToSakaiUserType(): finished mapping [user type = " + 
-					userType + "][entry values = " + Arrays.toString(userTypeAttrValues) + 
-					"][entry DN = " + ldapEntry.getDN() + "]");
-		}
+		log.debug("mapLdapEntryToSakaiUserType(): finished mapping [user type = " + 
+				"{}][entry values = {}][entry DN = {}]", userType, Arrays.toString(userTypeAttrValues), ldapEntry.getDN());
 		return userType;
 		
 	}
@@ -120,10 +114,7 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 	protected LDAPAttribute getUserTypeAttribute(LDAPEntry ldapEntry, 
 			LdapAttributeMapper mapper) {
 		
-		if ( log.isDebugEnabled() ) {
-			log.debug("getUserTypeAttribute(): [entry DN = " + 
-					ldapEntry.getDN() + "]");
-		}
+		log.debug("getUserTypeAttribute(): [entry DN = {}]", ldapEntry.getDN());
 		
 		if ( StringUtils.isBlank(logicalAttributeName) ) {
 			log.debug("getUserTypeAttribute(): no logical attribute name specified, returning null");
@@ -134,20 +125,15 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 		String attrName = mappings.get(logicalAttributeName);
 		
 		if ( attrName == null ) {
-			if ( log.isDebugEnabled() ) {
-				log.debug("getUserTypeAttribute(): failed to find attribute mapping [logical attr name = " +
-						logicalAttributeName + 
-						"][entry DN = " + ldapEntry.getDN() + "]");
-			}
+			log.debug("getUserTypeAttribute(): failed to find attribute mapping [logical attr name = " +
+					"{}][entry DN = {}]", logicalAttributeName, ldapEntry.getDN());
 			return null;
 		}
 		
 		LDAPAttribute attr = ldapEntry.getAttribute(attrName);
 		if ( attr == null ) {
-			if ( log.isDebugEnabled() ) {
-				log.debug("getUserTypeAttribute(): entry had no Sakai user type attr [physical attr name = " +
-						attrName + "][entry DN = " + ldapEntry.getDN() + "]");
-			}
+			log.debug("getUserTypeAttribute(): entry had no Sakai user type attr [physical attr name = " +
+					"{}][entry DN = {}]", attrName, ldapEntry.getDN());
 		}
 		return attr;
 	}
@@ -164,7 +150,7 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 	 * @return a Sakai user type, possibly null
 	 */
 	protected String mapUserTypeAttributeValues(String[] attrValues) {
-		for ( String value : attrValues ) {
+	for ( String value : attrValues ) {
 			String userType = mapUserTypeAttributeValue(value);
 			if ( userType != null ) {
 				return userType;

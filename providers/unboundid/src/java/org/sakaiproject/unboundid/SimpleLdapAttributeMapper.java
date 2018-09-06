@@ -415,10 +415,10 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		
 	}
     
-    public String escapeSearchFilterTerm(String term) {
-        if (term == null) return null;
+    public String escapeSearchFilterTerm(final String unescapedTerm) {
+        if (unescapedTerm == null) return null;
         //From RFC 2254
-        term = term.replaceAll("\\\\","\\\\5c");
+        String term = unescapedTerm.replaceAll("\\\\","\\\\5c");
         term = term.replaceAll("\\*","\\\\2a");
         term = term.replaceAll("\\(","\\\\28");
         term = term.replaceAll("\\)","\\\\29");
@@ -595,7 +595,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	/**
 	 * @inheritDoc
 	 */
-	public String getFindUserByCrossAttributeSearchFilter(String criteria) {
+	public String getFindUserByCrossAttributeSearchFilter(final String unescapedCriteria) {
 		String eidAttr = attributeMappings.get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
 		String emailAttr = attributeMappings.get(AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY);
 		String givenNameAttr = attributeMappings.get(AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY);
@@ -603,7 +603,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		
 		//This explicitly constructs the filter with wildcards in it.
 		//However, we escape the given criteria to prevent any other injection
-		criteria = escapeSearchFilterTerm(criteria);
+		String criteria = escapeSearchFilterTerm(unescapedCriteria);
 		
 		//(|(uid=criteria*)(mail=criteria*)(givenName=criteria*)(sn=criteria*))
 		StringBuilder sb = new StringBuilder();
