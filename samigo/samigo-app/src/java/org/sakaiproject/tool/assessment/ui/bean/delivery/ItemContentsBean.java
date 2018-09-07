@@ -485,7 +485,13 @@ public class ItemContentsBean implements Serializable {
 						&& !data.getAnswerText().equals("")) {
 					return false;
 				}
-			} 
+			}
+			else if (getItemData().getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION)) {
+				if (StringUtils.isNotEmpty(data.getAnswerText())
+						&& data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+					return false;
+				}
+			}
 			else {
 				if (data.getPublishedAnswerId() != null
 						|| data.getAnswerText() != null) {
