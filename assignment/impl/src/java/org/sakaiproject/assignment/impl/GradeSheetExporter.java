@@ -265,7 +265,8 @@ public class GradeSheetExporter {
 	
 	                        if (submission.getGraded() && submission.getGrade() != null) {
 	                            // graded and released
-	                            String grade = assignmentService.getGradeDisplay(submission.getGrade(), submission.getAssignment().getTypeOfGrade(), submission.getAssignment().getScaleFactor());
+	                            String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
+	                            
 	                            if (assignmentType == Assignment.GradeType.SCORE_GRADE_TYPE) {
 	                                try {
 	                                    // numeric cell type?

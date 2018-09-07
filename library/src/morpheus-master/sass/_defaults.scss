@@ -352,7 +352,15 @@ $logo-width: 126px !default;
 $skin-with-icons: true !default;
 $icon-size: 20px !default;
 
+/* Unpublished Banner */
+$siteUnpublish-background: $warn-background-color !default;
+$siteUnpublish-color: $text-color !default;
+$siteUnpublish-border: 1px solid $warn-color !default;
 
+/* Site Deletion Banner */
+$siteDelete-background: $info-background-color !default;
+$siteDelete-color: $text-color !default;
+$siteDelete-border: 1px solid $info-color !default;
 
 /* Icon Overrides */
 //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );

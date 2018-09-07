@@ -1513,19 +1513,13 @@ public class AssignmentAction extends PagedResourceActionII {
             if (s != null) {
                 log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", user);
                 context.put("submission", s);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(s, currentUser);
+                context.put("grade", grade);
                 if (assignment.getIsGroup()) {
                     context.put("selectedGroup", s.getGroupId());
                     context.put("originalGroup", s.getGroupId());
                     context.put("submitterId", s.getGroupId());
-
-                    String currentUser = userDirectoryService.getCurrentUser().getId();
-
-                    String gradeOverride = assignmentService.getGradeForSubmitter(s, currentUser);
-
-                    // if still no grade then there is no override
-                    if (gradeOverride != null) {
-                        context.put("override", gradeOverride);
-                    }
                 }
 
                 setScoringAgentProperties(context, assignment, s, false);
@@ -2034,6 +2028,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentSubmission submission = getSubmission(aReference, user, "build_student_preview_submission_context", state);
             if (submission != null) {
                 context.put("submission", submission);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
+                context.put("grade", grade);
                 context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
             }
 
@@ -14593,10 +14590,17 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String gradebookUid = toolManager.getCurrentPlacement().getContext();
             boolean scoringAgentEnabled = scoringAgent != null && scoringAgent.isEnabled(gradebookUid, null);
-            String studentId = submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter();
+            Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+            String currentUser = sessionManager.getCurrentSessionUserId();
+            AssignmentSubmissionSubmitter submitter = submitters.stream()
+                    .filter(s -> s.getSubmitter().equals(currentUser)).findAny()
+                    .orElseGet(() -> submitters.stream()
+                            .filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+                            .orElse(null));
 
-            if (scoringAgentEnabled) {
+            if (scoringAgentEnabled && submitter != null) {
                 String gbItemName;
+                String studentId = submitter.getSubmitter();
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
                 if (aRef.equals(associatedGbItem)) {
                     // this gb item is controlled by this tool

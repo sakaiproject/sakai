@@ -40,37 +40,22 @@
 	}
 
 	.#{$namespace}toolTitleNav {
-		z-index: 1;
-		margin-top: -33px;
-		margin-bottom: 0px;
-		max-width: 99%;
-		float: right;
 		@media #{$phone} {
 		       margin-top: 0px;
 		       margin-bottom: 10px;
 		       margin-right: 10px;
 		       top: 14px;
-                }
+        }
 		.menuitem {
 			  line-height: 1em;
 		}
-        }
+    }
 
 	.#{$namespace}toolTitleNav__button_container {
-		height: inherit;
-		margin-right: 0px;
-		margin-bottom: 0px;
-		position: initial;
-		float: right;
+		@media #{$phone} {
+			margin-top: -25px;	
+		}
 	}
-
-	.#{$namespace}toolTitleNav__link {
-        	margin-right: 3px;
-        }
-
-        .#{$namespace}toolTitleNav__link--help-popup {
-                margin-right: 0px;
-        }
 
 	.#{$namespace}hierarchy--separator {
 		margin-left: 10px;
@@ -83,10 +68,20 @@
 		       top: 10px;
 		}
 	}
-}
 
-#content {
-        padding-top: 0;
+	#content {
+			padding-top: 0;
+	}
+	
+	.topaction {
+		position: absolute;
+		top: 0;
+		right: 0;
+		
+		@media #{$phone} {
+			top: 2em;	
+		}	
+	}
 }
 
 .#{$namespace}multipleTools {
@@ -94,10 +89,6 @@
 		.#{$namespace}toolTitleNav {
 			float: none;
 			margin-top: 0;
-		}
-
-		.#{$namespace}toolTitleNav__button_container {
-			position: absolute;
 		}
 	}
 }
