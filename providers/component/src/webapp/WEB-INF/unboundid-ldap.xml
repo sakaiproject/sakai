@@ -6,6 +6,8 @@
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 		class="org.sakaiproject.unboundid.UnboundidDirectoryProvider" init-method="init"
 		destroy-method="destroy">
+
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		
 		<!-- Required. Uses Unboundid SingleServerSet by default. Easy to modify code to use FailoverServerSet or RoundRobinServerSet. -->
 		<property name="ldapHost">
