@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+		class="org.sakaiproject.unboundid.UnboundidDirectoryProvider" init-method="init"
+		destroy-method="destroy">
+		
+		<!-- Required. Uses Unboundid SingleServerSet by default. Easy to modify code to use FailoverServerSet or RoundRobinServerSet. -->
+		<property name="ldapHost">
+			<list>
+				<value>10.1.1.1</value>
+			</list>
+		</property>
+
+		<!-- Required. LDAP connection port. Typically defaults to 
+			UnboundidDirectoryProvider.DEFAULT_LDAP_PORT (389). Secure
+			connection is usually on 636 -->
+		<property name="ldapPort">
+			<list>
+				<value>389</value>
+			</list>
+		</property>
+
+		<!-- Optional. DN to which to bind for directory searches. 
+			Typically only necessary if autoBind is true -->
+		<!-- property name="ldapUser">
+			<value>attr=value,attr=value,attr=value</value>
+		</property -->
+
+		<!-- Optional. Password for ldapUser defined above -->
+		<!--  property name="ldapPassword">
+			<value>usually-set-this-value-in-security-dot-properties</value>
+		</property -->
+
+		<!-- Optional. Enables/disables secure LDAP connections.
+			defaults to UnboundidDirectoryProvider.DEFAULT_IS_SECURE_CONNECTION (false) -->
+		<!-- property name="secureConnection">
+			<value>false</value>
+		</property -->
+
+		<!-- Optional. Indicate if connection allocation should
+			implicitly bind as ${ldapUser}. Defaults to false -->
+		<!-- property name="autoBind">
+			<value>false</value>
+		</property -->
+
+		<!-- Optional, but usually specified. Base DN for directory searches. -->
+		<property name="basePath">
+			<value>dc=sakaiproject,dc=org</value>
+		</property>
+
+		<!-- Optional. Indicate if connections should follow
+			referrals. Defaults to  
+			UnboundidDirectoryProvider.DEFAULT_IS_FOLLOW_REFERRALS (false)-->
+		<!-- property name="followReferrals">
+			<value>false</value>
+		</property -->
+
+		<!-- Optional. LDAP operation timeout in millis. Defaults 
+			to UnboundidDirectoryProvider.DEFAULT_OPERATION_TIMEOUT_MILLIS (9000) -->
+		<!-- property name="operationTimeout">
+			<value>9000</value>
+		</property -->
+		
+		<!-- Optional. Control depth of all searches. Possible values:
+			0 - LDAPConnection.SCOPE_BASE - base object only
+			1 - LDAPConnection.SCOPE_ONE - immediate children of base object
+			2 - LDAPConnection.SCOPE_SUB - recursive 
+			Defaults to UnboundidDirectoryProvider.DEFAULT_SEARCH_SCOPE (2) -->
+		<!-- property name="searchScope">
+			<value>2</value>
+		</property -->
+
+		<!--  Optional. Control the return value of 
+		      UnboundidDirectoryProvider.authenticateWithProviderFirst(String)
+		      on a global basis. Defaults to
+		      UnboundidDirectoryProvider.DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST.  -->
+		<!--  property name="authenticateWithProviderFirst">
+			<value>false</value>
+		</property -->
+		
+		<!--  Optional. Control whether or not authentication is attempted
+		      on a global basis. "true" enables authentication attempts (but
+		      does not automatically grant all authN attempts), "false" 
+		      short-circuits that process and refuses all authN
+		      attempts.  Defaults to 
+		      UnboundidDirectoryProvider.DEFAULT_ALLOW_AUTHENTICATION  -->
+		<!--  property name="allowAuthentication">
+			<value>true</value>
+		</property -->
+		
+		<!-- Optional. Defaults to an instance of 
+		org.sakaiproject.unboundid.SimpleLdapConnectionManager -->
+		<!-- property name="ldapConnectionManager">
+			<bean class="org.sakaiproject.unboundid.SimpleLdapConnectionManager" />
+		</property -->
+
+		<!-- Maxmimum number of connections in the pool
+			Defaults to UnboundidDirectoryProvider.DEFAULT_POOL_MAX_CONNS (10) -->
+		<!--  property name="poolMaxConns">
+			<value>10</value>
+		</property -->
+
+		<!-- Optional. Size of batch when loading multiple users at once.
+		     Defaults to DEFAULT_BATCH_SIZE = 200 -->
+		<!-- property name="batchSize">
+		  <value>200</value>
+		</property -->
+		
+		<!-- Optional. Maximum number of users to search for. This allows you to limit the
+		     maximum number of results the LDAP client will process.
+		     Defaults to DEFAULT_MAX_RESULT_SIZE = 1000 -->
+		<!-- property name="maxResultSize">
+		  <value>1000</value>
+		</property -->
+
+		<!-- Optional. Require a different ID for login. This allows you to have one ID for logins
+		     and another EID which is used when looking up course/group information.
+		     Defaults to false -->
+		<!-- property name="enableAid">
+		  <value>true</value>
+		</property -->
+		
+		<!-- Optional. Defaults to an instance of 
+		org.sakaiproject.unboundid.SimpleLdapAttributeMapper -->
+		<property name="ldapAttributeMapper">
+			<ref bean="org.sakaiproject.unboundid.LdapAttributeMapper" />
+		</property>
+		
+		<!-- Optional. Only considered if ldapAttributeMapper is not explicitly
+		assigned. That is, if you choose to use the default LdapAttributeMapper
+		implementation, it is sufficient to specify attribute mappings here
+		and dispense with defining a org.sakaiproject.unboundid.LdapAttributeMapper bean.
+		This preserves forward compatibility of pre-2.5 config -->
+		<!--  property name="attributeMappings">
+			<map>
+				<entry key="logicalAttrName">
+					<value>physicalAttrName</value>
+				</entry>
+			</map>
+		</property -->
+		
+		<!-- Optional. If you don't provide an eidValidator the system
+		defaults to allowing searches on any EID, including empty
+		and null Strings. -->
+		<property name="eidValidator">
+			<bean class="org.sakaiproject.unboundid.RegexpBlacklistEidValidator">
+				<property name="regexpFlags">
+					<bean id="java.util.regex.Pattern.CASE_INSENSITIVE"
+						class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+				</property>
+				<property name="eidBlacklist">
+					<list>
+						<value>null</value>
+						<!--value>nobody</value-->
+						<!--value>adversary</value-->
+					</list>
+				</property>
+			</bean>
+		</property>
+		<property name="searchAliases"><value>false</value></property>
+		
+	</bean>
+			
+    <!-- An optional bean definition which can be used to customize LDAP
+    attribute to Sakai User instance member mapping behaviors. This
+    example describes availabel configuration options for SimpleLdapAttributeMapper
+    (the default LdapAttributeMapper implementation). -->
+	<bean id="org.sakaiproject.unboundid.LdapAttributeMapper"
+			class="org.sakaiproject.unboundid.SimpleLdapAttributeMapper"
+			init-method="init">
+			
+		<!-- A typical set of attribute mappings. Keys are logical
+		names expected by the application. Values are physical LDAP
+		attribute names. If not specified or empty, defaults to
+		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
+		<property name="attributeMappings">
+			<map>
+<!--
+				<entry key="aid"><value>krb5PrincipalName</value></entry>
+-->
+				<entry key="login"><value>uid</value></entry>         
+				<entry key="firstName"><value>givenName</value></entry> 
+				<entry key="preferredFirstName"><value>preferredName</value></entry>
+				<entry key="lastName"><value>sn</value></entry> 
+				<entry key="email"><value>mail</value></entry>  
+				<entry key="groupMembership"><value>groupMembership</value></entry>   
+				<entry key="jpegPhoto"><value>jpegPhoto</value></entry>   
+			</map>
+		</property>
+		
+		<!-- If any of the values need manipulating with message formats they can be set here. -->
+		<!-- property name="valueMappings">
+			<map>
+				<entry key="displayId"><value>{0}@example.edu</value></entry>
+			</map>
+		</property -->
+
+		<!-- Several options for calculating Sakai user types based
+		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
+		<property name="userTypeMapper">
+			<!-- Select one of the following beans -->
+			<ref bean="org.sakaiproject.unboundid.EmptyStringUserTypeMapper" />
+			<!-- ref bean="org.sakaiproject.unboundid.EntryAttributeToUserTypeMapper" /-->
+			<!-- ref bean="org.sakaiproject.unboundid.EntryContainerRdnToUserTypeMapper" /-->
+			<!-- ref bean="org.sakaiproject.unboundid.StringUserTypeMapper" /-->
+		</property>
+		
+	</bean>
+	
+	
+	<!-- /// Begin Sample UserTypeMapper Beans /// -->
+	
+	<!-- Will usually only need at most one of the following UserTypeMapper
+	beans. Three "standard" options shown here for documentation purposes. The 
+	"active" bean will be selected by a bean reference in the userTypeMapper 
+	property definition above. -->
+	
+	<!-- EmptyStringUserTypeMapper assigns gives all users an
+	empty string as their Sakai "type" -->
+	<bean id="org.sakaiproject.unboundid.EmptyStringUserTypeMapper"
+		class="org.sakaiproject.unboundid.EmptyStringUserTypeMapper"/>
+	
+	<!-- StringUserTypeMapper assigns a configurable String to all
+	users as their Sakai "type". -->
+	<bean id="org.sakaiproject.unboundid.StringUserTypeMapper"
+		class="org.sakaiproject.unboundid.StringUserTypeMapper">
+		
+		<!--  property name="userType">
+			<value>Registered</value>
+		</property -->
+		
+	</bean>
+		
+	<!-- EntryAttributeToUserTypeMapper calculates Sakai user
+		types by simply passing attribute values through a map with
+		configurable "miss" behavior. -->
+	<bean id="org.sakaiproject.unboundid.EntryAttributeToUserTypeMapper"
+		class="org.sakaiproject.unboundid.EntryAttributeToUserTypeMapper">
+		
+		<!-- Optional. If not present or empty, behavior is
+		determined by the value of returnLiteralAttributeValueIfNoMapping
+		(see below). -->
+		<!-- property name="attributeValueToSakaiUserTypeMap">
+			<map>
+				<entry key="faculty"><value>faculty</value></entry> 
+				<entry key="students"><value>student</value></entry> 
+			</map>
+		</property -->
+				
+		<!-- Required. The logical name of the LDAP attribute which
+		defines Sakai users' types. Value should be a key into the 
+		attribute mappings associated with this LdapAttributeMapper 
+		instance. -->
+		<property name="logicalAttributeName">
+			<value>groupMembership</value>
+		</property>
+				
+		<!-- Optional. Defaults to false -->
+		<!--  property name="returnLiteralAttributeValueIfNoMapping">
+			<value>false</value>
+		</property -->
+				
+		<!-- Optional. Only considered if returnLiteralAttributeValueIfNoMapping
+			is false. Defaults to null. -->
+		<!--  property name="defaultSakaiUserType">
+			<null />
+		</property -->
+		
+	</bean>
+	
+	<!-- EntryContainerRdnToUserTypeMapper calculates Sakai user
+		types by filtering a user entry's most-local RDN through the
+		assigned map. -->
+	<bean id="org.sakaiproject.unboundid.EntryContainerRdnToUserTypeMapper"
+		class="org.sakaiproject.unboundid.EntryContainerRdnToUserTypeMapper">
+		
+		<!-- Optional. Maps between container RDN values and Sakai user types -->
+		<!-- property name="rdnToSakaiUserTypeMap">
+			<map>
+				<entry key="facultyStaff"><value>faculty</value></entry> 
+				<entry key="students"><value>student</value></entry> 
+			</map>
+		</property -->
+
+		<!-- Optional. Defaults to false.  -->
+		<!-- property name="recurseRdnIfNoMapping">
+			<value>false</value>
+		</property -->
+				
+		<!-- Optional. Defaults to false.  -->
+		<!-- property name="returnLiteralRdnValueIfNoMapping">
+			<value>false</value>
+		</property -->
+		
+	</bean>
+		
+	<!-- /// End Sample UserTypeMapper Beans /// -->
+	
+</beans>
