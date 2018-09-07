@@ -1219,7 +1219,8 @@
 				</div>
       <form action="#" rsf:id="edit-form" class="controlsPanel">
         <input type="hidden" rsf:id="csrf8" id="csrf8"/>
-                <div class="panel panel-default dialog-panel">
+          <div class="panel-group" id="accordion">
+                <div class="panel panel-default dialog-panel displayPanel">
                     <div class="panel-heading edit-header">
                         <span rsf:id="msg=simplepage.display"></span>
                     </div>
@@ -1284,8 +1285,9 @@
                 <div id="pagestuff">
                     <div class="panel panel-default dialog-panel">
                         <div class="panel-heading edit-header">
-                            <span rsf:id="msg=simplepage.prereqs"></span>
+                            <button type="button" class="accordionBtn" rsf:id="msg=simplepage.prereqs" data-toggle="collapse" data-target="#pagestuffbody" ></button>
                         </div>
+                        <div id="pagestuffbody" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div id="page-prereqstuff">
                                 <p class="checkbox">
@@ -1320,6 +1322,7 @@
                                 <input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
                             </p>
 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1329,8 +1332,10 @@
 
                     <div id="stylingstuff" class="stylingstuff panel panel-default dialog-panel">
                         <div class="edit-header panel-heading">
-                            <span rsf:id="msg=simplepage.layoutstyle"></span>
+                            <button type="button" rsf:id="msg=simplepage.layoutstyle" data-toggle="collapse" data-target="#stylingstuffbody"
+                                    class="collapsed accordionBtn"></button>
                         </div>
+                        <div id="stylingstuffbody" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div class="pageItem">
                                 <input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
@@ -1356,6 +1361,7 @@
                                 <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
                             </p>
                         </div>
+                        </div>
                     </div>
                     
                     <input type="hidden" rsf:id="item-id" id="item-id" />
@@ -1363,8 +1369,10 @@
                     <div rsf:id="permDiv" class="">
                          <div id="prereqstuff" class="panel panel-default dialog-panel">
                              <div class="panel-heading edit-header">
-                                 <span rsf:id="msg=simplepage.prereqs"></span>
+                                 <button type="button" rsf:id="msg=simplepage.prereqs" data-toggle="collapse" data-target="#prereqstuffbody"
+                                         class="collapsed accordionBtn"></button>
                              </div>
+                             <div id="prereqstuffbody" class="panel-collapse collapse">
                              <div class="panel-body">
                                  <p class="checkbox">
                                     <input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
@@ -1391,12 +1399,15 @@
                                    <label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
                                </p>
                              </div>
+                             </div>
                          </div>
 
                         <div class="panel panel-default dialog-panel">
                             <div class="panel-heading edit-header" id="visibility-header">
-                                <span rsf:id="msg=simplepage.visibility"></span>
+                                <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-toggle="collapse" data-target="#visibilitybody">
+                                </button>
                             </div>
+                            <div id="visibilitybody" class="panel-collapse collapse in">
                             <div class="panel-body">
                                 <div class="pageItem">
                                     <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
@@ -1407,7 +1418,7 @@
                                             <input rsf:id="release_date2" type="text" id="release_date2"/>
                                         </span>
                                     </div>
-                                </div>
+                                    </div>
                                 <p class="checkbox pageItem">
                                     <input type="checkbox" id="hide2" rsf:id="hide2" />
                                     <label for="hide2"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
@@ -1424,6 +1435,9 @@
                                         <p class="checkbox"><input type="checkbox" rsf:id="select-group" /><span rsf:id="select-group-text" class="group-name"></span></p>
                                     </div>
                                 </div>
+                                </div>
+
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -1553,6 +1567,7 @@
             <div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog" class="lessonsDialog">
                 <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
                   <input type="hidden" rsf:id="csrf10" />
+                    <div class="panel-group" id="accordion2">
                     <div class="panel panel-default">
                         <div class="panel-heading edit-header">
                             <span rsf:id="msg=simplepage.display"></span>
@@ -1592,26 +1607,34 @@
 
                         <div class="panel panel-default dialog-panel">
                             <div class="panel-heading edit-header">
-                                <span rsf:id="msg=simplepage.prereqs"></span>
+                                <button type="button" class="accordionBtn collapsed" rsf:id="msg=simplepage.prereqs"
+                                data-toggle="collapse" data-target="#mm-prereqbody"></button>
                             </div>
+                            <div class="panel-collapse collapse" id="mm-prereqbody">
                             <div class="panel-body">
                                 <p rsf:id="multi-prerequisite-section" class="checkbox">
                                     <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
                                     <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                                 </p>
                             </div>
+                            </div>
 
                         </div>
                         <div class="panel panel-default dialog-panel">
                             <div class="panel-heading edit-header">
-                                <span rsf:id="msg=simplepage.visibility"></span>
+                                <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility"
+                                data-toggle="collapse" data-target="#mm-visibility"></button>
                             </div>
+                            <div class="panel-collapse collapse in" id="mm-visibility">
                             <div class="panel-body">
                                 <p id="editgroups-mm" class="edit-group">
                                     <a role="button" href="javascript:void(0);"><span rsf:id="msg=simplepage.edit-group"></span></a>
                                 </p>
                             </div>
+                            </div>
                         </div>
+
+                    </div>
                     <input type="hidden" rsf:id="multimedia-item-id" id="multimedia-item-id" />
                     
                     <div class="act">
