@@ -26,7 +26,7 @@ import java.util.List;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 
 
-public class ToolInfo implements Serializable {
+public class ToolInfo implements Serializable, Cloneable {
 	private static final long			serialVersionUID	= 1L;
 	private String						toolId;
 	private List<String>				additionalToolIds;
@@ -42,6 +42,22 @@ public class ToolInfo implements Serializable {
 		this.toolId = toolId;
 		this.additionalToolIds = additionalToolIds;
 		eventInfos = new ArrayList<EventInfo>();
+	}
+
+	public ToolInfo(ToolInfo tool) {
+		toolId = tool.toolId;
+		additionalToolIds = tool.additionalToolIds != null ? new ArrayList<>(tool.additionalToolIds) : null;
+		eventInfos = new ArrayList<>(tool.eventInfos.size());
+		for (EventInfo info : tool.eventInfos) {
+			eventInfos.add(info.clone());
+		}
+		selected = tool.selected;
+		eventParserTip = tool.eventParserTip != null ? tool.eventParserTip.clone() : null;
+	}
+
+	@Override
+	public ToolInfo clone() {
+		return new ToolInfo(this);
 	}
 
 	public List<EventInfo> getEvents() {
@@ -132,5 +148,4 @@ public class ToolInfo implements Serializable {
 		}
 		return buff.toString();
 	}
-	
 }
