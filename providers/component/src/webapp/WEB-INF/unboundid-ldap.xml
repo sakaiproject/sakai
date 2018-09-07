@@ -90,6 +90,13 @@
 		<!--  property name="allowAuthentication">
 			<value>true</value>
 		</property -->
+
+                <!--  Optional. Control whether or not the directory may be searched for
+                      users that match given search criteria. Defaults to
+                      UnboundidDirectoryProvider.DEFAULT_ALLOW_SEARCH_EXTERNAL  -->
+                <!--  property name="allowSearchExternal">
+                        <value>true</value>
+                </property -->
 		
 		<!-- Optional. Defaults to an instance of 
 		org.sakaiproject.unboundid.SimpleLdapConnectionManager -->

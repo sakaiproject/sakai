@@ -32,6 +32,7 @@ import java.security.GeneralSecurityException;
 import javax.net.ssl.SSLSocketFactory;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
@@ -104,6 +105,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	public static final String DISPLAY_NAME_PROPERTY = UnboundidDirectoryProvider.class+"-displayName";
 
 	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
+
+	public static final boolean DEFAULT_ALLOW_SEARCH_EXTERNAL = true;
 	
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
 
@@ -193,6 +196,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 * Flag for allowing/disallowing authentication on a global basis
 	 */
 	private boolean allowAuthentication = DEFAULT_ALLOW_AUTHENTICATION;
+
+	/**
+	 * Flag for allowing/disallowing searching external users
+	 */
+	private boolean allowSearchExternal = DEFAULT_ALLOW_SEARCH_EXTERNAL;
 	
 	/**
 	 * Flag for controlling the return value of 
@@ -1262,6 +1270,30 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		setAllowAuthentication(authenticateAllowed);
 	}
 
+        /**
+         * Access the current global allow external search "on/off"
+         * switch.
+         *
+         * @see #setAllowSearchExternal(boolean)
+         *
+         * @return boolean
+         */
+        public boolean isAllowSearchExternal() {
+                return allowSearchExternal;
+        }
+
+        /**
+         * Set the current global allow external search "on/off" switch.
+         * <code>false</code> completely disables
+         * {@link #searchExternalUsers(String, int, int, UserFactory))}
+         * <p>Defaults to {@link #DEFAULT_ALLOW_SEARCH_EXTERNAL}</p>
+         *
+         * @param allowSearchExternal
+         */
+        public void setAllowSearchExternal(boolean allowSearchExternal) {
+                this.allowSearchExternal = allowSearchExternal;
+        }
+
 	/**
 	 * Access the configured global return value for 
 	 * {@link #authenticateWithProviderFirst(String)}. See
@@ -1383,6 +1415,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
      * 		A list (UserEdit) of all the users matching the criteria.
      */ 
 	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
+
+		if (!allowSearchExternal) {
+			log.debug("External search is disabled");
+			return null;
+		}
 		
 		String filter = ldapAttributeMapper.getFindUserByCrossAttributeSearchFilter(criteria);
 		List<UserEdit> users = new ArrayList<UserEdit>();
