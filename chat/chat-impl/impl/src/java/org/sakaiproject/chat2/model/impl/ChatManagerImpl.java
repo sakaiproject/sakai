@@ -307,7 +307,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             return;
 
         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
-        getHibernateTemplate().delete(channel);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(channel));
 
         sendDeleteChannel(channel);
     }
@@ -666,7 +666,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if(!getCanDelete(message))
             checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, message.getChatChannel().getContext());
 
-        getHibernateTemplate().delete(message);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(message));
 
         sendDeleteMessage(message);
     }
