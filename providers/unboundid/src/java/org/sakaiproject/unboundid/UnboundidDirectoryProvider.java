@@ -419,7 +419,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		catch (com.unboundid.ldap.sdk.LDAPException e)
 		{
 			if (e.getResultCode().intValue() == LDAPException.INVALID_CREDENTIALS) {
-				log.warn("authenticateUser(): invalid credentials [userLogin = {}]", userLogin);
+				log.info("authenticateUser(): invalid credentials [userLogin = {}]", userLogin);
 				return false;
 			} else {
 				throw new RuntimeException(
