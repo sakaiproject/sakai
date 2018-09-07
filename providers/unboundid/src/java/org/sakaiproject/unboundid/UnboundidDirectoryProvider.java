@@ -343,6 +343,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 
 		try
 		{
+			long start = System.currentTimeMillis();
+
 			// look up the end-user's DN, which could be nested at some 
 			// arbitrary depth below getBasePath().
 			// TODO: optimization opportunity if user entries are 
@@ -359,6 +361,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			lc = connectionPool.getConnection();
 			BindResult bindResult = lc.bind(endUserDN, password);
 			if(bindResult.getResultCode().equals(ResultCode.SUCCESS)) {
+				log.info("Authenticated {} ({}) from LDAP in {} ms", userLogin, endUserDN, System.currentTimeMillis() - start);
 				return true;
 			}
 
