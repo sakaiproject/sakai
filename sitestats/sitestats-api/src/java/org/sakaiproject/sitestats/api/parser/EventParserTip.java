@@ -20,7 +20,7 @@ package org.sakaiproject.sitestats.api.parser;
 
 import java.io.Serializable;
 
-public class EventParserTip implements Serializable {
+public class EventParserTip implements Serializable, Cloneable {
 	private static final long	serialVersionUID	= 1L;
 	private String forWhat;
 	private String separator;
@@ -41,6 +41,11 @@ public class EventParserTip implements Serializable {
 		forWhat = tip.forWhat;
 		separator = tip.separator;
 		index = tip.index;
+	}
+
+	@Override
+	public EventParserTip clone() {
+		return new EventParserTip(this);
 	}
 
 	public String getFor() {

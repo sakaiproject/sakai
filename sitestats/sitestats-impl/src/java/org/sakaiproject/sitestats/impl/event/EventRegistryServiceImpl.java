@@ -409,7 +409,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		// mutating the cached registry entries
 		List<ToolInfo> cloneRegistry = new ArrayList<>(eventRegistry.size());
 		for (ToolInfo t : eventRegistry) {
-			cloneRegistry.add(new ToolInfo(t));
+			cloneRegistry.add(t.clone());
 		}
 
 		return cloneRegistry;
