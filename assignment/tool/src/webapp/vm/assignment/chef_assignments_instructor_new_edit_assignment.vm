@@ -223,7 +223,7 @@
                     $tlang.getString("allowVisibleDate")
 				</label>
 				<div class="col-sm-10">
-					<input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();ASN.resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
+					<input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="ASN.changeVisibleDate();" />
 				</div>
 			</div>
 		</div>
