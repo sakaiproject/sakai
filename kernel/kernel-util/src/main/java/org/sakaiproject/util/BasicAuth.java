@@ -213,7 +213,12 @@ public class BasicAuth {
 		
 			String auth;
 			auth = req.getHeader("Authorization");
-			
+
+			if (auth == null) {
+				// No basic auth header, so nothing to do
+				return false;
+			}
+
 			Evidence e = null;
 			try {
 				if (auth != null) {
