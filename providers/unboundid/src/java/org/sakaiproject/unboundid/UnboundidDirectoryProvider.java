@@ -1479,8 +1479,14 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	@SuppressWarnings("rawtypes")
     public Collection findUsersByEmail(String email, UserFactory factory) {
 
-		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
 		List<User> users = new ArrayList<User>();
+
+                if (!allowSearchExternal) {
+                        log.debug("External search is disabled");
+                        return users;
+                }
+
+		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
 		try {
 			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, maxResultSize);
 
