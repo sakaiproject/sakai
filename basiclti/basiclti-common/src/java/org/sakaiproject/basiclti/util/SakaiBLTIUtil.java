@@ -37,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
+import org.tsugi.jackson.JacksonUtil;
+
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIConstants;
 
@@ -54,7 +56,6 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti2.SakaiLTI2Config;
 
 import org.tsugi.lti13.LTI13Util;
-import org.tsugi.lti13.LTI13JacksonUtil;
 
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.objects.ResourceLink;
@@ -104,6 +105,7 @@ import net.oauth.OAuth;
 
 import org.apache.commons.math3.util.Precision;
 import org.tsugi.lti13.LTI13KeySetUtil;
+import org.tsugi.lti13.objects.Endpoint;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -145,6 +147,7 @@ public class SakaiBLTIUtil {
 
 	public static final String LTI1_PATH = "/imsblis/service/";
 	public static final String LTI2_PATH = "/imsblis/lti2/";
+	public static final String LTI13_PATH = "/imsblis/lti13/";
 
 	// Enable the Sakai "ext_" parameters in LTI 2.x Launches
 	public static final String SAKAI_EXTENSIONS_ALL = "Sakai.extensions.all";
@@ -1697,7 +1700,10 @@ user_id: admin
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 600L;
-		lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+		String lti1_roles = ltiProps.getProperty("roles");
+		if (lti1_roles != null && lti1_roles.contains("Instructor")) {
+			lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+		}
 
 		lj.resource_link = new ResourceLink();
 		lj.resource_link.id = ltiProps.getProperty("resource_link_id");
@@ -1730,17 +1736,29 @@ user_id: admin
 		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
 			String custom_key = (String) entry.getKey();
 			String custom_val = (String) entry.getValue();
-			if ( ! custom_key.startsWith("custom_") ) continue;
+			if (!custom_key.startsWith("custom_")) {
+				continue;
+			}
 			custom_key = custom_key.substring(7);
 			lj.custom.put(custom_key, custom_val);
 		}
 
-		BasicOutcome outcome = new BasicOutcome();
-		outcome.lis_result_sourcedid = ltiProps.getProperty("lis_result_sourcedid");
-		outcome.lis_outcome_service_url = ltiProps.getProperty("lis_outcome_service_url");
-		lj.basicoutcome = outcome;
+		String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
+		if (sourcedid != null) {
+			BasicOutcome outcome = new BasicOutcome();
+			outcome.lis_result_sourcedid = ltiProps.getProperty("lis_result_sourcedid");
+			outcome.lis_outcome_service_url = ltiProps.getProperty("lis_outcome_service_url");
+			lj.basicoutcome = outcome;
 
-		String ljs = LTI13JacksonUtil.toString(lj);
+			Endpoint endpoint = new Endpoint();
+			endpoint.scope = new ArrayList<String>();
+			endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
+
+			endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + sourcedid;
+			lj.endpoint = endpoint;
+		}
+
+		String ljs = JacksonUtil.toString(lj);
 		log.debug("ljs = {}", ljs);
 
 		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
@@ -1748,8 +1766,8 @@ user_id: admin
 		String kid = LTI13KeySetUtil.getPublicKID(publicKey);
 
 		String jws = Jwts.builder().setHeaderParam("kid", kid).
-			setPayload(ljs).signWith(privateKey).compact();
-			
+				setPayload(ljs).signWith(privateKey).compact();
+
 		log.debug("jws = {}", jws);
 
 		// Internal test for round trip

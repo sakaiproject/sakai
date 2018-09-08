@@ -35,8 +35,11 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.LTI13Util;
+
+import org.tsugi.oauth2.objects.AccessToken;
 
 /**
  *
@@ -46,7 +49,7 @@ import org.tsugi.lti13.LTI13Util;
 public class LTI13Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static final String APPLICATION_JSON = "application/json";
+	private static final String APPLICATION_JSON = "application/json; charset=utf-8";
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
 	protected static LTIService ltiService = null;
 
@@ -66,68 +69,13 @@ public class LTI13Servlet extends HttpServlet {
 		String[] parts = uri.split("/");
 
 		// /imsblis/lti13/keyset/42
-
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
-			PrintWriter out = null;
 			String client_id = parts[4];
-			Long toolKey = SakaiBLTIUtil.getLongKey(client_id);
-			String siteId = null;  // Full bypass mode
-			Map<String, Object> tool = null;
-			if (toolKey >= 0) {
-				tool = ltiService.getToolDao(toolKey, siteId);
-			}
-
-			if (tool == null) {
-				response.setHeader(ERROR_DETAIL, "Could not load keyset for client");
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				log.error("Could not load keyset for client_id={}", client_id);
-				return;
-			}
-
-			String publicSerialized = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
-			if (publicSerialized == null) {
-				response.setHeader(ERROR_DETAIL, "Client has no public key");
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				log.error("Client_id={} has no public key", client_id);
-				return;
-			}
-
-			Key publicKey = LTI13Util.string2PublicKey(publicSerialized);
-			if (publicKey == null) {
-				response.setHeader(ERROR_DETAIL, "Client public key deserialization error");
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				log.error("Client_id={} deserialization error", client_id);
-				return;
-			}
-
-			// Cast should work :)
-			RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
-
-			String keySetJSON = null;
-			try {
-				keySetJSON = LTI13KeySetUtil.getKeySetJSON(rsaPublic);
-			} catch (NoSuchAlgorithmException ex) {
-				response.setHeader(ERROR_DETAIL, "NoSuchAlgorithmException");
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				log.error("Client_id={} NoSuchAlgorithmException", client_id);
-				return;
-			}
-
-			try {
-				out = response.getWriter();
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-				return;
-			}
-
-			response.setContentType(APPLICATION_JSON);
-			try {
-				out.println(keySetJSON);
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
+			handleKeySet(client_id, request, response);
 			return;
 		}
+		
+		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
 		response.setHeader(ERROR_DETAIL, "Invalid request");
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -136,7 +84,108 @@ public class LTI13Servlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// Nothing here yet :)
+		String uri = request.getRequestURI(); // /imsblis/lti13/keys
+		// String launch_url = request.getParameter("launch_url");
+
+		String[] parts = uri.split("/");
+		
+		// /imsblis/lti13/token/42
+		if (parts.length == 5 && "token".equals(parts[3])) {
+			String client_id = parts[4];
+			handleTokenPost(client_id, request, response);
+			return;
+		}
+
+		// /imsblis/lti13/lineitem/42
+		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
+			String sourcedid = parts[4];
+			handleLineItemPost(sourcedid, request, response);
+			return;
+		}
+		
+		log.error("Unrecognized POST request parts={} request={}", parts.length, uri);
+
+		response.setHeader(ERROR_DETAIL, "Invalid request");
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
+	protected void handleKeySet(String client_id, HttpServletRequest request, HttpServletResponse response) {
+		PrintWriter out = null;
+		Long toolKey = SakaiBLTIUtil.getLongKey(client_id);
+		String siteId = null;  // Full bypass mode
+		Map<String, Object> tool = null;
+		if (toolKey >= 0) {
+			tool = ltiService.getToolDao(toolKey, siteId);
+		}
+
+		if (tool == null) {
+			response.setHeader(ERROR_DETAIL, "Could not load keyset for client");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			log.error("Could not load keyset for client_id={}", client_id);
+			return;
+		}
+
+		String publicSerialized = BasicLTIUtil.toNull((String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC));
+		if (publicSerialized == null) {
+			response.setHeader(ERROR_DETAIL, "Client has no public key");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			log.error("Client_id={} has no public key", client_id);
+			return;
+		}
+
+		Key publicKey = LTI13Util.string2PublicKey(publicSerialized);
+		if (publicKey == null) {
+			response.setHeader(ERROR_DETAIL, "Client public key deserialization error");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			log.error("Client_id={} deserialization error", client_id);
+			return;
+		}
+
+		// Cast should work :)
+		RSAPublicKey rsaPublic = (RSAPublicKey) publicKey;
+
+		String keySetJSON = null;
+		try {
+			keySetJSON = LTI13KeySetUtil.getKeySetJSON(rsaPublic);
+		} catch (NoSuchAlgorithmException ex) {
+			response.setHeader(ERROR_DETAIL, "NoSuchAlgorithmException");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			log.error("Client_id={} NoSuchAlgorithmException", client_id);
+			return;
+		}
+
+		try {
+			out = response.getWriter();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return;
+		}
+
+		response.setContentType(APPLICATION_JSON);
+		try {
+			out.println(keySetJSON);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+	
+	protected void handleTokenPost(String client_id, HttpServletRequest request, HttpServletResponse response) {
+
+		AccessToken at = new AccessToken();
+		at.access_token = "42";
+		
+		response.setContentType(APPLICATION_JSON);
+
+		try {
+			String atsp = JacksonUtil.prettyPrintLog(at);
+			PrintWriter out = response.getWriter();
+			out.println(atsp);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+	
+	protected void handleLineItemPost(String sourcedid, HttpServletRequest request, HttpServletResponse response) {
+		System.out.println("Sourcedid="+sourcedid);
+	}
 }
