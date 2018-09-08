@@ -221,18 +221,16 @@ public class BasicAuth {
 
 			Evidence e = null;
 			try {
-				if (auth != null) {
-					auth = auth.trim();
-					if (auth.startsWith("Basic ")) {
-						auth = auth.substring(6).trim();
-						auth = new String(Base64.decodeBase64(auth.getBytes("UTF-8")));
-						int colon = auth.indexOf(":");
-						if (colon != -1) {
-							String eid = auth.substring(0, colon);
-							String pw = auth.substring(colon + 1);
-							if (eid.length() > 0 && pw.length() > 0) {
-								e = new IdPwEvidence(eid, pw, req.getRemoteAddr());
-							}
+				auth = auth.trim();
+				if (auth.startsWith("Basic ")) {
+					auth = auth.substring(6).trim();
+					auth = new String(Base64.decodeBase64(auth.getBytes("UTF-8")));
+					int colon = auth.indexOf(":");
+					if (colon != -1) {
+						String eid = auth.substring(0, colon);
+						String pw = auth.substring(colon + 1);
+						if (eid.length() > 0 && pw.length() > 0) {
+							e = new IdPwEvidence(eid, pw, req.getRemoteAddr());
 						}
 					}
 				}
