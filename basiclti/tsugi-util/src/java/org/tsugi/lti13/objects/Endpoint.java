@@ -30,7 +30,7 @@ public class Endpoint {
 	public static String SCORE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/score";
 
 	@JsonProperty("scope")
-	public List<String> scope;
+	public List<String> scope = new ArrayList<String>();
 	@JsonProperty("lineitems")
 	public String lineitems;
 	@JsonProperty("lineitem")
