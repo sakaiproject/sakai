@@ -55,7 +55,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>${sakai.spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
