@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class AccessToken {
 
 	public static final String BEARER = "Bearer";
+	public static final String GRANT_TYPE = "grant_type";
+	public static final String CLIENT_ASSERTION = "client_assertion";
+	public static final String SCOPE = "scope";
+
 	@JsonProperty("access_token")
 	public String access_token;
 	@JsonProperty("token_type")

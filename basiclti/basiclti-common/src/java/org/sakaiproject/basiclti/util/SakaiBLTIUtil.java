@@ -1126,7 +1126,7 @@ public class SakaiBLTIUtil {
 
 		log.debug("LAUNCH TYPE {}", (isLTI1 ? "LTI 1" : "LTI 2"));
 		if (isLTI13) {
-			return postLaunchJWT(toolProps, ltiProps, tool, rb);
+			return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
 		}
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}
@@ -1624,7 +1624,9 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps, Map<String, Object> tool, ResourceLoader rb) {
+	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
+			Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb)
+	{
 
 		String launch_url = toolProps.getProperty("secure_launch_url");
 		if (launch_url == null) {
@@ -1645,6 +1647,11 @@ public class SakaiBLTIUtil {
 		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
 		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
 		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
+		String placement_secret = null;
+		if ( content != null ) {
+			placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		}
+
 
 		if (platform_private == null) {
 			return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.") + "</p>");
@@ -1705,13 +1712,16 @@ user_id: admin
 			lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
 		}
 
+		String resource_link_id = ltiProps.getProperty("resource_link_id");
 		lj.resource_link = new ResourceLink();
-		lj.resource_link.id = ltiProps.getProperty("resource_link_id");
+		lj.resource_link.id = resource_link_id;
 		lj.resource_link.title = ltiProps.getProperty("resource_link_title");
 		lj.resource_link.description = ltiProps.getProperty("resource_link_description");
 
+		String context_id = ltiProps.getProperty("context_id");
+
 		lj.context = new Context();
-		lj.context.id = ltiProps.getProperty("context_id");
+		lj.context.id = context_id;
 		lj.context.label = ltiProps.getProperty("context_label");
 		lj.context.title = ltiProps.getProperty("context_title");
 		lj.context.type.add(Context.COURSE_OFFERING);
@@ -1744,17 +1754,22 @@ user_id: admin
 		}
 
 		String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
+
 		if (sourcedid != null) {
 			BasicOutcome outcome = new BasicOutcome();
 			outcome.lis_result_sourcedid = ltiProps.getProperty("lis_result_sourcedid");
 			outcome.lis_outcome_service_url = ltiProps.getProperty("lis_outcome_service_url");
 			lj.basicoutcome = outcome;
+		}
+
+		if ( placement_secret != null && resource_link_id != null && context_id != null ) {
+			String signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 
 			Endpoint endpoint = new Endpoint();
 			endpoint.scope = new ArrayList<String>();
 			endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
-			endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + sourcedid;
+			endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
 			lj.endpoint = endpoint;
 		}
 
@@ -1809,6 +1824,16 @@ user_id: admin
 			return null;
 		}
 		String suffix = ":::" + user.getId() + ":::" + placeStr;
+		String base_string = placementSecret + suffix;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		return signature + suffix;
+	}
+
+	public static String getSignedPlacement(String context_id, String resource_link_id, String placementSecret) {
+		if (placementSecret == null) {
+			return null;
+		}
+		String suffix =  ":::" + context_id + ":::" + resource_link_id;
 		String base_string = placementSecret + suffix;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		return signature + suffix;
