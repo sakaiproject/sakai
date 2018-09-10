@@ -32,7 +32,7 @@ import java.security.GeneralSecurityException;
 import javax.net.ssl.SSLSocketFactory;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;

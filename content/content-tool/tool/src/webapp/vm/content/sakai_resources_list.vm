@@ -447,24 +447,24 @@
 									&#169;
 								#elseif($item.isCollection())
     								#if($item.isTooBigNav())
-                      <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                      <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                      <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
+                      <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 									#else
 										<a href="#"
     										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
-                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                        <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
     									</a>
 									#end	
 								#else
 									#if($item.isTooBigNav())
-                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                        <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
 									#else
 										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-                        <span class="visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
-                        <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name visible-sm-inline-block visible-xs-inline-block truncate">$validator.escapeHtml($item.name)</span>
+                        <span class="resource-name hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
     									</a>
 									#end
 								#end
@@ -483,6 +483,9 @@
 							#end 
 							#if ($item.description !="" && $item.description)
 								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtmlTextarea($item.description)"></a>
+							#end
+							#if(!$item.isAvailable())
+								<span class="not-available fa fa-eye-slash" aria-hidden="true" title="$clang.getString('resource.is.hidden')"></span>
 							#end
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
@@ -538,20 +541,21 @@
                         </div>
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getLongAccessLabel()">
-							$item.getShortAccessLabel()
+						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getLongAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end">
+							<span class="resource-access">$item.getShortAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
 						</td>
 						<td headers="creator" class="creator hidden-sm hidden-xs">
-							$validator.escapeHtml($item.createdBy)
+							<span class="resource-creator">$validator.escapeHtml($item.createdBy)</span>
 						</td>
 						<td headers="modified" class="modified hidden-sm hidden-xs">
-							$item.ModifiedTime
+							<span class="resource-modified">$item.ModifiedTime</span>
 						</td>
 						<td headers="size" class="size hidden-sm hidden-xs">
-							$item.size
+							<span class="resource-size">$item.size</span>
 						</td>
 					#else
-                        <td class="access hidden-sm hidden-xs">
+                        <td class="access hidden-sm hidden-xs" title="#if(!$item.isAvailable()) $clang.getString('access.hidden')#end">
+                          <span class="resource-access">#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
                         </td>
                         <td class="creator hidden-sm hidden-xs">
                         </td>
@@ -757,19 +761,21 @@
 							<td headers="actions3" class="attach"></td>
 							#if($item.depth > 0)
 								<td class="access hidden-sm hidden-xs" headers="access" title="$item.getShortAccessLabel()">
-									$item.getShortAccessLabel()
+									<span class="resource-access">$item.getShortAccessLabel()#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
 								</td>
 								<td class="creator hidden-sm hidden-xs" headers="creator">
-									$validator.escapeHtml($item.createdBy)
+									<span class="resource-creator">$validator.escapeHtml($item.createdBy)</span>
 								</td>
 								<td class="modified hidden-sm hidden-xs" headers="modified">
-									$item.ModifiedTime
+									<span class="resource-modified">$item.ModifiedTime</span>
 								</td>
 								<td class="size hidden-sm hidden-xs" headers="size">
-									$item.size
+									<span class="resource-size">$item.size</span>
 								</td>
 							#else
-                                <td class="access hidden-sm hidden-xs" headers="access"></td>
+                                <td class="access hidden-sm hidden-xs" headers="access">
+                                  <span class="resource-access">#if(!$item.isAvailable()) $clang.getString('access.hidden')#end</span>
+                                </td>
                                 <td class="creator hidden-sm hidden-xs" headers="creator">
                                 </td>
                                 <td class="modified hidden-sm hidden-xs" headers="modified">

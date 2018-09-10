@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Not a stub per-se, so much as a {@link BaseResourcePropertiesEdit} extension

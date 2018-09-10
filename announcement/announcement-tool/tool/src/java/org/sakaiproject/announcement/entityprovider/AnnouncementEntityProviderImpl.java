@@ -46,6 +46,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -62,6 +63,7 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -208,10 +210,8 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			numberOfDaysInThePast = DEFAULT_DAYS_IN_PAST;
 		}
 
-		if(log.isDebugEnabled()) {
-			log.debug("numberOfAnnouncements: {}", numberOfAnnouncements);
-			log.debug("numberOfDaysInThePast: {}", numberOfDaysInThePast);
-		}
+		log.debug("numberOfAnnouncements: {}", numberOfAnnouncements);
+		log.debug("numberOfDaysInThePast: {}", numberOfDaysInThePast);
 		
 		//get the Sakai Time for the given java Date
 		Time t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
@@ -222,8 +222,8 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//for each channel
 		for(String channel: channels) {
 			try {
-				announcements.addAll(announcementService.getMessages(channel, t, numberOfAnnouncements, true, false, onlyPublic));
-			} catch (PermissionException e) {
+				announcements.addAll(announcementService.getMessages(channel, new ViewableFilter(null, t, numberOfAnnouncements), true, false));
+			} catch (PermissionException | IdUnusedException | NullPointerException ex) {
 				log.warn("User: {} does not have access to view the announcement channel: {}. Skipping...", currentUserId, channel);
 				//user may not have access to view the channel but get all public messages in this channel
 				AnnouncementChannel announcementChannel = (AnnouncementChannel)announcementService.getChannelPublic(channel);
@@ -231,7 +231,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 					List<Message> publicMessages = announcementChannel.getMessagesPublic(null, true);
 					for(Message message : publicMessages){
 						//Add message only if it is within the time range
-						if(isMessageWithinPastNDays(message, numberOfDaysInThePast)){
+						if(isMessageWithinPastNDays(message, numberOfDaysInThePast) && announcementService.isMessageViewable((AnnouncementMessage) message)){
 							announcements.add(message);
 						}
 					}
@@ -248,14 +248,12 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	
 		for (Message m : announcements) {
 			AnnouncementMessage a = (AnnouncementMessage)m;
-			if(announcementService.isMessageViewable(a)) {
-				try {
-					DecoratedAnnouncement da = createDecoratedAnnouncement(a, siteTitle);
-					decoratedAnnouncements.add(da);
-				} catch (Exception e) {
-					//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
-					log.info("Exception caught processing announcement: {} for user: {}. Skipping...", m.getId(), currentUserId);
-				}
+			try {
+				DecoratedAnnouncement da = createDecoratedAnnouncement(a, siteTitle);
+				decoratedAnnouncements.add(da);
+			} catch (Exception e) {
+				//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
+				log.info("Exception caught processing announcement: {} for user: {}. Skipping...", m.getId(), currentUserId);
 			}
 		}
 		
@@ -730,6 +728,60 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	        return (lastCmp != 0 ? lastCmp : createdOn.compareTo(field));
 		}
 		
+	}
+
+	protected class ViewableFilter implements Filter {
+		protected Filter m_filter = null;
+		protected int m_numberOfAnnouncements;
+		protected Time t;
+
+		private int accepted = 0;
+
+		/**
+		 * Show viewable announcements and limit the result
+		 * @param filter The other filter we check with.
+		 * @param t Min Time to be showed
+		 * @param numberOfAnnouncements Limited to latest numberOfAnnouncements
+		 */
+		public ViewableFilter(Filter filter, Time t, int numberOfAnnouncements) {
+			this.m_filter = filter;
+			this.m_numberOfAnnouncements = numberOfAnnouncements;
+			this.t = t;
+		}
+
+		/**
+		 * Does this object satisfy the criteria of the filter?
+		 * @param o The object
+		 * @return true if the object is accepted by the filter, false if not.
+		 */
+		public boolean accept(Object o) {
+			if (accepted >= m_numberOfAnnouncements){
+				return false;
+			}
+
+			if (o instanceof AnnouncementMessage) {
+				AnnouncementMessage msg = (AnnouncementMessage) o;
+
+				ResourceProperties msgProperties = msg.getProperties();
+				String releaseDate = msgProperties.getProperty(AnnouncementService.RELEASE_DATE);
+				if (releaseDate != null) {
+					long release = Long.parseLong(releaseDate);
+					long limitDate = Long.parseLong(t.toString());
+					if (release < limitDate) {
+						return false;
+					}
+				}
+
+				if(!announcementService.isMessageViewable(msg)) {
+					return false;
+				}
+			}
+
+			if (m_filter != null) return m_filter.accept(o);
+
+			accepted++;
+			return true;
+		}
 	}
 	
 	@Setter

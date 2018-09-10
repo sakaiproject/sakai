@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.CandidateDetailProvider;
