@@ -360,13 +360,6 @@
 									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.scripts.min.js</output>
 								</aggregation>
 								<aggregation>
-									<inputDir>${project.build.directory}/js/plugins/</inputDir>
-									<includes>
-										<include>**/*.js</include>
-									</includes>
-									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.plugins.min.js</output>
-								</aggregation>
-								<aggregation>
 									<inputDir>src/webapp/editor/elfinder/sakai/js/src</inputDir>
 									<includes>
 										<include>sakai.js</include>

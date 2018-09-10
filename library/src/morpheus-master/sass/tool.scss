@@ -6,8 +6,8 @@
 @import "base/responsive";
 @import "base/icons";
 
-
 @import "modules/main";
+@import "modules/footer";
 @import "modules/navigation/base";
 @import "modules/navigation/skipnav";
 @import "modules/navigation/breadCrumbs";
@@ -48,7 +48,6 @@
 @import "modules/tool/roster/roster";
 @import "modules/tool/tagservice/tagservice";
 
-
 @import "base/rtl";
 
 @import "modules/access/base";
@@ -65,5 +64,4 @@
 @import "modules/connection-manager/base";
 @import "modules/profile-popup/base";
 @import "modules/joinpage/base";
-
 @import "modules/editor/base";

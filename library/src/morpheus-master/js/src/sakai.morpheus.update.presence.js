@@ -1,7 +1,3 @@
-/**
- * For Footer toggles in Morpheus
- */
-
 function updatePresence(){
 
   $PBJQ.ajax({

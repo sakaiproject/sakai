@@ -1750,8 +1750,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				List<Object> l = new ArrayList<Object>();
 				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("poweredByUrl", "http://sakaiproject.org");
-				m.put("poweredByImage", "/library/image/sakai_powered.gif");
+				m.put("poweredByUrl", "https://www.sakaiproject.org/");
+				m.put("poweredByImage", "/library/image/poweredBySakai.png");
 				m.put("poweredByAltText", "Powered by Sakai");
 				l.add(m);
 				rcontext.put("bottomNavPoweredBy", l);
