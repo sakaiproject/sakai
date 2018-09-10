@@ -38,7 +38,7 @@ import java.util.Set;
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPEntry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
