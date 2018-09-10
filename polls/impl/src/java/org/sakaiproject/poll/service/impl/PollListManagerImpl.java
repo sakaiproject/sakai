@@ -175,7 +175,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         try {
-            if(!newPoll) {
+            if(!newPoll && t.getId() != null) {
                 Poll poll = dao.findById(Poll.class, Long.parseLong(t.getId()));
                 if(poll != null && !t.getOwner().equals(poll.getOwner()))
                    t.setOwner(poll.getOwner());
