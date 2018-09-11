@@ -7,6 +7,9 @@
 		@media #{$phone} {	// position the buttons for mobile
 			margin-top: 0;
 			margin-bottom: -22px;
+    }
+      &.home {
+			top: 0px;
 		}
 	}
 }
