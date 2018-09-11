@@ -247,7 +247,7 @@ public class UserAuditJsfTool extends JsfTool {
 		res.addDateHeader("Last-Modified", System.currentTimeMillis());
 		res
 				.addHeader("Cache-Control",
-						"no-store, no-cache, must-revalidate, max-age=0");
+						no-store, no-cache");
 
 		// dispatch to the target
 		/*

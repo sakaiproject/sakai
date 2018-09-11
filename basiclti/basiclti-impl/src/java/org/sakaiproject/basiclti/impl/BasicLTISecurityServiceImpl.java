@@ -220,7 +220,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 			res.setCharacterEncoding("utf-8");
 			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
-			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+			res.addHeader("Cache-Control", no-store, no-cache");
 			java.io.PrintWriter out = res.getWriter();
 			
 			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
