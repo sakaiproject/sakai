@@ -157,7 +157,7 @@ public class RedirectingAssignmentEntityServlet extends HttpServlet implements
 		// for the date formatter, ours or Tomcats.
 		// resp.addDateHeader("Last-Modified", System.currentTimeMillis());
 		resp.addHeader("Cache-Control",
-				"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+				"no-store, no-cache, must-revalidate, max-age=0");
 	}
 
 	private void clearSessionAttributes(Session session) {

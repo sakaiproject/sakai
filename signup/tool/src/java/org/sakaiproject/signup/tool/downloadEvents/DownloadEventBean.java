@@ -327,7 +327,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 		response.reset(); // Eliminate the added-on stuff
 		// control
 		response.setHeader("Cache-Control",
-				"public, must-revalidate, post-check=0, pre-check=0, max-age=0"); // New-style
+				"public, must-revalidate, max-age=0"); // New-style
 		// Standard headers
 		response.setContentType(mimetype);
 		response.setHeader("Content-disposition", "attachment; filename=" + filename);

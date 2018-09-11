@@ -77,7 +77,7 @@ public class SpreadsheetUtil {
      */
     private static void protectAgainstInstantDeletion(HttpServletResponse response) {
         response.reset();	// Eliminate the added-on stuff
-        response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
+        response.setHeader("Cache-Control", "public, must-revalidate, max-age=0");	// New-style
     }
 
 	/**

@@ -441,7 +441,7 @@ public class ErrorReporter
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
 			res
 					.addHeader("Cache-Control",
-							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+							"no-store, no-cache, must-revalidate, max-age=0");
 
 			PrintWriter out = null;
 			try {
@@ -773,7 +773,7 @@ public class ErrorReporter
 			res.addDateHeader("Last-Modified", System.currentTimeMillis());
 			res
 					.addHeader("Cache-Control",
-							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+							"no-store, no-cache, must-revalidate, max-age=0");
 
 			PrintWriter out = res.getWriter();
 			out
