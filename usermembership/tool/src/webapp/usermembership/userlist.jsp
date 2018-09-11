@@ -5,7 +5,7 @@
 
 <% 
 	response.setContentType("text/html; charset=UTF-8");
-	response.addHeader("Cache-Control", no-store, no-cache");
+	response.addHeader("Cache-Control", "no-store, no-cache");
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">

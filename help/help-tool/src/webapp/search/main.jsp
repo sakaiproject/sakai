@@ -7,7 +7,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/help" prefix="help" %>
 <%
 		response.setContentType("text/html; charset=UTF-8");
-		response.addHeader("Cache-Control", no-store, no-cache");
+		response.addHeader("Cache-Control", "no-store, no-cache");
 %>
 <f:view>
 <sakai:view_container title="#{msgs.title_edit}">

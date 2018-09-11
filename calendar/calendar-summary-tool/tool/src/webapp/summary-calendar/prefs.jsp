@@ -3,7 +3,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
 <% 
 	response.setContentType("text/html; charset=UTF-8");
-	response.addHeader("Cache-Control", no-store, no-cache");
+	response.addHeader("Cache-Control", "no-store, no-cache");
 %>
 
 <f:view>

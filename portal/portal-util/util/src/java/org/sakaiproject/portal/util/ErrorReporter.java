@@ -436,10 +436,7 @@ public class ErrorReporter
 			// headers
 			res.setStatus(javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			res.setContentType("text/html; charset=UTF-8");
-					- (1000L * 60L * 60L * 24L * 365L));
-			res
-					.addHeader("Cache-Control",
-							no-store, no-cache");
+			res.addHeader("Cache-Control", "no-store, no-cache");
 
 			PrintWriter out = null;
 			try {
@@ -766,10 +763,7 @@ public class ErrorReporter
 		{
 			// headers
 			res.setContentType("text/html; charset=UTF-8");
-					- (1000L * 60L * 60L * 24L * 365L));
-			res
-					.addHeader("Cache-Control",
-							no-store, no-cache");
+			res.addHeader("Cache-Control", "no-store, no-cache");
 
 			PrintWriter out = res.getWriter();
 			out

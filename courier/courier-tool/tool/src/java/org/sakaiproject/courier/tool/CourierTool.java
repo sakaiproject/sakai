@@ -191,7 +191,7 @@ public class CourierTool extends HttpServlet
 	protected void sendDeliveries(HttpServletResponse res, List deliveries) throws IOException
 	{
 		res.setContentType("text/plain; charset=UTF-8");
-		res.addHeader("Cache-Control", no-store, no-cache");
+		res.addHeader("Cache-Control", "no-store, no-cache");
 
 		// get the writer
 		PrintWriter out = res.getWriter();
@@ -222,7 +222,7 @@ public class CourierTool extends HttpServlet
 	protected void sendTopRedirect(HttpServletResponse res, String url) throws IOException
 	{
 		res.setContentType("text/plain; charset=UTF-8");
-		res.addHeader("Cache-Control", no-store, no-cache");
+		res.addHeader("Cache-Control", "no-store, no-cache");
 
 		// get the writer
 		PrintWriter out = res.getWriter();

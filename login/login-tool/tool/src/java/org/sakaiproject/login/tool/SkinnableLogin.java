@@ -414,8 +414,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			res.setContentType(contentType);
 		}
-				- (1000L * 60L * 60L * 24L * 365L));
-		res.addHeader("Cache-Control", no-store, no-cache");
+		res.addHeader("Cache-Control", "no-store, no-cache");
 
 		// get the writer
 		PrintWriter out = res.getWriter();

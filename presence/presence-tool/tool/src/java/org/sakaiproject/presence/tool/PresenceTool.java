@@ -339,7 +339,7 @@ public class PresenceTool extends HttpServlet
 	{
 		// headers
 		res.setContentType("text/html; charset=UTF-8");
-		res.addHeader("Cache-Control", no-store, no-cache");
+		res.addHeader("Cache-Control", "no-store, no-cache");
 
 		// get the writer
 		PrintWriter out = res.getWriter();
