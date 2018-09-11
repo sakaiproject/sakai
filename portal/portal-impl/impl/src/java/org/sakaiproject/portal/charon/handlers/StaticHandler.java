@@ -193,7 +193,6 @@ public abstract class StaticHandler extends BasePortalHandler
 			else
 			{
 				res.setContentType(getContentType(filename));
-				res.addDateHeader("Last-Modified", lastModified);
 				res.setContentLength((int) length);
 				sendContent(res, inputStream);
 				return;
@@ -330,7 +329,6 @@ public abstract class StaticHandler extends BasePortalHandler
 		if (sc.contenttype != null) {
 			res.setContentType(sc.contenttype);
 		}
-		res.addDateHeader("Last-Modified", sc.lastModified);
 		res.setContentLength(sc.buffer.length);
 		res.getOutputStream().write(sc.buffer);
 

@@ -244,7 +244,6 @@ public class UserAuditJsfTool extends JsfTool {
 		res.setContentType("text/html; charset=UTF-8");
 		res.addDateHeader("Expires", System.currentTimeMillis()
 				- (1000L * 60L * 60L * 24L * 365L));
-		res.addDateHeader("Last-Modified", System.currentTimeMillis());
 		res
 				.addHeader("Cache-Control",
 						no-store, no-cache");

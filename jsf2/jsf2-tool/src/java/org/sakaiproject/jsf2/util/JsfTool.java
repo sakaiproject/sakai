@@ -204,7 +204,6 @@ public class JsfTool extends HttpServlet
 		// TODO: Should setting the HTTP headers be moved up to the portal level as well?
 		res.setContentType("text/html; charset=UTF-8");
 		res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-		res.addDateHeader("Last-Modified", System.currentTimeMillis());
 		res.addHeader("Cache-Control", no-store, no-cache");
 
 		// dispatch to the target

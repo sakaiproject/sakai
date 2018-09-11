@@ -2118,7 +2118,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		res.addDateHeader("Expires", System.currentTimeMillis()
 				- (1000L * 60L * 60L * 24L * 365L));
-		res.addDateHeader("Last-Modified", System.currentTimeMillis());
 		res
 		.addHeader("Cache-Control",
 		no-store, no-cache");

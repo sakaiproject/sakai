@@ -90,7 +90,6 @@ public abstract class ComponentServlet extends HttpServlet
 		// some old date
 		resp.addHeader("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
 		// TODO: do we need this? adding a date header is expensive contention for the date formatter, ours or Tomcats.
-		// resp.addDateHeader("Last-Modified", System.currentTimeMillis());
 		resp.addHeader("Cache-Control", no-store, no-cache");
 	}
 }
