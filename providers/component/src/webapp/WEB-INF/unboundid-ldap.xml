@@ -6,6 +6,8 @@
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 		class="org.sakaiproject.unboundid.UnboundidDirectoryProvider" init-method="init"
 		destroy-method="destroy">
+
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		
 		<!-- Required. Uses Unboundid SingleServerSet by default. Easy to modify code to use FailoverServerSet or RoundRobinServerSet. -->
 		<property name="ldapHost">
@@ -90,7 +92,37 @@
 		<!--  property name="allowAuthentication">
 			<value>true</value>
 		</property -->
-		
+
+		<!--  Optional. Controls whether or not users who are super users (admin)
+                      may be authenticated from the directory. Defaults to
+		      UnboundidDirectoryProvider.DEFAULT_ALLOW_AUTHENTICATION_ADMIN  -->
+		<!--  property name="allowAuthenticationAdmin">
+			<value>false</value>
+		</property -->
+
+		<!--  Optional. Controls whether or not external users (who are not in
+                      the internal user database) can be authenticated from the directory.
+		      If false, LDAP will authenticate internal users only. Defaults to
+		      UnboundidDirectoryProvider.DEFAULT_ALLOW_AUTHENTICATION_EXTERNAL  -->
+		<!-- property name="allowAuthenticationExternal">
+			<value>true</value>
+		</property -->
+
+                <!--  Optional. Control whether or not the directory may be searched for
+                      users that match given search criteria. Defaults to
+                      UnboundidDirectoryProvider.DEFAULT_ALLOW_SEARCH_EXTERNAL  -->
+                <!--  property name="allowSearchExternal">
+                        <value>true</value>
+                </property -->
+
+                <!--  Optional. Control whether or not external users (who are not in
+                      the internal user database) can be loaded from the directory.
+                      If false, LDAP will  be used for authentication only. Defaults to
+                      UnboundidDirectoryProvider.DEFAULT_ALLOW_GET_EXTERNAL  -->
+		<!-- property name="allowGetExternal">
+			<value>true</value>
+		</property -->
+
 		<!-- Optional. Defaults to an instance of 
 		org.sakaiproject.unboundid.SimpleLdapConnectionManager -->
 		<!-- property name="ldapConnectionManager">

@@ -32,7 +32,12 @@ import java.security.GeneralSecurityException;
 import javax.net.ssl.SSLSocketFactory;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
@@ -69,6 +74,10 @@ import com.unboundid.util.ssl.SSLUtil;
 @Slf4j
 public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig, ExternalUserSearchUDP, UsersShareEmailUDP, DisplayAdvisorUDP, AuthenticationIdUDP
 {
+
+	/** Security Service */
+	@Setter private SecurityService securityService;
+
 	/** Default LDAP connection port */
 	public static final int[] DEFAULT_LDAP_PORT = {389};
 
@@ -104,6 +113,14 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	public static final String DISPLAY_NAME_PROPERTY = UnboundidDirectoryProvider.class+"-displayName";
 
 	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
+
+	public static final boolean DEFAULT_ALLOW_AUTHENTICATION_EXTERNAL = true;
+
+	public static final boolean DEFAULT_ALLOW_AUTHENTICATION_ADMIN = false;
+
+	public static final boolean DEFAULT_ALLOW_SEARCH_EXTERNAL = true;
+
+	public static final boolean DEFAULT_ALLOW_GET_EXTERNAL = true;
 	
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
 
@@ -193,6 +210,28 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 * Flag for allowing/disallowing authentication on a global basis
 	 */
 	private boolean allowAuthentication = DEFAULT_ALLOW_AUTHENTICATION;
+
+	/**
+	 * Flag for allowing/disallowing authentication for external users (who do not already exist).
+	 * If false, only users who have existing accounts may authenticate via LDAP.
+	 */
+	@Getter @Setter private boolean allowAuthenticationExternal = DEFAULT_ALLOW_AUTHENTICATION_EXTERNAL;
+
+	/**
+	 * Flag for allowing/disallowing authentication for admin-equivalent users.
+	 * If false, users who have admin-equivalent accounts may not authenticate via LDAP.
+	 */
+	@Getter @Setter private boolean allowAuthenticationAdmin = DEFAULT_ALLOW_AUTHENTICATION_ADMIN;
+
+	/**
+	 * Flag for allowing/disallowing searching external users
+	 */
+	@Getter @Setter private boolean allowSearchExternal = DEFAULT_ALLOW_SEARCH_EXTERNAL;
+
+	/**
+	 * Flag for allowing/disallowing getting an external user
+	 */
+	@Getter @Setter private boolean allowGetExternal = DEFAULT_ALLOW_GET_EXTERNAL;
 	
 	/**
 	 * Flag for controlling the return value of 
@@ -341,8 +380,20 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			return false;
 		}
 
+		if ( !allowAuthenticationExternal && (edit.getId() == null)) {
+			log.debug("authenticateUser(): returning false, not authenticating for external users");
+			return false;
+		}
+
+		if ( !allowAuthenticationAdmin && securityService.isSuperUser(edit.getId())) {
+			log.debug("authenticateUser(): returning false, not authenticating for superuser (admin) {}", edit.getEid());
+			return false;
+		}
+
 		try
 		{
+			long start = System.currentTimeMillis();
+
 			// look up the end-user's DN, which could be nested at some 
 			// arbitrary depth below getBasePath().
 			// TODO: optimization opportunity if user entries are 
@@ -359,6 +410,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			lc = connectionPool.getConnection();
 			BindResult bindResult = lc.bind(endUserDN, password);
 			if(bindResult.getResultCode().equals(ResultCode.SUCCESS)) {
+				log.info("Authenticated {} ({}) from LDAP in {} ms", userLogin, endUserDN, System.currentTimeMillis() - start);
 				return true;
 			}
 
@@ -368,7 +420,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		catch (com.unboundid.ldap.sdk.LDAPException e)
 		{
 			if (e.getResultCode().intValue() == LDAPException.INVALID_CREDENTIALS) {
-				log.warn("authenticateUser(): invalid credentials [userLogin = {}]", userLogin);
+				log.info("authenticateUser(): invalid credentials [userLogin = {}]", userLogin);
 				return false;
 			} else {
 				throw new RuntimeException(
@@ -464,6 +516,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 */
 	public boolean getUser(UserEdit edit)
 	{
+
+		if (!allowGetExternal) {
+			log.debug("getUser() external get not enabled");
+			return false;
+		}
 
 		try {
 			return getUserByEid(edit, edit.getEid());
@@ -1380,6 +1437,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
      * 		A list (UserEdit) of all the users matching the criteria.
      */ 
 	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
+
+		if (!allowSearchExternal) {
+			log.debug("External search is disabled");
+			return null;
+		}
 		
 		String filter = ldapAttributeMapper.getFindUserByCrossAttributeSearchFilter(criteria);
 		List<UserEdit> users = new ArrayList<UserEdit>();
@@ -1418,8 +1480,14 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	@SuppressWarnings("rawtypes")
     public Collection findUsersByEmail(String email, UserFactory factory) {
 
-		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
 		List<User> users = new ArrayList<User>();
+
+                if (!allowSearchExternal) {
+                        log.debug("External search is disabled");
+                        return users;
+                }
+
+		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
 		try {
 			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, maxResultSize);
 
