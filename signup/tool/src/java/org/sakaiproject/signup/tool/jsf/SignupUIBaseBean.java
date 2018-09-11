@@ -886,7 +886,6 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
 			
 			response.reset();
-			response.setHeader("Pragma", "public");
 			response.setHeader("Cache-Control","public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
 			response.setContentType(mimeType);
 			response.setHeader("Content-disposition", "attachment; filename=" + filename);
@@ -922,7 +921,6 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
 			
 			response.reset();
-			response.setHeader("Pragma", "public");
 			response.setHeader("Cache-Control","public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
 			response.setContentType("text/plain");
 			response.setHeader("Content-disposition", "attachment; filename=" + fileName);

@@ -2122,7 +2122,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		res
 		.addHeader("Cache-Control",
 		"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		res.addHeader("Pragma", "no-cache");
 
 		// get the writer
 		PrintWriter out = res.getWriter();

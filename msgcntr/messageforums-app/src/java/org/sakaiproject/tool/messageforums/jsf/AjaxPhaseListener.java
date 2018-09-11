@@ -38,9 +38,7 @@ public class AjaxPhaseListener implements PhaseListener {
 		if ("true".equals(ajax)) {
 			try {
 				ServletOutputStream out = response.getOutputStream();
-				response.setHeader("Pragma", "No-Cache");
-				response.setHeader("Cache-Control",
-						"no-cache,no-store,max-age=0");
+				response.setHeader("Cache-Control", "no-cache,no-store,max-age=0");
 				response.setDateHeader("Expires", 1);
 				if (action == null) {
 					out.println("FAIL");

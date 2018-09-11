@@ -215,7 +215,6 @@ public class SignupServlet extends JsfTool {
 		res.addDateHeader("Last-Modified", System.currentTimeMillis());
 		res.addHeader("Cache-Control",
 						"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		res.addHeader("Pragma", "no-cache");
 
 		if (session != null && ("true").equals(session.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
 			AttachmentHandler bean = (AttachmentHandler) lookupBeanFromExternalServlet("AttachmentHandler", req, res);

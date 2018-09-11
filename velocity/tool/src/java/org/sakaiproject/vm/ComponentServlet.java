@@ -92,6 +92,5 @@ public abstract class ComponentServlet extends HttpServlet
 		// TODO: do we need this? adding a date header is expensive contention for the date formatter, ours or Tomcats.
 		// resp.addDateHeader("Last-Modified", System.currentTimeMillis());
 		resp.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		resp.addHeader("Pragma", "no-cache");
 	}
 }

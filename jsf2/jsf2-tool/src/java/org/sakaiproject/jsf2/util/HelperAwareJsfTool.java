@@ -149,7 +149,6 @@ public class HelperAwareJsfTool extends JsfTool {
       res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
       res.addDateHeader("Last-Modified", System.currentTimeMillis());
       res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-      res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
       log.debug("dispatching path: " + req.getPathInfo() + " to: " + target + " context: "

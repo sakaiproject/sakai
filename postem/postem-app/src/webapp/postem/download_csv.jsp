@@ -15,7 +15,6 @@
 	response.setHeader("Content-disposition", "attachment; filename=" +
 		Web.encodeFileName(request, "postem_" + titleName + ".csv"));
 	
-	response.setHeader ("Pragma", "public");
 	response.setHeader("Cache-control", "must-revalidate");
 	
 	String csv = tool.getCsv();

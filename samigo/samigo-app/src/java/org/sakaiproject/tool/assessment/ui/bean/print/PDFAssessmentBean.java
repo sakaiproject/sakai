@@ -810,7 +810,6 @@ public class PDFAssessmentBean implements Serializable {
 		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
 
 		response.reset();
-		response.setHeader("Pragma", "public"); 
 		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0"); 
 
 		response.setContentType("application/pdf");

@@ -184,8 +184,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 				Map<String,String> headers = new HashMap<>();
 				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
 				headers.put("Cache-Control","no-cache, must-revalidate, max-age=0");
-				headers.put("Pragma", "no-cache");
-				
+
 				actionReturn.setHeaders(headers);
 				
 				return actionReturn;
@@ -200,7 +199,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 				HttpServletResponse res = requestGetter.getResponse();
 				res.addHeader("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
 				res.addHeader("Cache-Control","no-cache, must-revalidate, max-age=0");
-				res.addHeader("Pragma", "no-cache");
 				res.sendRedirect(url);
 			} catch (IOException e) {
 				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());

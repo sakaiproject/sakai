@@ -325,7 +325,6 @@ public class DownloadEventBean extends SignupMeetingsBean {
 	private void responseSettings(String filename, String mimetype, HttpServletResponse response) {
 		// Stop IE from misbehaving
 		response.reset(); // Eliminate the added-on stuff
-		response.setHeader("Pragma", "public"); // Override old-style cache
 		// control
 		response.setHeader("Cache-Control",
 				"public, must-revalidate, post-check=0, pre-check=0, max-age=0"); // New-style

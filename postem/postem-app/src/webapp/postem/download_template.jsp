@@ -13,7 +13,6 @@
         response.setHeader("Content-disposition", "attachment; filename=postem_" +
                 titleName + "_template.html");
         String template = tool.getCurrentGradebook().getTemplate().getTemplateCode();
-        response.setHeader ("Pragma", "public");
     	  response.setHeader("Cache-control", "must-revalidate");
         
         out.print(template);

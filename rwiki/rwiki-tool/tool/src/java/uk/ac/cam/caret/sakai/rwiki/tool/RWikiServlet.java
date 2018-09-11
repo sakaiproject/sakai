@@ -175,14 +175,6 @@ public class RWikiServlet extends HttpServlet
 
 		HttpCommand command = helper.getCommandForRequest(request);
 		
-		// fix for IE6's poor cache capabilities
-		String userAgent = request.getHeader("User-Agent");
-		if ( userAgent != null && userAgent.indexOf("MSIE 6") >= 0 ) {
-			response.addHeader("Expires","0");
-			response.addHeader("Pragma","cache");
-			response.addHeader("Cache-Control","private");
-		}
-		
 		command.execute(dispatcher,request, response);
 
 		request.removeAttribute(Tool.NATIVE_URL);
