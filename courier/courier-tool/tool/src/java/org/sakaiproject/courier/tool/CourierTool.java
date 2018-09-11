@@ -191,7 +191,6 @@ public class CourierTool extends HttpServlet
 	protected void sendDeliveries(HttpServletResponse res, List deliveries) throws IOException
 	{
 		res.setContentType("text/plain; charset=UTF-8");
-		res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
 		res.addHeader("Cache-Control", no-store, no-cache");
 
 		// get the writer
@@ -223,7 +222,6 @@ public class CourierTool extends HttpServlet
 	protected void sendTopRedirect(HttpServletResponse res, String url) throws IOException
 	{
 		res.setContentType("text/plain; charset=UTF-8");
-		res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
 		res.addHeader("Cache-Control", no-store, no-cache");
 
 		// get the writer

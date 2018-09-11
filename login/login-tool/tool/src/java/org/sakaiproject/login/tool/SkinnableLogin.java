@@ -414,7 +414,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			res.setContentType(contentType);
 		}
-		res.addDateHeader("Expires", System.currentTimeMillis()
 				- (1000L * 60L * 60L * 24L * 365L));
 		res.addHeader("Cache-Control", no-store, no-cache");
 

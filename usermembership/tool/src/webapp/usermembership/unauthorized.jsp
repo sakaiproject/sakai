@@ -4,7 +4,6 @@
 
 <%
 	response.setContentType("text/html; charset=UTF-8");
-	response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
 	response.addHeader("Cache-Control", no-store, no-cache");
 %>
  
