@@ -15,7 +15,10 @@
  */
 package org.sakaiproject.portal.service;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.sql.ResultSet;
@@ -32,24 +35,32 @@ import org.hibernate.Transaction;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.messageforums.*;
+import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.BullhornService;
@@ -58,13 +69,14 @@ import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.*;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -81,10 +93,14 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private final static String COMMONS_COMMENT_CREATED = "commons.comment.created";
 
+    private final static String ALERTS_HIDE_PROP = "hidealerts";
+
     @Setter
     private AnnouncementService announcementService;
     @Setter
     private AssignmentService assignmentService;
+    @Setter
+    private PrivateMessageManager privateMessageManager;
     @Setter
     private EntityManager entityManager;
     @Setter
@@ -100,6 +116,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     @Setter
     private UserDirectoryService userDirectoryService;
     @Setter
+    private PreferencesService preferencesService;
+    @Setter
     private SecurityService securityService;
     @Setter
     private ServerConfigurationService serverConfigurationService;
@@ -111,6 +129,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private SessionFactory sessionFactory;
     @Setter
     private TransactionTemplate transactionTemplate;
+    @Setter
+    private SessionManager sessionManager;
 
     private Object commonsManager = null;
     private Method commonsManagerGetPostMethod = null;
@@ -163,8 +183,13 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_IGNORE);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_MESSAGE_SENT);
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
+            HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_POST);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
+            HANDLED_EVENTS.add(AssignmentConstants.EVENT_POST_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
+            HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_ADD);
+            HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_RESPONSE);
+            HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_FORWARD);
             HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             eventTrackingService.addLocalObserver(this);
@@ -251,58 +276,83 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             }
                             doCommonsCommentInserts(from, event, ref, e, siteId, postId, tos);
                         }
-                    } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event)) {
-                        String siteId = pathParts[3];
-                        String announcementId = pathParts[pathParts.length - 1];
+                    } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event) || AnnouncementService.SECURE_ANNC_POST.equals(event)) {
+                            String siteId = pathParts[3];
+                            String announcementId = pathParts[pathParts.length - 1];
 
-                        SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ});
-                        try {
-                            AnnouncementMessage message
-                                = (AnnouncementMessage) announcementService.getMessage(
-                                                                entityManager.newReference(ref));
+                            SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ});
+                            try {
+                                AnnouncementMessage message
+                                    = (AnnouncementMessage) announcementService.getMessage(
+                                                                    entityManager.newReference(ref));
 
-                            if (announcementService.isMessageViewable(message)) {
                                 Site site = siteService.getSite(siteId);
-                                String toolId = site.getToolForCommonId("sakai.announcements").getId();
-                                String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
-                                                    + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
+                                if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                    String toolId = site.getToolForCommonId("sakai.announcements").getId();
+                                    String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
+                                            + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
 
-                                // In this case title = announcement subject
-                                String title
-                                    = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                                    AnnouncementMessageHeader header = message.getAnnouncementHeader();
 
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
+                                    // In this case title = announcement subject
+                                    String title
+                                            = header.getSubject();
+
+                                    Date postDate = header.getDate() == null ? new Date() : new Date(header.getDate().getTime());
+
+                                    Collection<Group> announcementGroups = header.getGroupObjects();
+                                    Set<String> toSet = new HashSet<>();
+                                    if (announcementGroups == null || announcementGroups.isEmpty()) {
+                                        // Get all the members of the site with read ability
+                                        toSet.addAll(site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+
+                                    } else {
+                                        // Get members of each group and add to the set.
+                                        for (Group group : announcementGroups) {
+                                            for (Member member : group.getMembers()) {
+                                                if (site.isAllowed(member.getUserId(), AnnouncementService.SECURE_ANNC_READ)) {
+                                                    toSet.add(member.getUserId());
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // Create academic alert for each member of the set.
+                                    for (String  to : toSet) {
+                                        if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                                            doAcademicInsert(from, to, event, ref, title, siteId, postDate, url);
+                                            countCache.remove(to);
+                                        }
                                     }
                                 }
-                            }
-                        } catch (IdUnusedException idue) {
+                            } catch (IdUnusedException idue) {
                             log.error("No site with id '" + siteId + "'", idue);
                         } finally {
                             lock(sa);
                         }
-                    } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
-                        String siteId = pathParts[3];
-                        String assignmentId = pathParts[pathParts.length - 1];
-                        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
-                        try {
-                            Assignment assignment = assignmentService.getAssignment(assignmentId);
-                            Instant openTime = assignment.getOpenDate();
-                            if (openTime == null || openTime.isBefore(Instant.now())) {
-                                Site site = siteService.getSite(siteId);
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignmentId);
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
+                    } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event) || AssignmentConstants.EVENT_POST_ASSIGNMENT.equals(event)) {
+
+                            String siteId = pathParts[3];
+                            String assignmentId = pathParts[pathParts.length - 1];
+                            SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                            switchToAdmin();
+                            try {
+                                Assignment assignment = assignmentService.getAssignment(assignmentId);
+                                switchToNull();
+                                Instant openTime = assignment.getOpenDate();
+                                if (openTime == null || openTime.isBefore(Instant.now())) {
+                                    Site site = siteService.getSite(siteId);
+                                    if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                        String title = assignment.getTitle();
+                                        String url = assignmentService.getDeepLink(siteId, assignmentId);
+                                        // Get all the members of the site with read ability
+                                        for (String to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+                                            if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                                                doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
+                                                countCache.remove(to);
+                                            }
+                                        }
                                     }
                                 }
-                            }
                         } catch (IdUnusedException idue) {
                             log.error("Failed to find either the assignment or the site", idue);
                         } finally {
@@ -311,29 +361,35 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                     } else if (AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION.equals(event)) {
                         String siteId = pathParts[3];
                         String submissionId = pathParts[pathParts.length - 1];
-                        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
-                                                        , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
-                                                        , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                        SecurityAdvisor sa = unlock(new String[]{AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
+                                , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
+                                , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
 
                         // Without hacking assignment's permissions model, this is only way to
                         // get a submission, other than switching to the submitting user.
+                        switchToAdmin();
                         try {
                             AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
+                            switchToNull();
                             if (submission.getGradeReleased()) {
                                 Site site = siteService.getSite(siteId);
-                                Assignment assignment = submission.getAssignment();
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignment.getId());
-                                submission.getSubmitters().forEach(to -> {
-                                    doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
-                                    countCache.remove(to.getSubmitter());
-                                });
+                                if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                    Assignment assignment = submission.getAssignment();
+                                    String title = assignment.getTitle();
+                                    String url = assignmentService.getDeepLink(siteId, assignment.getId());
+                                    submission.getSubmitters().forEach(to -> {
+                                        doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
+                                        countCache.remove(to.getSubmitter());
+                                    });
+                                }
                             }
                         } catch (IdUnusedException idue) {
                             log.error("Failed to find either the submission or the site", idue);
                         } finally {
+                            switchToNull();
                             lock(sa);
                         }
+
                     } else if (LessonBuilderEvents.COMMENT_CREATE.equals(event)) {
                         try {
                             long commentId = Long.parseLong(pathParts[pathParts.length - 1]);
@@ -345,7 +401,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 List<String> done = new ArrayList<>();
                                 // Alert tutor types.
                                 List<User> receivers = securityService.unlockUsers(
-                                    SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + context);
+                                        SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + context);
                                 for (User receiver : receivers) {
                                     String to = receiver.getId();
                                     if (!to.equals(from)) {
@@ -357,8 +413,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
                                 // Get all the comments in the same item
                                 List<SimplePageComment> comments
-                                    = simplePageToolDao.findCommentsOnItems(
-                                        Arrays.asList(new Long[] {comment.getItemId()}));
+                                        = simplePageToolDao.findCommentsOnItems(
+                                        Arrays.asList(new Long[]{comment.getItemId()}));
 
                                 if (comments.size() > 1) {
                                     // Not the first, alert all the other commenters unless they already have been
@@ -377,7 +433,27 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } catch (NumberFormatException nfe) {
                             log.error("Caught number format exception whilst handling events", nfe);
                         }
-                    }
+                        } else if (DiscussionForumService.EVENT_MESSAGES_ADD.equals(event) ||
+                                DiscussionForumService.EVENT_MESSAGES_RESPONSE.equals(event) ||
+                                DiscussionForumService.EVENT_MESSAGES_FORWARD.equals(event)) {
+                            String siteId = pathParts[3];
+                            Long messageId = Long.valueOf(pathParts[pathParts.length - 2]);
+                            PrivateMessage message = (PrivateMessage) privateMessageManager.getMessageById(messageId);
+                            message = privateMessageManager.initMessageWithAttachmentsAndRecipients(message);
+                            String messageTitle = message.getTitle();
+                            Site site = siteService.getSite(siteId);
+                            ToolConfiguration tool = site.getToolForCommonId("sakai.messages");
+                            String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/page/" + tool.getPageId();
+                            if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                for (Object recipient : message.getRecipients()) {
+                                    String userId = ((PrivateMessageRecipient) recipient).getUserId();
+                                    if (StringUtils.isNotBlank(userId) && !from.equals(userId)) {
+                                        doAcademicInsert(from, userId, event, ref, messageTitle, siteId, e.getEventTime(), url);
+                                        countCache.remove(userId);
+                                    }
+                                }
+                            }
+                        }
                 } catch (Exception ex) {
                     log.error("Caught exception whilst handling events", ex);
                 }
@@ -612,5 +688,54 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 .executeUpdate();
         countCache.remove(userId);
         return true;
+    }
+
+    public boolean toggleHideBullhornAlerts(final String userId) {
+        try {
+            PreferencesEdit prefEdit = this.preferencesService.edit(userId);
+            ResourcePropertiesEdit props = prefEdit.getPropertiesEdit();
+            boolean hideAlerts;
+            try {
+                hideAlerts = !props.getBooleanProperty(ALERTS_HIDE_PROP);
+            } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
+                // Hide Alerts preference was never set or is not a boolean value
+                // So the user must have clicked the "Hide" button
+                hideAlerts = true;
+            }
+            props.addProperty(ALERTS_HIDE_PROP, String.valueOf(hideAlerts));
+            this.preferencesService.commit(prefEdit);
+            return hideAlerts;
+        } catch (PermissionException e) {
+            log.error("Unable to toggle bullhorn alert preferences.", e);
+        } catch (InUseException e) {
+            log.error("Unable to edit user preferences.", e);
+        } catch (IdUnusedException e) {
+            log.error("Preferences have never been set for user: ", userId, e);
+        }
+        // No permissions or unable to edit user preferences. This shouldn't occur
+        // let the user see notification alerts.
+        return false;
+    }
+
+    public boolean isAlertHidden(final String userId) {
+        try {
+            Preferences prefs = this.preferencesService.getPreferences(userId);
+            ResourceProperties props = prefs.getProperties();
+            return props.getBooleanProperty(ALERTS_HIDE_PROP);
+        } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) {
+            return false;
+        }
+    }
+
+    private void switchToAdmin() {
+
+        org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
+        session.setUserId(UserDirectoryService.ADMIN_ID);
+    }
+
+    private void switchToNull() {
+
+        org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
+        session.setUserId(null);
     }
 }

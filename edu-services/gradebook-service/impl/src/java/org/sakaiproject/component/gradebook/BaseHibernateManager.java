@@ -85,7 +85,7 @@ package org.sakaiproject.component.gradebook;
  import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
  import org.sakaiproject.tool.gradebook.Permission;
  import org.sakaiproject.tool.gradebook.facades.Authn;
- import org.sakaiproject.event.api.EventTrackingService;
+ import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
  import org.springframework.orm.hibernate4.HibernateCallback;
  import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 

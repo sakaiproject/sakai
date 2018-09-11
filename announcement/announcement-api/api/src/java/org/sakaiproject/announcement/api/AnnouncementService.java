@@ -82,6 +82,9 @@ public interface AnnouncementService extends MessageService
 	/** Security lock / event for adding channel / message. */
 	public static final String SECURE_ANNC_ADD = SECURE_ANNC_ROOT + SECURE_ADD;
 
+	/** Event for posting an announcement from draft */
+	public static final String SECURE_ANNC_POST = "annc.post";
+
 	/** Security lock / event for removing one's own message. */
 	public static final String SECURE_ANNC_REMOVE_OWN = SECURE_ANNC_ROOT + SECURE_REMOVE_OWN;
 
@@ -171,7 +174,7 @@ public interface AnnouncementService extends MessageService
 	 * @return boolean
 	 */
 	public boolean isMessageViewable(AnnouncementMessage message);
-	
+
 	/**
 	 * clears the message cache for this channel
 	 * @param channelRef
