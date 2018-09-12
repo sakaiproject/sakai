@@ -783,7 +783,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignment.setDropDeadDate(existingAssignment.getDropDeadDate());
                 assignment.setCloseDate(existingAssignment.getCloseDate());
                 assignment.setHideDueDate(existingAssignment.getHideDueDate());
-                assignment.setReminderEmailSent(Boolean.FALSE);
                 assignment.setDraft(true);
                 assignment.setPosition(existingAssignment.getPosition());
                 assignment.setIsGroup(existingAssignment.getIsGroup());
@@ -3444,7 +3443,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setDueDate(oAssignment.getDueDate());
                     nAssignment.setOpenDate(oAssignment.getOpenDate());
                     nAssignment.setHideDueDate(oAssignment.getHideDueDate());
-                    nAssignment.setReminderEmailSent(Boolean.FALSE);
 
                     nAssignment.setPosition(oAssignment.getPosition());
                     nAssignment.setAllowAttachments(oAssignment.getAllowAttachments());
