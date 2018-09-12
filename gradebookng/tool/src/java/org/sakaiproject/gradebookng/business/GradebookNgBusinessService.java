@@ -137,8 +137,6 @@ public class GradebookNgBusinessService {
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
 
-	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
-
 	/**
 	 * Get a list of all users in the current site that can have grades
 	 *
@@ -2501,11 +2499,12 @@ public class GradebookNgBusinessService {
 		final String externalAppName = assignment.getExternalAppName();
 
 		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.assignment.title"))) {
+		if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"))) {
 			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.samigo.title"))) {
+		} else if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"))) {
 			iconClass = getSamigoIconClass();
-		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.lessonbuildertool.title"))) {
+		// "Lesson Builder" is currently hardcoded in SimplePageBean.java (no localization required)
+		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
 			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
@@ -2519,16 +2518,8 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		final Tool assignment = this.toolManager.getTool("sakai.assignment.grades");
-		if (assignment != null) {
-			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
-		}
-
-		final Tool samigo = this.toolManager.getTool("sakai.samigo");
-		if (samigo != null) {
-			mapping.put(samigo.getTitle(), getSamigoIconClass());
-		}
-
+		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"), getAssignmentsIconClass());
+		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"), getSamigoIconClass());
 		mapping.put("Lesson Builder", getLessonBuilderIconClass());
 
 		return mapping;
