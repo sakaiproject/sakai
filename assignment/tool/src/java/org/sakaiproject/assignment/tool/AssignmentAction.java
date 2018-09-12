@@ -4993,7 +4993,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                     String grade = gradeString != null ? displayGrade(state, gradeString, a.getScaleFactor()) : null;
                                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                                         String submitterId = submitter.getSubmitter();
-                                        String gradeStringToUse = (a.getIsGroup() && submitter.getGrade() != null) ? submitter.getGrade() : grade;
+                                        String submitterGrade = submitter.getGrade() != null ? displayGrade(state, submitter.getGrade(), a.getScaleFactor()) : null;
+                                        String gradeStringToUse = (a.getIsGroup() && submitterGrade != null) ? submitterGrade : grade;
                                         sm.put(submitterId, gradeStringToUse);
                                         cm.put(submitterId, commentString);
                                     }
