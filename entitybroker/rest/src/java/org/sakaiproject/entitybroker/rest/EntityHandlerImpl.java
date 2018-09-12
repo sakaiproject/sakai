@@ -955,13 +955,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     protected void setNoCacheHeaders(HttpServletResponse res) {
         long currentTime = System.currentTimeMillis();
         res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
-        res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 1000);
-
-        res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=0");
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=0");
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-cache, no-store");
     }
 
     /**
@@ -994,20 +988,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
         // set the cache headers
         res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
-        res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 600000);
 
         if (noCache) {
-            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
-            res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 1000);
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=0");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=0");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-cache, no-store");
         } else {
-            // response.addHeader("Cache-Control", "must-revalidate");
-            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "public");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=600");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=600");
+            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private, max-age=600");
         }
 
         // set the EB specific headers
