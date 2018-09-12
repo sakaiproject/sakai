@@ -193,7 +193,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         if (userSubmission != null) {
             criteria.add(Restrictions.eq("userSubmission", userSubmission));
         }
-        criteria.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds));
+        if (userIds != null) {
+            criteria.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds));
+        }
         return ((Number) criteria.uniqueResult()).longValue();
     }
 
