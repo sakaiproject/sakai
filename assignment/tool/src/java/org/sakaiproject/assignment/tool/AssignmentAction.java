@@ -10602,7 +10602,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     //Grade
                     String g = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
                     Integer score = item.getScore();
-                    if (g != null && !"".equals(g)) {
+                    if (StringUtils.isNotEmpty(g)) {
                         try {
                             String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
                             if (assignmentId == null) {
@@ -10614,20 +10614,21 @@ public class AssignmentAction extends PagedResourceActionII {
                                 } else {
                                     int factor = a.getScaleFactor();
                                     int dec = (int) Math.log10(factor);
-                                    String decSeparator = formattedText.getDecimalSeparator();
-                                    g = StringUtils.replace(g, (",".equals(decSeparator) ? "." : ","), decSeparator);
-                                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
-                                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
-                                    Double dScore = dcformat.parse(g).doubleValue();
-
-                                    if (dScore < 0) {
-                                        addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
-                                    } else if (dScore <= a.getMaxGradePoint() / (double) factor) {
-                                        //scores are saved as whole values
-                                        //so a score of 1.3 would be stored as 13
-                                        score = (int) Math.round(dScore * factor);
-                                    } else {
-                                        addAlert(state, rb.getFormattedMessage("plesuse4", g, a.getMaxGradePoint() / (double) factor));
+                                    g= validPointGrade(state, g, factor);
+                                    if (state.getAttribute(STATE_MESSAGE) == null) {
+	                                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
+	                                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+	                                    Double dScore = dcformat.parse(g).doubleValue();
+	
+	                                    if (dScore < 0) {
+	                                        addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
+	                                    } else if (dScore <= a.getMaxGradePoint() / (double) factor) {
+	                                        //scores are saved as whole values
+	                                        //so a score of 1.3 would be stored as 13
+	                                        score = (int) Math.round(dScore * factor);
+	                                    } else {
+	                                        addAlert(state, rb.getFormattedMessage("plesuse4", g, a.getMaxGradePoint() / (double) factor));
+	                                    }
                                     }
                                 }
                             }
