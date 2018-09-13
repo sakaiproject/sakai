@@ -123,9 +123,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		HttpUtil.printHeaders(request);
-		HttpUtil.printParameters(request);
-
 		// /imsblis/lti13/token/42
 		if (parts.length == 5 && "token".equals(parts[3])) {
 			String client_id = parts[4];
@@ -243,19 +240,14 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
-		System.out.println("body=" + body);
 		if (body == null) {
-			LTI13Util.return400(response, "Could not find Jwy Body in client_assertion");
+			LTI13Util.return400(response, "Could not find Jwt Body in client_assertion");
 			log.error("Could not find Jwy Body in client_assertion\n{}", client_assertion);
 			return;
 		}
 
-		Object body_json = JSONValue.parse(body);
-		System.out.println("body_json\n" + body_json);
-
 		// Load the tool
 		Map<String, Object> tool = loadTool(tool_id);
-// System.out.println("tool=" + tool);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_id);
@@ -263,8 +255,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-// System.out.println("tool_public="+tool_public);
-
 		if (tool_public == null) {
 			LTI13Util.return400(response, "Could not find tool public key");
 			log.error("Could not find tool public key {}", tool_id);
@@ -272,7 +262,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Key publicKey = LTI13Util.string2PublicKey(tool_public);
-// System.out.println("publicKey="+publicKey);
 		if (publicKey == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			LTI13Util.return400(response, "Could not deserialize tool public key");
@@ -281,7 +270,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Jws<Claims> claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(client_assertion);
-// System.out.println("claims="+claims);
 
 		if (claims == null) {
 			LTI13Util.return400(response, "Could not verify signature");
@@ -290,11 +278,10 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		scope = scope.toLowerCase();
-		System.out.println("42 scope=" + scope);
 
 		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-		int allowRettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
 		sat.tool_id = tool_id;
@@ -341,7 +328,6 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			PrintWriter out = response.getWriter();
 			out.println(atsp);
-			System.out.println(atsp);
 			log.debug("Returning Token\n{}", atsp);
 		} catch (IOException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -350,32 +336,46 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 	protected void handleLineItemPost(String sourcedid, HttpServletRequest request, HttpServletResponse response) {
+		HttpUtil.printHeaders(request);
+		HttpUtil.printParameters(request);
+
 		System.out.println("Sourcedid=" + sourcedid);
+		SakaiAccessToken sat = getSakaiAccessToken(request, response);
+		if ( sat == null ) return;
+
+		System.out.println("sat=" + sat);
+
+		// Now we have a valid access token, proceed with handling the sourcedid
+
+
+
+	}
+
+	protected SakaiAccessToken getSakaiAccessToken(HttpServletRequest request, HttpServletResponse response) {
 		String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
 			LTI13Util.return400(response, "invalid_authorization");
-			return;
+			return null;
 		}
 
 		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
 		String[] parts = authorization.split("\\s+");
 		if (parts.length != 2 || parts[1].length() < 1) {
+			log.error("Bad authorization {}",authorization);
 			LTI13Util.return400(response, "invalid_authorization");
-			return;
+			return null;
 		}
 
 		String jws = parts[1];
-		System.out.println("jws=" + jws);
-
 		Claims claims = null;
 		try {
 			claims = Jwts.parser().setSigningKey(tokenKeyPair.getPublic()).parseClaimsJws(jws).getBody();
 		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
 				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-			System.out.println("Signature error " + e.getMessage());
+			log.error("Signature error {}\n{}",e.getMessage(), jws);
 			LTI13Util.return400(response, "signature_error");
-			return;
+			return null;
 		}
 
 		// Reconstruct the SakaiAccessToken
@@ -384,15 +384,24 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
-			System.out.println("jsonResult=" + jsonResult);
+			// System.out.println("jsonResult=" + jsonResult);
 			sat = new ObjectMapper().readValue(jsonResult, SakaiAccessToken.class);
 		} catch (IOException ex) {
-			System.out.println("PARSE ERROR " + ex.getMessage());
+			log.error("PARSE ERROR {}\n{}", ex.getMessage(), claims.toString());
 			LTI13Util.return400(response, "token_parse_failure", ex.getMessage());
-			return;
+			return null;
 		}
 
-		System.out.println("sat=" + sat);
+		// Validity check the access token
+		if ( sat.tool_id != null && sat.scope != null && sat.expires != null ) {
+			// All good
+		} else {
+			log.error("SakaiAccessToken missing required data {}",sat);
+			LTI13Util.return400(response, "Missing required data in access_token");
+			return null;
+		}
+
+		return sat;
 	}
 
 	protected Map<String, Object> loadTool(String tool_id) {
@@ -404,7 +413,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		tool = ltiService.getToolDao(toolKey, null, true);
-// System.out.println("tool_id="+tool_id);System.out.println(tool);
 		return tool;
 	}
 
