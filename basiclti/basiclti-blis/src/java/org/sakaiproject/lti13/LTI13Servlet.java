@@ -17,16 +17,14 @@
  */
 package org.sakaiproject.lti13;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
+
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.Key;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
-import java.util.Base64;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -34,18 +32,23 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Claims;
 import java.security.Key;
+import java.security.KeyPairGenerator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.helpers.MessageFormatter;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
@@ -58,6 +61,7 @@ import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13JwtUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
+import org.sakaiproject.lti13.util.SakaiAccessToken;
 
 /**
  *
@@ -71,11 +75,24 @@ public class LTI13Servlet extends HttpServlet {
 	private static final String ERROR_DETAIL = "X-Sakai-LTI13-Error-Detail";
 	protected static LTIService ltiService = null;
 
+	// Used for signing and checking tokens
+	// TODO: Rotate these after a while
+	private KeyPair tokenKeyPair = null;
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		if (ltiService == null) {
 			ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		}
+		if (tokenKeyPair == null) {
+			try {
+				KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+				keyGen.initialize(2048);
+				tokenKeyPair = keyGen.genKeyPair();
+			} catch (NoSuchAlgorithmException ex) {
+				Logger.getLogger(LTI13Servlet.class.getName()).log(Level.SEVERE, "Unable to generate tokenKeyPair", ex);
+			}
 		}
 	}
 
@@ -191,7 +208,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-
 	protected void handleTokenPost(String tool_id, HttpServletRequest request, HttpServletResponse response) {
 		/*
 		Parameters for /imsblis/lti13/token/9
@@ -199,59 +215,67 @@ public class LTI13Servlet extends HttpServlet {
 		Parameter Name - client_assertion_type, Value - urn:ietf:params:oauth:client-assertion-type:jwt-bearer
 		Parameter Name - client_assertion, Value - eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODg4OFwvdHN1Z2kiLCJzdWIiOiJsdGkxM19odHRwczpcL1wvd3d3LnNha2FpcHJvamVjdC5vcmdcL181MmE2N2I2OS1jNTk4LTRjZWQtYWNiMy1kOTQ5MzJkZTJiMWEiLCJhdWQiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODA4MFwvaW1zYmxpc1wvbHRpMTNcL3Rva2VuXC85IiwiaWF0IjoxNTM2NDMzODUwLCJleHAiOjE1MzY0MzM5MTAsImp0aSI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4ODg4XC90c3VnaTViOTQxZWJhNWVkNjQifQ.JhwwgUEVV85HLteYmmSykQkMkmP-mcbV0R99tvP69hTFBJf3ZAS_uyfdXZoeRJaS5_hzwNf_b9HXYJWmZvYQK2NLt3s5GsW3h2pD4S3lVybIRXbpajr8NgeKA3BfsRLDoyKCLYn16BDR5w7ULZj0om8avVSFMUNbQYouc6XaTUPCZGfxPn-OPFYxX7SlDfIZjvbPWFxQh-cS90m_mKIcSYitoKrg9az59K6iGu-pq1PmZYSdt4xabh0_WoOiracvvJE6N1Um7A5enS3iXuHbCufKySIO2ykYtdRgVqhxP5YYPlar55nNRqEZtDgBgMMsneNePfMrifOvvFLkxnpefA
 		Parameter Name - scope, Value - http://imsglobal.org/ags/lineitem http://imsglobal.org/ags/result/read
-		*/
+		 */
+
+		if (tokenKeyPair == null) {
+			LTI13Util.return400(response, "No token key available to sign tokens");
+			log.error("No token key available to sign tokens");
+			return;
+		}
 
 		String grant_type = request.getParameter(AccessToken.GRANT_TYPE);
 		String client_assertion = request.getParameter(AccessToken.CLIENT_ASSERTION);
 		String scope = request.getParameter(AccessToken.SCOPE);
 		String missing = "";
-		if ( grant_type == null ) missing += " " + "grant_type";
-		if ( client_assertion == null ) missing += " " + "client_assertion";
-		if ( scope == null ) missing += " " + "scope";
-		if ( missing.length() > 0 ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setHeader(ERROR_DETAIL, "Token request missing fields:"+missing);
+		if (grant_type == null) {
+			missing += " " + "grant_type";
+		}
+		if (client_assertion == null) {
+			missing += " " + "client_assertion";
+		}
+		if (scope == null) {
+			missing += " " + "scope";
+		}
+		if (missing.length() > 0) {
+			LTI13Util.return400(response, "Token request missing fields:" + missing);
 			log.error("Token Request missing fields: {}", missing);
 			return;
 		}
 
 		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
-System.out.println("body="+body);
-		if ( body == null ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setHeader(ERROR_DETAIL, "Could not find Jwy Body in client_assertion");
+		System.out.println("body=" + body);
+		if (body == null) {
+			LTI13Util.return400(response, "Could not find Jwy Body in client_assertion");
 			log.error("Could not find Jwy Body in client_assertion\n{}", client_assertion);
 			return;
 		}
 
 		Object body_json = JSONValue.parse(body);
-		System.out.println("body_json\n"+body_json);
+		System.out.println("body_json\n" + body_json);
 
 		// Load the tool
 		Map<String, Object> tool = loadTool(tool_id);
-System.out.println("tool="+tool);
-		if ( tool == null ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setHeader(ERROR_DETAIL, "Could not load tool");
+// System.out.println("tool=" + tool);
+		if (tool == null) {
+			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_id);
 			return;
 		}
-		log.error("Yada");
+
 		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
 // System.out.println("tool_public="+tool_public);
 
-		if ( tool_public == null ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setHeader(ERROR_DETAIL, "Could not find tool public key");
+		if (tool_public == null) {
+			LTI13Util.return400(response, "Could not find tool public key");
 			log.error("Could not find tool public key {}", tool_id);
 			return;
 		}
 
 		Key publicKey = LTI13Util.string2PublicKey(tool_public);
 // System.out.println("publicKey="+publicKey);
-		if ( publicKey == null ) {
+		if (publicKey == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setHeader(ERROR_DETAIL, "Could not deserialize tool public key");
+			LTI13Util.return400(response, "Could not deserialize tool public key");
 			log.error("Could not deserialize tool public key {}", tool_id);
 			return;
 		}
@@ -259,27 +283,65 @@ System.out.println("tool="+tool);
 		Jws<Claims> claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(client_assertion);
 // System.out.println("claims="+claims);
 
-		if ( claims == null ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.setHeader(ERROR_DETAIL, "Could not verify signature");
+		if (claims == null) {
+			LTI13Util.return400(response, "Could not verify signature");
 			log.error("Could not verify signature {}", tool_id);
 			return;
 		}
 
-		System.out.println("scope="+scope);
+		scope = scope.toLowerCase();
+		System.out.println("42 scope=" + scope);
 
-		// We are in good shape w.r.t the signature
+		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
+		int allowRettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+
+		SakaiAccessToken sat = new SakaiAccessToken();
+		sat.tool_id = tool_id;
+		Long issued = new Long(System.currentTimeMillis() / 1000L);
+		sat.expires = issued + 3600L;
+
+		// Work through requested scopes
+		if (scope.contains(AccessToken.SCOPE_LINEITEM)) {
+			if (allowOutcomes != 1) {
+				// 400 with "invalid_scope" as the reason, i assume
+				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_LINEITEM);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
+		}
+
+		if (scope.contains(AccessToken.SCOPE_SCORE)) {
+			if (allowOutcomes != 1) {
+				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_SCORE);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
+		}
+
+		if (scope.contains(AccessToken.SCOPE_RESULT_READONLY)) {
+			if (allowOutcomes != 1) {
+				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_RESULT_READONLY);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
+		}
+		String payload = JacksonUtil.toString(sat);
+		String jws = Jwts.builder().setPayload(payload).signWith(tokenKeyPair.getPrivate()).compact();
+
 		AccessToken at = new AccessToken();
-		at.access_token = "42";
+		at.access_token = jws;
 
 		response.setContentType(APPLICATION_JSON);
 		String atsp = JacksonUtil.prettyPrintLog(at);
 
 		try {
-System.out.println("Returning Token");
 			PrintWriter out = response.getWriter();
 			out.println(atsp);
-System.out.println(atsp);
+			System.out.println(atsp);
 			log.debug("Returning Token\n{}", atsp);
 		} catch (IOException e) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -288,8 +350,49 @@ System.out.println(atsp);
 	}
 
 	protected void handleLineItemPost(String sourcedid, HttpServletRequest request, HttpServletResponse response) {
-		System.out.println("Sourcedid="+sourcedid);
+		System.out.println("Sourcedid=" + sourcedid);
+		String authorization = request.getHeader("authorization");
 
+		if (authorization == null || !authorization.startsWith("Bearer")) {
+			LTI13Util.return400(response, "invalid_authorization");
+			return;
+		}
+
+		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
+		String[] parts = authorization.split("\\s+");
+		if (parts.length != 2 || parts[1].length() < 1) {
+			LTI13Util.return400(response, "invalid_authorization");
+			return;
+		}
+
+		String jws = parts[1];
+		System.out.println("jws=" + jws);
+
+		Claims claims = null;
+		try {
+			claims = Jwts.parser().setSigningKey(tokenKeyPair.getPublic()).parseClaimsJws(jws).getBody();
+		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
+				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
+			System.out.println("Signature error " + e.getMessage());
+			LTI13Util.return400(response, "signature_error");
+			return;
+		}
+
+		// Reconstruct the SakaiAccessToken
+		// https://www.baeldung.com/jackson-deserialization
+		SakaiAccessToken sat = null;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
+			System.out.println("jsonResult=" + jsonResult);
+			sat = new ObjectMapper().readValue(jsonResult, SakaiAccessToken.class);
+		} catch (IOException ex) {
+			System.out.println("PARSE ERROR " + ex.getMessage());
+			LTI13Util.return400(response, "token_parse_failure", ex.getMessage());
+			return;
+		}
+
+		System.out.println("sat=" + sat);
 	}
 
 	protected Map<String, Object> loadTool(String tool_id) {
@@ -315,10 +418,10 @@ System.out.println(atsp);
 
 		// Leave off the siteId - bypass all checking - because we need to
 		content = ltiService.getContentDao(contentKey);
-System.out.println("content_id="+content_id);System.out.println(content);
+		System.out.println("content_id=" + content_id);
+		System.out.println(content);
 
 		return content;
 	}
-
 
 }

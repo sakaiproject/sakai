@@ -163,23 +163,40 @@ public class SakaiBLTIUtil {
 	public static final String CANVAS_PLACEMENTS_LINKSELECTION = "Canvas.placements.linkSelection";
 	public static final String CANVAS_PLACEMENTS_CONTENTIMPORT = "Canvas.placements.contentImport";
 
+	public static boolean rosterEnabled() {
+		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
+		return "true".equals(allowRoster);
+	}
+
+	public static boolean outcomesEnabled() {
+		String allowOutcomes = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		return "true".equals(allowOutcomes);
+	}
+
+	public static boolean settingsEnabled() {
+		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, BASICLTI_SETTINGS_ENABLED_DEFAULT);
+		return "true".equals(allowSettings);
+	}
+
+	public static boolean contentLinkEnabled() {
+		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
+		return "true".equals(allowContentLink);
+	}
+
 	// Retrieve the property from the configuration unless it
 	// is overridden by the server configurtation (i.e. sakai.properties)
 	public static String getCorrectProperty(Properties config,
 			String propName, Placement placement) {
 		// Check for global overrides in properties
-		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		if (LTIService.LTI_ALLOWSETTINGS.equals(propName) && !"true".equals(allowSettings)) {
+		if (LTIService.LTI_ALLOWSETTINGS.equals(propName) && ! settingsEnabled()) {
 			return "false";
 		}
 
-		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
-		if (LTIService.LTI_ALLOWROSTER.equals(propName) && !"true".equals(allowRoster)) {
+		if (LTIService.LTI_ALLOWROSTER.equals(propName) && ! rosterEnabled()) {
 			return "false";
 		}
 
-		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
-		if ("contentlink".equals(propName) && !"true".equals(allowContentLink)) {
+		if ("contentlink".equals(propName) && ! contentLinkEnabled() ) {
 			return null;
 		}
 
@@ -632,11 +649,7 @@ public class SakaiBLTIUtil {
 			String allowOutcomes = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
 			if (!"off".equals(allowOutcomes)) {
 				assignment = toNull(getCorrectProperty(config, "assignment", placement));
-				allowOutcomes = ServerConfigurationService.getString(
-						BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-				if (!"true".equals(allowOutcomes)) {
-					allowOutcomes = null;
-				}
+				if (!outcomesEnabled()) allowOutcomes = null;
 			}
 
 			String allowSettings = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWSETTINGS, placement));
@@ -1706,7 +1719,7 @@ user_id: admin
 		lj.nonce = new Long(System.currentTimeMillis()) + "_42";
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
-		lj.expires = lj.issued + 600L;
+		lj.expires = lj.issued + 3600L;
 		String lti1_roles = ltiProps.getProperty("roles");
 		if (lti1_roles != null && lti1_roles.contains("Instructor")) {
 			lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);

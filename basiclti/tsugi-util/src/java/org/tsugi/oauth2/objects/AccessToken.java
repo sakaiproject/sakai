@@ -14,6 +14,9 @@ public class AccessToken {
 	public static final String GRANT_TYPE = "grant_type";
 	public static final String CLIENT_ASSERTION = "client_assertion";
 	public static final String SCOPE = "scope";
+	public static final String SCOPE_LINEITEM = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
+	public static final String SCOPE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/score";
+	public static final String SCOPE_RESULT_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly";
 
 	@JsonProperty("access_token")
 	public String access_token;
