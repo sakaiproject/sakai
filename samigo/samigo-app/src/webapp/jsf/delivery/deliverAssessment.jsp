@@ -54,6 +54,12 @@
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>
+
+  <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
+    <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{!delivery.assessmentSubmitted}">
  
       <h:outputText value="<a name='top'></a>" escape="false" />
       
@@ -565,6 +571,7 @@ document.links[newindex].onclick();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
     questionProgress.setUp();
 </script>
+</h:panelGroup>
     </body>
   </html>
 </f:view>
