@@ -148,13 +148,15 @@ var registerChange = function(originEvent, movedEl){
     var holderinputs = $PBJQ('input[id^="holder"]');
     var selectItems = $PBJQ("select.selectSet");
     for (var i = 0; i < inputsX.length; i = i + 1) {
-        inputsX[i].value = i + 1;
+        $PBJQ(inputsX[i]).attr("value", i + 1).val(i + 1);
     }
     for (var x = 0; x < holderinputs.length; x = x + 1) {
-        holderinputs[x].value = x + 1;
+        $PBJQ(holderinputs[x]).attr("value", x + 1).val(x + 1);
     }
     for (var y = 0; y < selectItems.length; y = y + 1) {
-        selectItems[y].value = y + 1;
+        $PBJQ(selectItems[y]).val(y + 1);
+        $PBJQ(selectItems[y]).find("option").removeAttr('selected');
+        $PBJQ(selectItems[y]).find("option[value="+(y + 1)+"]").attr('selected', 'selected');
     }
     
     $PBJQ('#undo-last').fadeIn('slow');
