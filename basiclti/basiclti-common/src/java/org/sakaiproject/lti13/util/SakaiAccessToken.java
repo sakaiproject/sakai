@@ -46,7 +46,7 @@ public class SakaiAccessToken extends  org.tsugi.lti13.objects.BaseJWT {
 	@JsonProperty("scope")
 	public String scope;
 	@JsonProperty("tool_id")
-	public String tool_id;
+	public Long tool_id;
 	
 	public void addScope(String newScope) {
 		if ( this.scope == null ) {

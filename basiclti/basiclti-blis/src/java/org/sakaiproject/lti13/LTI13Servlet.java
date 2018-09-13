@@ -33,6 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
+
+import org.apache.commons.io.IOUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
@@ -47,10 +50,14 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getRB;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.postError;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
 
 import org.tsugi.http.HttpUtil;
@@ -62,6 +69,8 @@ import org.tsugi.lti13.LTI13JwtUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 /**
  *
@@ -245,9 +254,16 @@ public class LTI13Servlet extends HttpServlet {
 			log.error("Could not find Jwy Body in client_assertion\n{}", client_assertion);
 			return;
 		}
+		
+		Long toolKey = getLongKey(tool_id);
+		if (toolKey < 1) {
+			LTI13Util.return400(response, "Invalid tool key");
+			log.error("Invalis tool key {}", tool_id);
+			return;
+		}
 
 		// Load the tool
-		Map<String, Object> tool = loadTool(tool_id);
+		Map<String, Object> tool = ltiService.getToolDao(toolKey, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_id);
@@ -284,7 +300,7 @@ public class LTI13Servlet extends HttpServlet {
 		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
-		sat.tool_id = tool_id;
+		sat.tool_id = toolKey;
 		Long issued = new Long(System.currentTimeMillis() / 1000L);
 		sat.expires = issued + 3600L;
 
@@ -340,18 +356,138 @@ public class LTI13Servlet extends HttpServlet {
 		HttpUtil.printParameters(request);
 
 		System.out.println("Sourcedid=" + sourcedid);
-		SakaiAccessToken sat = getSakaiAccessToken(request, response);
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		if ( sat == null ) return;
 
 		System.out.println("sat=" + sat);
+		
+		String jsonString;
+		try {
+			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
+			jsonString = IOUtils.toString(request.getInputStream());
+		} catch (IOException ex) {
+			log.error("Could not read POST Data {}", ex.getMessage());
+			LTI13Util.return400(response, "Could not read POST Data");
+			return ;
+		}
+		System.out.println("jsonString="+jsonString);
+		
+		Object js = JSONValue.parse(jsonString);
+		if ( js == null || ! (js instanceof JSONObject) ) {
+			LTI13Util.return400(response, "Badly formatted JSON");
+			return ;
+		}
+		System.out.println("js="+js);
+		JSONObject jso = (JSONObject) js;
+		
+		Long scoreGivenStr = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
+		Long scoreMaximumStr = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
+		String userId = (String) jso.get("userId");
+		String comment = (String) jso.get("comment");
+		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGivenStr, scoreMaximumStr, userId, comment);
 
-		// Now we have a valid access token, proceed with handling the sourcedid
+		if ( scoreGivenStr == null || userId == null ) {
+			LTI13Util.return400(response, "Missing scoreGiven or userId");
+			return ;
+		}
 
+		// Sanity check sourcedid
+		// f093de4f8b98530abb0e7784c380ab1668510a7308cc454c79d4e7a0334ab268:::92e7ddf2-1c60-486c-97ae-bc2ffbde8e67:::content:6
+		/* 
+			String suffix =  ":::" + context_id + ":::" + resource_link_id;
+			String base_string = placementSecret + suffix;
+			String signature = LegacyShaUtil.sha256Hash(base_string);
+			return signature + suffix;
+		*/
+		String[] parts = sourcedid.split(":::");
+		if (parts.length != 3 || parts[0].length() < 1 || parts[0].length() > 10000 ||
+			parts[1].length() < 1 || parts[2].length() <= 8 || 
+			! parts[2].startsWith("content:")) {
+			log.error("Bad sourcedid format {}",sourcedid);
+			LTI13Util.return400(response, "bad sourcedid");
+			return;
+		}
 
+		String received_signature = parts[0];
+		String context_id = parts[1];
+		String placement_id = parts[2];
+		log.debug("signature={} context_id={} placement_id={}", received_signature, context_id, placement_id);
+		
+		String contentIdStr = placement_id.substring(8);
+		Long contentKey = getLongKey(contentIdStr);
+		if (contentKey < 0) {
+			log.error("Bad placement format {}",sourcedid);
+			LTI13Util.return400(response, "bad placement");
+			return;
+		}
 
+		// Note that all of the above checking requires no database access :)
+		// Now we have a valid access token and valid JSON, proceed with validating the sourcedid
+		
+		Map<String, Object> content = ltiService.getContentDao(contentKey);
+		System.out.println("Content="+content);
+		if ( content == null ) {
+			log.error("Could not load Content Item {}",contentKey);
+			LTI13Util.return400(response, "Could not load Content Item");
+			return;
+		}
+		
+		String placementSecret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		if (placementSecret == null) {
+			log.error("Could not load placementsecret {}",contentKey);
+			LTI13Util.return400(response, "Could not load placementsecret");
+			return;
+		}
+
+		// Validate the sourcedid signature before proceeding
+		String suffix =  ":::" + context_id + ":::" + placement_id;
+		String base_string = placementSecret + suffix;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		if ( signature == null || ! signature.equals(received_signature)) {
+			log.error("Could not verify sourcedid {}",sourcedid);
+			LTI13Util.return400(response, "Could not verify sourcedid");
+			return;
+		}
+		
+		// Goog sourcedid, lets load the site and tool
+		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+		if (siteId == null) {
+			log.error("Could not find site content={}",contentKey);
+			LTI13Util.return400(response, "Could not find site for content");
+			return;
+		}
+		
+		Site site;
+		try {
+			site = SiteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			log.error("No site/page associated with content siteId={}", siteId);
+			LTI13Util.return400(response, "Could not load site associated with content");
+		}
+		
+		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		// System.out.println("toolKey="+toolKey+" sat.tool_id="+sat.tool_id);
+		if (toolKey < 0 || !toolKey.equals(sat.tool_id)) {
+			log.error("Content / Tool invalid content={} tool={}",contentKey, toolKey);
+			LTI13Util.return400(response, "Content / Tool mismatch");
+			return;
+		}
+		
+		Map <String, Object> tool = ltiService.getToolDao(toolKey, siteId);
+		if (tool == null) {
+			log.error("Could not load tool={}",contentKey, toolKey);
+			LTI13Util.return400(response, "Missing tool");
+			return;
+		}
+		// System.out.println("tool="+tool);
+		
+		// We have validated everything and it is time to set the grade.
+		
 	}
 
-	protected SakaiAccessToken getSakaiAccessToken(HttpServletRequest request, HttpServletResponse response) {
+	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
 		String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
@@ -368,9 +504,9 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String jws = parts[1];
-		Claims claims = null;
+		Claims claims;
 		try {
-			claims = Jwts.parser().setSigningKey(tokenKeyPair.getPublic()).parseClaimsJws(jws).getBody();
+			claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody();
 		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
 				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
 			log.error("Signature error {}\n{}",e.getMessage(), jws);
@@ -380,7 +516,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Reconstruct the SakaiAccessToken
 		// https://www.baeldung.com/jackson-deserialization
-		SakaiAccessToken sat = null;
+		SakaiAccessToken sat;
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(claims);
@@ -402,34 +538,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		return sat;
-	}
-
-	protected Map<String, Object> loadTool(String tool_id) {
-		Map<String, Object> tool = null;
-
-		Long toolKey = getLongKey(tool_id);
-		if (toolKey < 1) {
-			return null;
-		}
-
-		tool = ltiService.getToolDao(toolKey, null, true);
-		return tool;
-	}
-
-	protected Map<String, Object> loadContent(String content_id) {
-		Map<String, Object> content = null;
-
-		Long contentKey = getLongKey(content_id);
-		if (contentKey < 1) {
-			return null;
-		}
-
-		// Leave off the siteId - bypass all checking - because we need to
-		content = ltiService.getContentDao(contentKey);
-		System.out.println("content_id=" + content_id);
-		System.out.println(content);
-
-		return content;
 	}
 
 }
