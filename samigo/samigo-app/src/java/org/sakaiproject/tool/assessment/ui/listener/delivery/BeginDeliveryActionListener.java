@@ -316,6 +316,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setCreatorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setSubmitted(false);
+    delivery.setAssessmentSubmitted(false);
     delivery.setGraded(false);
     delivery.setPartIndex(0);
     delivery.setQuestionIndex(0);
