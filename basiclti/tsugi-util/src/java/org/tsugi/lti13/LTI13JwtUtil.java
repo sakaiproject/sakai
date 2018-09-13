@@ -17,6 +17,7 @@
 package org.tsugi.lti13;
 
 import java.security.Key;
+import java.util.Base64;
 
 import io.jsonwebtoken.Jwts;
 
@@ -34,6 +35,24 @@ public class LTI13JwtUtil {
 	 */
 	public static String getHeaderAsString(String jws, Key key) {
 		return Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getHeader().toString();
+	}
+
+	public static String rawJwtHeader(String encoded) {
+		String[] parts = encoded.split("\\.");
+		if (parts.length != 2 && parts.length != 3) {
+			return null;
+		}
+		byte[] bytes = Base64.getDecoder().decode(parts[0]);
+		return new String(bytes);
+	}
+
+	public static String rawJwtBody(String encoded) {
+		String[] parts = encoded.split("\\.");
+		if (parts.length != 2 && parts.length != 3) {
+			return null;
+		}
+		byte[] bytes = Base64.getDecoder().decode(parts[1]);
+		return new String(bytes);
 	}
 
 }

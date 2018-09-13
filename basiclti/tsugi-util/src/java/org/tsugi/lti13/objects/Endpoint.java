@@ -26,8 +26,8 @@ public class Endpoint {
 
 	// TODO: What do these mean?
 	public static String SCOPE_LINEITEM = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
-	public static String SCORE_RESULT_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
-	public static String SCORE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem";
+	public static String SCORE_RESULT_READONLY = "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly";
+	public static String SCORE_SCORE = "https://purl.imsglobal.org/spec/lti-ags/scope/score";
 
 	@JsonProperty("scope")
 	public List<String> scope = new ArrayList<String>();
