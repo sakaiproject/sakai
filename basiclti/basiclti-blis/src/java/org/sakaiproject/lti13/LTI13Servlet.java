@@ -50,12 +50,14 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getRB;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.postError;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
@@ -254,7 +256,7 @@ public class LTI13Servlet extends HttpServlet {
 			log.error("Could not find Jwy Body in client_assertion\n{}", client_assertion);
 			return;
 		}
-		
+
 		Long toolKey = getLongKey(tool_id);
 		if (toolKey < 1) {
 			LTI13Util.return400(response, "Invalid tool key");
@@ -362,7 +364,7 @@ public class LTI13Servlet extends HttpServlet {
 		if ( sat == null ) return;
 
 		System.out.println("sat=" + sat);
-		
+
 		String jsonString;
 		try {
 			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
@@ -373,7 +375,7 @@ public class LTI13Servlet extends HttpServlet {
 			return ;
 		}
 		System.out.println("jsonString="+jsonString);
-		
+
 		Object js = JSONValue.parse(jsonString);
 		if ( js == null || ! (js instanceof JSONObject) ) {
 			LTI13Util.return400(response, "Badly formatted JSON");
@@ -381,21 +383,21 @@ public class LTI13Servlet extends HttpServlet {
 		}
 		System.out.println("js="+js);
 		JSONObject jso = (JSONObject) js;
-		
-		Long scoreGivenStr = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
-		Long scoreMaximumStr = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
+
+		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
+		Long scoreMaximum = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
 		String userId = (String) jso.get("userId");
 		String comment = (String) jso.get("comment");
-		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGivenStr, scoreMaximumStr, userId, comment);
+		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
-		if ( scoreGivenStr == null || userId == null ) {
+		if ( scoreGiven == null || userId == null ) {
 			LTI13Util.return400(response, "Missing scoreGiven or userId");
 			return ;
 		}
 
 		// Sanity check sourcedid
 		// f093de4f8b98530abb0e7784c380ab1668510a7308cc454c79d4e7a0334ab268:::92e7ddf2-1c60-486c-97ae-bc2ffbde8e67:::content:6
-		/* 
+		/*
 			String suffix =  ":::" + context_id + ":::" + resource_link_id;
 			String base_string = placementSecret + suffix;
 			String signature = LegacyShaUtil.sha256Hash(base_string);
@@ -403,7 +405,7 @@ public class LTI13Servlet extends HttpServlet {
 		*/
 		String[] parts = sourcedid.split(":::");
 		if (parts.length != 3 || parts[0].length() < 1 || parts[0].length() > 10000 ||
-			parts[1].length() < 1 || parts[2].length() <= 8 || 
+			parts[1].length() < 1 || parts[2].length() <= 8 ||
 			! parts[2].startsWith("content:")) {
 			log.error("Bad sourcedid format {}",sourcedid);
 			LTI13Util.return400(response, "bad sourcedid");
@@ -414,7 +416,7 @@ public class LTI13Servlet extends HttpServlet {
 		String context_id = parts[1];
 		String placement_id = parts[2];
 		log.debug("signature={} context_id={} placement_id={}", received_signature, context_id, placement_id);
-		
+
 		String contentIdStr = placement_id.substring(8);
 		Long contentKey = getLongKey(contentIdStr);
 		if (contentKey < 0) {
@@ -425,7 +427,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Note that all of the above checking requires no database access :)
 		// Now we have a valid access token and valid JSON, proceed with validating the sourcedid
-		
+
 		Map<String, Object> content = ltiService.getContentDao(contentKey);
 		System.out.println("Content="+content);
 		if ( content == null ) {
@@ -433,11 +435,18 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Could not load Content Item");
 			return;
 		}
-		
+
 		String placementSecret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 		if (placementSecret == null) {
 			log.error("Could not load placementsecret {}",contentKey);
 			LTI13Util.return400(response, "Could not load placementsecret");
+			return;
+		}
+
+		String assignment = (String) content.get(LTIService.LTI_TITLE);
+		if (assignment == null || assignment.length() < 1 ) {
+			log.error("Could not determine assignment title {}",contentKey);
+			LTI13Util.return400(response, "Could not determine assignment title");
 			return;
 		}
 
@@ -450,7 +459,7 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Could not verify sourcedid");
 			return;
 		}
-		
+
 		// Goog sourcedid, lets load the site and tool
 		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
 		if (siteId == null) {
@@ -458,15 +467,33 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Could not find site for content");
 			return;
 		}
-		
+
 		Site site;
 		try {
 			site = SiteService.getSite(siteId);
 		} catch (IdUnusedException e) {
 			log.error("No site/page associated with content siteId={}", siteId);
 			LTI13Util.return400(response, "Could not load site associated with content");
+			return;
 		}
-		
+
+		// Make sure user exists in site
+				// Make sure the user exists in the site
+		boolean userExistsInSite = false;
+		try {
+			Member member = site.getMember(userId);
+			if (member != null) {
+				userExistsInSite = true;
+			}
+		} catch (Exception e) {
+			log.warn("User {} not found in siteId={}, {}", userId, siteId, e.getMessage());
+		}
+
+		if ( ! userExistsInSite ) {
+			LTI13Util.return400(response, "User does not belong to site");
+			return;
+		}
+
 		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
 		// System.out.println("toolKey="+toolKey+" sat.tool_id="+sat.tool_id);
 		if (toolKey < 0 || !toolKey.equals(sat.tool_id)) {
@@ -474,7 +501,7 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Content / Tool mismatch");
 			return;
 		}
-		
+
 		Map <String, Object> tool = ltiService.getToolDao(toolKey, siteId);
 		if (tool == null) {
 			log.error("Could not load tool={}",contentKey, toolKey);
@@ -482,9 +509,11 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 		// System.out.println("tool="+tool);
-		
+
 		// We have validated everything and it is time to set the grade.
-		
+
+		Object retval = SakaiBLTIUtil.setGradeLTI13(site, userId, assignment, scoreGiven, scoreMaximum, comment);
+System.out.println("retval="+retval);
 	}
 
 	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {

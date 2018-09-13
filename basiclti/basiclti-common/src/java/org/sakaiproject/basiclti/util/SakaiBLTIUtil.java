@@ -104,6 +104,8 @@ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import net.oauth.OAuth;
 
 import org.apache.commons.math3.util.Precision;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.objects.Endpoint;
 
@@ -2076,50 +2078,14 @@ user_id: admin
 			return "Assignment not set in placement";
 		}
 
-		Assignment assignmentObject = null;
-
-		pushAdvisor();
-		try {
-			List gradebookAssignments = g.getAssignments(siteId);
-			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
-				Assignment gAssignment = (Assignment) i.next();
-				if (gAssignment.isExternallyMaintained()) {
-					continue;
-				}
-				if (assignment.equals(gAssignment.getName())) {
-					assignmentObject = gAssignment;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			assignmentObject = null; // Just to make double sure
-		}
-
-		// Attempt to add assignment to grade book
-		if (assignmentObject == null && g.isGradebookDefined(siteId)) {
-			try {
-				assignmentObject = new Assignment();
-				assignmentObject.setPoints(Double.valueOf(100));
-				assignmentObject.setExternallyMaintained(false);
-				assignmentObject.setName(assignment);
-				assignmentObject.setReleased(true);
-				assignmentObject.setUngraded(false);
-				Long assignmentId = g.addAssignment(siteId, assignmentObject);
-				assignmentObject.setId(assignmentId);
-				log.info("Added assignment: {} with Id: {}", assignment, assignmentId);
-			} catch (ConflictingAssignmentNameException e) {
-				log.warn("ConflictingAssignmentNameException while adding assignment {}", e.getMessage());
-				assignmentObject = null; // Just to make sure
-			} catch (Exception e) {
-				log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
-				assignmentObject = null; // Just to make double sure
-			}
-		}
-		if (assignmentObject == null || assignmentObject.getId() == null) {
+		Assignment assignmentObject = getAssignment(site, user_id, assignment, 100L);
+		if (assignmentObject == null) {
 			log.warn("assignmentObject or Id is null, cannot proceed with grading.");
 			return "Grade failure siteId=" + siteId;
 		}
+		
 		// Now read, set, or delete the grade...
+		pushAdvisor();
 		Session sess = SessionManager.getCurrentSession();
 		String message = null;
 
@@ -2168,6 +2134,155 @@ user_id: admin
 		}
 
 		return retval;
+	}
+	
+	public static Object getGradeLTI13(Site site, String user_id, String assignment) {
+		return handleGradebookLTI13(site, user_id, assignment, null, null, null, true, false);
+	}
+
+	// Boolean.TRUE - Grade updated
+	public static Object setGradeLTI13(Site site, String user_id, String assignment,
+			Long scoreGiven, Long maxPoints, String comment) {
+		return handleGradebookLTI13(site, user_id, assignment, scoreGiven, maxPoints, comment, false, false);
+	}
+
+	// Boolean.TRUE - Grade deleted
+	public static Object deleteGradeLTI13(Site site, String user_id,
+			String assignment) {
+		return handleGradebookLTI13(site, user_id, assignment, null, null, null, false, true);
+	}
+	
+		// Quite a long bit of code
+	private static Object handleGradebookLTI13(Site site, String user_id, String assignment,
+			Long scoreGiven, Long maxPoints, String comment,  boolean isRead, boolean isDelete) {
+	
+		// If we are not supposed to lookup or set the grade, we are done
+		if (isRead == false && isDelete == false && scoreGiven == null) {
+			return new Boolean(false);
+		}
+
+		String siteId = site.getId();
+		
+		// Look up the assignment so we can find the max points
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		Assignment assignmentObject = getAssignment(site, user_id, assignment, maxPoints);
+		if (assignmentObject == null) {
+			log.warn("assignmentObject or Id is null, cannot proceed with grading.");
+			return "Grade failure siteId=" + siteId;
+		}
+		
+		pushAdvisor();
+		// Now read, set, or delete the grade...
+		Session sess = SessionManager.getCurrentSession();
+		String message = null;
+		Map<String, Object> retMap = new TreeMap<String, Object>();
+		Object retval;
+
+		try {
+			// Indicate "who" is setting this grade - needs to be a real user account
+			String gb_user_id = ServerConfigurationService.getString(
+					"basiclti.outcomes.userid", "admin");
+			String gb_user_eid = ServerConfigurationService.getString(
+					"basiclti.outcomes.usereid", gb_user_id);
+			sess.setUserId(gb_user_id);
+			sess.setUserEid(gb_user_eid);
+			if (isRead) {
+				String actualGrade = g.getAssignmentScoreString(siteId, assignmentObject.getId(), user_id);
+				Double dGrade = null;
+				if (actualGrade != null && actualGrade.length() > 0) {
+					dGrade = new Double(actualGrade);
+					dGrade = dGrade / assignmentObject.getPoints();
+				}
+				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, assignmentObject.getId(), user_id);
+				message = "Result read";
+				retMap.put("grade", dGrade);
+				if (commentDef != null) {
+					retMap.put("comment", commentDef.getCommentText());
+				}
+				retval = retMap;
+			} else if (isDelete) {
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
+				log.info("Delete Score site={} assignment={} user_id={}", siteId, assignment, user_id);
+				message = "Result deleted";
+				retval = Boolean.TRUE;
+			} else {
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, scoreGiven.toString(), "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
+
+				log.info("Stored Score={} assignment={} user_id={} score={}", siteId, assignment, user_id, scoreGiven);
+				message = "Result replaced";
+				retval = Boolean.TRUE;
+			}
+		} catch (NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
+			retval = "Grade failure " + e.getMessage() + " siteId=" + siteId;
+			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
+		} finally {
+			sess.invalidate(); // Make sure to leave no traces
+			popAdvisor();
+		}
+
+		return retval;
+	}
+	
+	public static Assignment getAssignment(Site site, String userId, String assignment, Long scoreMaximum)
+	{
+				// Look up the assignment so we can find the max points
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		String siteId = site.getId();
+		if ( scoreMaximum == null ) scoreMaximum = 100L;
+		
+		Assignment assignmentObject = null;
+
+		pushAdvisor();
+		try {
+			List gradebookAssignments = g.getAssignments(siteId);
+			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if (gAssignment.isExternallyMaintained()) {
+					continue;
+				}
+				if (assignment.equals(gAssignment.getName())) {
+					assignmentObject = gAssignment;
+					break;
+				}
+			}
+		} catch (Exception e) {
+			assignmentObject = null; // Just to make double sure
+		}
+
+		// Attempt to add assignment to grade book
+		if (assignmentObject == null && g.isGradebookDefined(siteId)) {
+			try {
+				assignmentObject = new Assignment();
+				assignmentObject.setPoints(Double.valueOf(scoreMaximum));
+				assignmentObject.setExternallyMaintained(false);
+				assignmentObject.setName(assignment);
+				assignmentObject.setReleased(true);
+				assignmentObject.setUngraded(false);
+				Long assignmentId = g.addAssignment(siteId, assignmentObject);
+				assignmentObject.setId(assignmentId);
+				log.info("Added assignment: {} with Id: {}", assignment, assignmentId);
+			} catch (ConflictingAssignmentNameException e) {
+				log.warn("ConflictingAssignmentNameException while adding assignment {}", e.getMessage());
+				assignmentObject = null; // Just to make sure
+			} catch (Exception e) {
+				log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
+				assignmentObject = null; // Just to make double sure
+			}
+		}
+		if (assignmentObject == null || assignmentObject.getId() == null) {
+			log.warn("assignmentObject or Id is null.");
+			assignmentObject = null;
+		}
+		
+		// TODO: Figure this out
+		// sess.invalidate(); // Make sure to leave no traces
+		popAdvisor();
+		return assignmentObject;
 	}
 
 	// Returns theGrade * points rounded to 2 digits (as a String)
