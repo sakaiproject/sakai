@@ -180,12 +180,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			try {
 				out.write(bytes);
 				ActionReturn actionReturn = new ActionReturn("UTF-8", image.getMimeType(), out);
-				
-				Map<String,String> headers = new HashMap<>();
-				headers.put("Cache-Control","no-cache, no-store");
-
-				actionReturn.setHeaders(headers);
-				
 				return actionReturn;
 			} catch (IOException e) {
 				throw new EntityException("Error retrieving profile image for " + id + " : " + e.getMessage(), ref.getReference());
@@ -196,7 +190,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(StringUtils.isNotBlank(url)) {
 			try {
 				HttpServletResponse res = requestGetter.getResponse();
-				res.addHeader("Cache-Control","no-cache, no-store");
 				res.sendRedirect(url);
 			} catch (IOException e) {
 				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());

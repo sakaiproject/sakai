@@ -953,9 +953,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * @param res the response
      */
     protected void setNoCacheHeaders(HttpServletResponse res) {
-        long currentTime = System.currentTimeMillis();
-        res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-cache, no-store");
+        res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-cache, no-store");
+        res.setHeader("X-No-Cache-Headers", "xx");
     }
 
     /**
@@ -968,7 +967,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      */
     protected void setResponseHeaders(EntityView view, HttpServletResponse res, Map<String, Object> params, Map<String, String> headers) {
         boolean noCache = false;
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         long lastModified = currentTime;
         if (params != null) {
             if (params.containsKey("no-cache") || params.containsKey("nocache")) {
@@ -984,15 +983,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                 }
             }
         }
-        setLastModifiedHeaders(res, null, lastModified);
-
-        // set the cache headers
-        res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
 
         if (noCache) {
             res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-cache, no-store");
         } else {
-            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private, max-age=600");
+            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private, max-age=900");
+            setLastModifiedHeaders(res, null, lastModified);
+            res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
         }
 
         // set the EB specific headers
