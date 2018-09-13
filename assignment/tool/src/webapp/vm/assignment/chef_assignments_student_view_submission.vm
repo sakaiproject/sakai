@@ -487,7 +487,7 @@ $(document).ready(function(){
 								$tlang.getString("gradingsub.prefee2")
 							</h4>
 					<div class="toggledContent gencoms">					
-						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+						$cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment)</div>
 					#end
 					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 			#end
