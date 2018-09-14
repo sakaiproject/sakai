@@ -26,12 +26,12 @@
 		<property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="siteAdvisor" ref="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" />
+		<!-- property name="siteAdvisor" ref="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" / -->
 		<property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
 	</bean>
 
 	<!-- Default to allow all sites to use Turnitin regardless of site type or property -->
-	<bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" class="org.sakaiproject.contentreview.service.advisors.DefaultSiteAdvisor" lazy-init="true"/>
+	<!-- bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" class="org.sakaiproject.contentreview.service.advisors.DefaultSiteAdvisor" lazy-init="true"/ -->
 	<!-- Uncomment this to use a site property to define which sites use c-r -->
 	<!--
 	<bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" class="org.sakaiproject.contentreview.impl.adivisors.SitePropertyAdvisor">

@@ -6,10 +6,10 @@
 	<import resource="hibernate-hbms.xml" />
 	<import resource="spring-hibernate.xml" />
 	<import resource="turnitin.xml" />
-  	<import resource="turnitin-oc.xml" />
-	<import resource="vericite.xml" />
-	<import resource="compilatio.xml" />
-	<import resource="urkund.xml" />
+	<!-- <import resource="turnitin-oc.xml" /> -->
+	<!-- import resource="vericite.xml" / -->
+	<!-- import resource="compilatio.xml" / -->
+	<!-- import resource="urkund.xml" / -->
 
 	<bean id="org.sakaiproject.contentreview.service.ContentReviewQueueService" class="org.sakaiproject.contentreview.service.ContentReviewQueueServiceImpl">
 	   <property name="itemDao" ref="org.sakaiproject.contentreview.dao.ContentReviewItemDao" />
@@ -26,11 +26,11 @@
 			parent="org.sakaiproject.contentreview.service.BaseContentReviewService" init-method="init">
 		<property name="providers">
 			<list>
-				<ref bean="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite" />
+				<!-- ref bean="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite" / -->
 				<ref bean="org.sakaiproject.contentreview.turnitin.ContentReviewServiceTurnitin" />
-				<ref bean="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" />
-				<ref bean="org.sakaiproject.contentreview.urkund.ContentReviewServiceUrkund" />
-        			<ref bean="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC" />
+				<!-- ref bean="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" / -->
+				<!-- ref bean="org.sakaiproject.contentreview.urkund.ContentReviewServiceUrkund" / -->
+				<!-- ref bean="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC" /> -->
 			</list>
 		</property>
 
