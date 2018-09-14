@@ -293,14 +293,16 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             Instant openTime = assignment.getOpenDate();
                             if (openTime == null || openTime.isBefore(Instant.now())) {
                                 Site site = siteService.getSite(siteId);
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignmentId);
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
-                                    }
+                                if (site != null && site.isPublished()) {
+	                                String title = assignment.getTitle();
+	                                String url = assignmentService.getDeepLink(siteId, assignmentId);
+	                                // Get all the members of the site with read ability
+	                                for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+	                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
+	                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
+	                                        countCache.remove(to);
+	                                    }
+	                                }
                                 }
                             }
                         } catch (IdUnusedException idue) {
@@ -321,13 +323,15 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
                             if (submission.getGradeReleased()) {
                                 Site site = siteService.getSite(siteId);
-                                Assignment assignment = submission.getAssignment();
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignment.getId());
-                                submission.getSubmitters().forEach(to -> {
-                                    doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
-                                    countCache.remove(to.getSubmitter());
-                                });
+                                if (site != null && site.isPublished()) {
+	                                Assignment assignment = submission.getAssignment();
+	                                String title = assignment.getTitle();
+	                                String url = assignmentService.getDeepLink(siteId, assignment.getId());
+	                                submission.getSubmitters().forEach(to -> {
+	                                    doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
+	                                    countCache.remove(to.getSubmitter());
+	                                });
+                                }
                             }
                         } catch (IdUnusedException idue) {
                             log.error("Failed to find either the submission or the site", idue);
