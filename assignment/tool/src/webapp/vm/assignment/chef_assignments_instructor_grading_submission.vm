@@ -440,7 +440,7 @@
                     $tlang.getString("gradingsub.prefeetex3")
                 </h4>
                 <div class="inlinecoms toggledContent">
-                    $cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+                    $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText)
                 </div>
             #end
 
@@ -724,7 +724,7 @@
                 $tlang.getString("gradingsub.prefee2")
             </h4>
             <div class="gencoms  toggledContent">
-                $cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))
+                $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment)
             </div>
         #end
         <h4>
