@@ -137,8 +137,8 @@ public class LTI13Servlet extends HttpServlet {
 
 		// /imsblis/lti13/lineitem/42
 		if (parts.length == 5 && "namesandroles".equals(parts[3])) {
-			String sourcedid = parts[4];
-			handleNamesAndRoles(sourcedid, request, response);
+			String signed_placement = parts[4];
+			handleNamesAndRoles(signed_placement, request, response);
 			return;
 		}
 
@@ -165,8 +165,8 @@ public class LTI13Servlet extends HttpServlet {
 
 		// /imsblis/lti13/lineitem/42
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
-			String sourcedid = parts[4];
-			handleLineItemPost(sourcedid, request, response);
+			String signed_placement = parts[4];
+			handleLineItemPost(signed_placement, request, response);
 			return;
 		}
 
@@ -375,11 +375,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-	protected void handleLineItemPost(String sourcedid, HttpServletRequest request, HttpServletResponse response) {
+	protected void handleLineItemPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
 		HttpUtil.printHeaders(request);
 		HttpUtil.printParameters(request);
 
-		System.out.println("Sourcedid=" + sourcedid);
+		System.out.println("signed_placement=" + signed_placement);
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
@@ -419,7 +419,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> content = loadContent(sourcedid, response);
+		Map<String, Object> content = loadContent(signed_placement, response);
 		if (content == null) {
 			return;
 		}
@@ -431,7 +431,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Site site = loadSiteFromContent(content, sourcedid, response);
+		Site site = loadSiteFromContent(content, signed_placement, response);
 		if (site == null) {
 			return;
 		}
@@ -490,7 +490,7 @@ public class LTI13Servlet extends HttpServlet {
   ]
 }
 	 */
-	protected void handleNamesAndRoles(String sourcedid, HttpServletRequest request, HttpServletResponse response)
+	protected void handleNamesAndRoles(String signed_placement, HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException {
 		/*
 		// Check for permission in placement
@@ -658,18 +658,7 @@ public class LTI13Servlet extends HttpServlet {
 		return sat;
 	}
 
-	protected static String[] splitSourcedid(String sourcedid, HttpServletResponse response) {
-		String[] parts = sourcedid.split(":::");
-		if (parts.length != 3 || parts[0].length() < 1 || parts[0].length() > 10000
-				|| parts[1].length() < 1 || parts[2].length() <= 8
-				|| !parts[2].startsWith("content:")) {
-			log.error("Bad sourcedid format {}", sourcedid);
-			LTI13Util.return400(response, "bad sourcedid");
-			return null;
-		}
-		return parts;
-	}
-	// Sanity check sourcedid
+	// Sanity check signed_placement
 	// f093de4f8b98530abb0e7784c380ab1668510a7308cc454c79d4e7a0334ab268:::92e7ddf2-1c60-486c-97ae-bc2ffbde8e67:::content:6
 
 	/*
@@ -678,9 +667,21 @@ public class LTI13Servlet extends HttpServlet {
 			String signature = LegacyShaUtil.sha256Hash(base_string);
 			return signature + suffix;
 	 */
-	protected static Map<String, Object> loadContent(String sourcedid, HttpServletResponse response) {
+	protected static String[] splitSignedPlacement(String signed_placement, HttpServletResponse response) {
+		String[] parts = signed_placement.split(":::");
+		if (parts.length != 3 || parts[0].length() < 1 || parts[0].length() > 10000
+				|| parts[1].length() < 1 || parts[2].length() <= 8
+				|| !parts[2].startsWith("content:")) {
+			log.error("Bad signed_placement format {}", signed_placement);
+			LTI13Util.return400(response, "bad signed_placement");
+			return null;
+		}
+		return parts;
+	}
 
-		String[] parts = splitSourcedid(sourcedid, response);
+	protected static Map<String, Object> loadContent(String signed_placement, HttpServletResponse response) {
+
+		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
 			return null;
 		}
@@ -693,13 +694,13 @@ public class LTI13Servlet extends HttpServlet {
 		String contentIdStr = placement_id.substring(8);
 		Long contentKey = getLongKey(contentIdStr);
 		if (contentKey < 0) {
-			log.error("Bad placement format {}", sourcedid);
+			log.error("Bad placement format {}", signed_placement);
 			LTI13Util.return400(response, "bad placement");
 			return null;
 		}
 
 		// Note that all of the above checking requires no database access :)
-		// Now we have a valid access token and valid JSON, proceed with validating the sourcedid
+		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
 		Map<String, Object> content = ltiService.getContentDao(contentKey);
 		System.out.println("Content=" + content);
 		if (content == null) {
@@ -715,28 +716,28 @@ public class LTI13Servlet extends HttpServlet {
 			return null;
 		}
 
-		// Validate the sourcedid signature before proceeding
+		// Validate the signed_placement signature before proceeding
 		String suffix = ":::" + context_id + ":::" + placement_id;
 		String base_string = placementSecret + suffix;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		if (signature == null || !signature.equals(received_signature)) {
-			log.error("Could not verify sourcedid {}", sourcedid);
-			LTI13Util.return400(response, "Could not verify sourcedid");
+			log.error("Could not verify signed_placement {}", signed_placement);
+			LTI13Util.return400(response, "Could not verify signed_placement");
 			return null;
 		}
 
 		return content;
 	}
 
-	protected Site loadSiteFromContent(Map<String, Object> content, String sourcedid, HttpServletResponse response) {
-		String[] parts = splitSourcedid(sourcedid, response);
+	protected Site loadSiteFromContent(Map<String, Object> content, String signed_placement, HttpServletResponse response) {
+		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
 			return null;
 		}
 
 		String context_id = parts[1];
 
-		// Good sourcedid, lets load the site and tool
+		// Good signed_placement, lets load the site and tool
 		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
 		if (siteId == null) {
 			log.error("Could not find site content={}", content.get(LTIService.LTI_ID));
