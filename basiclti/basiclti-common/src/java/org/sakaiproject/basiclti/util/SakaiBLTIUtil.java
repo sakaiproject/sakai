@@ -65,6 +65,7 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.BasicOutcome;
 
 import io.jsonwebtoken.Jwts;
+import java.net.MalformedURLException;
 
 import java.security.Key;
 
@@ -104,10 +105,12 @@ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import net.oauth.OAuth;
 
 import org.apache.commons.math3.util.Precision;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.tsugi.lti13.LTI13KeySetUtil;
 import org.tsugi.lti13.objects.Endpoint;
+import org.tsugi.lti13.objects.NamesAndRoles;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -190,15 +193,15 @@ public class SakaiBLTIUtil {
 	public static String getCorrectProperty(Properties config,
 			String propName, Placement placement) {
 		// Check for global overrides in properties
-		if (LTIService.LTI_ALLOWSETTINGS.equals(propName) && ! settingsEnabled()) {
+		if (LTIService.LTI_ALLOWSETTINGS.equals(propName) && !settingsEnabled()) {
 			return "false";
 		}
 
-		if (LTIService.LTI_ALLOWROSTER.equals(propName) && ! rosterEnabled()) {
+		if (LTIService.LTI_ALLOWROSTER.equals(propName) && !rosterEnabled()) {
 			return "false";
 		}
 
-		if ("contentlink".equals(propName) && ! contentLinkEnabled() ) {
+		if ("contentlink".equals(propName) && !contentLinkEnabled()) {
 			return null;
 		}
 
@@ -533,7 +536,7 @@ public class SakaiBLTIUtil {
 			GroupProvider groupProvider = (GroupProvider) ComponentManager.get(
 					org.sakaiproject.authz.api.GroupProvider.class);
 			String[] courseRosters = groupProvider.unpackId(courseRoster);
-			List<String> rosterList = new ArrayList<String>();
+			List<String> rosterList = new ArrayList<>();
 			String userEid = user.getEid();
 			for (int i = 0; i < courseRosters.length; i++) {
 				String providerId = courseRosters[i];
@@ -554,10 +557,10 @@ public class SakaiBLTIUtil {
 	// Retrieve the Sakai information about users, etc.
 	public static boolean sakaiInfo(Properties props, String context, String placementId, ResourceLoader rb) {
 
-		Site site = null;
+		Site site;
 		try {
 			site = SiteService.getSite(context);
-		} catch (Exception e) {
+		} catch (IdUnusedException e) {
 			log.error("No site/page associated with Launch context={}", context);
 			return false;
 		}
@@ -651,7 +654,9 @@ public class SakaiBLTIUtil {
 			String allowOutcomes = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
 			if (!"off".equals(allowOutcomes)) {
 				assignment = toNull(getCorrectProperty(config, "assignment", placement));
-				if (!outcomesEnabled()) allowOutcomes = null;
+				if (!outcomesEnabled()) {
+					allowOutcomes = null;
+				}
 			}
 
 			String allowSettings = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWSETTINGS, placement));
@@ -672,7 +677,7 @@ public class SakaiBLTIUtil {
 			if (result_sourcedid != null) {
 
 				if ("true".equals(allowOutcomes) && assignment != null) {
-					if (theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0) {
+					if (theRole.contains(LTI2Vars.MEMBERSHIP_ROLE_LEARNER)) {
 						setProperty(props, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
 					}
 					setProperty(props, "ext_outcome_data_values_accepted", "text");  // SAK-25696
@@ -860,16 +865,16 @@ public class SakaiBLTIUtil {
 		}
 
 		String context = (String) content.get(LTIService.LTI_SITE_ID);
-		Site site = null;
+		Site site;
 		try {
 			site = SiteService.getSite(context);
-		} catch (Exception e) {
+		} catch (IdUnusedException e) {
 			log.error("No site/page associated with Launch context={}", context);
 			return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 		}
 
 		// Percolate up to get the other objects...
-		Map<String, Object> proxyBinding = null;
+		Map<String, Object> proxyBinding;
 		Map<String, Object> deploy = null;
 
 		Long deployKey = getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
@@ -976,7 +981,7 @@ public class SakaiBLTIUtil {
 		if (deploy != null) {
 			setProperty(lti2subst, LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl()
 					+ LTI2_PATH + SVC_tc_profile + "/"
-					+ (String) deploy.get(LTIService.LTI_CONSUMERKEY));;
+					+ (String) deploy.get(LTIService.LTI_CONSUMERKEY));
 		}
 
 		String resource_link_id = "content:" + content.get(LTIService.LTI_ID);
@@ -1043,7 +1048,7 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps, BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);
 				setProperty(lti2subst, LTI2Vars.BASICOUTCOME_URL, outcome_url);
 
-				if (theRole.indexOf(LTI2Vars.MEMBERSHIP_ROLE_LEARNER) >= 0) {
+				if (theRole.contains(LTI2Vars.MEMBERSHIP_ROLE_LEARNER)) {
 					setProperty(ltiProps, BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);
 					setProperty(lti2subst, LTI2Vars.RESULT_SOURCEDID, result_sourcedid);
 					setProperty(lti2subst, LTI2Vars.BASICOUTCOME_SOURCEDID, result_sourcedid);
@@ -1269,11 +1274,9 @@ public class SakaiBLTIUtil {
 		// Handle any substution variables from the message
 		Properties lti2subst = new Properties();
 		addGlobalData(null, ltiProps, lti2subst, rb);
-		if (deploy != null) {
-			setProperty(lti2subst, LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl()
-					+ LTI2_PATH + SVC_tc_profile + "/"
-					+ (String) deploy.get(LTIService.LTI_CONSUMERKEY));;
-		}
+		setProperty(lti2subst, LTI2Vars.TOOLCONSUMERPROFILE_URL, getOurServerUrl()
+				+ LTI2_PATH + SVC_tc_profile + "/"
+				+ (String) deploy.get(LTIService.LTI_CONSUMERKEY));
 
 		Properties custom = new Properties();
 		JSONArray parameter = toolProxy.getParameterFromMessage(proxy_message);
@@ -1310,7 +1313,7 @@ public class SakaiBLTIUtil {
 	public static String addCSRFToken(String url) {
 		Session session = SessionManager.getCurrentSession();
 		Object csrfToken = session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-		if (url.indexOf("?") < 0) {
+		if (!url.contains("?")) {
 			url = url + "?";
 		} else {
 			url = url + "&";
@@ -1447,10 +1450,10 @@ public class SakaiBLTIUtil {
 
 		// This must always be there
 		String context = (String) tool.get(LTIService.LTI_SITE_ID);
-		Site site = null;
+		Site site;
 		try {
 			site = SiteService.getSite(context);
-		} catch (Exception e) {
+		} catch (IdUnusedException e) {
 			log.error("No site/page associated with Launch context={}", context);
 			return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 		}
@@ -1505,7 +1508,7 @@ public class SakaiBLTIUtil {
 		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM));
 		parseCustom(ltiProps, customstr);
 
-		Map<String, String> extra = new HashMap<String, String>();
+		Map<String, String> extra = new HashMap<>();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 				consumerkey, secret, null, null, null, extra);
 
@@ -1617,7 +1620,7 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.") + "</p>");
 		}
 
-		Map<String, String> extra = new HashMap<String, String>();
+		Map<String, String> extra = new HashMap<>();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 				key, secret, org_guid, org_desc, org_url, extra);
 
@@ -1640,8 +1643,7 @@ public class SakaiBLTIUtil {
 	}
 
 	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
-			Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb)
-	{
+			Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb) {
 
 		String launch_url = toolProps.getProperty("secure_launch_url");
 		if (launch_url == null) {
@@ -1663,10 +1665,9 @@ public class SakaiBLTIUtil {
 		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
 		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
 		String placement_secret = null;
-		if ( content != null ) {
+		if (content != null) {
 			placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 		}
-
 
 		if (platform_private == null) {
 			return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.") + "</p>");
@@ -1752,12 +1753,12 @@ user_id: admin
 		lis.person_sourcedid = ltiProps.getProperty("lis_person_sourcedid");
 		lis.course_offering_sourcedid = ltiProps.getProperty("lis_course_offering_sourcedid");
 		lis.course_section_sourcedid = ltiProps.getProperty("lis_course_section_sourcedid");
-		lis.version = new ArrayList<String>();
+		lis.version = new ArrayList<>();
 		lis.version.add("1.0.0");
 		lis.version.add("1.1.0");
 		lj.lis = lis;
 
-		lj.custom = new TreeMap<String, String>();
+		lj.custom = new TreeMap<>();
 		for (Map.Entry<Object, Object> entry : ltiProps.entrySet()) {
 			String custom_key = (String) entry.getKey();
 			String custom_val = (String) entry.getValue();
@@ -1768,6 +1769,10 @@ user_id: admin
 			lj.custom.put(custom_key, custom_val);
 		}
 
+		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
+		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+
 		String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
 
 		if (sourcedid != null) {
@@ -1777,15 +1782,24 @@ user_id: admin
 			lj.basicoutcome = outcome;
 		}
 
-		if ( placement_secret != null && resource_link_id != null && context_id != null ) {
-			String signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
+		String signed_placement = null;
+		if (placement_secret != null && resource_link_id != null && context_id != null) {
+			signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
+		}
 
+		if (allowOutcomes != 0 && outcomesEnabled() && signed_placement != null) {
 			Endpoint endpoint = new Endpoint();
-			endpoint.scope = new ArrayList<String>();
+			endpoint.scope = new ArrayList<>();
 			endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
 			endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
 			lj.endpoint = endpoint;
+		}
+
+		if (allowRoster != 0 && rosterEnabled() && signed_placement != null) {
+			NamesAndRoles nar = new NamesAndRoles();
+			nar.context_memberships_url = getOurServerUrl() + LTI13_PATH + "namesandroles/" + signed_placement;
+			lj.names_and_roles = nar;
 		}
 
 		String ljs = JacksonUtil.toString(lj);
@@ -1848,7 +1862,7 @@ user_id: admin
 		if (placementSecret == null) {
 			return null;
 		}
-		String suffix =  ":::" + context_id + ":::" + resource_link_id;
+		String suffix = ":::" + context_id + ":::" + resource_link_id;
 		String base_string = placementSecret + suffix;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
 		return signature + suffix;
@@ -1897,12 +1911,13 @@ user_id: admin
 	private static String getToolConsumerInfo(String launchUrl, String data) {
 		String default_secret = ServerConfigurationService.getString("basiclti.consumer_instance_" + data, null);
 		log.debug("launchUrl = {}", launchUrl);
-		URL url = null;
+		URL url;
 		try {
 			url = new URL(launchUrl);
-		} catch (Exception e) {
+		} catch (MalformedURLException e) {
 			url = null;
 		}
+
 		if (url == null) {
 			return default_secret;
 		}
@@ -2003,10 +2018,10 @@ user_id: admin
 		}
 
 		String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
-		Site site = null;
+		Site site;
 		try {
 			site = SiteService.getSite(siteId);
-		} catch (Exception e) {
+		} catch (IdUnusedException e) {
 			return "Error retrieving result_sourcedid site: " + e.getLocalizedMessage();
 		}
 
@@ -2083,7 +2098,7 @@ user_id: admin
 			log.warn("assignmentObject or Id is null, cannot proceed with grading.");
 			return "Grade failure siteId=" + siteId;
 		}
-		
+
 		// Now read, set, or delete the grade...
 		pushAdvisor();
 		Session sess = SessionManager.getCurrentSession();
@@ -2106,7 +2121,7 @@ user_id: admin
 				}
 				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, assignmentObject.getId(), user_id);
 				message = "Result read";
-				Map<String, Object> retMap = new TreeMap<String, Object>();
+				Map<String, Object> retMap = new TreeMap<>();
 				retMap.put("grade", dGrade);
 				if (commentDef != null) {
 					retMap.put("comment", commentDef.getCommentText());
@@ -2135,7 +2150,7 @@ user_id: admin
 
 		return retval;
 	}
-	
+
 	public static Object getGradeLTI13(Site site, String user_id, String assignment) {
 		return handleGradebookLTI13(site, user_id, assignment, null, null, null, true, false);
 	}
@@ -2151,18 +2166,18 @@ user_id: admin
 			String assignment) {
 		return handleGradebookLTI13(site, user_id, assignment, null, null, null, false, true);
 	}
-	
-		// Quite a long bit of code
+
+	// Quite a long bit of code
 	private static Object handleGradebookLTI13(Site site, String user_id, String assignment,
-			Long scoreGiven, Long maxPoints, String comment,  boolean isRead, boolean isDelete) {
-	
+			Long scoreGiven, Long maxPoints, String comment, boolean isRead, boolean isDelete) {
+
 		// If we are not supposed to lookup or set the grade, we are done
 		if (isRead == false && isDelete == false && scoreGiven == null) {
 			return new Boolean(false);
 		}
 
 		String siteId = site.getId();
-		
+
 		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -2172,12 +2187,12 @@ user_id: admin
 			log.warn("assignmentObject or Id is null, cannot proceed with grading.");
 			return "Grade failure siteId=" + siteId;
 		}
-		
+
 		pushAdvisor();
 		// Now read, set, or delete the grade...
 		Session sess = SessionManager.getCurrentSession();
 		String message = null;
-		Map<String, Object> retMap = new TreeMap<String, Object>();
+		Map<String, Object> retMap = new TreeMap<>();
 		Object retval;
 
 		try {
@@ -2225,16 +2240,17 @@ user_id: admin
 
 		return retval;
 	}
-	
-	public static Assignment getAssignment(Site site, String userId, String assignment, Long scoreMaximum)
-	{
-				// Look up the assignment so we can find the max points
+
+	public static Assignment getAssignment(Site site, String userId, String assignment, Long scoreMaximum) {
+		// Look up the assignment so we can find the max points
 		GradebookService g = (GradebookService) ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
 		String siteId = site.getId();
-		if ( scoreMaximum == null ) scoreMaximum = 100L;
-		
+		if (scoreMaximum == null) {
+			scoreMaximum = 100L;
+		}
+
 		Assignment assignmentObject = null;
 
 		pushAdvisor();
@@ -2250,7 +2266,7 @@ user_id: admin
 					break;
 				}
 			}
-		} catch (Exception e) {
+		} catch (GradebookNotFoundException e) {
 			assignmentObject = null; // Just to make double sure
 		}
 
@@ -2278,7 +2294,7 @@ user_id: admin
 			log.warn("assignmentObject or Id is null.");
 			assignmentObject = null;
 		}
-		
+
 		// TODO: Figure this out
 		// sess.invalidate(); // Make sure to leave no traces
 		popAdvisor();
@@ -2307,10 +2323,10 @@ user_id: admin
 
 		Properties retval = new Properties();
 
-		String siteId = null;
+		String siteId;
 		if (isPlacement(placement_id)) {
-			ToolConfiguration placement = null;
-			Properties config = null;
+			ToolConfiguration placement;
+			Properties config;
 			try {
 				placement = SiteService.findTool(placement_id);
 				config = placement.getConfig();
@@ -2342,8 +2358,8 @@ user_id: admin
 				retval.setProperty(field, value);
 			}
 		} else { // Get information from content item
-			Map<String, Object> content = null;
-			Map<String, Object> tool = null;
+			Map<String, Object> content;
+			Map<String, Object> tool;
 
 			String contentStr = placement_id.substring(8);
 			Long contentKey = getLongKey(contentStr);
@@ -2470,7 +2486,7 @@ user_id: admin
 		if (o instanceof String) {
 			try {
 				return (new Integer((String) o)).intValue();
-			} catch (Exception e) {
+			} catch (NumberFormatException e) {
 				return -1;
 			}
 		}
@@ -2524,7 +2540,7 @@ user_id: admin
 			}
 			try {
 				return new Long((String) key);
-			} catch (Exception e) {
+			} catch (NumberFormatException e) {
 				return null;
 			}
 		}
@@ -2554,10 +2570,10 @@ user_id: admin
 	/**
 	 * Converts a string from a comma-separated list of role maps to a
 	 * Map<String, String>. Each role mapping in the string should be of the
-	 * form <sakairole>:<ltirole>.
+	 * form sakairole:ltirole.
 	 */
 	public static Map<String, String> convertRoleMapPropToMap(String roleMapProp) {
-		Map<String, String> roleMap = new HashMap<String, String>();
+		Map<String, String> roleMap = new HashMap<>();
 		if (roleMapProp == null) {
 			return roleMap;
 		}

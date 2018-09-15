@@ -70,6 +70,9 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome")
 	public BasicOutcome basicoutcome;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice")
+	public NamesAndRoles names_and_roles;
+
 	// Constructor
 	public LaunchJWT() {
 		this.message_type = "LtiResourceLinkRequest";
