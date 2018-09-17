@@ -1305,30 +1305,35 @@
                                 <input type="checkbox" name="item-newwindow" id="item-newwindow" rsf:id="item-newwindow" />
                                 <label for="item-newwindow" id="label-item-newwindow"><span rsf:id="msg=simplepage.usenewwindow"></span></label><br />
                             </div>
-                            <div id="formatstuff">
-                                <p rsf:id="msg=simplepage.format.heading" class="edit-header"></p>
-                                <span rsf:id="format-select"/>
-                                <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format"/>
-                                <label for="format-window"><span rsf:id="msg=simplepage.format.window"></span></label><br />
-                                <input rsf:id="format-inline" type="radio" name="format" value="inline" id="format-inline" class="format"/>
-                                <label for="format-inline"><span rsf:id="msg=simplepage.format.inline"></span></label><br />
-                                <input rsf:id="format-page" type="radio" name="format" value="page" id="format-page" class="format"/>
-                                <label for="format-page"><span rsf:id="msg=simplepage.format.page"></span></label><br />
-
-                            </div>
-
-                            <p class="shorttext required" id="edit-height">
-                                <label rsf:id="msg=simplepage.height_label" for="edit-height-value"></label>
-                                <input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
-                            </p>
 
                             </div>
                         </div>
                     </div>
                 </div>
 
+              <div id="formatstuff">
+                  <div class="panel panel-default dialog-panel">
+                      <div class="panel-heading edit-header">
+                          <button type="button" class="accordionBtn" rsf:id="msg=simplepage.format.heading" data-toggle="collapse" data-target="#formatstuffbody" ></button>
+                      </div>
+                      <div id="formatstuffbody" class="panel-collapse collapse in">
+                          <div class="panel-body">
+                              <span rsf:id="format-select"/>
+                              <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format"/>
+                              <label for="format-window"><span rsf:id="msg=simplepage.format.window"></span></label><br />
+                              <input rsf:id="format-page" type="radio" name="format" value="page" id="format-page" class="format"/>
+                              <label for="format-page"><span rsf:id="msg=simplepage.format.page"></span></label><br />
+                              <input rsf:id="format-inline" type="radio" name="format" value="inline" id="format-inline" class="format"/>
+                              <label for="format-inline"><span rsf:id="msg=simplepage.format.inline"></span></label><br />
 
-
+                              <p class="shorttext required" id="edit-height">
+                                  <label rsf:id="msg=simplepage.height_label" for="edit-height-value"></label>
+                                  <input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
+                              </p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
 
                     <div id="stylingstuff" class="stylingstuff panel panel-default dialog-panel">
                         <div class="edit-header panel-heading">
