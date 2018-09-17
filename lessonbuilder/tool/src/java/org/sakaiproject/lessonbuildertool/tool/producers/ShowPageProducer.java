@@ -4558,8 +4558,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-required", "#{simplePageBean.required}", false);
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
-		UIBoundBoolean.make(form, "page-item-required", "#{simplePageBean.required}", false);
-		UIBoundBoolean.make(form, "page-item-prerequisites", "#{simplePageBean.prerequisite}", false);
 		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
 
 		UISelect radios = UISelect.make(form, "format-select",

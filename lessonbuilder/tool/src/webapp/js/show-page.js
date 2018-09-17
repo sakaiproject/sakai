@@ -492,7 +492,6 @@ $(document).ready(function() {
 			$("#change-resource-version-p").hide();
 			$("#change-blti-p").hide();
 			$("#change-page-p").hide();
-			$("#pagestuff").hide();
 			$(".pageItem").hide();
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
@@ -1750,7 +1749,6 @@ $(document).ready(function() {
 			$("#change-page-p").hide();	
 			$("#edit-item-object-p").hide();	
 			$("#edit-item-settings-p").hide();	
-			$("#pagestuff").hide();
 			$(".pageItem").hide();
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
@@ -1825,10 +1823,8 @@ $(document).ready(function() {
 			var editsettingsurl = row.find(".edit-settings-url").text();
 			
 			if(type === 'page') {
-	                    $("#pagestuff").show();
 	                    $(".pageItem").show();
 	                    $(".reqCheckbox").hide();
-	                    $("#prereqstuff").hide();
 
 				var sbpgreleasedate = row.find(".subpagereleasedate").text();
 				if(sbpgreleasedate === '') {
