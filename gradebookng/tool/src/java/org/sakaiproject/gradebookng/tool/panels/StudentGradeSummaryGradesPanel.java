@@ -97,19 +97,12 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
 
 		final List<String> categoryNames = new ArrayList<>();
-		final Map<Integer, String> sortableCategoryNames = new HashMap<>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 		final Map<Long, Double> categoryAverages = new HashMap<>();
 		Map<String, CategoryDefinition> categoriesMap = Collections.emptyMap();
 
 		// if gradebook release setting disabled, no work to do
 		if (this.isAssignmentsDisplayed) {
-
-			//if no categories are being used, simple sort list of assignments by sort order and continue
-			if(!this.categoriesEnabled){
-				Collections.sort(assignments);
-			}
-
 			// iterate over assignments and build map of categoryname to list of assignments as well as category averages
 			for (final Assignment assignment : assignments) {
 				// if an assignment is released, update the flag (but don't set it false again)
@@ -119,12 +112,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 					final String categoryName = getCategoryName(assignment);
 
 					if (!categoryNamesToAssignments.containsKey(categoryName)) {
-						//If category has a sort order add it to sortable map, otherwise add to list
-						if(assignment.getCategoryOrder() != null){
-							sortableCategoryNames.put(assignment.getCategoryOrder(), categoryName);
-						}else{
-							categoryNames.add(categoryName);
-						}
+						categoryNames.add(categoryName);
+						categoryNamesToAssignments.put(categoryName, new ArrayList<>());
 					}
 
 					categoryNamesToAssignments.get(categoryName).add(assignment);
@@ -147,33 +136,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			}
 			categoriesMap = businessService.getGradebookCategoriesForStudent(userId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
-
-			//If categories are being used, sort various maps and lists by their proper orders
-			if(this.categoriesEnabled){
-				//sort assignments in each category
-				categoryNamesToAssignments.forEach((categoryName, assignmentsInCategory) -> {
-					Collections.sort(assignmentsInCategory);
-				});
-
-				//sort categories, if needed
-				List<Integer> sortedCategoryKeys = new ArrayList<>(sortableCategoryNames.keySet());
-				//null safe integer sort forcing uncategorized to bottom of list
-				Collections.sort(sortedCategoryKeys, (order1, order2) -> {
-					if(order1 == null && order2 == null){
-						return 0;
-					}else if(order1 == null){
-						return 1;
-					}else if(order2 == null){
-						return -1;
-					}else{
-						return order1.compareTo(order2);
-					}
-				});
-				categoryNames.addAll(sortedCategoryKeys.stream().map(sortableCategoryNames::get).collect(Collectors.toList()));
-			}else{
-				//categories not enabled
-				categoryNames.addAll(sortableCategoryNames.values());
-			}
+			Collections.sort(categoryNames);
 		}
 
 		// build the model for table
