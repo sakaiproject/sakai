@@ -236,7 +236,7 @@
                             </h:panelGroup>
                         </f:facet>
                         <h:outputText value="#{selectIndexMessages.na}" rendered="#{takeable.dueDate == null}" />
-                        <h:outputText value="#{takeable.dueDateString}" style="color: red;" rendered="#{takeable.pastDue}" />
+                        <h:outputText value="#{takeable.dueDateString} #{selectIndexMessages.late}" style="color: red;" rendered="#{takeable.pastDue}" />
                         <h:outputText value="#{takeable.dueDateString}" rendered="#{!takeable.pastDue}" />
                     </t:column>
                 </t:dataTable>
