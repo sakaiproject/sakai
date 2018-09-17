@@ -17,6 +17,7 @@
  */
 package org.sakaiproject.lti13;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Jws;
 
 import java.io.IOException;
@@ -58,6 +59,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONArray;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -135,7 +137,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// /imsblis/lti13/lineitem/42
+		// /imsblis/lti13/namesandroles/42
 		if (parts.length == 5 && "namesandroles".equals(parts[3])) {
 			String signed_placement = parts[4];
 			handleNamesAndRoles(signed_placement, request, response);
@@ -356,6 +358,16 @@ public class LTI13Servlet extends HttpServlet {
 			}
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
+
+		if (scope.contains(AccessToken.SCOPE_NAMES_AND_ROLES)) {
+			if (allowOutcomes != 1) {
+				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_RESULT_READONLY);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
+		}
+
 		String payload = JacksonUtil.toString(sat);
 		String jws = Jwts.builder().setPayload(payload).signWith(tokenKeyPair.getPrivate()).compact();
 
@@ -376,18 +388,19 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 	protected void handleLineItemPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
-		HttpUtil.printHeaders(request);
-		HttpUtil.printParameters(request);
-
-		System.out.println("signed_placement=" + signed_placement);
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		log.debug("sat={}", sat);
+
 		if (sat == null) {
 			return;
 		}
-
-		System.out.println("sat=" + sat);
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)) {
+			LTI13Util.return400(response, "Scope basic outcome not in access token");
+			log.error("Scope basic outcome not in access token");
+			return;
+		}
 
 		String jsonString;
 		try {
@@ -398,14 +411,13 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Could not read POST Data");
 			return;
 		}
-		System.out.println("jsonString=" + jsonString);
+		log.debug("jsonString={}", jsonString);
 
 		Object js = JSONValue.parse(jsonString);
 		if (js == null || !(js instanceof JSONObject)) {
 			LTI13Util.return400(response, "Badly formatted JSON");
 			return;
 		}
-		System.out.println("js=" + js);
 		JSONObject jso = (JSONObject) js;
 
 		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
@@ -447,10 +459,8 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// System.out.println("tool="+tool);
-		// We have validated everything and it is time to set the grade.
 		Object retval = SakaiBLTIUtil.setGradeLTI13(site, userId, assignment, scoreGiven, scoreMaximum, comment);
-		System.out.println("retval=" + retval);
+		System.out.println("Lineitem retval=" + retval);
 	}
 
 	/*
@@ -492,117 +502,132 @@ public class LTI13Servlet extends HttpServlet {
 	 */
 	protected void handleNamesAndRoles(String signed_placement, HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException {
-		/*
-		// Check for permission in placement
-		String allowRoster = pitch.getProperty(LTIService.LTI_ALLOWROSTER);
-		if ( ! "on".equals(allowRoster) ) {
-			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+
+		// HttpUtil.printHeaders(request);
+		// HttpUtil.printParameters(request);
+		log.debug("signed_placement={}", signed_placement);
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		if (sat == null) {
 			return;
 		}
 
-		String roleMapProp = pitch.getProperty("rolemap");
-		String releaseName = pitch.getProperty(LTIService.LTI_SENDNAME);
-		String releaseEmail = pitch.getProperty(LTIService.LTI_SENDEMAILADDR);
-		String assignment = pitch.getProperty("assignment");
-		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_ROSTER)) {
+			LTI13Util.return400(response, "Scope roster not in access token");
+			log.error("Scope roster not in access token");
+			return;
+		}
 
+		Map<String, Object> content = loadContent(signed_placement, response);
+		if (content == null) {
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			return;
+		}
+
+		int releaseName = getInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseEmail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
+		// int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+
+		String assignment = (String) content.get(LTIService.LTI_TITLE);
+		if (assignment == null || assignment.length() < 1) {
+			assignment = null;
+		}
+
+		System.out.println("Here we are " + assignment);
 		String maintainRole = site.getMaintainRole();
+
+		PrintWriter out = response.getWriter();
+		out.println("{");
+		out.println(" \"id\" : \"http://TODO.wtf.com/\",");
+		out.println(" \"members\": [");
 
 		SakaiBLTIUtil.pushAdvisor();
 		boolean success = false;
-		try {
-			List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
-			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
 
-			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
-			Set<Member> members = site.getMembers();
-			Map<String, Member> memberMap = new HashMap<String, Member>();
-			List<String> userIds = new ArrayList<String>();
-			for (Member member : members) {
-				userIds.add(member.getUserId());
-				memberMap.put(member.getUserId(), member);
-			}
-			List<User> users = UserDirectoryService.getUsers(userIds);
+		List<Map<String, Object>> lm = new ArrayList<>();
 
-			for (User user : users ) {
-				Member member = memberMap.get(user.getId());
-				Map<String,Object> mm = new TreeMap<String,Object>();
-				Role role = member.getRole();
-				String ims_user_id = member.getUserId();
-				mm.put("/user_id",ims_user_id);
-				String ims_role = "Learner";
-
-				// If there is a role mapping, it has precedence over site.update
-				if ( roleMap.containsKey(role.getId()) ) {
-					ims_role = roleMap.get(role.getId());
-				}
-				else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId))
-				{
-					ims_role = "Instructor";
-				}
-
-				// Using "/role" is inconsistent with to
-				// http://developers.imsglobal.org/ext_membership.html. It
-				// should be roles. If we can determine that nobody is using
-				// the role tag, we should remove it.
-
-				mm.put("/role",ims_role);
-				mm.put("/roles",ims_role);
-				if ( "true".equals(allowOutcomes) && assignment != null ) {
-					String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
-					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
-					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
-				}
-
-				if ( "on".equals(releaseName) || "on".equals(releaseEmail) ) {
-					if ( "on".equals(releaseName) ) {
-						mm.put("/person_name_given",user.getFirstName());
-						mm.put("/person_name_family",user.getLastName());
-						mm.put("/person_name_full",user.getDisplayName());
-					}
-					if ( "on".equals(releaseEmail) ) {
-						mm.put("/person_contact_email_primary",user.getEmail());
-						mm.put("/person_sourcedid",user.getEid());
-					}
-				}
-
-				Collection groups = site.getGroupsWithMember(ims_user_id);
-
-				if (groups.size() > 0) {
-					List<Map<String, Object>> lgm = new ArrayList<Map<String, Object>>();
-					for (Iterator i = groups.iterator();i.hasNext();) {
-						Group group = (Group) i.next();
-						Map<String, Object> groupMap = new HashMap<String, Object>();
-						groupMap.put("/id", group.getId());
-						groupMap.put("/title", group.getTitle());
-						groupMap.put("/set", new HashMap(groupMap));
-						lgm.add(groupMap);
-					}
-					mm.put("/groups/group", lgm);
-				}
-
-				lm.add(mm);
-			}
-			theMap.put("/message_response/members/member", lm);
-			success = true;
-		} catch (Exception e) {
-			doError(request, response, theMap, "memberships.fail", "", e);
-		} finally {
-			SakaiBLTIUtil.popAdvisor();
+		// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
+		Set<Member> members = site.getMembers();
+		Map<String, Member> memberMap = new HashMap<>();
+		List<String> userIds = new ArrayList<>();
+		for (Member member : members) {
+			userIds.add(member.getUserId());
+			memberMap.put(member.getUserId(), member);
 		}
 
-		if ( ! success ) return;
+		List<User> users = UserDirectoryService.getUsers(userIds);
+		boolean first = true;
+		for (User user : users) {
+			JSONObject jo = new JSONObject();
+			jo.put("status", "Active");
+			jo.put("context_id", site.getId());
+			jo.put("context_title", site.getTitle());
+			jo.put("user_id", user.getId());
+			if (releaseName != 0) {
+				jo.put("name", user.getDisplayName());
+			}
+			if (releaseEmail != 0) {
+				jo.put("email", user.getEmail());
+			}
 
-		theMap.put("/message_response/statusinfo/codemajor", "Success");
-		theMap.put("/message_response/statusinfo/severity", "Status");
-		theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
-		String theXml = XMLMap.getXML(theMap, true);
-		PrintWriter out = response.getWriter();
-		out.println(theXml);
-		log.debug(theXml);
-		 */
+			Member member = memberMap.get(user.getId());
+			Map<String, Object> mm = new TreeMap<>();
+			// Role role = member.getRole();
+			String ims_user_id = member.getUserId();
+			JSONArray roles = new JSONArray();
+			if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
+				roles.add("Instructor");
+			} else {
+				roles.add("Learner");
+			}
+			jo.put("roles", roles);
+			/*
+			if ( "true".equals(allowOutcomes) && assignment != null ) {
+				String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+				String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+				if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
+			}
+
+			Collection groups = site.getGroupsWithMember(ims_user_id);
+
+			if (groups.size() > 0) {
+				List<Map<String, Object>> lgm = new ArrayList<Map<String, Object>>();
+				for (Iterator i = groups.iterator();i.hasNext();) {
+					Group group = (Group) i.next();
+					Map<String, Object> groupMap = new HashMap<String, Object>();
+					groupMap.put("/id", group.getId());
+					groupMap.put("/title", group.getTitle());
+					groupMap.put("/set", new HashMap(groupMap));
+					lgm.add(groupMap);
+				}
+				mm.put("/groups/group", lgm);
+			}
+
+			lm.add(mm);
+			 */
+
+			if (!first) {
+				out.println(",");
+			}
+			first = false;
+			out.print(JacksonUtil.prettyPrint(jo));
+
+		}
+		out.println("");
+		out.println(" ] }");
+
+		SakaiBLTIUtil.popAdvisor();
+
 	}
 
 	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
