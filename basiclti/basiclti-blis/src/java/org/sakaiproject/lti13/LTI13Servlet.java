@@ -573,6 +573,8 @@ public class LTI13Servlet extends HttpServlet {
 			jo.put("context_id", site.getId());
 			jo.put("context_title", site.getTitle());
 			jo.put("user_id", user.getId());
+			jo.put("lis_person_sourcedid", user.getEid());
+
 			if (releaseName != 0) {
 				jo.put("name", user.getDisplayName());
 			}
