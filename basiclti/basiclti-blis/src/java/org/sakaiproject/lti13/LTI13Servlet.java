@@ -17,6 +17,7 @@
  */
 package org.sakaiproject.lti13;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Jws;
 
 import java.io.IOException;
@@ -48,9 +49,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONArray;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
@@ -59,6 +71,7 @@ import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getRB;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.postError;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
 
@@ -71,8 +84,12 @@ import org.tsugi.lti13.LTI13JwtUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.tsugi.basiclti.XMLMap;
 
 /**
  *
@@ -120,6 +137,13 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// /imsblis/lti13/namesandroles/42
+		if (parts.length == 5 && "namesandroles".equals(parts[3])) {
+			String signed_placement = parts[4];
+			handleNamesAndRoles(signed_placement, request, response);
+			return;
+		}
+
 		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
 		response.setHeader(ERROR_DETAIL, "Invalid request");
@@ -143,8 +167,8 @@ public class LTI13Servlet extends HttpServlet {
 
 		// /imsblis/lti13/lineitem/42
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
-			String sourcedid = parts[4];
-			handleLineItemPost(sourcedid, request, response);
+			String signed_placement = parts[4];
+			handleLineItemPost(signed_placement, request, response);
 			return;
 		}
 
@@ -334,6 +358,16 @@ public class LTI13Servlet extends HttpServlet {
 			}
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
+
+		if (scope.contains(AccessToken.SCOPE_NAMES_AND_ROLES)) {
+			if (allowOutcomes != 1) {
+				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_RESULT_READONLY);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_ROSTER);
+		}
+
 		String payload = JacksonUtil.toString(sat);
 		String jws = Jwts.builder().setPayload(payload).signWith(tokenKeyPair.getPrivate()).compact();
 
@@ -353,35 +387,37 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-	protected void handleLineItemPost(String sourcedid, HttpServletRequest request, HttpServletResponse response) {
-		HttpUtil.printHeaders(request);
-		HttpUtil.printParameters(request);
-
-		System.out.println("Sourcedid=" + sourcedid);
+	protected void handleLineItemPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
-		if ( sat == null ) return;
+		log.debug("sat={}", sat);
 
-		System.out.println("sat=" + sat);
+		if (sat == null) {
+			return;
+		}
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)) {
+			LTI13Util.return400(response, "Scope basic outcome not in access token");
+			log.error("Scope basic outcome not in access token");
+			return;
+		}
 
 		String jsonString;
 		try {
 			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
-			jsonString = IOUtils.toString(request.getInputStream());
+			jsonString = IOUtils.toString(request.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
 		} catch (IOException ex) {
 			log.error("Could not read POST Data {}", ex.getMessage());
 			LTI13Util.return400(response, "Could not read POST Data");
-			return ;
+			return;
 		}
-		System.out.println("jsonString="+jsonString);
+		log.debug("jsonString={}", jsonString);
 
 		Object js = JSONValue.parse(jsonString);
-		if ( js == null || ! (js instanceof JSONObject) ) {
+		if (js == null || !(js instanceof JSONObject)) {
 			LTI13Util.return400(response, "Badly formatted JSON");
-			return ;
+			return;
 		}
-		System.out.println("js="+js);
 		JSONObject jso = (JSONObject) js;
 
 		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
@@ -390,130 +426,220 @@ public class LTI13Servlet extends HttpServlet {
 		String comment = (String) jso.get("comment");
 		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
-		if ( scoreGiven == null || userId == null ) {
+		if (scoreGiven == null || userId == null) {
 			LTI13Util.return400(response, "Missing scoreGiven or userId");
-			return ;
-		}
-
-		// Sanity check sourcedid
-		// f093de4f8b98530abb0e7784c380ab1668510a7308cc454c79d4e7a0334ab268:::92e7ddf2-1c60-486c-97ae-bc2ffbde8e67:::content:6
-		/*
-			String suffix =  ":::" + context_id + ":::" + resource_link_id;
-			String base_string = placementSecret + suffix;
-			String signature = LegacyShaUtil.sha256Hash(base_string);
-			return signature + suffix;
-		*/
-		String[] parts = sourcedid.split(":::");
-		if (parts.length != 3 || parts[0].length() < 1 || parts[0].length() > 10000 ||
-			parts[1].length() < 1 || parts[2].length() <= 8 ||
-			! parts[2].startsWith("content:")) {
-			log.error("Bad sourcedid format {}",sourcedid);
-			LTI13Util.return400(response, "bad sourcedid");
 			return;
 		}
 
-		String received_signature = parts[0];
-		String context_id = parts[1];
-		String placement_id = parts[2];
-		log.debug("signature={} context_id={} placement_id={}", received_signature, context_id, placement_id);
-
-		String contentIdStr = placement_id.substring(8);
-		Long contentKey = getLongKey(contentIdStr);
-		if (contentKey < 0) {
-			log.error("Bad placement format {}",sourcedid);
-			LTI13Util.return400(response, "bad placement");
-			return;
-		}
-
-		// Note that all of the above checking requires no database access :)
-		// Now we have a valid access token and valid JSON, proceed with validating the sourcedid
-
-		Map<String, Object> content = ltiService.getContentDao(contentKey);
-		System.out.println("Content="+content);
-		if ( content == null ) {
-			log.error("Could not load Content Item {}",contentKey);
-			LTI13Util.return400(response, "Could not load Content Item");
-			return;
-		}
-
-		String placementSecret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-		if (placementSecret == null) {
-			log.error("Could not load placementsecret {}",contentKey);
-			LTI13Util.return400(response, "Could not load placementsecret");
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
 			return;
 		}
 
 		String assignment = (String) content.get(LTIService.LTI_TITLE);
-		if (assignment == null || assignment.length() < 1 ) {
-			log.error("Could not determine assignment title {}",contentKey);
+		if (assignment == null || assignment.length() < 1) {
+			log.error("Could not determine assignment title {}", content.get(LTIService.LTI_ID));
 			LTI13Util.return400(response, "Could not determine assignment title");
 			return;
 		}
 
-		// Validate the sourcedid signature before proceeding
-		String suffix =  ":::" + context_id + ":::" + placement_id;
-		String base_string = placementSecret + suffix;
-		String signature = LegacyShaUtil.sha256Hash(base_string);
-		if ( signature == null || ! signature.equals(received_signature)) {
-			log.error("Could not verify sourcedid {}",sourcedid);
-			LTI13Util.return400(response, "Could not verify sourcedid");
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
 			return;
 		}
 
-		// Goog sourcedid, lets load the site and tool
-		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
-		if (siteId == null) {
-			log.error("Could not find site content={}",contentKey);
-			LTI13Util.return400(response, "Could not find site for content");
-			return;
-		}
-
-		Site site;
-		try {
-			site = SiteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.error("No site/page associated with content siteId={}", siteId);
-			LTI13Util.return400(response, "Could not load site associated with content");
-			return;
-		}
-
-		// Make sure user exists in site
-				// Make sure the user exists in the site
-		boolean userExistsInSite = false;
-		try {
-			Member member = site.getMember(userId);
-			if (member != null) {
-				userExistsInSite = true;
-			}
-		} catch (Exception e) {
-			log.warn("User {} not found in siteId={}, {}", userId, siteId, e.getMessage());
-		}
-
-		if ( ! userExistsInSite ) {
+		if (!checkUserInSite(site, userId)) {
+			log.warn("User {} not found in siteId={}", userId, site.getId());
 			LTI13Util.return400(response, "User does not belong to site");
 			return;
 		}
 
-		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
-		// System.out.println("toolKey="+toolKey+" sat.tool_id="+sat.tool_id);
-		if (toolKey < 0 || !toolKey.equals(sat.tool_id)) {
-			log.error("Content / Tool invalid content={} tool={}",contentKey, toolKey);
-			LTI13Util.return400(response, "Content / Tool mismatch");
-			return;
-		}
-
-		Map <String, Object> tool = ltiService.getToolDao(toolKey, siteId);
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
 		if (tool == null) {
-			log.error("Could not load tool={}",contentKey, toolKey);
-			LTI13Util.return400(response, "Missing tool");
 			return;
 		}
-		// System.out.println("tool="+tool);
-
-		// We have validated everything and it is time to set the grade.
 
 		Object retval = SakaiBLTIUtil.setGradeLTI13(site, userId, assignment, scoreGiven, scoreMaximum, comment);
-System.out.println("retval="+retval);
+		log.debug("Lineitem retval={}",retval);
+	}
+
+	/*
+	{
+  "id" : "https://lms.example.com/sections/2923/memberships/?rlid=49566-rkk96",
+  "members" : [
+    {
+      "status" : "Active",
+      "context_id": "2923-abc",
+      "context_label": "CPS 435",
+      "context_title": "CPS 435 Learning Analytics",
+      "name": "Jane Q. Public",
+      "picture" : "https://platform.example.edu/jane.jpg",
+      "given_name" : "Jane",
+      "family_name" : "Doe",
+      "middle_name" : "Marie",
+      "email": "jane@platform.example.edu",
+      "user_id" : "0ae836b9-7fc9-4060-006f-27b2066ac545",
+      "roles": [
+        "Instructor",
+        "Mentor"
+      ]
+      "message" : [
+        {
+          "https://purl.imsglobal.org/spec/lti/claim/message_type" : "ltiResourceLinkRequest",
+          "https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome" : {
+            "lis_result_sourcedid": "example.edu:71ee7e42-f6d2-414a-80db-b69ac2defd4",
+            "lis_outcome_service_url": "https://www.example.com/2344"
+          },
+          "https://purl.imsglobal.org/spec/lti/claim/custom": {
+            "country" : "Canada",
+            "user_mobile" : "123-456-7890"
+          }
+        }
+      ]
+    }
+  ]
+}
+	 */
+	protected void handleNamesAndRoles(String signed_placement, HttpServletRequest request, HttpServletResponse response)
+			throws java.io.IOException {
+
+		// HttpUtil.printHeaders(request);
+		// HttpUtil.printParameters(request);
+		log.debug("signed_placement={}", signed_placement);
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		if (sat == null) {
+			return;
+		}
+
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_ROSTER)) {
+			LTI13Util.return400(response, "Scope roster not in access token");
+			log.error("Scope roster not in access token");
+			return;
+		}
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			return;
+		}
+
+		int releaseName = getInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseEmail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
+		// int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+
+		String assignment = (String) content.get(LTIService.LTI_TITLE);
+		if (assignment == null || assignment.length() < 1) {
+			assignment = null;
+		}
+
+		String maintainRole = site.getMaintainRole();
+
+		PrintWriter out = response.getWriter();
+		out.println("{");
+		out.println(" \"id\" : \"http://TODO.wtf.com/\",");
+		out.println(" \"members\": [");
+
+		SakaiBLTIUtil.pushAdvisor();
+		boolean success = false;
+
+		List<Map<String, Object>> lm = new ArrayList<>();
+
+		// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
+		Set<Member> members = site.getMembers();
+		Map<String, Member> memberMap = new HashMap<>();
+		List<String> userIds = new ArrayList<>();
+		for (Member member : members) {
+			userIds.add(member.getUserId());
+			memberMap.put(member.getUserId(), member);
+		}
+
+		List<User> users = UserDirectoryService.getUsers(userIds);
+		boolean first = true;
+
+		// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
+		String roleMapProp = (String) tool.get("rolemap");
+		roleMapProp = "maintain:Dude";
+
+		Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+		for (User user : users) {
+			JSONObject jo = new JSONObject();
+			jo.put("status", "Active");
+			jo.put("context_id", site.getId());
+			jo.put("context_title", site.getTitle());
+			jo.put("user_id", user.getId());
+			jo.put("lis_person_sourcedid", user.getEid());
+
+			if (releaseName != 0) {
+				jo.put("name", user.getDisplayName());
+			}
+			if (releaseEmail != 0) {
+				jo.put("email", user.getEmail());
+			}
+
+			Member member = memberMap.get(user.getId());
+			Map<String, Object> mm = new TreeMap<>();
+			Role role = member.getRole();
+			String ims_user_id = member.getUserId();
+
+			JSONArray roles = new JSONArray();
+
+			// If there is a role mapping, it has precedence over site.update
+			if ( roleMap.containsKey(role.getId()) ) {
+				roles.add(roleMap.get(role.getId()));
+			} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
+				roles.add("Instructor");
+			} else {
+				roles.add("Learner");
+			}
+			jo.put("roles", roles);
+
+			JSONObject sakai_ext = new JSONObject();
+			if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment != null ) {
+				String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+				String placement_id = getPlacementId(signed_placement);
+				String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+				if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
+			}
+
+			Collection groups = site.getGroupsWithMember(ims_user_id);
+
+			if (groups.size() > 0) {
+				JSONArray lgm = new JSONArray();
+				for (Iterator i = groups.iterator();i.hasNext();) {
+					Group group = (Group) i.next();
+					JSONObject groupObj = new JSONObject();
+					groupObj.put("id", group.getId());
+					groupObj.put("title", group.getTitle());
+					lgm.add(groupObj);
+				}
+				sakai_ext.put("sakai_groups", lgm);
+			}
+
+			jo.put("sakai_ext", sakai_ext);
+
+			if (!first) {
+				out.println(",");
+			}
+			first = false;
+			out.print(JacksonUtil.prettyPrint(jo));
+
+		}
+		out.println("");
+		out.println(" ] }");
+
+		SakaiBLTIUtil.popAdvisor();
+
 	}
 
 	protected SakaiAccessToken getSakaiAccessToken(Key publicKey, HttpServletRequest request, HttpServletResponse response) {
@@ -527,7 +653,7 @@ System.out.println("retval="+retval);
 		// https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space/7899558
 		String[] parts = authorization.split("\\s+");
 		if (parts.length != 2 || parts[1].length() < 1) {
-			log.error("Bad authorization {}",authorization);
+			log.error("Bad authorization {}", authorization);
 			LTI13Util.return400(response, "invalid_authorization");
 			return null;
 		}
@@ -538,7 +664,7 @@ System.out.println("retval="+retval);
 			claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(jws).getBody();
 		} catch (ExpiredJwtException | MalformedJwtException | UnsupportedJwtException
 				| io.jsonwebtoken.security.SignatureException | IllegalArgumentException e) {
-			log.error("Signature error {}\n{}",e.getMessage(), jws);
+			log.error("Signature error {}\n{}", e.getMessage(), jws);
 			LTI13Util.return400(response, "signature_error");
 			return null;
 		}
@@ -558,15 +684,164 @@ System.out.println("retval="+retval);
 		}
 
 		// Validity check the access token
-		if ( sat.tool_id != null && sat.scope != null && sat.expires != null ) {
+		if (sat.tool_id != null && sat.scope != null && sat.expires != null) {
 			// All good
 		} else {
-			log.error("SakaiAccessToken missing required data {}",sat);
+			log.error("SakaiAccessToken missing required data {}", sat);
 			LTI13Util.return400(response, "Missing required data in access_token");
 			return null;
 		}
 
 		return sat;
+	}
+
+	// Sanity check signed_placement
+	// f093de4f8b98530abb0e7784c380ab1668510a7308cc454c79d4e7a0334ab268:::92e7ddf2-1c60-486c-97ae-bc2ffbde8e67:::content:6
+
+	/*
+			String suffix =  ":::" + context_id + ":::" + resource_link_id;
+			String base_string = placementSecret + suffix;
+			String signature = LegacyShaUtil.sha256Hash(base_string);
+			return signature + suffix;
+	 */
+	protected static String[] splitSignedPlacement(String signed_placement, HttpServletResponse response) {
+		String[] parts = signed_placement.split(":::");
+		if (parts.length != 3 || parts[0].length() < 1 || parts[0].length() > 10000
+				|| parts[1].length() < 1 || parts[2].length() <= 8
+				|| !parts[2].startsWith("content:")) {
+			log.error("Bad signed_placement format {}", signed_placement);
+			LTI13Util.return400(response, "bad signed_placement");
+			return null;
+		}
+		return parts;
+	}
+
+	// Assumes signature is correct and format is correct - call after loadContentCheckSignature
+	protected static String getPlacementId(String signed_placement) {
+		String[] parts = signed_placement.split(":::");
+		return parts.length == 3 ? parts[2] : null;
+	}
+
+	// Assumes signature is correct and format is correct - call after loadContentCheckSignature
+	protected static String getContextId(String signed_placement, HttpServletResponse response) {
+		String[] parts = signed_placement.split(":::");
+		return parts.length == 3 ? parts[1] : null;
+	}
+
+	protected static Map<String, Object> loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
+
+		String[] parts = splitSignedPlacement(signed_placement, response);
+		if (parts == null) {
+			return null;
+		}
+
+		String received_signature = parts[0];
+		String context_id = parts[1];
+		String placement_id = parts[2];
+		log.debug("signature={} context_id={} placement_id={}", received_signature, context_id, placement_id);
+
+		String contentIdStr = placement_id.substring(8);
+		Long contentKey = getLongKey(contentIdStr);
+		if (contentKey < 0) {
+			log.error("Bad placement format {}", signed_placement);
+			LTI13Util.return400(response, "bad placement");
+			return null;
+		}
+
+		// Note that all of the above checking requires no database access :)
+		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
+		Map<String, Object> content = ltiService.getContentDao(contentKey);
+		if (content == null) {
+			log.error("Could not load Content Item {}", contentKey);
+			LTI13Util.return400(response, "Could not load Content Item");
+			return null;
+		}
+
+		String placementSecret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		if (placementSecret == null) {
+			log.error("Could not load placementsecret {}", contentKey);
+			LTI13Util.return400(response, "Could not load placementsecret");
+			return null;
+		}
+
+		// Validate the signed_placement signature before proceeding
+		String suffix = ":::" + context_id + ":::" + placement_id;
+		String base_string = placementSecret + suffix;
+		String signature = LegacyShaUtil.sha256Hash(base_string);
+		if (signature == null || !signature.equals(received_signature)) {
+			log.error("Could not verify signed_placement {}", signed_placement);
+			LTI13Util.return400(response, "Could not verify signed_placement");
+			return null;
+		}
+
+		return content;
+	}
+
+	protected Site loadSiteFromContent(Map<String, Object> content, String signed_placement, HttpServletResponse response) {
+		String[] parts = splitSignedPlacement(signed_placement, response);
+		if (parts == null) {
+			return null;
+		}
+
+		String context_id = parts[1];
+
+		// Good signed_placement, lets load the site and tool
+		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+		if (siteId == null) {
+			log.error("Could not find site content={}", content.get(LTIService.LTI_ID));
+			LTI13Util.return400(response, "Could not find site for content");
+			return null;
+		}
+
+		if (!siteId.equals(context_id)) {
+			log.error("Found incorrect site for content={}", content.get(LTIService.LTI_ID));
+			LTI13Util.return400(response, "Found incorrect site for content");
+			return null;
+		}
+
+		Site site;
+		try {
+			site = SiteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			log.error("No site/page associated with content siteId={}", siteId);
+			LTI13Util.return400(response, "Could not load site associated with content");
+			return null;
+		}
+
+		return site;
+	}
+
+	protected static boolean checkUserInSite(Site site, String userId) {
+		// Make sure user exists in site
+		// Make sure the user exists in the site
+		boolean userExistsInSite = false;
+		try {
+			Member member = site.getMember(userId);
+			if (member != null) {
+				userExistsInSite = true;
+			}
+		} catch (Exception e) {
+			userExistsInSite = false;
+		}
+		return userExistsInSite;
+	}
+
+	protected Map<String, Object> loadToolForContent(Map<String, Object> content, Site site, Long expected_tool_id, HttpServletResponse response) {
+		Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		// System.out.println("toolKey="+toolKey+" sat.tool_id="+sat.tool_id);
+		if (toolKey < 0 || !toolKey.equals(expected_tool_id)) {
+			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
+			LTI13Util.return400(response, "Content / Tool mismatch");
+			return null;
+		}
+
+		Map<String, Object> tool = ltiService.getToolDao(toolKey, site.getId());
+		if (tool == null) {
+			log.error("Could not load tool={}", toolKey);
+			LTI13Util.return400(response, "Missing tool");
+			return null;
+		}
+		return tool;
 	}
 
 }
