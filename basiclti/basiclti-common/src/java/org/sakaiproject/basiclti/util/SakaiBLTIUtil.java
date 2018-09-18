@@ -2571,19 +2571,23 @@ user_id: admin
 	/**
 	 * Converts a string from a comma-separated list of role maps to a
 	 * Map<String, String>. Each role mapping in the string should be of the
-	 * form sakairole1:ltirole1,sakairole2:ltirole2.
+	 * form sakairole1:ltirole1,sakairole2:ltirole2
+	 * or sakairole4:ltirole4,ltirole5;sakairole6:ltirole6
+	 * Using semicolon as the delimiter allows you to indicate more than one IMS role.
 	 */
 	public static Map<String, String> convertRoleMapPropToMap(String roleMapProp) {
 		Map<String, String> roleMap = new HashMap<>();
 		if (roleMapProp == null) {
 			return roleMap;
 		}
-
-		String[] roleMapPairs = roleMapProp.split(",");
+		
+		String delim = ",";
+		if( roleMapProp.contains(";") ) delim = ";";
+		String[] roleMapPairs = roleMapProp.split(delim);
 		for (String s : roleMapPairs) {
 			String[] roleMapPair = s.split(":");
 			if (roleMapPair.length != 2) {
-				throw new IllegalArgumentException("Malformed rolemap property. Value must be a comma-separated list of values of the form <sakairole>:<ltirole>");
+				throw new IllegalArgumentException("Malformed rolemap property. Value must be a comma or semicolon-separated list of values of the form maintain:Learner");
 			}
 			roleMap.put(roleMapPair[0].trim(), roleMapPair[1].trim());
 		}
