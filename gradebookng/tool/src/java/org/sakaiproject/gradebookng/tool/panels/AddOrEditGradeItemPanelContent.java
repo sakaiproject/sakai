@@ -92,7 +92,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			public boolean isRequired() {
-				return true;
+				return !assignment.isExternallyMaintained();
 			}
 
 			@Override
@@ -122,7 +122,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			public boolean isRequired() {
-				return true;
+				return !assignment.isExternallyMaintained();
 			}
 
 			@Override
@@ -313,5 +313,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		});
 
+		if (assignment.isExternallyMaintained()) {
+			warn(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
+		}
 	}
 }
