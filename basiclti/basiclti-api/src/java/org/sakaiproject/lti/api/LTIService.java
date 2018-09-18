@@ -141,6 +141,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "debug:radio:label=bl_debug:choices=off,on,content",
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
+			"rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
             // LTI 2.x settings from web services
             "settings:text:hidden=true:maxlength=1M",
             // LTI 2.x tool-registration time parameters
@@ -251,6 +252,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_NEWPAGE = "newpage";
     String LTI_DEBUG = "debug";
     String LTI_CUSTOM = "custom";
+	String LTI_ROLEMAP = "rolemap";
     String LTI_SPLASH = "splash";
     String LTI_ALLOWCUSTOM = "allowcustom";
     String LTI_XMLIMPORT = "xmlimport";
