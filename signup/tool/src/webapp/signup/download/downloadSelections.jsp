@@ -180,7 +180,7 @@
 				
 				<div class="form-group row">
 					<!-- view range dropdown -->
-					<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" styleClass="form-control-label col-lg-1 col-md-1"/>
+					<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" styleClass="col-lg-1 col-md-1"/>
 					<div class="col-lg-3 col-md-3">
 						<h:selectOneMenu id="viewByRange" value="#{DownloadEventBean.viewDateRang}" valueChangeListener="#{DownloadEventBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{DownloadEventBean.viewDropDownList}"/>
@@ -188,7 +188,7 @@
 					</div>
 
 					<!-- filter by category dropdown -->
-					<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" styleClass="form-control-label col-lg-2 col-md-2"/>
+					<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" styleClass="col-lg-2 col-md-2"/>
 					<div  class="col-lg-2 col-md-2">
 						<h:selectOneMenu id="viewByCategory" value="#{DownloadEventBean.categoryFilter}" valueChangeListener="#{DownloadEventBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{DownloadEventBean.allCategoriesForFilter}"/>

@@ -103,10 +103,6 @@ table.userDefineTsTable th {
 	background: rgb(248, 248, 248);
 }
 
-.addButton {
-	padding-left: 15px;
-}
-
 .timeslotCol {
 	white-space: nowrap;
 	text-align: left;
@@ -490,7 +486,7 @@ table.emailTable td.valueColumn {
 	padding-left:0px;
 }
 
-.openCloseImageIcon:hover, .addButton:hover{
+.openCloseImageIcon:hover{
 	background:buttonhighlight;
 	/* for IE */
   	filter:alpha(opacity=80);
@@ -523,7 +519,6 @@ table.emailTable td.valueColumn {
 }
 
 .dateExact {
-	color: #888;
 	margin-left: 10px;
 }
 @media (max-width: 991px) {
