@@ -431,7 +431,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> content = loadContent(signed_placement, response);
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			return;
 		}
@@ -519,7 +519,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> content = loadContent(signed_placement, response);
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			return;
 		}
@@ -543,7 +543,6 @@ public class LTI13Servlet extends HttpServlet {
 			assignment = null;
 		}
 
-		System.out.println("Here we are " + assignment);
 		String maintainRole = site.getMaintainRole();
 
 		PrintWriter out = response.getWriter();
@@ -567,6 +566,12 @@ public class LTI13Servlet extends HttpServlet {
 
 		List<User> users = UserDirectoryService.getUsers(userIds);
 		boolean first = true;
+
+		// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
+		String roleMapProp = (String) tool.get("rolemap");
+		roleMapProp = "maintain:Dude";
+
+		Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
 		for (User user : users) {
 			JSONObject jo = new JSONObject();
 			jo.put("status", "Active");
@@ -584,39 +589,44 @@ public class LTI13Servlet extends HttpServlet {
 
 			Member member = memberMap.get(user.getId());
 			Map<String, Object> mm = new TreeMap<>();
-			// Role role = member.getRole();
+			Role role = member.getRole();
 			String ims_user_id = member.getUserId();
+
 			JSONArray roles = new JSONArray();
-			if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
+
+			// If there is a role mapping, it has precedence over site.update
+			if ( roleMap.containsKey(role.getId()) ) {
+				roles.add(roleMap.get(role.getId()));
+			} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
 				roles.add("Instructor");
 			} else {
 				roles.add("Learner");
 			}
 			jo.put("roles", roles);
-			/*
-			if ( "true".equals(allowOutcomes) && assignment != null ) {
-				String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+
+			JSONObject sakai_ext = new JSONObject();
+			if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment != null ) {
+				String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+				String placement_id = getPlacementId(signed_placement);
 				String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
-				if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
+				if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
 			}
 
 			Collection groups = site.getGroupsWithMember(ims_user_id);
 
 			if (groups.size() > 0) {
-				List<Map<String, Object>> lgm = new ArrayList<Map<String, Object>>();
+				JSONArray lgm = new JSONArray();
 				for (Iterator i = groups.iterator();i.hasNext();) {
 					Group group = (Group) i.next();
-					Map<String, Object> groupMap = new HashMap<String, Object>();
-					groupMap.put("/id", group.getId());
-					groupMap.put("/title", group.getTitle());
-					groupMap.put("/set", new HashMap(groupMap));
-					lgm.add(groupMap);
+					JSONObject groupObj = new JSONObject();
+					groupObj.put("id", group.getId());
+					groupObj.put("title", group.getTitle());
+					lgm.add(groupObj);
 				}
-				mm.put("/groups/group", lgm);
+				sakai_ext.put("sakai_groups", lgm);
 			}
 
-			lm.add(mm);
-			 */
+			jo.put("sakai_ext", sakai_ext);
 
 			if (!first) {
 				out.println(",");
@@ -706,7 +716,19 @@ public class LTI13Servlet extends HttpServlet {
 		return parts;
 	}
 
-	protected static Map<String, Object> loadContent(String signed_placement, HttpServletResponse response) {
+	// Assumes signature is correct and format is correct - call after loadContentCheckSignature
+	protected static String getPlacementId(String signed_placement) {
+		String[] parts = signed_placement.split(":::");
+		return parts.length == 3 ? parts[2] : null;
+	}
+
+	// Assumes signature is correct and format is correct - call after loadContentCheckSignature
+	protected static String getContextId(String signed_placement, HttpServletResponse response) {
+		String[] parts = signed_placement.split(":::");
+		return parts.length == 3 ? parts[1] : null;
+	}
+
+	protected static Map<String, Object> loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
 
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {

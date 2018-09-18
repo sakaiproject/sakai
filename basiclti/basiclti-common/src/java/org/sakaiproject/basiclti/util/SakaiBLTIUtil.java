@@ -1723,6 +1723,7 @@ user_id: admin
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 3600L;
+		// TODO: Check through the rolemap logic
 		String lti1_roles = ltiProps.getProperty("roles");
 		if (lti1_roles != null && lti1_roles.contains("Instructor")) {
 			lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
@@ -2570,7 +2571,7 @@ user_id: admin
 	/**
 	 * Converts a string from a comma-separated list of role maps to a
 	 * Map<String, String>. Each role mapping in the string should be of the
-	 * form sakairole:ltirole.
+	 * form sakairole1:ltirole1,sakairole2:ltirole2.
 	 */
 	public static Map<String, String> convertRoleMapPropToMap(String roleMapProp) {
 		Map<String, String> roleMap = new HashMap<>();
@@ -2584,7 +2585,7 @@ user_id: admin
 			if (roleMapPair.length != 2) {
 				throw new IllegalArgumentException("Malformed rolemap property. Value must be a comma-separated list of values of the form <sakairole>:<ltirole>");
 			}
-			roleMap.put(roleMapPair[0], roleMapPair[1]);
+			roleMap.put(roleMapPair[0].trim(), roleMapPair[1].trim());
 		}
 		return roleMap;
 	}
