@@ -1766,7 +1766,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
 			if (useBullhornAlerts) {
-				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 10000);
+				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 60000);
 				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
 			}
 

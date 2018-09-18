@@ -37,7 +37,7 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						//using javascript's toLocaleDateString() to include user's locale and local time zone
 						date_time = hour +":"+min+ " " + date.toLocaleDateString();
 						text_for_announcements += '<li class="itemDiv announcementSummaryItem">';
-						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata";
+						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata&persist_to_iframe=itemReference";
 						var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 						var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 						text_for_announcements += '<div><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
