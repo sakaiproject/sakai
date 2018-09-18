@@ -460,7 +460,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Object retval = SakaiBLTIUtil.setGradeLTI13(site, userId, assignment, scoreGiven, scoreMaximum, comment);
-		System.out.println("Lineitem retval=" + retval);
+		log.debug("Lineitem retval={}",retval);
 	}
 
 	/*
@@ -751,7 +751,6 @@ public class LTI13Servlet extends HttpServlet {
 		// Note that all of the above checking requires no database access :)
 		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
 		Map<String, Object> content = ltiService.getContentDao(contentKey);
-		System.out.println("Content=" + content);
 		if (content == null) {
 			log.error("Could not load Content Item {}", contentKey);
 			LTI13Util.return400(response, "Could not load Content Item");
