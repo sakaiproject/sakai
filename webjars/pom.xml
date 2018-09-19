@@ -11,12 +11,6 @@
   <groupId>org.sakaiproject.webjars</groupId>
   <artifactId>webjars</artifactId>
   <packaging>pom</packaging>
-  <!-- You must keep these synced in master so they're picked up correctly in library -->
-  <!-- They're separate here so this can be released independently of the rest of Sakai -->
-  <properties>
-    <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
-    <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
-  </properties>
   <!-- Only build these during the release -->
   <profiles>
       <profile>
@@ -28,8 +22,6 @@
               </property>
           </activation>
           <modules>
-              <module>ckeditor-autosave</module>
-              <module>ckeditor-wordcount</module>
               <module>ckeditor-image2</module>
           </modules>
       </profile>
