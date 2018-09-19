@@ -619,7 +619,7 @@ sakai.updateSignupBeginsExact = function() {
 	
 	//set the new date into the fields
 	var signBExtTag = document.getElementById('meeting:signupBeginsExact');
-	jQuery(signBExtTag).text(displayDateTime(signupBeginsExact));
+	jQuery(signBExtTag).text('(' + displayDateTime(signupBeginsExact) + ')');
 }
 
 sakai.updateSignupEndsExact = function() {
@@ -655,7 +655,7 @@ sakai.updateSignupEndsExact = function() {
 	
 	//set the new date into the fields
 	var signEndExtTag = document.getElementById('meeting:signupEndsExact');
-	jQuery(signEndExtTag).text(displayDateTime(signupEndsExact));
+	jQuery(signEndExtTag).text('(' + displayDateTime(signupEndsExact) + ')');
 }
 
 sakai.toggleExactDateVisibility = function() {

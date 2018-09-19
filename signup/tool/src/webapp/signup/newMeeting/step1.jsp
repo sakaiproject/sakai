@@ -101,7 +101,7 @@
             <div onmouseover="delayedRecalculateDateTime();" class="container-fluid">
                 <%-- Title --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-md-2 form-control-label form-required"/>
+                    <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-md-2 form-required"/>
                     <div class="col-md-10">
                         <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.title}" 
                                     styleClass="editText form-control"  >
@@ -113,7 +113,7 @@
 
                 <%-- Organiser --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_owner}" styleClass="col-md-2 form-control-label" for="creatorUserId"/>
+                    <h:outputLabel value="#{msgs.event_owner}" styleClass="col-md-2" for="creatorUserId"/>
                     <div class="col-md-10">
                         <h:selectOneMenu id="creatorUserId" value="#{NewSignupMeetingBean.creatorUserId}">
                             <f:selectItems value="#{NewSignupMeetingBean.instructors}"/>
@@ -123,7 +123,7 @@
                 
                 <%-- Location --%>
                 <div class="form-group row ">
-                        <h:outputLabel value="#{msgs.event_location}" styleClass="col-md-2 form-control-label form-required"/>
+                        <h:outputLabel value="#{msgs.event_location}" styleClass="col-md-2 form-required"/>
                         
                     <div class="col-md-10">
                         <!-- Displays all the locations in the dropdown -->
@@ -150,7 +150,7 @@
                 </div>
                 <%-- category --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_category}" styleClass="col-md-2 form-control-label"/>
+                    <h:outputLabel value="#{msgs.event_category}" styleClass="col-md-2"/>
                     <div class="col-md-10">
                         <!-- Displays all the categories in the dropdown -->
                         <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}"  rendered="#{NewSignupMeetingBean.categoriesExist}">
@@ -177,7 +177,7 @@
                 
                 <%-- description, rich text --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_description}" styleClass="col-md-2 form-control-label"  escape="false"/>
+                    <h:outputLabel value="#{msgs.event_description}" styleClass="col-md-2"  escape="false"/>
                     <div class="col-md-10">
                         <sakai:rich_text_area value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" columns="80" />
                     </div>
@@ -208,7 +208,7 @@
                 </div>
                 <%-- Start time --%>
                 <div class="form-group row ">
-                    <h:outputLabel value="#{msgs.event_start_time}" for="startTime"  escape="false" styleClass="col-md-2 form-control-label form-required"/>
+                    <h:outputLabel value="#{msgs.event_start_time}" for="startTime"  escape="false" styleClass="col-md-2 form-required"/>
                     <div class="col-md-10">
                        <h:inputText value="#{NewSignupMeetingBean.startTimeString}" size="28" id="startTime" 
                           onkeyup="getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();"/>
@@ -218,7 +218,7 @@
 
                 <%-- End time --%>
                 <div class="form-group row ">
-                    <h:outputLabel value="#{msgs.event_end_time}" for="endTime" escape="false" styleClass="col-md-2 form-control-label form-required"/>
+                    <h:outputLabel value="#{msgs.event_end_time}" for="endTime" escape="false" styleClass="col-md-2 form-required"/>
                     <div class="col-md-10">
                         <h:inputText value="#{NewSignupMeetingBean.endTimeString}" size="28" id="endTime" 
                           onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
@@ -228,7 +228,7 @@
                 
                 <%--  Meeting frequency --%>
                 <div class="form-group row ">
-                    <h:outputLabel value="#{msgs.event_recurrence}" for="recurSelector" styleClass="col-md-2 form-control-label form-required"/>
+                    <h:outputLabel value="#{msgs.event_recurrence}" for="recurSelector" styleClass="col-md-2 form-required"/>
 
                     <div class="col-md-10">
                         <h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); sakai.toggleExactDateVisibility(); return false;">
@@ -268,7 +268,7 @@
                 <%-- Signup begin --%>
                 <div class="form-group row">
                     <h:panelGroup layout="block" styleClass="signupBDeadline" id="signup_beginDeadline_1">
-                        <h:outputLabel value="#{msgs.event_signup_begins}" styleClass="titleText col-md-2 form-control-label" for="signupBegins"/>
+                        <h:outputLabel value="#{msgs.event_signup_begins}" styleClass="titleText col-md-2" for="signupBegins"/>
                     </h:panelGroup>
                     <h:panelGroup layout="block" styleClass="signupBDeadline col-md-10" id="signup_beginDeadline_2">
                         <h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="5" required="true" onkeyup="sakai.updateSignupBeginsExact();">
@@ -292,7 +292,7 @@
                 <%-- Signup end --%>
                 <div class="form-group row">
                     <h:panelGroup layout="block" styleClass="signupBDeadline" id="signup_beginDeadline_3">
-                        <h:outputLabel value="#{msgs.event_signup_deadline2}" styleClass="titleText col-md-2 form-control-label" for="signupDeadline"/>
+                        <h:outputLabel value="#{msgs.event_signup_deadline2}" styleClass="titleText col-md-2" for="signupDeadline"/>
                    	</h:panelGroup>
                     <h:panelGroup layout="block" styleClass="signupBDeadline col-md-10" id="signup_beginDeadline_4">
                         <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="5" required="true" onkeyup="sakai.updateSignupEndsExact();">
@@ -311,7 +311,7 @@
                 </div>
                 <%-- Attendance --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_signup_attendance}" escape="false" for="attendanceSelection" styleClass="titleText col-md-2 form-control-label" 
+                    <h:outputLabel value="#{msgs.event_signup_attendance}" escape="false" for="attendanceSelection" styleClass="titleText col-md-2" 
                                    rendered="#{NewSignupMeetingBean.attendanceOn}"/>
                     <h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}" layout="block" styleClass="col-md-10">
                         <h:selectBooleanCheckbox id="attendanceSelection" value="#{NewSignupMeetingBean.signupMeeting.allowAttendance}" />
@@ -323,7 +323,7 @@
                 <%-- Display site/groups --%>
                 <div class="form-group row ">
 
-                    <h:outputLabel value ="#{msgs.event_publish_to}" styleClass="col-md-2 form-control-label form-required"/>
+                    <h:outputLabel value ="#{msgs.event_publish_to}" styleClass="col-md-2 form-required"/>
 
                     <div class="col-md-10" >
                         <h:panelGroup>
@@ -374,7 +374,7 @@
                 
                 <%-- Handle meeting types --%>
                 <div class="form-group row ">
-                    <h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-md-2 form-control-label form-required"/>
+                    <h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-md-2 form-required"/>
 
                     <div class="col-md-10" >
                         <h:panelGroup id="radios" styleClass="rs">
@@ -438,7 +438,7 @@
 
                 <%-- User defined timeslots --%>
                 <div class="form-group row" id="userdef-add">
-                    <h:outputLabel id="userDefTsChoice_1" value="" style="display:none;" styleClass="col-md-2 form-control-label"/>
+                    <h:outputLabel id="userDefTsChoice_1" value="" style="display:none;" styleClass="col-md-2"/>
                     <h:panelGroup id="userDefTsChoice_2" style="display:none;" styleClass="col-lg-10" layout="block">
                         <h:panelGrid>
                             <h:panelGroup>

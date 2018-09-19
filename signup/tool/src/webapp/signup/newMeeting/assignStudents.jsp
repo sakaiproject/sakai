@@ -151,8 +151,8 @@
 								</h:column>
 							</h:dataTable>
 							<h:panelGroup id="addAttendee">
-								<h:outputLink value="javascript:showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
-						   			<h:graphicImage value="/images/add.png" alt="" title="#{msgs.event_tool_tips_add}" styleClass="addButton" style="border:none" />
+								<h:outputLink value="javascript:showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee" title="#{msgs.event_tool_tips_add}">
+									<span class="fa fa-plus" aria-hidden="true"></span>
 						   			<h:outputText value="#{msgs.event_add_attendee}" escape="false"/>
 						   		</h:outputLink>
 						   	</h:panelGroup>
