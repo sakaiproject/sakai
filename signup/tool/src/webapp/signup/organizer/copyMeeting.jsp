@@ -539,38 +539,56 @@
 										<f:selectItems value="#{CopyMeetingSignupMBean.meetingTypeRadioBttns}"/>
 									</h:selectOneRadio> 
 								</h:panelGroup>
-								<div class="table-responsive">
-								<h:panelGrid columns="1" columnClasses="miCol1">
-									<%-- multiple: --%>
-									<h:panelGroup rendered="#{CopyMeetingSignupMBean.individualType}">            
-										<h:panelGrid columns="2" id="multipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
-											<h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{CopyMeetingSignupMBean.maxAttendeesPerSlot}"></h:outputText>
-											<h:outputText id="maxSlots" style="display:none" value="#{CopyMeetingSignupMBean.maxSlots}"></h:outputText>   
-											<h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />
-											<h:inputText  id="numberOfSlot" value="#{CopyMeetingSignupMBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
-											<h:outputText value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" escape="false"/>                    
-											<h:inputText id="numberOfAttendees" value="#{CopyMeetingSignupMBean.maxNumOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" />
-											<h:outputText value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" escape="false"/>
-											<h:inputText id='currentTimeslotDuration' value="0" styleClass='longtext_red' size="2" onfocus="this.blur();" style="margin-left:12px;" />             
-										</h:panelGrid>
-									</h:panelGroup>
-									<%-- single: --%>
-									<h:panelGroup rendered="#{CopyMeetingSignupMBean.groupType}">
-										<h:panelGrid columns="2" id="singleCh" rendered="true" styleClass="si" columnClasses="miCol1,miCol2">                
-											<h:selectOneRadio id="groupSubradio" value="#{CopyMeetingSignupMBean.unlimited}"  onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="pageDirection" >
-												<f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>
-												<f:selectItem itemValue="#{true}" itemLabel="#{msgs.unlimited_num_attendee}"/>
-											</h:selectOneRadio>
-											<h:panelGrid columns="1" columnClasses="miCol1">
-												<h:panelGroup  styleClass="meetingMaxAttd" >
-													<h:inputText id="maxAttendee" value="#{CopyMeetingSignupMBean.maxNumOfAttendees}" size="2" styleClass="editText" onkeyup="validateParticipants();return false;"/>	                                 
-												</h:panelGroup>
-												<h:outputText value="&nbsp;" styleClass="titleText" escape="false"/>
-											</h:panelGrid>
-										</h:panelGrid>
-									</h:panelGroup>
-									<h:outputText id="announ" value="&nbsp;" rendered="#{CopyMeetingSignupMBean.announcementType}" styleClass="titleText" escape="false"/>
-								</h:panelGrid></div>
+								<%-- multiple: --%>
+								<h:panelGroup rendered="#{CopyMeetingSignupMBean.individualType}" id="multipleCh" styleClass="mi" layout="block">
+									<h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{CopyMeetingSignupMBean.maxAttendeesPerSlot}" />
+									<h:outputText id="maxSlots" style="display:none" value="#{CopyMeetingSignupMBean.maxSlots}" />
+
+									<div class="form-group row">
+										<h:outputLabel value="#{msgs.event_num_slot_avail_for_signup}" for="numberOfSlot" styleClass="col-lg-4" />
+										<h:panelGroup styleClass="col-lg-8" layout="block">
+											<h:inputText id="numberOfSlot" value="#{CopyMeetingSignupMBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" />
+										</h:panelGroup>
+									</div>
+
+									<div class="form-group row">
+										<h:outputLabel value="#{msgs.event_num_participant_per_timeslot}" for="numberOfAttendees" styleClass="col-lg-4 titleText" escape="false" />
+										<h:panelGroup styleClass="col-lg-8" layout="block">
+											<h:inputText id="numberOfAttendees" value="#{CopyMeetingSignupMBean.maxNumOfAttendees}" styleClass="editText" size="2" onkeyup="validateAttendee();return false;" />
+										</h:panelGroup>
+									</div>
+
+									<div class="form-group row">
+										<h:outputLabel value="#{msgs.event_duration_each_timeslot_not_bold}" for="currentTimeslotDuration" styleClass="col-lg-4 titleText" escape="false" />
+										<h:panelGroup styleClass="col-lg-8" layout="block">
+											<h:inputText id="currentTimeslotDuration" value="0" styleClass='longtext_red' size="2" disabled="true" />
+										</h:panelGroup>
+									</div>
+								</h:panelGroup>
+
+								<%-- single: --%>
+								<h:panelGroup rendered="#{CopyMeetingSignupMBean.groupType}" styleClass="si" layout="block">
+									<div class="form-group row">
+										<t:selectOneRadio id="groupSubradio" value="#{CopyMeetingSignupMBean.unlimited}" onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="spread">
+											<f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>
+											<f:selectItem itemValue="#{true}" itemLabel="#{msgs.unlimited_num_attendee}"/>
+										</t:selectOneRadio>
+										<div class="form-group row">
+											<h:panelGroup styleClass="col-lg-4">
+												<t:radio for="groupSubradio" id="radioMaxAttendee" index="0" />
+											</h:panelGroup>
+											<h:panelGroup styleClass="col-lg-8 meetingMaxAttd" layout="block">
+												<h:inputText id="maxAttendee" value="#{CopyMeetingSignupMBean.maxNumOfAttendees}" size="2" styleClass="editText" onkeyup="validateParticipants();return false;"/>
+											</h:panelGroup>
+										</div>
+										<div class="form-group row">
+											<h:panelGroup styleClass="col-lg-4">
+												<t:radio for="groupSubradio" id="radioUnlimitedAttendee" index="1" />
+											</h:panelGroup>
+										</div>
+									</div>
+								</h:panelGroup>
+								<h:outputText id="announ" value="&nbsp;" rendered="#{CopyMeetingSignupMBean.announcementType}" styleClass="titleText" escape="false"/>
 							</h:panelGroup>
 						</div>
 					</div>
