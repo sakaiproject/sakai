@@ -269,7 +269,8 @@
 										#end
 										#if ($size == 0)
 										#else
-											<i class="fa fa-paperclip"></i>
+											<span class="fa fa-paperclip" aria-hidden="true"></span>
+											<span class="sr-only">$tlang.getString('gen.includeattachments')</span>
 										#end
 
 										#if ($ann_item.Header.draft)
@@ -559,7 +560,8 @@
 										#end
 										#if ($size == 0)
 										#else
-											<i class="fa fa-paperclip"></i>
+											<span class="fa fa-paperclip" aria-hidden="true"></span>
+											<span class="sr-only">$tlang.getString('gen.includeattachments')</span>
 										#end
 
 										#if ($ann_item.Header.draft)
