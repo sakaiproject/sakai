@@ -144,6 +144,11 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public static final String EVENT_RESOURCE_UPD_TITLE = "content.upd.title";
 
+	/** 
+	 * Name of the event when the file of a content-resource changes. 
+	 */
+	public static final String EVENT_RESOURCE_UPD_NEW_VERSION = "content.upd.new.version";
+
 	/** Security function for creating a resource. */
 	public static final String AUTH_RESOURCE_ADD = "content.new";
 
