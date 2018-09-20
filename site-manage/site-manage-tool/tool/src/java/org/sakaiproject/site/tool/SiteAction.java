@@ -315,7 +315,7 @@ public class SiteAction extends PagedResourceActionII {
 			"-uploadArchive",
 			"-siteInfo-manageParticipants",  // 63
 			"-newSite",
-			"-siteInfo-manageOverview"
+			"-siteInfo-manageOverview" // 65
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -3684,7 +3684,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			//now go to uploadArchive template
 			return (String) getContext(data).get("template") + TEMPLATE[62];
-		case 64:
+		case 65:
 			/*
 			 * build context for chef_site-siteInfo-manageOverview
 			 */
@@ -3729,12 +3729,29 @@ public class SiteAction extends PagedResourceActionII {
 
 			List<String> requiredTools = new ArrayList<>(requiredToolMap.values());
 
-
-			List<ToolConfiguration> tools = sortTools(page.getTools(), page);
+			List<ToolConfiguration> tools = new ArrayList<>();
+			if (state.getAttribute("tools") == null) {
+				tools.addAll(page.getTools());
+			} else {
+				tools.addAll((List<ToolConfiguration>) state.getAttribute("tools"));
+			}
+			tools = sortTools(tools, page);
 
 			//left and right tool lists used for maneuvering on-the-fly for double column layout
-			List<ToolConfiguration> leftTools = sortTools(page.getTools(0), page);
-			List<ToolConfiguration> rightTools = sortTools(page.getTools(1), page);
+			List<ToolConfiguration> leftTools = new ArrayList<>();
+			List<ToolConfiguration> rightTools = new ArrayList<>();
+			for (ToolConfiguration toolConfiguration : tools) {
+				int[] layoutHints = toolConfiguration.parseLayoutHints();
+				if (layoutHints != null) {
+					if (layoutHints[1] == 0) {
+						leftTools.add(toolConfiguration);
+					} else if (layoutHints[1] == 1) {
+						rightTools.add(toolConfiguration);
+					}
+				}
+			}
+			leftTools = sortTools(leftTools, page);
+			rightTools = sortTools(rightTools, page);
 
 			int layout = page.getLayout() + 1; //we need layout to be 1-based for context, but it is stored 0-based.
 
@@ -3755,7 +3772,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("site", site);
 			context.put("layouts", layoutsList());
 
-			return (String) getContext(data).get("template") + TEMPLATE[64];
+			return (String) getContext(data).get("template") + TEMPLATE[65];
 		}
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
@@ -4406,9 +4423,9 @@ public class SiteAction extends PagedResourceActionII {
 		siteToolsIntoState(state);
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "64");
+			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
 			if (state.getAttribute(STATE_INITIALIZED) == null) {
-				state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "64");
+				state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "65");
 			}
 		}
 	}
@@ -6712,7 +6729,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
-			} else if(index == 64) { //after manage overview, go back to main site info page.
+			} else if(index == 65) { //after manage overview, go back to main site info page.
 				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 			}else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -7575,6 +7592,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		removeEditToolState(state);
 
 	} // doCancel_create
+
+	/**
+	 * doCancel_overview does a bit of cleanup before calling doCancel
+	 */
+	public void doCancel_overview(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		state.removeAttribute("tools");
+		state.removeAttribute("leftTools");
+		state.removeAttribute("rightTools");
+		state.removeAttribute("overview");
+		state.removeAttribute("site");
+		state.removeAttribute("allWidgets");
+
+		doCancel(data);
+	}
 
 	/**
 	 * doCancel called when "eventSubmit_doCancel" is in the request parameters
@@ -15559,7 +15592,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if ("save".equals(option)) {
 			doSave_overview(data);
 		} else if ("cancel".equals(option)) {
-			doCancel(data);
+			doCancel_overview(data);
 		}else if (StringUtils.contains("layout", option)){
 			update_layout_option(data);
 		}
@@ -15656,7 +15689,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Collections.swap(tools, indexOfLastItemInCol, toolIndex);
 
 		page.setTools(tools);
-
+		state.setAttribute("tools", tools);
 		state.setAttribute("overview", page);
 		
 	} // doEdit_tool_up
@@ -15740,7 +15773,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Collections.swap(tools, toolIndex, indexOfNextItemInCol);
 
 		page.setTools(tools);
-
+		state.setAttribute("tools", tools);
 		state.setAttribute("overview", page);
 		
 
@@ -15898,8 +15931,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			tools.addAll(rightTools);
 		}
 
-		if(validateLayoutHints(tools)) {
+		if(tools != null && validateLayoutHints(tools)) {
 			tools = sortTools(tools, page);
+			page.setTools(tools);
 			state.setAttribute("tools", tools);
 			state.setAttribute("overview", page);
 			return true;
@@ -15960,9 +15994,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		}
 
+		tools.add(tool);
 		tools = sortTools(tools, page); //run a sort of the tools now that the new one has been added.
 		state.setAttribute("tools", tools);
-		state.removeAttribute("overview");
 		state.setAttribute("overview", page);
 	}
 

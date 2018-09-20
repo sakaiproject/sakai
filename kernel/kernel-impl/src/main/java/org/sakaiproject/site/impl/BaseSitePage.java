@@ -536,7 +536,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	}
 
 	public void setTools(List tools){
-		this.m_tools = (ResourceVector) tools;
+		this.m_tools = new ResourceVector(tools);
 	}
 
 	/**
