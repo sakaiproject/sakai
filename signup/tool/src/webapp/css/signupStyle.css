@@ -534,3 +534,9 @@ table.emailTable td.valueColumn {
 		margin-top: 0;
 	}
 }
+.addPanel {
+	white-space: normal;
+}
+.addPanel .form-group.row {
+	margin-bottom: 0;
+}
