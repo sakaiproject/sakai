@@ -6346,6 +6346,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// Post an available event for now or later
 		postAvailableEvent(edit, ref, priority);
 
+		//Post an event when a new version of the file is uploaded
+		if(contentUpdated){
+			// post EVENT_RESOURCE_UPD_NEW_VERSION event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, priority));
+		}
+
 		if(titleUpdated) {
 			// post EVENT_RESOURCE_UPD_TITLE event
 			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_TITLE, edit.getReference(), true, priority));
