@@ -18,6 +18,8 @@
  */
 package org.sakaiproject.basiclti.util;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import java.util.Properties;
 import java.util.Map;
 import java.util.TreeMap;
@@ -68,6 +70,7 @@ import io.jsonwebtoken.Jwts;
 import java.net.MalformedURLException;
 
 import java.security.Key;
+import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -108,7 +111,9 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTI13KeySetUtil;
+import org.tsugi.lti13.objects.DeepLink;
 import org.tsugi.lti13.objects.Endpoint;
 import org.tsugi.lti13.objects.NamesAndRoles;
 
@@ -1364,6 +1369,49 @@ public class SakaiBLTIUtil {
 		return contentItem;
 	}
 
+		/**
+	 * Create a ContentItem from the current request (may throw runtime)
+	 */
+	public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
+
+		Placement placement = ToolManager.getCurrentPlacement();
+		String siteId = placement.getContext();
+
+		String toolSiteId = (String) tool.get(LTIService.LTI_SITE_ID);
+		if (toolSiteId != null && !toolSiteId.equals(siteId)) {
+			throw new RuntimeException("Incorrect site id");
+		}
+
+		HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
+
+		String lti_log = req.getParameter("lti_log");
+		String lti_errorlog = req.getParameter("lti_errorlog");
+		if (lti_log != null) {
+			log.debug(lti_log);
+		}
+		if (lti_errorlog != null) {
+			log.warn(lti_errorlog);
+		}
+
+		String publicKeyStr = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
+		if (publicKeyStr == null) {
+			throw new RuntimeException("Could not find tool public key");
+		}
+
+		Key publicKey = LTI13Util.string2PublicKey(publicKeyStr);
+		if (publicKey == null) {
+			throw new RuntimeException("Could not deserialize tool public key");
+		}
+
+		// Fill up the object, validate and return
+		DeepLinkResponse dlr = new DeepLinkResponse(id_token);
+		if ( ! dlr.validate(publicKey) ) {
+			throw new RuntimeException("Could not verify signature");
+		}
+
+		return dlr;
+	}
+
 	/**
 	 * An LTI 2.0 ContentItemSelectionRequest launch
 	 *
@@ -1387,7 +1435,19 @@ public class SakaiBLTIUtil {
 		// If secret is encrypted, decrypt it
 		secret = decryptSecret(secret);
 
-		if (secret == null || consumerkey == null) {
+		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
+		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
+		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
+
+		// LTI 1.3 is a variation on  LTI 1.1
+		Long toolLTI13 = getLongNull(tool.get(LTIService.LTI13));
+		boolean isLTI13 = toolLTI13.equals(1L);
+		if (secret == null || consumerkey == null && toolLTI13.equals(1L)) {
+			isLTI13 = true;  // No way to launch LTI 1.1
+		}
+		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
+
+		if (!isLTI13 && (secret == null || consumerkey == null)) {
 			return postError("<p>" + getRB(rb, "error.tool.partial", "Tool is incomplete, missing a key and secret.") + "</p>");
 		}
 
@@ -1475,10 +1535,22 @@ public class SakaiBLTIUtil {
 			ltiProps.remove(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 		}
 
-		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
-		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
-		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
-		log.debug("toolVersion={} isLTI1={}", toolVersion, isLTI1);
+		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM));
+		parseCustom(ltiProps, customstr);
+
+		boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
+		if (log.isDebugEnabled()) {
+			dodebug = true;
+		}
+
+		if ( isLTI13 ) {
+			Properties toolProps = new Properties();
+			toolProps.put("launch_url", launch_url);
+			toolProps.put(LTIService.LTI_DEBUG, dodebug ? "1" : "0");
+
+			Map<String, Object> content = null;
+			return postLaunchJWT(toolProps, ltiProps, tool, content, rb);
+		}
 
 		// If we are doing LTI2, We will need a ToolProxyBinding
 		ToolProxyBinding toolProxyBinding = null;
@@ -1505,19 +1577,11 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM));
-		parseCustom(ltiProps, customstr);
-
 		Map<String, String> extra = new HashMap<>();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",
 				consumerkey, secret, null, null, null, extra);
 
 		log.debug("signed ltiProps={}", ltiProps);
-
-		boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
-		if (log.isDebugEnabled()) {
-			dodebug = true;
-		}
 
 		String launchtext = getRB(rb, "launch.button", "Press to Launch External Tool");
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, launchtext, dodebug, extra);
@@ -1644,7 +1708,6 @@ public class SakaiBLTIUtil {
 
 	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
 			Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb) {
-
 		String launch_url = toolProps.getProperty("secure_launch_url");
 		if (launch_url == null) {
 			launch_url = toolProps.getProperty("launch_url");
@@ -1673,7 +1736,8 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.no.platform.private.key", "Missing Platform Private Key.") + "</p>");
 		}
 
-		/*
+	/*
+
 context_id: mercury
 context_label: mercury site
 context_title: mercury site
@@ -1701,16 +1765,22 @@ lis_person_name_family: Administrator
 lis_person_name_full: Sakai Administrator
 lis_person_name_given: Sakai
 lis_person_sourcedid: admin
+lti_message_type: basic-lti-launch-request
 lti_version: LTI-1p0
 resource_link_description: Tsugi Breakout
 resource_link_id: content:3
 resource_link_title: Tsugi Breakout
 roles: Instructor,Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator
 user_id: admin
-
 		 */
+
 		// Lets make a JWT from the LTI 1.x data
+		boolean deepLink = false;
 		LaunchJWT lj = new LaunchJWT();
+		if ( BasicLTIConstants.LTI_MESSAGE_TYPE_CONTENTITEMSELECTIONREQUEST.equals(ltiProps.getProperty(BasicLTIConstants.LTI_MESSAGE_TYPE)) ) {
+			lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
+			deepLink = true;
+		}
 		lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
 		lj.locale = ltiProps.getProperty("launch_presentation_locale");
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
@@ -1730,10 +1800,12 @@ user_id: admin
 		}
 
 		String resource_link_id = ltiProps.getProperty("resource_link_id");
-		lj.resource_link = new ResourceLink();
-		lj.resource_link.id = resource_link_id;
-		lj.resource_link.title = ltiProps.getProperty("resource_link_title");
-		lj.resource_link.description = ltiProps.getProperty("resource_link_description");
+		if ( resource_link_id != null ) {
+			lj.resource_link = new ResourceLink();
+			lj.resource_link.id = resource_link_id;
+			lj.resource_link.title = ltiProps.getProperty("resource_link_title");
+			lj.resource_link.description = ltiProps.getProperty("resource_link_description");
+		}
 
 		String context_id = ltiProps.getProperty("context_id");
 
@@ -1803,6 +1875,50 @@ user_id: admin
 			lj.names_and_roles = nar;
 		}
 
+		/*
+			Extra fields for DeepLink
+			lti_message_type=ContentItemSelectionRequest
+			accept_copy_advice=false
+			accept_media_types=application/vnd.ims.lti.v1.ltilink
+			accept_multiple=false
+			accept_presentation_document_targets=iframe,window
+			accept_unsigned=true
+			auto_create=true
+			can_confirm=false
+			content_item_return_url=http://localhost:8080/portal/tool/6bdb721d-07f9-445b-a973-2190b50654cc/sakai.basiclti.admin.helper.helper?eventSubmit_doContentItemPut=Save&sakai.session=22702e53-60f3-45fd-b8db-a9d803eed3d4.MacBook-Pro-92.local&returnUrl=http%3A%2F%2Flocalhost%3A8080%2Fportal%2Fsite%2F92e7ddf2-1c60-486c-97ae-bc2ffbde8e67%2Ftool%2F4099b420-119a-4c39-9e05-0a933b2e5858%2FBltiPicker%3F3%26itemId%3D-1%26addBefore%3D&panel=PostContentItem&tool_id=13&sakai_csrf_token=458f712764cd597e96be99d2bab6d9da17d63c3834bc3770851a3d93ea8cdb83
+			data={"remember":"always bring a towel"}
+
+		    "deep_link_return_url": "https://platform.example/deep_links",
+			"accept_types": ["link", "file", "html", "ltiLink", "image"],
+			"accept_media_types": "image/:::asterisk:::,text/html",
+			"accept_presentation_document_targets": ["iframe", "window", "embed"],
+			"accept_multiple": true,
+			"auto_create": true,
+			"title": "This is the default title",
+			"text": "This is the default text",
+			"data": "csrftoken:c7fbba78-7b75-46e3-9201-11e6d5f36f53"
+		*/
+
+		if ( deepLink ) {
+			DeepLink ci = new DeepLink();
+			// accept_copy_advice is not in deep linking - files are to be copied - images maybe
+			ci.accept_media_types = ltiProps.getProperty("accept_media_types");
+			ci.accept_multiple = "true".equals(ltiProps.getProperty("accept_multiple"));
+			String target = ltiProps.getProperty("accept_presentation_document_targets");
+			if ( target != null ) {
+				String [] pieces = target.split(",");
+				for (String piece : pieces) {
+					ci.accept_presentation_document_targets.add(piece);
+				}
+			}
+			// Accept_unsigned is not in DeepLinking - they are signed JWTs
+			ci.auto_create = "true".equals(ltiProps.getProperty("auto_create"));
+			// can_confirm is not there
+			ci.deep_link_return_url = ltiProps.getProperty("content_item_return_url");
+			ci.data = ltiProps.getProperty("data");
+			lj.deep_link = ci;
+		}
+
 		String ljs = JacksonUtil.toString(lj);
 		log.debug("ljs = {}", ljs);
 
@@ -1836,7 +1952,6 @@ user_id: admin
 					+ BasicLTIUtil.htmlspecialchars(jws)
 					+ "</p>\n";
 		}
-
 		String[] retval = {html, launch_url};
 		return retval;
 	}
@@ -2580,7 +2695,7 @@ user_id: admin
 		if (roleMapProp == null) {
 			return roleMap;
 		}
-		
+
 		String delim = ",";
 		if( roleMapProp.contains(";") ) delim = ";";
 		String[] roleMapPairs = roleMapProp.split(delim);

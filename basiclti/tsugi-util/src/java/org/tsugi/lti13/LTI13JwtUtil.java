@@ -20,9 +20,13 @@ import java.security.Key;
 import java.util.Base64;
 
 import io.jsonwebtoken.Jwts;
+import javax.servlet.http.HttpServletRequest;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 public class LTI13JwtUtil {
 
+	public static final String ID_TOKEN = "id_token";
 	/**
 	 *
 	 */
@@ -46,6 +50,16 @@ public class LTI13JwtUtil {
 		return new String(bytes);
 	}
 
+	public static JSONObject jsonJwtHeader(String id_token) {
+		String headerStr = rawJwtHeader(id_token);
+
+		if ( headerStr == null ) return null;
+		Object headerObj = JSONValue.parse(headerStr);
+		if ( headerObj == null ) return null;
+		if ( ! ( headerObj instanceof JSONObject) ) return null;
+		return (JSONObject) headerObj;
+	}
+
 	public static String rawJwtBody(String encoded) {
 		String[] parts = encoded.split("\\.");
 		if (parts.length != 2 && parts.length != 3) {
@@ -55,4 +69,38 @@ public class LTI13JwtUtil {
 		return new String(bytes);
 	}
 
+	public static JSONObject jsonJwtBody(String id_token) {
+		String bodyStr = rawJwtBody(id_token);
+		if ( bodyStr == null ) return null;
+		Object bodyObj = JSONValue.parse(bodyStr);
+		if ( bodyObj == null ) return null;
+		if ( ! ( bodyObj instanceof JSONObject) ) return null;
+		return (JSONObject) bodyObj;
+	}
+
+	/**
+	 * Check if the incoming request is LTI 1.3
+	 */
+	public static boolean isRequest(HttpServletRequest req)
+	{
+		String id_token = req.getParameter(ID_TOKEN);
+		return isRequest(id_token);
+	}
+
+	/**
+	 * Check if the incoming id_token (may be null) is LTI 1.3
+	 */
+	public static boolean isRequest(String id_token)
+	{
+		if ( id_token == null ) return false;
+
+		JSONObject header = jsonJwtHeader(id_token);
+		if ( header == null ) return false;
+
+		JSONObject body = jsonJwtBody(id_token);
+		if ( body == null ) return false;
+		if ( body.get("exp") == null ) return false;  // could check more..
+
+		return true;
+	}
 }
