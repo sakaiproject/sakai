@@ -1419,3 +1419,8 @@ label#itemForm\:noFeedbackMsg {
 .eventLogDeleted {
 	color: #aaaaaa;
 }
+
+.noListStyle {
+	list-style: none;
+	padding-left: 0;
+}
