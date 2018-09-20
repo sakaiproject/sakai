@@ -229,7 +229,7 @@
              </div>
         </div>
         #end
-        <input type="hidden" name="templateIndex" value="64" />
+        <input type="hidden" name="templateIndex" value="65" />
         <div class="act">
                 <input
                         type="submit"
