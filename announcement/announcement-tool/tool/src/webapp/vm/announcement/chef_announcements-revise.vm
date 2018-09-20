@@ -102,9 +102,9 @@ function resizeFrame(){
 				</label>
 				<div class="col-md-6">
 					#if ($new=="true")
-						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" class="form-control"/>                
+						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" class="form-control" autofocus="autofocus" />                
 					#else
-						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" class="form-control"/>
+						<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" class="form-control" autofocus="autofocus" />
 					#end
 				</div>
 			</div>
