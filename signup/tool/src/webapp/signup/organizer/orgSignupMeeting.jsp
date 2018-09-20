@@ -762,34 +762,31 @@
 						   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />
 						   					</h:outputLink>
 						   				</h:panelGroup>
-							   				
-						   				<h:panelGroup id="addPanel" style="display: none;" >
-						   					<h:panelGrid id="addNewAttendeeTable" columns="2">
-							   					<h:graphicImage value="/images/spacer.gif" width="16" height="16" alt="" style="border:none"/>
-							   					<h:panelGrid id="selectAttendees" columns="2">
-						   							
-						   							<h:outputText value="#{msgs.attendee_select}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
-						   							<h:outputText value="#{msgs.attendee_enterEid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
-						   							
-						   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
-							   							<h:selectOneMenu  id="newAttendeeList" binding="#{OrganizerSignupMBean.addNewAttendeeUserEidOrEmail}" >
-						   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
-						   								</h:selectOneMenu>
-						   							</h:panelGroup>
-						   							<h:inputText  id="addAttendeeEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
-					   								
-					   								<h:panelGroup>
-						   						    	<h:commandButton id="addPanel_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
-						   								<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels(); return false;"/>
-						   							</h:panelGroup>
-						   							
-						   							<%--  pad last column --%>
-						   							<h:outputText value="&nbsp;" escape="false" />
-						   							
-						   						</h:panelGrid>
-					   						</h:panelGrid>
-						   				</h:panelGroup>
-						   				
+
+										<h:panelGroup id="addPanel" styleClass="addPanel" style="display: none;">
+											<h:panelGroup id="addNewAttendeeTable" layout="block">
+												<h:panelGroup styleClass="form-group row" rendered="#{!OrganizerSignupMBean.eidInputMode}" layout="block">
+													<h:outputLabel value="#{msgs.attendee_select}" for="newAttendeeList" escape="false" styleClass="col-lg-4" />
+													<h:panelGroup styleClass="col-lg-8" layout="block">
+														<h:selectOneMenu id="newAttendeeList" binding="#{OrganizerSignupMBean.addNewAttendeeUserEidOrEmail}">
+															<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
+														</h:selectOneMenu>
+													</h:panelGroup>
+												</h:panelGroup>
+
+												<h:panelGroup styleClass="form-group row" rendered="#{OrganizerSignupMBean.eidInputMode}" layout="block">
+													<h:outputLabel value="#{msgs.attendee_enterEid}" for="addAttendeeEidOrEmailInput" escape="false" styleClass="col-lg-4" />
+													<h:panelGroup styleClass="col-lg-8" layout="block">
+														<h:inputText id="addAttendeeEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" />
+													</h:panelGroup>
+												</h:panelGroup>
+
+												<h:panelGroup>
+													<h:commandButton id="addPanel_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}" />
+													<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels(); return false;" />
+												</h:panelGroup>
+											</h:panelGroup>
+										</h:panelGroup>
 						   			</h:panelGrid>
 						   		</h:panelGroup>	
 					   		</h:column>
