@@ -8375,6 +8375,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								p.addAll(oProperties);
 								// SAK-23305
 								hideImportedContent(edit);
+								//Register the events
+								this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(), true, NotificationService.NOTI_NONE));
+								boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
+								if(contentUpdated){
+									this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, NotificationService.NOTI_NONE));
+								}
 								// complete the edit
 								m_storage.commitResource(edit);
 								((BaseResourceEdit) edit).closeEdit();
