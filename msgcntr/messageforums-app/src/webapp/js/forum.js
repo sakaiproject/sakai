@@ -888,6 +888,25 @@ $(document).ready(function(){
 
 });
 
+$(document).ready(function(){
+    $("#prefs_pvt_form\\:pvtmsgs\\:checkAll, #prefs_pvt_form\\:threaded_pvtmsgs\\:checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+        if(this.checked){
+            toggleBulkOperations(true, 'prefs_pvt_form');
+        }else{
+            toggleBulkOperations(false, 'prefs_pvt_form');
+        }
+    });
+    $("#prefs_form_search\\:pvtmsgs\\:checkAll, #prefs_form_search\\:threaded_pvtmsgs\\:checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+        if(this.checked){
+            toggleBulkOperations(true, 'prefs_form_search');
+        }else{
+            toggleBulkOperations(false, 'prefs_form_search');
+        }
+    });
+});
+
 // rubrics-specific code
 var rubricChanged = false;
 rubricsEventHandlers = function () {
