@@ -3197,8 +3197,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // assignment
         String assignmentRef = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
-        Assignment a = getAssignment(assignmentRef, "build_instructor_grade_submission_context", state);
-        if (a != null) {
+        Optional<Assignment> assignment = Optional.ofNullable(getAssignment(assignmentRef, "build_instructor_grade_submission_context", state));
+        if (assignment.isPresent()) {
+            Assignment a = assignment.get();
             context.put("assignment", a);
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
             gradeType = a.getTypeOfGrade();
@@ -3224,8 +3225,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String submissionRef = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
         // assignment submission
-        AssignmentSubmission s = getSubmission(submissionRef, "build_instructor_grade_submission_context", state);
-        if (s != null) {
+        Optional<AssignmentSubmission> submission = Optional.ofNullable(getSubmission(submissionRef, "build_instructor_grade_submission_context", state));
+        if (submission.isPresent()) {
+            AssignmentSubmission s = submission.get();
             context.put("submission", s);
             context.put("submissionReference", submissionRef);
 
@@ -3237,8 +3239,21 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
 
-            if (a != null) {
+            if (assignment.isPresent()) {
+                Assignment a = assignment.get();
                 setScoringAgentProperties(context, a, s, true);
+
+                // try to put in grade overrides
+                if (a.getIsGroup()) {
+                    Map<String, Object> grades = new HashMap<>();
+                    for (String userId : users.keySet()) {
+                        String userGrade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId);
+                        if (userGrade != null) {
+                            grades.put(userId, assignmentService.getGradeDisplay(userGrade, gradeType, a.getScaleFactor()));
+                        }
+                    }
+                    context.put("value_grades", grades);
+                }
             }
 
             // show alert if student is working on a draft
@@ -3281,7 +3296,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 context.put("isAdditionalNotesEnabled", isAdditionalNotesEnabled);
 
-                if (isAdditionalNotesEnabled && candidateDetailProvider != null && a != null && !a.getIsGroup()) {
+                if (isAdditionalNotesEnabled && candidateDetailProvider != null && assignment.isPresent() && !assignment.get().getIsGroup()) {
                     if (users.size() == 1) {
                         context.put("notes", candidateDetailProvider.getAdditionalNotes(users.values().toArray(new User[]{})[0], st).orElse(new ArrayList<>()));
                     } else {
@@ -3296,17 +3311,6 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionAttachmentReferences", attachmentReferences);
-
-            // try to put in grade overrides
-            if (a.getIsGroup()) {
-                Map<String, Object> grades = new HashMap<>();
-                for (String userId : users.keySet()) {
-                    if (state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId) != null) {
-                        grades.put(userId, state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId));
-                    }
-                }
-                context.put("value_grades", grades);
-            }
         }
 
         context.put("user", state.getAttribute(STATE_USER));
@@ -3332,23 +3336,23 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
 
         // SAK-17606
-        context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
+        context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
 
         // format to show one decimal place in grade
-        context.put("value_grade", state.getAttribute(GRADE_SUBMISSION_GRADE));
+        context.put("value_grade", assignmentService.getGradeDisplay((String) state.getAttribute(GRADE_SUBMISSION_GRADE), gradeType, assignment.isPresent() ? assignment.get().getScaleFactor() : null));
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
         // is this a non-electronic submission type of assignment
-        context.put("nonElectronic", (a != null && a.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
+        context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
 
         if (addGradeDraftAlert) {
             addAlert(state, rb.getString("grading.alert.draft.beforeclosedate"));
         }
         context.put("alertGradeDraft", Boolean.valueOf(addGradeDraftAlert));
 
-        if (a != null && a.getIsGroup()) {
-            checkForUsersInMultipleGroups(a, s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()), state, rb.getString("group.user.multiple.warning"));
+        if (assignment.isPresent() && assignment.get().getIsGroup()) {
+            checkForUsersInMultipleGroups(assignment.get(), submission.get().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()), state, rb.getString("group.user.multiple.warning"));
         }
 
         // SAK-29314
@@ -3370,9 +3374,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // SAK-29314
         resetNavOptions();
-        if (userSubmissions != null) {
+        if (userSubmissions != null && submission.isPresent()) {
             for (int index = 0; index < userSubmissions.size(); index++) {
-                if (((SubmitterSubmission) userSubmissions.get(index)).getSubmission().getId().equals(s.getId())) {
+                if (userSubmissions.get(index).getSubmission().getId().equals(submission.get().getId())) {
                     // Determine next/previous
                     boolean goPT = false;
                     boolean goNT = false;
@@ -3480,7 +3484,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // put supplement item into context
-        supplementItemIntoContext(state, context, a, null);
+        if (assignment.isPresent()) supplementItemIntoContext(state, context, assignment.get(), null);
 
         // put the grade confirmation message if applicable
         if (state.getAttribute(GRADE_SUBMISSION_DONE) != null) {
@@ -3499,8 +3503,8 @@ public class AssignmentAction extends PagedResourceActionII {
         // letter grading
         letterGradeOptionsIntoContext(context);
 
-        //Check if the assignment has a rubric associated or not
-        context.put("hasAssociatedRubric", rubricsService.hasAssociatedRubric("sakai.assignment", a.getId()));
+        // Check if the assignment has a rubric associated or not
+        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric("sakai.assignment", assignment.get().getId()));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;

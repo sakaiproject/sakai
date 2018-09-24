@@ -2346,6 +2346,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Override
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor) {
         String returnGrade = StringUtils.trimToEmpty(grade);
+        if (scaleFactor == null) scaleFactor = getScaleFactor();
 
         switch (typeOfGrade) {
             case SCORE_GRADE_TYPE:
