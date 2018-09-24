@@ -11,6 +11,7 @@
   <groupId>org.sakaiproject.webjars</groupId>
   <artifactId>webjars</artifactId>
   <packaging>pom</packaging>
+
   <!-- Only build these during the release -->
   <profiles>
       <profile>
