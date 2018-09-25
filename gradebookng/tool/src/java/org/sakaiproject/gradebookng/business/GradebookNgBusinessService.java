@@ -396,9 +396,24 @@ public class GradebookNgBusinessService {
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid) {
+		return getGradebookAssignmentsForStudent(studentUuid, SortType.SORT_BY_SORTING);
+	}
+
+	/**
+	 * Special operation to get a list of assignments in the gradebook that the specified student has access to. This taked into account
+	 * externally defined assessments that may have grouping permissions applied.
+	 *
+	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
+	 * are an instructor using the student review mode)
+	 *
+	 * Define the sortedBy to return these assignments back in the desired order.
+	 *
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final SortType sortedBy) {
 
 		final Gradebook gradebook = getGradebook(getCurrentSiteId());
-		final List<Assignment> assignments = getGradebookAssignments();
+		final List<Assignment> assignments = getGradebookAssignments(sortedBy);
 
 		// NOTE: cannot do a role check here as it assumes the current user but this could have been called by an instructor (unless we add
 		// a new method to handle this)
@@ -410,8 +425,8 @@ public class GradebookNgBusinessService {
 			final Assignment a = iter.next();
 			if (a.isExternallyMaintained()) {
 				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gradebook.getUid(), a.getExternalId()) &&
-						!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
-								studentUuid)) {
+					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
+						studentUuid)) {
 					iter.remove();
 				}
 			}
