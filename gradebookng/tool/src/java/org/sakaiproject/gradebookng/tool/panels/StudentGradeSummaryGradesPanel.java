@@ -38,6 +38,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -94,7 +95,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
+		final SortType sortedBy = this.isGroupedByCategory ? SortType.SORT_BY_CATEGORY : SortType.SORT_BY_SORTING;
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
 
 		final List<String> categoryNames = new ArrayList<>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
