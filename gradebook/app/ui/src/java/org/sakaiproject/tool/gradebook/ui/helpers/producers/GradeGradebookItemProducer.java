@@ -84,7 +84,6 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
     	
     	// Firefox absolutely completely refuses to not cache this page for some reason.
     	// Even with the meta's in the HTML.  -SWG  ASNN-293
-    	httpServletResponse.setHeader("Pragma", "no-cache");
     	httpServletResponse.setHeader("Cache-Control", "no-cache");
     	httpServletResponse.setDateHeader("Expires", 0 );
     	

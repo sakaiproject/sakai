@@ -210,12 +210,7 @@ public class SignupServlet extends JsfTool {
 		// TODO: Should setting the HTTP headers be moved up to the portal level
 		// as well?
 		res.setContentType("text/html; charset=UTF-8");
-		res.addDateHeader("Expires", System.currentTimeMillis()
-				- (1000L * 60L * 60L * 24L * 365L));
-		res.addDateHeader("Last-Modified", System.currentTimeMillis());
-		res.addHeader("Cache-Control",
-						"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-		res.addHeader("Pragma", "no-cache");
+		res.addHeader("Cache-Control", "no-store, no-cache");
 
 		if (session != null && ("true").equals(session.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
 			AttachmentHandler bean = (AttachmentHandler) lookupBeanFromExternalServlet("AttachmentHandler", req, res);

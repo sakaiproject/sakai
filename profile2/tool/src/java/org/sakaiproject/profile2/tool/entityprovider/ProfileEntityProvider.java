@@ -180,14 +180,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			try {
 				out.write(bytes);
 				ActionReturn actionReturn = new ActionReturn("UTF-8", image.getMimeType(), out);
-				
-				Map<String,String> headers = new HashMap<>();
-				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				headers.put("Cache-Control","no-cache, must-revalidate, max-age=0");
-				headers.put("Pragma", "no-cache");
-				
-				actionReturn.setHeaders(headers);
-				
 				return actionReturn;
 			} catch (IOException e) {
 				throw new EntityException("Error retrieving profile image for " + id + " : " + e.getMessage(), ref.getReference());
@@ -198,9 +190,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(StringUtils.isNotBlank(url)) {
 			try {
 				HttpServletResponse res = requestGetter.getResponse();
-				res.addHeader("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
-				res.addHeader("Cache-Control","no-cache, must-revalidate, max-age=0");
-				res.addHeader("Pragma", "no-cache");
 				res.sendRedirect(url);
 			} catch (IOException e) {
 				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());
