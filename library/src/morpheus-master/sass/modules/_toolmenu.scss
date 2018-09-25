@@ -10,6 +10,11 @@ body.is-logged-out{
 	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
 		top: $header-size;
 	}
+	
+	#toolMenuWrap {
+		min-height: 100vh;				// alternative for browswers who cannot do calculations
+		min-height: calc(100vh - #{$banner-height});	// viewport minus the top banner when logged out
+	}
 }
 
 // Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue
