@@ -82,7 +82,6 @@
       <dependency>
           <groupId>org.springframework.security</groupId>
           <artifactId>spring-security-core</artifactId>
-          <version>${sakai.spring.security.version}</version>
           <exclusions>
               <exclusion>
                   <groupId>org.springframework</groupId>
@@ -109,12 +108,10 @@
       <dependency>
           <groupId>org.springframework.security</groupId>
           <artifactId>spring-security-config</artifactId>
-          <version>${sakai.spring.security.version}</version>
       </dependency>
       <dependency>
           <groupId>org.springframework.security</groupId>
           <artifactId>spring-security-web</artifactId>
-          <version>${sakai.spring.security.version}</version>
       </dependency>
       <dependency>
 	      <groupId>aopalliance</groupId>
