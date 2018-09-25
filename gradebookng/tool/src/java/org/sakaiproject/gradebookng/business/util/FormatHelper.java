@@ -293,8 +293,9 @@ public class FormatHelper {
 	 * @return true if the value is valid
 	 */
 	public static boolean isValidDouble(final String value) {
-		final DoubleValidator dv = new DoubleValidator();
-		return dv.isValid(value, rl.getLocale());
+		final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
+		final String doublePattern = "\\d+\\" + df.getDecimalFormatSymbols().getDecimalSeparator() + "\\d+|\\d+";
+		return value.matches(doublePattern);
 	}
 
 	/**
