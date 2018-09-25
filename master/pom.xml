@@ -34,9 +34,6 @@
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
     <sakai.elasticsearch.version>1.7.6</sakai.elasticsearch.version>
-    <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
-    <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
-    <sakai.hibernate.version>4.3.11.Final</sakai.hibernate.version>
     <sakai.httpclient.version>4.5.5</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.9</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.5</sakai.httpmime.version>
@@ -744,7 +741,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-        <version>${sakai.hibernate.version}</version>
+        <version>4.3.11.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -756,13 +753,13 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
-        <version>${sakai.hibernate.version}</version>
+        <version>4.3.11.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>5.3.5.Final</version>
+        <version>5.3.6.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -816,7 +813,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-ehcache</artifactId>
-        <version>${sakai.hibernate.version}</version>
+        <version>4.3.11.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
