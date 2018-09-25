@@ -108,15 +108,19 @@
 												#foreach ($pageTool in $pageTools)
 													#if ($pageTool.getTool().getId() == $toolId)
 														#set($toolFound = true)
+													#elseif (($toolId == "sakai.gradebook.tool" || $toolId == "sakai.gradebookng") && ($pageTool.getTool().getId() == "sakai.gradebook.tool" || $pageTool.getTool().getId() == "sakai.gradebookng"))
+														#set($toolFound = true)
 													#end
 												#end
 											#end
 										
 											#set ($toolsWithContent = $!siteToolsWithContent.get($site.getId()))
-											#if(!$toolsWithContent.contains($toolId))
+											#if(($toolId == "sakai.gradebook.tool" || $toolId == "sakai.gradebookng") && ($toolsWithContent.contains("sakai.gradebook.tool") || $toolsWithContent.contains("sakai.gradebookng")))
+												## Take the default
+											#elseif(!$toolsWithContent.contains($toolId))
 												#set($toolFound = false)
-    										#end
-										
+    											#end
+
 											#if ($toolFound)
 												<input type="checkbox" id="toolSite$toolCount$siteCount" name="$toolId" value="$site.Id" #if($!selectedSites.contains($site.Id))checked="checked"#end />
 												<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
