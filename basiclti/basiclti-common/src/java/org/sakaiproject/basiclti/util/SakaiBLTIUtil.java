@@ -2,7 +2,7 @@
  * $URL$
  * $Id$
  *
- * Copyright (c) 2006-2009 The Sakai Foundation
+ * Copyright (c) 2006-2012 The Sakai Foundation, 2013- The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,6 +145,8 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_ROSTER_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
 	public static final String BASICLTI_CONTENTLINK_ENABLED_DEFAULT = null; // i.e. false
+	public static final String BASICLTI_LINEITEMS_ENABLED = "basiclti.lineitems.enabled";
+	public static final String BASICLTI_LINEITEMS_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
 	public static final String INCOMING_ROSTER_ENABLED = "basiclti.incoming.roster.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
@@ -186,6 +188,11 @@ public class SakaiBLTIUtil {
 	public static boolean settingsEnabled() {
 		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, BASICLTI_SETTINGS_ENABLED_DEFAULT);
 		return "true".equals(allowSettings);
+	}
+
+	public static boolean lineItemsEnabled() {
+		String allowLineItems = ServerConfigurationService.getString(BASICLTI_LINEITEMS_ENABLED, BASICLTI_LINEITEMS_ENABLED_DEFAULT);
+		return "true".equals(allowLineItems);
 	}
 
 	public static boolean contentLinkEnabled() {
@@ -1845,6 +1852,7 @@ user_id: admin
 		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
 		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+		int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 		String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
 
@@ -1860,12 +1868,21 @@ user_id: admin
 			signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
 		}
 
-		if (allowOutcomes != 0 && outcomesEnabled() && signed_placement != null) {
+		if (signed_placement != null && (
+			  ( (allowOutcomes != 0 && outcomesEnabled()) ||
+				(allowLineItems != 0 && lineItemsEnabled()) )
+			  )
+			) {
 			Endpoint endpoint = new Endpoint();
 			endpoint.scope = new ArrayList<>();
 			endpoint.scope.add(Endpoint.SCOPE_LINEITEM);
 
-			endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
+			if ( allowOutcomes != 0 && outcomesEnabled() ) {
+				endpoint.lineitem = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
+			}
+			if ( allowOutcomes != 0 && outcomesEnabled() ) {
+				endpoint.lineitems = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement;
+			}
 			lj.endpoint = endpoint;
 		}
 
@@ -2267,25 +2284,26 @@ user_id: admin
 		return retval;
 	}
 
-	public static Object getGradeLTI13(Site site, String user_id, String assignment) {
-		return handleGradebookLTI13(site, user_id, assignment, null, null, null, true, false);
+	public static Object getGradeLTI13(Site site, Long tool_id, Map<String, Object> content, String user_id,
+			String assignment) {
+		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, null, null, null, true, false);
 	}
 
 	// Boolean.TRUE - Grade updated
-	public static Object setGradeLTI13(Site site, String user_id, String assignment,
-			Long scoreGiven, Long maxPoints, String comment) {
-		return handleGradebookLTI13(site, user_id, assignment, scoreGiven, maxPoints, comment, false, false);
+	public static Object setGradeLTI13(Site site, Long tool_id, Map<String, Object> content, String user_id,
+			String assignment, Long scoreGiven, Long maxPoints, String comment) {
+		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, scoreGiven, maxPoints, comment, false, false);
 	}
 
 	// Boolean.TRUE - Grade deleted
-	public static Object deleteGradeLTI13(Site site, String user_id,
+	public static Object deleteGradeLTI13(Site site, Long tool_id, Map<String, Object> content, String user_id,
 			String assignment) {
-		return handleGradebookLTI13(site, user_id, assignment, null, null, null, false, true);
+		return handleGradebookLTI13(site, tool_id, content, user_id, assignment, null, null, null, false, true);
 	}
 
 	// Quite a long bit of code
-	private static Object handleGradebookLTI13(Site site, String user_id, String assignment,
-			Long scoreGiven, Long maxPoints, String comment, boolean isRead, boolean isDelete) {
+	private static Object handleGradebookLTI13(Site site,  Long tool_id, Map<String, Object> content, String user_id,
+			String assignment, Long scoreGiven, Long maxPoints, String comment, boolean isRead, boolean isDelete) {
 
 		// If we are not supposed to lookup or set the grade, we are done
 		if (isRead == false && isDelete == false && scoreGiven == null) {
