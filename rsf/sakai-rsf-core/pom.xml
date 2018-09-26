@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>sakai-rsf</artifactId>
 		<groupId>org.sakaiproject.rsf</groupId>
-		<version>12.4</version>
+		<version>12-SNAPSHOT</version>
 	</parent>
 	<packaging>jar</packaging>
 	<artifactId>sakai-rsf-core</artifactId>

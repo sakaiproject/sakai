@@ -6,13 +6,13 @@
     <name>COMMONS</name>
     <groupId>org.sakaiproject.commons</groupId>
     <artifactId>commons</artifactId>
-    <version>12.4</version>
+    <version>12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>12.4</version>
+        <version>12-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
