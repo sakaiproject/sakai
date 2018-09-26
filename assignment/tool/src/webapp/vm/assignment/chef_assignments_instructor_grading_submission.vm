@@ -865,8 +865,7 @@
             </div> <!-- End of the allowResubmitContainer -->
         #end
         <div class="navPanel">
-            <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
-				<span class="act">
+            <div class="act">
                     <input type="button" accesskey="d" class="active" name="save" value="$tlang.getString('gen.savdragra')"
                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade', '$validator.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.savdratit")"/>
@@ -902,7 +901,6 @@
                     #if( $!prevUngradedWithSubmissionID )
                         <input type="hidden" name="prevUngradedWithSubmissionID" id="prevUngradedWithSubmissionID" value="$!prevUngradedWithSubmissionID"/>
                     #end
-				</span>
             </div>
             <div class="navigator">
                 <fieldset class="roundedBorder">

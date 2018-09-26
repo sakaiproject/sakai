@@ -29,7 +29,8 @@
 			<sakai:button_bar>
 				<sakai:button_bar_item action="#{PostemTool.processDelete}"
 									   onclick="SPNR.disableControlsAndSpin(this, null);"
-									   value="#{msgs.bar_delete}" />
+									   value="#{msgs.bar_delete}"
+									   styleClass="active" />
 				<sakai:button_bar_item action="#{PostemTool.processCancelView}"
 									   onclick="SPNR.disableControlsAndSpin(this, null);"
 									   value="#{msgs.cancel}" />

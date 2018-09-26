@@ -464,10 +464,10 @@
 
 
 				<%--  form buttons --%>	        	
-				<h:panelGrid style="margin-top:10px">   
+				<h:panelGrid>   
 					<h:inputHidden value="step1" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 					<sakai:button_bar>
-						<h:commandButton id="goNextPage"  onclick="validateMeetingType()" action="#{NewSignupMeetingBean.goNext}" actionListener="#{NewSignupMeetingBean.validateNewMeeting}"   value="#{msgs.next_button}"/>
+						<h:commandButton id="goNextPage" styleClass="active" onclick="validateMeetingType()" action="#{NewSignupMeetingBean.goNext}" actionListener="#{NewSignupMeetingBean.validateNewMeeting}"   value="#{msgs.next_button}"/>
 						<h:commandButton id="Cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}"  immediate="true"/> 
 					</sakai:button_bar>
 				</h:panelGrid>           

@@ -677,7 +677,7 @@
 				</div>
 
 				<sakai:button_bar>
-					<h:commandButton id="copy" action="#{CopyMeetingSignupMBean.processSaveCopy}" actionListener="#{CopyMeetingSignupMBean.validateCopyMeeting}" value="#{msgs.publish_new_evnt_button}" 
+					<h:commandButton id="copy" styleClass="active" action="#{CopyMeetingSignupMBean.processSaveCopy}" actionListener="#{CopyMeetingSignupMBean.validateCopyMeeting}" value="#{msgs.publish_new_evnt_button}" 
 					onclick="return alertTruncatedAttendees('#{msgs.event_alert_truncate_attendee}','#{UserDefineTimeslotBean.truncatedAttendees}')"/> 			
 					<h:commandButton id="cancel" action="#{CopyMeetingSignupMBean.doCancelAction}" value="#{msgs.cancel_button}" />  
                 </sakai:button_bar>

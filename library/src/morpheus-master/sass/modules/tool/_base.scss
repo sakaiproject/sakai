@@ -131,9 +131,6 @@
 		@include display-flex;
 		@include align-items(center);
 		margin: 0 0 0 $standard-space;
-		padding: $standard-spacing;
-		vertical-align: 0%;
-		line-height: 1;
 
 		&:before {
 			@extend .fa;

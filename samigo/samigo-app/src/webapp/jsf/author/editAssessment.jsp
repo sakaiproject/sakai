@@ -476,6 +476,7 @@ $(window).load( function() {
 </div>
   </h:column>
 </h:dataTable>
+<div class="act">
 <h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
@@ -483,6 +484,7 @@ $(window).load( function() {
 <h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="orderUpdate" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
 </h:commandButton>
+</div>
 </div> <!-- End the main container -->
 
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0">
