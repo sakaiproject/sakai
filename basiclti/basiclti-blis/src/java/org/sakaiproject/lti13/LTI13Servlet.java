@@ -83,13 +83,17 @@ import org.tsugi.lti13.LTI13Util;
 import org.tsugi.lti13.LTI13JwtUtil;
 
 import org.tsugi.oauth2.objects.AccessToken;
+import org.tsugi.lti13.objects.Endpoint;
+
 import org.sakaiproject.lti13.util.SakaiAccessToken;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.tsugi.ags2.objects.LineItem;
 import org.tsugi.basiclti.XMLMap;
+import org.tsugi.lti13.objects.LaunchLIS;
 
 /**
  *
@@ -130,17 +134,44 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsblis/lti13/keyset/42
+		// Get a keyst for a client_id
+		// /imsblis/lti13/keyset/{tool-id}
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
 			String client_id = parts[4];
 			handleKeySet(client_id, request, response);
 			return;
 		}
 
-		// /imsblis/lti13/namesandroles/42
+		// Get the membership list for a placement
+		// /imsblis/lti13/namesandroles/context:6
 		if (parts.length == 5 && "namesandroles".equals(parts[3])) {
 			String signed_placement = parts[4];
 			handleNamesAndRoles(signed_placement, request, response);
+			return;
+		}
+
+		// List lineitems created by a placement
+		// /imsblis/lti13/lineitems/{signed-placement}
+		if (parts.length == 5 && "lineitems".equals(parts[3]) ) {
+			String signed_placement = parts[4];
+			handleLineItemsGet(signed_placement, true /* all */, request, response);
+			return;
+		}
+
+		// Get lineitem data
+		// /imsblis/lti13/lineitem/{signed-placement}
+		if (parts.length == 5 && "lineitem".equals(parts[3]) ) {
+			String signed_placement = parts[4];
+			handleLineItemsGet(signed_placement, false /* all */, request, response);
+			return;
+		}
+
+		// Get a result for a lineitem created by a placement
+		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}/results
+		if (parts.length == 7 && "lineitems".equals(parts[3]) && "results".equals(parts[6])) {
+			String signed_placement = parts[4];
+			String lineItem = parts[5];
+			handleLineItemsGet(signed_placement, lineItem, request, response);
 			return;
 		}
 
@@ -148,7 +179,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		response.setHeader(ERROR_DETAIL, "Invalid request");
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -158,17 +188,36 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// /imsblis/lti13/token/42
+		// Get an access token for a tool
+		// /imsblis/lti13/token/{tool-id}
 		if (parts.length == 5 && "token".equals(parts[3])) {
-			String client_id = parts[4];
-			handleTokenPost(client_id, request, response);
+			String tool_id = parts[4];
+			handleTokenPost(tool_id, request, response);
 			return;
 		}
 
-		// /imsblis/lti13/lineitem/42
+		// Set score for auto-created line item
+		// /imsblis/lti13/lineitem/{signed-placement}
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
 			String signed_placement = parts[4];
 			handleLineItemPost(signed_placement, request, response);
+			return;
+		}
+
+		// Create a new lineitem for a placement
+		// /imsblis/lti13/lineitems/{signed-placement}
+		if (parts.length == 6 && "lineitems".equals(parts[3])) {
+			String signed_placement = parts[4];
+			handleLineItemsPost(signed_placement, request, response);
+			return;
+		}
+
+		// Set a score for a lineitem created by a placement
+		// /imsblis/lti13/lineitems/{signed-placement}/12345/scores
+		if (parts.length == 7 && "lineitems".equals(parts[3]) && "scores".equals(parts[6])) {
+			String signed_placement = parts[4];
+			String lineItem = parts[5];
+			handleLineItemsPost(signed_placement, lineItem, request, response);
 			return;
 		}
 
@@ -324,6 +373,7 @@ public class LTI13Servlet extends HttpServlet {
 		int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
 		int allowSettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+		int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
 		sat.tool_id = toolKey;
@@ -331,37 +381,46 @@ public class LTI13Servlet extends HttpServlet {
 		sat.expires = issued + 3600L;
 
 		// Work through requested scopes
-		if (scope.contains(AccessToken.SCOPE_LINEITEM)) {
-			if (allowOutcomes != 1) {
-				// 400 with "invalid_scope" as the reason, i assume
-				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_LINEITEM);
+		if (scope.contains(Endpoint.SCOPE_LINEITEM_READONLY)) {
+			if (allowLineItems != 1) {
+				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_LINEITEM_READONLY);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
+		}
+
+		if (scope.contains(Endpoint.SCOPE_LINEITEM)) {
+			if (allowLineItems != 1) {
+				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_LINEITEM);
+				log.error("Scope lineitem not allowed {}", tool_id);
+				return;
+			}
+			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS);
+			sat.addScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY);
+		}
+
+		if (scope.contains(Endpoint.SCOPE_SCORE)) {
+			if (allowOutcomes != 1 || allowLineItems != 1) {
+				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_SCORE);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
-		if (scope.contains(AccessToken.SCOPE_SCORE)) {
-			if (allowOutcomes != 1) {
-				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_SCORE);
+		if (scope.contains(Endpoint.SCOPE_RESULT_READONLY)) {
+			if (allowOutcomes != 1 || allowLineItems != 1) {
+				LTI13Util.return400(response, "invalid_scope", Endpoint.SCOPE_RESULT_READONLY);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
 			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
 		}
 
-		if (scope.contains(AccessToken.SCOPE_RESULT_READONLY)) {
+		if (scope.contains(LaunchLIS.SCOPE_NAMES_AND_ROLES)) {
 			if (allowOutcomes != 1) {
-				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_RESULT_READONLY);
-				log.error("Scope lineitem not allowed {}", tool_id);
-				return;
-			}
-			sat.addScope(SakaiAccessToken.SCOPE_BASICOUTCOME);
-		}
-
-		if (scope.contains(AccessToken.SCOPE_NAMES_AND_ROLES)) {
-			if (allowOutcomes != 1) {
-				LTI13Util.return400(response, "invalid_scope", AccessToken.SCOPE_RESULT_READONLY);
+				LTI13Util.return400(response, "invalid_scope", LaunchLIS.SCOPE_NAMES_AND_ROLES);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
 			}
@@ -459,7 +518,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Object retval = SakaiBLTIUtil.setGradeLTI13(site, userId, assignment, scoreGiven, scoreMaximum, comment);
+		Object retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment, scoreGiven, scoreMaximum, comment);
 		log.debug("Lineitem retval={}",retval);
 	}
 
@@ -521,16 +580,21 @@ public class LTI13Servlet extends HttpServlet {
 
 		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
+			LTI13Util.return400(response, "Could not load content from signed placement");
+			log.error("Could not load content from signed placement = {}", signed_placement);
 			return;
 		}
 
 		Site site = loadSiteFromContent(content, signed_placement, response);
 		if (site == null) {
+			LTI13Util.return400(response, "Could not load site associated with content");
+			log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
 			return;
 		}
 
 		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
 		if (tool == null) {
+			log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
 			return;
 		}
 
@@ -844,4 +908,111 @@ public class LTI13Servlet extends HttpServlet {
 		return tool;
 	}
 
+	/**
+	 * Add a new line item for this placement
+	 *
+	 * @param signed_placement
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	/**
+	 * List all lineitems for this placement
+	 *
+	 * @param signed_placement
+	 * @param all - Retrieve all the line items associated with the tool's placement.  Otherwise return one lineitem.
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsGet(String signed_placement, boolean all, HttpServletRequest request, HttpServletResponse response) throws IOException {
+				log.debug("signed_placement={}", signed_placement);
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		if (sat == null) {
+			return;
+		}
+
+		if (! (sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY) || sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS) )) {
+			LTI13Util.return400(response, "Scope lineitems.readonly not in access token");
+			log.error("Scope lineitems.readonly not in access token");
+			return;
+		}
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			LTI13Util.return400(response, "Could not load content from signed placement");
+			log.error("Could not load content from signed placement = {}", signed_placement);
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			LTI13Util.return400(response, "Could not load site associated with content");
+			log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+			return;
+		}
+
+		// If we are only returning a single line item
+		if ( ! all ) {
+			LineItem item = LineItemUtil.getLineItem(content);
+			PrintWriter out = response.getWriter();
+			out.print(JacksonUtil.prettyPrint(item));
+			return;
+		}
+
+		// Return all the line items for the tool
+		List<LineItem> items = LineItemUtil.getLineItemsForTool(site, sat.tool_id);
+
+		response.setContentType("application/vnd.ims.lis.v2.lineitemcontainer+json");
+
+		PrintWriter out = response.getWriter();
+		out.println("[");
+		boolean first = true;
+		for (LineItem item : items) {
+			if ( first ) {
+				out.println("");
+			} else {
+				out.println(",");
+			}
+			out.print(JacksonUtil.prettyPrint(item));
+		}
+		out.println("");
+		out.println("]");
+
+	}
+
+	/**
+	 * TODO: What is this
+	 *
+	 * @param signed_placement
+	 * @param lineItem
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsGet(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+
+	/**
+	 * Update a score
+	 *
+	 * @param signed_placement
+	 * @param lineItem
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsPost(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 }
