@@ -788,6 +788,9 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "4.0.5";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
+	} else if (library == 'datatables') {
+		libraryVersion = "1.10.19";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');

@@ -36,7 +36,7 @@
     <h:outputText  value="#{select.secureDeliveryHTMLFragments}" escape="false" />
 
     <!--JAVASCRIPT -->
-    <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
     <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
     <script type="text/JavaScript">
         $(document).ready(function() {
