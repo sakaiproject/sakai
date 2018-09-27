@@ -70,6 +70,8 @@ import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getRB;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.postError;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.LTI13_PATH;
+import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getOurServerUrl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -86,6 +88,7 @@ import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -171,14 +174,13 @@ public class LTI13Servlet extends HttpServlet {
 		if (parts.length == 7 && "lineitems".equals(parts[3]) && "results".equals(parts[6])) {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
-			handleLineItemsGet(signed_placement, lineItem, request, response);
+			handleLineItemsResults(signed_placement, lineItem, request, response);
 			return;
 		}
 
 		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
-		response.setHeader(ERROR_DETAIL, "Invalid request");
-		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		LTI13Util.return400(response, "Unrecognized GET request parts="+parts.length+" request="+uri);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -200,13 +202,13 @@ public class LTI13Servlet extends HttpServlet {
 		// /imsblis/lti13/lineitem/{signed-placement}
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
 			String signed_placement = parts[4];
-			handleLineItemPost(signed_placement, request, response);
+			handleLineItemScore(signed_placement, request, response);
 			return;
 		}
 
 		// Create a new lineitem for a placement
 		// /imsblis/lti13/lineitems/{signed-placement}
-		if (parts.length == 6 && "lineitems".equals(parts[3])) {
+		if (parts.length == 5 && "lineitems".equals(parts[3])) {
 			String signed_placement = parts[4];
 			handleLineItemsPost(signed_placement, request, response);
 			return;
@@ -217,14 +219,13 @@ public class LTI13Servlet extends HttpServlet {
 		if (parts.length == 7 && "lineitems".equals(parts[3]) && "scores".equals(parts[6])) {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
-			handleLineItemsPost(signed_placement, lineItem, request, response);
+			handleLineItemsScore(signed_placement, lineItem, request, response);
 			return;
 		}
 
 		log.error("Unrecognized POST request parts={} request={}", parts.length, uri);
+		LTI13Util.return400(response, "Unrecognized POST request parts="+parts.length+" request="+uri);
 
-		response.setHeader(ERROR_DETAIL, "Invalid request");
-		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
 	protected void handleKeySet(String tool_id, HttpServletRequest request, HttpServletResponse response) {
@@ -446,14 +447,14 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-	protected void handleLineItemPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
+	protected void handleLineItemScore(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		log.debug("sat={}", sat);
 
 		if (sat == null) {
-			return;
+			return;  // Error already set
 		}
 		if (!sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)) {
 			LTI13Util.return400(response, "Scope basic outcome not in access token");
@@ -569,7 +570,7 @@ public class LTI13Servlet extends HttpServlet {
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		if (sat == null) {
-			return;
+			return; // Error already set
 		}
 
 		if (!sat.hasScope(SakaiAccessToken.SCOPE_ROSTER)) {
@@ -908,6 +909,49 @@ public class LTI13Servlet extends HttpServlet {
 		return tool;
 	}
 
+	protected String getPostData(HttpServletRequest request, HttpServletResponse response)
+	{
+		String jsonString;
+		try {
+			// https://stackoverflow.com/questions/1548782/retrieving-json-object-literal-from-httpservletrequest
+			jsonString = IOUtils.toString(request.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
+		} catch (IOException ex) {
+			log.error("Could not read POST Data {}", ex.getMessage());
+			LTI13Util.return400(response, "Could not read POST Data");
+			return null;
+		}
+		log.debug("jsonString={}", jsonString);
+		return jsonString;
+	}
+
+	protected Object getJSONFromPOST(HttpServletRequest request, HttpServletResponse response)
+	{
+		String jsonString = getPostData(request, response);
+		if ( jsonString == null ) return null; // Error already set
+
+		Object js = JSONValue.parse(jsonString);
+		if (js == null || !(js instanceof JSONObject)) {
+			LTI13Util.return400(response, "Badly formatted JSON");
+			return null;
+		}
+		return js;
+	}
+
+	protected Object getObjectFromPOST(HttpServletRequest request, HttpServletResponse response, Class whichClass) {
+		// https://www.baeldung.com/jackson-deserialization
+		String jsonString = getPostData(request, response);
+		if ( jsonString == null ) return null; // Error already set
+
+		try {
+			Object retval = new ObjectMapper().readValue(jsonString, whichClass);
+			return retval;
+		} catch (IOException ex) {
+			String error = "Could not parse input as " + whichClass.getSimpleName();
+			LTI13Util.return400(response, error);
+			return null;
+		}
+	}
+
 	/**
 	 * Add a new line item for this placement
 	 *
@@ -915,8 +959,57 @@ public class LTI13Servlet extends HttpServlet {
 	 * @param request
 	 * @param response
 	 */
-	private void handleLineItemsPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	private void handleLineItemsPost(String signed_placement, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		log.debug("sat={}", sat);
+
+		if (sat == null) {
+			return;  // No need - error is already set
+		}
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS)) {
+			LTI13Util.return400(response, "Scope lineitems not in access token");
+			log.error("Scope lineitems not in access token");
+			return;
+		}
+
+		LineItem item = (LineItem) getObjectFromPOST(request, response, LineItem.class);
+		if ( item == null ) return; // Error alredy handled
+
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			return;
+		}
+
+		Assignment retval;
+		try {
+			retval = LineItemUtil.createLineItem(site, sat.tool_id, null /*content*/, item);
+		} catch (Exception e) {
+			LTI13Util.return400(response, "Counld not create lineitem: "+e.getMessage());
+			return;
+		}
+
+		// Add the link to this lineitem
+		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
+// XXX
+
+		log.debug("Lineitem item={}",item);
+		response.setContentType(LineItem.MIME_TYPE);
+
+		PrintWriter out = response.getWriter();
+		out.print(JacksonUtil.prettyPrint(item));
 	}
 
 	/**
@@ -964,6 +1057,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// If we are only returning a single line item
 		if ( ! all ) {
+			response.setContentType(LineItem.MIME_TYPE);
 			LineItem item = LineItemUtil.getLineItem(content);
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(item));
@@ -971,38 +1065,31 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Return all the line items for the tool
-		List<LineItem> items = LineItemUtil.getLineItemsForTool(site, sat.tool_id);
+		LineItem filter = null;  // TODO: Add this :)
+		List<LineItem> preItems = LineItemUtil.getPreCreatedLineItems(site, sat.tool_id, filter);
 
-		response.setContentType("application/vnd.ims.lis.v2.lineitemcontainer+json");
+		List<LineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
+
+		response.setContentType(LineItem.MIME_TYPE_CONTAINER);
 
 		PrintWriter out = response.getWriter();
-		out.println("[");
+		out.print("[");
 		boolean first = true;
-		for (LineItem item : items) {
-			if ( first ) {
-				out.println("");
-			} else {
-				out.println(",");
-			}
+		for (LineItem item : preItems) {
+			out.println(first ? "" : ",");
+			first = false;
 			out.print(JacksonUtil.prettyPrint(item));
 		}
+
+		for (LineItem item : toolItems) {
+			out.println(first ? "" : ",");
+			first = false;
+			out.print(JacksonUtil.prettyPrint(item));
+		}
+		first = false;
 		out.println("");
 		out.println("]");
-
 	}
-
-	/**
-	 * TODO: What is this
-	 *
-	 * @param signed_placement
-	 * @param lineItem
-	 * @param request
-	 * @param response
-	 */
-	private void handleLineItemsGet(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
 
 	/**
 	 * Update a score
@@ -1012,7 +1099,11 @@ public class LTI13Servlet extends HttpServlet {
 	 * @param request
 	 * @param response
 	 */
-	private void handleLineItemsPost(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	private void handleLineItemsScore(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
+		LTI13Util.return400(response, "handleLineItemsPost not Implemented");
+	}
+
+	private void handleLineItemsResults(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
+		LTI13Util.return400(response, "handleLineItemsResults not Implemented");
 	}
 }

@@ -629,6 +629,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setCounted(assignmentDefinition.isCounted());
 				assignment.setReleased(assignmentDefinition.isReleased());
 
+				assignment.setExternalAppName(assignmentDefinition.getExternalAppName());
+				assignment.setExternallyMaintained(assignmentDefinition.isExternallyMaintained());
+				assignment.setExternalId(assignmentDefinition.getExternalId());
+
 				// if we have a category, get it and set it
 				// otherwise clear it fully
 				if (assignmentDefinition.getCategoryId() != null) {

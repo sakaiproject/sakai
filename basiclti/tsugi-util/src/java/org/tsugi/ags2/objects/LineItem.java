@@ -25,6 +25,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 // TODO: Where did the scoreUrl and resultUrl end up?
 public class LineItem {
 
+	public static final String MIME_TYPE = "application/vnd.ims.lis.v2.lineitem+json";
+	public static final String MIME_TYPE_CONTAINER = "application/vnd.ims.lis.v2.lineitemcontainer+json";
+
 	@JsonProperty("scoreMaximum")
 	public Double scoreMaximum;
 	@JsonProperty("label")
