@@ -69,7 +69,7 @@
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}momentjs/2.11.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}momentjs/2.22.2/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
     #end
         
         <!-- inlined tool header contribution -->
