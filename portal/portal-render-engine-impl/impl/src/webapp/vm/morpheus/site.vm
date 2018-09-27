@@ -143,7 +143,7 @@
         <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.buttons.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}/qtip2/3.0.3/jquery.qtip.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>

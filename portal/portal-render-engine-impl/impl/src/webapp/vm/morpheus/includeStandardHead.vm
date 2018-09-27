@@ -65,7 +65,7 @@
         <link href="${pageWebjarsPath}qtip2/3.0.3/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}pnotify/2.1.0/pnotify.core.min.css$!{portalCDNQuery}" rel="stylesheet">
 	<link href="${pageWebjarsPath}pnotify/2.1.0/pnotify.buttons.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
