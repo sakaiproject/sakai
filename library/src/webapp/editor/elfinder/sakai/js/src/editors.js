@@ -63,7 +63,7 @@ var ckeditor = (function() {
 
 // Codemirror (code editor)
 var codemirror = (function() {
-  var url = '/library/webjars/codemirror/5.6/';
+  var url = '/library/webjars/codemirror/5.40.2/';
   var codemirrorjs = url + 'lib/codemirror.js';
   var scripts = []; // keeps track of loaded codemirror js files
   var instance;     // one reference to the editor instance

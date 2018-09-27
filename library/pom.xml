@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.6</version>
+			<version>5.40.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
