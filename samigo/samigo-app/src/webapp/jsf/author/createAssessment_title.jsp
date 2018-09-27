@@ -39,7 +39,7 @@
     <h:form id="authorIndexForm">
         <!-- HEADINGS -->
         <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
-        <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+        <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
         <script type="text/javascript" src="/samigo-app/js/info.js"></script>
 
         <div class="samigo-container">
