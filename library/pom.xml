@@ -182,7 +182,7 @@
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>cropper</artifactId>
-			<version>2.3.2</version>
+			<version>4.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
         <dependency>
