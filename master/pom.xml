@@ -1298,6 +1298,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.commons</groupId>
+        <artifactId>commons-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>lessonbuilder-api</artifactId>
         <version>${sakai.version}</version>
