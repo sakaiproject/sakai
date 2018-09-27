@@ -763,16 +763,16 @@ function includeWebjarLibrary(library) {
 	}
 
 	if (library == 'bootstrap-multiselect') {
-        libraryVersion = "0.9.15";
-        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
-        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
-    } else if (library == 'jquery.tablesorter') {
+    libraryVersion = "0.9.15";
+    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
+  } else if (library == 'jquery.tablesorter') {
 		libraryVersion = "2.27.7";
-        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
-        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
-        document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
-        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
-        document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
+    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/jquery.tablesorter.combined.min.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.tablesorter.pager.min.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Cscript type="text/javascript" src="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/js/extras/jquery.metadata.min.js' + ver + '">' + '\x3C/script>');
+    document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/theme.jui.min.css' + ver + '"/>');
+    document.write('\x3Clink rel="stylesheet" href="' + webjars + 'jquery.tablesorter/' + libraryVersion + '/dist/css/jquery.tablesorter.pager.min.css' + ver + '"/>');
 	} else if (library == 'featherlight') {
 		libraryVersion = "1.7.13";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
@@ -780,6 +780,14 @@ function includeWebjarLibrary(library) {
 	} else if (library == 'momentjs') {
 		libraryVersion = "2.22.2";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'momentjs/' + libraryVersion + '/min/moment-with-locales.min.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'dropzone') {
+		libraryVersion = "5.2.0";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
+	} else if (library == 'select2') {
+		libraryVersion = "4.0.5";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'select2/' + libraryVersion + '/js/select2.full.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'select2/' + libraryVersion + '/css/select2.min.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');

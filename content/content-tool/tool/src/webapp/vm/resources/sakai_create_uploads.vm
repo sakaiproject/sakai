@@ -1,5 +1,8 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-#css("/library/webjars/dropzone/4.2.0/min/dropzone.min.css")
+<script type="text/javascript">
+    includeWebjarLibrary('dropzone');
+</script>
+
 <div class="portletBody specialLink">
     <h3>$tlang.getString("create.uploads")</h3>
     <ol class="breadcrumb">
@@ -169,8 +172,9 @@
         </div>
     </div>
 </div>
-#javascript("/library/webjars/dropzone/4.2.0/min/dropzone.min.js")
+
 <script type="text/javascript">
+
 Dropzone.options.fileUploader = {
     // do not change these values as the dropzone logic depends on these values
     autoProcessQueue: false,

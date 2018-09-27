@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
-			<version>4.2.0</version>
+			<version>5.2.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -185,11 +185,10 @@
 			<version>2.3.2</version>
 			<scope>runtime</scope>
 		</dependency>
-        <!-- https://mvnrepository.com/artifact/org.webjars/select2 -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>select2</artifactId>
-            <version>4.0.3</version>
+            <version>4.0.5</version>
             <scope>runtime</scope>
         </dependency>
 		<dependency>
