@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>1</version>
-        <relativePath></relativePath>
-    </parent> 
+        <artifactId>webjars</artifactId>
+        <groupId>org.sakaiproject.webjars</groupId>
+        <version>19-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
     <packaging>jar</packaging>
     <groupId>org.sakaiproject.webjars</groupId>
@@ -20,7 +20,7 @@
     <!-- They're separate here so this can be released independently of the rest of Sakai -->
     <!-- Either use a tag or a SHA so the version is predictable. -->
     <!-- Source at https://ckeditor.com/cke4/addon/image2 -->
-    <version>4.9.2</version>
+    <version>${ckeditor.image2.version}</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
