@@ -777,6 +777,10 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "1.7.13";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'featherlight/src/featherlight.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'featherlight/src/featherlight.css' + ver + '"/>');
+	} else if (library == 'dropzone') {
+		libraryVersion = "5.2.0";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
