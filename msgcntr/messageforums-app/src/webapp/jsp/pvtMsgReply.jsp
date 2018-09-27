@@ -15,13 +15,13 @@
 
 <f:view>
 	<sakai:view title="#{msgs.pvt_reply}">
-		<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
 		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/library/js/jquery/select2/4.0.0/select2.min.js"></script>
 		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+		<script type="text/javascript">includeWebjarLibrary('select2');</script>
+
 	<h:form id="pvtMsgReply">
 		<script type="text/javascript">
 				function clearSelection(selectObject)
