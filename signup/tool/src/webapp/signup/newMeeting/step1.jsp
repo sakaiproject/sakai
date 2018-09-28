@@ -373,8 +373,9 @@
                 </div>
                 
                 <%-- Handle meeting types --%>
-                <div class="form-group row ">
-                    <h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-md-2 form-required"/>
+                <fieldset class="form-group row ">
+                        
+                    <legend class="col-md-2 form-required"><h:outputLabel value ="#{msgs.event_type_title}"/></legend>
 
                     <div class="col-md-10" >
                         <h:panelGroup id="radios" styleClass="rs">
@@ -434,7 +435,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </fieldset>
 
                 <%-- User defined timeslots --%>
                 <div class="form-group row" id="userdef-add">
