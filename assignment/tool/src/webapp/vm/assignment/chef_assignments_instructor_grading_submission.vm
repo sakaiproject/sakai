@@ -550,18 +550,14 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             <select name="$name_grade" id="grade">
-                                <option value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
-                                #foreach ($i in ["Pass", "Fail"])
+                                <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+                                #foreach ($i in ["pass", "fail"])
                                     <option value="$i"
-                                        #if ($!value_grade.equalsIgnoreCase($i))
+                                        #if ($!grade_submission_grade.equalsIgnoreCase($tlang.getString($i)))
                                             selected="selected"
                                         #end
                                         >
-                                        #if ($i=="Pass")
-                                            $tlang.getString("pass")
-                                        #elseif ($i=="Fail")
-                                            $tlang.getString("fail")
-                                        #end
+                                        $tlang.getString($i)
                                     </option>
                                 #end
                             </select>
