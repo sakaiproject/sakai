@@ -153,7 +153,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>pnotify</artifactId>
-			<version>2.1.0-1</version>
+			<version>3.2.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
