@@ -287,17 +287,6 @@ public class FormatHelper {
 	}
 
 	/**
-	 * Validate if a string is a valid Double using the specified Locale.
-	 *
-	 * @param value - The value validation is being performed on.
-	 * @return true if the value is valid
-	 */
-	public static boolean isValidDouble(final String value) {
-		final DoubleValidator dv = new DoubleValidator();
-		return dv.isValid(value, rl.getLocale());
-	}
-
-	/**
 	 * Validate/convert a Double using the user's Locale.
 	 *
 	 * @param value - The value validation is being performed on.
