@@ -68,7 +68,6 @@
                 <module>entitybroker</module>
                 <module>external-calendaring-service</module>
                 <module>feedback</module>
-                <module>gradebook</module>
                 <module>gradebookng</module>
                 <module>help</module>
                 <module>hierarchy</module>
@@ -153,7 +152,7 @@
                 <module>evaluation</module>
                 <module>external-calendaring-service</module>
                 <module>formbuilder</module>
-                <module>gradebook</module>
+                <module>gradebook1</module>
                 <module>help</module>
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
