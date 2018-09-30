@@ -136,19 +136,19 @@
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
-      <version>3.17</version>
+      <version>${sakai.poi.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
-      <version>3.17</version>
+      <version>${sakai.poi.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
-      <version>3.17</version>
+      <version>${sakai.poi.version}</version>
       <type>jar</type>
     </dependency>
     <!-- As Tika is uses PDFbox the 2 versions need to 
