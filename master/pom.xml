@@ -24,7 +24,7 @@
     <!-- Standard dependency versions -->
     <sakai.apache.httpcomponents.httpclient.version>4.1.4</sakai.apache.httpcomponents.httpclient.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.6</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.8.1</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.3.3</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-validator.version>1.6</sakai.commons-validator.version>
