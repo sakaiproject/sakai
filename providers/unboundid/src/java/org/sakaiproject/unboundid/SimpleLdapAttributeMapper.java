@@ -37,6 +37,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.codec.binary.Base64;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
@@ -285,7 +286,15 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 
         log.debug("mapLdapAttributeOntoUserData() preparing to map: [logical attr name = {}][physical attr name = {}][value = {}]",
             logicalAttrName, attribute.getName(), attrValue);
-        
+
+        //The attribute jpegPhoto is stored in base64
+        if (logicalAttrName.equals(AttributeMappingConstants.DEFAULT_JPEG_PHOTO_ATTR)) {
+            attrValue = new String(Base64.encodeBase64(unboundidAttribute.getValueByteArray()));
+            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
+                logicalAttrName, attribute.getName(), attrValue);
+            userData.setProperty(AttributeMappingConstants.DEFAULT_JPEG_PHOTO_ATTR, attrValue);
+        } else
+
         if ( logicalAttrName.equals(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY) ) {
             log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
                 logicalAttrName, attribute.getName(), attrValue);

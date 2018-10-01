@@ -113,11 +113,17 @@ public abstract class AttributeMappingConstants {
 	public static final String ADDITIONAL_INFO_ATTR_MAPPING_KEY = "additionalInfo";
 	public static final String STUDENT_NUMBER_ATTR_MAPPING_KEY = "studentNumber";
 	public final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
+	
+	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
+	 * the user's jpeg photo attribute
+	 */
+	public static final String DEFAULT_JPEG_PHOTO_ATTR = "jpegPhoto";
 
 	/**
 	 * Default set of user entry attribute mappings. Keys are
 	 * logical names, values are physical names.
 	 */
+	 
 	public static final Map<String,String> DEFAULT_ATTR_MAPPINGS = 
 		new HashMap<String,String>();
 
