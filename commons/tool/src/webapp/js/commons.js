@@ -219,7 +219,7 @@ commons.switchState = function (state, arg) {
             fileInsertButton.click(function (e) {
 
                 var file = fileField[0].files[0];
-                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+                var extension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
 
                 if (commons.imageFileExtensions.indexOf(extension) != -1) {
                     var formData = new FormData();
