@@ -42,11 +42,9 @@
               <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
                 &nbsp;
                 {{criterionitem.selectedvalue}}
-                <template is="dom-if" if="[[!criterionitem.selectedvalue]]">0</template>
+                <template is="dom-if" if="[[!criterionitem.selectedRadingId]]">0</template>
                 &nbsp;
               </strong>
-
-              
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
                 <strong class="points-display">[[criterionitem.pointoverride]]</strong>
