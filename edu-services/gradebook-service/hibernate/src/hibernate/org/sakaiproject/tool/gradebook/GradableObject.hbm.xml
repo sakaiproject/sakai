@@ -44,6 +44,7 @@
 			<property name="ungraded" column="UNGRADED" type="java.lang.Boolean"/>
 			<property name="countNullsAsZeros" column="IS_NULL_ZERO" type="java.lang.Boolean"/>
 			<property name="hideInAllGradesTable" column="HIDE_IN_ALL_GRADES_TABLE" type="java.lang.Boolean"/>
+			<property name="externalData" column="EXTERNAL_DATA" type="text" />
     </subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGrade" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="2">
