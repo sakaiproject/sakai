@@ -66,14 +66,14 @@
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.18</sakai.tika.version>
+    <sakai.tika.version>1.19</sakai.tika.version>
     <sakai.tomcat.version>9.0.8</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.25</sakai.slf4j.version>
-    <sakai.poi.version>3.17</sakai.poi.version>
+    <sakai.poi.version>4.0.0</sakai.poi.version>
     <sakai.mockito.version>2.18.3</sakai.mockito.version>
     <sakai.powermock.version>2.0.0-beta.5</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
