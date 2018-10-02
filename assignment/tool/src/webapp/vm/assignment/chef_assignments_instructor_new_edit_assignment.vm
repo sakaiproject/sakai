@@ -63,6 +63,10 @@
 			document.forms[0].new_assignment_grade_points.focus();
 			obj_textfield.style.backgroundColor = '#ffe';
 			document.getElementById('req-$name_GradePoints').style.display="inline";
+			var elems = document.getElementsByTagName('sakai-rubric-association');
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'inline';
+			}
 		}
 		else
 		{
@@ -70,6 +74,10 @@
 			obj_textfield.style.backgroundColor = '#eee';
 			document.getElementById('req-$name_GradePoints').style.display="none";
 			document.getElementById('new_assignment_grade_points').value="";
+			var elems = document.getElementsByTagName('sakai-rubric-association');
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'none';
+			}
 		}
 	}
 
@@ -1336,7 +1344,7 @@
 			#end
 		#end
 
-		<sakai-rubric-association
+		<sakai-rubric-association style="display:none;"
 			dont-associate-label="$tlang.getString("dont.associate.label")"
 			dont-associate-value="0"
 			associate-label="$tlang.getString("associate.label")"
