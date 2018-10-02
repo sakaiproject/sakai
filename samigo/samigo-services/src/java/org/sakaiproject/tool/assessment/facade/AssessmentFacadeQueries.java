@@ -361,13 +361,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	public AssessmentFacade getAssessment(Long assessmentId) {
 		try {
-			AssessmentData assessment = (AssessmentData) getHibernateTemplate()
-			.load(AssessmentData.class, assessmentId);
-			assessment.setSectionSet(getSectionSetForAssessment(assessment));
-			return new AssessmentFacade(assessment);
-		}
-		catch (DataAccessException e) {
-			log.warn("error retieving assemement: " + assessmentId.toString() + " " +  e.getMessage());
+			AssessmentData assessment = getHibernateTemplate().get(AssessmentData.class, assessmentId);
+			if (assessment != null) {
+				assessment.setSectionSet(getSectionSetForAssessment(assessment));
+				return new AssessmentFacade(assessment);
+			}
+		} catch (DataAccessException dae) {
+			log.warn("Could not retrieve assessment: {}", assessmentId, dae);
 		}
 		return null;
 	}

@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -144,7 +145,7 @@ public class ItemContentsBean implements Serializable {
 	
 	private String pointsDisplayString;
 
-	private List itemGradingAttachmentList;
+	private List<ItemGradingAttachment> itemGradingAttachmentList;
 	
 	private Long itemGradingIdForFilePicker;
 	
@@ -971,7 +972,7 @@ public class ItemContentsBean implements Serializable {
 		fibArray = newArray;
 	}
 
-	public List getFinArray() {
+	public List<FinBean> getFinArray() {
 		return finArray;
 	}
 
@@ -1526,11 +1527,11 @@ public class ItemContentsBean implements Serializable {
       }
   }
 
-  public List getItemGradingAttachmentList() {
+  public List<ItemGradingAttachment> getItemGradingAttachmentList() {
 	  return itemGradingAttachmentList;
   }
 
-  public void setItemGradingAttachmentList(List itemGradingAttachmentList)
+  public void setItemGradingAttachmentList(List<ItemGradingAttachment> itemGradingAttachmentList)
   {
 	  this.itemGradingAttachmentList = itemGradingAttachmentList;
   }

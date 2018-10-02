@@ -50,7 +50,7 @@ public class PublishedAssessmentBeanie
   private String assessmentId;
   private String title;
   // ArrayList of SectionContentsBean
-  private List sections = new ArrayList();
+  private List<SectionContentsBean> sections = new ArrayList<>();
   private List partNumbers = new ArrayList();
   private int questionSize=0;
   private double totalScore=0;
@@ -131,12 +131,10 @@ public class PublishedAssessmentBeanie
   public void setQuestionSizeAndTotalScore() {
    this.questionSize = 0;
    this.totalScore = 0;
-   for(int i=0;i<this.sections.size();i++){
-      SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
-      List items = sectionBean.getItemContents();
+   for(SectionContentsBean sectionBean : sections) {
+      List<ItemContentsBean> items = sectionBean.getItemContents();
       this.questionSize += items.size();
-      for (int j=0; j<items.size();j++){
-        ItemContentsBean item = (ItemContentsBean)items.get(j);
+      for (ItemContentsBean item : items) {
         if (item.getItemData().getScore()!=null){
           this.totalScore += item.getItemData().getScore().doubleValue();
         }
