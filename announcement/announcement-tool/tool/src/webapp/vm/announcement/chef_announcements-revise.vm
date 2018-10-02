@@ -482,7 +482,7 @@ function resizeFrame(){
 			</table>
 			</div>
 		#end
-		<p class="act act-outer">
+		<p class="act">
 				<input type="button" class="active" name="post" accesskey="s"  id="saveChanges"  value=
 					#if ( $newAnn =="true")				
 						"$tlang.getString("revise.add")"

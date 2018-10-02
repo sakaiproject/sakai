@@ -810,7 +810,7 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 		padding: 0.6em;
 
 		&[aria-checked="true"] :first-child, &[aria-checked="false"] :last-child {
-			background-color: $button-primary-hover-background-color;
+			background: $button-primary-hover-background;
 			color: $button-primary-text-color;
 		}
 

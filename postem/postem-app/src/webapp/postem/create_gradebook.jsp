@@ -77,7 +77,8 @@
 			    	action="#{PostemTool.processCreate}"
 					value="#{msgs.bar_post}"
 					onclick="SPNR.disableControlsAndSpin(this, null);"
-					rendered="#{PostemTool.editable}"/>
+					rendered="#{PostemTool.editable}"
+					styleClass="active" />
 			  	<sakai:button_bar_item
 			    	action="#{PostemTool.processCancelNew}"
 					value="#{msgs.cancel}"

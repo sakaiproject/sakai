@@ -1039,8 +1039,6 @@ body.is-logged-out{
 			}
 
 			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home{
-				margin-top: -1px; // to compensate for an issue with the icon
-				margin-bottom: 1px; // to compensate for an issue with the icon
 				margin-right: $standard-space;
 			}
 

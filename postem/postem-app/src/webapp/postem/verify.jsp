@@ -40,7 +40,8 @@
 					<sakai:button_bar_item
 						action="#{PostemTool.processCreateOk}"
 						value="#{msgs.bar_save}"
-						onclick="SPNR.disableControlsAndSpin(this, null);" />
+						onclick="SPNR.disableControlsAndSpin(this, null);"
+						styleClass="active" />
 					<sakai:button_bar_item
 						action="#{PostemTool.processCreateBack}"
 						value="#{msgs.back}"

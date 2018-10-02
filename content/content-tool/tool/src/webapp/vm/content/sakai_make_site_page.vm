@@ -25,9 +25,8 @@
 		<p class="act">
 			<input type="submit" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doMakeSitePage")';submitform('addContentForm');" value="$tlang.getString("button.addpage")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
-			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
-		
 		</p>
+		<p id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</p>
 		
 	</form>
 </div>

@@ -327,6 +327,12 @@ nav#subSites{
 					background-color: $tool-menu-collapse-hover-background-color;
 					box-shadow: $tool-menu-collapse-hover-shadow;
 				}
+			
+				&:active 
+				{
+					box-shadow: none;	// to override default button styles
+				}
+			
 				&.min
 				{
 					justify-content:center; /* center the arrows when collapsed */
@@ -343,18 +349,21 @@ nav#subSites{
 						background-color: $tool-menu-collapse-min-hover-background-color;
 						box-shadow: $tool-menu-collapse-min-hover-shadow;
 					}
+			
+					&:active 
+					{
+						box-shadow: none;	// to override default button styles
+					}
 				}
 
 				button
 				{
-						span.fa-angle-double-left
-						{
-							color: $tool-menu-collapse-icon-color;
-						}
-						&:focus
-						{
-							outline-color: invert($tool-menu-collapse-background-color) !important;
-						}
+					border-radius: 0;
+					
+					span.fa-angle-double-left
+					{
+						color: $tool-menu-collapse-icon-color;
+					}
 				}
 
 				span.fa-angle-double-left

@@ -125,7 +125,7 @@
             #end
         #end
         <p class="act">
-            <input type="button" name="finish" id="finish" disabled=true
+            <input type="button" class="active" name="finish" id="finish" disabled=true
                 onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';"
                 value="$tlang.getString("label.continue")" accesskey="x" />
 

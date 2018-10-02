@@ -122,7 +122,8 @@
 			<sakai:button_bar>
 				<h:commandButton id="submit"
 					action="#{ChatTool.processActionEditRoomSave}"
-					value="#{msgs['gen.save']}" />
+					value="#{msgs['gen.save']}"
+					styleClass="active" />
 				<h:commandButton id="cancel" immediate="true"
 					action="#{ChatTool.processActionEditRoomCancel}"
 					value="#{msgs['gen.cancel']}" />

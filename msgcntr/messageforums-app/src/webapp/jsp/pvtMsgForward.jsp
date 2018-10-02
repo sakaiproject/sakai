@@ -296,7 +296,7 @@
       	
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgForwardSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
-        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreviewForward}" value="#{msgs.pvt_preview}" accesskey="p"  styleClass="active" />
+        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreviewForward}" value="#{msgs.pvt_preview}" accesskey="p" />
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgForwardSaveDraft}" value="#{msgs.pvt_savedraft }" />
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>

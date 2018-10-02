@@ -746,6 +746,7 @@ function displayProcessingIndicator(el){
     var pos = jQuery(clickedElement).position();
     var blockerWidth = jQuery(clickedElement).width();
     var blockerHeight = jQuery(clickedElement).height();
+    var $messageContain = $buttonContainer.siblings('.messageProgress');
 
     jQuery(clickedElement).blur();
     $buttonContainer.find('#buttonBlocker').remove();
@@ -766,7 +767,7 @@ function displayProcessingIndicator(el){
         'left': pos.left,
         'display': 'block'
     });
-    $buttonContainer.find('.messageProgress').fadeIn('slow');
+    $messageContain.fadeIn();
 };
 
 //void enter Key on inputField to cause refresh the page
