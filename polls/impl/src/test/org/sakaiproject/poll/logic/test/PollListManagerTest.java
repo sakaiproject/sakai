@@ -119,8 +119,12 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		
 		//If this has a value something is wrong without POJO
 		Assert.assertNull(poll1.getPollId());
-		
-		pollListManager.savePoll(poll1);
+		try {
+			pollListManager.savePoll(poll1);
+		}
+		catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
 		
 		//if this is null we have a problem
 		Assert.assertNotNull(poll1.getPollId());
@@ -194,8 +198,12 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			// Successful tests should be quiet. IllegalArgumentException is actually expected on a null ID.
 			//log.error(e.getMessage(), e);
 		}
-		
-		pollListManager.savePoll(poll1);
+		try {
+			pollListManager.savePoll(poll1);
+		}
+		catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
 		
 	    Option option1 = new Option();
 	    option1.setPollId(poll1.getPollId());
