@@ -195,6 +195,26 @@ public class LTI13Servlet extends HttpServlet {
 		LTI13Util.return400(response, "Unrecognized GET request parts="+parts.length+" request="+uri);
 	}
 
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String uri = request.getRequestURI(); // /imsblis/lti13/keys
+
+		String[] parts = uri.split("/");
+
+
+		// Handle lineitems created by the tool
+		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
+		if (parts.length == 6 && "lineitems".equals(parts[3])) {
+			String signed_placement = parts[4];
+			String lineItem = parts[5];
+			handleLineItemsDelete(signed_placement, lineItem, request, response);
+			return;
+		}
+
+		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
+
+		LTI13Util.return400(response, "Unrecognized GET request parts="+parts.length+" request="+uri);
+	}
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String uri = request.getRequestURI(); // /imsblis/lti13/keys
@@ -1195,17 +1215,80 @@ public class LTI13Servlet extends HttpServlet {
 		String context_id = site.getId();
 		Assignment a = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
 
-		// TODO support reesults
-		if ( results ) {
-			LTI13Util.return400(response, "results not implemented");
+		// Return the line item metadata
+		if ( ! results ) {
+			LineItem item = getLineItem(signed_placement, a);
+
+			response.setContentType(LineItem.MIME_TYPE);
+			PrintWriter out = response.getWriter();
+			out.print(JacksonUtil.prettyPrint(item));
 			return;
 		}
 
-		// Return the line item metadata
-		LineItem item = getLineItem(signed_placement, a);
+		// TODO support results
+		LTI13Util.return400(response, "results not implemented");
+		return;
+	}
 
-		response.setContentType(LineItem.MIME_TYPE);
-		PrintWriter out = response.getWriter();
-		out.print(JacksonUtil.prettyPrint(item));
+	/**
+	 *  Delete a tool created lineitem
+	 * @param signed_placement
+	 * @param lineItem
+	 * @param results
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsDelete(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		log.debug("signed_placement={}", signed_placement);
+
+		// Make sure the lineItem id is a long
+		Long assignment_id;
+		try {
+			assignment_id = Long.parseLong(lineItem);
+		} catch (NumberFormatException e) {
+			LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
+			log.error("Bad value for assignment_id "+lineItem);
+			return;
+		}
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		if (sat == null) {
+			return;
+		}
+
+		if (! sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS) ) {
+			LTI13Util.return400(response, "Scope lineitems not in access token");
+			log.error("Scope lineitems not in access token");
+			return;
+		}
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			LTI13Util.return400(response, "Could not load content from signed placement");
+			log.error("Could not load content from signed placement = {}", signed_placement);
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			LTI13Util.return400(response, "Could not load site associated with content");
+			log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+			return;
+		}
+
+		String context_id = site.getId();
+		if ( LineItemUtil.deleteAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id) ) {
+			return;
+		}
+
+		LTI13Util.return400(response, "Could not delete assignment "+assignment_id);
+		log.error("Could delete assignment={}", assignment_id);
 	}
 }
