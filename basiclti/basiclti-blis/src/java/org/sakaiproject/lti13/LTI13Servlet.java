@@ -76,6 +76,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
+import static org.sakaiproject.lti13.LineItemUtil.getLineItem;
 
 import org.tsugi.http.HttpUtil;
 import org.tsugi.basiclti.BasicLTIUtil;
@@ -137,7 +138,9 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-		// Get a keyst for a client_id
+		LineItem filter = getLineItemFilter(request);
+
+		// Get a keys for a client_id
 		// /imsblis/lti13/keyset/{tool-id}
 		if (parts.length == 5 && "keyset".equals(parts[3])) {
 			String client_id = parts[4];
@@ -157,7 +160,7 @@ public class LTI13Servlet extends HttpServlet {
 		// /imsblis/lti13/lineitems/{signed-placement}
 		if (parts.length == 5 && "lineitems".equals(parts[3]) ) {
 			String signed_placement = parts[4];
-			handleLineItemsGet(signed_placement, true /* all */, request, response);
+			handleLineItemsGet(signed_placement, true /* all */, filter, request, response);
 			return;
 		}
 
@@ -165,16 +168,25 @@ public class LTI13Servlet extends HttpServlet {
 		// /imsblis/lti13/lineitem/{signed-placement}
 		if (parts.length == 5 && "lineitem".equals(parts[3]) ) {
 			String signed_placement = parts[4];
-			handleLineItemsGet(signed_placement, false /* all */, request, response);
+			handleLineItemsGet(signed_placement, false /* all */, null /* filter */, request, response);
 			return;
 		}
 
-		// Get a result for a lineitem created by a placement
+		// Handle lineitems created by the tool
+
+		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
+		if (parts.length == 6 && "lineitems".equals(parts[3])) {
+			String signed_placement = parts[4];
+			String lineItem = parts[5];
+			handleLineItemsDetail(signed_placement, lineItem, false /*results */, request, response);
+			return;
+		}
+
 		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}/results
 		if (parts.length == 7 && "lineitems".equals(parts[3]) && "results".equals(parts[6])) {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
-			handleLineItemsResults(signed_placement, lineItem, request, response);
+			handleLineItemsDetail(signed_placement, lineItem, true /*results */, request, response);
 			return;
 		}
 
@@ -952,6 +964,30 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
+	protected LineItem getLineItemFilter(HttpServletRequest request)
+	{
+		LineItem retval = new LineItem();
+		boolean found = false;
+		String tag = request.getParameter("tag");
+		if ( tag != null && tag.length() > 0 ) {
+			found = true;
+			retval.tag = tag;
+		}
+		String lti_link_id = request.getParameter("lti_link_id");
+		if ( lti_link_id != null && lti_link_id.length() > 0 ) {
+			found = true;
+			retval.ltiLinkId = lti_link_id;
+		}
+		String resource_id = request.getParameter("resource_id");
+		if ( resource_id != null && resource_id.length() > 0 ) {
+			found = true;
+			retval.resourceId = resource_id;
+		}
+
+		if ( ! found ) return null;
+		return retval;
+	}
+
 	/**
 	 * Add a new line item for this placement
 	 *
@@ -1013,15 +1049,17 @@ public class LTI13Servlet extends HttpServlet {
 	}
 
 	/**
-	 * List all lineitems for this placement
+	 * List all LineItems for this placement ore retrieve the single LineItem created for this placement
 	 *
 	 * @param signed_placement
-	 * @param all - Retrieve all the line items associated with the tool's placement.  Otherwise return one lineitem.
+	 * @param all - Retrieve all the line items associated with the tool's placement.  Otherwise return one LineItem.
+	 * @param filter - A LineItem with field upon which to filter, can also be null
 	 * @param request
 	 * @param response
 	 */
-	private void handleLineItemsGet(String signed_placement, boolean all, HttpServletRequest request, HttpServletResponse response) throws IOException {
-				log.debug("signed_placement={}", signed_placement);
+	private void handleLineItemsGet(String signed_placement, boolean all, LineItem filter,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		log.debug("signed_placement={}", signed_placement);
 
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
@@ -1065,7 +1103,6 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Return all the line items for the tool
-		LineItem filter = null;  // TODO: Add this :)
 		List<LineItem> preItems = LineItemUtil.getPreCreatedLineItems(site, sat.tool_id, filter);
 
 		List<LineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, sat.tool_id, filter);
@@ -1102,8 +1139,73 @@ public class LTI13Servlet extends HttpServlet {
 	private void handleLineItemsScore(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
 		LTI13Util.return400(response, "handleLineItemsPost not Implemented");
 	}
+	/**
+	 * Provide the detail or results for a tool created lineitem
+	 * @param signed_placement
+	 * @param lineItem
+	 * @param results
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsDetail(String signed_placement, String lineItem, boolean results, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		log.debug("signed_placement={}", signed_placement);
 
-	private void handleLineItemsResults(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
-		LTI13Util.return400(response, "handleLineItemsResults not Implemented");
+		// Make sure the lineItem id is a long
+		Long assignment_id;
+		try {
+			assignment_id = Long.parseLong(lineItem);
+		} catch (NumberFormatException e) {
+			LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
+			log.error("Bad value for assignment_id "+lineItem);
+			return;
+		}
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		if (sat == null) {
+			return;
+		}
+
+		if (! (sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY) || sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS) )) {
+			LTI13Util.return400(response, "Scope lineitems.readonly not in access token");
+			log.error("Scope lineitems.readonly not in access token");
+			return;
+		}
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			LTI13Util.return400(response, "Could not load content from signed placement");
+			log.error("Could not load content from signed placement = {}", signed_placement);
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			LTI13Util.return400(response, "Could not load site associated with content");
+			log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+			return;
+		}
+
+		String context_id = site.getId();
+		Assignment a = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
+
+		// TODO support reesults
+		if ( results ) {
+			LTI13Util.return400(response, "results not implemented");
+			return;
+		}
+
+		// Return the line item metadata
+		LineItem item = getLineItem(signed_placement, a);
+
+		response.setContentType(LineItem.MIME_TYPE);
+		PrintWriter out = response.getWriter();
+		out.print(JacksonUtil.prettyPrint(item));
 	}
 }
