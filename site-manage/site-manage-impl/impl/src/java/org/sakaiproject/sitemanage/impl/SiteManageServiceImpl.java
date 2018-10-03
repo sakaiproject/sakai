@@ -115,11 +115,13 @@ public class SiteManageServiceImpl implements SiteManageService {
             
 			String importSites ="";
 			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) {
-				if(importSites.length() >= 255)
+				if(importSites.length() >= 255) {
 					break;
+				}
 				for(String data : entry.getValue() ) {
-					if(!importSites.contains(data) && importSites.concat(data + ", ").length() < 255)
+					if(!importSites.contains(data) && importSites.concat(data + ", ").length() < 255) {
 						importSites = importSites.concat(data + ", ");
+					}
 				}
 			}
 			//remove unnecessary ", "
