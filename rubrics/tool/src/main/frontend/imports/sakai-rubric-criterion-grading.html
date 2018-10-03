@@ -47,7 +47,7 @@
               
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
-                <input type="number" min="0" onkeypress="allowOnlyNumbersAndTab(event)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
+                <input type="number" min="0" onkeypress="allowOnlyNumbersAndTab(event)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.selectedvalue}}">
               </template>
               <input type="hidden" id="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
           </div>
