@@ -105,6 +105,18 @@ iron-icon.comment-icon {
 .show-tooltip {
   display: inline-block;
   position: absolute;
+  .popover-title{
+        display: flex;
+        .criterion-title{
+            margin-right: auto;
+            margin-bottom: inherit;
+            align-self: center;
+        }
+        .buttons{
+            align-self: center;
+            margin-left: 10px;
+        }
+    }
 }
 
 .btn.add-rubric {
