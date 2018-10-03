@@ -227,20 +227,22 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
                             if (announcementService.isMessageViewable(message)) {
                                 Site site = siteService.getSite(siteId);
-                                String toolId = site.getToolForCommonId("sakai.announcements").getId();
-                                String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
-                                                    + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
-
-                                // In this case title = announcement subject
-                                String title
-                                    = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
-
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
-                                    }
+                                if (site != null && site.isPublished()) {
+	                                String toolId = site.getToolForCommonId("sakai.announcements").getId();
+	                                String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
+	                                                    + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
+	
+	                                // In this case title = announcement subject
+	                                String title
+	                                    = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+	
+	                                // Get all the members of the site with read ability
+	                                for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
+	                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
+	                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
+	                                        countCache.remove(to);
+	                                    }
+	                                }
                                 }
                             }
                         } catch (IdUnusedException idue) {
