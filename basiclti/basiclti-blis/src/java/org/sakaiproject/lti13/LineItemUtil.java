@@ -132,22 +132,23 @@ public class LineItemUtil {
 
 		Assignment assignmentObject = null;
 
-		String failure = null;
-		pushAdvisor();
-		try {
-			List gradebookAssignments = g.getAssignments(context_id);
-			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
-				Assignment gAssignment = (Assignment) i.next();
+		// Check for duplicate labels
+		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
+		if ( assignments == null ) {
+			throw new RuntimeException("Coud not list assignments for "+context_id+" tool="+tool_id);
+		}
 
-				if (gAssignment.isExternallyMaintained()) {
-					continue;
-				}
-				if (lineItem.label.equals(gAssignment.getName())) {
-					failure = "Duplicate label while adding line item {}" + lineItem.label;
-					break;
-				}
+		for (Iterator i = assignments.iterator(); i.hasNext();) {
+			Assignment gAssignment = (Assignment) i.next();
+
+			if (lineItem.label.equals(gAssignment.getName())) {
+				throw new RuntimeException("Duplicate label while adding line item {}" + lineItem.label);
 			}
+		}
 
+		pushAdvisor();
+		String failure = null;
+		try {
 			Long assignmentId = null;
 			// Attempt to add assignment to grade book
 			if (assignmentObject == null && g.isGradebookDefined(context_id)) {
@@ -197,6 +198,69 @@ public class LineItemUtil {
 	}
 
 	/**
+	 * Return a list of assignments associated with this tool in a site
+	 * @param context_id - The site id
+	 * @param tool_id - The tool id
+	 * @return A list of Assignment objects (perhaps empty) or null on failure
+	 */
+	protected static List<Assignment> getAssignmentsForToolDAO(String context_id, Long tool_id) {
+		List retval = new ArrayList();
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		pushAdvisor();
+		try {
+			List gradebookAssignments = g.getAssignments(context_id);
+			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if (gAssignment.isExternallyMaintained()) {
+					continue;
+				}
+				if ( ! GB_EXTERNAL_APP_NAME.equals(gAssignment.getExternalAppName()) ) {
+					continue;
+				}
+
+				// Parse the external_id
+				// tool_id|content_id|resourceLink|tag|
+				String external_id = gAssignment.getExternalId();
+				if ( external_id == null || external_id.length() < 1 ) continue;
+
+				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
+				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
+
+				retval.add(gAssignment);
+			}
+		} catch (GradebookNotFoundException e) {
+			log.error("Gradebook not found context_id={}", context_id);
+			retval = null;
+		} catch (Throwable e) {
+			log.error("Unexpected Throwable", e.getMessage());
+			e.printStackTrace();
+			retval = null;
+		} finally {
+			popAdvisor();
+		}
+		return retval;
+	}
+	/**
+	 * Load a particular assignment by its internal Sakai GB key
+	 * @param context_id
+	 * @param tool_id
+	 * @param assignment_id
+	 * @param assignment_key
+	 * @return
+	 */
+	protected static Assignment getAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
+	{
+		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
+		for (Iterator i = assignments.iterator(); i.hasNext();) {
+			Assignment gAssignment = (Assignment) i.next();
+			if (assignment_id.equals(gAssignment.getId())) return gAssignment;
+		}
+		return null;
+	}
+
+	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
 	 * @param tool_id The tool we are scanning for
@@ -237,6 +301,7 @@ public class LineItemUtil {
 				LineItem item = getLineItem(signed_placement, gAssignment);
 
 				if ( filter != null ) {
+					if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
 					if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
 					if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
 				}
@@ -305,7 +370,13 @@ public class LineItemUtil {
 
 		for (Iterator i = contents.iterator(); i.hasNext();) {
 			Map<String, Object> content = (Map) i.next();
-			retval.add(getLineItem(content));
+			LineItem item = getLineItem(content);
+			if ( filter != null ) {
+				if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
+				if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
+				if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
+			}
+			retval.add(item);
 		}
 
 		return retval;
