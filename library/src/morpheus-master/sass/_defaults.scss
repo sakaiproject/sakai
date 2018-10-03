@@ -47,6 +47,7 @@ $text-color-disabled:		 #767676 !default;
 $body-background-color: #FAFAFA !default;
 
 $portal-background-color: $background-color !default;
+$portal-mask-background:  rgba(0,0,0,0.5) !default;
 
 /* Tool tabs */
 $tool-background-color:		 $background-color !default;
@@ -212,7 +213,6 @@ $sites-nav-submenu-item-hover-icon-color:   #424242 !default;
 $sites-nav-submenu-item-hover-left-border-color: #7F7F7F !default;
 
 /* All Sites menu */
-$all-sites-mask-background:                               rgba(255,255,255,.8) !default;
 $all-sites-background-color:                              #FFFFFF !default;
 $all-sites-drop-shadow:                                   5px 0 50px 0px rgba(0,0,0,0.5) !default;
 $all-sites-tab-text-color:                                $tool-menu-color !default;
