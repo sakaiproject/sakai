@@ -135,7 +135,7 @@ public class LineItemUtil {
 		// Check for duplicate labels
 		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
 		if ( assignments == null ) {
-			throw new RuntimeException("Coud not list assignments for "+context_id+" tool="+tool_id);
+			throw new RuntimeException("Could not list assignments for "+context_id+" tool="+tool_id);
 		}
 
 		for (Iterator i = assignments.iterator(); i.hasNext();) {
@@ -247,7 +247,6 @@ public class LineItemUtil {
 	 * @param context_id
 	 * @param tool_id
 	 * @param assignment_id
-	 * @param assignment_key
 	 * @return
 	 */
 	protected static Assignment getAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
@@ -260,6 +259,30 @@ public class LineItemUtil {
 		return null;
 	}
 
+	/**
+	 * Load a particular assignment by its internal Sakai GB key
+	 * @param context_id
+	 * @param tool_id
+	 * @param assignment_id
+	 * @return
+	 */
+	protected static boolean deleteAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
+	{
+		Assignment a = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
+		if ( a == null ) return false;
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		pushAdvisor();
+		try {
+			// Provides us no return value
+			g.removeAssignment(assignment_id);
+		} finally {
+			popAdvisor();
+		}
+
+		return true;
+	}
 	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
