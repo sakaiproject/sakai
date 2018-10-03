@@ -23,6 +23,7 @@
 package org.sakaiproject.rubrics.logic.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -85,6 +86,14 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
 
     public Map<String, Boolean> getParameters() {
         return parameters;
+    }
+	
+    public Map<String, String> getFormattedAssociation() {
+        Map<String, String> formattedParams = new HashMap<>();
+        formattedParams.put("rbcs-associate","1");
+        formattedParams.put("rbcs-rubricslist", String.valueOf(rubricId));
+        parameters.forEach((k,v) -> formattedParams.put("rbcs-config-"+k, String.valueOf(v ? 1 : 0)));
+        return formattedParams;
     }
 
     public Boolean getParameter(String param) {
