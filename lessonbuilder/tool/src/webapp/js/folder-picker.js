@@ -11,7 +11,7 @@ $(function() {
 				}
 				else {
 					var topFolder = encodeURIComponent($('#top-folder').text());
-					directory = '/' + topFolder + '/' + encodeURIComponent(directory.substr(1));
+					directory = '/' + topFolder + directory;
 				}
 				updatePathInput(directory);
 			},
@@ -25,6 +25,6 @@ $(function() {
 	}
 });
 function updatePathInput(data){
-	$('#active-folder').val(decodeURIComponent(data));
+	$('#active-folder').val(unescape(data));
 	$('#folder-path').val(data);
 }
