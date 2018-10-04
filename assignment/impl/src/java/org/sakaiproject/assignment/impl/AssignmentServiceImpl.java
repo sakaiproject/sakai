@@ -1582,6 +1582,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 allowAddSubmissionUsers.removeAll(securityService.unlockUsers(SECURE_ADD_ASSIGNMENT, resourceString));
             }
+            if(CollectionUtils.isEmpty(allowAddSubmissionUsers)){
+                return 0;
+            }
             for(User user : allowAddSubmissionUsers){
                 userIds.add(user.getId());
             }
