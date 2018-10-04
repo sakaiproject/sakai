@@ -120,13 +120,11 @@ public class SiteManageServiceImpl implements SiteManageService {
 				}
 				for(String data : entry.getValue() ) {
 					if(!importSites.contains(data) && importSites.concat(data + ", ").length() < 255) {
-						importSites = importSites.concat(data + ", ");
+						StringUtils.joinWith(", ", importSites, data);
 					}
 				}
 			}
-			//remove unnecessary ", "
-			importSites = importSites.substring(0, importSites.length() -2);
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
+			eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
 			try {
                 importToolsIntoSite(site, existingTools, importTools, cleanup);
