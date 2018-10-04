@@ -107,6 +107,7 @@ iron-icon.comment-icon {
   position: absolute;
   .popover-title{
         display: flex;
+        justify-content: flex-end;
         .criterion-title{
             margin-right: auto;
             margin-bottom: inherit;
