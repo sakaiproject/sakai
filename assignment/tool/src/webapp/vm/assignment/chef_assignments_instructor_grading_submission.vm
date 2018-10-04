@@ -869,7 +869,7 @@
                     <input type="button" accesskey="d" class="active" name="save" value="$tlang.getString('gen.savdragra')"
                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade', '$validator.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.savdratit")"/>
-					<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')"
+					<input type="button" accesskey="s" class="active" name="return" value="$tlang.getString('gen.retustud')"
                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'returngrade', '$validator.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.retustudtit")"/>
 					<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')"
