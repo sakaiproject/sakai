@@ -32,6 +32,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
+import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -60,15 +61,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 	IModel<Long> model;
 
-	/**
-	 * How this panel is rendered
-	 */
-	enum Mode {
-		ADD,
-		EDIT;
-	}
-
-	Mode mode;
+	private UiMode mode;
 
 	public AddOrEditGradeItemPanel(final String id, final GbModalWindow window, final IModel<Long> model) {
 		super(id);
@@ -77,15 +70,15 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 		// determine mode
 		if (model != null) {
-			this.mode = Mode.EDIT;
+			this.mode = UiMode.EDIT;
 		} else {
-			this.mode = Mode.ADD;
+			this.mode = UiMode.ADD;
 		}
 
 		// setup the backing object
 		Assignment assignment;
 
-		if (this.mode == Mode.EDIT) {
+		if (this.mode == UiMode.EDIT) {
 			final Long assignmentId = this.model.getObject();
 			assignment = this.businessService.getAssignment(assignmentId);
 
@@ -140,13 +133,13 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 			@Override
 			public boolean isVisible() {
-				return AddOrEditGradeItemPanel.this.mode == Mode.ADD;
+				return AddOrEditGradeItemPanel.this.mode == UiMode.ADD;
 			}
 		};
 		form.add(createAnother);
 
 		// add the common components
-		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel));
+		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode));
 
 		// feedback panel
 		form.add(new GbFeedbackPanel("addGradeFeedback"));
@@ -172,7 +165,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 	 * @return
 	 */
 	private ResourceModel getSubmitButtonLabel() {
-		if (this.mode == Mode.EDIT) {
+		if (this.mode == UiMode.EDIT) {
 			return new ResourceModel("button.savechanges");
 		} else {
 			return new ResourceModel("button.create");
@@ -202,18 +195,18 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		if (assignment.getCategoryId() != null) {
 			final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
 			final CategoryDefinition category = categories
-				.stream()
-				.filter(c -> (c.getId().equals(assignment.getCategoryId()))
-					&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDropLowest() > 0))
-				.findFirst()
-				.orElse(null);
+					.stream()
+					.filter(c -> (c.getId().equals(assignment.getCategoryId()))
+							&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDropLowest() > 0))
+					.findFirst()
+					.orElse(null);
 
 			if (category != null) {
 				final Assignment mismatched = category.getAssignmentList()
-					.stream()
-					.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)
-					.findFirst()
-					.orElse(null);
+						.stream()
+						.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)
+						.findFirst()
+						.orElse(null);
 				if (mismatched != null) {
 					validated = false;
 					error(MessageFormat.format(getString("error.addeditgradeitem.categorypoints"), mismatched.getPoints()));
@@ -226,7 +219,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		if (validated) {
 			try {
 				GradebookHelper.validateGradeItemName(assignment.getName());
-			} catch (InvalidGradeItemNameException e) {
+			} catch (final InvalidGradeItemNameException e) {
 				validated = false;
 				error(getString("error.addeditgradeitem.titlecharacters"));
 				target.addChildren(form, FeedbackPanel.class);
@@ -235,15 +228,15 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 		// OK
 		if (validated) {
-			if (AddOrEditGradeItemPanel.this.mode == Mode.EDIT) {
+			if (AddOrEditGradeItemPanel.this.mode == UiMode.EDIT) {
 
 				final boolean success = AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
 
 				if (success) {
-					rubricsService.saveRubricAssociation("sakai.gradebookng", assignment.getId().toString(), getRubricParameters(""));
+					this.rubricsService.saveRubricAssociation("sakai.gradebookng", assignment.getId().toString(), getRubricParameters(""));
 					getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
 					setResponsePage(getPage().getPageClass(),
-						new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
+							new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
 				} else {
 					error(new ResourceModel("message.edititem.error").getObject());
 					target.addChildren(form, FeedbackPanel.class);
@@ -270,27 +263,29 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					success = false;
 				}
 				if (success) {
-					rubricsService.saveRubricAssociation("sakai.gradebookng", assignmentId.toString(), getRubricParameters(""));
-					final String successMessage = MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName());
+					this.rubricsService.saveRubricAssociation("sakai.gradebookng", assignmentId.toString(), getRubricParameters(""));
+					final String successMessage = MessageFormat.format(getString("notification.addgradeitem.success"),
+							assignment.getName());
 					getSession()
-						.success(successMessage);
+							.success(successMessage);
 
 					if (createAnother) {
-						Component newFormPanel = new AddOrEditGradeItemPanel(window.getContentId(), window, null);
+						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null);
 						AddOrEditGradeItemPanel.this.replaceWith(newFormPanel);
-						window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));
-						window.clearWindowClosedCallbacks();
-						window.addWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+						this.window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));
+						this.window.clearWindowClosedCallbacks();
+						this.window.addWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 							@Override
-							public void onClose(AjaxRequestTarget ajaxRequestTarget) {
-								setResponsePage(window.getPage().getPageClass(),
-									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, window.getAssignmentToReturnFocusTo()));
+							public void onClose(final AjaxRequestTarget ajaxRequestTarget) {
+								setResponsePage(AddOrEditGradeItemPanel.this.window.getPage().getPageClass(),
+										new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM,
+												AddOrEditGradeItemPanel.this.window.getAssignmentToReturnFocusTo()));
 							}
 						});
 						target.add(newFormPanel);
 					} else {
 						setResponsePage(getPage().getPageClass(),
-							new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
+								new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
 					}
 				} else {
 					target.addChildren(form, FeedbackPanel.class);
