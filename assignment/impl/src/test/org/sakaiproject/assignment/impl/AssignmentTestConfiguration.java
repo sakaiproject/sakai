@@ -44,6 +44,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
@@ -266,5 +267,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
     public SchedulerManager schedulerManager() {
         return mock(SchedulerManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+    public RubricsService rubricsService() {
+        return mock(RubricsService.class);
     }
 }
