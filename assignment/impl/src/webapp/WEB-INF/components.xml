@@ -45,6 +45,7 @@
             </bean>
         </property>
         <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
