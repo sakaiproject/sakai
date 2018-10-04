@@ -230,19 +230,8 @@ public class PublishAssessmentListener
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
 
           Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(SamigoConstants.RBCS_TOOL_ID, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
-          HashMap<String,String> parametersHash = new HashMap<>();
           if (rubricAssociation.isPresent()) {
-            parametersHash.put("rbcs-associate", "1");
-            parametersHash.put("rbcs-rubricslist", rubricAssociation.get().getRubricId().toString());
-            for (Entry entry : rubricAssociation.get().getParameters().entrySet()) {
-              boolean entryValue = (boolean) entry.getValue();
-              if ("hideStudentPreview".equals(entry.getKey())) {
-                parametersHash.put("rbcs-config-hideStudentPreview", (entryValue) ? "1" : "0");
-              } else if ("fineTunePoints".equals(entry.getKey())) {
-                parametersHash.put("rbcs-config-fineTunePoints", (entryValue) ? "1" : "0");
-              }
-            }
-            rubricsService.saveRubricAssociation("sakai.samigo", SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), parametersHash);
+            rubricsService.saveRubricAssociation(SamigoConstants.RBCS_TOOL_ID, SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
           }
         }
       }
