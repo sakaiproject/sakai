@@ -141,20 +141,20 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 				}
 			}
 
-			m_info.put("instructor", new Info("instructor", "The", "Instructor", "instructor" + EMAIL_DOMAIN));
-			m_info.put("instructor1", new Info("instructor1", "The", "Instructor1", "instructor1" + EMAIL_DOMAIN));
-			m_info.put("instructor2", new Info("instructor2", "The", "Instructor2", "instructor2" + EMAIL_DOMAIN));
+			m_info.put("instructor", new Info("instructor", "Sakai", "Instructor", "instructor" + EMAIL_DOMAIN));
+			m_info.put("instructor1", new Info("instructor1", "Sakai", "Instructor1", "instructor1" + EMAIL_DOMAIN));
+			m_info.put("instructor2", new Info("instructor2", "Sakai", "Instructor2", "instructor2" + EMAIL_DOMAIN));
 			m_info.put("da1", new Info("da1", "Dept", "Admin", "da1" + EMAIL_DOMAIN));
-			m_info.put("ta", new Info("ta", "The", "Teaching-Assistant", "ta" + EMAIL_DOMAIN));
+			m_info.put("ta", new Info("ta", "Teaching", "Assistant", "ta" + EMAIL_DOMAIN));
 
 			//SAK-25394 more ta's for testing purposes
-			m_info.put("ta1", new Info("ta1", "The", "Teaching-Assistant1", "ta1" + EMAIL_DOMAIN));
-			m_info.put("ta2", new Info("ta2", "The", "Teaching-Assistant2", "ta2" + EMAIL_DOMAIN));
-			m_info.put("ta3", new Info("ta2", "The", "Teaching-Assistant3", "ta3" + EMAIL_DOMAIN));
+			m_info.put("ta1", new Info("ta1", "Teaching", "Assistant1", "ta1" + EMAIL_DOMAIN));
+			m_info.put("ta2", new Info("ta2", "Teaching", "Assistant2", "ta2" + EMAIL_DOMAIN));
+			m_info.put("ta3", new Info("ta2", "Teaching", "Assistant3", "ta3" + EMAIL_DOMAIN));
 
 			//SAK-25267 used for integration with uPortal
-			m_info.put("student", new Info("student", "The", "Student", "student" + EMAIL_DOMAIN));
-			m_info.put("faculty", new Info("faculty", "The", "Faculty", "faculty" + EMAIL_DOMAIN));
+			m_info.put("student", new Info("student", "Sakai", "Student", "student" + EMAIL_DOMAIN));
+			m_info.put("faculty", new Info("faculty", "Sakai", "Faculty", "faculty" + EMAIL_DOMAIN));
 
 			log.info("init()");
 		}
