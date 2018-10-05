@@ -110,6 +110,10 @@
 		background-image: none;
 	}
 	
+	&:focus {
+		box-shadow: 0px 0px $focus-outline-width $focus-outline-width $focus-outline-color;
+	}
+	
 	&[disabled="disabled"],&[disabled],&[disabled="true"] {
 		opacity: 0.7;
 		background-color: #f3f3f3;
@@ -174,7 +178,7 @@
 	}
 
 	&:focus {
-		outline: $focus-outline-width solid $focus-outline-color;
+		outline: $sakai-focus-outline;
 		outline-offset: $focus-outline-offset;
 	}
 
