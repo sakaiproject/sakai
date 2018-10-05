@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -119,8 +119,9 @@ public class SiteManageServiceImpl implements SiteManageService {
 					break;
 				}
 				for(String data : entry.getValue() ) {
-					if(!importSites.contains(data) && importSites.concat(data + ", ").length() < 255) {
-						StringUtils.joinWith(", ", importSites, data);
+					String temp = StringUtils.joinWith(", ", importSites, data);
+					if(!importSites.contains(data) && temp.length() < 255) {
+						importSites = temp;
 					}
 				}
 			}
