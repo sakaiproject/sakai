@@ -4161,7 +4161,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-		boolean showAddResourceFolderLink = ServerConfigurationService.getBoolean("lessonbuilder.show.resource.folder.link", true);
+		boolean showAddResourceFolderLink = ServerConfigurationService.getBoolean("lessonbuilder.show.resource.folder.link", false);
 		if (showAddResourceFolderLink){
 			createToolBarLink(FolderPickerProducer.VIEW_ID, tofill, "add-folder", "simplepage.folder", currentPage, "simplepage.addfolder.tooltip").setItemId(null);
 		}
