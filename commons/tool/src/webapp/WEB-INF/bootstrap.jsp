@@ -16,7 +16,8 @@
                 embedder: '${embedder}',
                 userId: '${userId}',
                 isUserSite: ${isUserSite},
-                postId: '${postId}'
+                postId: '${postId}',
+                maxUploadSize: '${maxUploadSize}'
             };
 
         </script>
