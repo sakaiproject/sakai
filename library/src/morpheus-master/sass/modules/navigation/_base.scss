@@ -1290,33 +1290,17 @@ body.is-logged-out{
     }
 }
 
-@media only screen and (min-width: 801px) {
-	.manage-overview-link {
-		border: 1px solid #ccc;
-		color: #333 !important;
-		cursor: pointer;
-		display: inline-block;
-		font-family: "Open Sans", sans-serif;
-		font-size: 12px;
-		text-decoration: none !important;
-		-moz-appearance: none;
-		-webkit-appearance: none;
-		-moz-border-radius: 3px;
-		-webkit-border-radius: 3px;
-		border-radius: 3px;
-		padding: 5px !important; /* important needed for these two--otherwise gets overridden by hierarchy.*/
-		margin: 5px 30px !important;
-		position: absolute;
-		right: 0px;
-
-		span {
-			padding-right: 5px;
-		}
+.#{$namespace}siteHierarchy .manage-overview-link {
+	@include sakai_secondary_button();
+	position: absolute;
+	right: $standard-spacing;
+	margin-top: -4px;
+	
+	> span {
+		margin-right: $standard-space;
 	}
-}
-
-@media only screen and (max-width: 800px){
-	.manage-overview-link {
+	
+	@media #{$phone} {
 		visibility: hidden;
 	}
 }
