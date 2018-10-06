@@ -181,13 +181,6 @@ public interface SakaiProxy {
 	 * @return the value of the <code>roster.display.officialPicturesByDefault</code> Sakai property.
 	 */
     public Boolean getOfficialPicturesByDefault();
-	
-	/**
-	 * Returns the value of the <code>roster.display.pageSize</code> Sakai property.
-	 * 
-	 * @return the value of the <code>roster.display.pageSize</code> Sakai property.
-	 */
-	public int getPageSize();
 
 	public Site getSite(String siteId);
 		
@@ -268,7 +261,7 @@ public interface SakaiProxy {
 	/**
 	 * Attempts to retrieve the search index for the specified site.
 	 */
-    public Map<String, String> getSearchIndex(String siteId);
+    public Map<String, String> getSearchIndex(String siteId, String userId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus);
 
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId);
 

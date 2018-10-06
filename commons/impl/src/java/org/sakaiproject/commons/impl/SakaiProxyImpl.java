@@ -261,12 +261,6 @@ public class SakaiProxyImpl implements SakaiProxy {
             throw new SecurityException("This action (userPerms) is not accessible to anon and there is no current user.");
         }
 
-        if (securityService.isSuperUser(userId)) {
-            // Special case for the super admin
-            filteredFunctions.addAll(functionManager.getRegisteredFunctions("commons"));
-            return filteredFunctions;
-        }
-
         Role siteRole = getCurrentUserRoleForSite(site);
 
         // Check to see if this is the user's own workspace
@@ -351,6 +345,11 @@ public class SakaiProxyImpl implements SakaiProxy {
         // Don't like this startsWith use. Things could start with "commons" but
         // still not be relevant here
         filteredFunctions.addAll(functions.stream().filter(f -> f.startsWith("commons") || f.equals(SiteService.SECURE_UPDATE_SITE)).collect(Collectors.toSet()));
+
+        if (securityService.isSuperUser(userId)) {
+            // Special case for the super admin
+            filteredFunctions.addAll(functionManager.getRegisteredFunctions("commons"));
+        }
 
         return filteredFunctions;
     }

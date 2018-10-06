@@ -1086,23 +1086,23 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForum(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public void saveForum(DiscussionForum forum)
+  public DiscussionForum saveForum(DiscussionForum forum)
   {
     if (log.isDebugEnabled())
     {
       log.debug("saveForum(DiscussionForum" + forum + ")");
     }
-    saveForum(forum, false, getCurrentContext(), true, getCurrentUser());
+    return saveForum(forum, false, getCurrentContext(), true, getCurrentUser());
   }
   
-  public void saveForum(String contextId, DiscussionForum forum) {
+  public DiscussionForum saveForum(String contextId, DiscussionForum forum) {
       if (log.isDebugEnabled()) log.debug("saveForum(String contextId, DiscussionForum forum)");
       
       if (contextId == null || forum == null) {
           throw new IllegalArgumentException("Null contextId or forum passed to saveForum. contextId:" + contextId);
       }
       
-      saveForum(forum, forum.getDraft(), contextId, true, getCurrentUser());
+      return saveForum(forum, forum.getDraft(), contextId, true, getCurrentUser());
   }
 
   /*
@@ -1110,16 +1110,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveForumAsDraft(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public void saveForumAsDraft(DiscussionForum forum)
+  public DiscussionForum saveForumAsDraft(DiscussionForum forum)
   {
     if (log.isDebugEnabled())
     {
       log.debug("saveForumAsDraft(DiscussionForum" + forum + ")");
     }
-    saveForum(forum, true, getCurrentContext(), true, getCurrentUser());
+    return saveForum(forum, true, getCurrentContext(), true, getCurrentUser());
   }
 
-  public void saveForum(DiscussionForum forum, boolean draft, String contextId, boolean logEvent, String currentUser)
+  public DiscussionForum saveForum(DiscussionForum forum, boolean draft, String contextId, boolean logEvent, String currentUser)
   {
     if (log.isDebugEnabled())
     {
@@ -1167,7 +1167,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 //      }
 //    }
     
-    forumManager.saveDiscussionForum(forum, draft, logEvent, currentUser);
+    forum = forumManager.saveDiscussionForum(forum, draft, logEvent, currentUser);
     //set flag to false since permissions could have changed.  This will force a clearing and resetting
     //of the permissions cache.
     threadLocalManager.set("message_center_permission_set", Boolean.valueOf(false));
@@ -1181,6 +1181,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       area.addDiscussionForum(forum);
       areaManager.saveArea(area, currentUser);
     }
+    return forum;
   }
 
   /*

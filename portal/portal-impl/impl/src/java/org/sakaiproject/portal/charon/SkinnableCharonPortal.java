@@ -194,7 +194,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private static final String INCLUDE_TITLE = "include-title";
 
     // SAK-22384
-    private static final String MATHJAX_ENABLED = "mathJaxAllowed";
     private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
@@ -1315,7 +1314,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
         {
                 if (site != null)
                 {                           
-                    String strMathJaxEnabledForSite = site.getProperties().getProperty(MATHJAX_ENABLED);
+                    String strMathJaxEnabledForSite = site.getProperties().getProperty(Site.PROP_SITE_MATHJAX_ALLOWED);
                     if (StringUtils.isNotBlank(strMathJaxEnabledForSite))
                     {
                         if (Boolean.valueOf(strMathJaxEnabledForSite))
@@ -1751,8 +1750,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				List<Object> l = new ArrayList<Object>();
 				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("poweredByUrl", "http://sakaiproject.org");
-				m.put("poweredByImage", "/library/image/sakai_powered.gif");
+				m.put("poweredByUrl", "https://www.sakaiproject.org/");
+				m.put("poweredByImage", "/library/image/poweredBySakai.png");
 				m.put("poweredByAltText", "Powered by Sakai");
 				l.add(m);
 				rcontext.put("bottomNavPoweredBy", l);
@@ -1767,7 +1766,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
 			if (useBullhornAlerts) {
-				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 10000);
+				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 60000);
 				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
 			}
 

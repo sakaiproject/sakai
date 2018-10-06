@@ -25,8 +25,12 @@
 }
 
 .gb-create-or-save + .gb-create-another {
-  margin-left: -18px;
+  margin-left: -8px;
   border-radius: 0 3px 3px 0 !important;
+}
+
+.gb-create-another > .glyphicon {
+    margin-top: -2px;   /* to compensate for top positioning and sibling button alignment */
 }
 
 /* Toolbar */
@@ -539,7 +543,8 @@ div.wicket-modal div.w_right > div {
   position: relative;
 }
 
-.gb-summary-grade-score-dropped .gb-summary-grade-score-raw
+.gb-summary-grade-score-dropped .gb-summary-grade-score-raw,
+.gb-summary-grade-score-excused .gb-summary-grade-score-raw
 {
   text-decoration: line-through;
 }
@@ -683,9 +688,9 @@ div.wicket-modal div.w_right > div {
   position: relative;
 }
 
-.gb-noGbItems button
+.gb-noGbItems button.active
 {
-	margin: 0;
+  font-size: 14px;
 }
 
 div.wicket-modal {

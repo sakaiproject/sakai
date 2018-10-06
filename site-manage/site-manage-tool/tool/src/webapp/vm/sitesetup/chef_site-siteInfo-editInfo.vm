@@ -1,43 +1,13 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfo.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 ## Edit Site Information
 <div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
 	## definie form
 	<form name="classInformationForm" id="classInformationForm" method="post" action="#toolForm("SiteAction")">
 	#if(!$existingSite)
 		## adding new site
-		#if ($!isProjectSite)
-			<h3>
-				$tlang.getString("sinfo.pi")
-			</h3>
-			<p class="step">
-				$tlang.getString("sinfo.enter")
-			</p>
-		#elseif ($!isCourseSite)
-			<h3>
-				$tlang.getString("sinfo.class")
-			</h3>
-			<p class="step">
-				$tlang.getString("sinfo.enter2")
-			</p>
-		#elseif ($type && $type=='portfolio')
-			<h3>
-				$tlang.getString("sinfo.portfolio")
-			</h3>
-			<p class="step">
-				$tlang.getString("sinfo.enter3")
-			</p>
-		#else
-			<h3>
-				$tlang.getString("sinfo.other")
-			</h3>
-			<p class="step">
-				$tlang.getString("sinfo.enter3")
-			</p>
-		#end
-	#else
-		## editing existing site
 		<h3>
-			$tlang.getString("sitediinf.rev") <span class="highlight">$validator.escapeHtml($title)</span>
+			$tlang.getString("sinfo.other")
 		</h3>
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
@@ -64,7 +34,7 @@
 						<script type="text/javascript">document.getElementById('selectedProviderCourse-head').style.display='none'</script>
 				</td>
 			</tr>
-			#end								
+			#end
 		#end
 		#foreach($id in $!providerCourseTitles.keys())
 			<tr>
@@ -126,9 +96,11 @@
 		</p>
 	#end
 		## Title ##
-		<div class="form-group row ">
+		<div class="form-group row">
 			<label for="title" class="col-sm-2 form-control-label">
-                <span class="reqStar">*</span>
+				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
+					<span class="reqStar">*</span>
+				#end
 				$tlang.getString("sitediinf.sittit")
 			</label>
 			<div class="col-sm-6">
@@ -243,8 +215,8 @@
 				<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
 			</div>
 		</div>	
-		## Skin  & Site Icon ##
-		#if($allowSkinChoice)
+		## Skin & Site Icon ##
+		#if($allowSkinChoice && !$!skins.isEmpty())
 			<div class ="form-group row ">
 				<label for="skin" class="col-sm-2 form-control-label">
 					$tlang.getString("sitediinf.app")

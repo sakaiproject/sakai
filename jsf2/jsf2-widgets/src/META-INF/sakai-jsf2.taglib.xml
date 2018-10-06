@@ -44,6 +44,14 @@
 	</tag>
 
 	<tag>
+		<tag-name>tool_bar_message</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ToolBarMessage</component-type> 
+			<renderer-type>org.sakaiproject.ToolBarMessage</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
 		<tag-name>view</tag-name>
 		<component> 
 			<component-type>org.sakaiproject.View</component-type>
@@ -64,6 +72,93 @@
 		<component> 
 			<component-type>org.sakaiproject.SeparatedList</component-type>
 			<renderer-type>org.sakaiproject.SeparatedList</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>pager</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.Pager</component-type> 
+			<renderer-type>org.sakaiproject.Pager</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>flowState</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.FlowState</component-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>inputRichText</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputRichText</component-type>
+			<renderer-type>org.sakaiproject.InputRichText</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>flowState</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.FlowState</component-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>doc_section</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.DocSection</component-type> 
+			<renderer-type>org.sakaiproject.DocSection</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>contentTypeMap</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.JsfContentTypeMap</component-type> 
+			<renderer-type>org.sakaiproject.JsfContentTypeMap</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>panel_titled</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.PanelTitled</component-type>
+			<renderer-type>org.sakaiproject.PanelTitled</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>view_content</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.ViewContent</component-type> 
+			<renderer-type>org.sakaiproject.ViewContent</renderer-type>
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>input_date</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputDate</component-type>
+			<renderer-type>org.sakaiproject.InputDate</renderer-type> 
+		</component> 
+	</tag>
+
+
+	<tag>
+		<tag-name>inputFileUpload</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.InputFileUpload</component-type>
+			<renderer-type>org.sakaiproject.InputFileUpload</renderer-type> 
+		</component> 
+	</tag>
+
+	<tag>
+		<tag-name>timerBar</tag-name>
+		<component> 
+			<component-type>org.sakaiproject.TimerBar</component-type>
+			<renderer-type>org.sakaiproject.TimerBar</renderer-type> 
 		</component> 
 	</tag>
 

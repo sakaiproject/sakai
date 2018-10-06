@@ -1,40 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-         <web-app xmlns="http://java.sun.com/xml/ns/javaee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee  http://java.sun.com/xml/ns/j2ee/web-app_2_5.xsd"
-	version="2.5">
+<web-app
+  xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  version="3.0">
+
   <!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
   <display-name>SAM</display-name>
   <description>Sakai Assessment Manager</description>
 
-
   <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->
-    <context-param>
-        <description>
-            Set this flag to true if you want the JavaServer Faces
-            Reference Implementation to validate the XML in your
-            faces-config.xml resources against the DTD.  Default
-            value is false.
-        </description>
-        <param-name>com.sun.faces.validateXml</param-name>
-        <param-value>false</param-value>
-    </context-param>
-
-    <context-param>
-    	<!--  Ordering change required - PAFH 9/7/2006 -->
-        <description>
-            Set this flag to true if you want the JavaServer Faces
-            Reference Implementation to verify that all of the application
-            objects you have configured (components, converters,
-            renderers, and validators) can be successfully created.
-            Default value is false.
-        </description>
-        <param-name>com.sun.faces.verifyObjects</param-name>
-        <param-value>false</param-value>
-    </context-param>
+  <context-param>
+    <description>
+      Set this flag to true if you want the JavaServer Faces
+      Reference Implementation to validate the XML in your
+      faces-config.xml resources against the DTD.  Default
+      value is false.
+    </description>
+    <param-name>com.sun.faces.validateXml</param-name>
+    <param-value>false</param-value>
+  </context-param>
    
 	<!-- begin SAMIGO RSF context params --> 
-   	<context-param>
+ 	<context-param>
 		<param-name>resourceurlbase</param-name> 
 		<param-value>/sakai-samhelper-tool/</param-value>
 	</context-param>
@@ -49,7 +37,7 @@
 	    classpath:conf/sakai-applicationContext.xml,
 	    classpath:conf/sakai-entitybroker-applicationContext.xml,
 	    /WEB-INF/applicationContext.xml
-      </param-value>
+    </param-value>
 	</context-param>
 
 	<context-param>
@@ -323,23 +311,23 @@
 
   <!-- Faces Servlet Mappings -->
   <servlet-mapping>
-      <servlet-name>Faces Servlet</servlet-name>
-      <url-pattern>*.faces</url-pattern>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.faces</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-      <servlet-name>Faces Servlet</servlet-name>
-      <url-pattern>*.jsf</url-pattern>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-      <servlet-name>Faces Servlet</servlet-name>
-      <url-pattern>/faces/*</url-pattern>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-      <servlet-name>Faces Servlet</servlet-name>
-      <url-pattern>*.xml</url-pattern>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.xml</url-pattern>
   </servlet-mapping>
 
   <!-- BEGIN APACHE AXIS SECTION-->
@@ -396,36 +384,14 @@
   </servlet-mapping>
 
 -->
- 
   <!-- BEGIN SAMIGO JSF SECTION-->
 
   <!-- JSF TAGLIBS -->
   <jsp-config>
     <jsp-property-group>
       <url-pattern>*.jsp</url-pattern>
+      <el-ignored>false</el-ignored>
       <include-prelude>/include/header.inc</include-prelude>
-      <!-- <include-coda>/include/footer.inc</include-coda> -->
     </jsp-property-group>
-   	<!--  end jsp-config tag was moved - PAFH 9/7/2006 -->
   </jsp-config>
-
-<!-- END SAMIGO JSF -->
-<!-- The taglibs are unnecessary - PAFH 9/7/2006 -->
- <!-- taglib>
-    <taglib-uri>http://www.sakaiproject.org/samigo</taglib-uri>
-    <taglib-location>/WEB-INF/samigo.tld</taglib-location>
-  </taglib>
-  <taglib>
-    <taglib-uri>http://java.sun.com/jsf/core</taglib-uri>
-    <taglib-location>/WEB-INF/jsf_core.tld</taglib-location>
-  </taglib>
-  <taglib>
-    <taglib-uri>http://java.sun.com/jsf/html</taglib-uri>
-    <taglib-location>/WEB-INF/html_basic.tld</taglib-location>
-  </taglib>
-  <taglib>
-    <taglib-uri>http://java.sun.com/upload</taglib-uri>
-    <taglib-location>/WEB-INF/upload.tld</taglib-location>
-  </taglib-->
-
 </web-app>

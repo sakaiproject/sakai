@@ -1242,7 +1242,7 @@ public class ChatTool {
          log.debug("Failed to find user for ID: "+ message.getOwner(), e);
          return message.getOwner();
       }
-      return sender.getDisplayName();
+      return sender.getDisplayName(message.getChatChannel().getContext());
    }
 
    protected String getPastXDaysText(int x) {

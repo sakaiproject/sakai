@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -35,15 +35,15 @@ $Id$
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
-    <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
-    
-    <samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-    <samigo:script path="/js/jquery.dynamiclist.student.preview.js"/>
-    <samigo:script path="/js/selection.student.preview.js"/>
-    <samigo:script path="/js/selection.author.preview.js"/>
 
-    <samigo:stylesheet path="/css/imageQuestion.student.css"/>
-    <samigo:stylesheet path="/css/imageQuestion.author.css"/>
+    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/selection.student.preview.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
+    <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
     
     <script type="text/JavaScript">   
       jQuery(window).load(function(){

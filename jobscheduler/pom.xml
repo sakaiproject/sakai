@@ -21,6 +21,7 @@
     <module>scheduler-tool</module>
     <module>scheduler-test-component</module>
     <module>scheduler-test-component-shared</module>
+    <module>scheduler-utils</module>
   </modules>
 
 </project>

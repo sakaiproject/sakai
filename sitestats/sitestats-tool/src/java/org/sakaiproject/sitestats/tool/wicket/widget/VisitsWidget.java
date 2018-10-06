@@ -576,7 +576,7 @@ public class VisitsWidget extends Panel {
 				r.setReportParams(rp);
 				
 				return r;
-			}					
+			}
 		};
 		return wTab;
 	}

@@ -1,0 +1,30 @@
+<!-- start:  chef_assignments_student_view_assignment_honor_pledge.vm  -->
+<div class="portletBody">
+    <h3>
+        $tlang.getString('assignment.title')
+        #assignmentTitleIcon($assignment)
+        $validator.escapeHtml($!assignment.Title)
+    </h3>
+    <div class="jumbotron" id="honor-pledge-agreement">
+        <h4>$tlang.getString("gen.hpa.title")</h4>
+        <p>$!honorPledgeText</p>
+    </div>
+    <form name="assignmentHonorPledgeForm" action="#toolForm($action)" method="post">
+        <p class="act">
+            <input type="submit"
+                   accesskey="s"
+                   name="eventSubmit_doAccept_assignment_honor_pledge"
+                   value="$tlang.getString("gen.accept")"
+                   onclick="SPNR.disableControlsAndSpin( this, null );"
+                   class="active"/>
+            <input type="submit"
+                   accesskey="x"
+                   name="eventSubmit_doCancel_assignment_honor_pledge"
+                   value="$tlang.getString('gen.backtolist')"
+                   onclick="SPNR.disableControlsAndSpin( this, null );"/>
+        </p>
+        <input type="hidden" name="assignmentReference" value="$validator.escapeUrl($assignmentReference)"/>
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
+    </form>
+</div>
+<!-- end:  chef_assignments_student_view_assignment_honor_pledge.vm  -->

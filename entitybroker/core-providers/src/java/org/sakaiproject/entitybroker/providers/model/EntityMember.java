@@ -57,6 +57,8 @@ public class EntityMember implements Member {
     private boolean provided = false;
     @EntityTitle
     private String userDisplayName;
+    private String userFirstName;
+    private String userLastName;
     private String userSortName;
     private String userEmail;
     @EntityLastModified
@@ -82,6 +84,8 @@ public class EntityMember implements Member {
         this.active = active;
         if (user != null) {
             this.userDisplayName = user.getDisplayName();
+            this.userFirstName = user.getFirstName();
+            this.userLastName = user.getLastName();
             this.userSortName = user.getSortName();
             this.userEmail = user.getEmail();
         } else {
@@ -106,6 +110,8 @@ public class EntityMember implements Member {
         this.provided = member.isProvided();
         if (user != null) {
             this.userDisplayName = user.getDisplayName();
+            this.userFirstName = user.getFirstName();
+            this.userLastName = user.getLastName();
             this.userSortName = user.getSortName();
             this.userEmail = user.getEmail();
         } else {
@@ -222,6 +228,14 @@ public class EntityMember implements Member {
 
     public String getUserDisplayName() {
         return userDisplayName == null ? getUserEid() : userDisplayName;
+    }
+
+    public String getUserFirstName() {
+        return userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
     }
 
     public String getUserSortName() {

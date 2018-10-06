@@ -32,7 +32,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head><%= request.getAttribute("html.head") %>
         <title><h:outputText value="#{authorMessages.search_question}" /></title>
-        <samigo:script path="/js/authoring.js"/>
+        <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
 
 
         <script type="text/JavaScript">
@@ -48,10 +48,9 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
             });
         </script>
 
-        <samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-        <samigo:script path="/../library/js/spinner.js" type="text/javascript"/>
-        <samigo:script path="/../library/webjars/select2/4.0.3/dist/js/select2.full.min.js"/>
-        <samigo:stylesheet path="/../library/webjars/select2/4.0.3/dist/css/select2.css"/>
+        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+        <script type="text/javascript" src="/library/js/spinner.js"></script>
+        <script type="text/javascript">includeWebjarLibrary('select2');</script>
 
         <script type="text/javascript">
             function initPage()

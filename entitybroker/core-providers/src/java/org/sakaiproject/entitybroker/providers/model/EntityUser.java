@@ -175,6 +175,10 @@ public class EntityUser implements User {
         return displayName;
     }
 
+    public String getDisplayName(String context) {
+        return displayName;
+    }
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
@@ -231,6 +235,10 @@ public class EntityUser implements User {
     }
 
     public String getDisplayId() {
+        return displayId;
+    }
+
+    public String getDisplayId(String context) {
         return displayId;
     }
 

@@ -35,12 +35,12 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -90,7 +90,9 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name = "ASN_ASSIGNMENT")
+@Table(name = "ASN_ASSIGNMENT", indexes = {
+        @Index(name = "IDX_ASN_ASSIGNMENT_CONTEXT", columnList = "CONTEXT")
+})
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
@@ -102,10 +104,6 @@ public class Assignment {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
-
-    @Version
-    @Column(name = "VERSION")
-    private Integer version;
 
     @Column(name = "TITLE")
     private String title;
@@ -169,10 +167,10 @@ public class Assignment {
     @Column(name = "POSITION")
     private Integer position;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmission> submissions = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @MapKeyColumn(name = "NAME")
     @Lob
@@ -181,16 +179,18 @@ public class Assignment {
     @Fetch(FetchMode.SUBSELECT)
     private Map<String, String> properties = new HashMap<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
-    @Column(name = "GROUP_ID")
     @Fetch(FetchMode.SUBSELECT)
+    @Column(name = "GROUP_ID")
     private Set<String> groups = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
-    @Column(name = "ATTACHMENT", length = 1024)
     @Fetch(FetchMode.SUBSELECT)
+    @Column(name = "ATTACHMENT", length = 1024)
     private Set<String> attachments = new HashSet<>();
 
     @Enumerated(value = EnumType.STRING)

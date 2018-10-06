@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
 
@@ -19,13 +19,13 @@
 <!-- <h1>Test Reply All </h1> -->
 <f:view>
 	<sakai:view title="#{msgs.pvt_repmsg_ALL}">
-		<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
 		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/library/js/jquery/select2/4.0.0/select2.min.js"></script>
-		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+		<script type="text/javascript">includeWebjarLibrary('select2');</script>
+
 	<h:form id="pvtMsgForward">
 	<script type="text/javascript">
 		function clearSelection(selectObject)
@@ -70,10 +70,10 @@
           	<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
 				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
 				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
-				  	<f:verbatim><h:outputText value=" / " /></f:verbatim>
+				  	<h:outputText value=" / " />
 				  </h:panelGroup>
 	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
-	              <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+	              <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayMessages}" title=" #{PrivateMessagesTool.detailMsg.msg.title}">
 					<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}"/>
@@ -279,7 +279,7 @@
 
 	        	<p class="instruction"><h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/></p>
 	          <sakai:button_bar>
-	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" accesskey="a" />
+	          	<h:commandButton action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" accesskey="a" />
 	          </sakai:button_bar>
 
 					<h:dataTable styleClass="listHier lines nolines" id="attmsgrep" width="100%" cellpadding="0" cellspacing="0" columnClasses="bogus,itemAction specialLink,bogus,bogus"
@@ -327,10 +327,10 @@
 
 
       <sakai:button_bar>
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAllSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgPreviewReplyAll}" value="#{msgs.pvt_preview}" accesskey="p"  styleClass="active" />
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplyAllSaveDraft}" value="#{msgs.pvt_savedraft }" />
-        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
+        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplyAllSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
+        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreviewReplyAll}" value="#{msgs.pvt_preview}" accesskey="p" />
+        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgReplyAllSaveDraft}" value="#{msgs.pvt_savedraft }" />
+        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>
       </div>
     </h:form>

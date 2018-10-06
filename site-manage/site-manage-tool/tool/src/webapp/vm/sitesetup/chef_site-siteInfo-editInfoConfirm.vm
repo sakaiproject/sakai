@@ -1,6 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfoConfirm.vm,v 1.2 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 ## Edit Site Information Confirmation page
 <div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("sitediconf.con") <span class="highlight">$validator.escapeHtml($!title)</span>
 	</h3>

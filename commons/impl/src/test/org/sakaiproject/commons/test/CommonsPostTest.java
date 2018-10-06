@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.commons.test;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,12 +68,12 @@ public class CommonsPostTest extends TestCase {
 
         Post post = new Post();
 
-        Date createdDate = new Date();
-        post.setCreatedDate(createdDate.getTime());
-        assertEquals("Created date not returned correctly.",post.getCreatedDate(),createdDate.getTime());
+        Instant createdDate = Instant.now();
+        post.setCreatedDate(createdDate.toEpochMilli());
+        assertEquals("Created date not returned correctly.",post.getCreatedDate(),createdDate.toEpochMilli());
 
-        Date modifiedDate = new Date();
-        post.setModifiedDate(modifiedDate.getTime());
-        assertEquals("Modified date not returned correctly.",post.getModifiedDate(),modifiedDate.getTime());
+        Instant modifiedDate = Instant.now();
+        post.setModifiedDate(modifiedDate.toEpochMilli());
+        assertEquals("Modified date not returned correctly.",post.getModifiedDate(),modifiedDate.toEpochMilli());
     }
 }

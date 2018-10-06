@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
@@ -55,6 +56,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
 /**
@@ -208,7 +210,48 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
         log.debug("3b. dispatch: target="+target);
         log.debug("3c. dispatch: lastview?"+m_defaultToLastView);
 
-
+      //check direct URL permissions
+      AuthorizationBean authBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
+      if (target.indexOf("/jsf/author/") > -1 && 
+          !authBean.getAdminPrivilege() &&
+          !authBean.getCreateAssessment() &&
+          !authBean.getEditAnyAssessment() &&
+          !authBean.getEditOwnAssessment() &&
+          !authBean.getDeleteAnyAssessment() &&
+          !authBean.getDeleteOwnAssessment() &&
+          !authBean.getPublishAnyAssessment() &&
+          !authBean.getPublishOwnAssessment()) {
+              log.debug("***4a. dispatch, authorization error : path="+target);
+              target = computeDefaultTarget(false);
+      }
+      if (target.indexOf("/jsf/evaluation/") > -1 && 
+          !authBean.getAdminPrivilege() &&
+          !authBean.getGradeAnyAssessment() &&
+          !authBean.getGradeOwnAssessment()) {
+              log.debug("***4b. dispatch, authorization error : path="+target);
+              target = computeDefaultTarget(false);
+      }
+      if (target.indexOf("/jsf/template/") > -1 && 
+          !authBean.getAdminPrivilege() &&
+          !authBean.getCreateTemplate() &&
+          !authBean.getEditOwnTemplate() &&
+          !authBean.getDeleteOwnTemplate()) {
+              log.debug("***4c. dispatch, authorization error : path="+target);
+              target = computeDefaultTarget(false);
+      }
+      //based on assessmentHeadings.jsp, "event" and "section-activity" paths are based on questionpool permissions
+      //TODO : create custom permissions for event and section-activity
+      if ((target.indexOf("/jsf/questionpool/") > -1 || target.indexOf("/jsf/event/") > -1 || target.indexOf("/jsf/section-activity/") > -1)  && 
+          !authBean.getAdminPrivilege() &&
+          !authBean.getAdminQuestionPool() &&
+          !authBean.getCreateQuestionPool() &&
+          !authBean.getEditOwnQuestionPool() &&
+          !authBean.getDeleteOwnQuestionPool() &&
+          !authBean.getCopyOwnQuestionPool()) {
+              log.debug("***4d. dispatch, authorization error : path="+target);
+              target = computeDefaultTarget(false);
+      }
+     
       // add the configured folder root and extension (if missing)
       target = m_path + target;
 
@@ -235,7 +278,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
       res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
-      log.debug("***4. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+      log.debug("***5. dispatch, dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
 	+ getServletContext().getServletContextName());
       // if this is a return from the file picker and going back to 
       // case 1: item mofification, then set 

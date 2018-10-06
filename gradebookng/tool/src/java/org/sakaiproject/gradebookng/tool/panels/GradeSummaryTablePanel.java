@@ -207,6 +207,12 @@ public class GradeSummaryTablePanel extends BasePanel {
 						}
 
 						final GbGradeInfo gradeInfo = grades.get(assignment.getId());
+						boolean excused;
+						if(gradeInfo == null){
+							excused = false;
+						}else{
+							excused = gradeInfo.isExcused();
+						}
 
 						final String rawGrade;
 						String comment;
@@ -237,6 +243,10 @@ public class GradeSummaryTablePanel extends BasePanel {
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
 								.setVisible(!assignment.isReleased()));
+						flags.add(page.buildFlagWithPopover("isExcused", getString("grade.notifications.excused"))
+								.add(new AttributeModifier("data-trigger", "focus"))
+								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
+								.setVisible(excused));
 						flags.add(page
 								.buildFlagWithPopover("isExternal",
 										new StringResourceModel("label.gradeitem.externalapplabel", null,
@@ -313,6 +323,9 @@ public class GradeSummaryTablePanel extends BasePanel {
 						}
 						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore()) {
 							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-dropped"));
+						}
+						if(gradeInfo != null && excused){
+							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-excused"));
 						}
 						assignmentItem.add(gradeScore);
 

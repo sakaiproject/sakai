@@ -63,13 +63,13 @@
         <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />  
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}qtip2/3.0.3/jquery.qtip.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}pnotify/2.1.0/pnotify.core.min.css$!{portalCDNQuery}" rel="stylesheet">
-	<link href="${pageWebjarsPath}pnotify/2.1.0/pnotify.buttons.min.css$!{portalCDNQuery}" rel="stylesheet">
-        <link href="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}pnotify/3.2.1/pnotify.css$!{portalCDNQuery}" rel="stylesheet">
+	<link href="${pageWebjarsPath}pnotify/3.2.1/pnotify.buttons.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}momentjs/2.11.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}momentjs/2.22.2/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
     #end
         
         <!-- inlined tool header contribution -->

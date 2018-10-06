@@ -5,7 +5,7 @@
 		$tlang.getString("prevassig.preass")
 	</h3>
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+		#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		<div class="clear"></div>
 		<form id="previewAssignmentsForm" name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />
@@ -132,19 +132,10 @@
 								#if ($!withGrade)
 									<tr>
 										<th>
-												$!tlang.getString('addtogradebook')
+											$!tlang.getString('addtogradebook')
 										</th>
 										<td>
-											#if($!gradebookChoice.equals("no"))
-												## not associating with gradebook
-												$tlang.getString("grading.no")
-											#elseif($!gradebookChoice.equals("add"))
-												## add new entry to gradebook
-												$tlang.getString("grading.add") $tlang.getString("grading.ofcategory") $!categoryTable.get($!value_Category)
-											#elseif($!gradebookChoice.equals("associate"))
-												## associated with one existing entry in Gradebook
-												$tlang.getString("grading.associate"):$validator.escapeHtml($!associateGradebookAssignment)
-											#end
+											$validator.escapeHtml($!gradeName)
 										</td>
 									</tr>
 								#end
@@ -314,11 +305,6 @@
 							<div class="act">
 								<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" accesskey="a" disabled="disabled" />
 							</div>
-						#end
-						## if honor pledge is required
-						#if ($value_CheckAddHonorPledge)
-							<p class="checkbox">$honor_pledge_text<input name="Yes" id="yes" type="checkbox" value="" disabled="disabled" /><label for="yes"> $tlang.getString("gen.yes")</label>
-							<br />$tlang.getString("gen.youmus")</p>
 						#end
 					#end
 					</div>

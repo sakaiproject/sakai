@@ -263,7 +263,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			toolIdIconMap.put("sakai.messages", StatsManager.SILK_ICONS_DIR + "comment.png");
 			toolIdIconMap.put("sakai.metaobj", StatsManager.SILK_ICONS_DIR + "application_form.png");
 			toolIdIconMap.put("sakai.membership", StatsManager.SILK_ICONS_DIR + "group.png");
-			toolIdIconMap.put("sakai.news", StatsManager.SILK_ICONS_DIR + "rss.png");
+			toolIdIconMap.put("sakai.simple.rss", StatsManager.SILK_ICONS_DIR + "rss.png");
 			toolIdIconMap.put("sakai.podcasts", StatsManager.SILK_ICONS_DIR + "ipod_cast.png");
 			toolIdIconMap.put("sakai.postem", StatsManager.SILK_ICONS_DIR + "database_table.png");
 			toolIdIconMap.put("sakai.preferences", StatsManager.SILK_ICONS_DIR + "cog.png");
@@ -402,9 +402,17 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		}
 		// STAT-380 ensure we do not return a null from this method
 		if (eventRegistry == null) {
-			eventRegistry = new ArrayList<ToolInfo>(0);
+			return new ArrayList<>(0);
 		}
-		return eventRegistry;
+
+		// defensively deep copy the event registry before returning it, this prevents outside code from
+		// mutating the cached registry entries
+		List<ToolInfo> cloneRegistry = new ArrayList<>(eventRegistry.size());
+		for (ToolInfo t : eventRegistry) {
+			cloneRegistry.add(t.clone());
+		}
+
+		return cloneRegistry;
 	}
 	
 	/** Process event registry expired notifications */

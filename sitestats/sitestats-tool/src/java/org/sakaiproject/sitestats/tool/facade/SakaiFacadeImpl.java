@@ -28,7 +28,7 @@ import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -52,7 +52,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private transient AuthzGroupService		authzGroupService;
 	private transient UserDirectoryService	userDirectoryService;
 	private transient ContentHostingService	contentHostingService;
-	private transient TimeService				timeService;
+	private transient UserTimeService			userTimeService;
 
 	public final StatsManager getStatsManager() {
 		return statsManager;
@@ -158,12 +158,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		this.contentHostingService = contentHostingService;
 	}
 
-	public final TimeService getTimeService() {
-		return timeService;
+	@Override
+	public final UserTimeService getUserTimeService() {
+		return userTimeService;
 	}
 
-	public final void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
+	public final void setUserTimeService(UserTimeService timeService) {
+		this.userTimeService = timeService;
 	}
-
 }

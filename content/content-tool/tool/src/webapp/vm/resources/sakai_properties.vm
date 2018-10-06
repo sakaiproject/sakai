@@ -236,6 +236,7 @@
 ########## Begin Accordion Panel ##########
 <div id="properties-accordion" class="panel-group">
 	######### Begin Access Panel ##########
+	#if(!$model.isDropbox())
 	<div id="access-panel" class="panel panel-default">
 		<div class="panel-heading container-fluid">
 			<a data-toggle="collapse" data-target="#collapseAccess" href="#collapseAccess">
@@ -244,7 +245,7 @@
 		</div>
 		<div id="collapseAccess" class="panel-collapse collapse in">
 			<div class="panel-body">
-				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox())
+				#if($availability_is_enabled && !$model.isUserSite())
 					<p class="instruction">
 						#if($model.isCollection())
 							$tlang.getString("instr.access.fldr")
@@ -399,7 +400,7 @@
 						</div>
 					#end
 				#end
-				#if(!$model.isDropbox() && !$model.isSiteCollection())
+				#if(!$model.isSiteCollection())
 					<p class="instruction">$model.getAccessInstruction()</p>
 
 					<div  class="form-group">
@@ -543,6 +544,7 @@
 			</div>
 		</div>
 	</div>
+	#end
 	######### End Access Panel ##########
 	#if($showItemSummary)
 		######### Begin Summary Panel ##########

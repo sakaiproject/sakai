@@ -29,7 +29,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.EmailValidator;
+import org.apache.commons.validator.routines.EmailValidator;
+
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -52,6 +53,7 @@ import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -336,12 +338,24 @@ public class SiteAddParticipantHandler {
     public String processCancel() {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+
+        // Go to Site Info landing page on 'Cancel'
+        setNextPage(SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+
         resetTargettedMessageList();
         reset();
 
         return "done";
     }
-    
+
+    /*
+     * Utility method; sets the template index (in the tool session) of the desired page to transfer the user to.
+     */
+    private void setNextPage(String nextPageTemplateIndex) {
+        ToolSession session = sessionManager.getCurrentToolSession();
+        session.setAttribute(SiteConstants.STATE_TEMPLATE_INDEX, nextPageTemplateIndex);
+    }
+
     private boolean validCsrfToken() {
 		return StringUtils.equals(csrfToken, getCsrfToken());
     }
@@ -745,7 +759,10 @@ public class SiteAddParticipantHandler {
 		{
 			// time to reset user inputs
 			reset();
-			
+
+			// After succesfully adding participants, return to the 'Manage Participants' UI rather than whatever the previously selected tab was
+			setNextPage(SiteConstants.MANAGE_PARTICIPANTS_TEMPLATE_INDEX);
+
 	        return "done";
 		}
 		else

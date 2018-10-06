@@ -1,8 +1,9 @@
 .#{$namespace}quickLinksNav__popup {
   @extend .view-all-sites-btn;
-  border-right: 1px solid $tool-border-color;
+  border-right: 1px solid $topNav-alt-color;
   @media #{$phone}{
     display: inline-block;
+    margin-top: 3px;
   }
 
   .fa-external-link-square{
@@ -14,7 +15,6 @@
 
   .quicklinks-label{
     @extend .all-sites-label;
-    padding-top: 3px;
     @media #{$phone}{
       display: none;
     }
@@ -43,7 +43,7 @@
     padding: 0 1em 1em 1em;
     &:after {
       bottom: 100%;
-      left: 65%;
+      right: 85px;
       border: solid transparent;
       content: " ";
       height: 0;
@@ -135,7 +135,7 @@
       margin: 3.3em 0 0 -9.8em;
       position: fixed;
       top: 0.3em;
-      right: 1.7em;
+      right: 0;
       z-index: 61;
     }
   }

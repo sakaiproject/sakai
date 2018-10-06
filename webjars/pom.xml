@@ -1,50 +1,48 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.sakaiproject</groupId>
-    <artifactId>master</artifactId>
-    <version>19-SNAPSHOT</version>
-    <relativePath>../master/pom.xml</relativePath>
-  </parent>
-  <name>Sakai WebJars Project</name>
-  <groupId>org.sakaiproject.webjars</groupId>
-  <artifactId>webjars</artifactId>
-  <packaging>pom</packaging>
-  <!-- You must keep these synced in master so they're picked up correctly in library -->
-  <!-- They're separate here so this can be released independently of the rest of Sakai -->
-  <properties>
-    <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
-    <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
-  </properties>
-  <!-- Only build these during the release -->
-  <profiles>
-      <profile>
-          <id>sakai-release</id>
-          <activation>
-              <activeByDefault>false</activeByDefault>
-              <property>
-                  <name>sakai-release</name>
-              </property>
-          </activation>
-          <modules>
-              <module>ckeditor-autosave</module>
-              <module>ckeditor-wordcount</module>
-              <module>ckeditor-image2</module>
-          </modules>
-      </profile>
-      <profile>
-          <id>ckeditor-extras</id>
-          <activation>
-              <activeByDefault>false</activeByDefault>
-              <property>
-                  <name>ckeditor-extras</name>
-              </property>
-          </activation>
-          <modules>
-              <module>ckeditor-balloonpanel</module>
-              <module>ckeditor-a11ychecker</module>
-          </modules>
-      </profile>
-  </profiles>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>19-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+    <name>Sakai WebJars Project</name>
+    <groupId>org.sakaiproject.webjars</groupId>
+    <artifactId>webjars</artifactId>
+    <packaging>pom</packaging>
+
+    <!-- This project contains ckeditor addons that are currently not released as webjars,
+         when the webjar is released by the upstream project we can remove -->
+    <profiles>
+        <profile>
+            <!-- This profile contains addons we can redistribute and release -->
+            <id>ckeditor-addons</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>ckeditor-addons</name>
+                </property>
+            </activation>
+            <modules>
+                <module>ckeditor-image2</module>
+            </modules>
+        </profile>
+        <profile>
+            <!-- This profile contains addons where the licensing is incompatible and they can't be distributed -->
+            <id>ckeditor-extras</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>ckeditor-extras</name>
+                </property>
+            </activation>
+            <modules>
+                <module>ckeditor-balloonpanel</module>
+                <module>ckeditor-a11ychecker</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

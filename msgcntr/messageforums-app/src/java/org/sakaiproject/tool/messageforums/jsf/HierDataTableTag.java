@@ -22,19 +22,15 @@ package org.sakaiproject.tool.messageforums.jsf;
 
 import java.io.IOException;
 
+import javax.faces.application.Application;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.convert.Converter;
 import javax.faces.el.ValueBinding;
-import javax.faces.el.MethodBinding;
 import javax.faces.webapp.UIComponentTag;
-import javax.faces.webapp.UIComponentBodyTag;
 import javax.servlet.jsp.JspException;
 
-import com.sun.faces.util.Util;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,176 +47,73 @@ public class HierDataTableTag extends UIComponentTag
 	// Instance Variables
 	//
 	
+	@Setter
 	private java.lang.String first;
+	@Setter
 	private java.lang.String rows;
+	@Setter
 	private java.lang.String value;
-	private java.lang.String _var;
-	
+	@Setter
+	private java.lang.String var;
+	@Setter
 	private java.lang.String bgcolor;
+	@Setter
 	private java.lang.String border;
+	@Setter
 	private java.lang.String cellpadding;
+	@Setter
 	private java.lang.String cellspacing;
+	@Setter
 	private java.lang.String columnClasses;
+	@Setter
 	private java.lang.String dir;
+	@Setter
 	private java.lang.String footerClass;
+	@Setter
 	private java.lang.String frame;
+	@Setter
 	private java.lang.String headerClass;
+	@Setter
 	private java.lang.String lang;
+	@Setter
 	private java.lang.String onclick;
+	@Setter
 	private java.lang.String ondblclick;
+	@Setter
 	private java.lang.String onkeydown;
+	@Setter
 	private java.lang.String onkeypress;
+	@Setter
 	private java.lang.String onkeyup;
+	@Setter
 	private java.lang.String onmousedown;
+	@Setter
 	private java.lang.String onmousemove;
+	@Setter
 	private java.lang.String onmouseout;
+	@Setter
 	private java.lang.String onmouseover;
+	@Setter
 	private java.lang.String onmouseup;
+	@Setter
 	private java.lang.String rowClasses;
+	@Setter
 	private java.lang.String rules;
+	@Setter
 	private java.lang.String style;
+	@Setter
 	private java.lang.String styleClass;
+	@Setter
 	private java.lang.String summary;
+	@Setter
 	private java.lang.String title;
+	@Setter
 	private java.lang.String width;
+	@Setter
 	private java.lang.String expanded;
+	@Setter
 	private java.lang.String noarrows;
-	
-	//
-	// Setter Methods
-	//
-	
-	public void setFirst(java.lang.String first) {
-		this.first = first;
-	}
-	
-	public void setRows(java.lang.String rows) {
-		this.rows = rows;
-	}
-	
-	public void setValue(java.lang.String value) {
-		this.value = value;
-	}
-	
-	public void setVar(java.lang.String _var) {
-		this._var = _var;
-	}
-	
-	public void setBgcolor(java.lang.String bgcolor) {
-		this.bgcolor = bgcolor;
-	}
-	
-	public void setBorder(java.lang.String border) {
-		this.border = border;
-	}
-	
-	public void setCellpadding(java.lang.String cellpadding) {
-		this.cellpadding = cellpadding;
-	}
-	
-	public void setCellspacing(java.lang.String cellspacing) {
-		this.cellspacing = cellspacing;
-	}
-	
-	public void setColumnClasses(java.lang.String columnClasses) {
-		this.columnClasses = columnClasses;
-	}
-	
-	public void setDir(java.lang.String dir) {
-		this.dir = dir;
-	}
-	
-	public void setFooterClass(java.lang.String footerClass) {
-		this.footerClass = footerClass;
-	}
-	
-	public void setFrame(java.lang.String frame) {
-		this.frame = frame;
-	}
-	
-	public void setHeaderClass(java.lang.String headerClass) {
-		this.headerClass = headerClass;
-	}
-	
-	public void setLang(java.lang.String lang) {
-		this.lang = lang;
-	}
-	
-	public void setOnclick(java.lang.String onclick) {
-		this.onclick = onclick;
-	}
-	
-	public void setOndblclick(java.lang.String ondblclick) {
-		this.ondblclick = ondblclick;
-	}
-	
-	public void setOnkeydown(java.lang.String onkeydown) {
-		this.onkeydown = onkeydown;
-	}
-	
-	public void setOnkeypress(java.lang.String onkeypress) {
-		this.onkeypress = onkeypress;
-	}
-	
-	public void setOnkeyup(java.lang.String onkeyup) {
-		this.onkeyup = onkeyup;
-	}
-	
-	public void setOnmousedown(java.lang.String onmousedown) {
-		this.onmousedown = onmousedown;
-	}
-	
-	public void setOnmousemove(java.lang.String onmousemove) {
-		this.onmousemove = onmousemove;
-	}
-	
-	public void setOnmouseout(java.lang.String onmouseout) {
-		this.onmouseout = onmouseout;
-	}
-	
-	public void setOnmouseover(java.lang.String onmouseover) {
-		this.onmouseover = onmouseover;
-	}
-	
-	public void setOnmouseup(java.lang.String onmouseup) {
-		this.onmouseup = onmouseup;
-	}
-	
-	public void setRowClasses(java.lang.String rowClasses) {
-		this.rowClasses = rowClasses;
-	}
-	
-	public void setRules(java.lang.String rules) {
-		this.rules = rules;
-	}
-	
-	public void setStyle(java.lang.String style) {
-		this.style = style;
-	}
-	
-	public void setStyleClass(java.lang.String styleClass) {
-		this.styleClass = styleClass;
-	}
-	
-	public void setSummary(java.lang.String summary) {
-		this.summary = summary;
-	}
-	
-	public void setTitle(java.lang.String title) {
-		this.title = title;
-	}
-	
-	public void setWidth(java.lang.String width) {
-		this.width = width;
-	}
-	
-	public void setExpanded(java.lang.String expanded) {
-		this.expanded = expanded;
-	}
-	
-	public void setNoarrows(java.lang.String noarrows){
-		this.noarrows = noarrows;
-	}
+
 	
 	//
 	// General Methods
@@ -238,10 +131,12 @@ public class HierDataTableTag extends UIComponentTag
 		catch (ClassCastException cce) {
 			throw new IllegalStateException("Component " + component.toString() + " not expected type.  Expected: UIData.  Perhaps you're missing a tag?");
 		}
-		
+
+		Application application = FacesContext.getCurrentInstance().getApplication();
+
 		if (first != null) {
 			if (isValueReference(first)) {
-				ValueBinding vb = Util.getValueBinding(first);
+				ValueBinding vb = application.createValueBinding(first);
 				data.setValueBinding("first", vb);
 			} else {
 				int _first = Integer.valueOf(first).intValue();
@@ -250,7 +145,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (rows != null) {
 			if (isValueReference(rows)) {
-				ValueBinding vb = Util.getValueBinding(rows);
+				ValueBinding vb = application.createValueBinding(rows);
 				data.setValueBinding("rows", vb);
 			} else {
 				int _rows = Integer.valueOf(rows).intValue();
@@ -259,16 +154,16 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (value != null) {
 			if (isValueReference(value)) {
-				ValueBinding vb = Util.getValueBinding(value);
+				ValueBinding vb = application.createValueBinding(value);
 				data.setValueBinding("value", vb);
 			} else {
 				data.setValue(value);
 			}
 		}
-		data.setVar(_var);
+		data.setVar(var);
 		if (bgcolor != null) {
 			if (isValueReference(bgcolor)) {
-				ValueBinding vb = Util.getValueBinding(bgcolor);
+				ValueBinding vb = application.createValueBinding(bgcolor);
 				data.setValueBinding("bgcolor", vb);
 			} else {
 				data.getAttributes().put("bgcolor", bgcolor);
@@ -276,7 +171,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (border != null) {
 			if (isValueReference(border)) {
-				ValueBinding vb = Util.getValueBinding(border);
+				ValueBinding vb = application.createValueBinding(border);
 				data.setValueBinding("border", vb);
 			} else {
 				int _border = Integer.valueOf(border).intValue();
@@ -287,7 +182,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (cellpadding != null) {
 			if (isValueReference(cellpadding)) {
-				ValueBinding vb = Util.getValueBinding(cellpadding);
+				ValueBinding vb = application.createValueBinding(cellpadding);
 				data.setValueBinding("cellpadding", vb);
 			} else {
 				data.getAttributes().put("cellpadding", cellpadding);
@@ -295,7 +190,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (cellspacing != null) {
 			if (isValueReference(cellspacing)) {
-				ValueBinding vb = Util.getValueBinding(cellspacing);
+				ValueBinding vb = application.createValueBinding(cellspacing);
 				data.setValueBinding("cellspacing", vb);
 			} else {
 				data.getAttributes().put("cellspacing", cellspacing);
@@ -303,7 +198,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (columnClasses != null) {
 			if (isValueReference(columnClasses)) {
-				ValueBinding vb = Util.getValueBinding(columnClasses);
+				ValueBinding vb = application.createValueBinding(columnClasses);
 				data.setValueBinding("columnClasses", vb);
 			} else {
 				data.getAttributes().put("columnClasses", columnClasses);
@@ -311,7 +206,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (dir != null) {
 			if (isValueReference(dir)) {
-				ValueBinding vb = Util.getValueBinding(dir);
+				ValueBinding vb = application.createValueBinding(dir);
 				data.setValueBinding("dir", vb);
 			} else {
 				data.getAttributes().put("dir", dir);
@@ -319,7 +214,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (footerClass != null) {
 			if (isValueReference(footerClass)) {
-				ValueBinding vb = Util.getValueBinding(footerClass);
+				ValueBinding vb = application.createValueBinding(footerClass);
 				data.setValueBinding("footerClass", vb);
 			} else {
 				data.getAttributes().put("footerClass", footerClass);
@@ -327,7 +222,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (frame != null) {
 			if (isValueReference(frame)) {
-				ValueBinding vb = Util.getValueBinding(frame);
+				ValueBinding vb = application.createValueBinding(frame);
 				data.setValueBinding("frame", vb);
 			} else {
 				data.getAttributes().put("frame", frame);
@@ -335,7 +230,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (headerClass != null) {
 			if (isValueReference(headerClass)) {
-				ValueBinding vb = Util.getValueBinding(headerClass);
+				ValueBinding vb = application.createValueBinding(headerClass);
 				data.setValueBinding("headerClass", vb);
 			} else {
 				data.getAttributes().put("headerClass", headerClass);
@@ -343,7 +238,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (lang != null) {
 			if (isValueReference(lang)) {
-				ValueBinding vb = Util.getValueBinding(lang);
+				ValueBinding vb = application.createValueBinding(lang);
 				data.setValueBinding("lang", vb);
 			} else {
 				data.getAttributes().put("lang", lang);
@@ -351,7 +246,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onclick != null) {
 			if (isValueReference(onclick)) {
-				ValueBinding vb = Util.getValueBinding(onclick);
+				ValueBinding vb = application.createValueBinding(onclick);
 				data.setValueBinding("onclick", vb);
 			} else {
 				data.getAttributes().put("onclick", onclick);
@@ -359,7 +254,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (ondblclick != null) {
 			if (isValueReference(ondblclick)) {
-				ValueBinding vb = Util.getValueBinding(ondblclick);
+				ValueBinding vb = application.createValueBinding(ondblclick);
 				data.setValueBinding("ondblclick", vb);
 			} else {
 				data.getAttributes().put("ondblclick", ondblclick);
@@ -367,7 +262,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onkeydown != null) {
 			if (isValueReference(onkeydown)) {
-				ValueBinding vb = Util.getValueBinding(onkeydown);
+				ValueBinding vb = application.createValueBinding(onkeydown);
 				data.setValueBinding("onkeydown", vb);
 			} else {
 				data.getAttributes().put("onkeydown", onkeydown);
@@ -375,7 +270,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onkeypress != null) {
 			if (isValueReference(onkeypress)) {
-				ValueBinding vb = Util.getValueBinding(onkeypress);
+				ValueBinding vb = application.createValueBinding(onkeypress);
 				data.setValueBinding("onkeypress", vb);
 			} else {
 				data.getAttributes().put("onkeypress", onkeypress);
@@ -383,7 +278,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onkeyup != null) {
 			if (isValueReference(onkeyup)) {
-				ValueBinding vb = Util.getValueBinding(onkeyup);
+				ValueBinding vb = application.createValueBinding(onkeyup);
 				data.setValueBinding("onkeyup", vb);
 			} else {
 				data.getAttributes().put("onkeyup", onkeyup);
@@ -391,7 +286,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onmousedown != null) {
 			if (isValueReference(onmousedown)) {
-				ValueBinding vb = Util.getValueBinding(onmousedown);
+				ValueBinding vb = application.createValueBinding(onmousedown);
 				data.setValueBinding("onmousedown", vb);
 			} else {
 				data.getAttributes().put("onmousedown", onmousedown);
@@ -399,7 +294,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onmousemove != null) {
 			if (isValueReference(onmousemove)) {
-				ValueBinding vb = Util.getValueBinding(onmousemove);
+				ValueBinding vb = application.createValueBinding(onmousemove);
 				data.setValueBinding("onmousemove", vb);
 			} else {
 				data.getAttributes().put("onmousemove", onmousemove);
@@ -407,7 +302,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onmouseout != null) {
 			if (isValueReference(onmouseout)) {
-				ValueBinding vb = Util.getValueBinding(onmouseout);
+				ValueBinding vb = application.createValueBinding(onmouseout);
 				data.setValueBinding("onmouseout", vb);
 			} else {
 				data.getAttributes().put("onmouseout", onmouseout);
@@ -415,7 +310,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onmouseover != null) {
 			if (isValueReference(onmouseover)) {
-				ValueBinding vb = Util.getValueBinding(onmouseover);
+				ValueBinding vb = application.createValueBinding(onmouseover);
 				data.setValueBinding("onmouseover", vb);
 			} else {
 				data.getAttributes().put("onmouseover", onmouseover);
@@ -423,7 +318,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (onmouseup != null) {
 			if (isValueReference(onmouseup)) {
-				ValueBinding vb = Util.getValueBinding(onmouseup);
+				ValueBinding vb = application.createValueBinding(onmouseup);
 				data.setValueBinding("onmouseup", vb);
 			} else {
 				data.getAttributes().put("onmouseup", onmouseup);
@@ -431,7 +326,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (rowClasses != null) {
 			if (isValueReference(rowClasses)) {
-				ValueBinding vb = Util.getValueBinding(rowClasses);
+				ValueBinding vb = application.createValueBinding(rowClasses);
 				data.setValueBinding("rowClasses", vb);
 			} else {
 				data.getAttributes().put("rowClasses", rowClasses);
@@ -439,7 +334,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (rules != null) {
 			if (isValueReference(rules)) {
-				ValueBinding vb = Util.getValueBinding(rules);
+				ValueBinding vb = application.createValueBinding(rules);
 				data.setValueBinding("rules", vb);
 			} else {
 				data.getAttributes().put("rules", rules);
@@ -447,7 +342,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (style != null) {
 			if (isValueReference(style)) {
-				ValueBinding vb = Util.getValueBinding(style);
+				ValueBinding vb = application.createValueBinding(style);
 				data.setValueBinding("style", vb);
 			} else {
 				data.getAttributes().put("style", style);
@@ -455,7 +350,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (styleClass != null) {
 			if (isValueReference(styleClass)) {
-				ValueBinding vb = Util.getValueBinding(styleClass);
+				ValueBinding vb = application.createValueBinding(styleClass);
 				data.setValueBinding("styleClass", vb);
 			} else {
 				data.getAttributes().put("styleClass", styleClass);
@@ -463,7 +358,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (summary != null) {
 			if (isValueReference(summary)) {
-				ValueBinding vb = Util.getValueBinding(summary);
+				ValueBinding vb = application.createValueBinding(summary);
 				data.setValueBinding("summary", vb);
 			} else {
 				data.getAttributes().put("summary", summary);
@@ -471,7 +366,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (title != null) {
 			if (isValueReference(title)) {
-				ValueBinding vb = Util.getValueBinding(title);
+				ValueBinding vb = application.createValueBinding(title);
 				data.setValueBinding("title", vb);
 			} else {
 				data.getAttributes().put("title", title);
@@ -479,7 +374,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (width != null) {
 			if (isValueReference(width)) {
-				ValueBinding vb = Util.getValueBinding(width);
+				ValueBinding vb = application.createValueBinding(width);
 				data.setValueBinding("width", vb);
 			} else {
 				data.getAttributes().put("width", width);
@@ -487,7 +382,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (expanded != null) {
 			if (isValueReference(expanded)) {
-				ValueBinding vb = Util.getValueBinding(expanded);
+				ValueBinding vb = application.createValueBinding(expanded);
 				data.setValueBinding("expanded", vb);
 			} else {
 				data.getAttributes().put("expanded", expanded);
@@ -495,7 +390,7 @@ public class HierDataTableTag extends UIComponentTag
 		}
 		if (noarrows != null){
 			if (isValueReference(noarrows)){
-				ValueBinding vb = Util.getValueBinding(noarrows);
+				ValueBinding vb = application.createValueBinding(noarrows);
 				data.setValueBinding("noarrows", vb);
 			} else {
 				data.getAttributes().put("noarrows", noarrows);

@@ -1,0 +1,266 @@
+<div class="portletBody container-fluid">
+    <form name = "manageOverviewForm" method = "post" action="#toolForm($action)">
+
+        <input type="hidden" name="eventSubmit_doManage_overview_option" value="x" />
+        <input type="hidden" name="option" value="cancel" />
+        <h3>
+            $tlang.getString("manover.header") <span class="highlight">$!site.Title</span>
+        </h3>
+        #if ($alertMessage)<div class="alertMessage">$tlang.getString("manover.alert") $validator.escapeHtml($alertMessage)</div>#end
+        <p class="instruction">
+            $tlang.getString("manover.instr")
+        </p>
+        <h3>
+           $tlang.getString("manover.layout")
+        </h3>
+        <div class="row">
+            <div class="col-sm-12">
+            #foreach ($layout in $layouts)
+                    <input type="radio"
+                           name="layout"
+                           id="layout$velocityCount"
+                           value="$velocityCount"
+                           #if($velocityCount==($pagelayout))checked="checked"#end
+                           onclick="document.manageOverviewForm.option.value='layout'; document.manageOverviewForm.submit();"/>
+                    <label for="layout$velocityCount">$layout</label> <br />
+            #end
+            </div>
+        </div>
+        <h3 class="table-label">$tlang.getString("manover.added")</h3>
+        #set($toolIds = [])
+        <div class="row #if($pagelayout.equals(2)) hidden #end" id="single-col">
+            <div class="col-sm-5">
+            #if ($tools.size() > 0)
+                #set ($toolCount = 0)
+                <table class="manageTable table table-bordered table-hover" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th id="move" class="text-center">$tlang.getString("manover.move")</th>
+                            <th id="Title">$tlang.getString("manover.title")</th>
+                            <th id="Remove" class="text-center">$tlang.getString("manover.remove")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        #foreach ($tool in $tools)
+                        #set ($toolCount=$toolCount + 1)
+                        #set ($returnval = $toolIds.add($tool.Tool.Id)) <!-- This needs to be set b/c .add returns boolean-->
+                            <tr>
+                                <td headers="move" class="buttonCol">
+                                    #if ($toolCount > 1)
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
+                                            <span class="fa fa-arrow-up"></span>
+                                        </a>
+                                    #end
+                                    #if ($toolCount < $tools.size())
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Tool.Id)")" title ="$tlang.getString("manover.down")">
+                                            <span class="fa fa-arrow-down"></span>
+                                        </a>
+                                    #end
+                                </td>
+                                <td headers="Title">
+                                    <span class="titleSpan">$validator.escapeHtml($tool.Title)</span>
+                                </td>
+                                <td headers="Remove" class="removeCol">
+                                    <a href="#toolLinkParam("$action" "doRemove_widget" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
+                                        <span class="fa fa-times fa-lg text-danger" aria-hidden="true"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        #end
+                    </tbody>
+                </table>
+            #else
+                <div class="instruction">
+                    $tlang.getString("manover.notools")
+                </div>
+            #end
+            </div>
+        </div>
+        <div class="row #if($pagelayout.equals(1)) hidden #end" id="double-col">
+            #if ($leftTools.size() > 0 || $rightTools.size() > 0)
+                <div class="col-md-5">
+                    <table id="leftToolTable" class="manageTable table table-bordered table-hover" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th id="Title">$tlang.getString("manover.title")</th>
+                                <th id="Remove" class="text-center">$tlang.getString("manover.remove")</th>
+                                <th id="move" class="text-center" colspan="2">$tlang.getString("manover.move")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            #set ($leftToolCount = 0)
+                            #set ($left = "left")
+                            #foreach ($tool in $leftTools)
+                                #set ($leftToolCount=$leftToolCount + 1)
+                                <tr>
+                                    <td headers="Title">
+                                        <span class="titleSpan">$validator.escapeHtml($tool.Title)</span>
+                                    </td>
+                                    <td headers="Remove" class="removeCol">
+                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
+                                            <span class="fa fa-times fa-lg text-danger" aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                    <td headers="move" class="buttonCol">
+                                        #if ($leftToolCount > 1)
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
+                                                <span class="fa fa-arrow-up"></span>
+                                            </a>
+                                        #end
+                                        #if ($leftToolCount < $leftTools.size())
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
+                                                <span class="fa fa-arrow-down"></span>
+                                           </a>
+                                        #end
+                                    </td>
+                                    <td headers="move" class="buttonCol">
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_right" "id=$validator.escapeUrl($tool.Id)")" title="$tlang.getString("manover.right")">
+                                            <span class="fa fa-arrow-right"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            #end
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-5">
+                    <table id="rightToolTable" class="manageTable table table-bordered table-hover" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th id="move" class="text-center" colspan="2">$tlang.getString("manover.move")</th>
+                                <th id="Title">$tlang.getString("manover.title")</th>
+                                <th id="Remove" class="text-center">$tlang.getString("manover.remove")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            #set ($rightToolCount = 0)
+                            #set ($right = "right")
+                            #foreach ($tool in $rightTools)
+                                #set ($rightToolCount=$rightToolCount + 1)
+                                <tr>
+                                    <td headers="move" class="buttonCol">
+                                        <a href="#toolLinkParam("$action" "doEdit_tool_left" "id=$validator.escapeUrl($tool.Id)")" title="$tlang.getString("manover.left")">
+                                            <span class="fa fa-arrow-left"></span>
+                                        </a>
+                                    </td>
+                                    <td headers="move" class="buttonCol">
+                                        #if ($rightToolCount > 1)
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
+                                                <span class="fa fa-arrow-up"></span>
+                                            </a>
+                                        #end
+                                        #if ($rightToolCount < $rightTools.size())
+                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
+                                                <span class="fa fa-arrow-down"></span>
+                                            </a>
+                                        #end
+                                    </td>
+                                    <td headers="Title">
+                                        <span class="titleSpan">$validator.escapeHtml($tool.Title)</span>
+                                    </td>
+                                    <td headers="Remove" class="removeCol">
+                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$validator.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
+                                            <span class="fa fa-times fa-lg text-danger " aria-hidden="true"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            #end
+                        </tbody>
+                    </table>
+                </div>
+            #else
+                <div class="instruction">
+                    $tlang.getString("manover.notools")
+                </div>
+            #end
+        </div>
+
+        #set ($unavailWidgets = [])
+        #set ($availWidgets = [])
+    #foreach ($widget in $allWidgets)
+        #if ($requiredTools.contains($widget.Id))
+            #set($junkvar = $unavailWidgets.add($widget))
+        #elseif ($toolIds.contains($widget.Id) == false)
+            #set($junkvar = $availWidgets.add($widget))
+        #end
+    #end
+        <h3 class="table-label">$tlang.getString("manover.all")</h3>
+            #if ($availWidgets.size() > 0)
+                <div class="row" id="available-widgets">
+                <div class="col-sm-12">
+                    <ul id="availableWidgets" class="manageList list-group">
+                        #set ($widgetCount = 0)
+                        #foreach ($widget in $availWidgets)
+                            #set ($widgetCount=$widgetCount + 1)
+                            <li class="list-group-item">
+                                <a href="#toolLinkParam("$action" "doAdd_widget" "id=$validator.escapeUrl($widget.Id)")" title="$tlang.getString("manover.add.full")">
+                                    <span class="fa fa-plus" aria-hidden="true"></span>
+                                </a>
+                                <span class="widgetName">$validator.escapeHtml($widget.Title)</span>
+                            </li>
+                            #end
+                    </ul>
+                </div>
+            </div>
+            #else
+                <p class="instruction">
+                    $tlang.getString("manover.nowidgets")
+                </p>
+            #end
+
+        #if($unavailWidgets.size() > 0)
+        <h3 class="table-label">$tlang.getString("manover.unavail")</h3>
+        <div class="instruction">$tlang.getString("manover.tool.unavail")</div>
+        <div class="row" id="not-available-widgets">
+             <div class="col-sm-12">
+                 <ul id="unavailableWidgets" class="manageList list-group">
+                     #set ($widgetCount = 0)
+                     #foreach ($widget in $unavailWidgets)
+                         #set ($widgetCount=$widgetCount + 1)
+                         #set ($currentTool = $toolIds.contains($widget.Id))
+                         #if ($currentTool == false)
+                             <li class="disabled list-group-item">
+                                 <span class="fa fa-ban fa-lg"></span>
+                                 <span class="widgetName">$validator.escapeHtml($widget.Title)</span>
+                             </li>
+                         #end
+                     #end
+                 </ul>
+             </div>
+        </div>
+        #end
+        <input type="hidden" name="templateIndex" value="65" />
+        <div class="act">
+                <input
+                        type="submit"
+                        class="active"
+                        name="$tlang.getString("manover.save")"
+                        accesskey="s"
+                        value="$tlang.getString("manover.save")"
+                        onclick="SPNR.disableControlsAndSpin( this, null ); document.manageOverviewForm.option.value='save'; document.manageOverviewForm.submit();"
+                />
+                <input
+                        class="disableme"
+                        type="button"
+                        name="eventSubmit_doCancel"
+                        id="$tlang.getString("manover.can")"
+                        accesskey="x"
+                        value="$tlang.getString("manover.can")"
+                        onclick="SPNR.disableControlsAndSpin( this, null ); document.manageOverviewForm.option.value='cancel'; document.manageOverviewForm.submit();"
+                />
+        </div>
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    </form>
+</div>
+
+<script>
+    $('input:radio[id="layout1"]').click(function() {
+        $('#single-col').removeClass("hidden");
+        $('#double-col').addClass("hidden");
+    });
+
+    $('input:radio[id="layout2"]').click(function() {
+        $('#double-col').removeClass("hidden");
+        $('#single-col').addClass("hidden");
+    });
+</script>

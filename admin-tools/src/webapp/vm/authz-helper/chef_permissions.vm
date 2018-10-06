@@ -46,7 +46,7 @@
 		</div>
 		#end
 		## end if there are any groups at all			
-		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
+		<div class="actionItem" style="float:left;padding-top:.5em">
 			<input type="button" value="$thelp.getString("per.lis.restoredef")" onclick="SPNR.disableControlsAndSpin( this, null );window.location.reload();" />
 		</div>
 	</div>

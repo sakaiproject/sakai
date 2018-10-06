@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.UUID;
 import java.util.Vector;
@@ -79,10 +82,6 @@ import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.api.Menu;
-import org.sakaiproject.cheftool.api.MenuItem;
-import org.sakaiproject.cheftool.menu.MenuEntry;
-import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -160,6 +159,8 @@ import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
+import org.sakaiproject.site.tool.MenuBuilder.SiteInfoActiveTab;
+import static org.sakaiproject.site.util.SiteConstants.STATE_TEMPLATE_INDEX;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
@@ -311,7 +312,10 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-importMigrate",    //59
 			"-importSitesMigrate",  //60
 			"-siteInfo-importUser",
-			"-uploadArchive"
+			"-uploadArchive",
+			"-siteInfo-manageParticipants",  // 63
+			"-newSite",
+			"-siteInfo-manageOverview" // 65
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -337,7 +341,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	
 	private final static String PROP_SITE_LANGUAGE = "locale_string";
-	
+
 	/**
 	 * Name of the state attribute holding the site list column list is sorted
 	 * by
@@ -488,8 +492,9 @@ public class SiteAction extends PagedResourceActionII {
 	/** Context action */
 	private static final String CONTEXT_ACTION = "SiteAction";
 
-	/** The name of the Attribute for display template index */
-	private static final String STATE_TEMPLATE_INDEX = "site.templateIndex";
+	/** Integer index for the Manage Participants UI */
+	private static final String STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS = "63";
+	private static final int STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS_INT = 63;
 
 	/** The name of the Attribute for display template index */
 	private static final String STATE_OVERRIDE_TEMPLATE_INDEX = "site.overrideTemplateIndex";
@@ -507,7 +512,7 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_TEMPLATE_PUBLISH = "site.templateSitePublish";
 
 	/** The action for menu */
-	private static final String STATE_ACTION = "site.action";
+	public static final String STATE_ACTION = "site.action";
 
 	/** The user copyright string */
 	private static final String STATE_MY_COPYRIGHT = "resources.mycopyright";
@@ -656,6 +661,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SITE_USER_SEARCH = "search_user";
 	private String cmSubjectCategory;
 
+	public static final String STATE_SITE_PARTICIPANT_FILTER = "site_participant_filter";
+
 	private boolean warnedNoSubjectCategory = false;
 
 	// the string marks the protocol part in url
@@ -692,7 +699,7 @@ public class SiteAction extends PagedResourceActionII {
 	// the list of visited templates
 	private static final String STATE_VISITED_TEMPLATES = "state_visited_templates";
 	
-	private String STATE_GROUP_HELPER_ID = "state_group_helper_id";
+	public static final String STATE_GROUP_HELPER_ID = "state_group_helper_id";
 
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
 	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
@@ -766,7 +773,10 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SORT_ORDER_COURSE_OFFERING = "worksitesetup.sort.order.courseOffering";
 	private final static String SORT_KEY_SECTION = "worksitesetup.sort.key.section";
 	private final static String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
-	
+
+	public final static String SAK_PROP_SITE_SETUP_GROUP_SUPPORT = "wsetup.group.support";
+	public final static boolean SAK_PROP_SITE_SETUP_GROUP_SUPPORT_DEFAULT = true;
+
 	// SAK-23255
 	private final static String CONTEXT_IS_ADMIN = "isAdmin";
 	private final static String CONTEXT_SKIP_MANUAL_COURSE_CREATION = "skipManualCourseCreation";
@@ -1211,6 +1221,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
 		state.removeAttribute(STATE_SITE_PARTICIPANT_LIST);
 		state.removeAttribute(SITE_USER_SEARCH);
+		state.removeAttribute(STATE_SITE_PARTICIPANT_FILTER);
 
 		// SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
@@ -1466,8 +1477,6 @@ public class SiteAction extends PagedResourceActionII {
 		List toolRegistrationList = new Vector();
 		List toolRegistrationSelectedList = new Vector();
 
-		ResourceProperties siteProperties = null;
-
 		// all site types
 		context.put("courseSiteTypeStrings", SiteService.getSiteTypeStrings("course"));
 		context.put("portfolioSiteTypeStrings", SiteService.getSiteTypeStrings("portfolio"));
@@ -1486,11 +1495,9 @@ public class SiteAction extends PagedResourceActionII {
 		
 		// can the user user create sites from archives?
 		context.put(STATE_SITE_IMPORT_ARCHIVE, SiteService.allowImportArchiveSite());
-		
 
-		
 		Site site = getStateSite(state);
-		
+
 		List unJoinableSiteTypes = (List) state.getAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE);
 
 		log.debug("buildContextForTemplate index={}", index);
@@ -1514,18 +1521,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("canSeeSoftlyDeletedSites", true);
 				}
 			}
-			
-			// top menu bar
-			Menu bar = new MenuImpl(portlet, data, (String) state
-					.getAttribute(STATE_ACTION));
-			context.put("menu", bar);
-			if (SiteService.allowAddSite(null)) {
-				bar.add(new MenuEntry(rb.getString("java.new"), "doNew_site"));
-			}
-			bar.add(new MenuEntry(rb.getString("java.revise"), null, true,
-					MenuItem.CHECKED_NA, "doGet_site", "sitesForm"));
-			bar.add(new MenuEntry(rb.getString("java.delete"), null, true,
-					MenuItem.CHECKED_NA, "doMenu_site_delete", "sitesForm"));
+
+			// Add the menus to the vm
+			MenuBuilder.buildMenuForWorksiteSetup(portlet, data, state, context, rb);
 
 			// If we're in the restore view
 			context.put("showRestore", SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED)));
@@ -1535,6 +1533,7 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				context.put("superUser", Boolean.FALSE);
 			}
+			context.put("viewDeleted", SiteConstants.SITE_TYPE_DELETED);
 			views.put(SiteConstants.SITE_TYPE_ALL, rb.getString("java.allmy"));
 			views.put(SiteConstants.SITE_TYPE_MYWORKSPACE, rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}));
 			for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
@@ -1674,26 +1673,7 @@ public class SiteAction extends PagedResourceActionII {
 			// default to be no paging
 			context.put("paged", Boolean.FALSE);
 
-			Menu bar2 = new MenuImpl(portlet, data, (String) state
-					.getAttribute(STATE_ACTION));
-
-			// add the search commands
-			addSearchMenus(bar2, state);
-			context.put("menu2", bar2);
-
 			pagingInfoToContext(state, context);
-			
-			//SAK-22438 if user can add one of these site types then they can see the link to add a new site
-			boolean allowAddSite = false;
-			if(SiteService.allowAddCourseSite()) {
-				allowAddSite = true;
-			} else if (SiteService.allowAddPortfolioSite()) {
-				allowAddSite = true;
-			} else if (SiteService.allowAddProjectSite()) {
-				allowAddSite = true;
-			}
-			
-			context.put("allowAddSite",allowAddSite);
 
 			//Add flash notification when new site is created
 			if(state.getAttribute(STATE_NEW_SITE_STATUS_ID) != null){
@@ -1788,12 +1768,15 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			if (site != null)
 			{
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
+
 				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				LessonsSubnavEnabler.addToEditToolsContext(context, site, state);
 				PortalNeochatEnabler.addToEditToolsContext(context, site, state);
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
-				context.put("backIndex", "12");	// back to site info list page
+				context.put("backIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);	// back to site info list page
 			}
 			else
 			{
@@ -1936,7 +1919,7 @@ public class SiteAction extends PagedResourceActionII {
 			/// site language information
  							
  			String locale_string_selected = (String) state.getAttribute("locale_string");
- 			if(locale_string_selected == ""  || locale_string_selected == null)		
+ 			if("".equals( locale_string_selected )  || locale_string_selected == null)		
  				context.put("locale_string_selected", "");			
  			else
  			{
@@ -1976,43 +1959,110 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("fromArchive", state.getAttribute(STATE_UPLOADED_ARCHIVE_NAME));
 
 			return (String) getContext(data).get("template") + TEMPLATE[10];
+		case STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS_INT:
+			/*
+			 * buildContextForTemplate chef_site-siteInfo-manageParticipants.vm
+			 */
+
+			// Put the link for downloading participant list PDF into the context
+			putDownloadParticipantPDFLinkIntoContext(context, data, site);
+
+			boolean allowUpdateSiteMembership = SiteService.allowUpdateSiteMembership(site.getId());
+			boolean allowUpdateSite = SiteService.allowUpdateSite(site.getId());
+			boolean allowViewRoster = SiteService.allowViewRoster(site.getId());
+			boolean isMyWorkspace = isSiteMyWorkspace(site);
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_PARTICIPANTS);
+
+			context.put("userSearch", state.getAttribute(SITE_USER_SEARCH));
+
+			// Put the filter entries into the context
+			ParticipantFilterHandler.putFilterEntriesInContext(context, rb, site);
+
+			if (site.getProviderGroupId() != null) {
+				log.debug("site has provider");
+				context.put("hasProviderSet", Boolean.TRUE);
+			} else {
+				log.debug("site has no provider");
+				context.put("hasProviderSet", Boolean.FALSE);
+			}
+
+			if (isMyWorkspace) {
+				context.put("siteUserId", SiteService.getSiteUserId(site.getId()));
+			}
+
+			context.put("allowUpdateSiteMembership", allowUpdateSiteMembership);
+			context.put("isMyWorkspace", isMyWorkspace);
+			context.put("siteTitle", site.getTitle());
+			context.put("isCourseSite", SiteTypeUtil.isCourseSite(site.getType()));
+
+			// Set participant list
+			if (allowUpdateSite || allowViewRoster || allowUpdateSiteMembership) {
+				Collection participantsCollection = getParticipantList(state);
+				sortedBy = (String) state.getAttribute(SORTED_BY);
+				sortedAsc = (String) state.getAttribute(SORTED_ASC);
+				if (sortedBy == null) {
+					state.setAttribute(SORTED_BY, SiteConstants.SORTED_BY_PARTICIPANT_NAME);
+					sortedBy = SiteConstants.SORTED_BY_PARTICIPANT_NAME;
+				}
+				if (sortedAsc == null) {
+					sortedAsc = Boolean.TRUE.toString();
+					state.setAttribute(SORTED_ASC, sortedAsc);
+				}
+
+				context.put("currentSortedBy", sortedBy);
+				context.put("currentSortAsc", sortedAsc);
+				context.put("participantListSize", participantsCollection.size());
+				context.put("participantList", prepPage(state));
+
+				ParticipantFilterHandler.putSelectedFilterIntoContext(state, context);
+
+				pagingInfoToContext(state, context);
+			}
+
+			// SAK-23257 - add the allowed roles to the context for UI rendering
+			List<Role> allRoles = getRoles(state);
+			context.put(VM_ALLOWED_ROLES_DROP_DOWN, SiteParticipantHelper.getAllowedRoles(site.getType(), allRoles));
+			context.put("allRoles", allRoles);
+
+			// Will have the choice to active/inactive user or not
+			context.put("activeInactiveUser", ServerConfigurationService.getBoolean("activeInactiveUser", false));
+
+			// Provide last modified time
+			realmId = SiteService.siteReference(site.getId());
+			try {
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
+			} catch (GroupNotDefinedException e) {
+				log.warn("{} IdUnusedException {}", this, realmId);
+			}
+
+			return (String) getContext(data).get("template") + TEMPLATE[STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS_INT];
 		case 12:
 			/*
 			 * buildContextForTemplate chef_site-siteInfo-list.vm
 			 * 
 			 */
-			// put the link for downloading participant
-			putPrintParticipantLinkIntoContext(context, data, site);
 			context.put("searchString", state.getAttribute(STATE_SEARCH));
-			//add user search string
-			context.put("userSearch", state.getAttribute(SITE_USER_SEARCH));
-			context.put("form_search", FORM_SEARCH);
-			context.put("userDirectoryService", UserDirectoryService
-					.getInstance());
+
+			// Site modified by information
+			User siteModifiedBy = site.getModifiedBy();
+			Time siteModifiedTime = site.getModifiedTime();
+			if( siteModifiedBy != null )
+			{
+				context.put( "siteModifiedBy", siteModifiedBy.getSortName() );
+			}
+			if( siteModifiedTime != null )
+			{
+				context.put( "siteModifiedTime", siteModifiedTime.toStringLocalFull() );
+			}
+
 			try {
-				siteProperties = site.getProperties();
 				siteType = site.getType();
 				if (siteType != null) {
 					state.setAttribute(STATE_SITE_TYPE, siteType);
 				}
-				
-				if (site.getProviderGroupId() != null) {
-					log.debug("site has provider");
-					context.put("hasProviderSet", Boolean.TRUE);
-				} else {
-					log.debug("site has no provider");
-					context.put("hasProviderSet", Boolean.FALSE);
-				}
-				boolean isMyWorkspace = false;
-				if (SiteService.isUserSite(site.getId())) {
-					if (SiteService.getSiteUserId(site.getId()).equals(
-							SessionManager.getCurrentSessionUserId())) {
-						isMyWorkspace = true;
-						context.put("siteUserId", SiteService
-								.getSiteUserId(site.getId()));
-					}
-				}
-				context.put("isMyWorkspace", Boolean.valueOf(isMyWorkspace));
 
 				String siteId = site.getId();
 				if (state.getAttribute(STATE_ICONS) != null) {
@@ -2027,7 +2077,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				if (state.getAttribute(SITE_DUPLICATED) != null) {
 						String flashNotifMsg = "<a title=\""+state.getAttribute(SITE_DUPLICATED_NAME) +"\" href=\""+state.getAttribute(STATE_DUPE_SITE_URL)+"\" target=\"_top\">"+state.getAttribute(SITE_DUPLICATED_NAME)+"</a>";
-						addFlashNotif(state, rb.getString("sitdup.dupsit") + " " + flashNotifMsg + " " + rb.getString("sitdup.hasbeedup"));
+						addFlashNotif(state, rb.getString("java.duplicate") + " " + flashNotifMsg + " " + rb.getString("sitdup.hasbeedup"));
 					}
 				state.removeAttribute(SITE_DUPLICATED);
 				state.removeAttribute(SITE_DUPLICATED_NAME);
@@ -2039,218 +2089,33 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteIcon", site.getIconUrl());
 				context.put("siteTitle", site.getTitle());
 				context.put("siteDescription", site.getDescription());
-				context.put("siteId", site.getId());
 				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
 				{
 					context.put("siteJoinable", Boolean.valueOf(site.isJoinable()));
 					context.put("allowUnjoin", SiteService.allowUnjoinSite(site.getId()));
 				}
 
-				// Is the current user a member
-				context.put("siteUserMember", site.getUserRole(UserDirectoryService.getCurrentUser().getId()) != null);
-
 				if (site.isPublished()) {
 					context.put("published", Boolean.TRUE);
 				} else {
 					context.put("published", Boolean.FALSE);
-					context.put("owner", site.getCreatedBy().getSortName());
 				}
 				Time creationTime = site.getCreatedTime();
 				if (creationTime != null) {
 					context.put("siteCreationDate", creationTime
 							.toStringLocalFull());
 				}
-				boolean allowUpdateSite = SiteService.allowUpdateSite(siteId);
-				context.put("allowUpdate", Boolean.valueOf(allowUpdateSite));
 
-				boolean allowUpdateGroupMembership = SiteService
-						.allowUpdateGroupMembership(siteId);
-				context.put("allowUpdateGroupMembership", Boolean
-						.valueOf(allowUpdateGroupMembership));
+				ResourceProperties siteProperties = site.getProperties();
 
-				boolean allowUpdateSiteMembership = SiteService
-						.allowUpdateSiteMembership(siteId);
-				context.put("allowUpdateSiteMembership", Boolean
-						.valueOf(allowUpdateSiteMembership));
-
+				allowUpdateSite = SiteService.allowUpdateSite(site.getId());
+				isMyWorkspace = isSiteMyWorkspace(site);
+				boolean allowUpdateGroupMembership = SiteService.allowUpdateGroupMembership(site.getId());
+				context.put("allowUpdate", allowUpdateSite);
 				context.put("additionalAccess", getAdditionRoles(site));
 
-				Menu b = new MenuImpl(portlet, data, (String) state
-						.getAttribute(STATE_ACTION));
-				if (allowUpdateSite) 
-				{
-					// Site modified by information
-					User siteModifiedBy = site.getModifiedBy();
-					Time siteModifiedTime = site.getModifiedTime();
-					if (siteModifiedBy != null) {
-						context.put("siteModifiedBy", siteModifiedBy.getSortName());
-					}
-					if (siteModifiedTime != null) {
-						context.put("siteModifiedTime", siteModifiedTime.toStringLocalFull());
-					}
-					
-					// top menu bar
-					if (!isMyWorkspace) {
-						b.add(new MenuEntry(rb.getString("java.editsite"),
-								"doMenu_edit_site_info"));
-					}
-					b.add(new MenuEntry(rb.getString("java.edittools"),
-							"doMenu_edit_site_tools"));
-					
-					// if the page order helper is available, not
-					// stealthed and not hidden, show the link
-					if (notStealthOrHiddenTool("sakai-site-pageorder-helper")) {
-						
-						// in particular, need to check site types for showing the tool or not
-						if (isPageOrderAllowed(siteType, siteProperties.getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES)))
-						{
-							b.add(new MenuEntry(rb.getString("java.orderpages"), "doPageOrderHelper"));
-						}
-						
-					}
-					
-				}
-
-				if (allowUpdateSiteMembership) 
-				{
-					// show add participant menu
-					if (!isMyWorkspace) {
-						// if the add participant helper is available, not
-						// stealthed and not hidden, show the link
-						if (notStealthOrHiddenTool(getAddUserHelper(site))) {
-							b.add(new MenuEntry(rb.getString("java.addp"),
-									"doParticipantHelper"));
-						}
-						
-						// show the Edit Class Roster menu
-						if (ServerConfigurationService.getBoolean("site.setup.allow.editRoster", true) && siteType != null && SiteTypeUtil.isCourseSite(siteType)) {
-							b.add(new MenuEntry(rb.getString("java.editc"),
-									"doMenu_siteInfo_editClass"));
-						}
-					}
-				}
-				
-				if (allowUpdateGroupMembership) {
-					// show Manage Groups menu
-					if (!isMyWorkspace
-							&& (ServerConfigurationService
-									.getString("wsetup.group.support") == "" || ServerConfigurationService
-									.getString("wsetup.group.support")
-									.equalsIgnoreCase(Boolean.TRUE.toString()))) {
-						// show the group toolbar unless configured
-						// to not support group
-						// if the manage group helper is available, not
-						// stealthed and not hidden, show the link
-						// read the helper name from configuration variable: wsetup.group.helper.name
-						// the default value is: "sakai-site-manage-group-section-role-helper"
-						// the older version of group helper which is not section/role aware is named:"sakai-site-manage-group-helper"
-						String groupHelper = ServerConfigurationService.getString("wsetup.group.helper.name", "sakai-site-manage-group-section-role-helper");
-						if (setHelper("wsetup.groupHelper", groupHelper, state, STATE_GROUP_HELPER_ID)) {
-							b.add(new MenuEntry(rb.getString("java.group"),
-									"doManageGroupHelper"));
-						}
-					}
-				}
-
-				if (allowUpdateSite) 
-				{
-					// show add parent sites menu
-					if (!isMyWorkspace) {
-						if (notStealthOrHiddenTool("sakai-site-manage-link-helper")) {
-							b.add(new MenuEntry(rb.getString("java.link"),
-									"doLinkHelper"));
-						}
-
-						if (notStealthOrHiddenTool("sakai.basiclti.admin.helper")) {
-							b.add(new MenuEntry(rb.getString("java.external"),
-									"doExternalHelper"));
-						}
-						
-					}
-				}
-				
-				
-				if (allowUpdateSite) 
-				{
-					if (!isMyWorkspace) {
-						List<String> providedSiteTypes = siteTypeProvider.getTypes();
-						boolean isProvidedType = false;
-						if (siteType != null
-								&& providedSiteTypes.contains(siteType)) {
-							isProvidedType = true;
-						}
-						if (!isProvidedType) {
-							// hide site access for provided site types
-							// type of sites
-							b.add(new MenuEntry(
-									rb.getString("java.siteaccess"),
-									"doMenu_edit_site_access"));
-							
-							// hide site duplicate and import
-							if (SiteService.allowAddSite(null) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", false))
-							{
-								b.add(new MenuEntry(rb.getString("java.duplicate"),
-										"doMenu_siteInfo_duplicate"));
-							}
-
-							List updatableSites = SiteService
-									.getSites(
-											org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-											null, null, null,
-											SortType.TITLE_ASC, null);
-
-							// import link should be visible even if only one
-							// site
-							if (updatableSites.size() > 0) {
-								//a configuration param for showing/hiding Import From Site with Clean Up
-								String importFromSite = ServerConfigurationService.getString("clean.import.site",Boolean.TRUE.toString());
-								if (importFromSite.equalsIgnoreCase("true")) {
-									b.add(new MenuEntry(
-										rb.getString("java.import"),
-										"doMenu_siteInfo_importSelection"));
-								}
-								else {
-									b.add(new MenuEntry(
-										rb.getString("java.import"),
-										"doMenu_siteInfo_import"));
-								}
-								// a configuration param for
-								// showing/hiding import
-								// from file choice
-								String importFromFile = ServerConfigurationService
-										.getString("site.setup.import.file",
-												Boolean.TRUE.toString());
-								if (importFromFile.equalsIgnoreCase("true")) {
-									// htripath: June
-									// 4th added as per
-									// Kris and changed
-									// desc of above
-									b.add(new MenuEntry(rb
-											.getString("java.importFile"),
-											"doAttachmentsMtrlFrmFile"));
-								}
-							}
-						}
-					}
-				}
-				
-				if (allowUpdateSite) 
-				{
-					// show add parent sites menu
-					if (!isMyWorkspace) {
-						boolean eventLog = "true".equals(ServerConfigurationService.getString("user_audit_log_display", "true"));
-						if (notStealthOrHiddenTool("sakai.useraudit") && eventLog) {
-							b.add(new MenuEntry(rb.getString("java.userAuditEventLog"),
-									"doUserAuditEventLog"));
-						}
-					}
-				}
-				
-				if (b.size() > 0)
-				{
-					// add the menus to vm
-					context.put("menu", b);
-				}
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.SITE_INFO);
 
 				if(state.getAttribute(IMPORT_QUEUED) != null){
 					context.put("importQueued", true);
@@ -2274,35 +2139,6 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				} else {
 					context.put("fromWSetup", Boolean.FALSE);
-				}
-				// allow view roster?
-				boolean allowViewRoster = SiteService.allowViewRoster(siteId);
-				if (allowViewRoster) {
-					context.put("viewRoster", Boolean.TRUE);
-				} else {
-					context.put("viewRoster", Boolean.FALSE);
-				}
-				// set participant list
-				if (allowUpdateSite || allowViewRoster
-						|| allowUpdateSiteMembership) {
-					Collection participantsCollection = getParticipantList(state);
-					sortedBy = (String) state.getAttribute(SORTED_BY);
-					sortedAsc = (String) state.getAttribute(SORTED_ASC);
-					if (sortedBy == null) {
-						state.setAttribute(SORTED_BY, SiteConstants.SORTED_BY_PARTICIPANT_NAME);
-						sortedBy = SiteConstants.SORTED_BY_PARTICIPANT_NAME;
-					}
-					if (sortedAsc == null) {
-						sortedAsc = Boolean.TRUE.toString();
-						state.setAttribute(SORTED_ASC, sortedAsc);
-					}
-					if (sortedBy != null)
-						context.put("currentSortedBy", sortedBy);
-					if (sortedAsc != null)
-						context.put("currentSortAsc", sortedAsc);
-					context.put("participantListSize", Integer.valueOf(participantsCollection.size()));
-					context.put("participantList", prepPage(state));
-					pagingInfoToContext(state, context);
 				}
 
 				context.put("include", Boolean.valueOf(site.isPubView()));
@@ -2340,7 +2176,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (ServerConfigurationService.getBoolean("wsetup.group.support.summary", true))
 				{
 					if ((allowUpdateSite || allowUpdateGroupMembership) 
-							&& (!isMyWorkspace && ServerConfigurationService.getBoolean("wsetup.group.support", true)))
+							&& (!isMyWorkspace && ServerConfigurationService.getBoolean(SAK_PROP_SITE_SETUP_GROUP_SUPPORT, SAK_PROP_SITE_SETUP_GROUP_SUPPORT_DEFAULT)))
 					{
 						// show all site groups
 						groups = site.getGroups();
@@ -2485,30 +2321,6 @@ public class SiteAction extends PagedResourceActionII {
 				log.error(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
 			}
 
-			roles = getRoles(state);
-			context.put("roles", roles);
-			
-			// SAK-23257 - add the allowed roles to the context for UI rendering
-			context.put( VM_ALLOWED_ROLES_DROP_DOWN, SiteParticipantHelper.getAllowedRoles( site.getType(), roles ) );
-
-			// will have the choice to active/inactive user or not
-			String activeInactiveUser = ServerConfigurationService.getString(
-					"activeInactiveUser", Boolean.FALSE.toString());
-			if (activeInactiveUser.equalsIgnoreCase("true")) {
-				context.put("activeInactiveUser", Boolean.TRUE);
-			} else {
-				context.put("activeInactiveUser", Boolean.FALSE);
-			}
-			
-			// UVa add realm object to context so we can provide last modified time
-			realmId = SiteService.siteReference(site.getId());
-			try {
-				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
-				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
-			} catch (GroupNotDefinedException e) {
-				log.warn(this + "  IdUnusedException " + realmId);
-			}
-
 			// SAK-22384 mathjax support
 			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 			LessonsSubnavEnabler.addToSiteInfoContext(context, site, state);
@@ -2530,6 +2342,9 @@ public class SiteAction extends PagedResourceActionII {
 						
 				String locale_string = StringUtils.trimToEmpty(props.getProperty(PROP_SITE_LANGUAGE));
 				context.put("locale_string",locale_string);
+
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_SITE_INFO);
 			} else {
 				// new site
 				context.put("existingSite", Boolean.FALSE);
@@ -2671,9 +2486,15 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-editInfoConfirm.vm
 			 * 
 			 */
+			ResourceProperties siteProperties = null;
+			if (site != null) {
+				siteProperties = site.getProperties();
+
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_SITE_INFO);
+			}
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias()));
-			siteProperties = site.getProperties();
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (SiteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
@@ -2688,9 +2509,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("title", siteInfo.title);
 			
 			// get updated language
-			String new_locale_string = (String) state.getAttribute("locale_string");			
-			if(new_locale_string == ""  || new_locale_string == null)							
-				context.put("new_locale", "");			
+			String new_locale_string = (String) state.getAttribute("locale_string");
+			if(StringUtils.isBlank(new_locale_string))
+				context.put("new_locale", "");
 			else
 			{
 				Locale new_locale = getLocaleFromString(new_locale_string);
@@ -2698,10 +2519,10 @@ public class SiteAction extends PagedResourceActionII {
 			}
 						
 			// get site language saved
-			ResourcePropertiesEdit props = site.getPropertiesEdit();					
-			String oLocale_string = props.getProperty(PROP_SITE_LANGUAGE);			
-			if(oLocale_string == "" || oLocale_string == null)				
-				context.put("oLocale", "");			
+			ResourcePropertiesEdit props = site.getPropertiesEdit();
+			String oLocale_string = props.getProperty(PROP_SITE_LANGUAGE);
+			if(StringUtils.isBlank(oLocale_string))
+				context.put("oLocale", "");
 			else
 			{
 				Locale oLocale = getLocaleFromString(oLocale_string);
@@ -2741,14 +2562,12 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("neoChat", ServerConfigurationService.getString(Site.PROP_SITE_PORTAL_NEOCHAT, "never"));
 
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
-			boolean myworkspace_site = false;
-			if (SiteService.isUserSite(site.getId())) {
-				if (SiteService.getSiteUserId(site.getId()).equals(
-						SessionManager.getCurrentSessionUserId())) {
-					myworkspace_site = true;
-					site_type = "myworkspace";
-				}
+			if (isSiteMyWorkspace(site)) {
+				site_type = "myworkspace";
 			}
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 
 			String overridePageOrderSiteTypes = site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
@@ -2775,6 +2594,9 @@ public class SiteAction extends PagedResourceActionII {
 				siteType = state.getAttribute(STATE_SITE_TYPE) != null ? (String) state
 						.getAttribute(STATE_SITE_TYPE)
 						: null;
+
+				// Add the menus to the vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_ACCESS);
 
 				if (siteType != null
 						&& publicChangeableSiteTypes.contains(siteType)) {
@@ -2892,12 +2714,13 @@ public class SiteAction extends PagedResourceActionII {
 			 * When editing the list of tools this is called to set options that some tools require.
 			 * For example the mail archive tools needs an alias before it can start to be used.
 			 */
-			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
-			boolean existingSite = site != null ? true : false;
-			if (existingSite) {
+			if (site != null) {
 				// revising a existing site's tool
 				context.put("existingSite", Boolean.TRUE);
 				context.put("continue", "15");
+
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.MANAGE_TOOLS);
 			} else {
 				// new site
 				context.put("existingSite", Boolean.FALSE);
@@ -2990,17 +2813,19 @@ public class SiteAction extends PagedResourceActionII {
 			 * This is also called in the new site workflow if re-using content from an existing site
 			 * 
 			 */
-			existingSite = site != null ? true : false;
-			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
+			boolean existingSite = site != null;
 			
 			// define the tools available for import. defaults to those tools in the 'destination' site
 			List<String> importableToolsIdsInDestinationSite = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			if (existingSite) {
 				// revising a existing site's tool
-				context.put("continue", "12");
+				context.put("continue", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				context.put("step", "2");
 				context.put("currentSite", site);
-				
+
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
+
 				// if the site exists, there may be other tools available for import
 				importableToolsIdsInDestinationSite = getToolsAvailableForImport(state, importableToolsIdsInDestinationSite);
 				
@@ -3068,6 +2893,36 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("selectedTools", selectedTools);
 			}
 			
+			// SAK-33335
+			//
+			// If the old site has either Gradebook or GradebookNG,
+			// and the new site has either Gradebook or GradebookNG,
+			// we should allow the gradebook to import (even if the
+			// old site used Gradebook and the new site uses
+			// GradebookNG, or vice versa).
+			List<String> targetSiteToolIds = selectedTools;
+			List<String> sourceSiteToolIds = allImportableToolIdsInOriginalSites;
+
+			List<String> gradebooksInTargetSite = new ArrayList<String>();
+			for (String toolId : targetSiteToolIds) {
+				if (org.apache.commons.lang3.StringUtils.equalsAny(toolId, "sakai.gradebook.tool", "sakai.gradebookng")) {
+					gradebooksInTargetSite.add(toolId);
+				}
+			}
+
+			if (gradebooksInTargetSite.size() == 1) {
+				// If we only have one of the Gradebooks, we
+				// need to make sure that it's represented in
+				// the source site (so we get the option to
+				// import)
+				String targetSiteGradebook = gradebooksInTargetSite.get(0);
+
+				if (!sourceSiteToolIds.contains(targetSiteGradebook)) {
+					sourceSiteToolIds.add(targetSiteGradebook);
+				}
+			}
+
+
 			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
 			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
 			
@@ -3117,15 +2972,16 @@ public class SiteAction extends PagedResourceActionII {
 			 * This is called before the list of tools to choose the content to import from (when replacing) is presented.
 			 * 
 			 */
-			existingSite = site != null ? true : false;
-			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
-			
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
+
 			// define the tools available for import. defaults to those tools in the 'destination' site
 			List<String> importableToolsIdsInDestinationSite = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			
-			if (existingSite) {
+			if (site != null) {
 				// revising a existing site's tool
-				context.put("continue", "12");
+				context.put("continue", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				context.put("back", "28");
 				context.put("step", "2");
 				context.put("currentSite", site);
@@ -3253,6 +3109,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * This is called before the list of sites to import from is presented
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
+
 			putImportSitesInfoIntoContext(context, site, state, false);
 			return (String) getContext(data).get("template") + TEMPLATE[28];
 		case 58:
@@ -3260,6 +3120,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteinfo-importSelection.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
+
 			putImportSitesInfoIntoContext(context, site, state, false);
 			return (String) getContext(data).get("template") + TEMPLATE[58];
 		case 59:
@@ -3267,6 +3131,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteinfo-importMigrate.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
+
 			putImportSitesInfoIntoContext(context, site, state, false);
 			return (String) getContext(data).get("template") + TEMPLATE[59];
 
@@ -3275,6 +3143,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteinfo-duplicate.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.DUPLICATE_SITE);
+
 			context.put("siteTitle", site.getTitle());
 			String sType = site.getType();
 			if (sType != null && SiteTypeUtil.isCourseSite(sType)) {
@@ -3331,6 +3203,9 @@ public class SiteAction extends PagedResourceActionII {
 			if (site != null) {
 				context.put("site", site);
 				context.put("siteTitle", site.getTitle());
+
+				// Add the menus to vm
+				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
 				List providerCourseList = (List) state
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
@@ -3567,13 +3442,9 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-editClass.vm
 			 * 
 			 */
-			bar = new MenuImpl(portlet, data, (String) state
-					.getAttribute(STATE_ACTION));
-			if (SiteService.allowAddSite(null)) {
-				bar.add(new MenuEntry(rb.getString("java.addclasses"),
-						"doMenu_siteInfo_addClass"));
-			}
-			context.put("menu", bar);
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
 			context.put("siteTitle", site.getTitle());
 			coursesIntoContext(state, context, site);
@@ -3584,6 +3455,9 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-addCourseConfirm.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
 			context.put("siteTitle", site.getTitle());
 
@@ -3624,6 +3498,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-importMtrlMaster.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_ARCHIVE);
+
 			return (String) getContext(data).get("template") + TEMPLATE[45];
 
 		case 46:
@@ -3632,6 +3510,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			// this is for list display in listbox
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_ARCHIVE);
+
 			context
 					.put("allZipSites", state
 							.getAttribute(ALL_ZIP_IMPORT_SITES));
@@ -3648,6 +3530,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-importMtrlCopyConfirm.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_ARCHIVE);
+
 			context.put("finalZipSites", state
 					.getAttribute(FINAL_ZIP_IMPORT_SITES));
 
@@ -3658,6 +3544,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-importMtrlCopyConfirm.vm
 			 * 
 			 */
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_ARCHIVE);
+
 			context.put("finalZipSites", state
 					.getAttribute(FINAL_ZIP_IMPORT_SITES));
 			return (String) getContext(data).get("template") + TEMPLATE[48];
@@ -3805,7 +3695,11 @@ public class SiteAction extends PagedResourceActionII {
 			/*
 			 * build context for chef_site-importUser.vm
 			 */
-			context.put("toIndex", "12");
+			context.put("toIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+
+			// Add the menus to vm
+			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.IMPORT_FROM_SITE);
+
 			// only show those sites with same site type
 			putImportSitesInfoIntoContext(context, site, state, true);
 			return (String) getContext(data).get("template") + TEMPLATE[61];
@@ -3820,19 +3714,144 @@ public class SiteAction extends PagedResourceActionII {
 
 			//now go to uploadArchive template
 			return (String) getContext(data).get("template") + TEMPLATE[62];
+		case 65:
+			/*
+			 * build context for chef_site-siteInfo-manageOverview
+			 */
+			SitePage page = (SitePage) state.getAttribute("overview");
+			List<SitePage> pages = site.getPages();
+
+			//this will be all widgets available to use on overview page.
+			List<Tool> widgets;
+			if(state.getAttribute("allWidgets") == null){
+				widgets = (List<Tool>) findWidgets();
+			}else {
+				widgets = (List<Tool>) state.getAttribute("allWidgets");
+			}
+
+			//maps widgets to their respective tools. If the tool is not in the site, the widget will not be available.
+			Map<String, String> requiredToolMap = new HashMap<>();
+			for(Tool tool : widgets){
+				List<String> reqId = SYNOPTIC_TOOL_ID_MAP.get(tool.getId());
+				boolean toolRequired = !StringUtils.equalsIgnoreCase(tool.getFinalConfig().getProperty("require.tool"), "false");
+				if(reqId != null  && toolRequired){
+					for(String req : reqId){
+						requiredToolMap.put(req, tool.getId());
+					}
+				}
+			}
+
+			//loop through all pages in site to determine which widgets are unavailable.
+			//while in this loop, also check for home page in case it is not in the state.
+			for (SitePage pg : pages) {
+				if (pg.isHomePage() && page == null) {
+					page = pg;
+				}
+				List<ToolConfiguration> pageTools = pg.getTools();
+				for(ToolConfiguration pageTool : pageTools){
+					String toolId = pageTool.getToolId();
+					String val = requiredToolMap.get(toolId);
+					//this removes all items with this value.
+					//using values().remove(val) only removes the first one.
+					requiredToolMap.values().removeAll(Collections.singleton(val));
+				}
+			}
+
+			List<String> requiredTools = new ArrayList<>(requiredToolMap.values());
+
+			List<ToolConfiguration> tools = new ArrayList<>();
+			if (state.getAttribute("tools") == null) {
+				tools.addAll(page.getTools());
+			} else {
+				tools.addAll((List<ToolConfiguration>) state.getAttribute("tools"));
+			}
+			tools = sortTools(tools, page);
+
+			//left and right tool lists used for maneuvering on-the-fly for double column layout
+			List<ToolConfiguration> leftTools = new ArrayList<>();
+			List<ToolConfiguration> rightTools = new ArrayList<>();
+			for (ToolConfiguration toolConfiguration : tools) {
+				int[] layoutHints = toolConfiguration.parseLayoutHints();
+				if (layoutHints != null) {
+					if (layoutHints[1] == 0) {
+						leftTools.add(toolConfiguration);
+					} else if (layoutHints[1] == 1) {
+						rightTools.add(toolConfiguration);
+					}
+				}
+			}
+			leftTools = sortTools(leftTools, page);
+			rightTools = sortTools(rightTools, page);
+
+			int layout = page.getLayout() + 1; //we need layout to be 1-based for context, but it is stored 0-based.
+
+			state.setAttribute("tools", tools);
+			state.setAttribute("leftTools", leftTools);
+			state.setAttribute("rightTools", rightTools);
+			state.setAttribute("overview", page);
+			state.setAttribute("site", site);
+			state.setAttribute("allWidgets", widgets);
+
+			context.put("tools", tools);
+			context.put("allWidgets", widgets);
+			context.put("requiredTools", requiredTools);
+			context.put("leftTools", leftTools);
+			context.put("rightTools", rightTools);
+			context.put("pagelayout", layout);
+			context.put("page", page);
+			context.put("site", site);
+			context.put("layouts", layoutsList());
+
+			return (String) getContext(data).get("template") + TEMPLATE[65];
 		}
-			
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
 
+	public static boolean isSiteMyWorkspace(Site site) {
+		return SiteService.isUserSite(site.getId()) && SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId());
+	}
+
+	//sort tools based on their layout hints
+	private List<ToolConfiguration> sortTools(List<ToolConfiguration> tools, SitePage page){
+		int layout = page.getLayout();
+		if(tools == null || tools.isEmpty() || tools.size() == 1) return tools;
+
+		List<ToolConfiguration> sortedTools = new ArrayList<>();
+
+		for(int i=0; i< tools.size(); i++){
+			ToolConfiguration tool = tools.get(i);
+			String hint = tool.getLayoutHints();
+			if(StringUtils.isEmpty(hint)){
+				String[] hintArr = {Integer.toString(i), Integer.toString(layout)};
+				hint = String.join(",", hintArr);
+				tool.setLayoutHints(hint);
+			}
+			String[] hintArr = hint.split(",");
+
+			if(layout == 0){
+				//everything has to be col 0 for layout hints
+				hintArr[1]="0"; //replace column with "0".
+
+			}
+			//row is going to be i, to stop elements from saving with identical layout hints
+			hintArr[0]=Integer.toString(i);
+			hint = String.join(",", hintArr);
+			tool.setLayoutHints(hint);
+			sortedTools.add(tool);
+		}
+		for(int i = 0; i< sortedTools.size(); i++){
+			sortedTools.get(i).setPageOrder(i+1);
+		}
+		return sortedTools;
+	}
 	/**
 	 * Finds the tool ID to use for the adding participants to the site.
 	 * Also checks that the configured tool is a valid helper.
 	 * @param site The site to add users to.
 	 * @return The tool ID.
 	 */
-	private String getAddUserHelper(Site site) {
+	public static String getAddUserHelper(Site site) {
 		String helperId = site.getProperties().getProperty("sitemanage.add.user.tool");
 		if (helperId == null) {
 			helperId = ServerConfigurationService.getString(
@@ -3967,7 +3986,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 		context.put("oldSelectedHome", state
 				.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME));
-		context.put("continueIndex", "12");
+		context.put("continueIndex", SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		if (state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null) {
 			context.put("emailId", state
 					.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
@@ -4223,7 +4242,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param overrideSitePageOrderSetting
 	 * @return
 	 */
-	private boolean isPageOrderAllowed(String siteType, String overrideSitePageOrderSetting) {
+	public static boolean isPageOrderAllowed(String siteType, String overrideSitePageOrderSetting) {
 		if (overrideSitePageOrderSetting != null && Boolean.valueOf(overrideSitePageOrderSetting))
 		{
 			// site-specific setting, show PageOrder tool
@@ -4422,6 +4441,25 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
+	 * Launch the Manage Overview helper -- for managing overview layout
+	 */
+	public void doManageOverview(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Clean up state on our first entry from a shortcut
+		String panel = data.getParameters().getString("panel");
+
+		siteToolsIntoState(state);
+
+		if (state.getAttribute(STATE_MESSAGE) == null) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
+			if (state.getAttribute(STATE_INITIALIZED) == null) {
+				state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "65");
+			}
+		}
+	}
+	/**
 	 * Launch the External Tools Helper -- For managing external tools
 	 */
 	public void doExternalHelper(RunData data) {
@@ -4450,7 +4488,7 @@ public class SiteAction extends PagedResourceActionII {
 		startHelper(data.getRequest(), "sakai.useraudit");
 	}
 	
-	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
+	public static boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
 	{
 		String helperId = ServerConfigurationService.getString(helperName, defaultHelperId);
 		
@@ -4737,7 +4775,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(CLASSIC_ZIP_FILE_NAME);
 		state.removeAttribute(SESSION_CONTEXT_ID);
 
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 	}
 
@@ -5054,8 +5092,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		// for SiteInfo list page
-		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals(
-				"12")) {
+		else if (state.getAttribute(STATE_TEMPLATE_INDEX).equals(STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS)) {
 			Collection l = (Collection) state.getAttribute(STATE_PARTICIPANT_LIST);
 			size = (l != null) ? l.size() : 0;
 		}
@@ -5222,15 +5259,13 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		// if in Site Info list view
-		else if (state.getAttribute(STATE_TEMPLATE_INDEX).toString().equals(
-				"12")) {
+		else if (state.getAttribute(STATE_TEMPLATE_INDEX).equals(STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS)) {
 			List participants = (state.getAttribute(STATE_PARTICIPANT_LIST) != null) ? collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST)): new Vector();
 			String sortedBy = (String) state.getAttribute(SORTED_BY);
 			String sortedAsc = (String) state.getAttribute(SORTED_ASC);
-			Iterator sortedParticipants = null;
+			Iterator sortedParticipants;
 			if (sortedBy != null) {
-				sortedParticipants = new SortedIterator(participants
-						.iterator(), new SiteComparator(sortedBy,sortedAsc,comparator_locale));
+				sortedParticipants = new SortedIterator(participants.iterator(), new SiteComparator(sortedBy,sortedAsc,comparator_locale));
 				participants.clear();
 				while (sortedParticipants.hasNext()) {
 					participants.add(sortedParticipants.next());
@@ -5389,7 +5424,7 @@ public class SiteAction extends PagedResourceActionII {
 		//piggyback on the normal delete method
 		doMenu_site_delete(data);
 		
-	} // doMenu_site_delete
+	} // doMenu_site_hard_delete
 	
 	/**
 	 * Restore a softly deleted site
@@ -6724,7 +6759,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
-			} else if (params.getString("continue") != null) {
+			} else if(index == 65) { //after manage overview, go back to main site info page.
+				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			}else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
 						.getString("continue"));
 			}
@@ -7587,6 +7624,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	} // doCancel_create
 
 	/**
+	 * doCancel_overview does a bit of cleanup before calling doCancel
+	 */
+	public void doCancel_overview(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		state.removeAttribute("tools");
+		state.removeAttribute("leftTools");
+		state.removeAttribute("rightTools");
+		state.removeAttribute("overview");
+		state.removeAttribute("site");
+		state.removeAttribute("allWidgets");
+
+		doCancel(data);
+	}
+
+	/**
 	 * doCancel called when "eventSubmit_doCancel" is in the request parameters
 	 * to c int index = Integer.valueOf(params.getString
 	 * ("templateIndex")).intValue();
@@ -7610,12 +7663,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex)))
 		{
 			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			LessonsSubnavEnabler.removeFromState(state);
 			PortalNeochatEnabler.removeFromState(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
@@ -7625,7 +7679,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// htripath: added '"45".equals(currentIndex)' for import from file
 		// cancel
 		else if ("45".equals(currentIndex)) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else if ("4".equals(currentIndex)) {
 			// from adding class
 			if (((String) state.getAttribute(STATE_SITE_MODE))
@@ -7645,12 +7699,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 				} else {
 					// in editing site process
-					state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+					state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				}
 			} else if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				// site info
-				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 			}
 			state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 			state.removeAttribute(STATE_IMPORT_SITES);
@@ -7662,7 +7716,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 			} else {
 				// from revising site
-				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 			}
 			removeEditToolState(state);
 		} else if ("37".equals(currentIndex) || "44".equals(currentIndex) || "53".equals(currentIndex) || "36".equals(currentIndex)) {
@@ -7670,11 +7724,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TERM_SELECTED);
 			removeAddClassContext(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
+		} else if (STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS.equals(currentIndex)) {
+			state.removeAttribute(SITE_USER_SEARCH);
+			state.removeAttribute(STATE_SITE_PARTICIPANT_FILTER);
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		}
 		// if all fails to match
-		else if (isTemplateVisited(state, "12")) {
+		else if (isTemplateVisited(state, SiteConstants.SITE_INFO_TEMPLATE_INDEX)) {
 			// go to site info list view
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else {
 			// go to WSetup list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
@@ -7989,7 +8047,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		state.removeAttribute(STATE_SELECTED_USER_LIST);
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 	} // doMenu_siteInfo_cancel_access
 
@@ -8050,6 +8108,28 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 	} // doMenu_siteInfo_importMigrate
+
+	/**
+	 * doMenu_siteInfo_manageParticipants
+	 * @param data
+	 */
+	public void doMenu_siteInfo_manageParticipants(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_TEMPLATE_INDEX, STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS);
+	}
+
+	/**
+	 * doMenu_siteInfo
+	 * @param data
+	 */
+	public void doMenu_siteInfo(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
+	}
+
+	public void do_manageParticipants_changeFilter(RunData data) {
+		ParticipantFilterHandler.putSelectedFilterIntoState(data);
+	}
 
 	/**
 	 * doMenu_siteInfo_editClass
@@ -8322,7 +8402,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 
 			// back to site info view
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 			// Need to refresh the entire page because, e.g. the current site's name
 			// may have changed. This is problematic, though, b/c the current 
@@ -8513,7 +8593,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITESETUP)) {
 				templates.add("0"); // the default page of WSetup tool
 			} else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) {
-				templates.add("12");// the default page of Site Info tool
+				templates.add(SiteConstants.SITE_INFO_TEMPLATE_INDEX);// the default page of Site Info tool
 			}
 
 			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
@@ -8590,7 +8670,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		// one site has been selected
-		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+		state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 	} // getReviseSite
 
@@ -9172,7 +9252,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// publishing a published site
 					EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, sEdit.getReference(), true));
 				}
-				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+				state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 
 				// TODO: hard coding this frame id is fragile, portal dependent,
 				// and needs to be fixed -ggolden
@@ -9441,8 +9521,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 * actionForTemplate chef_site-newSiteConfirm.vm
 			 * 
 			 */
-			if (!forward) {
-			}
+			break;
+		case STATE_TEMPLATE_INDEX_MANAGE_PARTICIPANTS_INT:
+			/*
+			 * actionForTemplate chef_siteInfo-manageParticipants.vm
+			 *
+			 */
 			break;
 		case 12:
 			/*
@@ -9487,8 +9571,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 * actionForTemplate chef_siteInfo-editAccess.vm
 			 * 
 			 */
-			if (!forward) {
-			}
 			break;
 		case 24:
 			/*
@@ -9821,7 +9903,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					// return to the list view
-					state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+					state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 				}
 			}
 			break;
@@ -10704,13 +10786,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List members = new Vector();
 		String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
 
-		List providerCourseList = null;
+		List<String> providerCourseList = null;
 		providerCourseList = SiteParticipantHelper.getProviderCourseList(siteId);
 		if (providerCourseList != null && providerCourseList.size() > 0) {
 			state.setAttribute(SITE_PROVIDER_COURSE_LIST, providerCourseList);
 		}
 
-		Collection participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+		// Apply filter if necessary
+		String selectedFilter = (String) state.getAttribute(STATE_SITE_PARTICIPANT_FILTER);
+		Collection<Participant> participants = ParticipantFilterHandler.prepareParticipantsWithFilter(siteId, providerCourseList, selectedFilter);
+
 		//check for search user attribute in the state
 		String search = (String)state.getAttribute(SITE_USER_SEARCH);
 		if(StringUtils.isNotBlank(search) && (participants.size() > 0)) {
@@ -10722,7 +10807,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 			state.setAttribute(STATE_PARTICIPANT_LIST, members);
-			//STATE_PARTICIPANT_LIST will contain members which satisfy search criteria therefore saving original participants list in new attribute
+			//STATE_PARTICIPANT_LIST will contain members which satisfy search and filter criteria therefore saving original participants list in new attribute
 			state.setAttribute(STATE_SITE_PARTICIPANT_LIST, participants);
 			return members;
 		}
@@ -10859,7 +10944,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		WorksiteSetupPage wSetupPage = new WorksiteSetupPage();
 		WorksiteSetupPage wSetupHome = new WorksiteSetupPage();
-		
+
+		boolean customOverview = StringUtils.equalsIgnoreCase(site.getProperties().getProperty(Site.PROP_CUSTOM_OVERVIEW), "true");
 		
 		List pageList = new Vector();
 		// declare some flags used in making decisions about Home, whether to
@@ -10964,72 +11050,62 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 			// count
 			int nonSynopticToolIndex=0, synopticToolIndex = 0;
-			
-			for (String homeToolId: homeToolIds)
-			{
-				if (!SYNOPTIC_TOOL_ID_MAP.containsKey(homeToolId))
+			//only do all the work for  adding synoptics if there is not a custom overview
+			if(!customOverview) {
+				for (String homeToolId: homeToolIds)
 				{
-					if (!pageHasToolId(toolList, homeToolId))
-					{
-						// not a synoptic tool and is not in Home page yet, just add it
-						Tool reg = ToolManager.getTool(homeToolId);
-						if (reg != null)
-						{
-							ToolConfiguration tool = page.addTool();
-							tool.setTool(homeToolId, reg);
-							tool.setTitle(reg.getTitle() != null?reg.getTitle():"");
-							tool.setLayoutHints("0," + nonSynopticToolIndex++);
-						}
-					}
-				}
-				else
-				{
-					// synoptic tool 
-					List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(homeToolId);
-					List chosenListClone = new Vector();
-					// chosenlist may have things like bcf89cd4-fa3a-4dda-80bd-ed0b89981ce7sakai.chat
-					// get list of the actual tool names
-					List<String>chosenOrigToolList = new ArrayList<String>();
-					for (String chosenTool: (List<String>)chosenList)
-					    chosenOrigToolList.add(findOriginalToolId(state, chosenTool));
-					chosenListClone.addAll(chosenOrigToolList);
-					boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
-					
-					//first check whether the parent tool is available in site but its parent tool is no longer selected
-					if (pageHasToolId(toolList, homeToolId))
-					{
-						if (!hasAnyParentToolId && !SiteService.isUserSite(site.getId()))
-						{
-							for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext();) 
-							{
-								ToolConfiguration tConf= (ToolConfiguration) iToolList.next();
-								// avoid NPE when the tool definition is missing
-								if (tConf.getTool() != null && homeToolId.equals(tConf.getTool().getId()))
-								{
-									page.removeTool((ToolConfiguration) tConf);
-									break;
-								}
+					if (!SYNOPTIC_TOOL_ID_MAP.containsKey(homeToolId)) {
+						if (!pageHasToolId(toolList, homeToolId)) {
+							// not a synoptic tool and is not in Home page yet, just add it
+							Tool reg = ToolManager.getTool(homeToolId);
+							if (reg != null) {
+								ToolConfiguration tool = page.addTool();
+								tool.setTool(homeToolId, reg);
+								tool.setTitle(reg.getTitle() != null ? reg.getTitle() : "");
+								tool.setLayoutHints("0," + nonSynopticToolIndex++);
 							}
 						}
-						else
+					} else {
+						// synoptic tool
+						List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(homeToolId);
+						List chosenListClone = new Vector();
+						// chosenlist may have things like bcf89cd4-fa3a-4dda-80bd-ed0b89981ce7sakai.chat
+						// get list of the actual tool names
+						List<String> chosenOrigToolList = new ArrayList<String>();
+						for (String chosenTool : (List<String>) chosenList)
+							chosenOrigToolList.add(findOriginalToolId(state, chosenTool));
+						chosenListClone.addAll(chosenOrigToolList);
+						boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
+
+						//first check whether the parent tool is available in site but its parent tool is no longer selected
+						if (pageHasToolId(toolList, homeToolId) && !customOverview)
 						{
-							synopticToolIndex++;
+							if (!hasAnyParentToolId && !SiteService.isUserSite(site.getId())) {
+								for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext(); ) {
+									ToolConfiguration tConf = (ToolConfiguration) iToolList.next();
+									// avoid NPE when the tool definition is missing
+									if (tConf.getTool() != null && homeToolId.equals(tConf.getTool().getId())) {
+										page.removeTool((ToolConfiguration) tConf);
+										break;
+									}
+								}
+							} else {
+								synopticToolIndex++;
+							}
 						}
-					}
-					
-					// then add those synoptic tools which wasn't there before
-					if (!pageHasToolId(toolList, homeToolId) && hasAnyParentToolId)
-					{
-						try
-						{
-							// use value from map to find an internationalized tool title
-							String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
-							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex++);
-						} catch (Exception e) {
-							log.error(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
+
+						// then add those synoptic tools which wasn't there before
+						if (!pageHasToolId(toolList, homeToolId) && hasAnyParentToolId) {
+							try {
+								// use value from map to find an internationalized tool title
+								String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
+								addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex++);
+							} catch (Exception e) {
+								log.error(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
+							}
 						}
+
 					}
-					
 				}
 			}
 			
@@ -11466,7 +11542,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param toolId
 	 * @return
 	 */
-	private boolean notStealthOrHiddenTool(String toolId) {
+	public static boolean notStealthOrHiddenTool(String toolId) {
 		Tool tool = ToolManager.getTool(toolId);
 		Set<Tool> tools = ToolManager.findTools(Collections.emptySet(), null);
 		boolean result =  tool != null && tools.contains(tool);
@@ -14818,10 +14894,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return true;
 	}
 	
-	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
+	private void putDownloadParticipantPDFLinkIntoContext(Context context, RunData data, Site site) {
 		// the status servlet reqest url
 		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
-		context.put("printParticipantUrl", url);
+		context.put("downloadParticipantsPDF_URL", url);
 	}
 	
 	/**
@@ -15433,11 +15509,18 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Set<String> toolsWithContent = new HashSet<>();
 			
 			for(String toolId: toolIds) {
-				if(site.getToolForCommonId(toolId) != null) {
-					
+				if(site.getToolForCommonId(toolId) != null ||
+						(org.apache.commons.lang3.StringUtils.equalsAny(toolId, "sakai.gradebook.tool", "sakai.gradebookng") &&
+							(site.getToolForCommonId("sakai.gradebook.tool") != null || site.getToolForCommonId("sakai.gradebookng") != null)))
+				{
 					//check the tool has content
 					if(hasContent(toolId, site.getId())) {
 						toolsWithContent.add(toolId);
+					} else {
+						if (org.apache.commons.lang3.StringUtils.equalsAny(toolId, "sakai.gradebook.tool", "sakai.gradebookng") &&
+								hasContent("sakai.gradebook.tool", site.getId()) || hasContent("sakai.gradebookng", site.getId())) {
+							toolsWithContent.add(toolId);
+						}
 					}
 				}
 			}
@@ -15504,5 +15587,478 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Generate a HashMap of all the variables stored within the state.
+	 * @param state
+	 * @return
+	 */
+	private HashMap<String, Object> generateStateMap(SessionState state) {
+		HashMap<String, Object> stateMap = new HashMap<>();
+		for (String name : state.getAttributeNames()) {
+			stateMap.put(name, state.getAttribute(name));
+		}
+		return stateMap;
+    }
+
+	/**
+	 * Create a list of the valid layout names.
+	 *
+	 * @return A List (String) of the value layout names.
+	 */
+	private List layoutsList()
+	{
+		List rv = new Vector();
+		String[] layoutNames = SiteService.getLayoutNames();
+		for (int i = 0; i < layoutNames.length; i++)
+		{
+			rv.add(layoutNames[i]);
+		}
+		return rv;
+
+	} // layoutsList
+
+
+	/**
+	 * handle with manage overview options
+	 *
+	 */
+	public void doManage_overview_option(RunData data) {
+		String option = data.getParameters().getString("option");
+		if ("save".equals(option)) {
+			doSave_overview(data);
+		} else if ("cancel".equals(option)) {
+			doCancel_overview(data);
+		}else if (StringUtils.contains("layout", option)){
+			update_layout_option(data);
+		}
+	} // doManage_overview_option
+
+	public void update_layout_option(RunData data){
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SitePage page = (SitePage) state.getAttribute("overview");
+
+		try {
+			int layout = Integer.parseInt(data.getParameters().getString("layout")) - 1; //convert back to 0 based.
+			page.setLayout(layout);
+			state.setAttribute("overview", page);
+		}catch(Exception e){
+			log.warn("Reading layout: {}" + e.getMessage());
+		}
+	}
+
+	/**
+	 * Move the tool up in the order.
+	 */
+	public void doEdit_tool_up(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String id = data.getParameters().getString("id");
+
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		List<ToolConfiguration> tools = page.getTools();
+		ToolConfiguration tool = null;
+
+		for(ToolConfiguration pageTool: tools){
+			if(pageTool.getToolId().equals(StringUtils.trimToNull(id))){
+				tool = pageTool;
+			}
+		}
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		String col = null;
+		if(hintArr.length == 2 && page.getLayout() == 1){ // 2 col layout
+			if(StringUtils.trimToNull(hintArr[1]).equals("1")) {
+				col = "1";
+			}else if(StringUtils.trimToNull(hintArr[1]).equals("0")){
+				col = "0";
+			}
+		}
+		// move it
+		int indexOfLastItemInCol = -1;
+		int toolIndex = -1;
+		if(page.getLayout() == 1) {
+			for(int i=0; i<tools.size(); i++){
+
+				if (StringUtils.trimToNull(tools.get(i).getLayoutHints().split(",")[1]).equals(col) && !tools.get(i).equals(tool)) {
+					indexOfLastItemInCol = i;
+				}
+
+				if (tools.get(i).equals(tool)) {
+					if (i == 0) {
+						return; //nothing actually needs to happen, its already on top
+					}
+
+					String prevHint = tools.get(indexOfLastItemInCol).getLayoutHints();
+					tool.setLayoutHints(prevHint);
+					tools.get(indexOfLastItemInCol).setLayoutHints(hints); //swap this layout hint with the tool above it.
+					int prevPageOrder = tools.get(indexOfLastItemInCol).getPageOrder();
+					tools.get(indexOfLastItemInCol).setPageOrder(tool.getPageOrder());
+					tool.setPageOrder(prevPageOrder);
+
+					toolIndex = i;
+					break;
+				}
+			}
+		}else{
+			for(int i=0; i<tools.size(); i++){
+				if(tools.get(i).equals(tool)){
+					if( i == 0){
+						return;
+					}
+					String prevHint = tools.get(indexOfLastItemInCol).getLayoutHints();
+					tool.setLayoutHints(prevHint);
+					tools.get(indexOfLastItemInCol).setLayoutHints(hints); //swap this layout hint with the tool above it.
+					int prevPageOrder = tools.get(indexOfLastItemInCol).getPageOrder();
+					tools.get(indexOfLastItemInCol).setPageOrder(tool.getPageOrder());
+					tool.setPageOrder(prevPageOrder);
+
+					toolIndex = i;
+					break;
+				}else{
+					indexOfLastItemInCol = i;
+				}
+			}
+		}
+		Collections.swap(tools, indexOfLastItemInCol, toolIndex);
+
+		page.setTools(tools);
+		state.setAttribute("tools", tools);
+		state.setAttribute("overview", page);
+		
+	} // doEdit_tool_up
+
+	/**
+	 * Move the tool down in the order.
+	 */
+	public void doEdit_tool_down(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String id = data.getParameters().getString("id");
+		
+
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		List<ToolConfiguration> tools = page.getTools();
+		ToolConfiguration tool = null;
+
+		for(ToolConfiguration pageTool: tools){
+			if(pageTool.getToolId().equals(StringUtils.trimToNull(id))){
+				tool = pageTool;
+			}
+		}
+
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		String col = null;
+
+		if(hintArr.length == 2 && page.getLayout() == 1){ // 2 col layout
+			if(StringUtils.trimToNull(hintArr[1]).equals("1")) {
+				col = "1";
+			}else if(StringUtils.trimToNull(hintArr[1]).equals("0")){
+				col = "0";
+			}
+		}
+
+		int indexOfNextItemInCol = -1;
+		int toolIndex = -1;
+		// move it
+		if(page.getLayout() == 1) {
+			for (int i = 0; i < tools.size(); i++) {
+				if (StringUtils.trimToNull(tools.get(i).getLayoutHints().split(",")[1]).equals(col) && tools.get(i).equals(tool)) {
+					toolIndex = i;
+					if (i == tools.size() - 1) {
+						return; //already at bottom. do nothing.
+					}
+				}
+
+				if (!tools.get(i).equals(tool) && toolIndex != -1 && StringUtils.trimToNull(tools.get(i).getLayoutHints().split(",")[1]).equals(col)) {
+					String nextHint = tools.get(i).getLayoutHints();
+					tools.get(toolIndex).setLayoutHints(nextHint);
+					tools.get(i).setLayoutHints(hints); //swap this layout hint with the tool below it.
+					tools.get(toolIndex);
+					int nextPageOrder = tools.get(i).getPageOrder();
+					tools.get(i).setPageOrder(tool.getPageOrder());
+					tools.get(toolIndex).setPageOrder(nextPageOrder);
+					indexOfNextItemInCol = i;
+					break;
+				}
+			}
+		}else{
+			for(int i=0; i<tools.size(); i++){
+				if(tools.get(i).equals(tool)){
+					toolIndex = i;
+				}else if(toolIndex != -1){
+					String nextHint = tools.get(i).getLayoutHints();
+					tools.get(toolIndex).setLayoutHints(nextHint);
+					tools.get(i).setLayoutHints(hints); //swap this layout hint with the tool below it.
+					tools.get(toolIndex);
+					int nextPageOrder = tools.get(i).getPageOrder();
+					tools.get(i).setPageOrder(tool.getPageOrder());
+					tools.get(toolIndex).setPageOrder(nextPageOrder);
+					indexOfNextItemInCol = i;
+					break;
+				}
+			}
+		}
+
+		Collections.swap(tools, toolIndex, indexOfNextItemInCol);
+
+		page.setTools(tools);
+		state.setAttribute("tools", tools);
+		state.setAttribute("overview", page);
+		
+
+	} // doEdit_tool_down
+
+	/**
+	 * Move the tool right in the 2-column layout option
+	 */
+	public void doEdit_tool_right(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String id = data.getParameters().getString("id");
+		
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ToolConfiguration tool = page.getTool(id);
+
+		// move it
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		if(hintArr.length == 0){
+			tool.setLayoutHints("0,1"); //default to 0, 1 if hint doesnt exist.
+		}else{
+			hintArr[1]="1"; //replace column with "1".
+			String hint = String.join(",", hintArr);
+			tool.setLayoutHints(hint);
+		}
+	} // doEdit_tool_right
+
+	/**
+	 * Move the tool left 2-column layout option
+	 */
+	public void doEdit_tool_left(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String id = data.getParameters().getString("id");
+		
+
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ToolConfiguration tool = page.getTool(id);
+
+		// move it
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		if(hintArr.length == 0){
+			tool.setLayoutHints("0,0"); //default to 0, 0 if hint doesnt exist.
+		}else{
+			hintArr[1]="0"; //replace column with "0".
+			String hint = String.join(",", hintArr);
+			tool.setLayoutHints(hint);
+		}
+	} // doEdit_tool_left
+
+	/**
+	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
+	 */
+	public void doSave_overview(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
+		// commit the change
+		Site site = (Site) state.getAttribute("site");
+		if (readPageForm(data, state))
+		{
+			try
+			{
+				SitePage page = (SitePage) state.getAttribute("overview");
+				SitePage savedPage = site.getPage(page.getId()); //old page, will update tool list.
+				List<ToolConfiguration> tools = page.getTools();
+
+				savedPage.setTools(tools);
+				savedPage.setLayout(page.getLayout());
+				savedPage.setTitle(page.getTitle());
+				for(ToolConfiguration tool: savedPage.getTools()){
+					tool.save();
+				}
+
+				ResourcePropertiesEdit rp = site.getPropertiesEdit();
+
+				rp.addProperty(Site.PROP_CUSTOM_OVERVIEW, Boolean.TRUE.toString());
+				SiteService.save(site);
+			}
+			catch (PermissionException | IdUnusedException e)
+			{
+				log.warn(e.getMessage());
+			}
+		}
+
+		// cleanup
+		state.removeAttribute("tools");
+		state.removeAttribute("leftTools");
+		state.removeAttribute("rightTools");
+		state.removeAttribute("overview");
+		state.removeAttribute("site");
+		state.removeAttribute("allWidgets");
+
+		// make sure auto-updates are enabled
+		enableObserver(state);
+
+		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
+		schedulePeerFrameRefresh("sitenav");
+
+
+		doContinue(data);
+
+	} // doSaveOverview
+
+	/**
+	 * Read the page form and update the site in state.
+	 *
+	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
+	 */
+	private boolean readPageForm(RunData data, SessionState state)
+	{
+		update_layout_option(data);
+
+		// get the page - it's there
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ParameterParser params = data.getParameters();
+		//save layout hints
+		List<ToolConfiguration> tools;
+
+		if(page.getLayout() == 0) {
+			tools = (List<ToolConfiguration>) state.getAttribute("tools");
+			if(tools != null){
+				for(int i=0; i<tools.size(); i++){
+					String hints = tools.get(i).getLayoutHints();
+					tools.get(i).setLayoutHints(hints);
+					String[] hintArr = hints.split(",");
+					if(hintArr.length == 0){
+						tools.get(i).setLayoutHints("0,0"); //default to 0, 0 if hint doesnt exist.
+					}else{
+						hintArr[1]="0"; //replace column with "0".
+						String hint = String.join(",", hintArr);
+						tools.get(i).setLayoutHints(hint);
+					}
+				}
+			}
+		}else {
+			List<ToolConfiguration> leftTools = (List<ToolConfiguration>) state.getAttribute("leftTools");
+			List<ToolConfiguration> rightTools = (List<ToolConfiguration>) state.getAttribute("rightTools");
+
+
+			tools = new ArrayList<>();
+			tools.addAll(leftTools);
+			tools.addAll(rightTools);
+		}
+
+		if(tools != null && validateLayoutHints(tools)) {
+			tools = sortTools(tools, page);
+			page.setTools(tools);
+			state.setAttribute("tools", tools);
+			state.setAttribute("overview", page);
+			return true;
+		}else{
+			addAlert(state, rb.getString("manover.layhintletter"));
+			return false;
+		}
+	} // readPageForm
+
+	private boolean validateLayoutHints(List<ToolConfiguration> tools){
+		Pattern p = Pattern.compile("\\d{1,},\\d{1,}");
+		for(ToolConfiguration tool : tools){
+			String hint = tool.getLayoutHints();
+			Matcher m = p.matcher(hint);
+			if(!m.matches()){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private List findWidgets()
+	{
+		class ToolTitleComparator implements Comparator{
+			public int compare(Object tool0, Object tool1) {
+				return ((Tool)tool0).getTitle().compareTo( ((Tool)tool1).getTitle() );
+			}
+		}
+		// get the helpers
+		Set categories = new HashSet();
+		categories.add("widget");
+		Set widgets = ToolManager.findTools(categories, null);
+
+		// make a list for sorting
+		List features = new Vector();
+		features.addAll(widgets);
+		//Collections.sort(features);
+		Collections.sort(features, new ToolTitleComparator());
+		return features;
+	}
+
+	public void doAdd_widget(RunData data){
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		String id = params.getString("id");
+		// make the tool so we have the id
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ToolConfiguration tool = page.addTool(id);
+		tool.setLayoutHints("0,0"); //assume top left, it will be sorted later-- val just cant be null
+
+		List<Tool> widgets = (List<Tool>) state.getAttribute("allWidgets");
+		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+
+		for(Tool widget: widgets){
+			if(widget.getId().equals(id)){
+				tool.setTitle(widget.getTitle());
+			}
+		}
+
+		tools.add(tool);
+		tools = sortTools(tools, page); //run a sort of the tools now that the new one has been added.
+		state.setAttribute("tools", tools);
+		state.setAttribute("overview", page);
+	}
+
+	public void doRemove_widget(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		SitePage page = (SitePage) state.getAttribute("overview");
+		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+
+		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
+		if(removedTools == null){
+			removedTools = new ArrayList<>();
+		}
+
+		String id = params.getString("id");
+		for(ToolConfiguration tool: tools){
+			if(tool.getTool().getId().equals(id)){
+				removedTools.add(tool);
+			}
+		}
+
+		tools.removeAll(removedTools);
+
+		state.setAttribute("tools", tools);
 	}
 }

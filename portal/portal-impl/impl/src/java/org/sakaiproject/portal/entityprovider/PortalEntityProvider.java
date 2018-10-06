@@ -155,16 +155,16 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
         ResourceLoader rl = new ResourceLoader("bullhorns");
 
 		if (alerts.size() > 0) {
-			Map<String, Object> data = new HashMap();
+			Map<String, Object> data = new HashMap<>();
 			data.put("alerts", alerts);
 			data.put("i18n", rl);
 
 			return new ActionReturn(data);
 		} else {
-			Map<String, String> i18n = new HashMap();
+			Map<String, String> i18n = new HashMap<>();
 			i18n.put("noAlerts", rl.getString("noAlerts"));
 
-			Map<String, Object> data = new HashMap();
+			Map<String, Object> data = new HashMap<>();
 			data.put("message", "NO_ALERTS");
 			data.put("i18n", i18n);
 
@@ -230,7 +230,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 		String currentUserId = getCheckedCurrentUser();
 
-		Map<String, Integer> counts = new HashMap();
+		Map<String, Long> counts = new HashMap<>();
 		counts.put("academic", bullhornService.getAcademicAlertCount(currentUserId));
 		counts.put("social", bullhornService.getSocialAlertCount(currentUserId));
 

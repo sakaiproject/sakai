@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -43,10 +43,10 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
-      <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
-      <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-      <samigo:script path="/../library/js/lang-datepicker/lang-datepicker.js"/>
-      <samigo:script path="/js/authoring.js"/>        
+      <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+      <script type="text/javascript" src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
+      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
 
       <script type="text/javascript">
       if (needJQuery) {
@@ -89,18 +89,18 @@
 
               if (enabled) {
                   $('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled");
-                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  $('#assessmentSettingsAction\\:markForReview1').parent().removeClass("placeholder");
                   QuesFormatRadios.forEach( function(v, i, a) {
-                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $('label[for="' + v + '"]').removeClass("placeholder");
                       $("#" + v).removeAttr("disabled");
                   });
               } else {
                   $('#assessmentSettingsAction\\:markForReview1').attr("disabled", true);
-                  $('#assessmentSettingsAction\\:markForReview1').attr("checked", false);
-                  $('#assessmentSettingsAction\\:markForReview1').parent().toggleClass("placeholder");
+                  $('#assessmentSettingsAction\\:markForReview1').prop("checked", false);
+                  $('#assessmentSettingsAction\\:markForReview1').parent().addClass("placeholder");
                   QuesFormatRadios.forEach( function(v, i, a) {
                       $('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
-                      $('label[for="' + v + '"]').toggleClass("placeholder");
+                      $('label[for="' + v + '"]').addClass("placeholder");
                       $("#" + v).attr("disabled", true);
                   });
               }
@@ -168,10 +168,6 @@
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
 
-          // SAM-2121: Lockdown the question layout and mark for review if necessary
-          var navVal = $('#assessmentSettingsAction\\:itemNavigation input:radio:checked').val();
-          lockdownQuestionLayout(navVal);
-          lockdownMarkForReview(navVal);
           showHideReleaseGroups();
           initTimedCheckBox();
           checkUncheckTimeBox();
@@ -358,9 +354,9 @@
                 <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
               </t:selectOneRadio>
               <ul class="submissions-allowed">
-                <li><t:radio for="unlimitedSubmissions" index="0" /></li>
+                <li><t:radio renderLogicalId="true" for="unlimitedSubmissions" index="0" /></li>
                 <li>
-                  <t:radio for="unlimitedSubmissions" index="1" />
+                  <t:radio renderLogicalId="true" for="unlimitedSubmissions" index="1" />
                   <span class="submissions-allowed">
                     <h:inputText size="5" id="submissions_Allowed" value="#{publishedSettings.submissionsAllowed}" />
                     <h:outputText value="&#160;" escape="false" />
@@ -411,9 +407,9 @@
             <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
           </t:selectOneRadio>
         <ul class="late-handling">
-          <li><t:radio for="lateHandling" index="0" /></li>
+          <li><t:radio renderLogicalId="true" for="lateHandling" index="0" /></li>
           <li>
-            <t:radio for="lateHandling" index="1" />
+            <t:radio renderLogicalId="true" for="lateHandling" index="1" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{publishedSettings.retractDateString}" size="25" id="retractDate"/>
           </li>
@@ -445,9 +441,9 @@
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.noEmail}" />
       </t:selectOneRadio>
       <ul class="email-notification">
-        <li><t:radio for="notificationEmailChoices" index="0" /></li>
-        <li><t:radio for="notificationEmailChoices" index="1" /></li>
-        <li><t:radio for="notificationEmailChoices" index="2" /></li>
+        <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="0" /></li>
+        <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="1" /></li>
+        <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="2" /></li>
       </ul>
       <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
       </div>
@@ -462,8 +458,8 @@
             <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
           </t:selectOneRadio>
           <ul class="display-scores">
-            <li><t:radio for="displayScores" index="0" /></li>
-            <li><t:radio for="displayScores" index="1" /></li>
+            <li><t:radio renderLogicalId="true" for="displayScores" index="0" /></li>
+            <li><t:radio renderLogicalId="true" for="displayScores" index="1" /></li>
           </ul>
        </div>
     </h:panelGroup>
@@ -596,9 +592,9 @@
            <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.both_feedback}"/>
          </t:selectOneRadio>
         <ul class="feedback-authoring">
-          <li><t:radio for="feedbackAuthoring" index="0" /></li>
-          <li><t:radio for="feedbackAuthoring" index="1" /></li>
-          <li><t:radio for="feedbackAuthoring" index="2" /></li>
+          <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="0" /></li>
+          <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="1" /></li>
+          <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="2" /></li>
         </ul>
       </div>
     </h:panelGroup>
@@ -614,11 +610,11 @@
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
         </t:selectOneRadio>
         <ul class="feedback-delivery">
-          <li><t:radio for="feedbackDelivery" index="0" /></li>
-          <li><t:radio for="feedbackDelivery" index="1" /></li>
-          <li><t:radio for="feedbackDelivery" index="2" /></li>
+          <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="0" /></li>
+          <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="1" /></li>
+          <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="2" /></li>
 	  <li>
-	    <t:radio for="feedbackDelivery" index="3" />
+	    <t:radio renderLogicalId="true" for="feedbackDelivery" index="3" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate" />
 	  </li>
@@ -687,13 +683,13 @@
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
       <div class="col-md-10">
-        <t:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="spread" onclick="setBlockDivs();updateItemNavigation(true);lockdownQuestionLayout(this.value);lockdownMarkForReview(this.value);">
+        <t:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="spread" onclick="setBlockDivs();updateItemNavigation(true);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
         </t:selectOneRadio>
         <ul class="layout-navigation">
-          <li><t:radio for="itemNavigation" index="0" /></li>
-          <li><t:radio for="itemNavigation" index="1" /></li>
+          <li><t:radio renderLogicalId="true" for="itemNavigation" index="0" /></li>
+          <li><t:radio renderLogicalId="true" for="itemNavigation" index="1" /></li>
         </ul>
         <div class="info-text help-block small">
           <h:outputText value="#{assessmentSettingsMessages.linear_access_warning} "/>
@@ -711,9 +707,9 @@
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.layout_by_assessment}"/>
         </t:selectOneRadio>
         <ul class="layout-format">
-          <li><t:radio for="assessmentFormat" index="0" /></li>
-          <li><t:radio for="assessmentFormat" index="1" /></li>
-          <li><t:radio for="assessmentFormat" index="2" /></li>
+          <li><t:radio renderLogicalId="true" for="assessmentFormat" index="0" /></li>
+          <li><t:radio renderLogicalId="true" for="assessmentFormat" index="1" /></li>
+          <li><t:radio renderLogicalId="true" for="assessmentFormat" index="2" /></li>
         </ul>
       </div>
     </h:panelGroup>
@@ -727,8 +723,8 @@
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.part_numbering}"/>
          </t:selectOneRadio>
          <ul class="layout-numbering">
-           <li><t:radio for="itemNumbering" index="0" /></li>
-           <li><t:radio for="itemNumbering" index="1" /></li>
+           <li><t:radio renderLogicalId="true" for="itemNumbering" index="0" /></li>
+           <li><t:radio renderLogicalId="true" for="itemNumbering" index="1" /></li>
          </ul>
       </div>
     </h:panelGroup>

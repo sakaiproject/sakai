@@ -3,7 +3,7 @@
                  org.sakaiproject.tool.messageforums.ui.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
 
@@ -33,14 +33,16 @@
 %>
 
 		       		<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
+			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 			
 			<sakai:tool_bar>
-       			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}" />
+                <h:commandLink id="composeMessage"
+                    action="#{PrivateMessagesTool.processPvtMsgCompose}" immediate="true">
+                        <h:outputText value="#{msgs.pvt_compose}" />
+                </h:commandLink>
  			</sakai:tool_bar>
 
-			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
 			<%@ include file="topNav.jsp" %>
  
  			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
@@ -57,9 +59,11 @@
 	  	                
 		  <h:column>
 		    <f:facet name="header">
- 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               title="#{msgs.cdfm_checkall}" />
-		     <%--<h:commandButton alt="SelectAll" image="/messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
+				<h:panelGroup>
+					<h:selectBooleanCheckbox id="checkAll" title="#{msgs.cdfm_checkall}"/>
+					<h:outputText value=" "/>
+					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
+				</h:panelGroup>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
@@ -190,9 +194,11 @@
 								 columnClasses="attach,attach,attack,specialLink,bogus,bogus,bogus">
 		 	<h:column>
 		    <f:facet name="header">
- 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               title="#{msgs.cdfm_checkall}"/>
-		     <%--<h:commandButton alt="SelectAll" image="/messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
+				<h:panelGroup>
+					<h:selectBooleanCheckbox id="checkAll" title="#{msgs.cdfm_checkall}"/>
+					<h:outputText value=" "/>
+					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
+				</h:panelGroup>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
@@ -255,7 +261,6 @@
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		</div>
-		
 <%-- Added if user clicks Check All --%>
     <script language="Javascript" type="text/javascript">
      // setting number checked just in case Check All being processed

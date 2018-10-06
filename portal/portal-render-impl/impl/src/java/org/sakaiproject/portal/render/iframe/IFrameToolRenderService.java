@@ -28,6 +28,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
@@ -38,7 +42,6 @@ import org.sakaiproject.portal.render.api.ToolRenderService;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.Web;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * I Frame tool renderer, renders the iframe header to contain the tool content
@@ -50,6 +53,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IFrameToolRenderService implements ToolRenderService
 {
+	private final static String INVALID_PARAM_CHARS = ".*[\"'<>].*";
+
 	private PortalService portalService;
 
 	// private static ResourceLoader rb = new ResourceLoader("sitenav");
@@ -82,7 +87,7 @@ public class IFrameToolRenderService implements ToolRenderService
 		}
 
 		String sakaiPanel = request.getParameter("panel");
-		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
+		if ( StringUtils.isNotBlank(sakaiPanel) && sakaiPanel.matches(INVALID_PARAM_CHARS) ) sakaiPanel=null;
 		if ( sakaiPanel == null ) sakaiPanel="Main";
 		toolUrl = URLUtils.addParameter(toolUrl, "panel", sakaiPanel);
 
@@ -94,7 +99,7 @@ public class IFrameToolRenderService implements ToolRenderService
 		
 		// SAK-20462 - Pass through the sakai_action parameter
                 String sakaiAction = request.getParameter("sakai_action");
-                if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
+                if ( StringUtils.isNotBlank(sakaiAction) && sakaiAction.matches(INVALID_PARAM_CHARS) ) sakaiAction=null;
 
 		// Produce the iframe markup
 		sb.append("<iframe").append("	name=\"").append(
@@ -110,11 +115,27 @@ public class IFrameToolRenderService implements ToolRenderService
 						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"")
 				.append(" allowfullscreen=\"allowfullscreen\"")
 				.append("\n").append("	src=\"").append(toolUrl);
-		if ( sakaiAction != null ) 
-		{
-			sb.append( toolUrl.indexOf('?') >=0 ? '&' : '?');
-			sb.append("sakai_action=").append(Web.escapeHtml(sakaiAction));
-		}
+
+				boolean isFirstParam = (toolUrl.indexOf('?') >=0 ? false : true);
+				if ( sakaiAction != null ) 
+				{
+					sb.append( isFirstParam ? '?' : '&');
+					sb.append("sakai_action=").append(Web.escapeHtml(sakaiAction));
+					isFirstParam = false;
+				}
+
+				String[] persistToIframe = request.getParameterValues("persist_to_iframe");
+				if (persistToIframe != null) {
+					for (String parameter : persistToIframe) {
+						String parameterValue = request.getParameter(parameter);
+						if (parameterValue == null || (StringUtils.isNotBlank(parameterValue) && parameterValue.matches(INVALID_PARAM_CHARS))) {
+							continue;
+						}
+						sb.append(isFirstParam ? '?' : '&');
+						sb.append(parameter + "=").append(Web.escapeHtml(parameterValue));
+						isFirstParam = false;
+					}
+				}
 
 		sb.append("\">") .append("\n").append("</iframe>");
 		

@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 
 <!DOCTYPE html
@@ -81,7 +81,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 		<h:panelGrid columns="1" columnClasses="navView" border="0">	
 			<h:panelGroup>
 				<samigo:wysiwyg rows="140" value="#{email.message}" reset="#{param.fromEmailLinkClick}">
-					<f:validateLength minimum="1" maximum="4000"/>
+					<f:validateLength maximum="4000"/>
 				</samigo:wysiwyg>
 			</h:panelGroup>
 

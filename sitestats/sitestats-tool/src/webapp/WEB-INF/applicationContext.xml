@@ -21,7 +21,7 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 	</bean>
 
 	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->

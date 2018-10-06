@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -12,8 +12,8 @@
 <!--jsp/privateMsg/pvtMsgEx.jsp-->
 		<h:form id="prefs_form_search">
 		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>		
 			
 			<%@ include file="topNav.jsp" %>
 
@@ -25,9 +25,11 @@
 	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}" columnClasses="attach,attach,specialLink,bogus,bogus,bogus">   
 		  <h:column>
 		    <f:facet name="header">
- 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               title="#{msgs.cdfm_checkall}" />
-		     <%--<h:commandButton alt="SelectAll" image="/messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
+				<h:panelGroup>
+					<h:selectBooleanCheckbox id="checkAll" title="#{msgs.cdfm_checkall}"/>
+					<h:outputText value=" "/>
+					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
+				</h:panelGroup>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_form_search');" />
 		  </h:column>
@@ -90,8 +92,11 @@
 	  	columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
 		  <h:column>
 		    <f:facet name="header">
-		    	<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               title="#{msgs.cdfm_checkall}" />
+				<h:panelGroup>
+					<h:selectBooleanCheckbox id="checkAll" title="#{msgs.cdfm_checkall}"/>
+					<h:outputText value=" "/>
+					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
+				</h:panelGroup>
 		    </f:facet>
 		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_form_search');" />
 		  </h:column>

@@ -23,6 +23,7 @@
 	<tool 
 		toolId="sakai.announcements"
 		selected="true">
+		<event eventId="annc.read" selected="true"/>
 		<event eventId="annc.new" selected="true"/>
 		<event eventId="annc.revise.own" selected="true"/>
 		<event eventId="annc.revise.any" selected="true"/>
@@ -89,18 +90,29 @@
 
 	<!-- gradebook (available in sakai 2.4+) -->
 	<!-- (see SAK-6207 and SAK-10802) -->
-	<tool 
-		toolId="sakai.gradebook.tool"
+	<tool
+		toolId="sakai.gradebookng"
+		additionalToolIds="sakai.gradebook.tool"
 		selected="true">
 		<event eventId="gradebook.newItem" selected="true"/>
+		<event eventId="gradebook.updateAssignment" selected="true"/>
 		<event eventId="gradebook.deleteItem" selected="true"/>
+		<event eventId="gradebook.updateItemScore" selected="true"/>
+		<event eventId="gradebook.updateUngradedScores" selected="true"/>
+		<event eventId="gradebook.comment" selected="true"/>
+		<event eventId="gradebook.studentView" selected="true"/>
+		<event eventId="gradebook.export" selected="true"/>
+		<event eventId="gradebook.importBegin" selected="true"/>
+		<event eventId="gradebook.importCompleted" selected="true"/>
+		<event eventId="gradebook.overrideCourseGrade" selected="true"/>
+		<event eventId="gradebook.updateSettings" selected="true"/>
+		<!-- legacy Gradebook Classic events, included here to retain historical statistics -->
 		<event eventId="gradebook.updateItemScores" selected="true"/>
 		<event eventId="gradebook.updateCourseGrades" selected="true"/>
-		<event eventId="gradebook.comment" selected="true"/>
 		<event eventId="gradebook.downloadRoster" selected="true"/>
 		<event eventId="gradebook.downloadCourseGrade " selected="true"/>
 		<event eventId="gradebook.importEntire" selected="true"/>
-        <event eventId="gradebook.importItem" selected="true"/>
+		<event eventId="gradebook.importItem" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="2"/>
 	</tool>
 
@@ -128,8 +140,10 @@
 
 
 	<!-- news -->
+	<!-- sakai.simple.rss = current id, sakai.news = legacy id -->
 	<tool 
-		toolId="sakai.news"
+		toolId="sakai.simple.rss"
+		additionalToolIds="sakai.news"
 		selected="true">
 		<event eventId="news.read" selected="true"/>
 		<event eventId="news.revise" selected="true"/>
@@ -383,7 +397,7 @@
 		selected="true">
 		<event eventId="calendar.new" selected="true"/>
 		<event eventId="calendar.revise" selected="true"/>
-		<!--<event eventId="calendar.read" selected="true"/>-->
+		<event eventId="calendar.read" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	

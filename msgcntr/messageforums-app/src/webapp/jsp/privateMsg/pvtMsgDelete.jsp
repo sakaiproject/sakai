@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -11,8 +11,8 @@
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\privateMsg\pvtMsgDelete.jsp-->
     <h:form id="pvtMsgDelete">
            		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
     <div class="breadCrumb specialLink">
     	<h3>
 	 	    <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
@@ -61,8 +61,8 @@
 		</sakai:panel_titled>
 
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" accesskey="s" styleClass="active"/>
-      <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToListView}" value="#{msgs.pvt_cancel}" accesskey="x" />
+      <h:commandButton action="#{PrivateMessagesTool.processPvtMsgMultiDelete}" value="#{msgs.pvt_delmsgs}" accesskey="s" styleClass="active"/>
+      <h:commandButton action="#{PrivateMessagesTool.processPvtMsgCancelToListView}" value="#{msgs.pvt_cancel}" accesskey="x" />
     </sakai:button_bar>
     
 		 </h:form>

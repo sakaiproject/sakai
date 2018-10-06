@@ -328,6 +328,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertNotNull(savedSubmission);
             Assert.assertNotNull(savedSubmission.getId());
 
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
+                                        AssignmentReferenceReckoner.reckoner().submission(savedSubmission).reckon().getReference())).thenReturn(true);
             AssignmentSubmission getSubmission = assignmentService.getSubmission(savedSubmission.getId());
             Assert.assertNotNull(getSubmission);
             Assert.assertNotNull(getSubmission.getId());
@@ -361,6 +363,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertNotNull(savedSubmission);
             Assert.assertNotNull(savedSubmission.getId());
 
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
+                                        AssignmentReferenceReckoner.reckoner().submission(savedSubmission).reckon().getReference())).thenReturn(true);
             AssignmentSubmission getSubmission = assignmentService.getSubmission(savedSubmission.getId());
             Assert.assertNotNull(getSubmission);
             Assert.assertNotNull(getSubmission.getId());
@@ -509,6 +513,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String submitterId = UUID.randomUUID().toString();
         try {
             AssignmentSubmission submission = createNewSubmission(context, submitterId);
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
+                                        AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())).thenReturn(true);
             String status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Draft - In progress", status);
             Assert.assertFalse(submission.getSubmitted());

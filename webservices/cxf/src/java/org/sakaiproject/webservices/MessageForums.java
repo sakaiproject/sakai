@@ -124,7 +124,7 @@ public class MessageForums extends AbstractWebService {
                     area.setAutoMarkThreadsRead(false);
                     area.setSendEmailOut(Boolean.TRUE);
                     area.setAvailabilityRestricted(Boolean.FALSE);
-                    areaManager.saveArea(area);
+                    area = areaManager.saveArea(area);
                     log.debug("Created area...");
                 }
 
@@ -135,7 +135,7 @@ public class MessageForums extends AbstractWebService {
                 selectedForum.setDraft(false);
                 selectedForum.setModerated(false);
                 selectedForum.setPostFirst(false);
-                messageForumsForumManager.saveDiscussionForum(selectedForum);
+                selectedForum = messageForumsForumManager.saveDiscussionForum(selectedForum);
                 log.debug("Created forum=" + forum);
                 dTopic = messageForumsForumManager.createDiscussionForumTopic(selectedForum);
                 dTopic.setTitle(topic);

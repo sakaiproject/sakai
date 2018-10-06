@@ -9,58 +9,65 @@
 	}
 	a{
 		color: $breadcrumbs-color;
-		margin: 0 0.5em;
-		padding: 0 0 0.2em;
+		margin: 0 $standard-spacing;
+		padding: 0;
 		text-decoration: none;
-		&:hover{
-			text-decoration: none;
-		}
 	}
 
-	.Mrphs-hierarchy--parent-sites{
+	.#{$namespace}hierarchy--parent-sites{
 		display: block;
 	}
 
-	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
+	// Show the breadcrumbs on a separate row (when there are parent sites)
 	@media #{$nonPhone}{
-		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator{
-			display: none;
-		}
-
+		@include display-flex;
+		@include flex-direction(column);		// so parent sites will appear above tool name
+		@include align-items(flex-start);
+		@include flex-wrap(wrap);
 		min-height: initial;
-
-		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
-			/* Since we'll start on our own line, don't pad */
-			margin-left: 0;
+		margin: 0;
+		padding: $standard-spacing;
+		
+		.#{$namespace}hierarchy--sites {
+			@include display-flex;
+			@include flex-wrap(wrap);
+		}
+		
+		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator{
+			display: none;		// hide the site name in the breadcrumbs
 		}
 
-		.#{$namespace}hierarchy--siteName a:hover{
-			color: $breadcrumbs-hover-color;
-			border-bottom: 1px solid $breadcrumbs-hover-color;
+		.#{$namespace}hierarchy--parent-sites, .#{$namespace}hierarchy--parent-sites + .#{$namespace}hierarchy--siteName {
+			@include display-flex; 		// when there are parent sites, show them
+			@include flex-wrap(wrap);
+			font-size: 0.9em;
+			font-weight: 200;
+		}
+		
+		.#{$namespace}hierarchy--1 a{
+			margin-left: 0;		// remove spacing from first site
 		}
 
-		/*
-		   Force a fixed width for these so we don't jump when switching
-		   between a narrow icon and the wider reset icon (or vice versa)
-		*/
+		// Force a fixed width for these so we don't jump when switching between a narrow icon and the wider reset icon (or vice versa)
 		.#{$namespace}breadcrumb--icon{
 			display: inline-block;
-			text-align: right;
+			text-align: center;
 			width: 24px;
+			font-size: 0.9em;
+			margin-right: $standard-space;	// space between icon and text
 		}
 
 		a.#{$namespace}hierarchy--toolName{
+			@include display-flex;
+			@include align-items(center);
 			color: $breadcrumbs-tool-color;
 			text-transform: uppercase;
-			font-size: 110%;
+			font-size: 1.25em;
 			font-weight: bold;
-			display: inline-block;
-			margin: 0.75em 0.75em 0.25em 1.25em;
-			border-bottom: 1px solid transparent;
+			margin: 0;
 
-			&:hover{
-				border-bottom: 1px solid $breadcrumbs-hover-color;
-
+			&:hover, &:focus {
+				text-decoration: none;		// apply an underline later to just the text (see below)
 				.#{$namespace}breadcrumb--icon{
 					display: none;
 				}
@@ -68,7 +75,12 @@
 				.#{$namespace}breadcrumb--reset-icon{
 					width: 24px;
 					text-align: right;
+					text-decoration: none;			// just underline the tool name; not the icon
 					display: inline-block;
+					margin-right: $standard-space;		// space between icon and text
+				}
+				.#{$namespace}breadcrumb--toolNameText{
+					text-decoration: underline;		// removed from the link above and only applied to the text here
 				}
 			}
 
@@ -76,16 +88,10 @@
 				display: none;
 			}
 		}
-
-		.Mrphs-hierarchy--parent-sites{
-			display: block;
-			font-size: 90%;
-			font-weight: 200;
-			margin-bottom: 5px;
-		}
 	}
 
 	@media #{$phone}{
+		@include display-flex;	// flexing this so parent site/subsites breadcrumbs don't overlap for the first layer; more work needs to be done to improve this
 		background-color: transparent;
 		box-shadow: none;
 		position: absolute;

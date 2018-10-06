@@ -24,9 +24,9 @@ package edu.amc.sakai.user;
 import java.util.Date;
 import java.util.Stack;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.user.api.User;
@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
  * @author Dan McCallum, Unicon
  * @author John A. Lewis, Unicon
  */
-class UserEditStub implements UserEdit {
+public class UserEditStub implements UserEdit {
 
 	private String eid;
 	private String email;
@@ -153,11 +153,15 @@ class UserEditStub implements UserEdit {
 		return this.id;
 	}
     
-    public String getDisplayId() {
-        return this.eid;
-    }
-         
-    public String getDisplayName() {
+	public String getDisplayId() {
+		return this.eid;
+	}
+
+	public String getDisplayId(String context) {
+		return this.eid;
+	}
+
+	public String getDisplayName() {
 
 		// This was copied from BaseUserDirectoryService
 
@@ -176,7 +180,10 @@ class UserEditStub implements UserEdit {
 		}
 
 	}
-    
+
+	public String getDisplayName(String context) {
+		return getDisplayName();
+	}
 
 	public ResourceProperties getProperties() {
 		return this.properties;

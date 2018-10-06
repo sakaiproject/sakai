@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -287,7 +288,7 @@ public class ImportGradesHelper {
 					}
 					break;
 				case USER_NAME:
-					row.setStudentName(lineVal);
+					row.setStudentName(StringUtils.trimToEmpty(lineVal));
 					break;
 				case GB_ITEM_WITH_POINTS:
 					// fall into next case (same impl)
@@ -826,7 +827,7 @@ public class ImportGradesHelper {
 		int i = 0;
 		for (final Cell cell : row) {
 			// force cell to String
-			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 			s[i] = StringUtils.trimToNull(cell.getStringCellValue());
 			i++;
 		}

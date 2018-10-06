@@ -32,7 +32,7 @@
   <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
-    <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
+    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
     <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
     <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
     </head>
@@ -48,6 +48,13 @@
 
 <!-- content... -->
 <script type="text/javascript">
+function isFromLink() {
+  if (${delivery.actionMode} == 5) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 function noenter(){
 return!(window.event && window.event.keyCode == 13);
@@ -71,19 +78,6 @@ function saveTime()
   }
  }
 }
-
-function clickSubmitForGrade(){
-  var newindex = 0;
-  for (i=0; i<document.links.length; i++) {
-    if(document.links[i].id == "tableOfContentsForm:submitforgrade")
-    {
-      newindex = i;
-      break;
-    }
-  }
-  document.links[newindex].onclick();
-}
-
 </script>
 
 
@@ -92,6 +86,7 @@ function clickSubmitForGrade(){
 
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
+<h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="previewMessage"></f:verbatim>
@@ -102,22 +97,22 @@ function clickSubmitForGrade(){
 
 <h3><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h3>
 
-<h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
-                           || delivery.actionString=='takeAssessmentViaUrl') 
-                        && delivery.hasTimeLimit}" >
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{deliveryMessages.time_remaining} "/><f:verbatim></span></f:verbatim>
-<f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
-
-<f:verbatim> <span id="bar"></f:verbatim>
+<!-- BEGIN OF TIMER -->
+<h:panelGroup rendered="#{(delivery.timeElapseAfterFileUpload == null || delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble) && delivery.hasTimeLimit == true}">
   <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
-    timeUpMessage="#{deliveryMessages.time_up}"
-    expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true';" />
-<f:verbatim>  </span></f:verbatim>
-
-<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="#{deliveryMessages.hide_show}" />
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+ </h:panelGroup>
+ <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble && delivery.hasTimeLimit == true}">
+ <samigo:timerBar height="15" width="300"
+     wait="#{delivery.timeLimit}"
+     elapsed="#{delivery.timeElapseAfterFileUpload}"
+     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 </h:panelGroup>
+
+<!-- END OF TIMER -->
+
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" >
   <f:verbatim><div style="margin:10px 0px 0px 0px;"><span style="background-color:#bab5b5; padding:5px"></f:verbatim>
@@ -213,6 +208,10 @@ function clickSubmitForGrade(){
       onclick="saveTime()" 
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
+  <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
+    action="#{delivery.save_work}" onclick="disableSave();" rendered="#{delivery.actionString=='previewAssessment'
+      || delivery.actionString=='takeAssessment'
+      || delivery.actionString=='takeAssessmentViaUrl'}" /> 
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
   <h:commandButton id="submitForGradeTOC2" type="submit" value="#{deliveryMessages.button_submit_grading}"

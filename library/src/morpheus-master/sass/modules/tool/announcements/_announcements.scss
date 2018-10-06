@@ -16,29 +16,17 @@
 			width: 95px;
 		}
 	}
-	form[name="optionsForm"]{
-		.act{
-			margin: 1em 0 0 0;
-		}
-	}
-	.act-outer{
-		background: #FFF;
-		padding: 0 1em 0.8em 1em;
-	}
-
 	.merge-list{
 		max-width: 1000px;
 	}
-	
 	#reorder-list-sortingToolBar, #reorder-list{
 		max-width: 1200px;
 	}
-
 	.message-body{
 		background-color: darken( $tool-background-color, 5% );
 		padding: 15px;
 		margin-bottom: 20px;
 		border: 1px solid darken( $tool-background-color, 10% );
 		border-radius: 4px;		
-	}	
+	}
 }

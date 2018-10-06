@@ -21,7 +21,11 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import org.sakaiproject.time.api.Time;
@@ -202,4 +206,30 @@ public class MockTimeService implements TimeService
 		return null;
 	}
 
+	@Override
+	public String dateFormatLong(Date date, Locale locale) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String dateTimeFormatLong(Date date, Locale locale) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+		return null;
+	}
+
+	@Override
+	public String shortLocalizedTimestamp(Instant instant, Locale locale) {
+		return null;
+	}
+
+	@Override
+	public String shortLocalizedDate(LocalDate date, Locale locale) {
+		return null;
+	}
 }

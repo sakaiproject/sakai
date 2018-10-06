@@ -28,82 +28,45 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h:outputText value="hasTimeLimit=#{delivery.hasTimeLimit}, turnIntoTimedAssessment=#{delivery.turnIntoTimedAssessment}, time_remaining=#{delivery.timeElapse}"/>
 -->
 <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
-                           || delivery.actionString=='takeAssessmentViaUrl')
-                        && (delivery.hasTimeLimit || delivery.turnIntoTimedAssessment)}" >
-                        
+    || delivery.actionString=='takeAssessmentViaUrl')
+    && (delivery.hasTimeLimit || delivery.turnIntoTimedAssessment)}" >
+
 <h:panelGroup rendered="#{delivery.hasTimeLimit}">                        
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{deliveryMessages.time_remaining} "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 </h:panelGroup>
 
 <f:verbatim> <span id="bar"></f:verbatim>
-<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble}">
+<h:panelGroup rendered="#{(delivery.timeElapseAfterFileUpload == null || delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble) && delivery.hasTimeLimit == true}">
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
-    timeUpMessage="#{deliveryMessages.time_up}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble}">
+<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble  && delivery.hasTimeLimit == true}">
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapseAfterFileUpload}"
-    timeUpMessage="#{deliveryMessages.time_up}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 </h:panelGroup>
 
 <f:verbatim>  </span></f:verbatim>
 
-<!-- HIDE / SHOW TIMER BAR -->
-<h:panelGroup rendered="#{delivery.hasTimeLimit}">
-<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none';return false;"
- value="#{deliveryMessages.hide_show}" styleClass="noActionButton" />
- </h:panelGroup>
 <!-- END OF TIMER -->
 
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
-
 <h:commandLink title="#{deliveryMessages.t_submit}" id="submitforgrade" action="#{delivery.submitForGradeFromTimer}" value="" />
 <h:commandLink id="saveNoCheck" action="#{delivery.saveNoCheck}" value="" />
 <h:commandLink id="submitNoCheck" action="#{delivery.submitFromTimeoutPopup}" value="" />
 
 <script type="text/JavaScript">
-function clickSubmitForGrade(){
-  var newindex = 0;
-  for (i=0; i<document.links.length; i++) {
-    if(document.links[i].id == "takeAssessmentForm:assessmentDeliveryHeading:submitforgrade")
-    {
-      newindex = i;
-      break;
-    }
+function isFromLink() {
+  if (${delivery.actionMode} == 5) {
+    return true;
+  } else {
+    return false;
   }
-  document.links[newindex].onclick();
-}
-
-function clickSubmit(){
-	var newindex = 0;
-	for (i=0; i<document.links.length; i++) {
-		if(document.links[i].id == "takeAssessmentForm:assessmentDeliveryHeading:submitNoCheck")
-		{
-			newindex = i;
-			break;
-		}
-	}
-	document.links[newindex].onclick();
-}
-
-function clickDoNotSubmit(){
-	var newindex = 0;
-	for (i=0; i<document.links.length; i++) {
-		if(document.links[i].id == "takeAssessmentForm:assessmentDeliveryHeading:saveNoCheck")
-		{
-			newindex = i;
-			break;
-		}
-	}
-	document.links[newindex].onclick();
 }
 </script>
 </h:panelGroup>

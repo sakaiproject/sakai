@@ -114,6 +114,18 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
             Mockito.when(m4.getUserId()).thenReturn("aaa7eb80-721c-44dd-9fee-599be7086ad4");
             Mockito.when(group1.getMembers()).thenReturn(members);
             Mockito.when(group2.getMembers()).thenReturn(members);
+
+            Site site2 = (Site) Mockito.mock(Site.class);
+            Mockito.when(siteService.getSite("BVCC_942A_9301")).thenReturn(site2);
+            Group group1_1 = (Group) Mockito.mock(Group.class);
+            Mockito.when(site2.getGroup("8fff8c00-6814-4434-a4d9-50b72ecc4819")).thenReturn(group1_1);
+            Set<Member> members1_1 = new HashSet<>();
+            Member m1_1 = (Member) Mockito.mock(Member.class);
+            members1_1.add(m1_1);
+            Mockito.when(m1_1.getRole()).thenReturn(student);
+            Mockito.when(m1_1.getUserId()).thenReturn("77597bf2-80b1-41ee-a298-d4e0944dc9dc");            
+            Mockito.when(group1_1.getMembers()).thenReturn(members1_1);
+
         } catch (IdUnusedException iue) {
             log.warn("IdUnusedException: ",iue);
         }
@@ -734,13 +746,11 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
         submittersToCheck.add("e8126235-b1c5-4e5b-bc0f-bfb9421fd95b");
         submittersToCheck.add("3522f934-133a-4c97-aafd-5dbccf51efb9");
         submittersToCheck.add("b942b2a0-589c-4914-ada7-ab80b8eee94e");
-        submittersToCheck.add("082810b2-ddbb-4a05-b336-0623574419e4");
         
         Set<String> submittersToCheck2 = new HashSet<>();
         submittersToCheck2.add("bd67eb80-721c-44dd-9fee-599be7086ad4");
         submittersToCheck2.add("cef95910-fbd7-4e3c-bdb9-623061c23686");
         submittersToCheck2.add("97597bf2-80b1-41ee-a298-d4e0944dc9dc");
-        submittersToCheck2.add("91689b7a-c39c-4918-a0e4-13fa0ce5dec0");
 
         submissionVerification(
                 "b3ec1478-1ac2-4da8-bab0-65bd739370d9",

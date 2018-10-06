@@ -1734,7 +1734,7 @@ public class SimplePageBean {
 				continue;
 			    }
 			}
-			if (after) {
+			if (after && item.getPageId() >= 0) {
 			    item.setSequence(item.getSequence() + 1);
 			    simplePageToolDao.quickUpdate(item);
 			}
@@ -3478,6 +3478,31 @@ public class SimplePageBean {
 
 	    return ret;
 	}
+	
+	public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
+		String subPageTitle = "";
+		List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(String.valueOf(item.getPageId()));
+		while(items != null && items.size()>0)
+		{
+			if("".equals(subPageTitle) && subPageTitleContinue)
+			{
+				subPageTitle = items.get(0).getName() + " (" + messageLocator.getMessage("simplepage.printall.continuation") + ")";
+			}
+			else if("".equals(subPageTitle))
+			{
+				subPageTitle = items.get(0).getName();
+			}
+			else
+			{
+				subPageTitle = items.get(0).getName() +" > "+ subPageTitle;
+			}
+			items = simplePageToolDao.findItemsBySakaiId(String.valueOf(items.get(0).getPageId()));
+		}
+				
+		if("".equals(subPageTitle)) subPageTitle = null;
+			
+		return subPageTitle;
+	}
 
     // too much existing code to convert to throw at the moment
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
@@ -3526,11 +3551,16 @@ public class SimplePageBean {
 		     return messageLocator.getMessage("simplepage.hiddenpage");
 		 // for index of pages we need to show even out of date release dates
 		 if (page.getReleaseDate() != null) { // && page.getReleaseDate().after(new Date())) {
-		     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
-		     TimeZone tz = TimeService.getLocalTimeZone();
-		     df.setTimeZone(tz);
-		     String releaseDate = df.format(page.getReleaseDate());
-		     return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDate);
+		     Date releaseDate = page.getReleaseDate();
+		     Date date = new Date();
+		     if (date.before(releaseDate)) {
+		        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
+		        TimeZone tz = TimeService.getLocalTimeZone();
+		        String releaseDateStr = df.format(page.getReleaseDate());
+		        df.setTimeZone(tz);
+		        return messageLocator.getMessage("simplepage.pagenotreleased").replace("{}", releaseDateStr);
+		     }
+		     return null;
 		 }
 	     }
 	     return null;
@@ -5085,11 +5115,11 @@ public class SimplePageBean {
 
 		Collection<String>itemGroups = null;
 		SecurityAdvisor advisor = null;
+		LessonEntity entity = null;
 		try {
 		    // need to do this before pushing the advisor, or we get bad results
 		    boolean canSeeAll = canSeeAll();
 		    advisor = pushAdvisorAlways();
-		    LessonEntity entity = null;
 		    if (!canSeeAll && !item.isRequired()) {
 			switch (item.getType()) {
 			case SimplePageItem.ASSIGNMENT:
@@ -5113,6 +5143,11 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
+		} finally {
+			popAdvisor(advisor);
+		}
+
+		try {
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
@@ -5121,9 +5156,8 @@ public class SimplePageBean {
 		    // basically you can't group restrict an item until it exists
 		    visibleCache.put(item.getId(), item.isRequired());
 		    return item.isRequired();
-		} finally {
-		    popAdvisor(advisor);
 		}
+
 		if (itemGroups == null || itemGroups.isEmpty()) {
 		    // this includes items for which for which visibility doesn't apply
 		    visibleCache.put(item.getId(), true);

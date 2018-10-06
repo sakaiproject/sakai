@@ -43,7 +43,7 @@
         </div>
     #end
     #if ($alertMessage)
-        <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+        <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
         <div style="display:block;clear:both"></div>#end
 
     ## the form
@@ -280,41 +280,7 @@
             #end
 
             ## Assignment Attachments
-            #set ($attachments = $assignment.Attachments)
-            #if ($attachments)
-                #set ($size = $attachments.size())
-                #if ($size < 1)
-                    <p class="instruction">
-                        #if ($submissionType == 5)
-                            $tlang.getString("gen.noatt.single")
-                        #else
-                            $tlang.getString("gen.noatt")
-                        #end
-                    </p>
-                #else
-                    <h4>$tlang.getString("gen.addres2")</h4>
-                    <ul class="attachList indnt1">
-                        #foreach ($attachmentReference in $attachments)
-                            #set ($reference = $assignmentAttachmentReferences.get($attachmentReference))
-                            #if ($reference)
-                                #set ($props = false)
-                                #set ($props = $reference.Properties)
-                                #if ($!props)
-                                    <li>
-                                        #if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                            <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-                                        #else
-                                            <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-                                        #end
-                                        <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                        #propertyDetails($props)
-                                    </li>
-                                #end
-                            #end
-                        #end
-                    </ul>
-                #end
-            #end
+            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
         #end
         ## show the assignment content
 
@@ -474,7 +440,7 @@
                     $tlang.getString("gradingsub.prefeetex3")
                 </h4>
                 <div class="inlinecoms toggledContent">
-                    $cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+                    $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText)
                 </div>
             #end
 
@@ -584,18 +550,14 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             <select name="$name_grade" id="grade">
-                                <option value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
-                                #foreach ($i in ["Pass", "Fail"])
+                                <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+                                #foreach ($i in ["pass", "fail"])
                                     <option value="$i"
-                                        #if ($!value_grade.equalsIgnoreCase($i))
+                                        #if ($!grade_submission_grade.equalsIgnoreCase($tlang.getString($i)))
                                             selected="selected"
                                         #end
                                         >
-                                        #if ($i=="Pass")
-                                            $tlang.getString("pass")
-                                        #elseif ($i=="Fail")
-                                            $tlang.getString("fail")
-                                        #end
+                                        $tlang.getString($i)
                                     </option>
                                 #end
                             </select>
@@ -758,7 +720,7 @@
                 $tlang.getString("gradingsub.prefee2")
             </h4>
             <div class="gencoms  toggledContent">
-                $cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))
+                $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment)
             </div>
         #end
         <h4>
@@ -903,8 +865,7 @@
             </div> <!-- End of the allowResubmitContainer -->
         #end
         <div class="navPanel">
-            <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
-				<span class="act">
+            <div class="act">
                     <input type="button" accesskey="d" class="active" name="save" value="$tlang.getString('gen.savdragra')"
                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade', '$validator.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.savdratit")"/>
@@ -940,7 +901,6 @@
                     #if( $!prevUngradedWithSubmissionID )
                         <input type="hidden" name="prevUngradedWithSubmissionID" id="prevUngradedWithSubmissionID" value="$!prevUngradedWithSubmissionID"/>
                     #end
-				</span>
             </div>
             <div class="navigator">
                 <fieldset class="roundedBorder">

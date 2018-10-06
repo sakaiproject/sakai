@@ -99,17 +99,6 @@
     <rtexprvalue>true</rtexprvalue>
   </attribute>
   </tag>
-<!-- ==== display an alphabetic index ========================== -->
-  <tag>
-  <name>alphaIndex</name>
-  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.AlphaIndexTag</tag-class>
-  <body-content>JSP</body-content>
-  <attribute>
-    <name>initials</name>
-    <required>false</required>
-    <rtexprvalue>true</rtexprvalue>
-  </attribute>
-  </tag>
   <!-- ==== display a timer progress bar  ============= -->
   <tag>
   <name>timerBar</name>
@@ -140,108 +129,8 @@
     <required>true</required>
     <rtexprvalue>false</rtexprvalue>
   </attribute>
-  <attribute>
-    <name>timeUpMessage</name>
-    <required>true</required>
-    <rtexprvalue>false</rtexprvalue>
-  </attribute>
   </tag>
 
-  <!-- we may obsolete this tag -->
-  <tag>
-  <name>pager</name>
-  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.PagerTag</tag-class>
-  <body-content>JSP</body-content>
-  <attribute>
-    <name>controlId</name>
-  </attribute>
-  <attribute>
-    <name>dataTableId</name>
-  </attribute>
-  <attribute>
-    <name>showpages</name>
-  </attribute>
-  <attribute>
-    <name>styleClass</name>
-  </attribute>
-  <attribute>
-    <name>selectedStyleClass</name>
-  </attribute>
-  <attribute>
-    <name>showLinks</name>
-  </attribute>
-  </tag>
-
-  <!-- we may obsolete this tag -->
-  <tag>
-  <name>pagerButtonControl</name>
-  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.PagerButtonControlTag</tag-class>
-  <body-content>JSP</body-content>
-  <attribute>
-    <name>controlId</name>
-    <required>true</required>
-  </attribute>
-  <attribute>
-    <name>formId</name>
-    <required>true</required>
-  </attribute>
-  </tag>
-  <!-- new pager button tag -->
-  <tag>
-    <name>pagerButtons</name>
-    <tag-class>org.sakaiproject.tool.assessment.jsf.tag.PagerButtonTag</tag-class>
-    <body-content>JSP</body-content>
-    <attribute>
-      <name>formId</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>dataTableId</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>firstItem</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>lastItem</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>prevText</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>nextText</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>numItems</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>totalItems</name>
-      <required>true</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>prevDisabled</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>nextDisabled</name>
-      <required>false</required>
-      <rtexprvalue>true</rtexprvalue>
-    </attribute>
-  </tag>
   <tag>
     <name>wysiwyg</name>
     <tag-class>org.sakaiproject.jsf.tag.RichTextEditArea</tag-class>

@@ -114,7 +114,7 @@ public class SiteHandler extends WorksiteHandler
 	// Make sure to lower-case the matching regex (i.e. don't use IResourceListener below)
 	private static final String BYPASS_QUERY_PROP = "portal.bypass.query";
 	private static final String LEGACY_BYPASS_QUERY_PROP = "portal.pda.bypass.query";
-	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=.*iresourcelistener:|wicket:ajax=true";
+	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=.*iresourcelistener:|wicket:ajax=true|ajax=true";
 
 	private static final String BYPASS_TYPE_PROP = "portal.bypass.type";
 	private static final String LEGACY_BYPASS_TYPE_PROP = "portal.pda.bypass.type";
@@ -125,7 +125,7 @@ public class SiteHandler extends WorksiteHandler
 
 	// SAK-27774 - We are going inline default but a few tools need a crutch 
 	// This is Sakai 11 only so please do not back-port or merge this default value
-	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.melete:sakai.rsf.evaluation";
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.rsf.evaluation";
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 

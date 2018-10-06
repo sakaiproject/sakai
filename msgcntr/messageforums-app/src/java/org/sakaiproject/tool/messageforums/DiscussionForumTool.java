@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -142,6 +143,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1557,20 +1559,12 @@ public class DiscussionForumTool
     saveForumAttach(forum);  
     setObjectPermissions(forum);
     if (draft)
-      forumManager.saveForumAsDraft(forum);
+      forum = forumManager.saveForumAsDraft(forum);
     else
-      forumManager.saveForum(forum);
-    //forumManager.saveForumControlPermissions(forum, forumControlPermissions);
-    //forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
-    if (isNew)
-    {
-      String forumUuid = forum.getUuid();
-      forum = null;
-      forum = forumManager.getForumByUuid(forumUuid);
-    }else{    	
-    	if(beforeChangeHM != null){    		
-    		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-    	}        
+      forum = forumManager.saveForum(forum);
+
+    if (!isNew && beforeChangeHM != null) {
+      updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
 
     //RUBRICS, Save the binding between the forum and the rubric
@@ -8670,9 +8664,18 @@ public class DiscussionForumTool
 		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
 		newTopic.setDefaultAssignName(fromAssignmentTitle);
 	}
+
+	//copy rubrics
+	try {
+		Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation("sakai.forums", fromTopic.getUuid());
+		if (rubricAssociation.isPresent()) {
+			rubricsService.saveRubricAssociation("sakai.forums", newTopic.getUuid(), rubricAssociation.get().getFormattedAssociation());
+		}
+	} catch(Exception e){
+		log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+	}
 	
-	// copy the release/end dates
-	
+	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
 		newTopic.setAvailabilityRestricted(true);
 		newTopic.setOpenDate(fromTopic.getOpenDate());
@@ -8773,6 +8776,16 @@ public class DiscussionForumTool
 		}
 
 		forum = saveForumSettings(oldForum.getDraft());
+
+		//copy rubrics		
+		try {
+			Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation("sakai.forums", oldForum.getUuid());
+			if (rubricAssociation.isPresent()) {
+				rubricsService.saveRubricAssociation("sakai.forums", forum.getUuid(), rubricAssociation.get().getFormattedAssociation());
+			}
+		} catch(Exception e){
+			log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+		}
 
 		forum = forumManager.getForumById(forum.getId());
 		List attachList = forum.getAttachments();

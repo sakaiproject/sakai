@@ -1,15 +1,15 @@
 <%--********************* Message Header*********************--%>
 <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-<sakai:script contextBase="/messageforums-tool" path="/js/bulkops.js"/>		
-<sakai:script contextBase="/jsf-resource" path="/inputDate/inputDate.js"/>		
-<sakai:script contextBase="/jsf-resource" path="/inputDate/calendar1.js"/>		
-<sakai:script contextBase="/jsf-resource" path="/inputDate/calendar2.js"/>			
+<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+<script type="text/javascript" src="/messageforums-tool/js/bulkops.js"></script>
+<script type="text/javascript" src="/jsf-resource/inputDate/inputDate.js"></script>
+<script type="text/javascript" src="/jsf-resource/inputDate/calendar1.js"></script>
+<script type="text/javascript" src="/jsf-resource/inputDate/calendar2.js"></script>
 
   <h:panelGroup>
   <f:verbatim><div class="searchNav specialLink space_mobile"></f:verbatim>
     <h:outputLabel for="search_text"><h:outputText value="#{msgs.pvt_search_text}" /></h:outputLabel>
-    <f:verbatim><h:outputText value=" " /></f:verbatim>
+    <h:outputText value=" " />
 	  <h:inputText value="#{PrivateMessagesTool.searchText}" id="search_text" />
 		<h:commandButton styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>
 		
@@ -75,13 +75,13 @@
 			</h:panelGroup>	
 		
 
-		<f:verbatim></div><h:outputText value=" " /></f:verbatim>
+		<f:verbatim></div></f:verbatim><h:outputText value=" " />
 	</h:panelGroup>
 
 	  <h:panelGroup> <%-- This is the show items --%>
 	  	<f:verbatim><div class="viewNav messages_viewnav"></f:verbatim>
 	    <h:outputLabel for="viewlist"><h:outputText value="#{msgs.msg_view}" /></h:outputLabel>
-	    <f:verbatim><h:outputText value=" " /></f:verbatim>
+	    <h:outputText value=" " />
 			<h:selectOneMenu id="viewlist" onchange="this.form.submit();"  
 										      valueChangeListener="#{PrivateMessagesTool.processChangeSelectView}" 
 										      value="#{PrivateMessagesTool.selectView}">

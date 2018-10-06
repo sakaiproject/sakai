@@ -62,7 +62,7 @@ $(document).ready(function(){
 	#end
 
 	#if ($!canSubmit)
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 		#if ($!submission && $dateSubmitted)
 			## if there is a submitted submission
 			## get the properies
@@ -225,11 +225,7 @@ $(document).ready(function(){
 							<div class="itemSummaryValue highlight">
 								<strong>
 									#if ($gradeScale != 1)
-										#if ($!override)
-											$!service.getGradeDisplay($override, $!assignment.TypeOfGrade, $!assignment.ScaleFactor)
-										#else
-											$!service.getGradeDisplay($submission.Grade, $assignment.TypeOfGrade, $!assignment.ScaleFactor)
-										#end
+										$!grade
 									#else
 										$tlang.getString("gen.nograd")
 									#end
@@ -349,35 +345,7 @@ $(document).ready(function(){
 		#end
 
 		## Assignment Attachments
-		#set ($aAttachments = $assignment.Attachments)
-		#if ($aAttachments)
-			#set ($size = $aAttachments.size())
-			#if ($size > 0)
-				<h4>
-					$tlang.getString("gen.addres2")
-				</h4>
-				<ul class="attachList indnt1">
-					#foreach ($attachmentReference in $aAttachments)
-						#set ($reference = $assignmentAttachmentReferences.get($attachmentReference))
-						#if ($reference)
-							#set ($props = false)
-							#set ($props = $reference.Properties)
-							#if ($!props)
-								<li>
-									#if ($props.getBooleanProperty($props.NamePropIsCollection))
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-									#else
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-									#end
-									<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-									#propertyDetails($props)
-								</li>
-							#end
-						#end
-					#end
-				</ul>
-			#end
-		#end
+		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
 
 			## model answer
 			#if($allowViewModelAnswer)
@@ -519,7 +487,7 @@ $(document).ready(function(){
 								$tlang.getString("gradingsub.prefee2")
 							</h4>
 					<div class="toggledContent gencoms">					
-						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+						$cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment)</div>
 					#end
 					#parse ("/vm/assignment/chef_assignments_student_view_feedback_attachments.vm")
 			#end
@@ -937,7 +905,7 @@ $(document).ready(function(){
 				#end
 			#end
 
-				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted))
+				#if ($returned && $dateReturned && ($dateSubmitted && $dateReturned && $dateReturned.isAfter($dateSubmitted) || !$dateSubmitted || !$!submitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
 							<h3>$tlang.getString("gen.addinst2")</h3>
@@ -1011,29 +979,6 @@ $(document).ready(function(){
 						</div>
 					#end
 				#end
-				#if ($!assignment.HonorPledge)
-					<p class="checkbox highlightPanel">
-						<label for="$name_submission_honor_pledge_yes">
-							#if (!$!canSubmit)
-								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
-								#if ($value_submission_honor_pledge_yes.equals("false"))
-									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
-								#else
-									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
-								#end
-							#else
-								#if ($value_submission_honor_pledge_yes.equals("false"))
-									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
-								#else
-									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
-								#end
-							#end
-							$honor_pledge_text
-						</label>
-						<br />
-						$tlang.getString("gen.youmus")
-					</p>
-				#end
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
@@ -1058,9 +1003,7 @@ $(document).ready(function(){
 							<input class="disableme" type="button" name="save" accesskey="d" id="save" value="$tlang.getString("gen.savdra")"
 								onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;" />
 							#end
-							#if ($!linkInvoked)
-								<input class="disableme" type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" />
-							#else
+							#if (!$!linkInvoked)
 								<input class="disableme" type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.can")"
 									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
@@ -1169,9 +1112,7 @@ $(document).ready(function(){
 							</div>
 						#end
 					#end
-		#if ($!linkInvoked)
-			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
-		#else
+		#if (!$!linkInvoked)
 			<p class="act">
 				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 			</p>

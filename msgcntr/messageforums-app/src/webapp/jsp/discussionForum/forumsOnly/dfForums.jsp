@@ -1,12 +1,12 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
 <%
 // hack in attempt to fix navigation quirk
 org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
-	removeAttribute(org.sakaiproject.jsf.util.JsfTool.LAST_VIEW_VISITED);
+	removeAttribute(org.sakaiproject.jsf2.util.JsfTool.LAST_VIEW_VISITED);
 %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -18,20 +18,39 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}" toolCssHref="/messageforums-tool/css/msgcntr.css">
   		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-  		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 
 	<h:form id="msgForum">
-  <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" >
- 
-    <sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>
-    <sakai:tool_bar_item value="#{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}" rendered="#{ForumTool.instructor}" />
-	  <sakai:tool_bar_item value="#{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}" />
-	  <sakai:tool_bar_item value="#{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" rendered="#{ForumTool.instructor}" />
-	  <sakai:tool_bar_item value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}" />
- 	  <sakai:tool_bar_item value="#{msgs.ranks}" action="#{ForumTool.processActionViewRanks}" rendered="#{ForumTool.instructor && ForumTool.ranksEnabled}" />
-	  <sakai:tool_bar_item value="#{msgs.watch}" action="#{ForumTool.processActionWatch}" />
-
+  <sakai:tool_bar>
+    <h:commandLink id="newForum" rendered="#{ForumTool.newForum}"
+      action="#{ForumTool.processActionNewForum}" immediate="true">
+        <h:outputText value="#{msgs.cdfm_new_forum}" />
+    </h:commandLink>
+    <h:commandLink id="organizeForum" rendered="#{ForumTool.instructor}"
+      action="#{ForumTool.processActionTemplateOrganize}" immediate="true">
+        <h:outputText value="#{msgs.cdfm_organize}" />
+    </h:commandLink>
+    <h:commandLink id="templateSettings" rendered="#{ForumTool.instructor}"
+      action="#{ForumTool.processActionTemplateSettings}" immediate="true">
+        <h:outputText value="#{msgs.cdfm_template_setting}" />
+    </h:commandLink>
+    <h:commandLink id="statList" rendered="#{ForumTool.instructor}"
+      action="#{ForumTool.processActionStatistics}" immediate="true">
+        <h:outputText value="#{msgs.stat_list}" />
+    </h:commandLink>
+    <h:commandLink id="pendingQueue" rendered="#{ForumTool.displayPendingMsgQueue}"
+      action="#{ForumTool.processPendingMsgQueue}" immediate="true">
+        <h:outputText value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" />
+    </h:commandLink>
+    <h:commandLink id="viewRanks" rendered="#{ForumTool.instructor && ForumTool.ranksEnabled}"
+      action="#{ForumTool.processPendingMsgQueue}" immediate="true">
+        <h:outputText value="#{msgs.ranks}" />
+    </h:commandLink>
+    <h:commandLink id="watch"
+      action="#{ForumTool.processActionWatch}" immediate="true">
+        <h:outputText value="#{msgs.watch}" />
+    </h:commandLink>
   </sakai:tool_bar>
 
 	<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />

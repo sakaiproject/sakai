@@ -5,7 +5,7 @@
                  org.sakaiproject.tool.cover.ToolManager" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -16,9 +16,9 @@
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -215,15 +215,15 @@
 	
     <sakai:button_bar>
     	<% if(isDialogBox){ %>
-			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
+			<h:commandButton action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
 	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" onclick="SPNR.disableControlsAndSpin( this, null );" />
-	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x" 
+	      	<h:commandButton action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x" 
 	      		onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
 		<% }else {%>	
-			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
+			<h:commandButton action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
 	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}" 
 	      		onclick="SPNR.disableControlsAndSpin( this, null );" />
-	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
+	      	<h:commandButton action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );closeDialogBoxIfExists();" />
       	<%}%>
       	
     </sakai:button_bar>

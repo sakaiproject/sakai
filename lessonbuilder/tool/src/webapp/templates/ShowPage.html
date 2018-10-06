@@ -24,10 +24,6 @@
  /* siteTitle is added by portal, but we don't want it */
 	 .siteTitle{display:none !important;}
 	 .pageTitle{width:auto !important;}
-
-         .Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
-            top: 2px !important;
-         }
  </style>
  <script type="text/javascript" rsf:id="iframeJavascript">
  function resizeiframe(id) {
@@ -70,7 +66,7 @@
  <script type="text/javascript" src="$context/js/jquery.cluetip.min.js"></script>
  <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
  <link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css"/>
- <link type="text/css" href="/library/webjars/fullcalendar/3.0.0/fullcalendar.min.css" rel="stylesheet" />
+ <link type="text/css" href="/library/webjars/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
  <script type="text/javascript" src="$context/js/peer-eval.js"></script>
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
@@ -81,8 +77,8 @@
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
  <script type="text/javascript" src="$context/js/checklistDisplay.js"></script>
  <script type="text/javascript" src="$context/js/forum-summary.js"></script>
- <script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
- <script type="text/javascript" src="/library/webjars/fullcalendar/3.0.0/fullcalendar.min.js"></script>
+ <script type="text/javascript">includeWebjarLibrary('momentjs');</script>
+ <script type="text/javascript" src="/library/webjars/fullcalendar/3.9.0/fullcalendar.min.js"></script>
  <script type="text/javascript" src="$context/js/lessons-calendar.js"></script>
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
@@ -151,6 +147,7 @@
 		   <a role="button" href="#" rsf:id="next" class="nexprev prev menuitem button">next</a>
 		 </span>
 		 <a role="button"  href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle"></span></a>
+		 <a role="button"  href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle"></span></a>
 		 <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="Mrphs-toolTitleNav__link top-icon fa fa-list-ul"><span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle"></span></a>
 		 <span rsf:id="gradingSpan" class="gradingarea">
 		   <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>

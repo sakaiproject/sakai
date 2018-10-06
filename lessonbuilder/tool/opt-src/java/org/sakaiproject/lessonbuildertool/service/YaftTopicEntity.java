@@ -59,6 +59,9 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	static YaftForumService forumService = (YaftForumService) ComponentManager.get("org.sakaiproject.yaft.api.YaftForumService");
 
 	private LessonEntity nextEntity = null;
+	private SimplePageBean simplePageBean;
+
+
 	public void setNextEntity(LessonEntity e) {
 		nextEntity = e;
 	}
@@ -374,4 +377,9 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 
 	return null;
     }
+
+	@Override
+	public void setSimplePageBean(SimplePageBean simplePageBean) {
+		this.simplePageBean = simplePageBean;
+	}
 }

@@ -23,7 +23,7 @@
       xml:lang="${language}"
       lang="${language}">
     <head>
-        <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
+        <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
         <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css" />
 
         <script type="text/javascript">
@@ -54,43 +54,26 @@
     <body>
 
         <!-- wrap tool in portletBody div for PDA portal compatibility -->
-        <div id="Mrphs-sakai-roster" class="portletBody container-fluid">
+        <div class="portletBody container-fluid">
 
-        <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
+            <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
-        <div id="rosterMainContainer">
-            <form id="roster_form">
-                <div id="roster_header"></div>
-                <div id="roster_section_filter"></div>
-                <div id="roster_search"></div>
-                <div id="roster_content"></div>
-            </form>
-        </div>
+            <div id="rosterMainContainer">
+                <div id="roster_content" class="view_mode_cards"></div>
+            </div>
 
-<!--  Templates Begin -->
+        </div> <!-- portletBody -->
 
-<div id="roster_participants_template" style="display:none"><!--
-<span class="instruction">
-	<div class="rosterRoleTopLine">${participants}</div>
-	<div class="rosterRoleBottomLine">({for frag in roleFragments}${frag}{/for})</div>
-</span>
--->
-</div>
+    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
+    <script type="text/javascript" src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
+    <script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
+    <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
+    <script type="text/javascript" src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
+    <script type="text/javascript" src="/sakai-roster2-tool/templates.js"></script>
+    <script type="text/javascript" src="/sakai-roster2-tool/lib/sakai_utils.js"></script>
+    <script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>
+    <script type="text/javascript" src="/sakai-roster2-tool/js/roster.js"></script>
 
-</div> <!-- portletBody -->
-
-<!--  Templates End -->
-
-<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-<script type="text/javascript" src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
-<script type="text/javascript" src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
-<script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
-<script type="text/javascript" src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/templates.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/lib/sakai_utils.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/js/roster.js"></script>
-
-</body>
+    </body>
 </html>

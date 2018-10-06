@@ -281,7 +281,7 @@ public class EmailUtil {
         }
 
         String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
-        if (assignmentService.canSubmit(context, assignment, userId)) {
+        if (assignmentService.canSubmit(assignment, userId)) {
             buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.text", assignment.getTitle(), linkToToolInSite));
         } else {
             buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.noresubmit.text", assignment.getTitle(), linkToToolInSite));

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.webservices;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,7 +31,6 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -43,12 +44,13 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -174,8 +176,9 @@ public class ContentHosting extends AbstractWebService {
 				siteNode.setAttribute("size", size.toString());
 				siteNode.setAttribute("type", site.getType());
 				siteNode.setAttribute("createdBy", site.getCreatedBy().getEid());
-				Time time = site.getCreatedTime();
-				siteNode.setAttribute("createdTime", time.getDisplay() );
+				Date time = site.getCreatedDate();
+				DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+				siteNode.setAttribute("createdTime", df.format(time));
 	        		
 				list.appendChild(siteNode);
 			}

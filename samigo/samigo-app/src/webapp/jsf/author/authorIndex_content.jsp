@@ -36,11 +36,11 @@
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
-    <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
     <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
-    <samigo:script path="/js/info.js"/>
-    <samigo:script path="/js/naturalSort.js"/>
-    <script type="text/JavaScript">
+    <script type="text/javascript" src="/samigo-app/js/info.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
+    <script type="text/javascript">
         $(document).ready(function() {
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {
                 "span-asc": function (a, b) {

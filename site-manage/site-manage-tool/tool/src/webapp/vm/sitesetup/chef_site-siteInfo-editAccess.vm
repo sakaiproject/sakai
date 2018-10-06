@@ -65,27 +65,10 @@
 </script>
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($!site)
+	#if (!$!site)
 		<h3>
-			$tlang.getString("ediacc.chaacc") <span class="highlight">$validator.escapeHtml($site.Title)</span>
+			$tlang.getString("ediacc.other.setsitacc")
 		</h3>
-	#else
-		#if ($!isProjectSite)
-			<h3>
-				$tlang.getString("ediacc.project.setsitacc")
-			</h3>
-		#elseif ($!isCourseSite)
-			<h3>
-				$tlang.getString("ediacc.course.setsitacc")
-			</h3>
-		#else
-			<h3>
-				$tlang.getString("ediacc.other.setsitacc")
-			</h3>
-		#end
-		<p class="step">
-			$tlang.getString("ediacc.setacc")
-		</p>
 	#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("ediacc.alert") $alertMessage</div>
@@ -502,7 +485,7 @@
 			#if($!site)
 				<input type="submit" accesskey="s" id="updateButton" onclick="SPNR.disableControlsAndSpin( this, null );" 
 					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
-				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			#else
 				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" /onclick="SPNR.disableControlsAndSpin( this, null );" >

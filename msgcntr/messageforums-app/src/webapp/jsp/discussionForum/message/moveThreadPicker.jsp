@@ -1,4 +1,3 @@
-<f:verbatim>
     <h:outputText escape="false" value='<div class="topic-picker" id="topic-picker" style="display:none" title="#{msgs.move_thread}">'/>
         <div class="selected-threads-to-move">
             <div>
@@ -55,4 +54,3 @@
     <div id="data" style="display:none">
         <h:outputText escape="true" value="#{ForumTool.moveThreadJSON}" />
     </div>
-</f:verbatim>

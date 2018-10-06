@@ -24,7 +24,7 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-  <samigo:script path="/js/utils-emi.js" />
+  <script type="text/javascript" src="/samigo-app/js/utils-emi.js"></script>
   <f:verbatim></h5><h3></f:verbatim><h:outputText value="#{question.themeText}"  escape="false"/>
   <f:verbatim></h3><br /></f:verbatim>
   

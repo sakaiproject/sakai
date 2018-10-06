@@ -2,7 +2,7 @@
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.ui.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -174,8 +174,8 @@
 <f:view>
   <sakai:view>
 	  <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
-	  <sakai:script contextBase="/messageforums-tool" path="/js/synopticLite.js"/>
-  	  <sakai:script contextBase="/messageforums-tool" path="/js/popupscripts.js"/>
+	  <script type="text/javascript" src="/messageforums-tool/js/synopticLite.js"></script>
+  	  <script type="text/javascript" src="/messageforums-tool/js/popupscripts.js"></script>
   	  <script type="text/javascript">
 
 //this function (setupTableParsers) setting has to be in the jsp page b/c of the msgs.syn_no_messages string.

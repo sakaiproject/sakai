@@ -4,85 +4,77 @@
 <input type="hidden" id="removalAlertNoMessage" value="$tlang.getString('feat.remove.alert.no')" />
 
 <div class="portletBody">
-    #if ($!isProjectSite)
-        <h3>
-            $tlang.getString("feat.project.tools")
-        </h3>
-    #elseif ($!isCourseSite)
-        <h3>
-            $tlang.getString("feat.course.tools")
-        </h3>
-    #else
-        <h3>
-            $tlang.getString("feat.other.tools")
-        </h3>
-    #end
-    
-    #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
-    <p class="step">
-        $tlang.getString("feat.choose")
-    </p>
+    #if($menu)#toolbar($menu)#end
 
-    <form name="featuresForm" action="#toolForm("$action")" method="post">
-        <input type="hidden" name="option" value="add" />
-        <input type="hidden" name="eventSubmit_doAdd_features" value="x" />
-    
-            #parse("/vm/sitesetup/toolGroupMultipleDisplay.vm")
-   
-            #if (!$existSite && !$createFromArchive && $sites.size() > 0)
-            <fieldset style="clear: both">
-                <legend>
-                    <h4>$tlang.getString("feat.reuse")</h4>
-                </legend>
-                <p class="checkbox">
-                    <input type="radio" id="import_no" name="import" value="FALSE" #if(!$import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=true;" />
-                    <label for="import_no">
-                        $tlang.getString("feat.thanks")
-                    </label>
-                </p>
-                <p class="checkbox">
-                    <input type="radio" id="import_yes" name="import" value="TRUE" #if($import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=false;" />
-                    <label for="import_yes">
-                        $tlang.getString("feat.yesfrom")
-                    </label>
-                </p>
-                <p class="indnt3">
-                <span class="reqStar" style="display:none" id="importSitesReq">*</span>
-                <select title="$tlang.getString("feat.select.title")" name="importSites" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end style="min-width: 10em " aria-describedby="importSelectInstructions">
-                    #foreach    ($site in $sites)
-                        #set($siteSelected = false)
-                        #foreach($s in $importSites.keys())
-                            #if ($s.Id == $site.Id)
-                                #set($siteSelected = true)
-                            #end
-                        #end
-                        <option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
-                    #end
-                </select>
-                </p>
-            </fieldset>
-            <p class="instruction" id="importSelectInstructions">
-                $tlang.getString("feat.note")
-            </p>
+    <div class="siteInfoContent">
+        #if (!$!existSite)
+            <h3>$tlang.getString("feat.other.tools")</h3>
         #end
-        <input type="hidden" name="back" value="$!backIndex" />
-        <input type="hidden" name="templateIndex" value="$!templateIndex" />
-        <p class="act" style="float: none;clear:both">
-            <input type="submit" name="Continue" id="btnContinue"
-                    value="$tlang.getString('gen.continue')"
-                    accesskey="s"
-                    class="active"
-                    onclick="document.featuresForm.option.value='continue'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
-            #if (!$!existSite)
-            <input type="submit" value="$tlang.getString('gen.back')" 
-                    name="Back" id="btnBack"
-                    accesskey="b"
-                    onclick="document.featuresForm.option.value='back'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
+
+        #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+
+        <form name="featuresForm" action="#toolForm("$action")" method="post">
+            <input type="hidden" name="option" value="add" />
+            <input type="hidden" name="eventSubmit_doAdd_features" value="x" />
+
+                #parse("/vm/sitesetup/toolGroupMultipleDisplay.vm")
+
+                #if (!$existSite && !$createFromArchive && $sites.size() > 0)
+                <fieldset style="clear: both">
+                    <legend>
+                        <h4>$tlang.getString("feat.reuse")</h4>
+                    </legend>
+                    <p class="checkbox">
+                        <input type="radio" id="import_no" name="import" value="FALSE" #if(!$import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=true;" />
+                        <label for="import_no">
+                            $tlang.getString("feat.thanks")
+                        </label>
+                    </p>
+                    <p class="checkbox">
+                        <input type="radio" id="import_yes" name="import" value="TRUE" #if($import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=false;" />
+                        <label for="import_yes">
+                            $tlang.getString("feat.yesfrom")
+                        </label>
+                    </p>
+                    <p class="indnt3">
+                    <span class="reqStar" style="display:none" id="importSitesReq">*</span>
+                    <select title="$tlang.getString("feat.select.title")" name="importSites" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end style="min-width: 10em " aria-describedby="importSelectInstructions">
+                        #foreach    ($site in $sites)
+                            #set($siteSelected = false)
+                            #foreach($s in $importSites.keys())
+                                #if ($s.Id == $site.Id)
+                                    #set($siteSelected = true)
+                                #end
+                            #end
+                            <option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
+                        #end
+                    </select>
+                    </p>
+                </fieldset>
+                <p class="instruction" id="importSelectInstructions">
+                    $tlang.getString("feat.note")
+                </p>
             #end
-            <input type="submit" value="$tlang.getString('gen.cancel')" 
-                    name="Cancel" id="btnCancel"
-                    accesskey="x"
-                    onclick="document.featuresForm.option.value='cancel'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
-        </p>
-        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-    </form>
+            <input type="hidden" name="back" value="$!backIndex" />
+            <input type="hidden" name="templateIndex" value="$!templateIndex" />
+            <p class="act" style="float: none;clear:both">
+                <input type="submit" name="Continue" id="btnContinue"
+                        value="$tlang.getString('gen.continue')"
+                        accesskey="s"
+                        class="active"
+                        onclick="document.featuresForm.option.value='continue'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
+                #if (!$!existSite)
+                <input type="submit" value="$tlang.getString('gen.back')"
+                        name="Back" id="btnBack"
+                        accesskey="b"
+                        onclick="document.featuresForm.option.value='back'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
+                #end
+                <input type="submit" value="$tlang.getString('gen.cancel')"
+                        name="Cancel" id="btnCancel"
+                        accesskey="x"
+                        onclick="document.featuresForm.option.value='cancel'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
+            </p>
+            <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        </form>
+    </div>
+</div>

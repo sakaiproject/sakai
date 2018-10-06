@@ -2,7 +2,7 @@
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.*"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -10,12 +10,12 @@
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>      
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
-	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
+	<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/permissions_header.js"></script>
+	<script type="text/javascript" src="/messageforums-tool/js/datetimepicker.js"></script>
 	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
@@ -401,7 +401,7 @@
                            accesskey="d"  styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
-          <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
           <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
 	 </h:form>

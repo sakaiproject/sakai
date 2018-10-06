@@ -19,15 +19,18 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.pages.NotAuthorizedPage;
+import org.sakaiproject.time.api.UserTimeService;
 
 
 /**
@@ -37,8 +40,6 @@ public class LastJobRun extends Panel {
 	private static final long		serialVersionUID	= 1L;
 
 	private String					realSiteId;
-	private String					siteId;
-	private String					siteTitle;
 
 	public LastJobRun(String id) {
 		this(id, null);
@@ -51,13 +52,19 @@ public class LastJobRun extends Panel {
 			siteId = realSiteId;
 		}
 		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
-		if(allowed) {
-			renderBody();
-		}else{
+		if(!allowed) {
 			setResponsePage(NotAuthorizedPage.class);
 		}		
 	}
 	
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+
+		renderBody();
+	}
+
 	private void renderBody() {
 		StatsManager statsManager = Locator.getFacade().getStatsManager();
 		StatsUpdateManager statsUpdateManager = Locator.getFacade().getStatsUpdateManager();
@@ -69,18 +76,25 @@ public class LastJobRun extends Panel {
 		lastJobRun.setVisible(lastJobRunVisible);
 		add(lastJobRun);
 		final Label lastJobRunDate = new Label("lastJobRunDate");
+		final Label lastJobRunServerDate = new Label("lastJobRunServerDate");
 		if(lastJobRunVisible) {
 			try{
 				Date d = statsUpdateManager.getEventDateFromLatestJobRun();
-				String dStr = Locator.getFacade().getTimeService().newTime(d.getTime()).toStringLocalFull();
+				UserTimeService timeServ = Locator.getFacade().getUserTimeService();
+				String dStr = timeServ.shortLocalizedTimestamp(d.toInstant(), getSession().getLocale());
+				String serverDateStr = timeServ.shortLocalizedTimestamp(d.toInstant(), TimeZone.getDefault(), getSession().getLocale());
 				lastJobRunDate.setDefaultModel(new Model(dStr));
-			}catch(RuntimeException e) {
-				lastJobRunDate.setDefaultModel(new Model());
+				String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
+				StringResourceModel model = new StringResourceModel("lastJobRun_server_time", getPage(), null,
+						new Object[] {localSakaiName, serverDateStr});
+				lastJobRunServerDate.setDefaultModel(model);
 			}catch(Exception e){
 				lastJobRunDate.setDefaultModel(new Model());
+				lastJobRunServerDate.setDefaultModel(new Model());
 			}
 		}
 		lastJobRun.add(lastJobRunDate);
+		lastJobRun.add(lastJobRunServerDate);
 	}
 
 }

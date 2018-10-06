@@ -16,14 +16,9 @@
 package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.hibernate.Criteria;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -31,6 +26,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,9 +139,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
-        Session session = sessionFactory.getCurrentSession();
-        Assignment persistedAssignment = (Assignment) session.get(Assignment.class, assignment.getId(), new LockOptions(LockMode.OPTIMISTIC_FORCE_INCREMENT));
-        if (!existsSubmission(submission.getId()) && persistedAssignment != null) {
+        if (!existsSubmission(submission.getId()) && exists(assignment.getId())) {
             submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
             submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
@@ -153,10 +147,10 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             submittedAttachments.ifPresent(submission::setAttachments);
             properties.ifPresent(submission::setProperties);
 
-            submission.setAssignment(persistedAssignment);
-            persistedAssignment.getSubmissions().add(submission);
+            submission.setAssignment(assignment);
+            assignment.getSubmissions().add(submission);
 
-            session.persist(persistedAssignment);
+            sessionFactory.getCurrentSession().persist(assignment);
         }
     }
 
@@ -183,24 +177,25 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission) {
+    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
-                .setProjection(Projections.rowCount())
+                .setProjection(Projections.countDistinct("id"))
                 .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitted", Boolean.TRUE));
+                .add(Restrictions.eq("submitted", Boolean.TRUE))
+                .createAlias("submitters", "s");
 
         if (graded != null) {
             criteria.add(Restrictions.eq("graded", graded));
         }
-
         if (hasSubmissionDate != null) {
             criteria.add(hasSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"));
         }
-
         if (userSubmission != null) {
             criteria.add(Restrictions.eq("userSubmission", userSubmission));
         }
-
+        if (userIds != null) {
+            criteria.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds));
+        }
         return ((Number) criteria.uniqueResult()).longValue();
     }
 

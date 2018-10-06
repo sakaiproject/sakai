@@ -62,7 +62,7 @@
     </h3>
 
     #if ($alertMessage)
-        <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+        <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end
 
     #set($submitTime=false)
@@ -130,11 +130,7 @@
                     <td class="highlight">
                         <strong>
                             #if ($!assignment.TypeOfGrade.ordinal() != 1)
-                                #if ($!override)
-                                    $!service.getGradeDisplay($override, $!assignment.TypeOfGrade, $!assignment.ScaleFactor)
-                                #else
-                                    $!service.getGradeDisplay($!submission.Grade, $!assignment.TypeOfGrade, $!assignment.ScaleFactor)
-                                #end
+                                $!grade
                             #else
                                 $tlang.getString("gen.nograd")
                             #end
@@ -248,43 +244,11 @@
     </h4>
 
     #if ($!assignment.Instructions.length() > 0)
-        <div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
+        <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
     #end
 
     ## Assignment Attachments
-    #set ($attachments = $assignment.Attachments)
-    #if ($attachments)
-        #set ($size = $attachments.size())
-        #if ($size > 0)
-            <h4>
-                $tlang.getString("gen.addres2")
-            </h4>
-            <ul class="attachList indnt1">
-                #foreach ($attachmentReference in $attachments)
-                    #set ($reference = $assignmentAttachmentReferences.get($attachmentReference))
-                    #if ($reference)
-                        #set ($props = false)
-                        #set ($props = $reference.Properties)
-                        #if ($!props)
-                            <li>
-                                #if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-                                #else
-                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-                                #end
-                                #if ($decoratedUrlMap)
-                                    <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                #else
-                                    <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                #end
-                                #propertyDetails($props)
-                            </li>
-                        #end
-                    #end
-                #end
-            </ul>
-        #end
-    #end
+    #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $decoratedUrlMap)
 
     ## Assignment Model Answer
     #if($allowViewModelAnswer)
@@ -393,19 +357,19 @@
         ## show feedback text when submission is released or returned
         #if ($!submission.FeedbackText && ($submission.FeedbackText.length() > 0))
             <h5>$tlang.getString("gen.orisub2")</h5>
-            <div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+            <div class="textPanel borderPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
         #else
             #set ($text = $submission.SubmittedText)
             #if ($!text && $text.length() > 0)
                 <h4>$tlang.getString("gen.orisub")</h4>
-                <div class="textPanel">$submission.SubmittedText</div>
+                <div class="textPanel borderPanel">$submission.SubmittedText</div>
             #end
         #end
     #else
         #set ($text = $submission.SubmittedText)
         #if ($!text && $text.length() > 0)
             <h4>$tlang.getString("gen.orisub")</h4>
-            <div class="textPanel">$submission.SubmittedText</div>
+            <div class="textPanel borderPanel">$submission.SubmittedText</div>
         #end
     #end
 
@@ -423,30 +387,32 @@
                     $tlang.getString("gen.stuatt")
                 #end
             </h4>
-            <ul class="attachList indnt1">
-                #foreach ($attachmentReference in $attachments)
-                    #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
-                    #if ($reference)
-                        #set ($props = false)
-                        #set ($props = $reference.Properties)
-                        #if ($!props)
-                            <li>
-                                #if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-                                #else
-                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-                                #end
-                                #if ($decoratedUrlMap)
-                                    <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                #else
-                                    <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-                                #end
-                                #propertyDetails($props)
-                            </li>
+            <div class="textPanel borderPanel">
+                <ul class="attachList indnt1">
+                    #foreach ($attachmentReference in $attachments)
+                        #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
+                        #if ($reference)
+                            #set ($props = false)
+                            #set ($props = $reference.Properties)
+                            #if ($!props)
+                                <li>
+                                    #if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+                                    #else
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+                                    #end
+                                    #if ($decoratedUrlMap)
+                                        <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    #else
+                                        <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    #end
+                                    #propertyDetails($props)
+                                </li>
+                            #end
                         #end
                     #end
-                #end
-            </ul>
+                </ul>
+            </div>
         #end
     #end
 
@@ -461,7 +427,7 @@
     ## show feedback comment and feedback comment when submission is released or returned
         #if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length() > 0))
             <h5>$tlang.getString("gen.addinst")</h5>
-            <div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+            <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
         #end
 
         ## Feedback Attachments
@@ -478,7 +444,7 @@
                         <br/>
                         #if($!review.getComment() && $review.getComment().length()>0)
                             <b>$tlang.getString("gen.comments")</b>
-                            <div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
+                            <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
                         #end
                         <ul class="attachList">
                             <lh><strong>$tlang.getString("gen.attachments")</strong></lh>

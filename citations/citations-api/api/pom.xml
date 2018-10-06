@@ -36,7 +36,7 @@
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>

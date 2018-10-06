@@ -47,6 +47,16 @@
 		background: #F5F5F5;
 		position: relative;
 	}
+	.profileSayItActionBar {
+		@include display-flex;
+		@include justify-content(space-between);
+		@include align-items(center);
+		margin-top: $standard-space;
+		
+		.act {
+			margin: 0;
+		}
+	}
 
 	.gallery-form{
 		img{

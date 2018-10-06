@@ -519,10 +519,11 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             if (submittee.isPresent()) {
                 String submitterId = decodeBase64(submittee.get().getValue());
                 AssignmentSubmissionSubmitter submitter = submitters.stream().filter(r -> r.getSubmitter().equals(submitterId)).findAny().orElse(new AssignmentSubmissionSubmitter());
-                submitter.setSubmitter(submitterId);
-                submitter.setSubmittee(true);
-                submitter.setSubmission(s);
-                submitters.add(submitter);
+                if (submitterId.equals(submitter.getSubmitter())) {
+                    submitter.setSubmittee(true);
+                    submitter.setSubmission(s);
+                    submitters.add(submitter);
+                }
             }
         } else {
             // non group AssignmentSubmissionSubmitter

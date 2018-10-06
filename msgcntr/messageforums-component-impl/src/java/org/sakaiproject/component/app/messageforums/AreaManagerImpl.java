@@ -147,7 +147,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setPostFirst(Boolean.FALSE);
 	    area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
             area.setSendToEmail(serverConfigurationService.getInt(DEFAULT_SEND_TO_EMAIL_PROP, Area.EMAIL_COPY_OPTIONAL));
-            saveArea(area);
+            area = saveArea(area);
         }
 
         return area;
@@ -181,7 +181,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             // this is a Messages tool option
 	    area.setSendToEmail(serverConfigurationService.getInt(DEFAULT_SEND_TO_EMAIL_PROP, Area.EMAIL_COPY_OPTIONAL));
 	    area.setAvailabilityRestricted(Boolean.FALSE);
-            saveArea(area);
+            area = saveArea(area);
             //if set populate the default Forum and topic
             if  (createDefaultForum && serverConfigurationService.getBoolean("forums.setDefault.forum", true)) {
             	setAreaDefaultElements(area);
@@ -208,7 +208,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     	forum.setDraft(false);
     	forum.setModerated(area.getModerated());
     	forum.setPostFirst(area.getPostFirst());
-        forumManager.saveDiscussionForum(forum);
+        forum = forumManager.saveDiscussionForum(forum);
     	DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
     	topic.setTitle(getResourceBundleString("default_topic"));
     	//MSGCNTR-453
@@ -255,17 +255,15 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
      * sort index of 0.  (if a sort index on a forum is 0 then it is new). If there is a 
      * zero sort index then it increments all the sort indices by one so the new sort index
      * becomes the first without having to rely on the creation date for the sorting.
-     * 
+     *
      * @param area Area to save
      */
-    public void saveArea(Area area) {
+    public Area saveArea(Area area) {
     	String currentUser = getCurrentUser();
-    	saveArea( area, currentUser);
+    	return saveArea( area, currentUser);
     }
     
-    public void saveArea(Area area, String currentUser){
-        boolean isNew = area.getId() == null;
-
+    public Area saveArea(Area area, String currentUser){
         area.setModified(new Date());
         area.setModifiedBy(currentUser);
         
@@ -295,9 +293,11 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         // the area will always be available. 
         area.setAvailability(true); 
         
-        getHibernateTemplate().saveOrUpdate(area);
+        area = getHibernateTemplate().merge(area);
 
-        log.debug("saveArea executed with areaId: " + area.getId());
+        log.debug("saveArea executed with areaId: {}", area.getId());
+
+        return area;
     }
 
     public void deleteArea(Area area) {

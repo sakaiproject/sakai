@@ -45,7 +45,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
 import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.tool.api.ToolException;
 

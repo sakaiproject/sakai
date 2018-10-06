@@ -643,4 +643,7 @@ public interface StatsManager {
 	/** Logs an event using EventTrackingService. */
 	public void logEvent(Object object, String logAction, String siteId, boolean oncePerSession);
 	
+	/** Get the local sakai name (from ui.service property) */
+	public String getLocalSakaiName();
+
 }

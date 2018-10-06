@@ -33,7 +33,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
-      <samigo:script path="/js/authoring.js"/>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
 
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
@@ -44,11 +44,11 @@ $(window).load( function() {
 });
 </script>
 
-<samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-<samigo:script path="/js/selection.author.preview.js"/>
-<samigo:script path="/../library/js/spinner.js"/>
+<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 
-<samigo:stylesheet path="/css/imageQuestion.author.css"/>
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
 <script type="text/JavaScript">	
 	jQuery(window).load(function(){
@@ -476,6 +476,7 @@ $(window).load( function() {
 </div>
   </h:column>
 </h:dataTable>
+<div class="act">
 <h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
@@ -483,6 +484,7 @@ $(window).load( function() {
 <h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="orderUpdate" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
 </h:commandButton>
+</div>
 </div> <!-- End the main container -->
 
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0">

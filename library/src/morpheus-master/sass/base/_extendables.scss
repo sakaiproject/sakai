@@ -86,11 +86,10 @@
 		width:   $width;
 		margin:  0 0.25em 0.15em 0;
 	}
-
 }
 
 .select{
-	background-color: $button-background-color;
+	background-color: $background-color;
 	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
 	background-repeat: no-repeat;
@@ -105,6 +104,16 @@
 	@include border-radius(3px);
 	&::-ms-expand {
 	    display: none;
+	}
+	
+	&[multiple], &[size]:not([size='1']) {
+		background-image: none;
+	}
+	
+	&[disabled="disabled"],&[disabled],&[disabled="true"] {
+		opacity: 0.7;
+		background-color: #f3f3f3;
+		cursor: not-allowed;
 	}
 }
 
@@ -136,106 +145,107 @@
 	}
 }
 
-@mixin sakai_button(	$button-text-color,
-											$button-icon-color,
-											$button-background-color,
-											$button-border-color,
-											$button-hover-text-color,
-											$button-hover-icon-color,
-											$button-hover-background-color,
-											$button-hover-border-color) {
-	background: $button-background-color;
-	border: 1px solid $button-border-color;
-	color: $button-text-color !important;
-	cursor: pointer;
+@mixin sakai_button($sb-text-color,
+					$sb-background,
+					$sb-border-color,
+					$sb-hover-text-color,
+					$sb-hover-background,
+					$sb-hover-border-color,
+					$sb-active-text-color,
+					$sb-active-background,
+					$sb-active-border-color) {
 	display: inline-block;
-	font-family: $font-family;
-	font-size: #{ $default-font-size - 2 };
-	line-height: 18px;
-	margin: 0.5em 0.8em 0.5em 0;
-	padding: 0.4em 0.8em 0.45em 0.8em;
-	text-decoration: none !important;
-	@include appearance(none);
+	margin: 0;
+	padding: 7px $standard-spacing;
+	border: 1px solid $sb-border-color;
 	@include border-radius($button-radius);
+	background: $sb-background;
+	font-family: $font-family;
+	font-size: 1em;
+	line-height: 18px;
+	color: $sb-text-color;
+	text-decoration: none;
+	cursor: pointer;
+	@include appearance(none);
+	box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset;
 
 	&:before { // icon
-		color: $button-icon-color;
+		color: $sb-text-color;
 	}
 
 	&:focus {
-		outline: 5px groove $focus-outline-color !important;
-		outline-offset: 2px !important;
+		outline: $focus-outline-width solid $focus-outline-color;
+		outline-offset: $focus-outline-offset;
 	}
 
-	&:hover{
-		color: $button-hover-text-color !important;
+	&:hover, &:focus {
+		color: $sb-hover-text-color;
 		text-decoration: none;
-		background: $button-hover-background-color;
-		border-color: $button-hover-border-color;
+		background: $sb-hover-background;
+		border-color: $sb-hover-border-color;
 
 		&:before { // icon
-			color: $button-hover-icon-color;
+			color: $sb-hover-text-color;
 		}
 	}
 
-	&:active{
-		outline: 0;
-		color: $button-hover-text-color !important;
+	&:active {
+		outline: 0;		// no focus outline on click
+		color: $sb-active-text-color;
 		text-decoration: none;
-		background: $button-hover-background-color;
-		border-color: $button-hover-border-color;
+		background: $sb-active-background;
+		border-color: $sb-active-border-color;
+		box-shadow: inset 0 0 $standard-spacing $button-active-shadow-color;
+		
+		&:before { // icon
+			color: $sb-active-text-color;
+		}
 	}
 
-	&[disabled="disabled"],&[disabled],&[disabled="true"]{
-		background: $button-background-color;
-		color: lighten( $button-text-color, 5% );
-		cursor: not-allowed;
-		opacity: 0.7;
+	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
+		&, &:hover, &:active, &:focus {
+			color: $button-disabled-text-color;
+			text-decoration: none;
+			background: $button-disabled-background;
+			border-color: $button-disabled-border-color;
+			box-shadow: $button-disabled-shadow;
+			cursor: not-allowed;
+		}
 	}
 }
 
-
+// the primary button is the primary action task at hand (as opposed to secondary actions that are less utilized)
 @mixin sakai_primary_button() {
 	@include sakai_button(	$button-primary-text-color,
-													$button-primary-text-color,
-													$button-primary-background-color,
-													$button-primary-border-color,
-													$button-primary-hover-text-color,
-													$button-primary-hover-text-color,
-													$button-primary-hover-background-color,
-													$button-primary-hover-border-color);
+							$button-primary-background,
+							$button-primary-border-color,
+							$button-primary-hover-text-color,
+							$button-primary-hover-background,
+							$button-primary-hover-border-color,
+							$button-primary-active-text-color,
+							$button-primary-active-background,
+							$button-primary-active-border-color);
 }
 
+// the standard button design for non-primary action buttons (opposite of sakai_primary_button above)
 @mixin sakai_secondary_button() {
-	@include sakai_button(	$button-secondary-text-color,
-													$button-secondary-icon-color,
-													$button-secondary-background-color,
-													$button-secondary-border-color,
-													$button-secondary-hover-text-color,
-													$button-secondary-hover-icon-color,
-													$button-secondary-hover-background-color,
-													$button-secondary-hover-border-color);
+	@include sakai_button(	$button-text-color,
+							$button-background,
+							$button-border-color,
+							$button-hover-text-color,
+							$button-hover-background,
+							$button-hover-border-color,
+							$button-active-text-color,
+							$button-active-background,
+							$button-active-border-color);
 }
 
-
-@mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
+button.btn-primary, .act .active {
 	@include sakai_primary_button();
 }
 
-.button_color, button, button.btn-primary {
-	@include sakai_primary_button();
-}
-
-.button, button.ui-state-default, .btn.btn-default {
+.button_color, button, .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link {
 	@include sakai_secondary_button();
-}
-
-.button.link, a.btn-link, button.btn-link {
-	@include sakai_secondary_button();
-}
-
-.btn-group .btn {
-  margin: 0;
 }
 
 .input-group-btn .btn {
@@ -247,7 +257,18 @@ a.noPointers, input.noPointers {
 }
 
 .act {
-	padding: 1em 0;
+	@include display-flex;
+	@include flex-wrap(wrap);
+	@include align-items(center);
+	margin: $standard-spacing 0;
+	
+	> input, > button, > a, > .active {
+		margin-right: $standard-space;
+		
+		&:last-child {
+			margin-right: 0;
+		}
+	}
 }
 
 /*** Begin button spinner overlay ***/
@@ -266,11 +287,11 @@ a.noPointers, input.noPointers {
 	to {transform: rotate(360deg);}
 }
 
-.spinButton {
+.spinButton, .spinSelect {
 	position: relative;
 }
 
-.spinButton:after, .spinPlaceholder:after {
+.spinButton:after, .spinPlaceholder:after, .spinSelect:after {
 	content: "";
 	background: url("images/ring58.png") center center no-repeat;
 	-moz-animation-name: rotate;
@@ -294,6 +315,12 @@ a.noPointers, input.noPointers {
 	height: 100%;
 }
 
+.spinSelect:after {
+	left: initial;
+	right: 4px;
+	width: 16px;
+}
+
 .spinPlaceholder, .allocatedSpinPlaceholder {
 	position: relative;
 	display: inline-block;
@@ -312,6 +339,7 @@ a.noPointers, input.noPointers {
 		margin-bottom: 0px;
 	}
 }
+
 /*** End button spinner overlay ***/
 .ui-dialog.ui-widget {
 	@media #{$phone}{
@@ -361,11 +389,4 @@ label.panelGridLabel{
 	font-weight: 200;
 	display: block;
 	margin-top: 1.4rem;
-}
-
-@mixin flex-wrap($p: nowrap)
-{
-	-moz-flex-wrap: $p;
-	-webkit-flex-wrap: $p;
-	flex-wrap: $p;
 }

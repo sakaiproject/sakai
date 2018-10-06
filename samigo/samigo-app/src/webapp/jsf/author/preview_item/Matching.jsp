@@ -28,19 +28,10 @@ should be included in file importing DeliveryMessages
 
   <h:outputText escape="false" value="#{question.instruction}" />
   <!-- 1. print out the matching choices -->
-  <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    <h:column>
-      <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer"
-         rendered="#{itemText.sequence==1}">
-        <h:column>
-            <h:panelGrid columns="2">
-              <h:outputText escape="false" value="#{answer.label}. "/>
-              <h:outputText escape="false" value="#{answer.text}" />
-            </h:panelGrid>
-        </h:column>
-      </h:dataTable>
-    </h:column>
-  </h:dataTable>
+  <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.itemData.itemTextArraySorted[0].answerArrayWithDistractorSorted}" var="answer" rendered="#{question.itemData.itemTextArraySorted[0].sequence==1}">
+    <h:outputText escape="false" value="#{answer.label}." styleClass="author_mcLabelText" />
+    <h:outputText escape="false" value="#{answer.text}" />
+  </t:dataList>
 
   <!-- 2. print out the matching text -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">

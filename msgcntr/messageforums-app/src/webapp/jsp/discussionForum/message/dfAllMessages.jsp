@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -22,12 +22,12 @@
 <script type="text/javascript" src="/messageforums-tool/js/frameAdjust.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/forum_movethread.js"></script>
 
-<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
 		<script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
-		<sakai:script contextBase="/messageforums-tool" path="/js/forumTopicThreadsSorter.js"/>
+		<script type="text/javascript" src="/messageforums-tool/js/forumTopicThreadsSorter.js"></script>
  		<script type="text/javascript">
  		jQuery(document).ready(function(){
  			//sort forum threads
@@ -88,7 +88,7 @@
 
 	<%--//
 		//plugin required below
-		<sakai:script contextBase="/messageforums-tool" path="/js/pxToEm.js"/>
+		<script type="text/javascript" src="/messageforums-tool/js/pxToEm.js"></script>
 		
 		/*
 		gsilver: get a value representing max indents
@@ -166,13 +166,13 @@
 			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_discussion_forums}" rendered="#{ForumTool.forumsTool}" >
 							<h:outputText value="#{msgs.cdfm_discussion_forums}"/>
 						</h:commandLink>
-      			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+      			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" title="#{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
 						<h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
 					  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
-					  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+					  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 					  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 						<%--//designNote: up arrow should go here - get decent image and put title into link. --%>
 						<h:commandLink action="#{ForumTool.processActionDisplayForum}"  title="#{msgs.cdfm_up_level_title}" rendered="#{ForumTool.showForumLinksInNav}" style="margin-left:.3em">
@@ -189,12 +189,10 @@
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
 					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
-					  
-					
-					
+					<%-- Rubrics marker --%>
+					<h:outputText styleClass="fa fa-table" id="rubrics-forum-icon" rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_rubric}"/>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>
-					
-                                
+
 			         <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="childrenNewZero" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />
 					
 					  <%--//designNote: for paralellism to other views, need to add read/unread count here as well as Moderated attribute--%>  

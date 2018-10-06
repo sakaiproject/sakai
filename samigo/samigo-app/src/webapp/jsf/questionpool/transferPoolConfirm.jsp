@@ -15,9 +15,9 @@
             <script language="javascript" type="text/JavaScript">
                 <%@ include file="/js/samigotree.js" %>
             </script>
-            <samigo:script path="/../library/js/spinner.js"/>
+            <script type="text/javascript" src="/library/js/spinner.js"></script>
 
-            <samigo:stylesheet path="/css/tool_sam.css" />
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/tool_sam.css">
         </head>
         <body onload="<%= request.getAttribute("html.body.onload") %>">
             <div class="portletBody">

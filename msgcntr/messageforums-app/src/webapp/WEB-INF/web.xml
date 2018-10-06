@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 
-<!-- Upgraded to Servlet Spec 2.4 - PAFH 8/24/2006 -->
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    version="3.0">
  
     <display-name>messageforums</display-name>
     <description>Sakai Message Forums</description>
@@ -14,16 +15,6 @@
                       XML in your faces-config.xml resources against 
                       the DTD. Default value is false. </description>
         <param-name>com.sun.faces.validateXml</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    <context-param>
-    	<!-- Changed ordering - PAFH 8/24/2006 -->
-        <description> Set this flag to true if you want the JavaServer 
-                      Faces Reference Implementation to verify that all
-                      of the application objects you have configured (components, 
-                      converters, renderers, and validators) can be successfully 
-                      created. Default value is false. </description>
-        <param-name>com.sun.faces.verifyObjects</param-name>
         <param-value>false</param-value>
     </context-param>
     <context-param>
@@ -96,27 +87,6 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
-        
-    <!-- Faces Servlet -->
-    <!-- 
-    <servlet>
-        <servlet-name>sakai.messagecenter</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
-        <init-param>
-            <param-name>default</param-name>
-            <param-value>main</param-value>
-        </init-param>
-        <init-param>
-            <param-name>path</param-name>
-            <param-value>/messageforums</param-value>
-        </init-param>
-        <init-param>
-            <param-name>default.last.view</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    -->
 
 	<!-- Dispatcher for Messages tool -->    
     <servlet>
@@ -159,7 +129,7 @@
 	<!-- Dispatcher for synpotic tool -->    
     <servlet>
         <servlet-name>sakai.synoptic.messagecenter</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.jsf2.util.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
             	<param-value>wait</param-value>
@@ -204,7 +174,6 @@
 	<!--  Message Forums File Picker Servler -->
     <servlet>
       <servlet-name>sakai.messagecenter</servlet-name>
-       <!--<servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>-->
      <servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class>
         <init-param>
             <param-name>path</param-name>
