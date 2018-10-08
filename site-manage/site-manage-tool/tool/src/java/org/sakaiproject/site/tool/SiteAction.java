@@ -121,7 +121,6 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringService;
-import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -153,7 +152,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -168,7 +166,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.util.api.LinkMigrationHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -185,8 +182,6 @@ public class SiteAction extends PagedResourceActionII {
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager
 			.get("org.sakaiproject.content.api.ContentHostingService");
-	private LinkMigrationHelper m_linkMigrationHelper = (LinkMigrationHelper) ComponentManager
-			.get("org.sakaiproject.util.api.LinkMigrationHelper");
 
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService.getInstance();
 
@@ -230,11 +225,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
 			.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
-
-	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager
-			.get(ShortenedUrlService.class);
-
-	private PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
 
 	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager
 			.get(DeveloperHelperService.class);
