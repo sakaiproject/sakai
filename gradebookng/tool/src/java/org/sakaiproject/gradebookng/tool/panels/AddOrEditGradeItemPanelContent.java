@@ -38,6 +38,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidationError;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -92,7 +93,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			public boolean isRequired() {
-				return true;
+				return !assignment.isExternallyMaintained();
 			}
 
 			@Override
@@ -122,7 +123,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			public boolean isRequired() {
-				return true;
+				return !assignment.isExternallyMaintained();
 			}
 
 			@Override
@@ -231,7 +232,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		sakaiRubricAssociation.add(AttributeModifier.append("associate-value", "1"));
 		sakaiRubricAssociation.add(AttributeModifier.append("config-fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
 		sakaiRubricAssociation.add(AttributeModifier.append("config-hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
-		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", "sakai.gradebookng"));
+		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 		if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
 		}
@@ -313,5 +314,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		});
 
+		if (assignment.isExternallyMaintained()) {
+			warn(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
+		}
 	}
 }

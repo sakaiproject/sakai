@@ -21,10 +21,11 @@ $more-sites-single-column: "only screen and (max-width : #{$break-more-sites-sin
 /* Typography*/
 
 //Google family Fonts URL
-$font-family-url: "//fonts.googleapis.com/css?family=Open Sans:400,500,700" !default;
+$font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,500,700" !default;
+@import url(#{$font-family-url});
 
 //Typography variables
-$font-family: "Open Sans", sans-serif !default;
+$font-family: "Open Sans",sans-serif;
 $default-font-size: 14px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $header-font-family: $font-family;
@@ -34,7 +35,7 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 $background-color: 			 #FFFFFF !default;
 $background-color-secondary: #000036 !default;
 
-$primary-color:    			 #265b81 !default;
+$primary-color:    			 #15597e !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
 $primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
 $secondary-color:  			 #F00 !default;
@@ -46,6 +47,7 @@ $text-color-disabled:		 #767676 !default;
 $body-background-color: #FAFAFA !default;
 
 $portal-background-color: $background-color !default;
+$portal-mask-background:  rgba(0,0,0,0.5) !default;
 
 /* Tool tabs */
 $tool-background-color:		 $background-color !default;
@@ -64,10 +66,10 @@ $tool-tab-border-color:                                   #E5E5E5 !default;
 $tool-tab-hover-text-color:                               #191919 !default;
 $tool-tab-hover-background-color:                         #ECECEC !default;
 $tool-tab-hover-highlight-color:                          #7F7F7F !default;
-$tool-tab-active-text-color:                              #15597e !default;
-$tool-tab-active-text-size:                               12.5px !default;
+$tool-tab-active-text-color:                              $primary-color !default;
+$tool-tab-active-text-size:                               12px !default;
 $tool-tab-active-background-color:                        #FFFFFF !default;
-$tool-tab-active-highlight-color:                         #15597e !default;
+$tool-tab-active-highlight-color:                         $primary-color !default;
 
 $tool-nav-link-color: #666 !default;
 
@@ -75,9 +77,9 @@ $main-content-background: $background-color !default;
 $top-header-background: $background-color-secondary !default;
 $sites-nav-background: $tool-menu-background-color !default;
 
-$breadcrumbs-color:			 $text-color !default;
-$breadcrumbs-tool-color:		 #265b81 !default;
-$breadcrumbs-hover-color:		 #265b81 !default;
+$breadcrumbs-color:			$text-color !default;
+$breadcrumbs-tool-color:	$primary-color !default;
+$breadcrumbs-hover-color:	$primary-color !default;
 
 /* Link colors */
 $link-color: $primary-color !default;
@@ -87,34 +89,44 @@ $link-background-color: transparent !default;
 $link-active-background-color: transparent !default;
 $link-hover-background-color: transparent !default;
 
-/* Linknav button colors */
-$button-text-color:	 #595959 !default;
-$button-border-color: #C0C0C0 !default;
-$button-background-color: #F0F0F0 !default;
-$button-background-secondary-color: #FFF !default;
-/* General button colors */
-$button-color-text-color: #FFF !default;
-$button-color-border-color: #326B97 !default;
-$button-color-background-color: #176691 !default;
-$button-color-background-secondary-color: #FAFAFA !default;
+/* General button design */
+$button-radius:                 3px;
+$button-text-transform:         none;
 
-$button-radius:                                           3px !default;
-$button-text-transform:                                   none !default;
-$button-primary-text-color:                               $button-color-text-color !default;
-$button-primary-background-color:                         #15597e !default;
-$button-primary-border-color:                             $button-color-border-color !default;
-$button-primary-hover-text-color:                         #FFFFFF !default;
-$button-primary-hover-background-color:                   $button-color-background-color !default;
-$button-primary-hover-border-color:                       #124466 !default;
-$button-secondary-text-color:                             #333333 !default;
-$button-secondary-icon-color:                             #595959 !default;
-$button-secondary-background-color:                       $button-color-background-secondary-color !default;
-$button-secondary-border-color:                           #CCCCCC !default;
-$button-secondary-hover-text-color:                       #191919 !default;
-$button-secondary-hover-icon-color:                       #424242 !default;
-$button-secondary-hover-background-color:                 #FAFAFA !default;
-$button-secondary-hover-border-color:                     #7F7F7F !default;
-/* ///////////// */
+// Default (non-primary) button design:
+$button-text-color:             #333;
+$button-background:             linear-gradient(#fff, #f9f9f9);
+$button-border-color:           #ccc;
+// hover and focus states:
+$button-hover-text-color:       $button-text-color;
+$button-hover-background:       $button-background;
+$button-hover-border-color:     #999;
+// active state:
+$button-active-text-color:      $button-text-color;
+$button-active-background:      linear-gradient(#f9f9f9, #fff);	//note: inverse order from above
+$button-active-border-color:    $button-hover-border-color;
+$button-active-shadow-color:    rgba(0, 0, 0, 0.3);
+// disabled state:
+$button-disabled-text-color:    #717171;
+$button-disabled-background:    #f6f6f6;
+$button-disabled-border-color:  #dbdbdb;
+$button-disabled-shadow:        none;
+$button-disabled-font-weight:   300;
+
+// Primary action button design:
+$button-primary-text-color:                 #fff;
+$button-primary-background:                 $primary-color;
+$button-primary-border-color:               #326b97;
+// hover and focus states for primary action button:
+$button-primary-hover-text-color:           $button-primary-text-color;
+$button-primary-hover-background:           #176691;
+$button-primary-hover-border-color:         #124466;
+// active state for primary action button:
+$button-primary-active-text-color:          $button-primary-text-color;
+$button-primary-active-background:          $button-primary-hover-background;
+$button-primary-active-border-color:        $button-primary-hover-border-color;
+$button-primary-active-shadow-color:        $button-active-shadow-color;
+/* end of General button design */
 
 $info-color:                $primary-color  !default;
 $info-background-color:     lighten($primary-color, 45%) !default;
@@ -163,7 +175,7 @@ $sites-nav-menu-item-hover-border-right:    $sites-nav-menu-item-hover-border-to
 $sites-nav-menu-item-hover-border-bottom:   $sites-nav-menu-item-hover-border-top !default;
 $sites-nav-menu-item-hover-border-left:     $sites-nav-menu-item-hover-border-top !default;
 /* Favorites - item selected */
-$sites-nav-menu-item-selected-background:   #15597e !default;
+$sites-nav-menu-item-selected-background:   $primary-color !default;
 $sites-nav-menu-item-selected-color:        #FFFFFF !default;
 $sites-nav-menu-item-selected-icon-color:   #FFFFFF !default;
 $sites-nav-menu-item-selected-border-color: #326B97 !default;
@@ -201,7 +213,6 @@ $sites-nav-submenu-item-hover-icon-color:   #424242 !default;
 $sites-nav-submenu-item-hover-left-border-color: #7F7F7F !default;
 
 /* All Sites menu */
-$all-sites-mask-background:                               rgba(255,255,255,.8) !default;
 $all-sites-background-color:                              #FFFFFF !default;
 $all-sites-drop-shadow:                                   5px 0 50px 0px rgba(0,0,0,0.5) !default;
 $all-sites-tab-text-color:                                $tool-menu-color !default;
@@ -292,14 +303,14 @@ $tool-menu-item-hidden-hover-text-color:                   $tool-menu-item-hover
 $tool-menu-item-hidden-hover-icon-color:                   $tool-menu-item-hover-icon-color !default;
 $tool-menu-item-hidden-hover-background-color:             $tool-menu-item-hover-background-color !default;
 $tool-menu-item-hidden-hover-border-left:                  $tool-menu-item-hover-border-left !default;
-$tool-menu-item-selected-text-color:                       #15597e !default;
-$tool-menu-item-selected-icon-color:                       #15597e !default;
+$tool-menu-item-selected-text-color:                       $primary-color !default;
+$tool-menu-item-selected-icon-color:                       $primary-color !default;
 $tool-menu-item-selected-background-color:                 #FFFFFF !default;
-$tool-menu-item-selected-border-left:                      4px solid #15597e !default;
-$tool-menu-item-selected-hover-text-color:                 #15597e !default;
-$tool-menu-item-selected-hover-icon-color:                 #15597e !default;
+$tool-menu-item-selected-border-left:                      4px solid $primary-color !default;
+$tool-menu-item-selected-hover-text-color:                 $primary-color !default;
+$tool-menu-item-selected-hover-icon-color:                 $primary-color !default;
 $tool-menu-item-selected-hover-background-color:           #FFFFFF !default;
-$tool-menu-item-selected-hover-border-left:                4px solid #15597e !default;
+$tool-menu-item-selected-hover-border-left:                4px solid $primary-color !default;
 
 $tool-menu-collapse-text-color:                            $tool-menu-item-text-color !default;
 $tool-menu-collapse-icon-color:                            $tool-menu-item-text-color !default;
@@ -352,7 +363,15 @@ $logo-width: 126px !default;
 $skin-with-icons: true !default;
 $icon-size: 20px !default;
 
+/* Unpublished Banner */
+$siteUnpublish-background: $warn-background-color !default;
+$siteUnpublish-color: $text-color !default;
+$siteUnpublish-border: 1px solid $warn-color !default;
 
+/* Site Deletion Banner */
+$siteDelete-background: $info-background-color !default;
+$siteDelete-color: $text-color !default;
+$siteDelete-border: 1px solid $info-color !default;
 
 /* Icon Overrides */
 //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
@@ -361,6 +380,8 @@ $icon-size: 20px !default;
 $footer-background-color: $tool-menu-background-color !default;
 $footer-border-color: $tool-border-color !default;
 $footer-color: $text-color !default;
+$footer-link-separator: #ccc !default;
+$footer-details-border-color: $footer-link-separator !default;
 
 // Overview page column widths. Total to add up to 96% as the columns have a margin.
 $col1of2-width: 48% !default;
@@ -378,8 +399,6 @@ $instruction-background-color: #fff !default;
 // Accessibility
 // This should be visible based on your button colors and is based on webkit's default
 
-$focus-outline-width: 5px !default;
+$focus-outline-width: 3px;
 $focus-outline-color: #5b9dd9;
-
-
-@import url(#{$font-family-url});
+$focus-outline-offset: 2px;

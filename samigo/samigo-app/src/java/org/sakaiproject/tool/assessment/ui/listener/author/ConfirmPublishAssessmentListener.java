@@ -183,11 +183,11 @@ public class ConfirmPublishAssessmentListener
 		  Date entryStartDate = entry.getStartDate();
 		  Date entryDueDate = entry.getDueDate();
 		  Date entryRetractDate = entry.getRetractDate();
-		  if(!"".equals(entry.getUser())) {
+		  if(StringUtils.isNotEmpty(entry.getUser())) {
 			  extendedTimeUsers.add(entry.getUser());
 		  }
 
-		  if(!"".equals(entry.getGroup())) {
+		  if(StringUtils.isNotEmpty(entry.getGroup())) {
 			  extendedTimeGroups.add(entry.getGroup());
 		  }
 		  boolean isEntryRetractEarlierThanAvailable = false;

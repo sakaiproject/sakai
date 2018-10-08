@@ -440,7 +440,7 @@
                     $tlang.getString("gradingsub.prefeetex3")
                 </h4>
                 <div class="inlinecoms toggledContent">
-                    $cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+                    $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText)
                 </div>
             #end
 
@@ -550,18 +550,14 @@
                         <p class="shorttext">
                             <label for="grade">$tlang.getString("gen.gra2")</label>
                             <select name="$name_grade" id="grade">
-                                <option value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
-                                #foreach ($i in ["Pass", "Fail"])
+                                <option value="" #if($!grade_submission_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+                                #foreach ($i in ["pass", "fail"])
                                     <option value="$i"
-                                        #if ($!value_grade.equalsIgnoreCase($i))
+                                        #if ($!grade_submission_grade.equalsIgnoreCase($tlang.getString($i)))
                                             selected="selected"
                                         #end
                                         >
-                                        #if ($i=="Pass")
-                                            $tlang.getString("pass")
-                                        #elseif ($i=="Fail")
-                                            $tlang.getString("fail")
-                                        #end
+                                        $tlang.getString($i)
                                     </option>
                                 #end
                             </select>
@@ -724,7 +720,7 @@
                 $tlang.getString("gradingsub.prefee2")
             </h4>
             <div class="gencoms  toggledContent">
-                $cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))
+                $cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment)
             </div>
         #end
         <h4>
@@ -869,8 +865,7 @@
             </div> <!-- End of the allowResubmitContainer -->
         #end
         <div class="navPanel">
-            <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
-				<span class="act">
+            <div class="act">
                     <input type="button" accesskey="d" class="active" name="save" value="$tlang.getString('gen.savdragra')"
                            onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade', '$validator.escapeUrl( $submissionReference )', null ); return false;"
                            title="$tlang.getString("gen.savdratit")"/>
@@ -906,7 +901,6 @@
                     #if( $!prevUngradedWithSubmissionID )
                         <input type="hidden" name="prevUngradedWithSubmissionID" id="prevUngradedWithSubmissionID" value="$!prevUngradedWithSubmissionID"/>
                     #end
-				</span>
             </div>
             <div class="navigator">
                 <fieldset class="roundedBorder">

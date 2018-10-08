@@ -10,6 +10,11 @@ body.is-logged-out{
 	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
 		top: $header-size;
 	}
+	
+	#toolMenuWrap {
+		min-height: 100vh;				// alternative for browswers who cannot do calculations
+		min-height: calc(100vh - #{$banner-height});	// viewport minus the top banner when logged out
+	}
 }
 
 // Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue
@@ -175,7 +180,7 @@ body.is-logged-out{
 	min-height: 100vh;											// alternative for browswers who cannot do calculations
 	min-height: calc(100vh - (#{$banner-height} * 2));	// viewport minus the two top banners
 	@include flex-basis( $tool-menu-width );
-	padding: 5px 0 0 0;
+	padding: 6px 0 0 0;
 	text-align: center;
 	border-right: 1px solid $tool-border-color;
 	@include transition( left 0.25s linear 0s );
@@ -322,6 +327,12 @@ nav#subSites{
 					background-color: $tool-menu-collapse-hover-background-color;
 					box-shadow: $tool-menu-collapse-hover-shadow;
 				}
+			
+				&:active 
+				{
+					box-shadow: none;	// to override default button styles
+				}
+			
 				&.min
 				{
 					justify-content:center; /* center the arrows when collapsed */
@@ -338,18 +349,21 @@ nav#subSites{
 						background-color: $tool-menu-collapse-min-hover-background-color;
 						box-shadow: $tool-menu-collapse-min-hover-shadow;
 					}
+			
+					&:active 
+					{
+						box-shadow: none;	// to override default button styles
+					}
 				}
 
 				button
 				{
-						span.fa-angle-double-left
-						{
-							color: $tool-menu-collapse-icon-color;
-						}
-						&:focus
-						{
-							outline-color: invert($tool-menu-collapse-background-color) !important;
-						}
+					border-radius: 0;
+					
+					span.fa-angle-double-left
+					{
+						color: $tool-menu-collapse-icon-color;
+					}
 				}
 
 				span.fa-angle-double-left

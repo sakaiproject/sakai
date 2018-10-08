@@ -1,0 +1,28 @@
+version: 1
+
+dn: dc=sakaiproject,dc=org
+objectClass: domain
+objectClass: top
+dc: sakaiproject
+
+dn: ou=groups,dc=sakaiproject,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
+dn: ou=people,dc=sakaiproject,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: cn=Sakai Ger,ou=people,dc=sakaiproject,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+uid: sakaiproject
+userPassword: password
+cn: Sakai Ger
+cn:: U29uZHJlIEVpa2FuZ2VyIEt2YWzDuA==
+sn: Person
+description: Developer

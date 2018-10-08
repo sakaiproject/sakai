@@ -14,7 +14,7 @@
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
 			<input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
- 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;" class="active">
 			<input type="submit" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
                 onclick="$('#lti13_tool_private').toggle();return false;">
 		</p>

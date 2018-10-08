@@ -3851,6 +3851,16 @@ extends VelocityPortletStateAction
 
 			String peid = ((JetspeedRunData)runData).getJs_peid();
 			SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
+			
+			if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null))
+			{
+				int stateYear = ((Integer)sstate.getAttribute(STATE_YEAR)).intValue();
+				int stateMonth = ((Integer)sstate.getAttribute(STATE_MONTH)).intValue();
+				int stateDay = ((Integer)sstate.getAttribute(STATE_DAY)).intValue();
+				
+				calObj.setDay(stateYear, stateMonth, stateDay);
+				dateObj1.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
+			}
 		
 			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
 			if (scheduleTo != null && scheduleTo.length() != 0)

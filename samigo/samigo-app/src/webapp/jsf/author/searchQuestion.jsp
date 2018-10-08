@@ -50,8 +50,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
         <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script type="text/javascript" src="/library/js/spinner.js"></script>
-        <script type="text/javascript" src="/library/webjars/select2/4.0.3/dist/js/select2.full.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="/library/webjars/select2/4.0.3/dist/css/select2.css">
+        <script type="text/javascript">includeWebjarLibrary('select2');</script>
 
         <script type="text/javascript">
             function initPage()

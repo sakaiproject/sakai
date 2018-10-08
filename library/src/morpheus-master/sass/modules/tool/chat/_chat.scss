@@ -517,6 +517,8 @@
 				color: inherit;
 			}
 			&__siteusers,&__connections{
+				max-height: 130px;
+				overflow-y: scroll;
 				a{
 					
 				}

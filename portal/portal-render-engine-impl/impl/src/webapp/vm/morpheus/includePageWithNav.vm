@@ -16,6 +16,8 @@
     #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
     <div class="Mrphs-pagebody">
+        #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
+
         #parse("/vm/morpheus/includeSiteHierarchy.vm")
 
         #parse("/vm/morpheus/includePageBody.vm")

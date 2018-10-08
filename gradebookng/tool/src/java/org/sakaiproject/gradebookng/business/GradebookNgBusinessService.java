@@ -62,6 +62,7 @@ import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -141,8 +142,6 @@ public class GradebookNgBusinessService {
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
-
-	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -398,9 +397,24 @@ public class GradebookNgBusinessService {
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid) {
+		return getGradebookAssignmentsForStudent(studentUuid, SortType.SORT_BY_SORTING);
+	}
+
+	/**
+	 * Special operation to get a list of assignments in the gradebook that the specified student has access to. This taked into account
+	 * externally defined assessments that may have grouping permissions applied.
+	 *
+	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
+	 * are an instructor using the student review mode)
+	 *
+	 * Define the sortedBy to return these assignments back in the desired order.
+	 *
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final SortType sortedBy) {
 
 		final Gradebook gradebook = getGradebook(getCurrentSiteId());
-		final List<Assignment> assignments = getGradebookAssignments();
+		final List<Assignment> assignments = getGradebookAssignments(sortedBy);
 
 		// NOTE: cannot do a role check here as it assumes the current user but this could have been called by an instructor (unless we add
 		// a new method to handle this)
@@ -412,8 +426,8 @@ public class GradebookNgBusinessService {
 			final Assignment a = iter.next();
 			if (a.isExternallyMaintained()) {
 				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gradebook.getUid(), a.getExternalId()) &&
-						!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
-								studentUuid)) {
+					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
+						studentUuid)) {
 					iter.remove();
 				}
 			}
@@ -868,12 +882,17 @@ public class GradebookNgBusinessService {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
 	}
 
-	public HashMap<Long, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
-		HashMap<Long, Boolean> map = new HashMap<Long, Boolean>();
+	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
+		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
 		for (Assignment assignment : assignments) {
-			Long assignmentId = assignment.getId();
-			boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric("sakai.gradebookng", assignmentId.toString());
-			map.put(assignmentId, hasAssociatedRubric);
+			if(assignment.getExternalAppName()!=null){
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(assignment.getExternalAppName(), assignment.getExternalId());
+				map.put(assignment.getExternalId(), hasAssociatedRubric);
+			} else {
+				Long assignmentId = assignment.getId();
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
+				map.put(assignmentId.toString(), hasAssociatedRubric);
+			}
 		}
 		return map;
 	}
@@ -2710,11 +2729,12 @@ public class GradebookNgBusinessService {
 		final String externalAppName = assignment.getExternalAppName();
 
 		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.assignment.title"))) {
+		if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"))) {
 			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.samigo.title"))) {
+		} else if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"))) {
 			iconClass = getSamigoIconClass();
-		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.lessonbuildertool.title"))) {
+		// "Lesson Builder" is currently hardcoded in SimplePageBean.java (no localization required)
+		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
 			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
@@ -2728,16 +2748,8 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		final Tool assignment = this.toolManager.getTool("sakai.assignment.grades");
-		if (assignment != null) {
-			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
-		}
-
-		final Tool samigo = this.toolManager.getTool("sakai.samigo");
-		if (samigo != null) {
-			mapping.put(samigo.getTitle(), getSamigoIconClass());
-		}
-
+		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"), getAssignmentsIconClass());
+		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"), getSamigoIconClass());
 		mapping.put("Lesson Builder", getLessonBuilderIconClass());
 
 		return mapping;

@@ -81,6 +81,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.exception.*;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
@@ -1058,24 +1059,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // fixAssignmentFeedback
 
-    /**
-     * Apply the fix to pre 1.1.05 assignments submissions feedback.
-     */
-    public static String showPrevFeedback(String value) {
-        if (value == null || value.length() == 0) return value;
-
-        StringBuilder buf = new StringBuilder(value);
-        int pos = -1;
-
-        // <br/> -> \n
-        while ((pos = buf.indexOf("\n")) != -1) {
-            buf.replace(pos, pos + "\n".length(), "<br />");
-        }
-
-        return buf.toString();
-
-    } // showPrevFeedback
-
     public String buildLinkedPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         state.setAttribute(INVOKE, INVOKE_BY_LINK);
         return buildMainPanelContext(portlet, context, data, state);
@@ -1335,7 +1318,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignmentscheck", state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS));
         }
 
-        context.put(RUBRIC_TOKEN, rubricsService.generateJsonWebToken("sakai.assignment"));
+        context.put(RUBRIC_TOKEN, rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_ASSIGNMENT));
 
         return template;
 
@@ -1516,19 +1499,13 @@ public class AssignmentAction extends PagedResourceActionII {
             if (s != null) {
                 log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", user);
                 context.put("submission", s);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(s, currentUser);
+                context.put("grade", grade);
                 if (assignment.getIsGroup()) {
                     context.put("selectedGroup", s.getGroupId());
                     context.put("originalGroup", s.getGroupId());
                     context.put("submitterId", s.getGroupId());
-
-                    String currentUser = userDirectoryService.getCurrentUser().getId();
-
-                    String gradeOverride = assignmentService.getGradeForSubmitter(s, currentUser);
-
-                    // if still no grade then there is no override
-                    if (gradeOverride != null) {
-                        context.put("override", gradeOverride);
-                    }
                 }
 
                 setScoringAgentProperties(context, assignment, s, false);
@@ -2037,6 +2014,9 @@ public class AssignmentAction extends PagedResourceActionII {
             AssignmentSubmission submission = getSubmission(aReference, user, "build_student_preview_submission_context", state);
             if (submission != null) {
                 context.put("submission", submission);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
+                context.put("grade", grade);
                 context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
             }
 
@@ -2974,13 +2954,11 @@ public class AssignmentAction extends PagedResourceActionII {
         // get all assignments in Gradebook
         try {
             List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
-            List gradebookAssignmentsExceptSamigo = new ArrayList();
 
             // filtering out those from Samigo
             for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
                 org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
                 if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolTitle())) {
-                    gradebookAssignmentsExceptSamigo.add(gAssignment);
 
                     // gradebook item has been associated or not
                     String gaId = gAssignment.isExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
@@ -3221,8 +3199,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // assignment
         String assignmentRef = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
-        Assignment a = getAssignment(assignmentRef, "build_instructor_grade_submission_context", state);
-        if (a != null) {
+        Optional<Assignment> assignment = Optional.ofNullable(getAssignment(assignmentRef, "build_instructor_grade_submission_context", state));
+        if (assignment.isPresent()) {
+            Assignment a = assignment.get();
             context.put("assignment", a);
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
             gradeType = a.getTypeOfGrade();
@@ -3248,8 +3227,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String submissionRef = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
         // assignment submission
-        AssignmentSubmission s = getSubmission(submissionRef, "build_instructor_grade_submission_context", state);
-        if (s != null) {
+        Optional<AssignmentSubmission> submission = Optional.ofNullable(getSubmission(submissionRef, "build_instructor_grade_submission_context", state));
+        if (submission.isPresent()) {
+            AssignmentSubmission s = submission.get();
             context.put("submission", s);
             context.put("submissionReference", submissionRef);
 
@@ -3261,8 +3241,21 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
 
-            if (a != null) {
+            if (assignment.isPresent()) {
+                Assignment a = assignment.get();
                 setScoringAgentProperties(context, a, s, true);
+
+                // try to put in grade overrides
+                if (a.getIsGroup()) {
+                    Map<String, Object> grades = new HashMap<>();
+                    for (String userId : users.keySet()) {
+                        String userGrade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId);
+                        if (userGrade != null) {
+                            grades.put(userId, assignmentService.getGradeDisplay(userGrade, gradeType, a.getScaleFactor()));
+                        }
+                    }
+                    context.put("value_grades", grades);
+                }
             }
 
             // show alert if student is working on a draft
@@ -3305,7 +3298,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 context.put("isAdditionalNotesEnabled", isAdditionalNotesEnabled);
 
-                if (isAdditionalNotesEnabled && candidateDetailProvider != null && a != null && !a.getIsGroup()) {
+                if (isAdditionalNotesEnabled && candidateDetailProvider != null && assignment.isPresent() && !assignment.get().getIsGroup()) {
                     if (users.size() == 1) {
                         context.put("notes", candidateDetailProvider.getAdditionalNotes(users.values().toArray(new User[]{})[0], st).orElse(new ArrayList<>()));
                     } else {
@@ -3320,17 +3313,6 @@ public class AssignmentAction extends PagedResourceActionII {
             Map<String, Reference> attachmentReferences = new HashMap<>();
             s.getAttachments().forEach(r -> attachmentReferences.put(r, entityManager.newReference(r)));
             context.put("submissionAttachmentReferences", attachmentReferences);
-
-            // try to put in grade overrides
-            if (a.getIsGroup()) {
-                Map<String, Object> grades = new HashMap<>();
-                for (String userId : users.keySet()) {
-                    if (state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId) != null) {
-                        grades.put(userId, state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId));
-                    }
-                }
-                context.put("value_grades", grades);
-            }
         }
 
         context.put("user", state.getAttribute(STATE_USER));
@@ -3356,23 +3338,23 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
 
         // SAK-17606
-        context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(a));
+        context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
 
         // format to show one decimal place in grade
-        context.put("value_grade", state.getAttribute(GRADE_SUBMISSION_GRADE));
+        context.put("value_grade", assignmentService.getGradeDisplay((String) state.getAttribute(GRADE_SUBMISSION_GRADE), gradeType, assignment.isPresent() ? assignment.get().getScaleFactor() : null));
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
         // is this a non-electronic submission type of assignment
-        context.put("nonElectronic", (a != null && a.getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
+        context.put("nonElectronic", (assignment.isPresent() && assignment.get().getTypeOfSubmission() == Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) ? Boolean.TRUE : Boolean.FALSE);
 
         if (addGradeDraftAlert) {
             addAlert(state, rb.getString("grading.alert.draft.beforeclosedate"));
         }
         context.put("alertGradeDraft", Boolean.valueOf(addGradeDraftAlert));
 
-        if (a != null && a.getIsGroup()) {
-            checkForUsersInMultipleGroups(a, s.getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()), state, rb.getString("group.user.multiple.warning"));
+        if (assignment.isPresent() && assignment.get().getIsGroup()) {
+            checkForUsersInMultipleGroups(assignment.get(), submission.get().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toSet()), state, rb.getString("group.user.multiple.warning"));
         }
 
         // SAK-29314
@@ -3394,9 +3376,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // SAK-29314
         resetNavOptions();
-        if (userSubmissions != null) {
+        if (userSubmissions != null && submission.isPresent()) {
             for (int index = 0; index < userSubmissions.size(); index++) {
-                if (((SubmitterSubmission) userSubmissions.get(index)).getSubmission().getId().equals(s.getId())) {
+                if (userSubmissions.get(index).getSubmission().getId().equals(submission.get().getId())) {
                     // Determine next/previous
                     boolean goPT = false;
                     boolean goNT = false;
@@ -3504,7 +3486,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // put supplement item into context
-        supplementItemIntoContext(state, context, a, null);
+        if (assignment.isPresent()) supplementItemIntoContext(state, context, assignment.get(), null);
 
         // put the grade confirmation message if applicable
         if (state.getAttribute(GRADE_SUBMISSION_DONE) != null) {
@@ -3523,8 +3505,8 @@ public class AssignmentAction extends PagedResourceActionII {
         // letter grading
         letterGradeOptionsIntoContext(context);
 
-        //Check if the assignment has a rubric associated or not
-        context.put("hasAssociatedRubric", rubricsService.hasAssociatedRubric("sakai.assignment", a.getId()));
+        // Check if the assignment has a rubric associated or not
+        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
@@ -4999,7 +4981,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                     String grade = gradeString != null ? displayGrade(state, gradeString, a.getScaleFactor()) : null;
                                     for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                                         String submitterId = submitter.getSubmitter();
-                                        String gradeStringToUse = (a.getIsGroup() && submitter.getGrade() != null) ? submitter.getGrade() : grade;
+                                        String submitterGrade = submitter.getGrade() != null ? displayGrade(state, submitter.getGrade(), a.getScaleFactor()) : null;
+                                        String gradeStringToUse = (a.getIsGroup() && submitterGrade != null) ? submitterGrade : grade;
                                         sm.put(submitterId, gradeStringToUse);
                                         cm.put(submitterId, commentString);
                                     }
@@ -5979,7 +5962,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // Persist the rubric evaluations
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 String submitterId = submitter.getSubmitter();
-                rubricsService.saveRubricEvaluation("sakai.assignment", submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
+                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
             }
         }
 
@@ -7835,7 +7818,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
-                rubricsService.saveRubricAssociation("sakai.assignment", a.getId(), getRubricConfigurationParameters(params));
+                rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
 
                 // Locking and unlocking groups
                 List<String> lockedGroupsReferences = new ArrayList<String>();
@@ -10613,7 +10596,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     //Grade
                     String g = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
                     Integer score = item.getScore();
-                    if (g != null && !"".equals(g)) {
+                    if (StringUtils.isNotEmpty(g)) {
                         try {
                             String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
                             if (assignmentId == null) {
@@ -10625,20 +10608,21 @@ public class AssignmentAction extends PagedResourceActionII {
                                 } else {
                                     int factor = a.getScaleFactor();
                                     int dec = (int) Math.log10(factor);
-                                    String decSeparator = formattedText.getDecimalSeparator();
-                                    g = StringUtils.replace(g, (",".equals(decSeparator) ? "." : ","), decSeparator);
-                                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
-                                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
-                                    Double dScore = dcformat.parse(g).doubleValue();
-
-                                    if (dScore < 0) {
-                                        addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
-                                    } else if (dScore <= a.getMaxGradePoint() / (double) factor) {
-                                        //scores are saved as whole values
-                                        //so a score of 1.3 would be stored as 13
-                                        score = (int) Math.round(dScore * factor);
-                                    } else {
-                                        addAlert(state, rb.getFormattedMessage("plesuse4", g, a.getMaxGradePoint() / (double) factor));
+                                    g= validPointGrade(state, g, factor);
+                                    if (state.getAttribute(STATE_MESSAGE) == null) {
+	                                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
+	                                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+	                                    Double dScore = dcformat.parse(g).doubleValue();
+	
+	                                    if (dScore < 0) {
+	                                        addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
+	                                    } else if (dScore <= a.getMaxGradePoint() / (double) factor) {
+	                                        //scores are saved as whole values
+	                                        //so a score of 1.3 would be stored as 13
+	                                        score = (int) Math.round(dScore * factor);
+	                                    } else {
+	                                        addAlert(state, rb.getFormattedMessage("plesuse4", g, a.getMaxGradePoint() / (double) factor));
+	                                    }
                                     }
                                 }
                             }
@@ -12785,6 +12769,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (a != null) {
             if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                 //for point-based grades
+                if (a.getScaleFactor() == null) a.setScaleFactor(assignmentService.getScaleFactor());
                 validPointGrade(state, grade, a.getScaleFactor());
 
                 if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -12821,7 +12806,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
             if (grade != null && state.getAttribute(STATE_MESSAGE) == null) {
-                grade = scalePointGrade(state, grade, a.getScaleFactor());
+                if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                    grade = scalePointGrade(state, grade, a.getScaleFactor());
+                }
 
                 // get the user list
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
@@ -12866,6 +12853,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (a != null) {
             if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                 //for point-based grades
+                if (a.getScaleFactor() == null) a.setScaleFactor(assignmentService.getScaleFactor());
                 validPointGrade(state, grade, a.getScaleFactor());
 
                 if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -12901,7 +12889,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
 
             if (grade != null && state.getAttribute(STATE_MESSAGE) == null) {
-                grade = scalePointGrade(state, grade, a.getScaleFactor());
+                if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+                    grade = scalePointGrade(state, grade, a.getScaleFactor());
+                }
 
                 // get the submission list
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
@@ -14602,10 +14592,17 @@ public class AssignmentAction extends PagedResourceActionII {
 
             String gradebookUid = toolManager.getCurrentPlacement().getContext();
             boolean scoringAgentEnabled = scoringAgent != null && scoringAgent.isEnabled(gradebookUid, null);
-            String studentId = submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter();
+            Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
+            String currentUser = sessionManager.getCurrentSessionUserId();
+            AssignmentSubmissionSubmitter submitter = submitters.stream()
+                    .filter(s -> s.getSubmitter().equals(currentUser)).findAny()
+                    .orElseGet(() -> submitters.stream()
+                            .filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+                            .orElse(null));
 
-            if (scoringAgentEnabled) {
+            if (scoringAgentEnabled && submitter != null) {
                 String gbItemName;
+                String studentId = submitter.getSubmitter();
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
                 if (aRef.equals(associatedGbItem)) {
                     // this gb item is controlled by this tool

@@ -17,10 +17,13 @@
 
 package org.sakaiproject.commons.api.datamodel;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Stack;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.commons.api.CommonsManager;
@@ -69,12 +72,14 @@ public class Comment implements Entity {
         this.setPostId(rs.getString("POST_ID"));
         this.setContent(rs.getString("CONTENT"));
         this.setCreatorId(rs.getString("CREATOR_ID"));
-        this.setCreatedDate(rs.getTimestamp("CREATED_DATE").getTime());
-        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE").getTime());
+
+        // retrieve time's in UTC since that's how it's stored
+        this.setCreatedDate(rs.getTimestamp("CREATED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
+        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
     }
 
     public Comment(String text) {
-        this(text, new Date().getTime());
+        this(text, Instant.now().toEpochMilli());
     }
 
     public Comment(String text, long createdDate) {
@@ -96,7 +101,7 @@ public class Comment implements Entity {
 
     public void setContent(String text, boolean modified) {
         if (!this.content.equals(text) && modified) {
-            modifiedDate = new Date().getTime();
+            modifiedDate = Instant.now().toEpochMilli();
         }
 
         this.content = StringEscapeUtils.unescapeHtml(text.trim());

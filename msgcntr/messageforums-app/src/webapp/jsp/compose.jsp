@@ -15,13 +15,13 @@
 
 <f:view>
 	<sakai:view title="#{msgs.pvt_pvtcompose}">
-		<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
 		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
 		<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-		<script type="text/javascript" src="/library/js/jquery/select2/4.0.0/select2.min.js"></script>
 		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+		<script type="text/javascript">includeWebjarLibrary('select2');</script>
+
 	<h:form id="compose">
 		<script type="text/javascript">
 				function clearSelection(selectObject)
@@ -308,9 +308,9 @@
 
       <sakai:button_bar>
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgSend}" value="#{msgs.pvt_send}" accesskey="s"  styleClass="active" />
-        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreview}" value="#{msgs.pvt_preview}" accesskey="p"  styleClass="active" />
+        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgPreview}" value="#{msgs.pvt_preview}" accesskey="p" />
         <h:commandButton action="#{PrivateMessagesTool.processPvtMsgSaveDraft}" value="#{msgs.pvt_savedraft}" />
-        <h:commandButton action="#{PrivateMessagesTool.processPvtMsgComposeCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
+        <h:commandButton immediate="true" action="#{PrivateMessagesTool.processPvtMsgComposeCancel}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>
 
   	</div>

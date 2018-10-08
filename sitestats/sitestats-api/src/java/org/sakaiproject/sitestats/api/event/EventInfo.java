@@ -20,7 +20,7 @@ package org.sakaiproject.sitestats.api.event;
 
 import java.io.Serializable;
 
-public class EventInfo implements Serializable {
+public class EventInfo implements Serializable, Cloneable {
 	private static final long	serialVersionUID	= 1L;
 	private String				eventId;
 	private boolean				selected;
@@ -28,6 +28,17 @@ public class EventInfo implements Serializable {
 
 	public EventInfo(String eventId) {
 		this.eventId = eventId.trim();
+	}
+
+	public EventInfo(EventInfo info) {
+		eventId = info.eventId;
+		selected = info.selected;
+		anonymous = info.anonymous;
+	}
+
+	@Override
+	public EventInfo clone() {
+		return new EventInfo(this);
 	}
 
 	public String getEventId() {

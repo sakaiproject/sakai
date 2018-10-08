@@ -34,6 +34,8 @@
 
 package org.sakaiproject.signup.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -263,10 +265,15 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 	 * {@inheritDoc}
 	 */
 	public void removeMeetings(List<SignupMeeting> meetings) {
-		getHibernateTemplate().deleteAll(meetings);
-
+		getHibernateTemplate().deleteAll(mergeAll(meetings));
 	}
-	
+
+	private Collection mergeAll(Collection entities) {
+		List merged = new ArrayList();
+		entities.forEach(ent->merged.add(getHibernateTemplate().merge(ent)));
+		return merged;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

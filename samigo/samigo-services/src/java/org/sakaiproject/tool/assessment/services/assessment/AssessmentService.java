@@ -1015,10 +1015,10 @@ public class AssessmentService {
 		}
 	}
 	
-	public void copyAssessment(String assessmentId, String apepndCopyTitle) {
+	public void copyAssessment(String assessmentId, String appendCopyTitle) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
-					.copyAssessment(assessmentId, apepndCopyTitle);
+					.copyAssessment(assessmentId, appendCopyTitle);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);

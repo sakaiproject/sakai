@@ -105,6 +105,19 @@ iron-icon.comment-icon {
 .show-tooltip {
   display: inline-block;
   position: absolute;
+  .popover-title{
+        display: flex;
+        justify-content: flex-end;
+        .criterion-title{
+            margin-right: auto;
+            margin-bottom: inherit;
+            align-self: center;
+        }
+        .buttons{
+            align-self: center;
+            margin-left: 10px;
+        }
+    }
 }
 
 .btn.add-rubric {
@@ -249,6 +262,16 @@ iron-icon.comment-icon {
       background: #f2f2f4;
       width: 5%;
       position: relative;
+      input[type=number]::-webkit-inner-spin-button,
+      input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        margin: 0;
+      }
+      input[type=number] {
+        -moz-appearance:textfield;
+      }
     }
   }
   .criterion-title, .criterion-item-title {

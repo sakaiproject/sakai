@@ -189,12 +189,10 @@
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
 					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
-					  
-					
-					
+					<%-- Rubrics marker --%>
+					<h:outputText styleClass="fa fa-table" id="rubrics-forum-icon" rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_rubric}"/>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>
-					
-                                
+
 			         <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="childrenNewZero" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />
 					
 					  <%--//designNote: for paralellism to other views, need to add read/unread count here as well as Moderated attribute--%>  

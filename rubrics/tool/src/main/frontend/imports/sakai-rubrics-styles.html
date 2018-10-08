@@ -79,6 +79,16 @@ iron-icon.comment-icon {
 .show-tooltip {
   display: inline-block;
   position: absolute; }
+  .show-tooltip .popover-title {
+    display: flex;
+    justify-content: flex-end; }
+    .show-tooltip .popover-title .criterion-title {
+      margin-right: auto;
+      margin-bottom: inherit;
+      align-self: center; }
+    .show-tooltip .popover-title .buttons {
+      align-self: center;
+      margin-left: 10px; }
 
 .btn.add-rubric {
   color: #0093b8; }
@@ -180,6 +190,14 @@ iron-icon.comment-icon {
       background: #f2f2f4;
       width: 5%;
       position: relative; }
+      .criterion .criterion-row .criterion-actions input[type=number]::-webkit-inner-spin-button,
+      .criterion .criterion-row .criterion-actions input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        margin: 0; }
+      .criterion .criterion-row .criterion-actions input[type=number] {
+        -moz-appearance: textfield; }
   .criterion .criterion-title, .criterion .criterion-item-title {
     font-size: 16px;
     color: #2f2f2f;

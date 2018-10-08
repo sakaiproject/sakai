@@ -131,7 +131,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
             return null;
         }
 
-		for (final Map.Entry<String, Double> entry : gradeMap.entrySet()) {
+		for (final Map.Entry<String, Double> entry : sortGradeMapping(gradeMap).entrySet()) {
 			final String grade = entry.getKey();
 			final Double mapVal = entry.getValue();
 

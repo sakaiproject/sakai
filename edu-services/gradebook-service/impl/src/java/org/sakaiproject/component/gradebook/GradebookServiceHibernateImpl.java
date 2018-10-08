@@ -629,6 +629,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setCounted(assignmentDefinition.isCounted());
 				assignment.setReleased(assignmentDefinition.isReleased());
 
+				assignment.setExternalAppName(assignmentDefinition.getExternalAppName());
+				assignment.setExternallyMaintained(assignmentDefinition.isExternallyMaintained());
+				assignment.setExternalId(assignmentDefinition.getExternalId());
+
 				// if we have a category, get it and set it
 				// otherwise clear it fully
 				if (assignmentDefinition.getCategoryId() != null) {
@@ -2312,7 +2316,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 	  	// avoid scientific notation on large scores by using a formatter
-	  	final DecimalFormat df = new DecimalFormat();
+	  	final NumberFormat numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+	  	final DecimalFormat df = (DecimalFormat) numberFormat;
 	  	df.setGroupingUsed(false);
 
 	  	return df.format(assignmentScore);
@@ -2351,6 +2356,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		catch (final AssessmentNotFoundException e) {
 			//Don't fail on this exception
 			log.debug("Assessment not found by name", e);
+		}
+		catch (GradebookSecurityException gse) {
+			log.warn("User {} does not have permission to retrieve score for assignment {}", studentUid, assignmentName, gse);
+			return null;
 		}
 
 		if (score == null) {
@@ -3588,23 +3597,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 */
 	@Override
 	public List<GradingEvent> getGradingEvents(final List<Long> assignmentIds, final Date since) {
-		List<GradingEvent> rval;
-
-		if (since == null) {
-			log.debug("No `since` timestamp was specified.  Returning null");
-			return null;
+		if (assignmentIds == null || assignmentIds.isEmpty() || since == null) {
+			return new ArrayList<>();
 		}
 
-		final HibernateCallback<List<GradingEvent>> hc = session -> {
-            final Query q = session.createQuery("from GradingEvent as ge where ge.dateGraded >= :since" +
-                " and ge.gradableObject.id in (:assignmentIds)");
-            q.setParameter("since", since);
-            q.setParameterList("assignmentIds", assignmentIds);
-            return q.list();
-        };
-
-		rval = getHibernateTemplate().execute(hc);
-		return rval;
+		return getHibernateTemplate().execute(session -> session.createCriteria(GradingEvent.class)
+				.createAlias("gradableObject", "go")
+				.add(Restrictions.and(
+						Restrictions.ge("dateGraded", since),
+						HibernateCriterionUtils.CriterionInRestrictionSplitter("go.id", assignmentIds)))
+				.list());
 	}
 
 	/**

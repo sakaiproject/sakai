@@ -26,8 +26,9 @@ import org.apache.wicket.model.ResourceModel;
 public class RubricStudentPanel extends BasePanel {
 
     private final ModalWindow window;
-    private Long assignmentId;
+    private String assignmentId;
     private String studentUuid;
+	private String toolId;
 
     public RubricStudentPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
         super(id, model);
@@ -39,9 +40,9 @@ public class RubricStudentPanel extends BasePanel {
         super.onInitialize();
 
         final WebMarkupContainer sakaiRubricStudent = new WebMarkupContainer("sakai-rubric-student");
-        sakaiRubricStudent.add(AttributeModifier.append("tool-id", "sakai.gradebookng"));
-        sakaiRubricStudent.add(AttributeModifier.append("entity-id", assignmentId));
-        sakaiRubricStudent.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
+        sakaiRubricStudent.add(AttributeModifier.append("tool-id", toolId));
+        sakaiRubricStudent.add(AttributeModifier.append("entity-id", assignmentId));//this only works for Assignments atm
+        sakaiRubricStudent.add(AttributeModifier.append("evaluated-item-id", studentUuid));
         add(sakaiRubricStudent);
 
         this.window.setInitialWidth(1100);
@@ -49,11 +50,15 @@ public class RubricStudentPanel extends BasePanel {
         RubricStudentPanel.this.window.setTitle(new ResourceModel("rubrics.grading_criteria"));
     }
 
-    public void setAssignmentId(Long assignmentId) {
+    public void setAssignmentId(String assignmentId) {
         this.assignmentId = assignmentId;
     }
 
     public void setStudentUuid(String studentUuid) {
         this.studentUuid = studentUuid;
+    }
+
+    public void setToolId(String toolId) {
+        this.toolId = toolId;
     }
 }

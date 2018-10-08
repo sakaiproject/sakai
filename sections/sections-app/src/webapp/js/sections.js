@@ -298,3 +298,11 @@ function update(management) {
 	document.getElementById('optionsForm:confirmExternallyManagedButton').click(); 
 	return false;
 }
+
+function submitSearchText(event) {
+	var charCode = event.charCode;
+	if (event.keyCode === 13) {
+		event.preventDefault();
+		$('#rosterForm\\:searchButton').click();
+	}
+}

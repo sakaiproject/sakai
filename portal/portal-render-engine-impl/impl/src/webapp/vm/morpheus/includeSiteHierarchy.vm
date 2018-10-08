@@ -1,4 +1,6 @@
 <nav class="Mrphs-siteHierarchy">
+    <div class="Mrphs-hierarchy--sites">
+
     #if ( $portalBreadCrumbs or $portalPwd ) 
 
         #set ($tabTotal = 0)
@@ -60,6 +62,7 @@
         #end
         #set($index = $index + 1 )
     #end
+    </div>
 
     
     #foreach( $page in $sitePages.pageNavTools )
@@ -67,8 +70,14 @@
             <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
                 <span class="Mrphs-breadcrumb--reset-icon fa fa-share" aria-hidden="true"></span>
                 <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
-                <span>${page.pageTitle}</span>
+                <span class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</span>
             </a>
+
+            #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+                <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                    <span class="fa fa-pencil"></span>$rloader.sit_manover
+                </a>
+            #end
         #end
     #end
 </nav>

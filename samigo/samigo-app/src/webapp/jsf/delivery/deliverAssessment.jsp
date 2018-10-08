@@ -54,39 +54,15 @@
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>
+
+  <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
+    <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{!delivery.assessmentSubmitted}">
  
       <h:outputText value="<a name='top'></a>" escape="false" />
       
-       <div id="timer-warning" style="display:none">
-      	 <h:panelGrid columns="1" rowClasses="timerTableColumn, timerTableColumnLeft, timerTableColumnLeft" width="100%"  border="0">
-           <h:outputText value="<b>#{deliveryMessages.five_minutes_left1}</b>" escape="false"/>
-      	   <h:outputText value="<br/>#{deliveryMessages.five_minutes_left2}" escape="false"/>
-      	   <h:outputText value="#{deliveryMessages.five_minutes_left3}"  escape="false"/>
-      	 </h:panelGrid>
-      </div>
-      
-		
-		<div id="time-30-warning" style="display:none;text-align:center">
-		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false">
-                <f:param value="#{delivery.dayDueDateString}"/>
-        </h:outputFormat>
-        <br /><br /><br />
-        <h:outputText value="#{deliveryMessages.time_30_warning_2}" escape="false"/>
-        <br />
-		</div>
-		
-		
-		<div id="time-due-warning" style="display:none;text-align:center" >
-				<h:outputText value="#{deliveryMessages.time_due_warning_1}" escape="false"/>
-				<br/><br />
-				<button type="button" onclick="clickSubmit();"><h:outputText value="#{deliveryMessages.button_submit}" escape="false"/></button>
-				<br /><br />	
-				<a href="#" onclick="clickDoNotSubmit();"><h:outputText value="<u>#{deliveryMessages.link_do_not_submit}</u>" escape="false"/></a>
-				<br /><br />
-				<h:outputText value="#{deliveryMessages.time_due_warning_2}" escape="false"/>
-				<br /><br />
-		</div>
- 
 <div class="portletBody Mrphs-sakai-samigo">
 <div>
 
@@ -277,6 +253,7 @@ document.links[newindex].onclick();
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
+<h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -567,9 +544,9 @@ document.links[newindex].onclick();
 
 <!-- CLOSING THE WRAPPER DIVS -->
 <f:verbatim></div></f:verbatim>
-<%@ include file="/jsf/delivery/questionProgress.jspf" %>
 <f:verbatim></div>
 </f:verbatim>
+<%@ include file="/jsf/delivery/questionProgress.jspf" %>
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -594,6 +571,7 @@ document.links[newindex].onclick();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
     questionProgress.setUp();
 </script>
+</h:panelGroup>
     </body>
   </html>
 </f:view>

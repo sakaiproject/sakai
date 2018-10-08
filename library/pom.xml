@@ -14,10 +14,10 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.10.0</ckeditor.version>
+		<ckeditor.version>4.10.1</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
-		<!-- Default extra plugins enabled, currently autosave disabled via SAK-33362 -->
+		<!-- Default extra plugins enabled -->
 		<ckeditor-extra-plugins>sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,notification,autosave</ckeditor-extra-plugins>
 		<!-- Empty defaults for a11y-->
 		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.6</version>
+			<version>5.40.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -61,13 +61,13 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.webjars</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-autosave</artifactId>
 			<version>${ckeditor.autosave.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.webjars</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-wordcount</artifactId>
 			<version>${ckeditor.wordcount.version}</version>
 			<scope>runtime</scope>
@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
-			<version>4.2.0</version>
+			<version>5.2.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -99,7 +99,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>momentjs</artifactId>
-			<version>2.11.1</version>
+			<version>2.22.2</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -153,13 +153,13 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>pnotify</artifactId>
-			<version>2.1.0-1</version>
+			<version>3.2.1</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>elfinder</artifactId>
-			<version>2.1.39</version>
+			<version>2.1.42</version>
 			<scope>runtime</scope>
 			<exclusions>
 				<!-- The exclusions are because the bower versions don't have concat/min versions -->
@@ -182,26 +182,25 @@
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
 			<artifactId>cropper</artifactId>
-			<version>2.3.2</version>
+			<version>4.0.0</version>
 			<scope>runtime</scope>
 		</dependency>
-        <!-- https://mvnrepository.com/artifact/org.webjars/select2 -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>select2</artifactId>
-            <version>4.0.3</version>
+            <version>4.0.5</version>
             <scope>runtime</scope>
         </dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>fullcalendar</artifactId>
-			<version>3.0.0</version>
+			<version>3.9.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>datatables</artifactId>
-			<version>1.10.16</version>
+			<version>1.10.19</version>
 			<scope>runtime</scope>
 		</dependency>
   		<dependency>
@@ -360,13 +359,6 @@
 									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.scripts.min.js</output>
 								</aggregation>
 								<aggregation>
-									<inputDir>${project.build.directory}/js/plugins/</inputDir>
-									<includes>
-										<include>**/*.js</include>
-									</includes>
-									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.plugins.min.js</output>
-								</aggregation>
-								<aggregation>
 									<inputDir>src/webapp/editor/elfinder/sakai/js/src</inputDir>
 									<includes>
 										<include>sakai.js</include>
@@ -513,7 +505,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.0.0</version>
 				<configuration>
 					<warSourceExcludes>editor/elfinder/sakai/js/src/**</warSourceExcludes>
 					<webResources>

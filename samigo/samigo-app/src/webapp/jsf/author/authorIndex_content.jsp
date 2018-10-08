@@ -36,7 +36,7 @@
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
-    <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
     <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
     <script type="text/javascript" src="/samigo-app/js/info.js"></script>
     <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>

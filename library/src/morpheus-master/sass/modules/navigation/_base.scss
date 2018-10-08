@@ -1039,8 +1039,6 @@ body.is-logged-out{
 			}
 
 			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home{
-				margin-top: -1px; // to compensate for an issue with the icon
-				margin-bottom: 1px; // to compensate for an issue with the icon
 				margin-right: $standard-space;
 			}
 
@@ -1177,22 +1175,36 @@ body.is-logged-out{
 }
 
 .#{$namespace}siteStatus{
+	@include display-flex;
+	@include align-items(center);
+	@include justify-content(center);
+	margin: $standard-spacing $standard-spacing 0 $standard-spacing;
+	padding: $standard-spacing;
+	
+	&.is-softly-deleted{
+		color: $siteDelete-color;
+		background-color: $siteDelete-background;
+		border: $siteDelete-border;
+		
+		p {
+			margin: 0;
+			padding: 0;
+		}
+	}
+	
 	&.is-unpublished{
-		margin-left:0em;
-		width: 100%;
-		padding: 3px;
-		color :$background-color-secondary;
-		display:block;
-		text-align:center;
-		background-color: $warn-background-color;
-		border-bottom: 1px solid $warn-color;
+		color: $siteUnpublish-color;
+		background-color: $siteUnpublish-background;
+		border: $siteUnpublish-border;
+		
 		h4{
-			padding: 3px;
 			display: inline-block;
-			vertical-align: top;
+			margin: 0;
+			padding: 0;
 		}
 		button{
 			@extend .button;
+			margin: 0 0 0 $standard-spacing;
 		}
 	}
 }
@@ -1276,4 +1288,19 @@ body.is-logged-out{
             }
         }
     }
+}
+
+.#{$namespace}siteHierarchy .manage-overview-link {
+	@include sakai_secondary_button();
+	position: absolute;
+	right: $standard-spacing;
+	margin-top: -4px;
+	
+	> span {
+		margin-right: $standard-space;
+	}
+	
+	@media #{$phone} {
+		visibility: hidden;
+	}
 }

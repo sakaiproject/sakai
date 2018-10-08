@@ -507,22 +507,18 @@
 
         if (query !== roster.i18n.roster_search_text && query !== "") {
             var userIds = [];
-            var userId = roster.searchIndex[query];
-            if (!userId) {
-                roster.searchIndexKeys.forEach(function (displayName) {
-
-                    var regex = new RegExp(query, 'i');
-                    if (regex.test(displayName)) {
-                        userIds.push(roster.searchIndex[displayName]);
-                    }
-                });
-
-                if (userIds.length > 5) {
-                    // Limit to 5 users
-                    userIds = userIds.slice(0, 5);
+            var i = 0;
+            roster.searchIndexValues.forEach(function (displayName) {
+                var regex = new RegExp(query, 'i');
+                if (regex.test(displayName)) {
+                    userIds.push(roster.searchIndexKeys[i]);
                 }
-            } else {
-                userIds.push(userId);
+                i++;
+            });
+
+            if (userIds.length > 5) {
+                // Limit to 5 users
+                userIds = userIds.slice(0, 5);
             }
 
             if (userIds.length > 0) {
@@ -557,7 +553,7 @@
         });
 
         field.autocomplete({
-            source: roster.searchIndexKeys,
+            source: roster.searchIndexValues,
             select: function (event, ui) {
                 roster.search(ui.item.value);
             }
@@ -830,6 +826,7 @@
             success: function (data) {
                 roster.searchIndex = data.data;
                 roster.searchIndexKeys = Object.keys(data.data);
+                roster.searchIndexValues = Object.values(data.data);
                 // Now switch into the requested state
                 roster.switchState(roster.state, roster);
             },

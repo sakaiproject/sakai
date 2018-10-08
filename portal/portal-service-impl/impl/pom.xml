@@ -56,6 +56,10 @@
             <artifactId>lessonbuilder-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.commons</groupId>
+            <artifactId>commons-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-api</artifactId>
         </dependency>

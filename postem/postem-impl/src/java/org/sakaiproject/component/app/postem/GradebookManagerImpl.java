@@ -114,28 +114,13 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 
 	public void deleteGradebook(final Gradebook gradebook) {
 		if (gradebook != null) {
-			Iterator si = gradebook.getStudents().iterator();
-			while (si.hasNext()) {
-				deleteStudentGrades((StudentGrades) si.next());
-			}
-			HibernateCallback hcb = session -> {
-                session.delete(gradebook);
-                return null;
-            };
-			getHibernateTemplate().execute(hcb);
-
+			getHibernateTemplate().delete(getHibernateTemplate().merge(gradebook));
 		}
-
 	}
 
 	public void deleteStudentGrades(final StudentGrades student) {
 		if (student != null) {
-			HibernateCallback hcb = session -> {
-                session.delete(student);
-                return null;
-            };
-			getHibernateTemplate().execute(hcb);
-
+			getHibernateTemplate().delete(getHibernateTemplate().merge(student));
 		}
 	}
 
@@ -243,12 +228,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (gradebook == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateTemplate temp = getHibernateTemplate();
-			temp.saveOrUpdate(gradebook);
-			/*
-			 * Iterator iter = gradebook.getStudents().iterator(); while
-			 * (iter.hasNext()) { temp.saveOrUpdate((StudentGradesImpl) iter.next()); }
-			 */
+			getHibernateTemplate().merge(gradebook);
 		}
 	}
 
@@ -256,13 +236,13 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 			SortedSet students) {
 		gradebook.setHeadings(headings);
 		gradebook.setStudents(students);
-		getHibernateTemplate().saveOrUpdate(gradebook);
+		getHibernateTemplate().merge(gradebook);
 	}
 
 	public void updateTemplate(Gradebook gradebook, String template, String fileReference) {
 		gradebook.setFileReference(fileReference);
 		gradebook.setTemplate(createTemplate(template));
-		getHibernateTemplate().saveOrUpdate(gradebook);
+		getHibernateTemplate().merge(gradebook);
 	}
 	
 	private Comparator determineComparator(String sortBy, boolean ascending) {
@@ -354,8 +334,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (student == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateTemplate temp = getHibernateTemplate();
-			temp.saveOrUpdate(student);
+			getHibernateTemplate().merge(student);
 		}
 	}
 	

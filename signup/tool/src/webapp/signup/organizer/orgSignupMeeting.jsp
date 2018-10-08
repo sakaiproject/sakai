@@ -755,39 +755,38 @@
 					   					<h:panelGroup id="addAttendee" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 					   						<%-- TODO add spacer only if the attendees exist in atleast one timeslot --%>
 					   						<h:graphicImage value="/images/spacer.gif" width="20" height="16" alt="" style="border:none"/>
-						   					<h:outputLink value="javascript:showHideAddPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addAttendee">
-						   						<h:graphicImage value="/images/add.png" alt="" title="#{msgs.event_tool_tips_add}" style="border:none" styleClass="openCloseImageIcon"/>
+						   					<h:outputLink value="javascript:showHideAddPanel('#{timeSlotWrapper.positionInTSlist}');" title="#{msgs.event_tool_tips_add}" styleClass="addAttendee">
+						   						<f:verbatim>
+						   							<span class="fa fa-plus" aria-hidden="true"></span>
+						   						</f:verbatim>
 						   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />
 						   					</h:outputLink>
 						   				</h:panelGroup>
-							   				
-						   				<h:panelGroup id="addPanel" style="display: none;" >
-						   					<h:panelGrid id="addNewAttendeeTable" columns="2">
-							   					<h:graphicImage value="/images/spacer.gif" width="16" height="16" alt="" style="border:none"/>
-							   					<h:panelGrid id="selectAttendees" columns="2">
-						   							
-						   							<h:outputText value="#{msgs.attendee_select}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
-						   							<h:outputText value="#{msgs.attendee_enterEid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
-						   							
-						   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
-							   							<h:selectOneMenu  id="newAttendeeList" binding="#{OrganizerSignupMBean.addNewAttendeeUserEidOrEmail}" >
-						   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
-						   								</h:selectOneMenu>
-						   							</h:panelGroup>
-						   							<h:inputText  id="addAttendeeEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
-					   								
-					   								<h:panelGroup>
-						   						    	<h:commandButton id="addPanel_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
-						   								<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels(); return false;"/>
-						   							</h:panelGroup>
-						   							
-						   							<%--  pad last column --%>
-						   							<h:outputText value="&nbsp;" escape="false" />
-						   							
-						   						</h:panelGrid>
-					   						</h:panelGrid>
-						   				</h:panelGroup>
-						   				
+
+										<h:panelGroup id="addPanel" styleClass="addPanel" style="display: none;">
+											<h:panelGroup id="addNewAttendeeTable" layout="block">
+												<h:panelGroup styleClass="form-group row" rendered="#{!OrganizerSignupMBean.eidInputMode}" layout="block">
+													<h:outputLabel value="#{msgs.attendee_select}" for="newAttendeeList" escape="false" styleClass="col-lg-4" />
+													<h:panelGroup styleClass="col-lg-8" layout="block">
+														<h:selectOneMenu id="newAttendeeList" binding="#{OrganizerSignupMBean.addNewAttendeeUserEidOrEmail}">
+															<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
+														</h:selectOneMenu>
+													</h:panelGroup>
+												</h:panelGroup>
+
+												<h:panelGroup styleClass="form-group row" rendered="#{OrganizerSignupMBean.eidInputMode}" layout="block">
+													<h:outputLabel value="#{msgs.attendee_enterEid}" for="addAttendeeEidOrEmailInput" escape="false" styleClass="col-lg-4" />
+													<h:panelGroup styleClass="col-lg-8" layout="block">
+														<h:inputText id="addAttendeeEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" />
+													</h:panelGroup>
+												</h:panelGroup>
+
+												<h:panelGroup>
+													<h:commandButton id="addPanel_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}" />
+													<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels(); return false;" />
+												</h:panelGroup>
+											</h:panelGroup>
+										</h:panelGroup>
 						   			</h:panelGrid>
 						   		</h:panelGroup>	
 					   		</h:column>
@@ -813,8 +812,7 @@
 									</h:panelGroup>
 								</f:facet>
 								<h:panelGroup style="margin-left: 1px;">
-								   		<h:graphicImage value="/images/addDisabled.png" alt="#{msgs.event_action_disabled_alt}" title="#{msgs.event_tool_tips_action_option_disabled_label}" style="border:none" />
-								   		<h:outputText value="#{msgs.event_add_attendee}" title="#{msgs.event_tool_tips_action_option_disabled_label}" escape="false" styleClass="disabledAddAttendee" style="color:gray;"/>
+							   		<h:outputText value="#{msgs.event_add_attendee} #{msgs.event_action_disabled}" title="#{msgs.event_tool_tips_action_option_disabled_label}" escape="false" styleClass="disabledAddAttendee" />
 								</h:panelGroup>
 							</h:column>  						   						   		
 					   		<h:column rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
@@ -857,17 +855,17 @@
 									   			</h:dataTable>
 									   			
 									   			<h:panelGroup id="addWaiter" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
-									   				<h:outputLink rendered="#{!timeSlotWrapper.timeSlot.available}" value="javascript:showHideAddWaiterPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addWaiter">
-									   					<h:graphicImage value="/images/spacer.gif" width="4" height="16" alt="" style="border:none"/>
-								   						<h:graphicImage value="/images/add.png" alt="#{msgs.event_action_disabled_alt}"  title="#{msgs.event_tool_tips_add}" style="border:none"  styleClass="openCloseImageIcon"/>
+									   				<h:outputLink rendered="#{!timeSlotWrapper.timeSlot.available}" value="javascript:showHideAddWaiterPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addWaiter" title="#{msgs.event_tool_tips_add}">
+								   						<f:verbatim>
+								   							<span class="fa fa-plus" aria-hidden="true"></span>
+								   						</f:verbatim>
 								   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />	
 								   					</h:outputLink>
 								   					<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.available}" style="margin-left: 2px;">
-								   						<h:graphicImage value="/images/addDisabled.png"  alt="#{msgs.event_action_disabled_alt}" title="#{msgs.event_tool_tips_action_disabled_label}" style="border:none" />
-								   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" styleClass="disabledAddAttendee"/>
+								   						<h:outputText value="#{msgs.event_add_attendee} #{msgs.event_action_disabled}" title="#{msgs.event_tool_tips_action_disabled_label}" escape="false" styleClass="disabledAddAttendee"/>
 								   					</h:panelGroup>
 								   				</h:panelGroup>
-								   				
+	
 								   				<h:panelGroup id="addWaiterPanel" style="display: none;">
 								   					<h:panelGrid columns="1" >
 								   							<h:panelGroup>
@@ -957,7 +955,4 @@
 			 
   		</sakai:view_content>	
 	</sakai:view_container>
-	<f:verbatim>
-
-	</f:verbatim>
 </f:view> 

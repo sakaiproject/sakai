@@ -673,10 +673,6 @@
     padding-top: $standard-spacing;
   }
 
-  div.worksiteSetupContent div.sakai-table-viewFilter select {
-    margin-right: 4px;
-  }
-
   div.worksiteSetupContent div.sakai-table-viewFilter input[type=submit],
   div.worksiteSetupContent div.sakai-table-viewFilter button,
   div.worksiteSetupContent div.sakai-table-searchFilter input[type=submit]:last-of-type,
@@ -690,4 +686,55 @@
     }
   }
 }
-// end Site Info and Worksite Setup namespaces
+
+#dropdownMenuButton {
+  margin: 2px 0px 2px 4px;
+  line-height: 18px;
+}
+
+.form-control-label {
+  font-weight: bold;
+  color: #555;
+}
+
+td.disabled{
+  color: #555;
+}
+
+.manageList {
+  list-style: none;
+
+  a{
+    padding: 5px;
+    text-decoration: none !important; /*important used to override active/hover/etc that happens on links */
+  }
+
+  li.list-group-item{
+    border:none;
+
+    &.disabled{
+      background-color: #ffffff;
+    }
+  }
+}
+
+.manageTable{
+  thead{
+    background-color: #efefef;
+  }
+  a{
+    text-decoration: none !important;
+  }
+  td {
+
+    &.buttonCol {
+      width: 50px;
+      text-align: center;
+    }
+
+    &.removeCol{
+      width: 80px;
+      text-align: center;
+    }
+  }
+}

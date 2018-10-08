@@ -5,8 +5,8 @@
                 <div class="commons-editor-text"><div id="commons-post-creator-editor" contenteditable="true">{{tr 'commons' 'post_editor_initial_text'}}</div></div>
             </div>
         </div>
-        <div id="commons-editor-toolbar">
-            <button id="commons-editor-post-button" disabled="true">{{tr 'commons' 'post'}}</button>
+        <div id="commons-editor-toolbar" class="act">
+            <button id="commons-editor-post-button" class="active" disabled="true">{{tr 'commons' 'post'}}</button>
             <button id="commons-editor-cancel-button" disabled="true">{{tr 'commons' 'cancel'}}</button>
             <button id="commons-editor-link-button" class="commons-editor-special-button" title="{{tr 'commons' 'link_button_tooltip'}}"><span class="fa fa-link"></span></button>
             <button id="commons-editor-image-button" class="commons-editor-special-button" title="{{tr 'commons' 'image_button_tooltip'}}"><span class="fa fa-picture-o"></span></button>
@@ -45,7 +45,8 @@
         <div class="commons-dialog-container">
             <div id="commons-link-dialog-table">
                 <div class="commons-link-dialog-row">
-                    <div id="commons-imagefile-instruction">{{tr 'commons' 'choose_image_file'}}</div><input type="file" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
+                    <label for="commons-image-dialog-file" id="commons-imagefile-instruction">{{tr 'commons' 'choose_image_file'}}</label>
+                    <input type="file" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
                 </div>
             </div>
             <button id="commons-image-dialog-insert-button" disabled="true">{{tr 'commons' 'insert'}}</button>

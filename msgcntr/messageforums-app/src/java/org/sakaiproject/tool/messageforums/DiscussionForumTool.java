@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -142,6 +143,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1566,7 +1569,7 @@ public class DiscussionForumTool
     }
 
     //RUBRICS, Save the binding between the forum and the rubric
-    rubricsService.saveRubricAssociation("sakai.forums", forum.getUuid(), getRubricConfigurationParameters());
+    rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, forum.getUuid(), getRubricConfigurationParameters());
 
     return forum;
   }
@@ -1952,7 +1955,7 @@ public class DiscussionForumTool
     }
 
     //RUBRICS, Save the binding between the topic and the rubric
-    rubricsService.saveRubricAssociation("sakai.forums", selectedTopic.getTopic().getUuid(), getRubricConfigurationParameters());
+    rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, selectedTopic.getTopic().getUuid(), getRubricConfigurationParameters());
 
     return processReturnToOriginatingPage();
     //reset();
@@ -6566,13 +6569,13 @@ public class DiscussionForumTool
     String eventRef = "";
     if(selectedMessage != null){
     	eventRef = getEventReference(selectedMessage.getMessage());
-    	rubricsService.saveRubricEvaluation("sakai.forums", getRubricAssociationUuid(), selectedMessage.getMessage().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationUuid(), selectedMessage.getMessage().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
     }else if(selectedTopic != null){
     	eventRef = getEventReference(selectedTopic.getTopic());
-    	rubricsService.saveRubricEvaluation("sakai.forums", getRubricAssociationUuid(), selectedTopic.getTopic().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationUuid(), selectedTopic.getTopic().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
     }else if(selectedForum != null){
     	eventRef = getEventReference(selectedForum.getForum());
-    	rubricsService.saveRubricEvaluation("sakai.forums", getRubricAssociationUuid(), selectedForum.getForum().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationUuid(), selectedForum.getForum().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
     }
     LRS_Statement statement = null;
     if (null != learningResourceStoreService) {
@@ -8662,9 +8665,18 @@ public class DiscussionForumTool
 		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
 		newTopic.setDefaultAssignName(fromAssignmentTitle);
 	}
+
+	//copy rubrics
+	try {
+		Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, fromTopic.getUuid());
+		if (rubricAssociation.isPresent()) {
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, newTopic.getUuid(), rubricAssociation.get().getFormattedAssociation());
+		}
+	} catch(Exception e){
+		log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+	}
 	
-	// copy the release/end dates
-	
+	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
 		newTopic.setAvailabilityRestricted(true);
 		newTopic.setOpenDate(fromTopic.getOpenDate());
@@ -8765,6 +8777,16 @@ public class DiscussionForumTool
 		}
 
 		forum = saveForumSettings(oldForum.getDraft());
+
+		//copy rubrics		
+		try {
+			Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, oldForum.getUuid());
+			if (rubricAssociation.isPresent()) {
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, forum.getUuid(), rubricAssociation.get().getFormattedAssociation());
+			}
+		} catch(Exception e){
+			log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+		}
 
 		forum = forumManager.getForumById(forum.getId());
 		List attachList = forum.getAttachments();
@@ -10150,7 +10172,7 @@ public class DiscussionForumTool
 
 	public String getRbcsToken() {
 		log.debug("getRbcsToken()");
-		return rubricsService.generateJsonWebToken("sakai.forums");
+		return rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_FORUMS);
 	}
 
 	public String getRbcsStateDetails() {
@@ -10179,9 +10201,9 @@ public class DiscussionForumTool
 	}
 
 	public String getRubricAssociationUuid(){
-		if(selectedTopic != null && rubricsService.hasAssociatedRubric("sakai.forums", selectedTopic.getTopic().getUuid())){
+		if(selectedTopic != null && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, selectedTopic.getTopic().getUuid())){
 			return selectedTopic.getTopic().getUuid();
-		} else if(selectedForum != null && rubricsService.hasAssociatedRubric("sakai.forums", selectedForum.getForum().getUuid())) {
+		} else if(selectedForum != null && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, selectedForum.getForum().getUuid())) {
 			return selectedForum.getForum().getUuid();
 		} else {
 			return null;

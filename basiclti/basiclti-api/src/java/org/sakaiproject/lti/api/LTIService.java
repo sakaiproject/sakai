@@ -77,8 +77,8 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
-	    // LTI 1.3 support 
-	    // 0=inherit, 1=LTI 1.1, 2=LTI 1.3
+            // LTI 1.3 support
+            // 0=inherit, 1=LTI 1.1, 2=LTI 1.3
             "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
             // SHA256 Support (See SAK-33898)
@@ -125,8 +125,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "privacy:header:fields=sendname,sendemailaddr",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
-            "services:header:fields=allowoutcomes,allowroster,allowsettings",
+            "services:header:fields=allowoutcomes,allowlineitems,allowroster,allowsettings",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
+                        "allowlineitems:checkbox:label=bl_allowlineitems",
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings:checkbox:label=bl_allowsettings",
             // Hide these from end users until they are working in the various Sakai tools
@@ -141,6 +142,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "debug:radio:label=bl_debug:choices=off,on,content",
             // LTI 1.x user-entered custom
             "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
+            "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin",
             // LTI 2.x settings from web services
             "settings:text:hidden=true:maxlength=1M",
             // LTI 2.x tool-registration time parameters
@@ -156,9 +158,9 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
             "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
             "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
-	    // The tool keyset is a future feature - we can unhide it in the UI when Sakai supports this
+            // The tool keyset is a future feature - we can unhide it in the UI when Sakai supports this
             "lti13_tool_keyset:textarea:hidden=true:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
-	    // The tool kid is internal (comes through on launch and we store it and cache the public key)
+            // The tool kid is internal (comes through on launch and we store it and cache the public key)
             "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
 
             // SHA256 Support (See SAK-33898)
@@ -181,11 +183,12 @@ public interface LTIService extends LTISubstitutionsFilter {
             "privacy:header:fields=sendname,sendemailaddr",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
-            "services:header:fields=allowoutcomes,allowroster,allowsettings",
+            "services:header:fields=allowoutcomes,allowroster,allowlineitems",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowroster:checkbox:label=bl_allowroster",
             "allowsettings:checkbox:label=bl_allowsettings",
             "allowcontentitem:checkbox:label=bl_allowcontentitem",
+            "allowlineitems:checkbox:label=bl_allowlineitems",
             "lti2_internal:header:fields=reg_launch,reg_key,reg_secret,reg_password,consumerkey,secret,reg_profile:hide=insert",
             "reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
             "reg_key:text:label=bl_reg_key:maxlength=1024:hide=insert:role=admin",
@@ -242,6 +245,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SENDNAME = "sendname";
     String LTI_SENDEMAILADDR = "sendemailaddr";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
+    String LTI_ALLOWLINEITEMS = "allowlineitems";
     String LTI_ALLOWROSTER = "allowroster";
     String LTI_ALLOWSETTINGS = "allowsettings";
     String LTI_ALLOWCONTENTITEM = "allowcontentitem";
@@ -251,6 +255,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_NEWPAGE = "newpage";
     String LTI_DEBUG = "debug";
     String LTI_CUSTOM = "custom";
+    String LTI_ROLEMAP = "rolemap";
     String LTI_SPLASH = "splash";
     String LTI_ALLOWCUSTOM = "allowcustom";
     String LTI_XMLIMPORT = "xmlimport";

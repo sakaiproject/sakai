@@ -675,7 +675,7 @@ function printView(url) {
 											#else
 												<span>
 											#end
-											$!item.getScoreDisplay()<br/>
+											$!service.getGradeDisplay($item.score.toString(), $assignment.TypeOfGrade, $assignment.ScaleFactor)<br/>
 											</span>
 										#end
 									#end

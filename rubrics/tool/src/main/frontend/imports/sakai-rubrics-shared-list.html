@@ -69,7 +69,7 @@
         var index = this.rubricslist.indexOf(e.detail);
         this.$.copyShareToSite.headers = { "Content-Type": "application/json" , "x-copy-source": e.detail.id, "Authorization": this.token, "lang": this.locale};
         this.$.copyShareToSite.body = '{}'
-        this.$.copyShareToSitel.generateRequest();
+        this.$.copyShareToSite.generateRequest();
       },
       handleCopyShareToSite: function(request) {
         this.fire('copy-share-site');

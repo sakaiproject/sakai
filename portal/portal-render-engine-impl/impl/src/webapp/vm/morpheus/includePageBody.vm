@@ -14,6 +14,13 @@
 
 #set($i = 0) ## Counter for directUrl ids 
 
+#set($homePage = false)
+#foreach( $page in $sitePages.pageNavTools )
+    #if (${page.current} && ${page.pageProps.is_home_page})
+        #set($homePage = true)
+        #break
+    #end
+#end
 <!-- START VM includePageBody.vm -->
 
 <h1 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
@@ -24,9 +31,7 @@
         #set( $numberTools = $pageColumn0Tools.size() )
     #end
 
-    <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 )Mrphs-multipleTools #end" role="main">
-
-        #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
+    <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 || $homePage)Mrphs-multipleTools #end" role="main">
 
         <div id="$pageColumnLayout" class="${columnClasses}">
 
@@ -83,8 +88,9 @@
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
-                                <div class="Mrphs-toolTitleNav__button_container">
-                                
+                                <div class="Mrphs-toolTitleNav__button_container #if(${homePage})home#end">
+
+
                                 #if (${tool.toolJSR168Edit})
 
                                     <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">

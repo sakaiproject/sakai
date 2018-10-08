@@ -1,0 +1,150 @@
+// Sakai's Portal Footer layout and design
+
+.#{$namespace}footer{
+	@include display-flex;
+	@include justify-content(space-between);
+	@include align-items(center);
+	@include flex-wrap(wrap);
+	padding: $standard-spacing;
+	font-size: 12px;
+	color: $footer-color;
+	
+	@media #{$tablet} {
+		@include flex-direction(column);
+		text-align: center;
+	}
+	
+	#footer-links, ##{$namespace}footer--poweredBy {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		line-height: 2;
+		
+		li{
+			display: inline-block;
+			padding: 0 $standard-spacing;
+			border-right: 1px solid $footer-link-separator;
+			
+			&:first-child {
+				padding-left: 0;
+			}
+			
+			&:last-child {
+				border-right: 0 none;
+			}
+		}
+		
+		a:focus {
+			outline-offset: 2px;	// allow you to read the link text without the outline obstructing
+		}
+	}
+	
+	##{$namespace}footer--poweredBy {
+		li:last-child {
+			padding-right: 0;	// padding already provided by container
+		}
+	}
+	
+	.#{$namespace}footer--project {
+		margin-left: auto;		// pushes this element to the right, especially during wrapping
+		
+		@media #{$tablet} {
+			margin-left: 0;		// margin not needed for stacked layout
+		}
+	}
+	
+	##{$namespace}footer--poweredBy, .#{$namespace}footer--copyright {
+		display: block;
+		margin: 0;
+		padding: 0;
+		text-align: right;
+		
+		@media #{$tablet} {
+			text-align: center;
+		}
+	}
+	
+	.#{$namespace}footer--details {
+		position: relative;				// to align the details panel to
+		
+		##{$namespace}footer--details__info {
+			padding: $standard-spacing;		// to increase the hit area
+			margin: -#{$standard-spacing};	// to compensate for the padding spacing
+			
+			&:link, &:visited, &:focus, &:hover, &:active {
+				text-decoration: none;		// no underline on the icon
+			}
+		}
+	}
+	
+	##{$namespace}footer--details__panel {
+		position: absolute;
+		right: -5px;			// half of width of the border set in the :after below
+		bottom: 30px;
+		display: none;
+		margin: 0;
+		padding: $standard-spacing;
+		border: 1px solid $footer-details-border-color;
+		box-shadow: 0 0 4px rgba(0,0,0,0.5);
+		background: #fff;
+		white-space: nowrap;
+		z-index: 99;
+		
+		&:after {
+			content: "";
+			position: absolute;
+			bottom: -20px;				// twice the size of the border set below
+			right: $standard-spacing;
+			width: 0;
+			height: 0;
+			pointer-events: none;
+			border: 10px solid transparent;		// to create the arrow tip from the borders
+			border-top-color: $footer-details-border-color;
+		}
+				
+		&.#{$namespace}footer--details__panel-show {
+			display: block;
+		}
+		
+		.#{$namespace}footer--details__heading {
+			@include display-flex;
+			@include justify-content(space-between);
+			@include align-items(center);
+			margin-bottom: $standard-spacing;
+			padding-bottom: $standard-spacing;
+			border-bottom: 1px solid $footer-details-border-color;
+		
+			p {
+				margin: 0;		// override default paragraph margin
+				line-height: 1.5em;		// to match the size of the close button below
+			}
+			
+			##{$namespace}footer--details__close {
+				margin-left: 10px;
+				font-size: 1.5em;
+				line-height: 1;
+				
+				&:link, &:visited, &:focus, &:hover, &:active {
+					outline: 1px dotted;
+					text-decoration: none;		// no underline on the close icon
+				}
+			}
+		}
+		
+		dl {
+			margin: 0;
+		}
+		
+		dt, dd {
+			display: block;
+		}
+		
+		dd {
+			margin-bottom: $standard-spacing;
+			
+			&:last-of-type {
+				margin-bottom: 0;
+			}
+		}
+	}
+}

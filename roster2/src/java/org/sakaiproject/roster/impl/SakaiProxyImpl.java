@@ -1240,7 +1240,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             if (MapUtils.isEmpty(index)) {
                 final List<RosterMember> membership = getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
-                index = membership.stream().collect(Collectors.toMap(RosterMember::getDisplayName , RosterMember::getUserId));
+                index = membership.stream().collect(Collectors.toMap(RosterMember::getUserId, RosterMember::getDisplayName));
                 cache.put(siteId+groupId, index);
             }
 		

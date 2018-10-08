@@ -36,8 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -103,7 +103,7 @@ public class BeginDeliveryActionListener implements ActionListener
       // preview and take assessment is set by the parameter in the jsp pages
       delivery.setActionString(actionString);
       if("reviewAssessment".equals(actionString)){
-        delivery.setRbcsToken(rubricsService.generateJsonWebToken(SamigoConstants.RBCS_TOOL_ID));
+        delivery.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
       }
     }
     
@@ -323,6 +323,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setCreatorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setSubmitted(false);
+    delivery.setAssessmentSubmitted(false);
     delivery.setGraded(false);
     delivery.setPartIndex(0);
     delivery.setQuestionIndex(0);

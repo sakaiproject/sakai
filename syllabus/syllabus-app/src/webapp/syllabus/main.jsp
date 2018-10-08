@@ -24,7 +24,7 @@
 	%>
 
 <script>includeLatestJQuery('main.jsp');</script>
-<script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
+<script type="text/javascript">includeWebjarLibrary('momentjs');</script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
