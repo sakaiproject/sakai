@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.impl;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,8 +30,11 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +72,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -649,6 +654,79 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // give group B asn.all.groups and should be allowed now
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ALL_GROUPS, contextReference)).thenReturn(true);
         Assert.assertTrue(assignmentService.allowAddSubmissionCheckGroups(assignment));
+    }
+
+    @Test
+    public void countSubmissions() {
+        String context = UUID.randomUUID().toString();
+        List<String> submitterIds = Collections.nCopies(10,1).stream().map(i -> UUID.randomUUID().toString()).collect(Collectors.toList());
+        List<User> submitterUsers = submitterIds.stream().map(id -> {
+            User user = mock(User.class);
+            when(user.getId()).thenReturn(id);
+            return user;
+        }).collect(Collectors.toList());
+        Assignment assignment = createNewAssignment(context);
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(submitterUsers);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+
+        final Site site = mock(Site.class);
+        try {
+            when(siteService.getSite(context)).thenReturn(site);
+        } catch (Exception e) {
+            Assert.fail("Exception calling siteService.getSite(), " + e.getMessage());
+        }
+
+        submitterIds.forEach(id -> {
+            try {
+                when(site.getGroup(id)).thenReturn(mock(Group.class));
+                when(site.getMember(id)).thenReturn(mock(Member.class));
+                AssignmentSubmission submission = assignmentService.addSubmission(assignment.getId(), id);
+                String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+                when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+                when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            } catch (Exception e) {
+                Assert.fail("Could not create submission, " + e.getMessage());
+            }
+        });
+
+        Assert.assertThat(assignment.getSubmissions().size(), is(10)); // ensure we have 10 submissions created
+
+        int count = assignmentService.countSubmissions(assignmentReference, false);
+        Assert.assertThat(count, is(0)); // currently none of the submissions are submitted should be 0
+
+        // submit 5 submissions
+        assignment.getSubmissions().stream().limit(5).forEach(s -> {
+            s.setSubmitted(true);
+            s.setDateSubmitted(Instant.now());
+            s.setUserSubmission(true);
+            try {
+                assignmentService.updateSubmission(s);
+            } catch (Exception e) {
+                Assert.fail("Could not update submission, " + e.getMessage());
+            }
+        });
+
+        int countSubmitted = assignmentService.countSubmissions(assignmentReference, false);
+        Assert.assertThat(countSubmitted, is(5)); // should have 5 submissions submitted
+
+        // grade 2 submitted submissions
+        assignment.getSubmissions().stream().filter(AssignmentSubmission::getSubmitted).limit(2).forEach(s -> {
+            s.setGrade("1000");
+            s.setGraded(true);
+            try {
+                assignmentService.updateSubmission(s);
+            } catch (Exception e) {
+                Assert.fail("Could not update submission, " + e.getMessage());
+            }
+        });
+
+        int countGraded = assignmentService.countSubmissions(assignmentReference, true);
+        Assert.assertThat(countGraded, is(2)); // should have 2 submissions graded
+
+        when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(new ArrayList<>());
+        int countNoUsers = assignmentService.countSubmissions(assignmentReference, false);
+        Assert.assertThat(countNoUsers, is(0)); // should have 0 submissions submitted
     }
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
