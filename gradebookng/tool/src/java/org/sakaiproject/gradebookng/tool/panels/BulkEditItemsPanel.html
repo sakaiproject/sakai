@@ -4,51 +4,34 @@
 <body>
 	<wicket:panel>
 
-		<!--  <form class="form-vertical" wicket:id="form">-->
+		<form class="form-vertical" wicket:id="form">
 
-			<p class="alert alert-info" role="alert"><wicket:message key="bulkedit.instruction"></wicket:message></p>
+			<!-- <p class="alert alert-info" role="alert"><wicket:message key="bulkedit.instruction"></wicket:message></p>-->
 
 			<table class="table table-striped table-bordered table-hover" style="width: auto;">
 				<thead>
 					<tr>
 						<th class="col-md-4"><wicket:message key="bulkedit.column.header.gradebookitem" /></th>
-						<th class="col-md-1"><wicket:message key="bulkedit.column.header.select" /></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr wicket:id="listView">
 						<td><span wicket:id="itemTitle">item title</span></td>
-						<td><input type="checkbox" class="form-control" /></td>
+						<td><input wicket:id="release" type="checkbox" /></td>
+						<td><input wicket:id="include" type="checkbox" /></td>
 					</tr>
 				</tbody>
 			</table>
-
-			<h2><wicket:message key="bulkedit.action.header"></wicket:message></h2>
 			
-			<form class="form-vertical" wicket:id="form">
 				
-				<div class="form-group">
-					<div class="checkbox">
-						<label>
-							<input wicket:id="release" type="checkbox" />
-							<span><wicket:message key="bulkedit.action.release" /></span>
-						</label>
-					</div>
-				
-					<div class="checkbox">
-						<label>
-							<input wicket:id="include" type="checkbox" />
-							<span><wicket:message key="bulkedit.action.include" /></span>
-						</label>
-					</div>
-				</div>
-		
-				<div class="act">
-					<input type="submit"  class="active" wicket:message="value:button.savechanges" />
-					<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
-				</div>
+			<div class="act">
+				<input type="submit" wicket:id="submit" class="active" wicket:message="value:button.savechanges" />
+				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+			</div>
 
-			</form>
+		</form>
 
 	</wicket:panel>
 </body>

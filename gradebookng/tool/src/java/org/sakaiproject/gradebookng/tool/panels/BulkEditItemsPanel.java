@@ -25,8 +25,10 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -37,10 +39,6 @@ public class BulkEditItemsPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
-
-	private Form form;
-	private AjaxCheckBox release;
-	private AjaxCheckBox include;
 
 	public BulkEditItemsPanel(final String id, final IModel<String> model, final ModalWindow window) {
 		super(id, model);
@@ -55,28 +53,15 @@ public class BulkEditItemsPanel extends BasePanel {
 
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
 
-		add(new GradebookItemView("listView", assignments));
+		final IModel<List<Assignment>> model = new ListModel<>(assignments);
 
-		this.form = new Form<Void>("form");
-		add(this.form);
+		final Form<List<Assignment>> form = new Form<>("form", model);
+		form.add(new GradebookItemView("listView", model.getObject()));
+		form.add(new SubmitButton("submit"));
+		form.add(new CancelButton("cancel"));
 
-		this.release = new ReleaseCheckbox("release", Model.of(Boolean.TRUE));
-		this.form.add(this.release);
+		add(form);
 
-		this.include = new IncludeCheckbox("include", Model.of(Boolean.TRUE));
-		this.form.add(this.include);
-
-		this.form.add(new CancelButton("cancel"));
-
-	}
-
-	class BulkEditForm extends Form<Void> {
-
-		private static final long serialVersionUID = 1L;
-
-		public BulkEditForm(final String id) {
-			super(id);
-		}
 	}
 
 	class GradebookItemView extends ListView<Assignment> {
@@ -90,9 +75,18 @@ public class BulkEditItemsPanel extends BasePanel {
 		@Override
 		protected void populateItem(final ListItem<Assignment> item) {
 
-			final Assignment entry = item.getModelObject();
+			final Assignment assignment = item.getModelObject();
 
-			item.add(new Label("itemTitle", entry.getName()));
+			item.add(new Label("itemTitle", assignment.getName()));
+
+			final ReleaseCheckbox release = new ReleaseCheckbox("release", new PropertyModel<Boolean>(assignment, "released"));
+			final IncludeCheckbox include = new IncludeCheckbox("include", new PropertyModel<Boolean>(assignment, "counted"));
+
+			release.setPartner(include);
+			include.setPartner(release);
+
+			item.add(release);
+			item.add(include);
 		}
 
 	}
@@ -113,40 +107,85 @@ public class BulkEditItemsPanel extends BasePanel {
 
 	}
 
+	class SubmitButton extends GbAjaxButton {
+
+		private static final long serialVersionUID = 1L;
+
+		public SubmitButton(final String id) {
+			super(id);
+			setDefaultFormProcessing(false);
+		}
+
+		@Override
+		public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+
+			final List<Assignment> assignments = (List<Assignment>) form.getModelObject();
+
+			boolean result = false;
+			for (final Assignment a : assignments) {
+				result = BulkEditItemsPanel.this.businessService.updateAssignment(a);
+			}
+
+			if (result) {
+				getSession().success(getString("bulkedit.update.success"));
+			} else {
+				getSession().error(getString("bulkedit.update.error"));
+			}
+			setResponsePage(GradebookPage.class);
+		}
+
+	}
+
+	/**
+	 * Checkbox for the release option that includes a reference to its counterpart to toggle or not
+	 */
 	class ReleaseCheckbox extends AjaxCheckBox {
 
 		private static final long serialVersionUID = 1L;
+		private AjaxCheckBox partner = null;
 
 		public ReleaseCheckbox(final String id, final IModel<Boolean> model) {
 			super(id, model);
 			setOutputMarkupId(true);
 		}
 
+		public void setPartner(final AjaxCheckBox partner) {
+			this.partner = partner;
+		}
+
 		@Override
 		protected void onUpdate(final AjaxRequestTarget target) {
 			if (!getModelObject()) {
-				BulkEditItemsPanel.this.include.setModelObject(false);
-				target.add(BulkEditItemsPanel.this.include);
+				this.partner.setModelObject(false);
+				target.add(this.partner);
 			}
 		}
 
 	}
 
+	/**
+	 * Checkbox for the include option that includes a reference to its counterpart to toggle or not
+	 */
 	class IncludeCheckbox extends AjaxCheckBox {
 
 		private static final long serialVersionUID = 1L;
+		private AjaxCheckBox partner = null;
 
 		public IncludeCheckbox(final String id, final IModel<Boolean> model) {
 			super(id, model);
 			setOutputMarkupId(true);
 		}
 
+		public void setPartner(final AjaxCheckBox partner) {
+			this.partner = partner;
+		}
+
 		@Override
 		protected void onUpdate(final AjaxRequestTarget target) {
 			if (!getModelObject()) {
-				BulkEditItemsPanel.this.release.setModelObject(true);
+				this.partner.setModelObject(true);
 			}
-			target.add(BulkEditItemsPanel.this.release);
+			target.add(this.partner);
 		}
 
 	}

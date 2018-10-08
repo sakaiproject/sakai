@@ -213,6 +213,7 @@ public class GradebookPage extends BasePage {
 
 		this.bulkEditItemsWindow = new GbModalWindow("bulkEditItemsWindow");
 		this.bulkEditItemsWindow.setPositionAtTop(true);
+		this.bulkEditItemsWindow.showUnloadConfirmation(false);
 		this.form.add(this.bulkEditItemsWindow);
 
 		// first get any settings data from the session
