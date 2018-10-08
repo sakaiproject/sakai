@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -46,6 +47,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
@@ -1641,12 +1645,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	}
 	
-	public void copyAssessment(String assessmentId, String apepndCopyTitle) {
+	public void copyAssessment(String assessmentId, String appendCopyTitle) {
 		AssessmentData assessmentData = loadAssessment(Long.valueOf(assessmentId));
 		assessmentData.setSectionSet(getSectionSetForAssessment(assessmentData));
 		
 		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId());
-		updateTitleForCopy(newAssessmentData, apepndCopyTitle);
+		updateTitleForCopy(newAssessmentData, appendCopyTitle);
 		getHibernateTemplate().saveOrUpdate(newAssessmentData);
 		
 		// authorization
@@ -1662,6 +1666,19 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			Iterator itemIter = itemSet.iterator();
 			while (itemIter.hasNext()) {
 				ItemData item = (ItemData) itemIter.next();
+				
+				//copy rubrics
+				try {
+					String associationId = assessmentId + "." + item.getOriginalItemId();
+					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+					Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);
+					if (rubricAssociation.isPresent()) {
+						rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, newAssessmentData.getAssessmentId()+ "." + item.getItemId(), rubricAssociation.get().getFormattedAssociation());
+					}
+				} catch(Exception e){
+					log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+				}
+					
 				//We use this place to add the saveItem Events used by the search index to index all the new questions
 				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 				Set itemMetaDataSet = item.getItemMetaDataSet();
@@ -1678,13 +1695,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		getHibernateTemplate().saveOrUpdate(newAssessmentData);
 	}
 
-    private void updateTitleForCopy(AssessmentData assessmentData, String apepndCopyTitle){
-    	//String apepndCopyTitle = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "append_copy_title");
+    private void updateTitleForCopy(AssessmentData assessmentData, String appendCopyTitle){
     	StringBuffer sb = new StringBuffer(assessmentData.getTitle());
     	sb.append(" ");
-    	sb.append(apepndCopyTitle);
+    	sb.append(appendCopyTitle);
     	if(sb.length() >= assessmentData.TITLE_LENGTH){ //title max size
-    		String appendCopyText = "... "+apepndCopyTitle;
+    		String appendCopyText = "... "+appendCopyTitle;
     		String titleCut = sb.substring(0, assessmentData.TITLE_LENGTH-appendCopyText.length()-1); //cut until size needed to add ellipsis and copyTitle without exceed DB field size
     		log.debug("titleCut = "+titleCut);
     		sb = new StringBuffer(titleCut);
@@ -1966,7 +1982,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							.getLastModifiedBy(), item.getLastModifiedDate(),
 					null, null, null,// set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
-					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash());
+					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash(), item.getItemId());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
 					.getItemTextSet(), protocol, toContext);
 			Set newItemMetaDataSet = prepareItemMetaDataSet(newItem, item

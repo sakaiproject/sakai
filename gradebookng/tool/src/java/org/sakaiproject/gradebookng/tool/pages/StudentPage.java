@@ -29,6 +29,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.tool.panels.StudentGradeSummaryGradesPanel;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -54,7 +55,7 @@ public class StudentPage extends BasePage {
 		userData.put("studentUuid", u.getId());
 		userData.put("groupedByCategoryByDefault", true);
 
-		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsService.generateJsonWebToken("sakai.gradebookng")));
+		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 		add(rubricsTokenHiddenField);
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));

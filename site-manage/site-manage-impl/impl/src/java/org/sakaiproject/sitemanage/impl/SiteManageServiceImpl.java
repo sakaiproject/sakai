@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -55,6 +55,7 @@ import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.sakaiproject.event.api.NotificationService;
 
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
@@ -111,9 +112,22 @@ public class SiteManageServiceImpl implements SiteManageService {
         Runnable siteImportTask = () -> {
             sessionManager.setCurrentSession(session);
             sessionManager.setCurrentToolSession(toolSession);
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, site.getReference(), false));
-
-            try {
+            
+			String importSites ="";
+			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) {
+				if(importSites.length() >= 255) {
+					break;
+				}
+				for(String data : entry.getValue() ) {
+					String temp = StringUtils.joinWith(", ", importSites, data);
+					if(!importSites.contains(data) && temp.length() < 255) {
+						importSites = temp;
+					}
+				}
+			}
+			eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
+			
+			try {
                 importToolsIntoSite(site, existingTools, importTools, cleanup);
             } catch (Exception e) {
                 log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
@@ -124,7 +138,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
                 userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, id, site.getTitle());
             }
-            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, site.getReference(), false));
+            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, importSites, id, false, NotificationService.NOTI_OPTIONAL));
         };
 
         // only if the siteId was added to the list do we start the task
