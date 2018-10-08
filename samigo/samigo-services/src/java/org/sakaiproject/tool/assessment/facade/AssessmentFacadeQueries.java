@@ -48,6 +48,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -1670,9 +1671,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				try {
 					String associationId = assessmentId + "." + item.getOriginalItemId();
 					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
-					Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(SamigoConstants.RBCS_TOOL_ID, associationId);
+					Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);
 					if (rubricAssociation.isPresent()) {
-						rubricsService.saveRubricAssociation(SamigoConstants.RBCS_TOOL_ID, newAssessmentData.getAssessmentId()+ "." + item.getItemId(), rubricAssociation.get().getFormattedAssociation());
+						rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, newAssessmentData.getAssessmentId()+ "." + item.getItemId(), rubricAssociation.get().getFormattedAssociation());
 					}
 				} catch(Exception e){
 					log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());

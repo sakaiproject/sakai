@@ -33,6 +33,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -240,7 +241,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				final boolean success = AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
 
 				if (success) {
-					rubricsService.saveRubricAssociation("sakai.gradebookng", assignment.getId().toString(), getRubricParameters(""));
+					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getRubricParameters(""));
 					getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
 					setResponsePage(getPage().getPageClass(),
 						new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
@@ -270,7 +271,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					success = false;
 				}
 				if (success) {
-					rubricsService.saveRubricAssociation("sakai.gradebookng", assignmentId.toString(), getRubricParameters(""));
+					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), getRubricParameters(""));
 					final String successMessage = MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName());
 					getSession()
 						.success(successMessage);
