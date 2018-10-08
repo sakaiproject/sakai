@@ -674,7 +674,7 @@ public class ExternalLogic {
                 gbItem.name = makeSafeAssignmentName(gradebookId, gbItem.name);
                 if (EXTERNAL_ONLY) {
                     gradebookExternalAssessmentService.addExternalAssessment(gradebookId, gbItem.eid, 
-                            null, gbItem.name, gbItem.pointsPossible, gbItem.dueDate, EXTERNAL_DATASOURCE, false);
+                            null, gbItem.name, gbItem.pointsPossible, gbItem.dueDate, EXTERNAL_DATASOURCE, null, false);
                     // GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
                     // fetch the newly created assignment object so we can get the id from it
                     isExternal = true;
@@ -725,7 +725,7 @@ public class ExternalLogic {
                 }
                 if (isExternal) {
                     gradebookExternalAssessmentService.updateExternalAssessment(gradebookId, gbItem.eid, 
-                            null, assignment.getName(), assignment.getPoints(), assignment.getDueDate(), false);
+                            null, null, assignment.getName(), assignment.getPoints(), assignment.getDueDate(), false);
                     if (log.isDebugEnabled()) log.debug("updated external assignment ("+assignment+") from item: "+gbItem);
                 } else {
                     // assign new values to existing assignment
