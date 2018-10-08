@@ -241,6 +241,10 @@ public class SectionContentsBean
     return itemContents;
   }
 
+  public int getItemContentsCount() {
+    return itemContents.size();
+  }
+
   public List getItemContentsForRandomDraw()
   {
     // same ordering for each student
