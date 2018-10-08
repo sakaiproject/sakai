@@ -198,7 +198,7 @@ public class GbGradebookData {
 	private Map<String, String> toolNameIconCSSMap;
 	private String defaultIconCSS;
 	private Map<String, Double> courseGradeMap;
-	private Map<Long, Boolean> hasAssociatedRubricMap;
+	private Map<String, Boolean> hasAssociatedRubricMap;
 	private boolean isStudentNumberVisible;
 
 	private Component parent;
@@ -510,7 +510,7 @@ public class GbGradebookData {
 					counted,
 					a1.isExtraCredit(),
 					a1.isExternallyMaintained(),
-					this.hasAssociatedRubricMap.get(a1.getId()),
+					a1.isExternallyMaintained() ?  this.hasAssociatedRubricMap.get(a1.getExternalId()) : this.hasAssociatedRubricMap.get(String.valueOf(a1.getId())),
 					a1.getExternalId(),
 					a1.getExternalAppName(),
 					getIconCSSForExternalAppName(a1.getExternalAppName()),

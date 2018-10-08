@@ -280,16 +280,16 @@ public class RubricsServiceImpl implements RubricsService {
 
             //we will create a new one or update if the parameter rbcs-associate is true
             String nowTime = LocalDateTime.now().toString();
-            if (params.get("rbcs-associate").equals("1")) {
+            if (params.get(RubricsConstants.RBCS_ASSOCIATE).equals("1")) {
 
                 if (associationHref ==null) {  // create a new one.
-                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get("rbcs-rubricslist") + ",\"metadata\" : {\"created\" : \"" + nowTime + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + userDirectoryService.getCurrentUser().getId() + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
+                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + nowTime + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + userDirectoryService.getCurrentUser().getId() + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
                     log.debug("New association " + input);
                     String query = serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX + "rubric-associations/";
                     String resultPost = postRubricResource(query, input, tool);
                     log.debug("resultPost: " +  resultPost);
                 }else{
-                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get("rbcs-rubricslist") + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
+                    String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
 					"\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
                     log.debug("Existing association update" + input);
                     String resultPut = putRubricResource(associationHref, input, tool);
@@ -436,11 +436,11 @@ public class RubricsServiceImpl implements RubricsService {
             }
             index++;
 
-            final String selectedRatingPoints = criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion");
+            final String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion");
 
-            if (StringUtils.isNotBlank(criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion-override"))) {
+            if (StringUtils.isNotBlank(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion-override"))) {
                 pointsAdjusted = true;
-                points = criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion-override");
+                points = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion-override");
             } else {
                 pointsAdjusted = false;
                 points = selectedRatingPoints;
@@ -459,7 +459,7 @@ public class RubricsServiceImpl implements RubricsService {
 
             criterionJsonData += String.format("{ \"criterionId\" : \"%s\", \"points\" : \"%s\", " +
                             "\"comments\" : \"%s\", \"pointsAdjusted\" : %b, \"selectedRatingId\" : \"%s\"  }",
-                    criterionData.getKey(), points, StringEscapeUtils.escapeJson(criterionData.getValue().get("rbcs-" + associatedItemId + "-criterion-comment")),
+                    criterionData.getKey(), points, StringEscapeUtils.escapeJson(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion-comment")),
                     pointsAdjusted, selectedRatingId);
         }
 
@@ -497,7 +497,7 @@ public class RubricsServiceImpl implements RubricsService {
         Iterator it2 = params.keySet().iterator();
         while (it2.hasNext()) {
             String name = it2.next().toString();
-            if (name.startsWith("rbcs-config-")) {
+            if (name.startsWith(RubricsConstants.RBCS_CONFIG)) {
                 if (noFirst) {
                     configuration = configuration + " , ";
                 }
@@ -512,7 +512,7 @@ public class RubricsServiceImpl implements RubricsService {
         Iterator itOld = oldParams.keySet().iterator();
         while (itOld.hasNext()) {
             String name = itOld.next().toString();
-            if (!(params.containsKey("rbcs-config-" + name))) {
+            if (!(params.containsKey(RubricsConstants.RBCS_CONFIG + name))) {
                 if (noFirst) {
                     configuration = configuration + " , ";
                 }
@@ -583,6 +583,31 @@ public class RubricsServiceImpl implements RubricsService {
     }
 
     //TODO generate a public String postRubricAssociation(String tool, String id, HashMap<String,String> params)
+
+    public String getRubricEvaluationObjectId(String associationId, String userId, String toolId) {
+        try {
+            URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+            Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+
+            Traverson.TraversalBuilder builder = traverson.follow("evaluations", "search", "by-association-and-user");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+            builder.withHeaders(headers);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("associationId", associationId);
+            parameters.put("userId", userId);
+
+            String response = builder.withTemplateParameters(parameters).toObject(String.class);
+            if (StringUtils.isNotEmpty(response)){
+                return response.replace("\"", "");
+            }
+        } catch (Exception e) {
+            log.warn("Error {} while getting a rubric evaluation in assignment {} for user {}", e.getMessage(), associationId, userId);
+        }
+        return null;
+    }
 
     /**
      * Posts the rubric association.
