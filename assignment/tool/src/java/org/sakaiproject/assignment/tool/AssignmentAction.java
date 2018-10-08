@@ -4924,7 +4924,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // add assignment into gradebook
                     try {
                         // add assignment to gradebook
-                        gradebookExternalAssessmentService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolTitle, false, category != -1 ? category : null);
+                        gradebookExternalAssessmentService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolTitle, null, false, category != -1 ? category : null);
                     } catch (AssignmentHasIllegalPointsException e) {
                         addAlert(state, rb.getString("addtogradebook.illegalPoints"));
                         log.warn(this + ":integrateGradebook " + e.getMessage());
@@ -4940,7 +4940,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // if there is an external entry created in Gradebook based on this assignment, update it
                         try {
                             // update attributes if the GB assignment was created for the assignment
-                            gradebookExternalAssessmentService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
+                            gradebookExternalAssessmentService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
                         } catch (Exception e) {
                             addAlert(state, rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
                             log.warn("{}", rb.getFormattedMessage("cannotfin_assignment", assignmentRef));

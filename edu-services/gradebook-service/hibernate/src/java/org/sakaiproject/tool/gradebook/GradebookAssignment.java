@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.sakaiproject.service.gradebook.shared.GradebookException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -77,24 +79,25 @@ public class GradebookAssignment extends GradableObject {
 	public static Comparator categoryComparator;
 
 	// In a table per class hierarchy a subclass cannot have NOT NULL constraints so don't use primitives!
-	private Double pointsPossible;
-	private Date dueDate;
-	private Boolean notCounted;
-	private Boolean externallyMaintained;
-	private String externalStudentLink;
-	private String externalInstructorLink;
-	private String externalId;
-	private String externalAppName;
-	private Boolean released;
-	private Category category;
-	private Double averageTotal;
-	private Boolean ungraded;
-	private Boolean extraCredit = Boolean.FALSE;
-	private Double assignmentWeighting;
-	private Boolean countNullsAsZeros;
-	private String itemType;
-	public String selectedGradeEntryValue;
-	private Boolean hideInAllGradesTable = Boolean.FALSE;
+	@Getter @Setter private Double pointsPossible;
+	@Getter @Setter private Date dueDate;
+	@Setter private Boolean notCounted;
+	@Setter private Boolean externallyMaintained;
+	@Getter @Setter private String externalStudentLink;
+	@Getter @Setter private String externalInstructorLink;
+	@Getter @Setter private String externalId;
+	@Getter @Setter private String externalAppName;
+	@Getter @Setter private String externalData;
+	@Setter private Boolean released;
+	@Getter @Setter private Category category;
+	@Getter @Setter private Double averageTotal;
+	@Setter private Boolean ungraded;
+	@Setter private Boolean extraCredit = Boolean.FALSE;
+	@Getter @Setter private Double assignmentWeighting;
+	@Getter @Setter private Boolean countNullsAsZeros;
+	@Setter private String itemType;
+	@Getter @Setter public String selectedGradeEntryValue;
+	@Setter private Boolean hideInAllGradesTable = Boolean.FALSE;
 
 	static {
 		dateComparator = new Comparator() {
@@ -356,8 +359,7 @@ public class GradebookAssignment extends GradableObject {
 	 * @param dueDate
 	 * @param released
 	 */
-	public GradebookAssignment(final Gradebook gradebook, final String name, final Double pointsPossible, final Date dueDate,
-			final boolean released) {
+	public GradebookAssignment(final Gradebook gradebook, final String name, final Double pointsPossible, final Date dueDate, final boolean released) {
 		this.gradebook = gradebook;
 		this.name = name;
 		this.pointsPossible = pointsPossible;
@@ -367,8 +369,6 @@ public class GradebookAssignment extends GradableObject {
 		this.hideInAllGradesTable = Boolean.FALSE;
 	}
 
-	/**
-	 */
 	@Override
 	public boolean isCourseGrade() {
 		return false;
@@ -390,40 +390,10 @@ public class GradebookAssignment extends GradableObject {
 		return false;
 	}
 
-	/**
-	 */
-	public Date getDateForDisplay() {
-		return this.dueDate;
-	}
-
-	/**
-	 * @return Returns the dueDate.
-	 */
-	public Date getDueDate() {
-		return this.dueDate;
-	}
-
-	/**
-	 * @param dueDate The dueDate to set.
-	 */
-	public void setDueDate(final Date dueDate) {
-		this.dueDate = dueDate;
-	}
-
-	/**
-	 */
 	public boolean isNotCounted() {
 		return this.notCounted != null ? this.notCounted : false;
 	}
 
-	/**
-	 */
-	public void setNotCounted(final boolean notCounted) {
-		this.notCounted = notCounted;
-	}
-
-	/**
-	 */
 	public boolean isCounted() {
 		return !isNotCounted();
 	}
@@ -436,20 +406,6 @@ public class GradebookAssignment extends GradableObject {
 	}
 
 	/**
-	 * @return Returns the externalInstructorLink.
-	 */
-	public String getExternalInstructorLink() {
-		return this.externalInstructorLink;
-	}
-
-	/**
-	 * @param externalInstructorLink The externalInstructorLink to set.
-	 */
-	public void setExternalInstructorLink(final String externalInstructorLink) {
-		this.externalInstructorLink = externalInstructorLink;
-	}
-
-	/**
 	 * @return Returns the externallyMaintained.
 	 */
 	public boolean isExternallyMaintained() {
@@ -457,83 +413,11 @@ public class GradebookAssignment extends GradableObject {
 	}
 
 	/**
-	 * @param externallyMaintained The externallyMaintained to set.
-	 */
-	public void setExternallyMaintained(final boolean externallyMaintained) {
-		this.externallyMaintained = externallyMaintained;
-	}
-
-	/**
-	 * @return Returns the externalStudentLink.
-	 */
-	public String getExternalStudentLink() {
-		return this.externalStudentLink;
-	}
-
-	/**
-	 * @param externalStudentLink The externalStudentLink to set.
-	 */
-	public void setExternalStudentLink(final String externalStudentLink) {
-		this.externalStudentLink = externalStudentLink;
-	}
-
-	/**
-	 * @return Returns the pointsPossible.
-	 */
-	public Double getPointsPossible() {
-		return this.pointsPossible;
-	}
-
-	/**
-	 * @param pointsPossible The pointsPossible to set.
-	 */
-	public void setPointsPossible(final Double pointsPossible) {
-		this.pointsPossible = pointsPossible;
-	}
-
-	/**
-	 * @return Returns the externalId.
-	 */
-	public String getExternalId() {
-		return this.externalId;
-	}
-
-	/**
-	 * @param externalId The externalId to set.
-	 */
-	public void setExternalId(final String externalId) {
-		this.externalId = externalId;
-	}
-
-	/**
-	 * @return Returns the externalAppName.
-	 */
-	public String getExternalAppName() {
-		return this.externalAppName;
-	}
-
-	/**
-	 * @param externalAppName The externalAppName to set.
-	 */
-	public void setExternalAppName(final String externalAppName) {
-		this.externalAppName = externalAppName;
-	}
-
-	/**
 	 *
 	 * @return selective release true or false
 	 */
-
 	public boolean isReleased() {
 		return this.released != null ? this.released : false;
-	}
-
-	/**
-	 *
-	 * @param released returns wther the assignment has been released to users
-	 */
-	public void setReleased(final boolean released) {
-		this.released = released;
 	}
 
 	/**
@@ -583,28 +467,8 @@ public class GradebookAssignment extends GradableObject {
 		}
 	}
 
-	public Category getCategory() {
-		return this.category;
-	}
-
-	public void setCategory(final Category category) {
-		this.category = category;
-	}
-
-	public Double getAverageTotal() {
-		return this.averageTotal;
-	}
-
-	public void setAverageTotal(final Double averageTotal) {
-		this.averageTotal = averageTotal;
-	}
-
 	public boolean getUngraded() {
 		return this.ungraded != null ? this.ungraded : false;
-	}
-
-	public void setUngraded(final boolean ungraded) {
-		this.ungraded = ungraded;
 	}
 
 	// these two functions are needed to keep the old API and help JSF and RSF play nicely together. Since isExtraCredit already exists and
@@ -622,18 +486,6 @@ public class GradebookAssignment extends GradableObject {
 
 	public Boolean isExtraCredit() {
 		return this.extraCredit != null ? this.extraCredit : false;
-	}
-
-	public void setExtraCredit(final Boolean isExtraCredit) {
-		this.extraCredit = isExtraCredit;
-	}
-
-	public Double getAssignmentWeighting() {
-		return this.assignmentWeighting;
-	}
-
-	public void setAssignmentWeighting(final Double assignmentWeighting) {
-		this.assignmentWeighting = assignmentWeighting;
 	}
 
 	public String getItemType() {
@@ -664,26 +516,6 @@ public class GradebookAssignment extends GradableObject {
 		return this.itemType;
 	}
 
-	public void setItemType(final String itemType) {
-		this.itemType = itemType;
-	}
-
-	public Boolean getCountNullsAsZeros() {
-		return this.countNullsAsZeros;
-	}
-
-	public void setCountNullsAsZeros(final Boolean countNullsAsZeros) {
-		this.countNullsAsZeros = countNullsAsZeros;
-	}
-
-	public String getSelectedGradeEntryValue() {
-		return this.selectedGradeEntryValue;
-	}
-
-	public void setSelectedGradeEntryValue(final String selectedGradeEntryValue) {
-		this.selectedGradeEntryValue = selectedGradeEntryValue;
-	}
-
 	/**
 	 * Convenience method for checking if the grade for the assignment should be included in calculations. This is different from just the
 	 * {@link #isCounted()} method for an assignment. This method does a more thorough check using other values, such as if removed,
@@ -712,9 +544,5 @@ public class GradebookAssignment extends GradableObject {
 
 	public boolean isHideInAllGradesTable() {
 		return this.hideInAllGradesTable != null ? this.hideInAllGradesTable : false;
-	}
-
-	public void setHideInAllGradesTable(final boolean hideInAllGradesTable) {
-		this.hideInAllGradesTable = hideInAllGradesTable;
 	}
 }
