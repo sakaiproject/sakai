@@ -53,4 +53,6 @@ public interface RubricsService {
     String generateJsonWebToken(String tool);
 
     String generateLang();
+
+    String getRubricEvaluationObjectId(String associationId, String userId, String toolId);
 }

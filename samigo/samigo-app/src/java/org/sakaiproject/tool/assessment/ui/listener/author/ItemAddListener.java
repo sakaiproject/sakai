@@ -46,6 +46,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tags.api.Tag;
@@ -332,10 +333,10 @@ public class ItemAddListener
 		// RUBRICS, save the binding between the assignment and the rubric
 		if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
 			String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(SamigoConstants.RBCS_TOOL_ID, associationId, paramUtil.getRubricConfigurationParameters(null));
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null));
 		} else {
-			String pubAssociationId = SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(SamigoConstants.RBCS_TOOL_ID, pubAssociationId, paramUtil.getRubricConfigurationParameters(null));
+			String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null));
 		}
 	}
 	catch (FinFormatException e) {

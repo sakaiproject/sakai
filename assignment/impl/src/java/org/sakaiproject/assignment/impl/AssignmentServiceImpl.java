@@ -130,6 +130,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -850,9 +851,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                 //copy rubric
                 try {
-                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation("sakai.assignment", assignmentId);
+                    Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
                     if (rubricAssociation.isPresent()) {
-                        rubricsService.saveRubricAssociation("sakai.assignment", assignment.getId(), rubricAssociation.get().getFormattedAssociation());
+                        rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.getId(), rubricAssociation.get().getFormattedAssociation());
                     }
                 } catch(Exception e){
                     log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
@@ -2864,7 +2865,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     params[1] = submitters[i].getEid();
                                     params[2] = submitters[i].getLastName();
                                     params[3] = submitters[i].getFirstName();
-                                    params[4] = getGradeDisplay(s.getGrade(), s.getAssignment().getTypeOfGrade(), s.getAssignment().getScaleFactor());
+                                    params[4] = this.getGradeForSubmitter(s, submitters[i].getId());
                                     if (s.getDateSubmitted() != null) {
                                     	params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
                                     } else {
@@ -2876,7 +2877,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     params[1] = fullAnonId;
                                     params[2] = anonTitle;
                                     params[3] = anonTitle;
-                                    params[4] = getGradeDisplay(s.getGrade(), s.getAssignment().getTypeOfGrade(), s.getAssignment().getScaleFactor());
+                                    params[4] = this.getGradeForSubmitter(s, submitters[i].getId());
                                     if (s.getDateSubmitted() != null) {
                                     	params[5] = s.getDateSubmitted().toString(); // TODO may need to be formatted
                                     } else {
