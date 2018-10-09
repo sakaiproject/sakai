@@ -81,7 +81,7 @@
  	
  	#prefs_pvt_form{
  		&\:pvtmsgs{
- 			max-width: 1200px;
+ 			max-width: 100%;
  			
  			th{
  				min-width: 32px;
@@ -90,10 +90,10 @@
  				width: 10%;
  			} 		
  			td.attach{
- 				width: 1%;
+ 				width: 2.5%;
  			}
  			td.reply{
- 				width: 1%;
+ 				width: 2.5%;
  			}
   			td.specialLink{
  				width: 25%;

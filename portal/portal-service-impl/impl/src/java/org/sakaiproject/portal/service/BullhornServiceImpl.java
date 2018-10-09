@@ -259,11 +259,11 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 Site site = siteService.getSite(siteId);
                                 String title = assignment.getTitle();
                                 String url = assignmentService.getDeepLink(siteId, assignmentId);
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
+                                // Get all the members of the site with read ability and are allowed to read (group)
+                                for (User u : securityService.unlockUsers(AnnouncementService.SECURE_ANNC_READ, ref)) {
+                                        if (!from.equals(u.getId()) && !securityService.isSuperUser(u.getId())) {
+                                            doAcademicInsert(from, u.getId(), event, ref, title, siteId, e.getEventTime(), url);
+                                            countCache.remove(u.getId());
                                     }
                                 }
                             }
