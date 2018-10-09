@@ -112,10 +112,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
                 for (Member member : site.getMembers()) {
-                    if (assignmentService.canSubmit(assignment, member.getUserId())) {
-                        if (checkEmailPreference(member)) {
-                            sendEmailReminder(site, assignment, member);
-                        }
+                    if (assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
+                        sendEmailReminder(site, assignment, member);
                     }
                 }
             }
