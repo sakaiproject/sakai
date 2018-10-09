@@ -2289,13 +2289,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  				throw new GradebookSecurityException();
 	  			}
 
-	  			// If this is the student, then the assignment needs to have
-	  			// been released.
-	  			if (studentRequestingOwnScore && !assignment.isReleased()) {
-	  				log.error("AUTHORIZATION FAILURE: Student {} in gradebook {} attempted to retrieve score for unreleased assignment {}", getUserUid(), gradebookUid, assignment.getName());
-	  				throw new GradebookSecurityException();
-	  			}
-
 	  			final AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
 	  			if (log.isDebugEnabled()) {
 					log.debug("gradeRecord=" + gradeRecord);
