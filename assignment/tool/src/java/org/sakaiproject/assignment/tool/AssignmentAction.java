@@ -55,6 +55,7 @@ import org.sakaiproject.announcement.api.*;
 import org.sakaiproject.assignment.api.*;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.*;
+import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
@@ -926,6 +927,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private AnnouncementService announcementService;
     private AssignmentActivityProducer assignmentActivityProducer;
+    private AssignmentDueReminderService assignmentDueReminderService;
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
     private AssignmentSupplementItemService assignmentSupplementItemService;
@@ -958,6 +960,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         announcementService = ComponentManager.get(AnnouncementService.class);
         assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
+        assignmentDueReminderService = ComponentManager.get(AssignmentDueReminderService.class);
         assignmentPeerAssessmentService = ComponentManager.get(AssignmentPeerAssessmentService.class);
         assignmentService = ComponentManager.get(AssignmentService.class);
         assignmentSupplementItemService = ComponentManager.get(AssignmentSupplementItemService.class);
@@ -8812,6 +8815,12 @@ public class AssignmentAction extends PagedResourceActionII {
             assignmentPeerAssessmentService.schedulePeerReview(a.getId());
         }else{
             assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
+        }
+
+        if (!a.getDraft()) {
+            assignmentDueReminderService.scheduleDueDateReminder(a.getId());
+        } else {
+            assignmentDueReminderService.removeScheduledReminder(a.getId());
         }
 
     }
