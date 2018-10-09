@@ -187,7 +187,7 @@
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
 	                        	 expanded="true"
-								 columnClasses="attach,attach,attack,specialLink,bogus,bogus,bogus">
+								 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 		 	<h:column>
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
