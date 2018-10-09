@@ -64,6 +64,7 @@ import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -3236,7 +3237,11 @@ public class DeliveryBean
     if (adata!=null){
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
-    
+
+    if (!canAccess(isViaUrlLogin)) {
+      return "accessDenied";
+    }
+
     if (isRemoved()){
         return "isRemoved";
     }
@@ -3448,6 +3453,17 @@ public class DeliveryBean
         isRetracted = false;
     }
     return isRetracted;
+  }
+
+  private boolean canAccess(boolean fromUrl) {
+    if (getAnonymousLogin()) {
+      return true;
+    }
+
+    String siteId = fromUrl ? publishedAssessment.getOwnerSiteId() : AgentFacade.getCurrentSiteId();
+    return PersistenceService.getInstance()
+        .getAuthzQueriesFacade()
+        .hasPrivilege("assessment.takeAssessment", siteId);
   }
 
   private boolean isRemoved(){

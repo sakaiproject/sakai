@@ -28,6 +28,7 @@ import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 
 public interface AuthzQueriesFacadeAPI
 {
+  public boolean hasPrivilege(String functionName, String siteId);
 
   public boolean hasPrivilege(String functionName);
 
