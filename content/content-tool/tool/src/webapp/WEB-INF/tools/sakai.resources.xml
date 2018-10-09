@@ -6,6 +6,7 @@
 			id="sakai.resources"
 			title="Resources"
 			description="For posting documents, URLs to other websites, etc.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<configuration name="home" value="" />
 		<configuration name="optional_properties" value="true" />
