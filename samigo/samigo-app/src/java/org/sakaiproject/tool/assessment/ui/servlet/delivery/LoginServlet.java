@@ -218,6 +218,9 @@ public class LoginServlet
         else if ("timeExpired".equals(nextAction)){
         	path = "/jsf/delivery/timeExpired.faces";
         }
+        else if ("accessDenied".equals(nextAction)) {
+        	path = "/jsf/delivery/accessDenied.faces";
+        }
         else {
         	path = "/jsf/delivery/assessmentNotAvailable.faces";
         }
