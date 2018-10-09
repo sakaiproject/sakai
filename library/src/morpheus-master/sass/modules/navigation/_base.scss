@@ -812,7 +812,7 @@ body.is-logged-out{
 					color: $sites-nav-menu-item-icon-color;
 				}
 				
-				&:hover {
+				&:hover, &:focus {
 					border-top: $sites-nav-menu-item-hover-border-top;
 					border-right: $sites-nav-menu-item-hover-border-right;
 					border-bottom: $sites-nav-menu-item-hover-border-bottom;
@@ -822,6 +822,10 @@ body.is-logged-out{
 					~ .#{$namespace}sitesNav__drop, ~ .#{$namespace}sitesNav__dropdown {
 						border-left: $sites-nav-menu-item-hover-border-left; 		// so the right border of the .link-container will show through the overlapping box
 					}
+				}
+				
+				&:focus {
+					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
 				}
 				
 				&:active {
@@ -895,13 +899,17 @@ body.is-logged-out{
 					background: $sites-nav-menu-item-hover-background;
 				}
 
-				&:hover {
+				&:hover, &:focus {
 					border-top: $sites-nav-menu-item-hover-border-top;
 					border-right: $sites-nav-menu-item-hover-border-right;
 					border-bottom: $sites-nav-menu-item-hover-border-bottom;
 					border-left: $sites-nav-menu-item-hover-border-left;
 					background: $sites-nav-menu-item-hover-background;
 					color: $sites-nav-menu-item-hover-icon-color;
+				}
+				
+				&:focus {
+					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
 				}
 				
 				&:active {
@@ -1074,6 +1082,10 @@ body.is-logged-out{
 							&:before{
 								border-left-color: $sites-nav-submenu-item-hover-left-border-color;
 							}
+						}
+						
+						&:focus {
+							outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
 						}
 					}
 					&.#{$namespace}sitesNav__submenuitem__gotosite {
