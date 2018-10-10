@@ -1056,14 +1056,6 @@ public class UsersAction extends PagedResourceActionII
 	} // doSave
 
 	/**
-	 * doSave2 called when "eventSubmit_doSave2" is in the request parameters to save user edits
-	 */
-	public void doSave2(RunData data, Context context)
-	{
-		doSave(data,context);
-	} // doSave2
-	
-	/**
 	 * doCancel called when "eventSubmit_doCancel" is in the request parameters to cancel user edits
 	 */
 	public void doCancel(RunData data, Context context)

@@ -232,7 +232,7 @@ function removeOptionalAttributeBlock(elem) {
 			
 			<div class="act">
 				#if($providedUserType)
-					<input type="submit" id="eventSubmit_doSave2" class="active" name="eventSubmit_doSave2" value="$tlang.getString("useedi.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" id="eventSubmit_doSave2" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				#else
 					#if($user)
 						<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
