@@ -434,7 +434,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				cell = row.getCell(0);
 				cell.setCellStyle(styles.get("item_left_wrap"));
 				cell.setCellValue(wrp.getMeeting().getTitle());
-				Hyperlink sheetLink = createHelper.createHyperlink(HyperlinkType.FILE);
+				Hyperlink sheetLink = createHelper.createHyperlink(HyperlinkType.DOCUMENT);
 				String validSheetName = CreateValidWorksheetName(wrp.getMeeting().getTitle(), seqNum, true);
 				String hlinkAddr = "'" + validSheetName + "'" + "!A1";
 				sheetLink.setAddress(hlinkAddr);
