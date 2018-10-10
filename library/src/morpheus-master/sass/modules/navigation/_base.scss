@@ -21,7 +21,6 @@ body.is-logged-out{
 
 	.#{$namespace}headerLogo{
 		width: 100%;
-		overflow: hidden;
 		padding: 0 $standard-spacing;
 		height: $banner-height;
 		background: $top-header-background;
@@ -226,7 +225,6 @@ body.is-logged-out{
 		}
 	}
 	.#{$namespace}loginNav{
-		float: right;
 		height: $banner-height;
 		@include flex-shrink( 0 );
 		@include display-flex;
@@ -384,7 +382,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		width: calc(100% - #{$logo-width} - 20px);
+		width: calc(100% - #{$logo-width});
 	}
 
 	ul{
@@ -486,10 +484,6 @@ body.is-logged-out{
 	.no-avatar
 	{
 		text-decoration: none;
-
-		@media #{$phone} {
-			margin-top: 7px;
-		}
 
 		&::after
 		{
@@ -598,6 +592,8 @@ body.is-logged-out{
 		margin: 0;
 		list-style: none;
 		padding: 0 0 0 $standard-spacing;
+		@include display-flex;
+		@include align-items(center);
 
 		@media #{$phone}
 		{
