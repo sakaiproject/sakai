@@ -478,7 +478,7 @@
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
 									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
-									#set($totalNumber = $!service.countSubmissions($assignmentReference, $null))
+									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >
 											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $validator.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber

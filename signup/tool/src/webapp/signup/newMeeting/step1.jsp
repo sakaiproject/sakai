@@ -373,8 +373,9 @@
                 </div>
                 
                 <%-- Handle meeting types --%>
-                <div class="form-group row ">
-                    <h:outputLabel value ="#{msgs.event_type_title}" styleClass="col-md-2 form-required"/>
+                <fieldset class="form-group row ">
+                        
+                    <legend class="col-md-2 form-required"><h:outputLabel value ="#{msgs.event_type_title}"/></legend>
 
                     <div class="col-md-10" >
                         <h:panelGroup id="radios" styleClass="rs">
@@ -434,7 +435,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </fieldset>
 
                 <%-- User defined timeslots --%>
                 <div class="form-group row" id="userdef-add">
@@ -464,10 +465,10 @@
 
 
 				<%--  form buttons --%>	        	
-				<h:panelGrid style="margin-top:10px">   
+				<h:panelGrid>   
 					<h:inputHidden value="step1" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 					<sakai:button_bar>
-						<h:commandButton id="goNextPage"  onclick="validateMeetingType()" action="#{NewSignupMeetingBean.goNext}" actionListener="#{NewSignupMeetingBean.validateNewMeeting}"   value="#{msgs.next_button}"/>
+						<h:commandButton id="goNextPage" styleClass="active" onclick="validateMeetingType()" action="#{NewSignupMeetingBean.goNext}" actionListener="#{NewSignupMeetingBean.validateNewMeeting}"   value="#{msgs.next_button}"/>
 						<h:commandButton id="Cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}"  immediate="true"/> 
 					</sakai:button_bar>
 				</h:panelGrid>           

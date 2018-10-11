@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -38,7 +36,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -95,17 +92,15 @@ public class LineItemUtil {
 		} else {
 			retval += ID_SEPARATOR + content.get(LTIService.LTI_ID) + "|";
 		}
-		String resourceId = URLEncode(lineItem.resourceId.replace("|", ""));
-		if ( resourceId == null ) {
+		if ( lineItem.resourceId == null ) {
 			retval += ID_SEPARATOR;
 		} else {
-			retval += resourceId + ID_SEPARATOR;
+			retval += URLEncode(lineItem.resourceId.replace("|", "")) + ID_SEPARATOR;
 		}
-		String tag = URLEncode(lineItem.tag.replace("|", ""));
-		if ( tag == null ) {
+		if ( lineItem.tag == null ) {
 			retval += ID_SEPARATOR;
 		} else {
-			retval += tag + ID_SEPARATOR;
+			retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
 		}
 		return retval;
 	}
@@ -132,22 +127,23 @@ public class LineItemUtil {
 
 		Assignment assignmentObject = null;
 
-		String failure = null;
-		pushAdvisor();
-		try {
-			List gradebookAssignments = g.getAssignments(context_id);
-			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
-				Assignment gAssignment = (Assignment) i.next();
+		// Check for duplicate labels
+		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
+		if ( assignments == null ) {
+			throw new RuntimeException("Could not list assignments for "+context_id+" tool="+tool_id);
+		}
 
-				if (gAssignment.isExternallyMaintained()) {
-					continue;
-				}
-				if (lineItem.label.equals(gAssignment.getName())) {
-					failure = "Duplicate label while adding line item {}" + lineItem.label;
-					break;
-				}
+		for (Iterator i = assignments.iterator(); i.hasNext();) {
+			Assignment gAssignment = (Assignment) i.next();
+
+			if (lineItem.label.equals(gAssignment.getName())) {
+				throw new RuntimeException("Duplicate label while adding line item {}" + lineItem.label);
 			}
+		}
 
+		pushAdvisor();
+		String failure = null;
+		try {
 			Long assignmentId = null;
 			// Attempt to add assignment to grade book
 			if (assignmentObject == null && g.isGradebookDefined(context_id)) {
@@ -196,6 +192,139 @@ public class LineItemUtil {
 		return assignmentObject;
 	}
 
+	public static Assignment updateLineItem(Site site, Long tool_id, Long assignment_id, LineItem lineItem) {
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		String context_id = site.getId();
+
+		if ( assignment_id == null ) {
+			throw new RuntimeException("tool_id is required");
+		}
+
+		if ( tool_id == null ) {
+			throw new RuntimeException("tool_id is required");
+		}
+
+		Assignment assignmentObject = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
+		if ( assignmentObject == null ) return null;
+
+		/*
+			{
+			  "scoreMaximum": 0,
+			  "label": "string",
+			  "tag": "string",
+			  "resourceId": "string"
+			}
+		*/
+
+		if ( lineItem.scoreMaximum != null ) {
+			assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
+		}
+
+		String external_id = constructExternalId(tool_id, null, lineItem);
+		assignmentObject.setExternalId(external_id);
+		if ( lineItem.label != null ) {
+			assignmentObject.setName(lineItem.label);
+		}
+
+		pushAdvisor();
+		try {
+			g.updateAssignment(context_id, assignment_id, assignmentObject);
+		} finally {
+			popAdvisor();
+		}
+
+		return assignmentObject;
+	}
+
+	/**
+	 * Return a list of assignments associated with this tool in a site
+	 * @param context_id - The site id
+	 * @param tool_id - The tool id
+	 * @return A list of Assignment objects (perhaps empty) or null on failure
+	 */
+	protected static List<Assignment> getAssignmentsForToolDAO(String context_id, Long tool_id) {
+		List retval = new ArrayList();
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		pushAdvisor();
+		try {
+			List gradebookAssignments = g.getAssignments(context_id);
+			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if (gAssignment.isExternallyMaintained()) {
+					continue;
+				}
+				if ( ! GB_EXTERNAL_APP_NAME.equals(gAssignment.getExternalAppName()) ) {
+					continue;
+				}
+
+				// Parse the external_id
+				// tool_id|content_id|resourceLink|tag|
+				String external_id = gAssignment.getExternalId();
+				if ( external_id == null || external_id.length() < 1 ) continue;
+
+				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
+				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
+
+				retval.add(gAssignment);
+			}
+		} catch (GradebookNotFoundException e) {
+			log.error("Gradebook not found context_id={}", context_id);
+			retval = null;
+		} catch (Throwable e) {
+			log.error("Unexpected Throwable", e.getMessage());
+			e.printStackTrace();
+			retval = null;
+		} finally {
+			popAdvisor();
+		}
+		return retval;
+	}
+	/**
+	 * Load a particular assignment by its internal Sakai GB key
+	 * @param context_id
+	 * @param tool_id
+	 * @param assignment_id
+	 * @return
+	 */
+	protected static Assignment getAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
+	{
+		List<Assignment> assignments = getAssignmentsForToolDAO(context_id, tool_id);
+		for (Iterator i = assignments.iterator(); i.hasNext();) {
+			Assignment gAssignment = (Assignment) i.next();
+			if (assignment_id.equals(gAssignment.getId())) return gAssignment;
+		}
+		return null;
+	}
+
+	/**
+	 * Load a particular assignment by its internal Sakai GB key
+	 * @param context_id
+	 * @param tool_id
+	 * @param assignment_id
+	 * @return
+	 */
+	protected static boolean deleteAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
+	{
+		// Make sure it belongs to us
+		Assignment a = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
+		if ( a == null ) return false;
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		pushAdvisor();
+		try {
+			// Provides us no return value
+			g.removeAssignment(assignment_id);
+		} finally {
+			popAdvisor();
+		}
+
+		return true;
+	}
 	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
@@ -237,6 +366,7 @@ public class LineItemUtil {
 				LineItem item = getLineItem(signed_placement, gAssignment);
 
 				if ( filter != null ) {
+					if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
 					if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
 					if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
 				}
@@ -305,7 +435,13 @@ public class LineItemUtil {
 
 		for (Iterator i = contents.iterator(); i.hasNext();) {
 			Map<String, Object> content = (Map) i.next();
-			retval.add(getLineItem(content));
+			LineItem item = getLineItem(content);
+			if ( filter != null ) {
+				if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
+				if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
+				if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
+			}
+			retval.add(item);
 		}
 
 		return retval;

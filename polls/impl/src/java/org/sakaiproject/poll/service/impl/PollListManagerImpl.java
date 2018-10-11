@@ -178,6 +178,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         try {
+           if(!newPoll && t.getPollId() != null) {
+                Poll poll = getPollById(t.getPollId());
+                if(poll != null && !t.getOwner().equals(poll.getOwner())) {
+                   t.setOwner(poll.getOwner());
+				}
+            }
             dao.save(t);
 
         } catch (DataAccessException e) {
@@ -667,7 +673,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     
     
 	public boolean isAllowedViewResults(Poll poll, String userId) {
-		if (externalLogic.isUserAdmin())
+		if (externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()))
 			return true;
 
 		if (poll.getDisplayResult().equals("open"))

@@ -43,6 +43,7 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -136,8 +137,8 @@ public class StudentScoreUpdateListener
           ItemContentsBean question = (ItemContentsBean) iter2.next();
 
           // Persist the rubric evaluation
-          String entityId = SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-          rubricsService.saveRubricEvaluation(SamigoConstants.RBCS_TOOL_ID, entityId, bean.getAssessmentGradingId() + "." + question.getItemData().getItemId(), bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId));
+          String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
+          rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, bean.getAssessmentGradingId() + "." + question.getItemData().getItemId(), bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId));
 
           List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
           log.debug("****1. pub questionId = " + question.getItemData().getItemId());

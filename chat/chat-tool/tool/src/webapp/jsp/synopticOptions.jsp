@@ -24,7 +24,8 @@
 			<sakai:button_bar>
 				<h:commandButton id="submit"
 					action="#{ChatTool.processActionSynopticOptionsSave}"
-					value="#{msgs.update_text}" />
+					value="#{msgs.update_text}"
+					styleClass="active" />
 				<h:commandButton id="reset"
 					action="#{ChatTool.processActionSynopticOptionsCancel}"
 					value="#{msgs['gen.cancel']}" />

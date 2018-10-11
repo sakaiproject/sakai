@@ -19,7 +19,7 @@
 		<p class="act">
 			<input type="submit" accesskey ="x" id="activate_button" style="display: none" 
 				name="$tlang.getString('gen.activate')" value="$tlang.getString('gen.activate')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Activate")&id=$id';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("Activate")&id=$id';return false;" class="active">
 			<input type="submit" accesskey ="x" name="$tlang.getString('gen.cancel')" value="$tlang.getString('gen.cancel')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
 		</p>

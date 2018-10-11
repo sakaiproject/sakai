@@ -35,7 +35,8 @@
 				<sakai:button_bar>
 					<h:commandButton
 						action="#{SyllabusTool.processUploadConfirm}"
-						value="#{msgs.attach_action}" />
+						value="#{msgs.attach_action}"
+						styleClass="active" />
 					<h:commandButton
 						action="#{SyllabusTool.processUploadCancel}"
 						value="#{msgs.cancel}" />

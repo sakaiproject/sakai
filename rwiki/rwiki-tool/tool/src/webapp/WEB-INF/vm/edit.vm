@@ -207,8 +207,8 @@
 											<label for ="smallchange"><input type="checkbox" id="smallchange" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}</label></p>
 										#end
 
-						       <p class="act" style="padding:0">
-					 		        <input id="saveButton" type="submit" name="command_save" value="${rlb.jsp_button_save}" accesskey="s" /> 
+						       <p class="act">
+					 		        <input id="saveButton" class="active" type="submit" name="command_save" value="${rlb.jsp_button_save}" accesskey="s" /> 
 					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
 					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  class="active"/>
 					 		        #end 
@@ -234,7 +234,7 @@
 					       </div>
 				        <div class="rwiki_editControl" id="editControl2">
 						         <p class="act">
-					 		        <input id="saveButton" type="submit" name="command_save" value="${rlb.jsp_button_save}"  accesskey="s"/> 
+					 		        <input id="saveButton" class="active" type="submit" name="command_save" value="${rlb.jsp_button_save}"  accesskey="s"/> 
 					  		       #if ((( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} )) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
 					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  />
 					 		        #end 

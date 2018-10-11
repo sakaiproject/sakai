@@ -75,6 +75,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.SortGradeItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.GradingType;
@@ -181,7 +182,7 @@ public class GradebookPage extends BasePage {
 		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
 
-		String rubricsToken = rubricsService.generateJsonWebToken("sakai.gradebookng");
+		String rubricsToken = rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
 		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsToken));
 		this.form.add(rubricsTokenHiddenField);
 

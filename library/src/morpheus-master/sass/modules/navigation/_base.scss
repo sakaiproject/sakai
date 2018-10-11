@@ -21,7 +21,6 @@ body.is-logged-out{
 
 	.#{$namespace}headerLogo{
 		width: 100%;
-		overflow: hidden;
 		padding: 0 $standard-spacing;
 		height: $banner-height;
 		background: $top-header-background;
@@ -226,7 +225,6 @@ body.is-logged-out{
 		}
 	}
 	.#{$namespace}loginNav{
-		float: right;
 		height: $banner-height;
 		@include flex-shrink( 0 );
 		@include display-flex;
@@ -384,7 +382,7 @@ body.is-logged-out{
 	}
 
 	@media #{$phone}{
-		width: calc(100% - #{$logo-width} - 20px);
+		width: calc(100% - #{$logo-width});
 	}
 
 	ul{
@@ -486,10 +484,6 @@ body.is-logged-out{
 	.no-avatar
 	{
 		text-decoration: none;
-
-		@media #{$phone} {
-			margin-top: 7px;
-		}
 
 		&::after
 		{
@@ -598,6 +592,8 @@ body.is-logged-out{
 		margin: 0;
 		list-style: none;
 		padding: 0 0 0 $standard-spacing;
+		@include display-flex;
+		@include align-items(center);
 
 		@media #{$phone}
 		{
@@ -812,7 +808,7 @@ body.is-logged-out{
 					color: $sites-nav-menu-item-icon-color;
 				}
 				
-				&:hover {
+				&:hover, &:focus {
 					border-top: $sites-nav-menu-item-hover-border-top;
 					border-right: $sites-nav-menu-item-hover-border-right;
 					border-bottom: $sites-nav-menu-item-hover-border-bottom;
@@ -822,6 +818,10 @@ body.is-logged-out{
 					~ .#{$namespace}sitesNav__drop, ~ .#{$namespace}sitesNav__dropdown {
 						border-left: $sites-nav-menu-item-hover-border-left; 		// so the right border of the .link-container will show through the overlapping box
 					}
+				}
+				
+				&:focus {
+					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
 				}
 				
 				&:active {
@@ -895,13 +895,17 @@ body.is-logged-out{
 					background: $sites-nav-menu-item-hover-background;
 				}
 
-				&:hover {
+				&:hover, &:focus {
 					border-top: $sites-nav-menu-item-hover-border-top;
 					border-right: $sites-nav-menu-item-hover-border-right;
 					border-bottom: $sites-nav-menu-item-hover-border-bottom;
 					border-left: $sites-nav-menu-item-hover-border-left;
 					background: $sites-nav-menu-item-hover-background;
 					color: $sites-nav-menu-item-hover-icon-color;
+				}
+				
+				&:focus {
+					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
 				}
 				
 				&:active {
@@ -1039,8 +1043,6 @@ body.is-logged-out{
 			}
 
 			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home{
-				margin-top: -1px; // to compensate for an issue with the icon
-				margin-bottom: 1px; // to compensate for an issue with the icon
 				margin-right: $standard-space;
 			}
 
@@ -1076,6 +1078,10 @@ body.is-logged-out{
 							&:before{
 								border-left-color: $sites-nav-submenu-item-hover-left-border-color;
 							}
+						}
+						
+						&:focus {
+							outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
 						}
 					}
 					&.#{$namespace}sitesNav__submenuitem__gotosite {
@@ -1292,33 +1298,17 @@ body.is-logged-out{
     }
 }
 
-@media only screen and (min-width: 801px) {
-	.manage-overview-link {
-		border: 1px solid #ccc;
-		color: #333 !important;
-		cursor: pointer;
-		display: inline-block;
-		font-family: "Open Sans", sans-serif;
-		font-size: 12px;
-		text-decoration: none !important;
-		-moz-appearance: none;
-		-webkit-appearance: none;
-		-moz-border-radius: 3px;
-		-webkit-border-radius: 3px;
-		border-radius: 3px;
-		padding: 5px !important; /* important needed for these two--otherwise gets overridden by hierarchy.*/
-		margin: 5px 30px !important;
-		position: absolute;
-		right: 0px;
-
-		span {
-			padding-right: 5px;
-		}
+.#{$namespace}siteHierarchy .manage-overview-link {
+	@include sakai_secondary_button();
+	position: absolute;
+	right: $standard-spacing;
+	margin-top: -4px;
+	
+	> span {
+		margin-right: $standard-space;
 	}
-}
-
-@media only screen and (max-width: 800px){
-	.manage-overview-link {
+	
+	@media #{$phone} {
 		visibility: hidden;
 	}
 }

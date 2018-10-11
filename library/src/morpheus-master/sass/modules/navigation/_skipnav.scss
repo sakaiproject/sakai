@@ -72,6 +72,7 @@
 
 			// Tool row
 			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--tools {
+				@include display-flex;
 				background: $portal-background-color;
 				box-shadow: $divider-shadow;
 
@@ -95,17 +96,16 @@
 					color: $link-color;
 				}
 				a.manage-overview-link-mobile {
-					color: $link-color;
-					cursor: pointer;
 					display: inline-block;
-					font-family: "Open Sans", sans-serif;
+					margin-left: auto; 			// push this link to the far right
+					color: $link-color;
 
 					span {
-						padding-right: 5px;
+						padding-right: $standard-space;
 					}
 
-					&::after {
-						border-right: 0px none;
+					&:after {
+						border-right: 0 none;
 					}
 				}
 			}

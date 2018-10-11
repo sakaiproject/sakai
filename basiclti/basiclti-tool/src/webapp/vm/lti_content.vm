@@ -7,7 +7,7 @@
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		<p class="act">
 			<input type="submit" accesskey ="i" value="$tlang.getString('content.add')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;" class="active">
 			<input type="submit" accesskey ="x" value="$tlang.getString('content.tools')" 
  				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
 		</p>
