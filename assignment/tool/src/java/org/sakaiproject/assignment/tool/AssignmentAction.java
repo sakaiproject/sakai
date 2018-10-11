@@ -8742,7 +8742,10 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setDraft(!post);
 
         if (gradeType == SCORE_GRADE_TYPE) {
-            a.setScaleFactor(assignmentService.getScaleFactor());
+            if (a.getScaleFactor() == null) {
+                // only set the default scale factor if the assignment does not have one
+                a.setScaleFactor(assignmentService.getScaleFactor());
+            }
             try {
                 a.setMaxGradePoint(Integer.parseInt(gradePoints));
             } catch (NumberFormatException e) {
