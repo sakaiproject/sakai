@@ -416,11 +416,13 @@
         #end
     #end
 
+    #if ($submission.Graded && ($submission.GradeReleased || $returned))
     <sakai-rubric-student
         tool-id="sakai.assignment"
         entity-id="$assignment.Id"
         evaluated-item-id="$submission.Id"
     ></sakai-rubric-student>
+    #end
 
     ## show instructor comment if the submission is (1) graded and release or (2) returned
     #if (($submission.Graded && $submission.GradeReleased) || $submission.Returned)
