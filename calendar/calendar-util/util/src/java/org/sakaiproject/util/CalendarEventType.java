@@ -48,7 +48,6 @@ public enum CalendarEventType {
 	private String localizedLegend;
 	private String importType;
 	
-	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("calendar");
 	
 	CalendarEventType(String type, String icon, String localizedLegend, String importType) {
