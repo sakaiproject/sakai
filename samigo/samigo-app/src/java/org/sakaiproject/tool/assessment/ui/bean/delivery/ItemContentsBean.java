@@ -1331,7 +1331,7 @@ public class ItemContentsBean implements Serializable {
 	public String getPointsDisplayString() {
 		String pointsDisplayString = "";
 		if (showStudentQuestionScore) {
-			pointsDisplayString = Precision.round(points, 2) + "/";
+			pointsDisplayString = String.valueOf(Precision.round(points, 2));
 		}
 		return pointsDisplayString;
 	}

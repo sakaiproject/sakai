@@ -162,7 +162,7 @@ function saveTime()
       <h:column>
       <h:panelGroup>
         <samigo:hideDivision id="part" title = "#{deliveryMessages.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString}#{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
+       #{part.questions-part.unansweredQuestions}/#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString}#{deliveryMessages.splash}#{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
             <f:verbatim><div class="tier3"></f:verbatim>
@@ -177,7 +177,7 @@ function saveTime()
                 <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText}">
                 	<f:convertNumber maxFractionDigits="2"/>
                 </h:outputText>
-                <h:outputText escape="false" value=" (#{question.pointsDisplayString}#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt})" rendered="#{(delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag) || question.pointsDisplayString!=''}">
+                <h:outputText escape="false" value=" (#{question.pointsDisplayString}#{deliveryMessages.splash}#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt})" rendered="#{(delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag) || question.pointsDisplayString!=''}">
                 	<f:convertNumber maxFractionDigits="2"/>
                 </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />

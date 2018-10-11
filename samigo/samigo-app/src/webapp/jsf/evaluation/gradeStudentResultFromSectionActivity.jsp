@@ -120,7 +120,7 @@ document.location='../evaluation/gradeStudentResult';
   <h:column>
     <h:panelGroup>
       <samigo:hideDivision id="part" title = " #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash}
-       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{deliveryMessages.pt}" > 
+       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.maxPoints} #{deliveryMessages.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
             <f:verbatim><h4 class="tier3"></f:verbatim>

@@ -669,7 +669,7 @@ public class SectionContentsBean
     String pointsDisplayString = "";
     if (showStudentQuestionScore)
     {
-      pointsDisplayString = Precision.round(points, 2) + "/";
+      pointsDisplayString = String.valueOf(Precision.round(points, 2));
     }
     return pointsDisplayString;
   }
