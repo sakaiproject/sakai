@@ -1,6 +1,9 @@
 package org.tsugi.basiclti;
 import static org.junit.Assert.*;
-import static org.tsugi.basiclti.BasicLTIConstants.*;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION;
+import static org.tsugi.basiclti.BasicLTIConstants.LTI_VERSION_1;
 
 import net.oauth.OAuth;
 import net.oauth.OAuthMessage;
