@@ -27,6 +27,7 @@
     <sakai.commons.lang3.version>3.8.1</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.3.3</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
+    <sakai.commons-text.version>1.5</sakai.commons-text.version>
     <sakai.commons-validator.version>1.6</sakai.commons-validator.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
@@ -642,6 +643,11 @@
         <artifactId>commons-lang3</artifactId>
         <version>${sakai.commons.lang3.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>${sakai.commons-text.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>

@@ -56,7 +56,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -2978,7 +2978,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 if (!notes.isEmpty()) {
                                     final StringBuilder noteList = new StringBuilder("<ul>");
                                     for (String note : notes) {
-                                        noteList.append("<li>" + StringEscapeUtils.escapeHtml(note) + "</li>");
+                                        noteList.append("<li>" + StringEscapeUtils.escapeHtml3(note) + "</li>");
                                     }
                                     noteList.append("</ul>");
                                     submittersAdditionalNotesHtml.append("<tr><td style='padding-right:10px;padding-left:10px'>" + submittersString + "</td><td style='padding-right:10px'>" + noteList + "</td></tr>");
