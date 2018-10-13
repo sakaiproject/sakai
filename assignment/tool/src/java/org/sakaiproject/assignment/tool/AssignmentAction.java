@@ -55,6 +55,7 @@ import org.sakaiproject.announcement.api.*;
 import org.sakaiproject.assignment.api.*;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.*;
+import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
@@ -80,6 +81,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.exception.*;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
@@ -925,6 +927,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private AnnouncementService announcementService;
     private AssignmentActivityProducer assignmentActivityProducer;
+    private AssignmentDueReminderService assignmentDueReminderService;
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     private AssignmentService assignmentService;
     private AssignmentSupplementItemService assignmentSupplementItemService;
@@ -957,6 +960,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         announcementService = ComponentManager.get(AnnouncementService.class);
         assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
+        assignmentDueReminderService = ComponentManager.get(AssignmentDueReminderService.class);
         assignmentPeerAssessmentService = ComponentManager.get(AssignmentPeerAssessmentService.class);
         assignmentService = ComponentManager.get(AssignmentService.class);
         assignmentSupplementItemService = ComponentManager.get(AssignmentSupplementItemService.class);
@@ -1314,7 +1318,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignmentscheck", state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS));
         }
 
-        context.put(RUBRIC_TOKEN, rubricsService.generateJsonWebToken("sakai.assignment"));
+        context.put(RUBRIC_TOKEN, rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_ASSIGNMENT));
 
         return template;
 
@@ -2950,13 +2954,11 @@ public class AssignmentAction extends PagedResourceActionII {
         // get all assignments in Gradebook
         try {
             List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
-            List gradebookAssignmentsExceptSamigo = new ArrayList();
 
             // filtering out those from Samigo
             for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
                 org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
                 if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolTitle())) {
-                    gradebookAssignmentsExceptSamigo.add(gAssignment);
 
                     // gradebook item has been associated or not
                     String gaId = gAssignment.isExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
@@ -3504,7 +3506,7 @@ public class AssignmentAction extends PagedResourceActionII {
         letterGradeOptionsIntoContext(context);
 
         // Check if the assignment has a rubric associated or not
-        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric("sakai.assignment", assignment.get().getId()));
+        context.put("hasAssociatedRubric", assignment.isPresent() && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignment.get().getId()));
 
         String template = (String) getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
@@ -4925,7 +4927,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // add assignment into gradebook
                     try {
                         // add assignment to gradebook
-                        gradebookExternalAssessmentService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolTitle, false, category != -1 ? category : null);
+                        gradebookExternalAssessmentService.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolTitle, null, false, category != -1 ? category : null);
                     } catch (AssignmentHasIllegalPointsException e) {
                         addAlert(state, rb.getString("addtogradebook.illegalPoints"));
                         log.warn(this + ":integrateGradebook " + e.getMessage());
@@ -4941,7 +4943,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         // if there is an external entry created in Gradebook based on this assignment, update it
                         try {
                             // update attributes if the GB assignment was created for the assignment
-                            gradebookExternalAssessmentService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
+                            gradebookExternalAssessmentService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
                         } catch (Exception e) {
                             addAlert(state, rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
                             log.warn("{}", rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
@@ -5960,7 +5962,7 @@ public class AssignmentAction extends PagedResourceActionII {
             // Persist the rubric evaluations
             for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                 String submitterId = submitter.getSubmitter();
-                rubricsService.saveRubricEvaluation("sakai.assignment", submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
+                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
             }
         }
 
@@ -7816,7 +7818,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
-                rubricsService.saveRubricAssociation("sakai.assignment", a.getId(), getRubricConfigurationParameters(params));
+                rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
 
                 // Locking and unlocking groups
                 List<String> lockedGroupsReferences = new ArrayList<String>();
@@ -8740,7 +8742,10 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setDraft(!post);
 
         if (gradeType == SCORE_GRADE_TYPE) {
-            a.setScaleFactor(assignmentService.getScaleFactor());
+            if (a.getScaleFactor() == null) {
+                // only set the default scale factor if the assignment does not have one
+                a.setScaleFactor(assignmentService.getScaleFactor());
+            }
             try {
                 a.setMaxGradePoint(Integer.parseInt(gradePoints));
             } catch (NumberFormatException e) {
@@ -8813,6 +8818,12 @@ public class AssignmentAction extends PagedResourceActionII {
             assignmentPeerAssessmentService.schedulePeerReview(a.getId());
         }else{
             assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
+        }
+
+        if (!a.getDraft()) {
+            assignmentDueReminderService.scheduleDueDateReminder(a.getId());
+        } else {
+            assignmentDueReminderService.removeScheduledReminder(a.getId());
         }
 
     }

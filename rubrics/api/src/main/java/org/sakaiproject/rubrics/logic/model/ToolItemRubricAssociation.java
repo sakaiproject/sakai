@@ -43,6 +43,7 @@ import javax.persistence.Table;
 
 import lombok.ToString;
 import org.sakaiproject.rubrics.logic.listener.MetadataListener;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -90,9 +91,9 @@ public class ToolItemRubricAssociation implements Modifiable, Serializable, Clon
 	
     public Map<String, String> getFormattedAssociation() {
         Map<String, String> formattedParams = new HashMap<>();
-        formattedParams.put("rbcs-associate","1");
-        formattedParams.put("rbcs-rubricslist", String.valueOf(rubricId));
-        parameters.forEach((k,v) -> formattedParams.put("rbcs-config-"+k, String.valueOf(v ? 1 : 0)));
+        formattedParams.put(RubricsConstants.RBCS_ASSOCIATE,"1");
+        formattedParams.put(RubricsConstants.RBCS_LIST, String.valueOf(rubricId));
+        parameters.forEach((k,v) -> formattedParams.put(RubricsConstants.RBCS_CONFIG +k, String.valueOf(v ? 1 : 0)));
         return formattedParams;
     }
 
