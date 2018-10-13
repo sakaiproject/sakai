@@ -143,7 +143,7 @@ public class PollToolBean {
 			Poll existingPoll = manager.getPollById(poll.getPollId(), false);
 			isNew = false;
 			//check for possible unchanged values
-			log.debug(" newPoll is " + poll.getText()+ " while poll text is " + existingPoll.getText());
+			log.debug("newPoll is {} while poll text is {}", poll.getText(), existingPoll.getText());
 			
 
 			if (poll.getCreationDate() == null) {
