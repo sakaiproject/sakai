@@ -50,6 +50,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.site.api.Site;
@@ -229,9 +230,9 @@ public class PublishAssessmentListener
           PublishedItemData itemData = (PublishedItemData) itemObj;
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
 
-          Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(SamigoConstants.RBCS_TOOL_ID, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
+          Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
           if (rubricAssociation.isPresent()) {
-            rubricsService.saveRubricAssociation(SamigoConstants.RBCS_TOOL_ID, SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
+            rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
           }
         }
       }

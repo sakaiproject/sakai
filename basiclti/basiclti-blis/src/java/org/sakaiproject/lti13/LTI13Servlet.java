@@ -200,7 +200,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		String[] parts = uri.split("/");
 
-
 		// Handle lineitems created by the tool
 		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
 		if (parts.length == 6 && "lineitems".equals(parts[3])) {
@@ -210,9 +209,27 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
+		log.error("Unrecognized DELETE request parts={} request={}", parts.length, uri);
+		LTI13Util.return400(response, "Unrecognized DELETE request parts="+parts.length+" request="+uri);
+	}
 
-		LTI13Util.return400(response, "Unrecognized GET request parts="+parts.length+" request="+uri);
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String uri = request.getRequestURI(); // /imsblis/lti13/keys
+
+		String[] parts = uri.split("/");
+
+
+		// Handle lineitems created by the tool
+		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
+		if (parts.length == 6 && "lineitems".equals(parts[3])) {
+			String signed_placement = parts[4];
+			String lineItem = parts[5];
+			handleLineItemsUpdate(signed_placement, lineItem, request, response);
+			return;
+		}
+
+		log.error("Unrecognized DELETE request parts={} request={}", parts.length, uri);
+		LTI13Util.return400(response, "Unrecognized DELETE request parts="+parts.length+" request="+uri);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -234,7 +251,8 @@ public class LTI13Servlet extends HttpServlet {
 		// /imsblis/lti13/lineitem/{signed-placement}
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "scores".equals(parts[5])) {
 			String signed_placement = parts[4];
-			handleLineItemScore(signed_placement, request, response);
+			String lineItem = null;
+			handleLineItemScore(signed_placement, lineItem, request, response);
 			return;
 		}
 
@@ -251,7 +269,7 @@ public class LTI13Servlet extends HttpServlet {
 		if (parts.length == 7 && "lineitems".equals(parts[3]) && "scores".equals(parts[6])) {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
-			handleLineItemsScore(signed_placement, lineItem, request, response);
+			handleLineItemScore(signed_placement, lineItem, request, response);
 			return;
 		}
 
@@ -479,8 +497,19 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
-	protected void handleLineItemScore(String signed_placement, HttpServletRequest request, HttpServletResponse response) {
+	protected void handleLineItemScore(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
 
+		// Make sure the lineItem id is a long
+		Long assignment_id = null;
+		if ( lineItem != null ) {
+			try {
+				assignment_id = Long.parseLong(lineItem);
+			} catch (NumberFormatException e) {
+				LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
+				log.error("Bad value for assignment_id "+lineItem);
+				return;
+			}
+		}
 		// Load the access token, checking the the secret
 		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
 		log.debug("sat={}", sat);
@@ -528,10 +557,10 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String assignment = (String) content.get(LTIService.LTI_TITLE);
-		if (assignment == null || assignment.length() < 1) {
-			log.error("Could not determine assignment title {}", content.get(LTIService.LTI_ID));
-			LTI13Util.return400(response, "Could not determine assignment title");
+		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
+		if (assignment_name == null || assignment_name.length() < 1) {
+			log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
+			LTI13Util.return400(response, "Could not determine assignment_name");
 			return;
 		}
 
@@ -540,8 +569,9 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		String context_id = site.getId();
 		if (!checkUserInSite(site, userId)) {
-			log.warn("User {} not found in siteId={}", userId, site.getId());
+			log.warn("User {} not found in siteId={}", userId, context_id);
 			LTI13Util.return400(response, "User does not belong to site");
 			return;
 		}
@@ -551,8 +581,21 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Object retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment, scoreGiven, scoreMaximum, comment);
-		log.debug("Lineitem retval={}",retval);
+		Object retval;
+		if ( assignment_id == null ) {
+			retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			log.debug("Lineitem retval={}",retval);
+		} else {
+			// TODO: Could make a new method collapsing these tool calls into a single scan
+			Assignment assnObj = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
+			if ( assnObj == null || assnObj.getName() == null ) {
+				LTI13Util.return400(response, "Unable to load assignment "+assignment_id);
+				return;
+			}
+			assignment_name = assnObj.getName();
+			retval = SakaiBLTIUtil.setGradeLTI13(site, sat.tool_id, content, userId, assignment_name, scoreGiven, scoreMaximum, comment);
+			log.debug("Lineitem retval={}",retval);
+		}
 	}
 
 	/*
@@ -635,9 +678,9 @@ public class LTI13Servlet extends HttpServlet {
 		int releaseEmail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		// int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 
-		String assignment = (String) content.get(LTIService.LTI_TITLE);
-		if (assignment == null || assignment.length() < 1) {
-			assignment = null;
+		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
+		if (assignment_name == null || assignment_name.length() < 1) {
+			assignment_name = null;
 		}
 
 		String maintainRole = site.getMaintainRole();
@@ -702,7 +745,7 @@ public class LTI13Servlet extends HttpServlet {
 			jo.put("roles", roles);
 
 			JSONObject sakai_ext = new JSONObject();
-			if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment != null ) {
+			if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment_name != null ) {
 				String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 				String placement_id = getPlacementId(signed_placement);
 				String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
@@ -1059,13 +1102,91 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Add the link to this lineitem
 		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
-// XXX
 
 		log.debug("Lineitem item={}",item);
 		response.setContentType(LineItem.MIME_TYPE);
 
 		PrintWriter out = response.getWriter();
 		out.print(JacksonUtil.prettyPrint(item));
+	}
+
+	/**
+	 * Add a new line item for this placement
+	 *
+	 * @param signed_placement
+	 * @param request
+	 * @param response
+	 */
+	private void handleLineItemsUpdate(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		// Make sure the lineItem id is a long
+		Long assignment_id;
+		try {
+			assignment_id = Long.parseLong(lineItem);
+		} catch (NumberFormatException e) {
+			LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
+			log.error("Bad value for assignment_id "+lineItem);
+			return;
+		}
+
+		// Load the access token, checking the the secret
+		SakaiAccessToken sat = getSakaiAccessToken(tokenKeyPair.getPublic(), request, response);
+		log.debug("sat={}", sat);
+
+		if (sat == null) {
+			return;  // No need - error is already set
+		}
+		if (!sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS)) {
+			LTI13Util.return400(response, "Scope lineitems not in access token");
+			log.error("Scope lineitems not in access token");
+			return;
+		}
+
+		LineItem item = (LineItem) getObjectFromPOST(request, response, LineItem.class);
+		if ( item == null ) return; // Error alredy handled
+
+
+		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		if (content == null) {
+			return;
+		}
+
+		Site site = loadSiteFromContent(content, signed_placement, response);
+		if (site == null) {
+			return;
+		}
+
+		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
+		if (tool == null) {
+			return;
+		}
+
+		Assignment retval;
+		try {
+			retval = LineItemUtil.updateLineItem(site, sat.tool_id, assignment_id, item);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LTI13Util.return400(response, "Could not update lineitem: "+e.getMessage());
+			return;
+		}
+
+		// TODO: Does PUT need to return the entire line item - I think the code below
+		// actually is wrong - we just need to do a GET to get the entire line
+		// item after the PUT.  It seems wasteful to always do the GET after PUT
+		// when the tool can do it if it wants the newly updated item.  So
+		// For now I am sending nothing back for a pUT request.
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
+
+		/*
+		// Add the link to this lineitem
+		item.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + retval.getId();
+
+		log.debug("Lineitem item={}",item);
+		response.setContentType(LineItem.MIME_TYPE);
+
+		PrintWriter out = response.getWriter();
+		out.print(JacksonUtil.prettyPrint(item));
+		*/
 	}
 
 	/**
@@ -1143,22 +1264,10 @@ public class LTI13Servlet extends HttpServlet {
 			first = false;
 			out.print(JacksonUtil.prettyPrint(item));
 		}
-		first = false;
 		out.println("");
 		out.println("]");
 	}
 
-	/**
-	 * Update a score
-	 *
-	 * @param signed_placement
-	 * @param lineItem
-	 * @param request
-	 * @param response
-	 */
-	private void handleLineItemsScore(String signed_placement, String lineItem, HttpServletRequest request, HttpServletResponse response) {
-		LTI13Util.return400(response, "handleLineItemsPost not Implemented");
-	}
 	/**
 	 * Provide the detail or results for a tool created lineitem
 	 * @param signed_placement

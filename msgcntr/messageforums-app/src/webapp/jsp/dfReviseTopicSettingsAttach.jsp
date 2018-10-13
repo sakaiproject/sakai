@@ -44,6 +44,20 @@
 	function closeDateCal(){
 		NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');	
 	}
+
+	function updateGradeAssignment(){
+		var elems = document.getElementsByTagName('sakai-rubric-association');
+		if( document.getElementById("revise:topic_assignments").value != null && document.getElementById("revise:topic_assignments").value != 'Default_0'){
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'inline';
+			}
+		} else {
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'none';
+			}
+		}
+	}
+
 	function setAutoCreatePanel(radioButton) {
 		$(".createOneTopicPanel").slideToggle("fast");
 		$(".createTopicsForGroupsPanel").slideToggle("fast");
@@ -360,10 +374,10 @@
 				<h4><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h4>
 				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
 			    <h:panelGroup  style="white-space:nowrap;">
-						<h:outputLabel for="topic_assignments"  value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
+						<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
 			  	</h:panelGroup>		
 					  <h:panelGroup  styleClass="gradeSelector   itemAction actionItem"> 
-						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" disabled="#{not ForumTool.editMode}">
+						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" onchange="updateGradeAssignment()" id="topic_assignments" disabled="#{not ForumTool.editMode}">
 			     	    <f:selectItems value="#{ForumTool.assignments}" />
 			  	    </h:selectOneMenu>
 									<h:outputText value="#{msgs.perm_choose_assignment_none_t}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
@@ -378,7 +392,7 @@
 					    </h:panelGroup>
 			  </h:panelGrid>
 
-		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px"
+		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none"
 
 			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
 			dont-associate-value="0"
@@ -497,6 +511,7 @@ $(function () {
 								$('.gradeSelector').find('.instrWithGrades').hide();
 								$('.gradeSelector').find('.instrWOGrades').show();
 							}
+							updateGradeAssignment();
 							
 		
 				var charRemFormat = $('.charRemFormat').text();

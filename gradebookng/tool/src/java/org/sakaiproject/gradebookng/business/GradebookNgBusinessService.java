@@ -62,6 +62,7 @@ import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -881,12 +882,17 @@ public class GradebookNgBusinessService {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
 	}
 
-	public HashMap<Long, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
-		HashMap<Long, Boolean> map = new HashMap<Long, Boolean>();
+	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
+		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
 		for (Assignment assignment : assignments) {
-			Long assignmentId = assignment.getId();
-			boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric("sakai.gradebookng", assignmentId.toString());
-			map.put(assignmentId, hasAssociatedRubric);
+			if(assignment.getExternalAppName()!=null){
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(assignment.getExternalAppName(), assignment.getExternalId());
+				map.put(assignment.getExternalId(), hasAssociatedRubric);
+			} else {
+				Long assignmentId = assignment.getId();
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
+				map.put(assignmentId.toString(), hasAssociatedRubric);
+			}
 		}
 		return map;
 	}

@@ -39,6 +39,7 @@ import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -771,6 +772,6 @@ public class DiscussionForumBean
 	}
 
 	public String getHasRubric(){
-		return rubricsService.hasAssociatedRubric("sakai.forums", forum.getUuid()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, forum.getUuid()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }

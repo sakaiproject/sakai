@@ -39,6 +39,7 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -233,7 +234,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(assignment.getExtraCredit()));
+								.setVisible(assignment.isExtraCredit()));
 						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
@@ -292,9 +293,22 @@ public class GradeSummaryTablePanel extends BasePanel {
 									final GbModalWindow window = GradeSummaryTablePanel.this.getRubricStudentWindow();
 
 									window.setTitle(new ResourceModel("rubrics.option.graderubric"));
-									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);
-									rubricStudentPanel.setAssignmentId(assignment.getId());
-									rubricStudentPanel.setStudentUuid(studentUuid);
+									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);									
+									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
+										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+										final String[] bits = assignment.getExternalId().split("/");
+										final String assignmentId = bits[bits.length-1];
+										final String submissionId = GradeSummaryTablePanel.this.rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+										if(StringUtils.isEmpty(submissionId)){
+											setVisible(false);
+										}
+										rubricStudentPanel.setAssignmentId(assignmentId);
+										rubricStudentPanel.setStudentUuid(submissionId);
+									} else {
+										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
+										rubricStudentPanel.setAssignmentId(String.valueOf(assignment.getId()));
+										rubricStudentPanel.setStudentUuid(assignment.getId() + "." + studentUuid);
+									}
 									window.setContent(rubricStudentPanel);
 									window.setComponentToReturnFocusTo(this);
 									window.show(target);
@@ -304,7 +318,14 @@ public class GradeSummaryTablePanel extends BasePanel {
 							rubricIcon.add(new AttributeModifier("title", new ResourceModel("rubrics.browse_grading_criteria")));
 							if (StringUtils.isNotBlank(rawGrade)) {
 								try {
-									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation("sakai.gradebookng", assignment.getId().toString());
+									String tool = RubricsConstants.RBCS_TOOL_GRADEBOOKNG;
+									String assignmentId = assignment.getId().toString();
+									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
+										tool = RubricsConstants.RBCS_TOOL_ASSIGNMENT;
+										final String[] bits = assignment.getExternalId().split("/");
+										assignmentId = bits[bits.length-1];
+									}
+									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation(tool, assignmentId);
 									if (rubricAssociation.isPresent()) {
 										final boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview");
 										rubricIcon.setVisible(!hidePreview);
@@ -312,7 +333,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 										rubricIcon.setVisible(false);
 									}
 								} catch (final Exception ex) {
-									rubricIcon.setVisible(true);
+									rubricIcon.setVisible(false);
 								}
 							}
 							gradeScore.add(rubricIcon);

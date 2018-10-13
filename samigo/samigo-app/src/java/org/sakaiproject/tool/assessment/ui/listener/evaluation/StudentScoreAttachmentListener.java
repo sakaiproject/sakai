@@ -22,7 +22,7 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -42,8 +42,8 @@ public class StudentScoreAttachmentListener implements ActionListener {
             SectionContentsBean sectionContent = (SectionContentsBean) sectionContentObj;
             for (Object questionObj : sectionContent.getItemContents()) {
                 ItemContentsBean question = (ItemContentsBean) questionObj;
-                String entityId = SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-                String rubricStateDetails = ContextUtil.lookupParam("rbcs-" + entityId + "-state-details");
+                String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
+                String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + entityId + "-state-details");
                 question.setRubricStateDetails(rubricStateDetails);
             }
         }
