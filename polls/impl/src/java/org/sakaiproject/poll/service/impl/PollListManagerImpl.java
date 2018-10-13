@@ -169,7 +169,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         	throw new SecurityException();
         }
         
-        if (t.getId() == null) {
+        if (t.getPollId() == null) {
             newPoll = true;
             t.setId(idManager.createUuid());
         }
