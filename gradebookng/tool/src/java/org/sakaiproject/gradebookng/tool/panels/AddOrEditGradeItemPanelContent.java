@@ -17,7 +17,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -243,26 +241,19 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
-				if (!getModelObject()) {
-					AddOrEditGradeItemPanelContent.this.counted.setModelObject(false);
-					target.add(AddOrEditGradeItemPanelContent.this.counted);
-				}
+				// do nothing
 			}
 		};
 		this.released.setOutputMarkupId(true);
 		add(this.released);
 
 		// counted
-		// if checked, release must also be checked and then disabled
 		this.counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
-				if (getModelObject()) {
-					AddOrEditGradeItemPanelContent.this.released.setModelObject(true);
-				}
-				target.add(AddOrEditGradeItemPanelContent.this.released);
+				// do nothing
 			}
 		};
 
