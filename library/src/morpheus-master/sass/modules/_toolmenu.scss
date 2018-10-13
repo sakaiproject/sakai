@@ -364,6 +364,11 @@ nav#subSites{
 					{
 						color: $tool-menu-collapse-icon-color;
 					}
+					
+					&:focus 
+					{
+						outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the link container
+					}
 				}
 
 				span.fa-angle-double-left

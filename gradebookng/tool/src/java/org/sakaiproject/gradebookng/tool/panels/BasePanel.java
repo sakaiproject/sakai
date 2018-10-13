@@ -30,6 +30,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -108,7 +109,7 @@ public abstract class BasePanel extends Panel {
 	protected HashMap<String, String> getRubricParameters(String entityId) {
 		HashMap<String, String> list = new HashMap<String, String>();
 
-		String entity = "rbcs-";
+		String entity = RubricsConstants.RBCS_PREFIX;
 		if (entityId != null && !entityId.isEmpty()) {
 			entity += entityId + "-";
 		}

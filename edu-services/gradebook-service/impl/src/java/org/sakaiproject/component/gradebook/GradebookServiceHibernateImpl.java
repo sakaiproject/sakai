@@ -249,6 +249,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	assignmentDefinition.setExternallyMaintained(internalAssignment.isExternallyMaintained());
     	assignmentDefinition.setExternalAppName(internalAssignment.getExternalAppName());
     	assignmentDefinition.setExternalId(internalAssignment.getExternalId());
+    	assignmentDefinition.setExternalData(internalAssignment.getExternalData());
     	assignmentDefinition.setReleased(internalAssignment.isReleased());
     	assignmentDefinition.setId(internalAssignment.getId());
     	assignmentDefinition.setExtraCredit(internalAssignment.isExtraCredit());
@@ -632,6 +633,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setExternalAppName(assignmentDefinition.getExternalAppName());
 				assignment.setExternallyMaintained(assignmentDefinition.isExternallyMaintained());
 				assignment.setExternalId(assignmentDefinition.getExternalId());
+				assignment.setExternalData(assignmentDefinition.getExternalData());
 
 				// if we have a category, get it and set it
 				// otherwise clear it fully
@@ -2999,7 +3001,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			//recreate the assignment (required fields only)
 			final GradebookAssignment a = new GradebookAssignment();
 			a.setPointsPossible(assignment.getPoints());
-			a.setUngraded(assignment.getUngraded());
+			a.setUngraded(assignment.isUngraded());
 			a.setCounted(assignment.isCounted());
 			a.setExtraCredit(assignment.isExtraCredit());
 			a.setReleased(assignment.isReleased());

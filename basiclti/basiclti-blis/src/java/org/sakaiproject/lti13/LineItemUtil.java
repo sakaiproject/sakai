@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -38,7 +36,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -95,17 +92,15 @@ public class LineItemUtil {
 		} else {
 			retval += ID_SEPARATOR + content.get(LTIService.LTI_ID) + "|";
 		}
-		String resourceId = URLEncode(lineItem.resourceId.replace("|", ""));
-		if ( resourceId == null ) {
+		if ( lineItem.resourceId == null ) {
 			retval += ID_SEPARATOR;
 		} else {
-			retval += resourceId + ID_SEPARATOR;
+			retval += URLEncode(lineItem.resourceId.replace("|", "")) + ID_SEPARATOR;
 		}
-		String tag = URLEncode(lineItem.tag.replace("|", ""));
-		if ( tag == null ) {
+		if ( lineItem.tag == null ) {
 			retval += ID_SEPARATOR;
 		} else {
-			retval += tag + ID_SEPARATOR;
+			retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
 		}
 		return retval;
 	}
@@ -197,6 +192,52 @@ public class LineItemUtil {
 		return assignmentObject;
 	}
 
+	public static Assignment updateLineItem(Site site, Long tool_id, Long assignment_id, LineItem lineItem) {
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		String context_id = site.getId();
+
+		if ( assignment_id == null ) {
+			throw new RuntimeException("tool_id is required");
+		}
+
+		if ( tool_id == null ) {
+			throw new RuntimeException("tool_id is required");
+		}
+
+		Assignment assignmentObject = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
+		if ( assignmentObject == null ) return null;
+
+		/*
+			{
+			  "scoreMaximum": 0,
+			  "label": "string",
+			  "tag": "string",
+			  "resourceId": "string"
+			}
+		*/
+
+		if ( lineItem.scoreMaximum != null ) {
+			assignmentObject.setPoints(Double.valueOf(lineItem.scoreMaximum));
+		}
+
+		String external_id = constructExternalId(tool_id, null, lineItem);
+		assignmentObject.setExternalId(external_id);
+		if ( lineItem.label != null ) {
+			assignmentObject.setName(lineItem.label);
+		}
+
+		pushAdvisor();
+		try {
+			g.updateAssignment(context_id, assignment_id, assignmentObject);
+		} finally {
+			popAdvisor();
+		}
+
+		return assignmentObject;
+	}
+
 	/**
 	 * Return a list of assignments associated with this tool in a site
 	 * @param context_id - The site id
@@ -268,6 +309,7 @@ public class LineItemUtil {
 	 */
 	protected static boolean deleteAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
 	{
+		// Make sure it belongs to us
 		Assignment a = getAssignmentByKeyDAO(context_id, tool_id, assignment_id);
 		if ( a == null ) return false;
 		GradebookService g = (GradebookService) ComponentManager

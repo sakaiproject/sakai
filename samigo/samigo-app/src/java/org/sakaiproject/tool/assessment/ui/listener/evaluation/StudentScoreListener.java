@@ -35,8 +35,8 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -169,7 +169,7 @@ import org.sakaiproject.util.FormattedText;
 				  Iterator iter2 = itemContents.iterator();
 				  while (iter2.hasNext()) {
 					  ItemContentsBean itemContentsBean = (ItemContentsBean) iter2.next();
-					  itemContentsBean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID, SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + itemContentsBean.getItemData().getItemId()));
+					  itemContentsBean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + itemContentsBean.getItemData().getItemId()));
 
 					  if (itemContentsBean != null) {
 						  List<ItemGradingData> itemGradingDataArray = itemContentsBean.getItemGradingDataArray();

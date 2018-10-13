@@ -40,8 +40,8 @@ import org.apache.commons.lang.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -971,10 +971,10 @@ public class AuthorBean implements Serializable
 			return Boolean.FALSE;
 		}
 		for(Long questionId : assessmentQuestionIdsList){
-			if(!isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID, assessmentId + "." + questionId)){
+			if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
 				return Boolean.TRUE;
 			}
-			if(isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID,SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
+			if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO,RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
 				return Boolean.TRUE;
 			}
 		}
@@ -982,10 +982,10 @@ public class AuthorBean implements Serializable
 	}
 
 	public Boolean questionHasRubric(Long assessmentId, Long questionId, boolean isPublished) {
-		if(!isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID, assessmentId + "." + questionId)){
+		if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
 			return Boolean.TRUE;
 		}
-		if(isPublished && rubricsService.hasAssociatedRubric(SamigoConstants.RBCS_TOOL_ID,SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
+		if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO,RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
 			return Boolean.TRUE;
 		}
 		return Boolean.FALSE;

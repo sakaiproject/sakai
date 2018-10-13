@@ -26,6 +26,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 
 public class RubricGradePanel extends BasePanel {
 
@@ -49,7 +50,7 @@ public class RubricGradePanel extends BasePanel {
 
         final WebMarkupContainer sakaiRubricGrading = new WebMarkupContainer("sakai-rubric-grading");
         sakaiRubricGrading.add(AttributeModifier.append("id", assignmentId));
-        sakaiRubricGrading.add(AttributeModifier.append("tool-id", "sakai.gradebookng"));
+        sakaiRubricGrading.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
         sakaiRubricGrading.add(AttributeModifier.append("entity-id", assignmentId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
         form.add(sakaiRubricGrading);
@@ -57,7 +58,7 @@ public class RubricGradePanel extends BasePanel {
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override
             public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                rubricsService.saveRubricEvaluation("sakai.gradebookng", assignmentId.toString(), assignmentId + "." + studentUuid, studentUuid, getCurrentUserId(), getRubricParameters(""));
+                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), assignmentId + "." + studentUuid, studentUuid, getCurrentUserId(), getRubricParameters(""));
                 target.appendJavaScript(String.format("GbGradeTable.instance.setDataAtCell(rubricGradingRow, rubricGradingCol, rubricGradingPoints.toString());", studentUuid, assignmentId));
                 RubricGradePanel.this.window.close(target);
             }
