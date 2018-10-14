@@ -15,32 +15,7 @@
  */
 package org.sakaiproject.gradebookng.tool.model;
 
-import lombok.Data;
-import lombok.Value;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
-import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
-
-import org.apache.wicket.Component;
-import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import java.io.UnsupportedEncodingException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradingType;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
@@ -48,6 +23,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.wicket.Component;
+import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbRole;
+import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.GradingType;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Data;
+import lombok.Value;
 
 public class GbGradebookData {
 
@@ -109,7 +109,7 @@ public class GbGradebookData {
 		public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isUserAbleToEditAssessments) {
 			final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
 
-			final GbGradeInfo gradeInfo = studentGrades.get(assignmentId);
+			final GbGradeInfo gradeInfo = studentGrades.get(this.assignmentId);
 
 			if (gradeInfo == null) {
 				return new ReadOnlyScore(null);
@@ -118,11 +118,11 @@ public class GbGradebookData {
 				final boolean excused = gradeInfo.isExcused();
 
 				if (isUserAbleToEditAssessments || gradeInfo.isGradeable()) {
-				    EditableScore score = new EditableScore(grade);
+				    final EditableScore score = new EditableScore(grade);
 				    score.setExcused(excused);
 					return score;
 				} else {
-				    ReadOnlyScore score = new ReadOnlyScore(grade);
+				    final ReadOnlyScore score = new ReadOnlyScore(grade);
 				    score.setExcused(excused);
 					return score;
 				}
@@ -150,7 +150,7 @@ public class GbGradebookData {
 		public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isUserAbleToEditAssessments) {
 			final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
 
-			final Double average = categoryAverages.get(categoryId);
+			final Double average = categoryAverages.get(this.categoryId);
 
 			if (average == null) {
 				return new ReadOnlyScore(null);
@@ -162,14 +162,14 @@ public class GbGradebookData {
 
 	@Value
 	private class DataSet {
-		private List<StudentDefinition> students;
-		private List<ColumnDefinition> columns;
-		private List<String[]> courseGrades;
-		private String serializedGrades;
-		private Map<String, Object> settings;
+		private final List<StudentDefinition> students;
+		private final List<ColumnDefinition> columns;
+		private final List<String[]> courseGrades;
+		private final String serializedGrades;
+		private final Map<String, Object> settings;
 
-		private int rowCount;
-		private int columnCount;
+		private final int rowCount;
+		private final int columnCount;
 
 		public DataSet(final List<StudentDefinition> students,
 				final List<ColumnDefinition> columns,
@@ -187,21 +187,22 @@ public class GbGradebookData {
 		}
 	}
 
-	private List<StudentDefinition> students;
-	private List<ColumnDefinition> columns;
-	private List<GbStudentGradeInfo> studentGradeInfoList;
-	private List<CategoryDefinition> categories;
-	private GradebookInformation settings;
-	private GradebookUiSettings uiSettings;
-	private GbRole role;
-	private boolean isUserAbleToEditAssessments;
-	private Map<String, String> toolNameIconCSSMap;
-	private String defaultIconCSS;
-	private Map<String, Double> courseGradeMap;
-	private Map<String, Boolean> hasAssociatedRubricMap;
-	private boolean isStudentNumberVisible;
+	private final List<StudentDefinition> students;
+	private final List<ColumnDefinition> columns;
+	private final List<GbStudentGradeInfo> studentGradeInfoList;
+	private final List<CategoryDefinition> categories;
+	private final GradebookInformation settings;
+	private final GradebookUiSettings uiSettings;
+	private final GbRole role;
+	private final boolean isUserAbleToEditAssessments;
+	private final Map<String, String> toolNameIconCSSMap;
+	private final String defaultIconCSS;
+	private final Map<String, Double> courseGradeMap;
+	private final Map<String, Boolean> hasAssociatedRubricMap;
+	private final boolean isStudentNumberVisible;
+	private final String categoryTotal;
 
-	private Component parent;
+	private final Component parent;
 
 	public GbGradebookData(final GbGradeTableData gbGradeTableData, final Component parentComponent) {
 		this.parent = parentComponent;
@@ -222,7 +223,7 @@ public class GbGradebookData {
 		this.hasAssociatedRubricMap = gbGradeTableData.getHasAssociatedRubricMap();
 
 		this.columns = loadColumns(gbGradeTableData.getAssignments());
-		this.students = loadStudents(studentGradeInfoList);
+		this.students = loadStudents(this.studentGradeInfoList);
 	}
 
 	public String toScript() {
@@ -234,10 +235,10 @@ public class GbGradebookData {
 		// we need to serialize this into the data
 		if (!isUserAbleToEditAssessments() && grades.stream().anyMatch(g -> !g.canEdit())) {
 			int i = 0;
-			for (StudentDefinition student : GbGradebookData.this.students) {
+			for (final StudentDefinition student : GbGradebookData.this.students) {
 				String readonly = "";
-				for (ColumnDefinition column : GbGradebookData.this.columns) {
-					Score score = grades.get(i);
+				for (final ColumnDefinition column : GbGradebookData.this.columns) {
+					final Score score = grades.get(i);
 					readonly += score.canEdit() ? "0" : "1";
 					i = i + 1;
 				}
@@ -254,7 +255,7 @@ public class GbGradebookData {
 
 		try {
 			return mapper.writeValueAsString(dataset);
-		} catch (JsonProcessingException e) {
+		} catch (final JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -273,7 +274,7 @@ public class GbGradebookData {
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
 			return mapper.writeValueAsString(scores);
-		} catch (JsonProcessingException e) {
+		} catch (final JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -302,10 +303,10 @@ public class GbGradebookData {
 	private String serializeSmallGrades(final List<Score> gradeList) {
 		final StringBuilder sb = new StringBuilder();
 
-		for (Score score : gradeList) {
+		for (final Score score : gradeList) {
 			if (score == null || score.isNull()) {
 				// No grade set. Use a sentinel value.
-				sb.appendCodePoint(NULL_SENTINEL);
+				sb.appendCodePoint(this.NULL_SENTINEL);
 				continue;
 			}
 
@@ -350,7 +351,7 @@ public class GbGradebookData {
 
 		try {
 			return Base64.getEncoder().encodeToString(sb.toString().getBytes("ISO-8859-1"));
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -358,18 +359,18 @@ public class GbGradebookData {
 	private Map<String, Object> serializeSettings() {
 		final Map<String, Object> result = new HashedMap();
 
-		result.put("isCourseLetterGradeDisplayed", settings.isCourseLetterGradeDisplayed());
-		result.put("isCourseAverageDisplayed", settings.isCourseAverageDisplayed());
-		result.put("isCoursePointsDisplayed", settings.isCoursePointsDisplayed());
-		result.put("isPointsGradeEntry", GradingType.valueOf(settings.getGradeType()).equals(GradingType.POINTS));
-		result.put("isPercentageGradeEntry", GradingType.valueOf(settings.getGradeType()).equals(GradingType.PERCENTAGE));
-		result.put("isCategoriesEnabled", GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY);
-		result.put("isCategoryTypeWeighted", GbCategoryType.valueOf(settings.getCategoryType()) == GbCategoryType.WEIGHTED_CATEGORY);
-		result.put("isStudentOrderedByLastName", uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);
-		result.put("isStudentOrderedByFirstName", uiSettings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME);
-		result.put("isGroupedByCategory", uiSettings.isGroupedByCategory());
-		result.put("isCourseGradeReleased", settings.isCourseGradeDisplayed());
-		result.put("showPoints", uiSettings.getShowPoints());
+		result.put("isCourseLetterGradeDisplayed", this.settings.isCourseLetterGradeDisplayed());
+		result.put("isCourseAverageDisplayed", this.settings.isCourseAverageDisplayed());
+		result.put("isCoursePointsDisplayed", this.settings.isCoursePointsDisplayed());
+		result.put("isPointsGradeEntry", GradingType.valueOf(this.settings.getGradeType()).equals(GradingType.POINTS));
+		result.put("isPercentageGradeEntry", GradingType.valueOf(this.settings.getGradeType()).equals(GradingType.PERCENTAGE));
+		result.put("isCategoriesEnabled", GbCategoryType.valueOf(this.settings.getCategoryType()) != GbCategoryType.NO_CATEGORY);
+		result.put("isCategoryTypeWeighted", GbCategoryType.valueOf(this.settings.getCategoryType()) == GbCategoryType.WEIGHTED_CATEGORY);
+		result.put("isStudentOrderedByLastName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.LAST_NAME);
+		result.put("isStudentOrderedByFirstName", this.uiSettings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME);
+		result.put("isGroupedByCategory", this.uiSettings.isGroupedByCategory());
+		result.put("isCourseGradeReleased", this.settings.isCourseGradeDisplayed());
+		result.put("showPoints", this.uiSettings.getShowPoints());
 		result.put("isUserAbleToEditAssessments", isUserAbleToEditAssessments());
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
 
@@ -379,7 +380,7 @@ public class GbGradebookData {
 	private List<String[]> courseGrades() {
 		final List<String[]> result = new ArrayList<>();
 
-		final Map<String, Double> gradeMap = settings.getSelectedGradingScaleBottomPercents();
+		final Map<String, Double> gradeMap = this.settings.getSelectedGradingScaleBottomPercents();
 		final List<String> ascendingGrades = new ArrayList<>(gradeMap.keySet());
 		ascendingGrades.sort(new Comparator<String>() {
 			@Override
@@ -390,7 +391,7 @@ public class GbGradebookData {
 			}
 		});
 
-		for (GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
+		for (final GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
 			// String[0] = A+ (95%) [133/140] -- display string
 			// String[1] = 95 -- raw percentage for sorting
 			// String[2] = 1 -- '1' if an override, '0' if calculated
@@ -408,7 +409,7 @@ public class GbGradebookData {
 			}
 
 			if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
-				Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
+				Double mappedGrade = this.courseGradeMap.get(courseGrade.getEnteredGrade());
 				if (mappedGrade == null) {
 					mappedGrade = new Double(0);
 				}
@@ -430,8 +431,8 @@ public class GbGradebookData {
 	private List<Score> gradeList() {
 		final List<Score> result = new ArrayList<>();
 
-		for (GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
-			for (ColumnDefinition column : GbGradebookData.this.columns) {
+		for (final GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
+			for (final ColumnDefinition column : GbGradebookData.this.columns) {
 				final Score grade = column.getValueFor(studentGradeInfo, isUserAbleToEditAssessments());
 				result.add(grade);
 			}
@@ -442,13 +443,13 @@ public class GbGradebookData {
 	}
 
 	private String getString(final String key) {
-		return parent.getString(key);
+		return this.parent.getString(key);
 	}
 
 	private List<StudentDefinition> loadStudents(final List<GbStudentGradeInfo> studentInfo) {
 		final List<StudentDefinition> result = new ArrayList<>();
 
-		for (GbStudentGradeInfo student : studentInfo) {
+		for (final GbStudentGradeInfo student : studentInfo) {
 			final StudentDefinition studentDefinition = new StudentDefinition();
 			studentDefinition.setEid(student.getStudentEid());
 			studentDefinition.setUserId(student.getStudentUuid());
@@ -465,7 +466,7 @@ public class GbGradebookData {
 			// The JavaScript will ultimately set this when it detects
 			// concurrent edits. Initialize to zeroo.
 			final StringBuilder zeroes = new StringBuilder();
-			for (ColumnDefinition column : GbGradebookData.this.columns) {
+			for (final ColumnDefinition column : GbGradebookData.this.columns) {
 				zeroes.append("0");
 			}
 			studentDefinition.setHasConcurrentEdit(zeroes.toString());
@@ -477,7 +478,7 @@ public class GbGradebookData {
 	}
 
 	private List<ColumnDefinition> loadColumns(final List<Assignment> assignments) {
-		final GradebookUiSettings userSettings = ((GradebookPage) parent.getPage()).getUiSettings();
+		final GradebookUiSettings userSettings = ((GradebookPage) this.parent.getPage()).getUiSettings();
 
 		final List<ColumnDefinition> result = new ArrayList<>();
 
@@ -496,7 +497,7 @@ public class GbGradebookData {
 
 			boolean counted = a1.isCounted();
 			// An assignment is not counted if uncategorised and the categories are enabled
-			if ((GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY) &&
+			if ((GbCategoryType.valueOf(this.settings.getCategoryType()) != GbCategoryType.NO_CATEGORY) &&
 					a1.getCategoryId() == null) {
 				counted = false;
 			}
@@ -521,7 +522,7 @@ public class GbGradebookData {
 					nullable(categoryWeight),
 					a1.isCategoryExtraCredit(),
 
-					!uiSettings.isAssignmentVisible(a1.getId())));
+					!this.uiSettings.isAssignmentVisible(a1.getId())));
 
 			// If we're at the end of the assignment list, or we've just changed
 			// categories, put out a total.
@@ -535,8 +536,8 @@ public class GbGradebookData {
 						nullable(categoryWeight),
 						a1.isCategoryExtraCredit(),
 						userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
-						!uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
-						FormatHelper.formatCategoryDropInfo(categories.stream()
+						!this.uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
+						FormatHelper.formatCategoryDropInfo(this.categories.stream()
 								.filter(c -> c.getId().equals(a1.getCategoryId()))
 								.findAny().orElse(null))));
 			}
@@ -545,7 +546,7 @@ public class GbGradebookData {
 		// if group by categories is disabled, then show all catagory scores
 		// at the end of the table
 		if (!userSettings.isGroupedByCategory()) {
-			for (CategoryDefinition category : categories) {
+			for (final CategoryDefinition category : this.categories) {
 				if (!category.getAssignmentList().isEmpty()) {
 					String categoryWeight = null;
 					if (category.getWeight() != null) {
@@ -559,7 +560,7 @@ public class GbGradebookData {
 							nullable(categoryWeight),
 							category.isExtraCredit(),
 							userSettings.getCategoryColor(category.getName(), category.getId()),
-							!uiSettings.isCategoryScoreVisible(category.getName()),
+							!this.uiSettings.isCategoryScoreVisible(category.getName()),
 							FormatHelper.formatCategoryDropInfo(category)));
 				}
 			}
@@ -568,10 +569,10 @@ public class GbGradebookData {
 		return result;
 	}
 
-	private String formatColumnFlags(final GbStudentGradeInfo student, Predicate<GbGradeInfo> predicate) {
+	private String formatColumnFlags(final GbStudentGradeInfo student, final Predicate<GbGradeInfo> predicate) {
 		final StringBuilder sb = new StringBuilder();
 
-		for (ColumnDefinition column : columns) {
+		for (final ColumnDefinition column : this.columns) {
 			if (column instanceof AssignmentDefinition) {
 				final AssignmentDefinition assignmentColumn = (AssignmentDefinition) column;
 				final GbGradeInfo gradeInfo = student.getGrades().get(assignmentColumn.getAssignmentId());
@@ -598,15 +599,15 @@ public class GbGradebookData {
 	}
 
 	private boolean isInstructor() {
-		return GbRole.INSTRUCTOR.equals(role);
+		return GbRole.INSTRUCTOR.equals(this.role);
 	}
 
 	private boolean isUserAbleToEditAssessments() {
-		return isUserAbleToEditAssessments;
+		return this.isUserAbleToEditAssessments;
 	}
 
 	private abstract class Score {
-		private String score;
+		private final String score;
 		private boolean isExcused;
 
 		public Score(final String score) {
@@ -617,23 +618,23 @@ public class GbGradebookData {
 
 		// We assume you'll check isNull() prior to calling this
 		public double getScore() {
-			return Double.valueOf(score);
+			return Double.valueOf(this.score);
 		};
 
 		public boolean isNull() {
-			return score == null;
+			return this.score == null;
 		}
 
 		public boolean isPackable() {
-			return isNull() || (Double.valueOf(score) >= 0 && Double.valueOf(score) < 16384);
+			return isNull() || (Double.valueOf(this.score) >= 0 && Double.valueOf(this.score) < 16384);
 		}
 
         public boolean isExcused() {
-            return isExcused;
+            return this.isExcused;
         }
 
-        public void setExcused(boolean excused) {
-            isExcused = excused;
+        public void setExcused(final boolean excused) {
+            this.isExcused = excused;
         }
     }
 
@@ -660,10 +661,10 @@ public class GbGradebookData {
 	}
 
 	private String getIconCSSForExternalAppName(final String externalAppName) {
-		if (toolNameIconCSSMap.containsKey(externalAppName)) {
-			return toolNameIconCSSMap.get(externalAppName);
+		if (this.toolNameIconCSSMap.containsKey(externalAppName)) {
+			return this.toolNameIconCSSMap.get(externalAppName);
 		}
 
-		return defaultIconCSS;
+		return this.defaultIconCSS;
 	}
 }
