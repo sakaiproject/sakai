@@ -47,7 +47,7 @@
               
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
-                <input type="number" min="0" onkeypress="allowOnlyNumbersAndTab(event)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.selectedvalue}}">
+                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.selectedvalue}}">
               </template>
               <input type="hidden" id="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
           </div>
@@ -71,6 +71,17 @@
         e.preventDefault();
         return false;
       }
+    }
+    function restrictValuesRange(e, element){
+        var max = parseInt(element.getAttribute("max"));
+        var value = parseInt(element.value);
+
+        if ( value > max){
+          element.value = max;
+          e.preventDefault();
+          return false;
+        }
+        return true;
     }
   </script>
 
@@ -267,6 +278,7 @@
             if(!this.criterions[i].selectedvalue){
               this.criterions[i].selectedvalue = 0;
             }
+            this.criterions[i].pointrange = getHighLow(this.criterions[i].ratings, "points");
           }
           setTimeout(function(){
             if (this.stateDetails) {

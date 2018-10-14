@@ -31,9 +31,12 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Handles bulk edits
  */
+@Slf4j
 public class BulkEditItemsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
@@ -82,9 +85,6 @@ public class BulkEditItemsPanel extends BasePanel {
 			final ReleaseCheckbox release = new ReleaseCheckbox("release", new PropertyModel<Boolean>(assignment, "released"));
 			final IncludeCheckbox include = new IncludeCheckbox("include", new PropertyModel<Boolean>(assignment, "counted"));
 
-			release.setPartner(include);
-			include.setPartner(release);
-
 			item.add(release);
 			item.add(include);
 		}
@@ -123,6 +123,8 @@ public class BulkEditItemsPanel extends BasePanel {
 
 			boolean result = false;
 			for (final Assignment a : assignments) {
+
+				log.error("Bulk edit assignment: " + a);
 				result = BulkEditItemsPanel.this.businessService.updateAssignment(a);
 			}
 
@@ -137,55 +139,39 @@ public class BulkEditItemsPanel extends BasePanel {
 	}
 
 	/**
-	 * Checkbox for the release option that includes a reference to its counterpart to toggle or not
+	 * Checkbox for the release option
 	 */
 	class ReleaseCheckbox extends AjaxCheckBox {
 
 		private static final long serialVersionUID = 1L;
-		private AjaxCheckBox partner = null;
 
 		public ReleaseCheckbox(final String id, final IModel<Boolean> model) {
 			super(id, model);
 			setOutputMarkupId(true);
 		}
 
-		public void setPartner(final AjaxCheckBox partner) {
-			this.partner = partner;
-		}
-
 		@Override
 		protected void onUpdate(final AjaxRequestTarget target) {
-			if (!getModelObject()) {
-				this.partner.setModelObject(false);
-				target.add(this.partner);
-			}
+			// intentionally left blank since we are in an ajax form
 		}
 
 	}
 
 	/**
-	 * Checkbox for the include option that includes a reference to its counterpart to toggle or not
+	 * Checkbox for the include option
 	 */
 	class IncludeCheckbox extends AjaxCheckBox {
 
 		private static final long serialVersionUID = 1L;
-		private AjaxCheckBox partner = null;
 
 		public IncludeCheckbox(final String id, final IModel<Boolean> model) {
 			super(id, model);
 			setOutputMarkupId(true);
 		}
 
-		public void setPartner(final AjaxCheckBox partner) {
-			this.partner = partner;
-		}
-
 		@Override
 		protected void onUpdate(final AjaxRequestTarget target) {
-			if (!getModelObject()) {
-				this.partner.setModelObject(true);
-			}
-			target.add(this.partner);
+			// intentionally left blank since we are in an ajax form
 		}
 
 	}

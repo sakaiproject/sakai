@@ -22,8 +22,9 @@ a{
 	}
 	&[href]{  // This means a[href]
 		color: $link-color;
-		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
-			outline-color: invert;
+		&:focus{
+			outline: $sakai-focus-outline;
+			outline-offset: $focus-outline-offset;
 		}
 		&:hover{
 			color: $link-hover-color;
@@ -33,6 +34,7 @@ a{
 		&:active{
 			color: $link-active-color;
 			background-color: $link-active-background-color;
+			outline: 0;		// no focus outline on click
 		}
 		&.btn{
 			text-decoration: none;
@@ -117,7 +119,7 @@ input[type="checkbox"], input[type="radio"]{
 	@include appearance(none);
 	&:focus
 	{
-		box-shadow: 0px 0px 1px 4px Highlight;
+		box-shadow: 0px 0px $focus-outline-width $focus-outline-width $focus-outline-color;
 		outline: 0 none; // to override Bootstrap
 		outline-offset: 0; // to override Bootstrap
 	}

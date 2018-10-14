@@ -234,4 +234,38 @@
             <bean class="org.sakaiproject.assignment.impl.conversion.Assignment12ConversionJobValidator"/>
         </property>
     </bean>
+
+    <bean id="org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService"
+          class="org.sakaiproject.assignment.impl.reminder.AssignmentDueReminderServiceImpl"
+          init-method="init" destroy-method="destroy">
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+        <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
+
+    <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.assignment"
+          parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
+          class="org.sakaiproject.assignment.impl.reminder.prefs.AssignmentUserNotificationPreferencesRegistrationImpl"
+          init-method="init">
+        <property name="bundleLocation"><value>assignment-noti-prefs</value></property>
+        <property name="sectionTitleBundleKey"><value>prefs_title</value></property>
+        <property name="sectionDescriptionBundleKey"><value>prefs_description</value></property>
+        <property name="overrideSectionTitleBundleKey"><value>prefs_title_override</value></property>
+        <property name="defaultValue"><value>2</value></property>
+        <property name="type"><value>sakai:assignment</value></property>
+        <property name="prefix"><value>assignment</value></property>
+        <property name="toolId"><value>sakai.assignment</value></property>
+        <property name="rawOptions">
+            <map>
+                <entry key="1"><value>prefs_opt1</value></entry>
+                <entry key="2"><value>prefs_opt2</value></entry>
+            </map>
+        </property>
+        <property name="overrideBySite"><value>false</value></property>
+        <property name="expandByDefault"><value>true</value></property>
+    </bean>
 </beans>
