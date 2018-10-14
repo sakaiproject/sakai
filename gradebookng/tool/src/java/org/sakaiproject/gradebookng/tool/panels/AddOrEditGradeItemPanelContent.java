@@ -17,7 +17,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +25,9 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -56,8 +55,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private AjaxCheckBox counted;
-	private AjaxCheckBox released;
+	private CheckBox counted;
+	private CheckBox released;
 
 	private boolean categoriesEnabled;
 
@@ -239,34 +238,13 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		add(sakaiRubricAssociation);
 
 		// released
-		this.released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
-				if (!getModelObject()) {
-					AddOrEditGradeItemPanelContent.this.counted.setModelObject(false);
-					target.add(AddOrEditGradeItemPanelContent.this.counted);
-				}
-			}
-		};
+		this.released = new CheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released"));
 		this.released.setOutputMarkupId(true);
 		add(this.released);
 
 		// counted
-		// if checked, release must also be checked and then disabled
-		this.counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
-				if (getModelObject()) {
-					AddOrEditGradeItemPanelContent.this.released.setModelObject(true);
-				}
-				target.add(AddOrEditGradeItemPanelContent.this.released);
-			}
-		};
-
+		this.counted = new CheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted"));
+		this.counted.setOutputMarkupId(true);
 		if (this.businessService.categoriesAreEnabled()) {
 			this.counted.setEnabled(assignment.getCategoryId() != null);
 			if (assignment.getCategoryId() == null) {
