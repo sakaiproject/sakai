@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -54,8 +55,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private AjaxCheckBox counted;
-	private AjaxCheckBox released;
+	private CheckBox counted;
+	private CheckBox released;
 
 	private boolean categoriesEnabled;
 
@@ -237,27 +238,13 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		add(sakaiRubricAssociation);
 
 		// released
-		this.released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
-				// do nothing
-			}
-		};
+		this.released = new CheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released"));
 		this.released.setOutputMarkupId(true);
 		add(this.released);
 
 		// counted
-		this.counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
-				// do nothing
-			}
-		};
-
+		this.counted = new CheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted"));
+		this.counted.setOutputMarkupId(true);
 		if (this.businessService.categoriesAreEnabled()) {
 			this.counted.setEnabled(assignment.getCategoryId() != null);
 			if (assignment.getCategoryId() == null) {
