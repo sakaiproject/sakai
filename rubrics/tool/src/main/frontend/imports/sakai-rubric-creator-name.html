@@ -1,0 +1,20 @@
+<dom-module id="creator-name">
+  <script>
+    Polymer({
+      is: "creator-name",
+      properties: {
+        creatorId: String
+      },
+      ready: function () {
+        var self = this;
+        jQuery.ajax({
+          url: '/sakai-ws/rest/sakai/getUserDisplayName?sessionid=' + sakaiSessionId + '&userid=' + this.creatorId
+        }).done(function (response) {
+          self.innerText = response;
+        }).fail(function () {
+          self.innerText = self.creatorId;
+        });
+      }
+    });
+  </script>
+</dom-module>

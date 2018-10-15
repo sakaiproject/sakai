@@ -77,6 +77,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -588,8 +589,14 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
         Session session = establishSession(sessionid);
         try {
-            User user = userDirectoryService.getUserByEid(userid);
-            return user.getDisplayName();
+            return userDirectoryService.getUserByEid(userid).getDisplayName();
+        } catch (UserNotDefinedException unde) {
+            try {
+                return userDirectoryService.getUser(userid).getDisplayName();
+            } catch (UserNotDefinedException unde2) {
+                log.error("WS getUserDisplayName() failed for user: " + userid + " : " + unde2.getClass().getName() + " : " + unde2.getMessage());
+                return "";
+            }
         } catch (Exception e) {
             log.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
             return "";

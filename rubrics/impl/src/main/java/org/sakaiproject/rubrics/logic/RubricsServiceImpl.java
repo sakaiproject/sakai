@@ -849,5 +849,9 @@ public class RubricsServiceImpl implements RubricsService {
         return lines.toString();
     }
 
+    public String getCurrentSessionId() {
+        return sessionManager.getCurrentSession().getId();
+    }
+
 
 }

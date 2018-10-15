@@ -7,19 +7,23 @@
     <style include="sakai-rubrics-styles"></style>
     <style include="polymer-bootstrap"></style>
 
-
     <div class="rubric-title" on-focus="activate" on-tap="toggleRubric" >
       <iron-a11y-keys id="a11y" target="[[getNode('.rubric-title')]]" keys="space" on-keys-pressed="toggleRubric"></iron-a11y-keys>
-      <span class="rubric-name" tabindex="0" id$="rubric_toggle_[[rubric.id]]" aria-expanded$="[[rubricExpanded]]" role="tab" title="[[lang('toggle_details', 'Toggle details for')]] [[rubric.title]]">
-        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
-        {{rubric.title}}
-      </span>
+      <div>
+        <span class="rubric-name" tabindex="0" id$="rubric_toggle_[[rubric.id]]" aria-expanded$="[[rubricExpanded]]" role="tab" title="[[lang('toggle_details', 'Toggle details for')]] [[rubric.title]]">
+          <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+          {{rubric.title}}
+        </span>
+      </div>
+
+      <div><site-title site-id="[[rubric.metadata.ownerId]]"></site-title></div>
+      <div><creator-name creator-id="[[rubric.metadata.creatorId]]"></creator-name></div>
+      <div><span>[[rubric.metadata.modified]]</span></div>
 
       <div class="actions">
         <template is="dom-if" if="{{rubric.metadata.public}}">
           <iron-icon title="[[lang('copy_to_site', 'Copy to site list')]]: [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="copyToSite"></iron-icon>
         </template>
-        
       </div>
 
     </div>

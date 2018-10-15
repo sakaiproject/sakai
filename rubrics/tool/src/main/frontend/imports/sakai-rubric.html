@@ -9,17 +9,23 @@
 
     <div class="rubric-title" on-tap="toggleRubric">
       <iron-a11y-keys id="a11y" target="[[getNode('.rubric-name')]]" keys="space" on-keys-pressed="toggleRubric"></iron-a11y-keys>
-      <span class="rubric-name" id$="rubric_toggle_[[rubric.id]]" aria-expanded$="[[rubricExpanded]]" role="tab" title="[[lang('toggle_details', 'Toggle details for')]] [[rubric.title]]" tabindex="0" >
-        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
-        {{rubric.title}}
-      </span>
+      <div>
+        <span class="rubric-name" id$="rubric_toggle_[[rubric.id]]" aria-expanded$="[[rubricExpanded]]" role="tab" title="[[lang('toggle_details', 'Toggle details for')]] [[rubric.title]]" tabindex="0" >
+          <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+          {{rubric.title}}
+        </span>
 
-      <template is="dom-if" if="{{rubric.metadata.locked}}">
-        <iron-icon tabindex="0" role="display" title="[[rubric.title]] [[lang('is_locked', 'is locked')]]" class="locked" icon="rubrics-icons:lock"></iron-icon>
-      </template>
-      <template is="dom-if" if="[[!rubric.metadata.locked]]">
-        <sakai-rubric-edit rubric="{{rubric}}"></sakai-rubric-edit>
-      </template>
+        <template is="dom-if" if="{{rubric.metadata.locked}}">
+          <iron-icon tabindex="0" role="display" title="[[rubric.title]] [[lang('is_locked', 'is locked')]]" class="locked" icon="rubrics-icons:lock"></iron-icon>
+        </template>
+        <template is="dom-if" if="[[!rubric.metadata.locked]]">
+          <sakai-rubric-edit rubric="{{rubric}}"></sakai-rubric-edit>
+        </template>
+      </div>
+
+      <div><site-title site-id="[[rubric.metadata.ownerId]]"></site-title></div>
+      <div><creator-name creator-id="[[rubric.metadata.creatorId]]"></creator-name></div>
+      <div><span>[[rubric.metadata.modified]]</span></div>
 
       <div class="actions">
         <iron-icon role="button" title="[[lang(shareTitleKey, shareTitle)]] [[rubric.title]]" tabindex="0" class="share" icon$="rubrics-icons:{{shareicon}}" on-tap="sharingChange"></iron-icon>

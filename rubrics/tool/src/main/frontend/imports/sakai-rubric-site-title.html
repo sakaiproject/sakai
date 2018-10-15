@@ -1,0 +1,20 @@
+<dom-module id="site-title">
+  <script>
+    Polymer({
+      is: "site-title",
+      properties: {
+        siteId: String
+      },
+      ready: function () {
+        var self = this;
+        jQuery.ajax({
+          url: '/sakai-ws/rest/sakai/getSiteTitle?sessionid=' + sakaiSessionId + '&siteid=' + this.siteId
+        }).done(function (response) {
+          self.innerText = response;
+        }).fail(function () {
+          self.innerText = self.siteId;
+        });
+      }
+    });
+  </script>
+</dom-module>
