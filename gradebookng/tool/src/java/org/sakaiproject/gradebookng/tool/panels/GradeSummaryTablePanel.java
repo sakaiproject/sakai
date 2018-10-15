@@ -331,7 +331,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 									}
 									Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(tool, assignmentId);
 									if (rubricAssociation.isPresent()) {
-										boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview");
+										boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
 										rubricIcon.setVisible(!hidePreview);
 									} else {
 										rubricIcon.setVisible(false);
