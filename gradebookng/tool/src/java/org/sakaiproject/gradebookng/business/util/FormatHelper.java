@@ -32,10 +32,10 @@ import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 @Slf4j
 public class FormatHelper {
@@ -350,21 +350,21 @@ public class FormatHelper {
 	 * @param category the category
 	 * @return a list of 1 or 2 labels indicating that drop highest/lowest is in use, or an empty list if not in use.
 	 */
-	public static List<String> formatCategoryDropInfo(final CategoryDefinition category) {
+	public static List<String> formatCategoryDropInfo(CategoryDefinition category) {
 
 		if (category == null) {
 			return Collections.emptyList();
 		}
 
-		final int dropHighest = category.getDropHighest() == null ? 0 : category.getDropHighest();
-		final int dropLowest = category.getDropLowest() == null ? 0 : category.getDropLowest();
-		final int keepHighest = category.getKeepHighest() == null ? 0 : category.getKeepHighest();
+		int dropHighest = category.getDropHighest() == null ? 0 : category.getDropHighest();
+		int dropLowest = category.getDropLowest() == null ? 0 : category.getDropLowest();
+		int keepHighest = category.getKeepHighest() == null ? 0 : category.getKeepHighest();
 
 		if (dropHighest == 0 && dropLowest == 0 && keepHighest == 0) {
 			return Collections.emptyList();
 		}
 
-		final List<String> info = new ArrayList<>(2);
+		List<String> info = new ArrayList<>(2);
 		if (dropHighest > 0) {
 			info.add(MessageHelper.getString("label.category.drophighest", dropHighest));
 		}
