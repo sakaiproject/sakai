@@ -137,6 +137,7 @@ public class GbGradebookData {
 		private String categoryName;
 		private String title;
 		private String weight;
+		private Double totalPoints;
 		private boolean isExtraCredit;
 		private String color;
 		private boolean hidden;
@@ -163,14 +164,14 @@ public class GbGradebookData {
 
 	@Value
 	private class DataSet {
-		private final List<StudentDefinition> students;
-		private final List<ColumnDefinition> columns;
-		private final List<String[]> courseGrades;
-		private final String serializedGrades;
-		private final Map<String, Object> settings;
+		private List<StudentDefinition> students;
+		private List<ColumnDefinition> columns;
+		private List<String[]> courseGrades;
+		private String serializedGrades;
+		private Map<String, Object> settings;
 
-		private final int rowCount;
-		private final int columnCount;
+		private int rowCount;
+		private int columnCount;
 
 		public DataSet(final List<StudentDefinition> students,
 				final List<ColumnDefinition> columns,
