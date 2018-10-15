@@ -3,7 +3,7 @@ package org.sakaiproject.assignment.impl.conversion;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @EqualsAndHashCode(of = "name")
