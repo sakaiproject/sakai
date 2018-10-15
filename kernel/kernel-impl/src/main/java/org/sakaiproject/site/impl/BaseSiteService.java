@@ -3559,10 +3559,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * regenerate that user's cache since the assumption is generally that the user would have
 	 * clicked a site link presented to them before their access was revoked.
 	 *
-	 * @param _ The Observable, which is effectively nothing with ETS
+	 * @param o The Observable, which is effectively nothing with ETS
 	 * @param eventObj The event from ETS; will be checked and no-op if null or not an Event
 	 */
-	public void update(Observable _, Object eventObj) {
+	public void update(Observable o, Object eventObj) {
 		if (eventObj == null || !(eventObj instanceof Event))
 		{
 			return;
@@ -3590,30 +3590,32 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		String eventType = event.getEvent();
 
-		if (EVENT_SITE_USER_INVALIDATE.equals(eventType) || PreferencesService.SECURE_EDIT_PREFS.equals(eventType)) {
-			// KNL-1171: always clear the cache for the user as the Site below may have been deleted
-			clearUserCacheForUser(event.getUserId());
+        if (eventType != null) {
+            switch (eventType) {
+                case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP:
+                case SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP:
+                case SiteService.SECURE_UPDATE_SITE:
+                    notifySiteParticipant("/gradebook/" + event.getContext() + "/");
+                    break;
+                case EVENT_SITE_USER_INVALIDATE:
+                    try {
+                        Site site = getSite(event.getResource());
+                        clearUserCacheForSite(site);
+                    } catch (IdUnusedException iue) {
+                        log.warn("Site not found when handling event ({})", event);
+                    }
+                case AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP:
+                case EVENT_SITE_VISIT_DENIED:
+                case PreferencesService.SECURE_EDIT_PREFS:
+                    // always clear the cache for the user as the Site below may have been deleted
+                    clearUserCacheForUser(event.getUserId());
+                    break;
+                default:
+                    // do nothing for all other events
+            }
+        }
+    }
 
-			try {
-				Site site = getSite(event.getResource());
-				clearUserCacheForSite(site);
-			} catch (IdUnusedException e) {
-				if (log.isDebugEnabled())
-				{
-					log.debug("Site not found when handling an event (" + eventType + "), ID/REF: " + event.getResource());
-				}
-			}
-		}
-		else if (EVENT_SITE_VISIT_DENIED.equals(eventType) || AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP.equals(eventType))
-		{
-			clearUserCacheForUser(event.getUserId());
-		}
-		else if(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventType) || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventType)
-				|| SiteService.SECURE_UPDATE_SITE.equals(eventType))
-		{
-			notifySiteParticipant("/gradebook/" + event.getContext() + "/");
-		}
-	}
 	protected Storage storage() {
 		return m_storage;
 	}

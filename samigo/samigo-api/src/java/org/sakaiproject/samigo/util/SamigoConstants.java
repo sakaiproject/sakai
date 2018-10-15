@@ -49,7 +49,6 @@ public final class SamigoConstants {
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE            = "sam.assessment.submit.from_last";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_TOC                 = "sam.assessment.submit.from_toc";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_VIA_URL                  = "sam.assessment.submit.via_url";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_THREAD                   = "sam.assessment.submit.thread";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER                    = "sam.assessment.submit.timer";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_VIA_URL            = "sam.assessment.submit.timer.url";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD             = "sam.assessment.submit.timer.thrd";

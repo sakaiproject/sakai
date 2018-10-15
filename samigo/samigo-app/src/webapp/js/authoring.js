@@ -644,26 +644,6 @@ function checkUncheckAllReleaseGroups(){
   }
 }
 
-function lockdownQuestionLayout(value) {
-  if (value == 1) {
-    $('#assessmentSettingsAction\\:assessmentFormat input[value=1]').prop('checked', 'checked');
-    $('#assessmentSettingsAction\\:assessmentFormat input').prop('disabled', 'disabled');
-  } 
-  else {
-    $('#assessmentSettingsAction\\:assessmentFormat input').prop('disabled', '');
-  }
-}
-
-function lockdownMarkForReview(value) {
-  if (value == 1) {
-    $('#assessmentSettingsAction\\:markForReview1').prop('checked', '');
-    $('#assessmentSettingsAction\\:markForReview1').prop('disabled', 'disabled');
-  } 
-  else {
-    $('#assessmentSettingsAction\\:markForReview1').prop('disabled', '');
-  }
-}
-
 function initTimedCheckBox(){
 		var timedHours = document.getElementById("assessmentSettingsAction\:timedHours");
 		var timedHoursVal = timedHours.options[timedHours.selectedIndex].value;

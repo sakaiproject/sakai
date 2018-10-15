@@ -156,6 +156,8 @@ public class DeliveryBean
   private java.util.Date retractDate;
   private boolean statsAvailable;
   private boolean submitted;
+  // True if the assessment was completely submitted
+  private boolean assessmentSubmitted = false;
   private boolean graded;
   private String graderComment;
   private List<AssessmentGradingAttachment> assessmentGradingAttachmentList;
@@ -1186,9 +1188,19 @@ public class DeliveryBean
     return submitted;
   }
 
+  public boolean isAssessmentSubmitted()
+  {
+    return assessmentSubmitted;
+  }
+
   public void setSubmitted(boolean submitted)
   {
     this.submitted = submitted;
+  }
+
+  public void setAssessmentSubmitted(boolean assessmentSubmitted)
+  {
+    this.assessmentSubmitted = assessmentSubmitted;
   }
 
   public boolean isGraded()
@@ -1610,6 +1622,8 @@ public class DeliveryBean
 	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(adata.getPublishedAssessmentId());
 	  String resource = "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + local_assessmentGradingID;
+
+	  setAssessmentSubmitted(true);
 
 	  if (!isFromTimer) {
 		  if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url

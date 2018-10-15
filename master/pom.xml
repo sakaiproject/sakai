@@ -49,7 +49,7 @@
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.lombok.version>1.16.20</sakai.lombok.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
-    <sakai.mail.version>1.6.0</sakai.mail.version>
+    <sakai.mail.version>1.6.2</sakai.mail.version>
     <sakai.org.json.version>20171018</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.3</sakai.quartz.version>
@@ -1872,21 +1872,19 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.4</version>
+          <version>3.0.1</version>
           <configuration>
-            <debug>false</debug>
             <links>
               <link>http://docs.oracle.com/javase/8/docs/api/</link>
               <link>http://docs.oracle.com/javaee/5/api/</link>
               <link>http://junit.sourceforge.net/javadoc/</link>
               <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-              <link>http://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
+              <link>http://commons.apache.org/proper/commons-collections/apidocs/</link>
             </links>
             <breakiterator>true</breakiterator>
-            <verbose>false</verbose>
             <minmemory>256m</minmemory>
             <maxmemory>2048m</maxmemory>
-            <additionalparam>-Xdoclint:none</additionalparam>
+            <doclint>none</doclint>
             <failOnError>false</failOnError>
           </configuration>
         </plugin>

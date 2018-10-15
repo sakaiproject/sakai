@@ -144,12 +144,6 @@ public class TimedAssessmentRunnable implements Runnable {
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
 
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_THREAD,
-               "siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId(),
-               siteId,
-               true,
-               NotificationService.NOTI_REQUIRED));
-
             Map<String, Object> notiValues = new HashMap<>();
             notiValues.put("assessmentGradingID", ag.getAssessmentGradingId());
             notiValues.put("userID", ag.getAgentId());

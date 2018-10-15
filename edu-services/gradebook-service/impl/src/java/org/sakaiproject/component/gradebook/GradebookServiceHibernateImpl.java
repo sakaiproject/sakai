@@ -2495,7 +2495,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 	  	// avoid scientific notation on large scores by using a formatter
-	  	final DecimalFormat df = new DecimalFormat();
+	  	final NumberFormat numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+	  	final DecimalFormat df = (DecimalFormat) numberFormat;
 	  	df.setGroupingUsed(false);
 
 	  	return df.format(assignmentScore);
