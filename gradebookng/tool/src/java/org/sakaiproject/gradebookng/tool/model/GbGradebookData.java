@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -200,13 +201,15 @@ public class GbGradebookData {
 	private final Map<String, Double> courseGradeMap;
 	private final Map<String, Boolean> hasAssociatedRubricMap;
 	private final boolean isStudentNumberVisible;
-	private final String categoryTotal;
+	private final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
 
 	private final Component parent;
 
 	public GbGradebookData(final GbGradeTableData gbGradeTableData, final Component parentComponent) {
 		this.parent = parentComponent;
 		this.categories = gbGradeTableData.getCategories();
+		buildCategoryMap();
+
 		this.settings = gbGradeTableData.getGradebookInformation();
 		this.uiSettings = gbGradeTableData.getUiSettings();
 		this.role = gbGradeTableData.getRole();
@@ -224,6 +227,15 @@ public class GbGradebookData {
 
 		this.columns = loadColumns(gbGradeTableData.getAssignments());
 		this.students = loadStudents(this.studentGradeInfoList);
+	}
+
+	/**
+	 * Helper to build a map of category ID to category, so we can find the correct category to be displayed in the table later
+	 */
+	private void buildCategoryMap() {
+		this.categories.forEach(c -> {
+			this.categoryMap.put(c.getId(), c);
+		});
 	}
 
 	public String toScript() {
@@ -534,6 +546,7 @@ public class GbGradebookData {
 						(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { a1.getCategoryName() }))
 								.getString(),
 						nullable(categoryWeight),
+						getCategoryPoints(a1.getCategoryId()),
 						a1.isCategoryExtraCredit(),
 						userSettings.getCategoryColor(a1.getCategoryName(), a1.getCategoryId()),
 						!this.uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
@@ -558,6 +571,7 @@ public class GbGradebookData {
 							(new StringResourceModel("label.gradeitem.categoryaverage", null, new Object[] { category.getName() }))
 									.getString(),
 							nullable(categoryWeight),
+							category.getTotalPoints(),
 							category.isExtraCredit(),
 							userSettings.getCategoryColor(category.getName(), category.getId()),
 							!this.uiSettings.isCategoryScoreVisible(category.getName()),
@@ -567,6 +581,14 @@ public class GbGradebookData {
 		}
 
 		return result;
+	}
+
+	private Double getCategoryPoints(final Long categoryId) {
+		final CategoryDefinition category = this.categoryMap.get(categoryId);
+		if (category != null) {
+			return category.getTotalPoints();
+		}
+		return Double.valueOf(0);
 	}
 
 	private String formatColumnFlags(final GbStudentGradeInfo student, final Predicate<GbGradeInfo> predicate) {

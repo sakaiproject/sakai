@@ -17,6 +17,7 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
@@ -187,5 +188,21 @@ public class CategoryDefinition implements Serializable {
 				return c1.getCategoryOrder().compareTo(c2.getCategoryOrder());
 			}
 		};
+	}
+
+	/**
+	 * Helper method to get the total points associated with a category
+	 *
+	 * @return the sum of all assignment totals associated with this category
+	 */
+	public Double getTotalPoints() {
+		BigDecimal totalPoints = new BigDecimal(0);
+
+		if (getAssignmentList() != null) {
+			for (final Assignment assignment : getAssignmentList()) {
+				totalPoints = totalPoints.add(BigDecimal.valueOf(assignment.getPoints()));
+			}
+		}
+		return totalPoints.doubleValue();
 	}
 }

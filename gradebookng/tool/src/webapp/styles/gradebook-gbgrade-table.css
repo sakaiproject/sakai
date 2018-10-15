@@ -162,6 +162,9 @@
 #gradeTableWrapper .gb-title .gb-category .gb-category-weight {
   font-style: normal;
 }
+#gradeTableWrapper .gb-category-points-section {
+  padding-left: 18px;
+}
 #gradeTableWrapper .gb-grade-section,
 #gradeTableWrapper .gb-due-date,
 #gradeTableWrapper .gb-category,
