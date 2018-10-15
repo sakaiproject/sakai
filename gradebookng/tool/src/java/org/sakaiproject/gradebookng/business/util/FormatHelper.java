@@ -203,11 +203,7 @@ public class FormatHelper {
 	 * @return a dash if the grade is empty, the original grade if not
 	 */
 	public static String convertEmptyGradeToDash(final String grade) {
-		if (StringUtils.isBlank(grade)) {
-			return " - ";
-		} else {
-			return grade;
-		}
+		return StringUtils.defaultIfBlank(grade, " - ");
 	}
 
 	/**
