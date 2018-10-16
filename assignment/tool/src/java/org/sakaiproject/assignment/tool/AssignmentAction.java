@@ -12419,62 +12419,16 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
-    /**
-     * display grade properly
-     *
-     * TODO can this use assignmentService.getGradeDisplay
-     */
-    private String displayGrade(SessionState state, String grade, int factor) {
+    private String displayGrade(SessionState state, String grade, Integer factor) {
         if (state.getAttribute(STATE_MESSAGE) == null) {
-            if (grade != null && (grade.length() >= 1)) {
-                int dec = (int) Math.log10(factor);
-                NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
-                DecimalFormat dcformat = (DecimalFormat) nbFormat;
-                String decSeparator = formattedText.getDecimalSeparator();
-
-                if (grade.contains(decSeparator)) {
-                    if (grade.startsWith(decSeparator)) {
-                        grade = "0".concat(grade);
-                    } else if (grade.endsWith(decSeparator)) {
-                        for (int i = 0; i < dec; i++) {
-                            grade = grade.concat("0");
-                        }
-                    }
-                } else {
-                    try {
-                        Integer.parseInt(grade);
-                        int length = grade.length();
-                        if (length > dec) {
-                            grade = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
-                        } else {
-                            String newGrade = "0".concat(decSeparator);
-                            for (int i = length; i < dec; i++) {
-                                newGrade = newGrade.concat("0");
-                            }
-                            grade = newGrade.concat(grade);
-                        }
-                    } catch (NumberFormatException e) {
-                        // alert
-                        alertInvalidPoint(state, grade, factor);
-                        log.warn(this + ":displayGrade cannot parse grade into integer grade = " + grade + e.getMessage());
-                    }
-                }
-                try {
-                    // show grade in localized number format
-                    Double dblGrade = dcformat.parse(grade).doubleValue();
-                    grade = nbFormat.format(dblGrade);
-                } catch (Exception e) {
-                    // alert
-                    alertInvalidPoint(state, grade, factor);
-                    log.warn(this + ":displayGrade cannot parse grade into integer grade = " + grade + e.getMessage());
-                }
+            if (StringUtils.isNotBlank(grade)) {
+                grade = assignmentService.getGradeDisplay(grade, Assignment.GradeType.SCORE_GRADE_TYPE, factor);
             } else {
                 grade = "";
             }
         }
         return grade;
-
-    } // displayGrade
+    }
 
     /**
      * scale the point value by "factor" if there is a valid point grade

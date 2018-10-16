@@ -547,7 +547,6 @@ a.hideDivision {
 .mcAnswerText {
 	display:inline;
 	float:unset;
-	font-weight: bold;
 }
 .mcAnswerText label {
 	font-weight: normal;

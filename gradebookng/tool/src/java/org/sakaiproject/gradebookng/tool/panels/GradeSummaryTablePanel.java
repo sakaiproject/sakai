@@ -40,8 +40,8 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
@@ -284,27 +284,24 @@ public class GradeSummaryTablePanel extends BasePanel {
 							rubricIcon.setVisible(false);
 							gradeScore.add(rubricIcon);
 						} else {
-							gradeScore.add(new Label("grade", FormatHelper.formatGradeForDisplay(rawGrade)));
+							gradeScore.add(
+									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
-									new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
+									new StringResourceModel("label.studentsummary.outof", null, assignment.getPoints())));
+							final GbAjaxLink rubricIcon = new GbAjaxLink("rubricIcon") {
 								@Override
-								public boolean isVisible() {
-									return StringUtils.isNotBlank(rawGrade);
-								}
-							});
-							GbAjaxLink rubricIcon = new GbAjaxLink("rubricIcon") {
 								public void onClick(final AjaxRequestTarget target) {
 									final GbModalWindow window = GradeSummaryTablePanel.this.getRubricStudentWindow();
 
 									window.setTitle(new ResourceModel("rubrics.option.graderubric"));
-									RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);									
+									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);									
 									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
 										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_ASSIGNMENT);
-										String[] bits = assignment.getExternalId().split("/");
-										String assignmentId = bits[bits.length-1];
-										String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+										final String[] bits = assignment.getExternalId().split("/");
+										final String assignmentId = bits[bits.length-1];
+										final String submissionId = GradeSummaryTablePanel.this.rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
 										if(StringUtils.isEmpty(submissionId)){
-											this.setVisible(false);
+											setVisible(false);
 										}
 										rubricStudentPanel.setAssignmentId(assignmentId);
 										rubricStudentPanel.setStudentUuid(submissionId);
@@ -326,17 +323,17 @@ public class GradeSummaryTablePanel extends BasePanel {
 									String assignmentId = assignment.getId().toString();
 									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
 										tool = RubricsConstants.RBCS_TOOL_ASSIGNMENT;
-										String[] bits = assignment.getExternalId().split("/");
+										final String[] bits = assignment.getExternalId().split("/");
 										assignmentId = bits[bits.length-1];
 									}
-									Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(tool, assignmentId);
+									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation(tool, assignmentId);
 									if (rubricAssociation.isPresent()) {
-										boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview");
+										boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
 										rubricIcon.setVisible(!hidePreview);
 									} else {
 										rubricIcon.setVisible(false);
 									}
-								} catch (Exception ex) {
+								} catch (final Exception ex) {
 									rubricIcon.setVisible(false);
 								}
 							}

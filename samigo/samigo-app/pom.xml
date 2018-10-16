@@ -242,10 +242,6 @@
         	<scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.samigo</groupId>
-            <artifactId>samigo-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.tags</groupId>
             <artifactId>tags-api</artifactId>
         </dependency>

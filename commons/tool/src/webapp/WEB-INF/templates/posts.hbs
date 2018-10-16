@@ -45,11 +45,12 @@
         <div class="commons-dialog-container">
             <div id="commons-link-dialog-table">
                 <div class="commons-link-dialog-row">
-                    <label for="commons-image-dialog-file" id="commons-imagefile-instruction">{{tr 'commons' 'choose_image_file'}}</label>
+                    <label for="commons-image-dialog-file" id="commons-imagefile-instruction">{{tr 'commons' 'choose_image_file' max=maxUploadSize}}</label>
                     <input type="file" id="commons-image-dialog-file" accept=".png,.jpg,.jpeg,.gif,image/png,image/jpeg,image/jpg,image/gif" />
                 </div>
             </div>
             <button id="commons-image-dialog-insert-button" disabled="true">{{tr 'commons' 'insert'}}</button>
             <button id="commons-image-dialog-cancel-button">{{tr 'commons' 'cancel'}}</button>
+            <span id="commons-image-dialog-message"></span>
         </div>
     </div>
