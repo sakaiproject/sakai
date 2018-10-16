@@ -161,7 +161,8 @@
 					
 					<%-- Location --%>
 					<div class="form-group row ">
-						<h:outputLabel value="#{msgs.event_location}" escape="false" styleClass="col-lg-2 form-required"/>
+						<h:outputLabel value="#{msgs.event_location}" escape="false" styleClass="col-lg-2 form-required" for="selectedLocation" />
+
 						<div class="col-lg-10">
 							<!-- Displays all the locations in the dropdown -->
 							<h:selectOneMenu id="selectedLocation" value="#{EditMeetingSignupMBean.selectedLocation}">
@@ -186,7 +187,8 @@
 					
 					<%-- Category --%>
 					<div class="form-group row">
-						<h:outputLabel value="#{msgs.event_category}" escape="false" styleClass="col-lg-2"/>
+						<h:outputLabel value="#{msgs.event_category}" escape="false" styleClass="col-lg-2" for="selectedCategory" />
+
 						<div class="col-lg-10">
 							<!-- Displays all the categories in the dropdown -->
 							<h:selectOneMenu id="selectedCategory" value="#{EditMeetingSignupMBean.selectedCategory}">
