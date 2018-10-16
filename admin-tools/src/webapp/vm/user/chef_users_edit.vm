@@ -231,10 +231,14 @@ function removeOptionalAttributeBlock(elem) {
 #set ($paramNames = $user.Properties.PropertyNames)
 			
 			<div class="act">
-				#if($user)
+				#if($providedUserType)
 					<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				#else
-					<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					#if($user)
+						<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					#else
+						<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					#end
 				#end
                 <input type="submit" id="eventSubmit_doCancel" name="eventSubmit_doCancel" value="$tlang.getString("useedi.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 
