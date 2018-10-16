@@ -243,33 +243,35 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(final GradebookAssignment internalAssignment) {
 		final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
-		assignmentDefinition.setName(internalAssignment.getName());
-		assignmentDefinition.setPoints(internalAssignment.getPointsPossible());
-		assignmentDefinition.setDueDate(internalAssignment.getDueDate());
-		assignmentDefinition.setCounted(internalAssignment.isCounted());
-		assignmentDefinition.setExternallyMaintained(internalAssignment.isExternallyMaintained());
-		assignmentDefinition.setExternalAppName(internalAssignment.getExternalAppName());
-		assignmentDefinition.setExternalId(internalAssignment.getExternalId());
-		assignmentDefinition.setReleased(internalAssignment.isReleased());
-		assignmentDefinition.setId(internalAssignment.getId());
-		assignmentDefinition.setExtraCredit(internalAssignment.isExtraCredit());
-		if (internalAssignment.getCategory() != null) {
-			assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
-			assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
-			assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
-			assignmentDefinition.setCategoryId(internalAssignment.getCategory().getId());
-			assignmentDefinition.setCategoryOrder(internalAssignment.getCategory().getCategoryOrder());
-		}
-		assignmentDefinition.setUngraded(internalAssignment.getUngraded());
-		assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
-		assignmentDefinition.setCategorizedSortOrder(internalAssignment.getCategorizedSortOrder());
+    	assignmentDefinition.setName(internalAssignment.getName());
+    	assignmentDefinition.setPoints(internalAssignment.getPointsPossible());
+    	assignmentDefinition.setDueDate(internalAssignment.getDueDate());
+    	assignmentDefinition.setCounted(internalAssignment.isCounted());
+    	assignmentDefinition.setExternallyMaintained(internalAssignment.isExternallyMaintained());
+    	assignmentDefinition.setExternalAppName(internalAssignment.getExternalAppName());
+    	assignmentDefinition.setExternalId(internalAssignment.getExternalId());
+    	assignmentDefinition.setExternalData(internalAssignment.getExternalData());
+    	assignmentDefinition.setReleased(internalAssignment.isReleased());
+    	assignmentDefinition.setId(internalAssignment.getId());
+    	assignmentDefinition.setExtraCredit(internalAssignment.isExtraCredit());
+    	if(internalAssignment.getCategory() != null) {
+    		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
+    		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
+    		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
+    		assignmentDefinition.setCategoryId(internalAssignment.getCategory().getId());
+    		assignmentDefinition.setCategoryOrder(internalAssignment.getCategory().getCategoryOrder());
+    	}
+    	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
+    	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
+    	assignmentDefinition.setCategorizedSortOrder(internalAssignment.getCategorizedSortOrder());
 
-		return assignmentDefinition;
-	}
+    	return assignmentDefinition;
+    }
+
+
 
 	@Override
-	public GradeDefinition getGradeDefinitionForStudentForItem(final String gradebookUid, final Long assignmentId,
-			final String studentUid) {
+	public GradeDefinition getGradeDefinitionForStudentForItem(final String gradebookUid, final Long assignmentId, final String studentUid) {
 
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
 			throw new IllegalArgumentException("Null paraemter passed to getGradeDefinitionForStudentForItem");
@@ -646,6 +648,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setExternalAppName(assignmentDefinition.getExternalAppName());
 				assignment.setExternallyMaintained(assignmentDefinition.isExternallyMaintained());
 				assignment.setExternalId(assignmentDefinition.getExternalId());
+				assignment.setExternalData(assignmentDefinition.getExternalData());
 
 				// if we have a category, get it and set it
 				// otherwise clear it fully
@@ -2969,7 +2972,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			// recreate the assignment (required fields only)
 			final GradebookAssignment a = new GradebookAssignment();
 			a.setPointsPossible(assignment.getPoints());
-			a.setUngraded(assignment.getUngraded());
+			a.setUngraded(assignment.isUngraded());
 			a.setCounted(assignment.isCounted());
 			a.setExtraCredit(assignment.isExtraCredit());
 			a.setReleased(assignment.isReleased());

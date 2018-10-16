@@ -235,7 +235,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(assignment.getExtraCredit()));
+								.setVisible(assignment.isExtraCredit()));
 						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))

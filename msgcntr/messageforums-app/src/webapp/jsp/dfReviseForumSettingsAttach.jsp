@@ -43,6 +43,19 @@
 			NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
 
+	function updateGradeAssignment(){
+		var elems = document.getElementsByTagName('sakai-rubric-association');
+		if( document.getElementById("revise:forum_assignments").value != null && document.getElementById("revise:forum_assignments").value != 'Default_0'){
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'inline';
+			}
+		} else {
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'none';
+			}
+		}
+	}
+
 	function setAutoCreatePanel(radioButton) {
 		$(".createOneForumPanel").slideToggle("fast");
 		$(".createForumsForGroupsPanel").slideToggle("fast", function() {
@@ -102,6 +115,7 @@
 					container: ".charsRemaining",
 					format: charRemFormat
 				 });
+				 updateGradeAssignment();
 			 });				 
         </script>
         <h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
@@ -298,7 +312,7 @@
 					<div class="col-md-10 col-sm-10">
 						<div class="row">
 				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-							<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+							<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
 			   	    			<f:selectItems value="#{ForumTool.assignments}" />
 			      			</h:selectOneMenu>
 							<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
@@ -315,7 +329,7 @@
 					</div>
 				</div>
 			
-		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px"
+		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none;"
 
 			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
 			dont-associate-value="0"
