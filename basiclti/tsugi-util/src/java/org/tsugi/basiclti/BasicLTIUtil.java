@@ -245,7 +245,7 @@ public class BasicLTIUtil {
 	 * Add the necessary fields and sign.
 	 * 
 	 * @deprecated See:
-	 *	 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String)}
+	 *	 {@link BasicLTIUtil#signProperties(Map, String, String, String, String, String, String, String, String, String, Map)}
 	 * 
 	 * @param postProp
 	 * @param url
@@ -362,7 +362,7 @@ public class BasicLTIUtil {
 	 * Check if the properties are properly signed
 	 * 
 	 * @deprecated See:
-	 *			 {@link BasicLTIUtil#checkProperties(Map, String, String, String, String, String, String, String, String, String)}
+	 *			 {@link BasicLTIUtil#checkProperties(Map, String, String, String, String)}
 	 * 
 	 * @param postProp
 	 * @param url
@@ -427,7 +427,7 @@ public class BasicLTIUtil {
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
 	 * 
-	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, boolean)}
+	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, String, boolean, Map)}
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
@@ -447,7 +447,7 @@ public class BasicLTIUtil {
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
 	 * 
-	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, boolean)}
+	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, String, boolean, boolean, Map)}
 	 * @param cleanProperties
 	 * @param endpoint
 	 *		  The LTI launch url.
@@ -637,7 +637,7 @@ public class BasicLTIUtil {
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
-	 * @param oauth_consumer_secret
+	 * @param oauth_secret
 	 */
 	public static String getOAuthURL(String method, String url, 
 		String oauth_consumer_key, String oauth_secret)
@@ -650,7 +650,7 @@ public class BasicLTIUtil {
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
-	 * @param oauth_consumer_secret
+	 * @param oauth_secret
 	 * @param signature
 	 */
 	public static String getOAuthURL(String method, String url, 
@@ -681,7 +681,7 @@ public class BasicLTIUtil {
 	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
-	 * @param oauth_consumer_secret
+	 * @param oauth_secret
 	 * HttpURLConnection connection = sendOAuthURL('GET', url, oauth_consumer_key, oauth_secret)
 	 * int responseCode = connection.getResponseCode();
 	 * String data = readHttpResponse(connection)
@@ -956,7 +956,6 @@ public class BasicLTIUtil {
 		retval = retval.replace("\"", "&quot;");
 		retval = retval.replace("<", "&lt;");
 		retval = retval.replace(">", "&gt;");
-		retval = retval.replace(">", "&gt;");
 		retval = retval.replace("=", "&#61;");
 		return retval;
 	}
@@ -965,7 +964,7 @@ public class BasicLTIUtil {
 	 * Simple utility method deal with a request that has the wrong URL when behind 
      * a proxy.
 	 * 
-	 * @param request
+	 * @param servletUrl
      * @param extUrl
      *   The url that the external world sees us as responding to.  This needs to be
      *   up to but not including the last slash like and not include any path information
