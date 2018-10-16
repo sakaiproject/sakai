@@ -111,9 +111,8 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
