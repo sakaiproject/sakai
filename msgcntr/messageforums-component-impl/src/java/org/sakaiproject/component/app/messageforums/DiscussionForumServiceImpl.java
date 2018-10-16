@@ -1092,8 +1092,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		try {			
 			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
 			ContentResource attachment = contentHostingService.addAttachmentResource(
-				oldAttachment.getProperties().getProperty(
-						ResourceProperties.PROP_DISPLAY_NAME), toContext, toolManager.getTool(
+				Validator.escapeResourceName(oldAttachment.getProperties().getProperty(
+						ResourceProperties.PROP_DISPLAY_NAME)), toContext, toolManager.getTool(
 						"sakai.forums").getTitle(), oldAttachment.getContentType(),
 						oldAttachment.getContent(), oldAttachment.getProperties());
 			Attachment thisDFAttach = dfManager.createDFAttachment(
