@@ -58,15 +58,15 @@
     <sakai.simple-xml.version>2.6.4</sakai.simple-xml.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>4.3.14.RELEASE</sakai.spring.version>
-    <sakai.spring.data.commons.version>1.13.7.RELEASE</sakai.spring.data.commons.version>
-    <sakai.spring.data.jpa.version>1.11.7.RELEASE</sakai.spring.data.jpa.version>
-    <sakai.spring.data.rest.version>2.6.7.RELEASE</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>4.2.3.RELEASE</sakai.spring.security.version>
-    <sakai.spring.hateoas.version>0.24.0.RELEASE</sakai.spring.hateoas.version>
+    <sakai.spring.version>4.3.19.RELEASE</sakai.spring.version>
+    <sakai.spring.data.commons.version>1.13.15.RELEASE</sakai.spring.data.commons.version>
+    <sakai.spring.data.jpa.version>1.11.15.RELEASE</sakai.spring.data.jpa.version>
+    <sakai.spring.data.rest.version>2.6.15.RELEASE</sakai.spring.data.rest.version>
+    <sakai.spring.security.version>4.2.9.RELEASE</sakai.spring.security.version>
+    <sakai.spring.hateoas.version>0.25.0.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>4.3.14.RELEASE</sakai.spring.test.version>
+    <sakai.spring.test.version>4.3.19.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.19</sakai.tika.version>
     <sakai.tomcat.version>9.0.8</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
