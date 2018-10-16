@@ -190,14 +190,6 @@ iron-icon.comment-icon {
       background: #f2f2f4;
       width: 5%;
       position: relative; }
-      .criterion .criterion-row .criterion-actions input[type=number]::-webkit-inner-spin-button,
-      .criterion .criterion-row .criterion-actions input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        margin: 0; }
-      .criterion .criterion-row .criterion-actions input[type=number] {
-        -moz-appearance: textfield; }
   .criterion .criterion-title, .criterion .criterion-item-title {
     font-size: 16px;
     color: #2f2f2f;
@@ -239,6 +231,14 @@ iron-icon.comment-icon {
   margin: 0 20px 10px 0; }
   .sakai-rubric-association select.form-control #rubricslist {
     display: inline-block; }
+
+.hide-input-arrows {
+  -moz-appearance: textfield; }
+  .hide-input-arrows::-webkit-inner-spin-button, .hide-input-arrows::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; }
 
 </style>
 </template>
