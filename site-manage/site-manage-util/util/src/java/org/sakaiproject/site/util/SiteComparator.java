@@ -19,20 +19,19 @@ package org.sakaiproject.site.util;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Locale;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.site.api.Site;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.site.util.Participant;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.cover.UserDirectoryService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
@@ -270,19 +269,19 @@ public class SiteComparator implements Comparator {
 			
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_CREATION_DATE)) {
 			// sort by the site's creation date
-			Time t1 = null;
-			Time t2 = null;
+			Date t1 = null;
+			Date t2 = null;
 
 			// get the times
 			try {
-				t1 = ((Site) o1).getProperties().getTimeProperty(
+				t1 = ((Site) o1).getProperties().getDateProperty(
 						ResourceProperties.PROP_CREATION_DATE);
 			} catch (EntityPropertyNotDefinedException e) {
 			} catch (EntityPropertyTypeException e) {
 			}
 
 			try {
-				t2 = ((Site) o2).getProperties().getTimeProperty(
+				t2 = ((Site) o2).getProperties().getDateProperty(
 						ResourceProperties.PROP_CREATION_DATE);
 			} catch (EntityPropertyNotDefinedException e) {
 			} catch (EntityPropertyTypeException e) {
