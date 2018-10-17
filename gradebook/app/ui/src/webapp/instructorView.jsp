@@ -133,7 +133,7 @@
 				sortAscending="#{instructorViewBean.sortAscending}"
 				columnClasses="attach,left,center,center,center,center,center,center,external"
 				rowClasses="#{instructorViewBean.rowStyles}"
-				headerClasses="attach,left,center,center,center,center,center,center comments,bogus"
+				headerClasses="categoryIcon,left,center,center,center,center,center,center comments,bogus"
 				styleClass="listHier lines nolines gradingTable"
 				expanded="true"
 				rowIndexVar="rowIndex">
