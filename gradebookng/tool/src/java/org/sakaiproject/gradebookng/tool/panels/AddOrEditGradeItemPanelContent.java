@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,6 +38,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidationError;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -45,12 +47,15 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.util.DateFormatterUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * The panel for the add grade item window
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
@@ -60,9 +65,13 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private boolean categoriesEnabled;
 
-	final static String DATEPICKER_FORMAT = "yyyy-MM-dd";
+	private static final String DATEPICKER_FORMAT = "yyyy-MM-dd";
 
-	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
+	private Double existingPoints = null;
+	private boolean scaleGradesTriggered = false;
+	private WebMarkupContainer scaleGradesContainer;
+
+	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel, final UiMode mode) {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
@@ -79,6 +88,9 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
 			this.categoriesEnabled = false;
 		}
+
+		// get existing points. Will be null for a new assignment
+		this.existingPoints = assignmentModel.getObject().getPoints();
 
 		// title
 		final TextField<String> title = new TextField<String>("title",
@@ -131,7 +143,49 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 				error(getString("error.addgradeitem.points"));
 			}
 		};
+
+		// onchange, might want to scale
+		points.add(new OnChangeAjaxBehavior() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+
+				// conditional option to scale
+				if (gradingType == GradingType.POINTS) {
+
+					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
+					final Double current = points.getModelObject();
+
+					log.debug("existingPoints: " + existing);
+					log.debug("currentPoints: " + current);
+
+					AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = false;
+					if (existing != null && existing != current) {
+						AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = true;
+					}
+
+					log.debug("scaleGradesTriggered: " + AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
+
+					target.add(AddOrEditGradeItemPanelContent.this.scaleGradesContainer);
+				}
+			}
+		});
+
 		add(points);
+
+		// scale grades option
+		this.scaleGradesContainer = new WebMarkupContainer("scaleGradesContainer") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return AddOrEditGradeItemPanelContent.this.scaleGradesTriggered;
+			}
+		};
+		this.scaleGradesContainer.setOutputMarkupPlaceholderTag(true);
+		this.scaleGradesContainer.add(new CheckBox("scaleGrades", new PropertyModel<Boolean>(assignmentModel, "scaleGrades")));
+		add(this.scaleGradesContainer);
 
 		// due date
 		// TODO date format needs to come from i18n
@@ -232,7 +286,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		sakaiRubricAssociation.add(AttributeModifier.append("config-fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
 		sakaiRubricAssociation.add(AttributeModifier.append("config-hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
 		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-		if (assignment.getId() != null) {
+		
+    if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
 		}
 		add(sakaiRubricAssociation);

@@ -36,8 +36,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -612,11 +610,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
 				// check if we need to scale the grades
-				// this will be if we have percentage grading and we change the points possible
 				boolean scaleGrades = false;
 				final Double originalPointsPossible = assignment.getPointsPossible();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE
-					&& !assignment.getPointsPossible().equals(assignmentDefinition.getPoints())) {
+						&& !assignment.getPointsPossible().equals(assignmentDefinition.getPoints())) {
+					scaleGrades = true;
+				}
+
+				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS && assignmentDefinition.isScaleGrades()) {
 					scaleGrades = true;
 				}
 
@@ -647,7 +648,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				updateAssignment(assignment);
 
 				if (scaleGrades) {
-					convertGradePointsForUpdatedTotalPoints(gradebook, assignment, originalPointsPossible);
+					scaleGrades(gradebook, assignment, originalPointsPossible);
 				}
 
 				return null;
@@ -3617,7 +3618,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @param gradebook the gradebook
 	 * @param assignment assignment with original total point value
 	 */
-	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final GradebookAssignment assignment, final Double originalPointsPossible) {
+	private void scaleGrades(final Gradebook gradebook, final GradebookAssignment assignment,
+			final Double originalPointsPossible) {
 		if (gradebook == null || assignment == null || assignment.getPointsPossible() == null) {
 			throw new IllegalArgumentException("null values found in convertGradePointsForUpdatedTotalPoints.");
 		}
@@ -3627,21 +3629,49 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// scale for total points changed when on percentage grading
 		// TODO could scale for total points changed when on a points grading as well, though needs different logic
-		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE && assignment.getPointsPossible() != null) {
 
-			// Calculate the new points value that we should be persisting based on the new total points
-			if (assignment.getPointsPossible() != null) {
-				for (final AssignmentGradeRecord gr : gradeRecords) {
-					if (gr.getPointsEarned() != null) {
-						final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
-								.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
-								.multiply(new BigDecimal(100));
+			log.debug("Scaling percentage grades");
 
-						final Double scaledScore = calculateEquivalentPointValueForPercent(assignment.getPointsPossible(),
-																						   scoreAsPercentage.doubleValue());
+			for (final AssignmentGradeRecord gr : gradeRecords) {
+				if (gr.getPointsEarned() != null) {
+					final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
+							.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
+									.multiply(new BigDecimal(100));
 
-						gr.setPointsEarned(scaledScore);
-					}
+					final Double scaledScore = calculateEquivalentPointValueForPercent(assignment.getPointsPossible(),
+							scoreAsPercentage.doubleValue());
+
+					log.debug("scoreAsPercentage: " + scoreAsPercentage);
+					log.debug("scaledScore: " + scaledScore);
+
+					gr.setPointsEarned(scaledScore);
+				}
+			}
+		}
+
+		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS && assignment.getPointsPossible() != null) {
+
+			log.debug("Scaling point grades");
+
+			final BigDecimal previous = new BigDecimal(originalPointsPossible);
+			final BigDecimal current = new BigDecimal(assignment.getPointsPossible());
+			final BigDecimal factor = current.divide(previous, GradebookService.MATH_CONTEXT);
+
+			log.debug("previous points possible: " + previous);
+			log.debug("current points possible: " + current);
+			log.debug("factor: " + factor);
+
+			for (final AssignmentGradeRecord gr : gradeRecords) {
+				if (gr.getPointsEarned() != null) {
+
+					final BigDecimal currentGrade = new BigDecimal(gr.getPointsEarned());
+					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT);
+
+					log.debug("currentGrade: " + currentGrade);
+					log.debug("scaledGrade: " + scaledGrade);
+
+					gr.setPointsEarned(scaledGrade.doubleValue());
 				}
 			}
 		}
