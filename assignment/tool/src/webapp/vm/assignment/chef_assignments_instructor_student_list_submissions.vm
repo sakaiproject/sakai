@@ -133,7 +133,9 @@
 													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
 													#if ($!submissionSubmitter.isPresent())
 														#set ($submitterId = $!submissionSubmitter.get().getSubmitter())
-														<br />$tlang.getString("listsub.submitted.by") $studentMembersMap.get($submitterId).getDisplayName()
+														#if ($!submissionSubmitter.get().getSubmittee())
+															<br />$tlang.getString("listsub.submitted.by") $studentMembersMap.get($submitterId).getDisplayName()
+														#end
 														#if($member.getId() != $submitterId)
 															($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($member.sortName))
 														#end
