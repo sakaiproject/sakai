@@ -18,7 +18,11 @@
   border: 1px solid #e4e4e6;
   border-width: 1px 0px;
   font-weight: bold;
-  overflow: auto; }
+  display: flex;
+  justify-content: space-between; }
+  .rubric-title div {
+    font-weight: normal;
+    flex: 1; }
   .rubric-title .rubric-name {
     cursor: default;
     color: #0093b8; }
@@ -33,7 +37,21 @@
   .rubric-title .edit {
     margin-left: 10px; }
   .rubric-title .actions {
-    float: right; }
+    width: 100px; }
+
+#site-rubrics-title {
+  display: flex;
+  justify-content: space-between; }
+  #site-rubrics-title div {
+    font-weight: bold;
+    flex: 1; }
+
+#shared-rubrics-title {
+  display: flex;
+  justify-content: space-between; }
+  #shared-rubrics-title div {
+    font-weight: bold;
+    flex: 1; }
 
 iron-icon:not(.collpase-icon):not(.reorder-icon):not(.comment-icon) {
   background: #6e757d;

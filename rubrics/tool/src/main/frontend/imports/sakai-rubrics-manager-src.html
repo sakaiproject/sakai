@@ -17,38 +17,44 @@
 <link rel="import" href="sakai-rubrics-icons.html">
 <link rel="import" href="sakai-rubric.html">
 <link rel="import" href="sakai-rubric-readonly.html">
+<link rel="import" href="sakai-rubric-site-title.html">
+<link rel="import" href="sakai-rubric-creator-name.html">
 
 <dom-module id="sakai-rubrics-manager">
   <template>
     <style include="sakai-rubrics-styles"></style>
 
     <h1>
-    	<sr-lang key="manage_rubrics">
-    		Manage Rubrics
-    	</sr-lang>
+      <sr-lang key="manage_rubrics">manage_rubrics</sr-lang>
     </h1>
 
     <div role="tablist">
       <div id="site-rubrics-title" aria-expanded$="[[siteRubricsExpanded]]" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="[[lang('toggle_site_rubrics', 'Toggle site rubrics')]]" tabindex="0" on-tap="showLocalRubrics">
         <iron-a11y-keys id="a11y" target="[[getNode('#site-rubrics-title')]]" keys="space" on-keys-pressed="showLocalRubrics"></iron-a11y-keys>
-        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
-        <sr-lang key="site_rubrics">
-          Site Rubrics
-        </sr-lang>
+        <div>
+          <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+          <sr-lang key="site_rubrics">site_rubrics</sr-lang>
+        </div>
+        <div><sr-lang key="site_title">site_title</sr-lang></div>
+        <div><sr-lang key="creator_name">creator_name</sr-lang></div>
+        <div><sr-lang key="modified">modified</sr-lang></div>
+        <div class="actions"></div>
       </div>
 
       <iron-collapse role="tabpanel" aria-labelledby="site-rubrics-title" id="site_rubrics">
         <sakai-rubrics-list></sakai-rubrics-list>
       </iron-collapse>
 
-
-
       <div id="shared-rubrics-title" aria-expanded$="[[sharedRubricsExpanded]]" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="[[lang('toggle_shared_rubrics', 'Toggle shared rubrics')]]" tabindex="0" on-tap="showSharedRubrics">
         <iron-a11y-keys id="a11y" target="[[getNode('#shared-rubrics-title')]]" keys="space" on-keys-pressed="showSharedRubrics"></iron-a11y-keys>
-        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
-        <sr-lang key="shared_rubrics">
-          Shared Rubrics
-        </sr-lang>
+        <div>
+          <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+          <sr-lang key="shared_rubrics">shared_rubrics</sr-lang>
+        </div>
+        <div><sr-lang key="site_title">site_title</sr-lang></div>
+        <div><sr-lang key="creator_name">creator_name</sr-lang></div>
+        <div><sr-lang key="modified">modified</sr-lang></div>
+        <div class="actions"></div>
       </div>
 
       <iron-collapse role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics">
