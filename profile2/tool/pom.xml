@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>19-SNAPSHOT</version>
+	    <version>20-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>

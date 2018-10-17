@@ -6,7 +6,7 @@
 
     <groupId>org.sakaiproject</groupId>
     <artifactId>dependency-check-support</artifactId>
-    <version>19-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
     <description>This holds the dependency check exclusions file. It's built as it's own maven project so that it can
         be a dependency of the checking plugin and therefore run from any project in the checkout.
     </description>

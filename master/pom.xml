@@ -17,10 +17,10 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>19-SNAPSHOT</version>
+  <version>20-SNAPSHOT</version>
 
   <properties>
-    <sakai.version>19-SNAPSHOT</sakai.version>
+    <sakai.version>20-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.apache.httpcomponents.httpclient.version>4.1.4</sakai.apache.httpcomponents.httpclient.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>19-SNAPSHOT</version>
+        <version>20-SNAPSHOT</version>
     </parent>
 
     <name>Tsugi LTI Utilities (basiclti-util variant)</name>

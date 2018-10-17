@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler</artifactId>
-        <version>19-SNAPSHOT</version>
+        <version>20-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Job Scheduler Component (scheduler-component)</name>
