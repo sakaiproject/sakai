@@ -14,7 +14,7 @@ To run the tests and generate the report, run:
 
 ## Generating stepdef code
 If you create a feature file, Cucumber can build the missing stepdef scaffolding you need to implement.
-Run `mvn test`
+Run `mvn test` to do that and check the console output for the code.
 
 ## Contributing
 
@@ -23,15 +23,15 @@ The aim of this project is to consolidate the testing efforts for Sakai QA and b
 ### For Testers
 Create a feature file. This is the best thing you can do to help this project advance.
 Please keep to the established language convention. 
-Also, using a Cucumber plugin helps highlight what steps have automated tests and what ones are new.
+Also, using a Cucumber plugin in your tet editor/IDE helps highlight what steps have automated tests and what ones are new.
 
-Please add the @manual tag to all feature files so that they don't try to run.
+Please add the @manual tag to the top of all feature files that are not automated, so that the test runner doesn't try to run them.
 
 ### For Developers
 If you feel like automating some feature files, check out the existing automated tests and helpers.
 Otherwise, adding a feature file is a great place to help.
 
-If you do automate some features or scenarios, add the @automated tag to it.
+If you do automate some features or scenarios, add the @automated tag to it in place of the @manual one.
 
 
 ## Configuration
