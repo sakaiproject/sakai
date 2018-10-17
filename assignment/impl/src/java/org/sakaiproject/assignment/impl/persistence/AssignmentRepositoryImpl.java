@@ -16,7 +16,10 @@
 package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -28,11 +31,16 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by enietzel on 2/22/17.
  */
+@Slf4j
 @Transactional(readOnly = true)
 public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assignment, String> implements AssignmentRepository {
 
@@ -124,7 +132,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
-        sessionFactory.getCurrentSession().update(submission);
+        if (existsSubmission(submission.getId())) {
+            sessionFactory.getCurrentSession().merge(submission);
+        }
     }
 
     @Override
@@ -137,21 +147,26 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    @Transactional
-    public void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
-        if (!existsSubmission(submission.getId()) && exists(assignment.getId())) {
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+    public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
+        Assignment assignment = findAssignment(assignmentId);
+        if (assignment != null) {
+            AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
             submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
             feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
             submittedAttachments.ifPresent(submission::setAttachments);
             properties.ifPresent(submission::setProperties);
+            if (assignment.getIsGroup()) { groupId.ifPresent(submission::setGroupId); }
 
             submission.setAssignment(assignment);
             assignment.getSubmissions().add(submission);
 
             sessionFactory.getCurrentSession().persist(assignment);
+            return submission;
         }
+        return null;
     }
 
     @Override
