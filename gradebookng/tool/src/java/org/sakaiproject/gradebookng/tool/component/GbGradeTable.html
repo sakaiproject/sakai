@@ -54,7 +54,7 @@
                                     </a>
                                 </li>
                             {/if}
-                        		<li><a href="javascript:void(0);" class="gb-view-course-grade-statistics" role="menuitem"><wicket:message key="coursegrade.option.viewcoursegradestatistics" /></a></li>
+                                <li><a href="javascript:void(0);" class="gb-view-course-grade-statistics" role="menuitem"><wicket:message key="coursegrade.option.viewcoursegradestatistics" /></a></li>
                         </ul>
                     </div>
                 {/if}
@@ -169,6 +169,16 @@
                         {/if}
                     </span>
                 </a>
+                <div class="gb-grade-section gb-category-points-section">
+                    {if settings.isPercentageGradeEntry}
+                        <wicket:message key="label.relativeweight"/>
+                    {else}
+                        <wicket:message key="label.total"/>
+                    {/if}
+                    <span class="gb-total-points">
+                        ${totalPoints}
+                    </span>
+                </div>	
                 {for info in dropInfo}
                 <div class="gb-drop-info">${info}</div>
                 {/for}
