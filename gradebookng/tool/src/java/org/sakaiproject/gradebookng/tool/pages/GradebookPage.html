@@ -22,6 +22,8 @@
     <div wicket:id="updateCourseGradeDisplayWindow" />
     <div wicket:id="sortGradeItemsWindow" />
     <div wicket:id="courseGradeStatisticsWindow" />
+    <div wicket:id="bulkEditItemsWindow" />
+    
     <div wicket:id="rubricGradeWindow" />
     <input wicket:id="rubricsTokenHiddenField" type="hidden" />
     <script>
@@ -39,7 +41,7 @@
             rubricGradingPoints = payload.value;
         });
     </script>
-    <script src="/rubrics-service/js/sakai-rubrics.js"></script>
+    <script src="/rubrics-service/js/sakai-rubrics.js"></script>    
 
     <div wicket:id="gradeTableArea">
         <div wicket:id="noAssignments" class="gb-noGbItems">
@@ -108,6 +110,9 @@
                     <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
                 </li>
                 </wicket:enclosure>
+                <li>
+                    <button wicket:id="bulkEditItemsToolbarItem" id="bulkEditItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.bulkedit"/></button>
+                </li>
             </ul>
         </div>
 

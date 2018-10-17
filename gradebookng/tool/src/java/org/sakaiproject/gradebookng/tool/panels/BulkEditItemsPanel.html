@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+	<wicket:panel>
+
+		<form class="form-vertical" wicket:id="form">
+
+			<!-- <p class="alert alert-info" role="alert"><wicket:message key="bulkedit.instruction"></wicket:message></p>-->
+
+			<table class="table table-striped table-bordered table-hover" style="width: auto;">
+				<thead>
+					<tr>
+						<th class="col-md-4"><wicket:message key="bulkedit.column.header.gradebookitem" /></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.release" /></th>
+						<th class="col-md-1"><wicket:message key="bulkedit.column.header.include" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr wicket:id="listView">
+						<td><span wicket:id="itemTitle">item title</span></td>
+						<td><input wicket:id="release" type="checkbox" wicket:message="aria-label:label.addgradeitem.release" /></td>
+						<td><input wicket:id="include" type="checkbox" wicket:message="aria-label:label.addgradeitem.include"  /></td>
+					</tr>
+				</tbody>
+			</table>
+			
+				
+			<div class="act">
+				<input type="submit" wicket:id="submit" class="active" wicket:message="value:button.savechanges" />
+				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+			</div>
+
+		</form>
+
+	</wicket:panel>
+</body>
+</html>

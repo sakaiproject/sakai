@@ -114,7 +114,6 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 	@Getter
 	@Setter
 	private Integer sortOrder;
-
 	@Getter
 	@Setter
 	private boolean counted;
@@ -174,4 +173,5 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 				.append(this.id)
 				.toHashCode();
 	}
+
 }
