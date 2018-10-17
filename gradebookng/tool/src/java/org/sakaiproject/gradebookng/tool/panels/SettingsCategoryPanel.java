@@ -86,6 +86,21 @@ public class SettingsCategoryPanel extends BasePanel {
 		this.expanded = expanded;
 	}
 
+	private enum DropKeepUsage {
+		CATEGORY("settingspage.categories.instructions.applydropkeep"),
+		EXCLUSIVE("settingspage.categories.hover.dropkeepusage");
+
+		private String message;
+
+		DropKeepUsage(final String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return this.message;
+		}
+	}
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -446,7 +461,7 @@ public class SettingsCategoryPanel extends BasePanel {
 						if (value.intValue() > 0) {
 							categoryKeepHighest.setModelValue(new String[] { "0" });
 							categoryKeepHighest.setEnabled(false);
-							addDropKeepDisabledToolTip(categoryKeepHighest);
+							addDropKeepDisabledToolTip(categoryKeepHighest, DropKeepUsage.EXCLUSIVE);
 						}
 						target.add(categoryDropHighest);
 						target.add(categoryDropLowest);
@@ -455,7 +470,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				categoryDropHighest.setEnabled(dropKeepEnabled && categoryDropHighestEnabled);
 				if (!categoryDropHighest.isEnabled()) {
-					addDropKeepDisabledToolTip(categoryDropHighest);
+					addDropKeepDisabledToolTip(categoryDropHighest, DropKeepUsage.CATEGORY);
 				}
 				item.add(categoryDropHighest);
 
@@ -489,7 +504,7 @@ public class SettingsCategoryPanel extends BasePanel {
 						if (value1.intValue() > 0 || value2.intValue() > 0) {
 							categoryKeepHighest.setModelValue(new String[] { "0" });
 							categoryKeepHighest.setEnabled(false);
-							addDropKeepDisabledToolTip(categoryKeepHighest);
+							addDropKeepDisabledToolTip(categoryKeepHighest, DropKeepUsage.EXCLUSIVE);
 						}
 						target.add(categoryDropHighest);
 						target.add(categoryDropLowest);
@@ -498,7 +513,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				categoryDropLowest.setEnabled(dropKeepEnabled && categoryDropLowestEnabled);
 				if (!categoryDropLowest.isEnabled()) {
-					addDropKeepDisabledToolTip(categoryDropLowest);
+					addDropKeepDisabledToolTip(categoryDropLowest, DropKeepUsage.CATEGORY);
 				}
 				item.add(categoryDropLowest);
 
@@ -528,11 +543,11 @@ public class SettingsCategoryPanel extends BasePanel {
 
 							categoryDropHighest.setModelValue(new String[] { "0" });
 							categoryDropHighest.setEnabled(false);
-							addDropKeepDisabledToolTip(categoryDropHighest);
+							addDropKeepDisabledToolTip(categoryDropHighest, DropKeepUsage.EXCLUSIVE);
 
 							categoryDropLowest.setModelValue(new String[] { "0" });
 							categoryDropLowest.setEnabled(false);
-							addDropKeepDisabledToolTip(categoryDropLowest);
+							addDropKeepDisabledToolTip(categoryDropLowest, DropKeepUsage.EXCLUSIVE);
 						}
 						target.add(categoryDropHighest);
 						target.add(categoryDropLowest);
@@ -541,7 +556,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				categoryKeepHighest.setEnabled(dropKeepEnabled && categoryKeepHighestEnabled);
 				if (!categoryKeepHighest.isEnabled()) {
-					addDropKeepDisabledToolTip(categoryKeepHighest);
+					addDropKeepDisabledToolTip(categoryKeepHighest, DropKeepUsage.CATEGORY);
 				}
 				item.add(categoryKeepHighest);
 
@@ -812,10 +827,11 @@ public class SettingsCategoryPanel extends BasePanel {
 	 * Helper to add the tooltip when drop/keep settings cause a field to be disabled.
 	 *
 	 * @param textfield
+	 * @param usage determines which message bundle to use for title and aria-label
 	 */
-	private void addDropKeepDisabledToolTip(final Component textfield) {
-		textfield.add(AttributeModifier.replace("title", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
-		textfield.add(AttributeModifier.replace("aria-label", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
+	private void addDropKeepDisabledToolTip(final Component textfield, final DropKeepUsage usage) {
+		textfield.add(AttributeModifier.replace("title", new ResourceModel(usage.getMessage())));
+		textfield.add(AttributeModifier.replace("aria-label", new ResourceModel(usage.getMessage())));
 	}
 
 	/**
