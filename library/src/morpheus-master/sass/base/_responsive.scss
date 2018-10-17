@@ -2,6 +2,11 @@
 
 body{
 	@media #{$phone}{
+		.#{$namespace}pagebody{
+			min-height: 100vh;										// alternative for browswers who cannot do calculations
+			min-height: calc(100vh - (#{$banner-height} * 3));		// viewport minus the three top banners
+		}
+		
 		&.toolsNav--displayed{
 			// hide the tool body
 			.#{$namespace}pagebody {
@@ -26,7 +31,9 @@ body{
 
 			// show the tool menu
 			#toolMenuWrap{
+				display: block;			// restore the tool menu that was removed when hidden to reduce the height of the page when it isn't visible
 				width: 100%;
+				min-height: auto; 		// to allow the bottom of the tool menu to appear when doesn't have too many tools
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
 				left: 0;
 				z-index: 1001;
@@ -40,7 +47,7 @@ body{
 				}
 				&:after {
 					bottom: 100%;
-					left: 40px;
+					left: 30px;
 					border: solid transparent;
 					content: " ";
 					height: 0;
@@ -49,8 +56,9 @@ body{
 					pointer-events: none;
 					border-color: rgba(255, 255, 255, 0);
 					border-bottom-color: $tool-menu-background-color;
-					border-width: 7px;
+					border-width: $standard-spacing;
 					outline: 0;
+					margin-bottom: -1px; // to overlap the top ul border for the illusion
 				}
 				.Mrphs-toolsNav__menuitem--title{
 					display: inline-block;
@@ -89,10 +97,6 @@ body{
 							width: 100%;
 							white-space: nowrap;
 							overflow: hidden;
-
-							a {
-								padding: 8px 4px;
-							}
 						}
 						@else {
 							border-left: 2px solid darken( $tool-menu-background-color, 10% );
@@ -118,7 +122,6 @@ body{
 					}
 				}
 			}
-
 			#portalMask {
 				background: transparent;
 			}
@@ -199,7 +202,7 @@ body {
     .phone, .tablet, .desktop {
       display: none;
 
-      height: 1px;
+      height: 0;			// removed in SAK-40294 because it caused an extra pixel of unnecessary page height
       width: 1px;
       overflow: hidden;
       position: absolute;

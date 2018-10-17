@@ -54,7 +54,7 @@
               }
               window.onload = initPage;
 </script>
-<samigo:script path="/../library/js/spinner.js"/>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->

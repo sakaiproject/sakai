@@ -24,7 +24,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -33,7 +33,7 @@
 <f:view>
 		<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 			<h:form styleClass="specialLink">
-	  <sakai:script contextBase="/messageforums-tool" path="/js/popupscripts.js"/>
+			<script type="text/javascript" src="/messageforums-tool/js/popupscripts.js"></script>
 
 	  <h:panelGroup rendered="#{mfSynopticBean.myWorkspace}" > 
 		<h:outputText value="#{msgs.syn_no_sites}" rendered="#{! mfSynopticBean.sitesToView}" />

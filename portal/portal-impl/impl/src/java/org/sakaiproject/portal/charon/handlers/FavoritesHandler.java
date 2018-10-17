@@ -174,35 +174,37 @@ public class FavoritesHandler extends BasePortalHandler
 			// Take the default
 		}
 
-		// Update our list of seen sites
-		PreferencesEdit edit = PreferencesService.edit(userId);
-		ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-
 		// This should not call getUserSites(boolean, boolean) because the property is variable, while the call is cacheable otherwise
 		List<Site> userSites = SiteService.getSites(SelectionType.MEMBER, null, null, null, SortType.TITLE_ASC, null, false);
 		Set<String> newFavorites = new LinkedHashSet<String>();
 
-		props.removeProperty(SEEN_SITES_PROPERTY);
 		for (Site userSite : userSites) {
 			if (!oldSiteSet.contains(userSite.getId()) && !existingFavorites.contains(userSite.getId()) && !firstTimeFavs) {
 				newFavorites.add(userSite.getId());
 			}
-			props.addPropertyToList(SEEN_SITES_PROPERTY, userSite.getId());
 		}
 		newFavorites.addAll(existingFavorites);
 
-		if (firstTimeFavs) {
-			props.removeProperty(FIRST_TIME_PROPERTY);
-			props.addProperty(FIRST_TIME_PROPERTY, String.valueOf(false));
-		}
+		if( !newFavorites.equals(existingFavorites) || firstTimeFavs ) {
+			// There are new favourites and need to update database. 
+			// We will not lock database if it's not neccessary
+			PreferencesEdit edit = PreferencesService.edit(userId);
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			if (firstTimeFavs) {
+				props.removeProperty(FIRST_TIME_PROPERTY);
+				props.addProperty(FIRST_TIME_PROPERTY, String.valueOf(false));
+			}
+			props.removeProperty(SEEN_SITES_PROPERTY);
+			for (Site userSite : userSites) {
+				props.addPropertyToList(SEEN_SITES_PROPERTY, userSite.getId());
+			}
+			props.removeProperty(FAVORITES_PROPERTY);
+			for (String siteId : newFavorites) {
+				props.addPropertyToList(FAVORITES_PROPERTY, siteId);
+			}
 
-		// Add our new properties and any existing favorite sites after them
-		props.removeProperty(FAVORITES_PROPERTY);
-		for (String siteId : newFavorites) {
-			props.addPropertyToList(FAVORITES_PROPERTY, siteId);
+			PreferencesService.commit(edit);
 		}
-
-		PreferencesService.commit(edit);
 
 		return newFavorites;
 	}

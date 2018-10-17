@@ -33,8 +33,8 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{templateMessages.template_editor}" /></title>
-      <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
-      <samigo:script path="/js/authoring.js"/>
+      <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
 
       <script type="text/javascript">
         $(document).ready(function() {

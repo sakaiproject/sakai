@@ -10,11 +10,6 @@
         #commons-editor-toolbar {
             width: 100%;
         }
-            #commons-editor-toolbar button {
-                border-radius: 0px;
-                font-weight: bold;
-                margin-right: 5px;
-            }
         .commons-image {
             min-width: 20px;
             max-width: 100%;
@@ -247,4 +242,9 @@
     font-weight: bold;
     font-size: larger;
     margin-bottom: 5px;
+}
+#commons-image-dialog-message {
+    font-weight: bold;
+    font-size: larger;
+    color: red;
 }

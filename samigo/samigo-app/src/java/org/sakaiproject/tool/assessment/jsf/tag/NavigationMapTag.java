@@ -27,6 +27,8 @@ package org.sakaiproject.tool.assessment.jsf.tag;
 import javax.faces.component.UIComponent;
 import javax.faces.webapp.UIComponentTag;
 
+import org.sakaiproject.jsf2.util.TagUtil;
+
 /**
  *
  * <p>Description:<br />

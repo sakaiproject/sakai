@@ -104,7 +104,7 @@ ${includeLatestJQuery}
 	<ul class="navIntraTool actionToolBar">
 		<li class="firstToolBarItew"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
 		<li><span class="current">$tlang.getString("tool.in.site")</span></li>
-        #if ( $isAdmin)<li><span><a href="" title="$tlang.getString("deploy.in.system")" onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;"> $tlang.getString("deploy.in.system")</a></span></li>#end
+        #if ( $isAdmin && $showLTI2 )<li><span><a href="" title="$tlang.getString("deploy.in.system")" onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;"> $tlang.getString("deploy.in.system")</a></span></li>#end
 	</ul>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end

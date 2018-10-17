@@ -33,8 +33,11 @@ import javax.faces.context.ExternalContext;
 import javax.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -75,6 +78,7 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class BeginDeliveryActionListener implements ActionListener
 {
+  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   /**
    * ACTION.
@@ -98,6 +102,9 @@ public class BeginDeliveryActionListener implements ActionListener
       // e.g. take assessment via url, actionString is set by LoginServlet.
       // preview and take assessment is set by the parameter in the jsp pages
       delivery.setActionString(actionString);
+      if("reviewAssessment".equals(actionString)){
+        delivery.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
+      }
     }
     
     delivery.setDisplayFormat();
@@ -181,7 +188,7 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     delivery.setFileUploadSizeMax(Math.round(sizeMax_float));
     delivery.setPublishedAssessment(pub);
-    
+
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);
   }
@@ -316,6 +323,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setCreatorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setSubmitted(false);
+    delivery.setAssessmentSubmitted(false);
     delivery.setGraded(false);
     delivery.setPartIndex(0);
     delivery.setQuestionIndex(0);

@@ -34,7 +34,7 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -176,6 +176,10 @@ public class ItemContentsBean implements Serializable {
 	private String tagsListToJson;
 
 	private int answerCounter = 1;
+
+	// Rubrics
+	private String rubricStateDetails;
+	private boolean hasAssociatedRubric;
 
 	public ItemContentsBean() {
 	}
@@ -485,7 +489,13 @@ public class ItemContentsBean implements Serializable {
 						&& !data.getAnswerText().equals("")) {
 					return false;
 				}
-			} 
+			}
+			else if (getItemData().getTypeId().equals(TypeIfc.IMAGEMAP_QUESTION)) {
+				if (StringUtils.isNotEmpty(data.getAnswerText())
+						&& data.getAnswerText().matches("\\{\"x\":-?\\d+,\"y\":-?\\d+\\}")) {
+					return false;
+				}
+			}
 			else {
 				if (data.getPublishedAnswerId() != null
 						|| data.getAnswerText() != null) {
@@ -1321,7 +1331,7 @@ public class ItemContentsBean implements Serializable {
 	public String getPointsDisplayString() {
 		String pointsDisplayString = "";
 		if (showStudentQuestionScore) {
-			pointsDisplayString = Precision.round(points, 2) + "/";
+			pointsDisplayString = String.valueOf(Precision.round(points, 2));
 		}
 		return pointsDisplayString;
 	}
@@ -1636,5 +1646,21 @@ public class ItemContentsBean implements Serializable {
   public int getAnswerCounter() {
     return answerCounter++;
   }
+
+	public String getRubricStateDetails() {
+		return rubricStateDetails;
+	}
+
+	public void setRubricStateDetails(String rubricStateDetails) {
+		this.rubricStateDetails = rubricStateDetails;
+	}
+
+	public boolean isHasAssociatedRubric() {
+		return hasAssociatedRubric;
+	}
+
+	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
+		this.hasAssociatedRubric = hasAssociatedRubric;
+	}
 }
 

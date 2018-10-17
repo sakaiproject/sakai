@@ -4,7 +4,7 @@
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
 		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "reorder" )
 	#end
-	#if ($alertMessage)<div class="alertMessage" style="width:80%  !important">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both"></div>#end
+	#if ($alertMessage)<div class="alertMessage" style="width:80%  !important"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div style="display:block;clear:both"></div>#end
 
     <div class="page-header">
         <h1>

@@ -25,10 +25,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
@@ -47,6 +50,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	private int					sqlBlockSize		= 1000;
 	private long				startEventId		= -1;
 	private long 				lastEventIdInTable	= -1;
+	private String				sakaiEventTimeZone	= "";
 
 	private String				driverClassName		= null;
 	private String				url					= null;
@@ -281,7 +285,16 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					String sessionId = null;
 					try{
 						//If an exception is launched, iteration is not aborted but no event is added to event queue
-						date = new Date(rs.getTimestamp("EVENT_DATE").getTime());
+
+						// Daily events can only be counted relative to a single time zone (server time). The sakai_event table 
+						// may be storing dates in a time zone different than this. Adjust for the sakai_event time zone if provided.
+						if (StringUtils.isNotBlank(sakaiEventTimeZone)) {
+							Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(sakaiEventTimeZone));
+							date = new Date(rs.getTimestamp("EVENT_DATE", calendar).getTime());
+						} else {
+							date = new Date(rs.getTimestamp("EVENT_DATE").getTime());
+						}
+
 						event = rs.getString("EVENT");
 						ref = rs.getString("REF");
 						sessionUser = rs.getString("SESSION_USER");
@@ -631,6 +644,14 @@ public class StatsAggregateJobImpl implements StatefulJob {
 
 	public void setStartEventId(long startEventId) {
 		this.startEventId = startEventId;
+	}
+
+	public String getSakaiEventTimeZone() {
+		return sakaiEventTimeZone;
+	}
+
+	public void setSakaiEventTimeZone(String timeZone) {
+		sakaiEventTimeZone = timeZone;
 	}
 
 	public String getDriverClassName() {

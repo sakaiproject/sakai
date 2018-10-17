@@ -10,7 +10,7 @@
 %>
 
 <f:view>
-<sakai:view title="#{msgs.tool_title}" toolCssHref="/sakai-calendar-summary-tool/summary-calendar/css/cal.css">
+<sakai:view title="#{msgs.tool_title}">
 	<sakai:script contextBase="/jsf-resource/" path="/inputColor/inputColor.js"/>
 	<sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/>
 	<sakai:script path="/summary-calendar/js/calendar-summary.js"/>
@@ -135,8 +135,8 @@
         	<script type="text/javascript">javascript:prepForms();</script>
         </f:verbatim>
         
-		<%/* BUTTONS */%><p>
-		<h:panelGrid styleClass="act" columns="2">
+		<%/* BUTTONS */%>
+		<p class="act">
 			<h:commandButton
 				action="#{PrefsBean.update}"
 				value="#{msgs.update}"				
@@ -147,7 +147,7 @@
 			<h:commandButton
 				action="#{PrefsBean.cancel}"
 				value="#{msgs.cancel}"/>
-		</h:panelGrid>       
+		</p>
 	</h:form>
 </sakai:view>
 </f:view>

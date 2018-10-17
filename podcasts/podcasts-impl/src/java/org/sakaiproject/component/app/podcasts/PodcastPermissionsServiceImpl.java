@@ -23,6 +23,7 @@ package org.sakaiproject.component.app.podcasts;
 
 import static org.sakaiproject.component.app.podcasts.Utilities.checkSet;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -38,7 +39,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 
@@ -48,7 +48,6 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 	private SecurityService securityService;
 	private ToolManager toolManager;
 	private SessionManager sessionManager;
-	private TimeService timeService;
 	private SiteService siteService;
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
@@ -67,9 +66,6 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 		this.sessionManager = sessionManager;
 	}
 
-	public void setTimeService(TimeService timeService) {
-		this.timeService = timeService;
-	}
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
@@ -80,7 +76,6 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 		checkSet(securityService, "securityService");
 		checkSet(toolManager, "toolManager");
 		checkSet(sessionManager, "sessionManager");
-		checkSet(timeService, "timeService");
 		checkSet(siteService, "siteService");
 	}
 	/**
@@ -187,9 +182,9 @@ public class PodcastPermissionsServiceImpl implements PodcastPermissionsService 
 
 	public boolean isResourceHidden(ContentEntity podcastResource, Date tempDate) {
 		return podcastResource.isHidden() 
-				|| (podcastResource.getRetractDate() != null 
-						&& podcastResource.getRetractDate().getTime() <= timeService.newTime().getTime())
-				|| (tempDate != null && tempDate.getTime() >= timeService.newTime().getTime());
+				|| (podcastResource.getRetractInstant() != null 
+						&& podcastResource.getRetractInstant().toEpochMilli() <= Instant.now().toEpochMilli()
+				|| (tempDate != null && tempDate.getTime() >= new Date().getTime()));
 	}
 
 

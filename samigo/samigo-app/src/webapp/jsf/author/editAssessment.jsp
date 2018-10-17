@@ -33,22 +33,22 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
-      <samigo:script path="/js/authoring.js"/>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
 
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
 
 $(window).load( function() {
   // No need for an insert question box after every single question!
-  $('table.parts-table').find('div.part-insert-question:not(:last)').hide();
+  $('div.part-insert-question:not(:last)').hide();
 });
 </script>
 
-<samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-<samigo:script path="/js/selection.author.preview.js"/>
-<samigo:script path="/../library/js/spinner.js"/>
+<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+<script type="text/javascript" src="/library/js/spinner.js"></script>
 
-<samigo:stylesheet path="/css/imageQuestion.author.css"/>
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
 <script type="text/JavaScript">	
 	jQuery(window).load(function(){
@@ -221,9 +221,8 @@ $(window).load( function() {
   </h:outputLink>
 </h:panelGrid>
 
-<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
-  <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
+<h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
   <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
@@ -313,20 +312,22 @@ $(window).load( function() {
         	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
         </h:outputFormat>
         
-<!-- this insert should only show up when there are no questions in this part -->
-<h:panelGroup rendered="#{partBean.itemContentsSize eq '0' && author.isEditPendingAssessmentFlow && !author.isEditPoolFlow}">
-    <div class="insert-question-row"> 
-	  <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
-	  <h:outputText value="&#160;" escape="false" />
+<!-- this insert should be at the top of each part -->
+<h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && !author.isEditPoolFlow}">
+    <div class="insert-question-row">
+      <div class="bs-callout-primary">
+        <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
+        <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
-         <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
+        <h:selectOneMenu id="changeQType" onchange="clickInsertLink(this);"  value="#{itemauthor.itemTypeString}">
              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
              <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
              <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},0"/>
-         </h:selectOneMenu>
+        </h:selectOneMenu>
+      </div>
     </div>
-    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
-      <f:param name="itemSequence" value="0"/>
+    <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="" styleClass="hidden">
+      <f:param name="itemSequence" value="#{partBean.itemContentsCount}"/>
     </h:commandLink>
 </h:panelGroup>
 
@@ -371,6 +372,10 @@ $(window).load( function() {
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
      <h:outputLabel styleClass="notbold" for="answerptr" rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
 	</h:panelGroup>
+
+	<!--Rubrics icon-->
+	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon" rendered="#{author.isEditPendingAssessmentFlow && author.questionHasRubric(assessmentBean.assessmentId, question.itemData.itemIdString, false)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	<h:outputText styleClass="fa fa-table" id="rubrics-published-question-icon" rendered="#{!author.isEditPendingAssessmentFlow && author.questionHasRubric(author.editPublishedAssessmentID, question.itemData.itemIdString, true)}" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 
 
         </h:panelGroup>
@@ -451,7 +456,7 @@ $(window).load( function() {
           </h:panelGroup>   
       </div>
 
-      <!-- Only want this displayed at the bottom of each part not on every question -->
+      <!-- Only want this displayed at the bottom of the last part (others hidden via docReady JS) -->
       <h:panelGroup styleClass="part-insert-question" layout="block" rendered="#{author.isEditPendingAssessmentFlow}">
         <div class="bs-callout-primary">
 	      <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
@@ -462,7 +467,7 @@ $(window).load( function() {
             <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
             <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
           </h:selectOneMenu>
-          <h:commandLink id="hiddenlink" styleClass="hiddenLink" action="#{itemauthor.doit}" value="">
+          <h:commandLink id="hiddenlink" styleClass="hidden" action="#{itemauthor.doit}" value="">
             <f:param name="itemSequence" value="#{question.itemData.sequence}"/>
           </h:commandLink>
         </div>
@@ -473,6 +478,7 @@ $(window).load( function() {
 </div>
   </h:column>
 </h:dataTable>
+<div class="act">
 <h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
@@ -480,6 +486,7 @@ $(window).load( function() {
 <h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="orderUpdate" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
 </h:commandButton>
+</div>
 </div> <!-- End the main container -->
 
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0">

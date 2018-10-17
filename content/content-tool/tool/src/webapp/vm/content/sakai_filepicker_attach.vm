@@ -106,7 +106,7 @@
 			<div class="form-inline">
 				<div class="form-group">
 				    <label for="upload">$tlang.getString("att.upl")</label>
-				    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton','attachForm');document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
+				    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton1','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
 					<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 				</div>	
 				<div class="form-group">
@@ -125,8 +125,8 @@
 			</div>
 					
 			<p class="act" style="clear:both">
-				<label for="attachButton" class="sr-only">$tlang.getString("att.explainfinish")</label>
-				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
+				<label for="attachButton1" class="sr-only">$tlang.getString("att.explainfinish")</label>
+				<input type="button" name="attachButton1" id="attachButton1"  accesskey="s"
 					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
 				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"
@@ -502,7 +502,7 @@
 		</table>
 		
 		<p class="act" >
-			<input type="button" name="attachButton" id="attachButton"  accesskey="s"
+			<input type="button" name="attachButton2" id="attachButton2"  accesskey="s"
 				onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 				value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
 			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"

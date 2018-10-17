@@ -36,11 +36,9 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoader;
-import org.springframework.web.context.WebApplicationContext;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -56,31 +54,27 @@ public class SakaiContextLoader extends ContextLoader
 	public static final String SPRING_CONTEXT_SUFFIX = "-context.xml";
 
 	/**
-     * Allows loading/override of custom bean definitions from sakai.home
-     *
-     * <p>The pattern is the 'servlet_name-context.xml'</p>
-     *
-     * @param servletContext current servlet context
-     * @return the new WebApplicationContext
-     * @throws org.springframework.beans.BeansException
-     *          if the context couldn't be initialized
-     */
-    @Override
-    public WebApplicationContext initWebApplicationContext(ServletContext servletContext) throws BeansException {
-
-        ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) super.initWebApplicationContext(servletContext);
-        // optionally look in sakai home for additional bean deifinitions to load
-		if (cwac != null) {
-			final String servletName = servletContext.getServletContextName(); 
+	 * Allows loading/override of custom bean definitions from sakai.home
+	 *
+	 * <p>The pattern is the 'servlet_name-context.xml'</p>
+	 *
+	 * @param sc current servlet context
+	 * @param wac the new WebApplicationContext
+	 */
+	@Override
+	protected void customizeContext(ServletContext sc, ConfigurableWebApplicationContext wac) {
+		super.customizeContext(sc, wac);
+		if (wac != null) {
+			final String servletName = sc.getServletContextName();
 			String location = getHomeBeanDefinitionIfExists(servletName);
 			if (StringUtils.isNotBlank(location)) {
 				log.debug("Servlet " + servletName + " is attempting to load bean definition [" + location + "]");
-				XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) cwac.getBeanFactory());
+				XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) wac.getBeanFactory());
 				try {
 					int loaded = reader.loadBeanDefinitions(new FileSystemResource(location));
 					log.info("Servlet " + servletName + " loaded " + loaded + " beans from [" + location + "]");
-					AnnotationConfigUtils.registerAnnotationConfigProcessors(reader.getRegistry());
-					cwac.getBeanFactory().preInstantiateSingletons();
+					// AnnotationConfigUtils.registerAnnotationConfigProcessors(reader.getRegistry());
+					// wac.getBeanFactory().preInstantiateSingletons();
 				} catch (BeanDefinitionStoreException bdse) {
 					log.warn("Failure loading beans from [" + location + "]", bdse);
 				} catch (BeanCreationException bce) {
@@ -88,8 +82,7 @@ public class SakaiContextLoader extends ContextLoader
 				}
 			}
 		}
-        return cwac;
-    }
+	}
 
 	/**
 	 * Spring allows a parent ApplicationContext to be set during the creation of a new ApplicationContext

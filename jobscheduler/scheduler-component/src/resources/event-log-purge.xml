@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<job-scheduling-data xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://www.quartz-scheduler.org/xml/JobSchedulingData http://www.quartz-scheduler.org/xml/job_scheduling_data_2_0.xsd"
+                     version="2.0">
+
+    <processing-directives>
+        <!-- The UI allows people to change the jobs and we don't want to overwrite those changes -->
+        <overwrite-existing-data>false</overwrite-existing-data>
+        <!-- We stop on the first error, this means if you don't like the trigger, just delete it and it won't
+             make any changes because the job exists -->
+        <ignore-duplicates>false</ignore-duplicates>
+    </processing-directives>
+
+    <schedule>
+        <!-- Put all the jobs in the default group -->
+        <job>
+            <!-- This is an old style job that uses our wrapper to get the instance from spring -->
+            <name>Event Log Purge</name>
+            <description>Purge the trigger events</description>
+            <job-class>org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper</job-class>
+            <!-- We make the job durable otherwise when the trigger is removed the job goes and it gets re-created -->
+            <durability>true</durability>
+            <recover>false</recover>
+            <job-data-map>
+                <entry>
+                    <key>org.sakaiproject.api.app.scheduler.JobBeanWrapper.bean</key>
+                    <value>eventPurgeJob</value>
+                </entry>
+                <entry>
+                    <key>org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType</key>
+                    <value>Event Log Purge</value>
+                </entry>
+            </job-data-map>
+        </job>
+
+        <trigger>
+            <cron>
+                <name>Nightly Log Purge Trigger</name>
+                <job-name>Event Log Purge</job-name>
+                <job-data-map>
+                    <entry>
+                        <key>number.days</key>
+                        <value>7</value>
+                    </entry>
+                </job-data-map>
+                <!-- Every 5 minutes -->
+                <cron-expression>0 0 0 * * ? *</cron-expression>
+            </cron>
+        </trigger>
+    </schedule>
+</job-scheduling-data>

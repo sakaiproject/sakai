@@ -22,17 +22,34 @@ import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 @Slf4j
 public class StudentScoreAttachmentListener implements ActionListener {
 
-	public void processAction(ActionEvent event) throws AbortProcessingException {
-		StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
+    public void processAction(ActionEvent event) throws AbortProcessingException {
+        StudentScoresBean studentScoresBean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
+        TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
-		String itemGradingId = ContextUtil.lookupParam("itemGradingId");
-		log.debug("itemGradingId = " + itemGradingId);
-		studentScoresBean.setItemGradingIdForFilePicker(Long.valueOf(itemGradingId));
-	}
+        for (Object sectionContentObj : delivery.getPageContents().getPartsContents()) {
+            SectionContentsBean sectionContent = (SectionContentsBean) sectionContentObj;
+            for (Object questionObj : sectionContent.getItemContents()) {
+                ItemContentsBean question = (ItemContentsBean) questionObj;
+                String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
+                String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + entityId + "-state-details");
+                question.setRubricStateDetails(rubricStateDetails);
+            }
+        }
+
+        String itemGradingId = ContextUtil.lookupParam("itemGradingId");
+        log.debug("itemGradingId = " + itemGradingId);
+        studentScoresBean.setItemGradingIdForFilePicker(Long.valueOf(itemGradingId));
+    }
 }

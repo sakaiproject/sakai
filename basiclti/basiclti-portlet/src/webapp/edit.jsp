@@ -366,8 +366,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 </p>
 <% } %>
-<p>
-<input type="submit" value="<%=rb.getString("update.options")%>">
+<p class="act">
+<input type="submit" value="<%=rb.getString("update.options")%>" class="active">
 <input type="submit" value="<%=rb.getString("edit.exit")%>" 
     onclick="window.location='<%=viewURL.toString()%>'; return false;"/>
 </p>

@@ -22,7 +22,7 @@
 	<h3>
 		$tlang.getString("viewassig.viewass1")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 		#if ($allowAddAssignment && !$hideAssignmentFlag)
 		## show assignment content
 		<p class="discTria">
@@ -183,7 +183,7 @@
 			#end
 			<tr> 
 				<th>
-					$tlang.getString("gen.alert")
+					<strong>$tlang.getString("gen.alert")</strong>
 				</th>
 				<td>
 					#if ($!announced == "true")
@@ -216,41 +216,7 @@
 		</div>
 
 		## Assignment attachments
-		#set ($attachments = $assignment.Attachments)
-		#if ($attachments)
-			#set ($size = $attachments.size())
-			#if ($size < 1)
-				$tlang.getString("gen.noatt")
-			#else
-				<h4>
-					$tlang.getString("gen.addres2")
-				</h4>
-				<ul class="attachList">
-					#foreach ($attachmentReference in $attachments)
-						#set ($reference = $attachmentReferences.get($attachmentReference))
-						#if ($reference)
-							#set ($props = false)
-							#set ($props = $reference.Properties)
-							#if ($!props)
-								<li>
-									#if ($props.getBooleanProperty($props.NamePropIsCollection))
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-									#else
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-									#end
-									#if ($decoratedUrlMap)
-										<a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-									#else
-										<a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-									#end
-									#propertyDetails($props)
-								</li>
-							#end
-						#end
-					#end
-				</ul>
-			#end
-		#end
+		#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap)
 
 		#if ($taggable)
    	    	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
@@ -374,41 +340,7 @@
 				#end
 
 				## Student Assignment attachments
-				#set ($attachments = $assignment.Attachments)
-				#if ($attachments)
-					#set ($size = $attachments.size())
-					#if ($size < 1)
-						$tlang.getString("gen.noatt")
-					#else
-                        <h4>
-							$tlang.getString("gen.addres2")
-                        </h4>
-                        <ul class="attachList">
-							#foreach ($attachmentReference in $attachments)
-								#set ($reference = $attachmentReferences.get($attachmentReference))
-								#if ($reference)
-									#set ($props = false)
-									#set ($props = $reference.Properties)
-									#if ($!props)
-                                        <li>
-											#if ($props.getBooleanProperty($props.NamePropIsCollection))
-                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-											#else
-                                                <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-											#end
-											#if ($decoratedUrlMap)
-                                                <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-											#else
-                                                <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-											#end
-											#propertyDetails($props)
-                                        </li>
-									#end
-								#end
-							#end
-                        </ul>
-					#end
-				#end
+				#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap)
 
 				<h4>
 					$tlang.getString("gen.submission")
@@ -441,17 +373,7 @@
 							<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" disabled="disabled" />
 						</p>
 					#end
-					## if honor pledge is required
-					#if ($assignment.HonorPledge)
-						<p class="checkbox highlightPanel">
-							<label for="yes">
-							<input name="Yes" type="checkbox" id="yes" value="" />
-							$honor_pledge_text</label>
-							<br />
-							$tlang.getString("gen.youmus")
-						</p>	
-					#end
-				</div>	
+				</div>
 		#else
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">

@@ -281,21 +281,21 @@ public interface DiscussionForumManager
    * Save a forum. If this is a new forum, assumes current context is available.
    * @param forum
    */
-  public void saveForum(DiscussionForum forum);
-  public void saveForum(DiscussionForum forum, boolean draft, String contextId, boolean logEvent, String currentUser);
+  public DiscussionForum saveForum(DiscussionForum forum);
+  public DiscussionForum saveForum(DiscussionForum forum, boolean draft, String contextId, boolean logEvent, String currentUser);
   
   /**
    * Saves the given forum object. If forum is new, will be saved in the given contextId
    * @param contextId
    * @param forum
    */
-  public void saveForum(String contextId, DiscussionForum forum);
+  public DiscussionForum saveForum(String contextId, DiscussionForum forum);
   
   /**
+   * @param object
    * @param forum
-   * @param object 
    */
-  public void saveForumAsDraft(DiscussionForum forum);
+  public DiscussionForum saveForumAsDraft(DiscussionForum forum);
 
 
   /**

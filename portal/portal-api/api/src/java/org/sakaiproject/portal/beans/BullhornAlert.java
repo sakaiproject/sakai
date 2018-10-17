@@ -1,56 +1,59 @@
-/**
- * Copyright (c) 2003-2017 The Apereo Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://opensource.org/licenses/ecl2
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.sakaiproject.portal.beans;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
-@Slf4j
+import lombok.Data;
+
+@Entity
+@Table(name = "BULLHORN_ALERTS")
+@Data
 public class BullhornAlert {
 
-    public long id = 0L;
-    public String from = "";
-    public String fromDisplayName = "";
-    public String to = "";
-    public String event = "";
-    public String ref = "";
-    public String title = "";
-    public String siteId = "";
-    public String siteTitle = "";
-    public String url = "";
-    public long eventDate = 0L;
+    @Id
+    @Column(name = "ID", nullable = false)
+    @GeneratedValue
+    private Long id;
 
-    public BullhornAlert() { }
+    @Column(name = "ALERT_TYPE", length = 8, nullable = false)
+    private String alertType;
 
-    public BullhornAlert(ResultSet rs) {
+    @Column(name = "FROM_USER", length = 99, nullable = false)
+    private String fromUser;
 
-        try {
-            id = rs.getLong("ID");
-            from = rs.getString("FROM_USER");
-            to = rs.getString("TO_USER");
-            event = rs.getString("EVENT");
-            ref = rs.getString("REF");
-            title = rs.getString("TITLE");
-            siteId = rs.getString("SITE_ID");
-            url = rs.getString("URL");
-            eventDate = rs.getTimestamp("EVENT_DATE").getTime();
-        } catch (SQLException sqle) {
-            log.error("Failed to build BullhornAlert from db record", sqle);
-        }
-    }
+    @Column(name = "TO_USER", length = 99, nullable = false)
+    private String toUser;
+
+    @Column(name = "EVENT", length = 32, nullable = false)
+    private String event;
+
+    @Column(name = "REF", length = 255, nullable = false)
+    private String ref;
+
+    @Column(name="TITLE", length=255)
+    private String title;
+
+    @Column(name="SITE_ID", length=99)
+    private String siteId;
+
+    @Column(name="URL", length=2048, nullable=false)
+    private String url;
+
+    @Column(name="EVENT_DATE", columnDefinition="DATETIME", nullable=false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date eventDate;
+
+    @Transient
+    private String fromDisplayName;
+
+    @Transient
+    private String siteTitle;
 }

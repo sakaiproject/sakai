@@ -20,7 +20,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <upstream.version>${ckeditor.balloonpanel.version}</upstream.version>
-	<upstream.url>http://download.ckeditor.com/balloonpanel/releases/balloonpanel</upstream.url>
+	<upstream.url>https://ckeditor.com/cke4/sites/default/files/balloonpanel/releases/balloonpanel</upstream.url>
         <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/balloonpanel/${upstream.version}</destDir>
         <requirejs>
             {
@@ -58,23 +58,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>sonatype-nexus-staging</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
             </plugin>
         </plugins>
     </build>

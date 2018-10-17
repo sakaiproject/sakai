@@ -35,7 +35,7 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id) {
 	}
 
 	sakai.editor.launch(textarea_id,'','450','240');
-	setMainFrameHeight(frame_id);
+	//setMainFrameHeight(frame_id);
 }
 
 function whichradio(el) {
@@ -76,3 +76,30 @@ function whichradio(el) {
 
 	return allowChange;
 }
+
+function resizeFrame(updown) {
+    var frame;
+    if (top.location !== self.location) {
+        frame = parent.document.getElementById(window.name);
+    }
+    if (frame) {
+        var clientH;
+        if (updown === "shrink") {
+            clientH = document.body.scrollHeight;
+        } else {
+            clientH = document.body.scrollHeight + 30;
+        }
+        $(frame).height(clientH);
+    }
+}
+
+// SAK-38320: add scope to the table. Maybe can add these direct to the JSF table after JSF 2.3 upgrade?
+$( document ).ready(function() {
+	$('table.matrixTable th.matrixSurvey').attr('scope', 'col');
+	$('table.matrixTable td.matrixColumn').attr('scope', 'row');
+
+        $(window.self).unbind("scroll");
+        $(window.self).scroll(function() {
+            resizeFrame("grow");
+        });
+});

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.rubrics"
+		title="Rubrics"
+		description="For creating grading rubrics, which can be associated with items in Gradebook and individual assessment tools.">
+
+		<!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
+		<category name="course" />
+      	<category name="project" />
+
+		<!--  If the visibility/access of this tool should be dependent on a user permission, you can list that here -->
+        <configuration name="functions.require" value="rubrics.editor" />
+
+    </tool>
+</registration>
+

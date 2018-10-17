@@ -156,7 +156,10 @@
 	</bean>
 -->
 
-<!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
+<!-- Uncomment and configure to use the UnboundidDirectoryProvider -->
+	<!--  import resource="unboundid-ldap.xml" / -->
+
+<!-- Uncomment and configure to use the legacy JLDAP Provider -->
 	<!--  import resource="jldap-beans.xml" / -->
 
 <!-- Uncomment and configure to use the Candidate Details Provider -->  
@@ -200,13 +203,14 @@
  -->
 
 	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
-		class="org.sakaiproject.user.detail.ValueEncryptionUtilities" init-method="init">
-        <property name="key">
+		  class="org.sakaiproject.user.detail.ValueEncryptionUtilities"
+		  init-method="init">
+		<property name="key">
 			<bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
-					   factory-method="getString">
-			<constructor-arg value="ValueEncryptionUtilities.key" />
-			<constructor-arg value="none" />
-		</bean>
+				  factory-method="getString">
+				<constructor-arg value="ValueEncryptionUtilities.key" />
+				<constructor-arg value="none" />
+			</bean>
 		</property>
 	</bean>
 

@@ -16,10 +16,7 @@
 package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -29,6 +26,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -179,24 +177,29 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission) {
+    public long countAssignmentSubmissions(String assignmentId, Boolean graded, Boolean hasSubmissionDate, Boolean userSubmission, List<String> userIds) {
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
-                .setProjection(Projections.rowCount())
+                .setProjection(Projections.countDistinct("id"))
                 .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitted", Boolean.TRUE));
+                .add(Restrictions.eq("submitted", Boolean.TRUE))
+                .createAlias("submitters", "s");
 
         if (graded != null) {
             criteria.add(Restrictions.eq("graded", graded));
         }
-
         if (hasSubmissionDate != null) {
             criteria.add(hasSubmissionDate ? Restrictions.isNotNull("dateSubmitted") : Restrictions.isNull("dateSubmitted"));
         }
-
         if (userSubmission != null) {
             criteria.add(Restrictions.eq("userSubmission", userSubmission));
         }
-
+        if (userIds != null) {
+            if (userIds.isEmpty()) {
+                return 0; // if we have an empty list then we return always return 0
+            } else {
+                criteria.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds));
+            }
+        }
         return ((Number) criteria.uniqueResult()).longValue();
     }
 

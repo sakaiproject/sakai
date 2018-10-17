@@ -138,13 +138,12 @@
             }
         </script>
         <script src="/library/js/jquery/jquery.clearsearch.js$!{portalCDNQuery}"></script>
-        <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.core.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.buttons.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/3.2.1/pnotify.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/3.2.1/pnotify.buttons.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}/qtip2/3.0.3/jquery.qtip.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
@@ -189,6 +188,8 @@
             ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
                 for(i=0; i<data.error.length; i++ ) {
                      ${d}PBJQ(function(){
+                        PNotify.prototype.options.styling = "bootstrap3";
+                        PNotify.prototype.options.styling = "fontawesome";
                         new PNotify({
                             title: '${rloader.getString("pnotify_notice")}',
                             text: data.error[i],
@@ -218,18 +219,17 @@
 
         ${includeExtraHead}
 
+        #if ($loggedIn)
         <!-- Modal popup for profile picture changer -->
         <div class="modal fade" id="profileImageUpload" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header"><h3>${rloader.getString("pic_changer_title")}</h3></div>
+                    <div class="modal-header"><h2>${rloader.getString("pic_changer_title")}</h2></div>
                     <div class="modal-body">
                         <div id="remove-error" class="alert alert-danger">${rloader.getString("pic_changer_remove_error")}</div>
                         <div id="upload-error" class="alert alert-danger">${rloader.getString("pic_changer_upload_error")}</div>
-                        <a id="upload" class="button">
-                            ${rloader.getString("pic_changer_upload")}
-                            <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*">
-                        </a>
+                        <label for="file">${rloader.getString("pic_changer_upload")}</label>
+                        <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*" aria-required="true">
                         <div id="cropme">
                             <img style="maxWidth: 100%" />
                         </div>
@@ -257,7 +257,8 @@
                 </div>
             </div>
         </div>
-
         #parse("/vm/morpheus/connection-manager.vm")
+        #end
+
     </body>
 </html>

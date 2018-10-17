@@ -74,6 +74,9 @@
                 {var tooltip = title.replace(/"/g, '&quot;')}
                 <a class="gb-title" title="${tooltip}">
                     ${abbrevTitle}
+                    {if hasAssociatedRubric}
+                        <span class="fa fa-fw fa-table" wicket:message="title:rubrics.question_use_rubric"></span>
+                    {/if}
                 </a>
                 {if settings.isCategoriesEnabled}
                     {if categoryId}
@@ -236,8 +239,10 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li class="{if !hasAssociatedRubric} hidden {/if}"><a class="gb-grade-rubric" href="#" role="menuitem"><wicket:message key="rubrics.option.graderubric" /></a></li>
                         <li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
                         <li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
+                        <li><a class="gb-excuse-grade" href="#" role="menuitem"><wicket:message id="excuse-message" key="excuse.grade" /></a></li>
                     </ul>
                 </div>
             </div>
@@ -345,6 +350,10 @@
                                     <li>
                                         <span class="gb-flag-extra-credit"></span> <wicket:message key="grade.notifications.overlimit"/>
                                     </li>
+                                {elseif notification.type == 'excused'}
+                                    <li>
+                                        <span class="gb-flag-excused"></span> <wicket:message key="grade.notifications.excused"/>
+                                    </li>
                                 {elseif notification.type == 'save-error'}
                                     <li>
                                         <span class="gb-flag-save-error"></span> <wicket:message key="grade.notifications.haserror"/>
@@ -375,6 +384,10 @@
                                                 <dd>${new Date(notification.conflict.lastUpdated).toLocaleTimeString()}</dd>
                                             </dl>
                                         {/if}
+                                    </li>
+                                {elseif notification.type == 'external-invalid'}
+                                    <li>
+                                        <span class="gb-flag-save-invalid"></span> <wicket:message key="grade.notifications.externalinvalid"/>
                                     </li>
                                 {elseif notification.type == 'external'}
                                     <li class="gb-external-app-wrapper">

@@ -32,7 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -65,15 +66,13 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration(locations = {"/hibernate-test.xml"})
 @Slf4j
@@ -157,7 +156,7 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 			expect(M_ss.getSite(FakeData.SITE_C_ID)).andStubReturn(siteC);
 			expect(M_ss.isUserSite(FakeData.SITE_C_ID)).andStubReturn(false);
 			expect(M_ss.isSpecialSite(FakeData.SITE_C_ID)).andStubReturn(false);
-			expect(siteC.getCreatedTime()).andStubReturn((Time)anyObject());
+			expect(siteC.getCreatedDate()).andStubReturn((Date)anyObject());
 		}
 		
 		// Site 'non_existent_site' doesn't exist

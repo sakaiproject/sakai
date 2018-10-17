@@ -32,8 +32,11 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 
+import com.sun.faces.renderkit.Attribute;
 import com.sun.faces.renderkit.html_basic.HtmlBasicRenderer;
-import com.sun.faces.util.Util;
+import com.sun.faces.renderkit.RenderKitUtils;
+import com.sun.faces.util.MessageUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.messageforums.Message;
@@ -71,8 +74,8 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 
 		if ((context == null) || (component == null)) {
 			throw new NullPointerException(
-					Util
-							.getExceptionMessageString(Util.NULL_PARAMETERS_ERROR_MESSAGE_ID));
+					MessageUtils
+							.getExceptionMessageString(MessageUtils.NULL_PARAMETERS_ERROR_MESSAGE_ID));
 		}
 		if (log.isTraceEnabled()) {
 			log.trace("Begin encoding component " + component.getId());
@@ -98,8 +101,8 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 		if (styleClass != null) {
 			writer.writeAttribute("class", styleClass, "styleClass");
 		}
-		Util.renderPassThruAttributes(writer, component,
-				new String[] { "rows" });
+		Attribute[] EXTRA_ATTRIBUTES = { Attribute.attr("rows") };
+		RenderKitUtils.renderPassThruAttributes(context, writer, component, EXTRA_ATTRIBUTES);
 		writer.writeText("\n", null);
 
 		// Render the header facets (if any)
@@ -201,8 +204,8 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 
 		if ((context == null) || (component == null)) {
 			throw new NullPointerException(
-					Util
-							.getExceptionMessageString(Util.NULL_PARAMETERS_ERROR_MESSAGE_ID));
+					MessageUtils
+							.getExceptionMessageString(MessageUtils.NULL_PARAMETERS_ERROR_MESSAGE_ID));
 		}
 		if (log.isTraceEnabled()) {
 			log.trace("Begin encoding children " + component.getId());
@@ -425,8 +428,8 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 
 		if ((context == null) || (component == null)) {
 			throw new NullPointerException(
-					Util
-							.getExceptionMessageString(Util.NULL_PARAMETERS_ERROR_MESSAGE_ID));
+					MessageUtils
+							.getExceptionMessageString(MessageUtils.NULL_PARAMETERS_ERROR_MESSAGE_ID));
 		}
 		if (!component.isRendered()) {
 			if (log.isTraceEnabled()) {

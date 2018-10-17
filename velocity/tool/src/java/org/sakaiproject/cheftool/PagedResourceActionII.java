@@ -39,6 +39,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import javax.servlet.http.HttpServletRequest;
+import org.sakaiproject.javax.PagingPosition;
 
 /**
  * <p>
@@ -370,7 +371,17 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 
 		// compute the end to a page size, adjusted for the number of messages available
 		int posEnd = posStart + (pageSize - 1);
-		if (posEnd >= numMessages) posEnd = numMessages - 1;
+		PagingPosition page = new PagingPosition(posStart, posEnd);
+		page.validate(numMessages);
+		if (page.getFirst() >= numMessages)
+		{
+			posStart = 0;
+		}
+		else
+		{
+			posStart = page.getFirst();
+		}
+		posEnd = page.getLast();
 
 		// select the messages on this page
 		List messagePage = readResourcesPage(state, posStart + 1, posEnd + 1);
@@ -531,7 +542,9 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 		boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
 		context.put("goLPButton", Boolean.toString(goLPButton));
 
-		context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
+		int pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+		context.put("pagesize", Integer.toString(pageSize));
+		context.put("pagesizeInt", pageSize);
 		context.put("pagesizes", PAGESIZES);
 
 	} // pagingInfoToContext

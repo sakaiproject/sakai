@@ -31,8 +31,10 @@ import java.util.Map;
 import javax.faces.event.ActionEvent;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.jsf.model.PhaseAware;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.jsf2.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
@@ -89,6 +91,9 @@ public class SubmissionStatusBean
   private String defaultSearchString;
   
   private Boolean releasedToGroups = null;
+
+  // Rubrics
+  private String rbcsToken;
 
   /**
    * Creates a new SubmissionStatusBean object.
@@ -712,5 +717,12 @@ public class SubmissionStatusBean
 		}
 		return releasedToGroups;
 	}
-	
+
+  public String getRbcsToken() {
+    return rbcsToken;
+  }
+
+  public void setRbcsToken(String rbcsToken) {
+    this.rbcsToken = rbcsToken;
+  }
 }

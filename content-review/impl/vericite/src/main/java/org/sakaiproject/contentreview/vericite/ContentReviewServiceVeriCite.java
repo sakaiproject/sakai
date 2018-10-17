@@ -26,7 +26,9 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,13 +39,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
@@ -52,17 +54,8 @@ import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
+import org.sakaiproject.contentreview.service.BaseContentReviewService;
 import org.sakaiproject.contentreview.service.ContentReviewQueueService;
-import org.sakaiproject.contentreview.service.ContentReviewService;
-import com.vericite.client.ApiClient;
-import com.vericite.client.ApiException;
-import com.vericite.client.api.DefaultApi;
-import com.vericite.client.model.AssignmentData;
-import com.vericite.client.model.ExternalContentData;
-import com.vericite.client.model.ExternalContentUploadInfo;
-import com.vericite.client.model.ReportMetaData;
-import com.vericite.client.model.ReportScoreReponse;
-import com.vericite.client.model.ReportURLLinkReponse;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -81,12 +74,21 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import com.vericite.client.ApiClient;
+import com.vericite.client.ApiException;
+import com.vericite.client.api.DefaultApi;
+import com.vericite.client.model.AssignmentData;
+import com.vericite.client.model.ExternalContentData;
+import com.vericite.client.model.ExternalContentUploadInfo;
+import com.vericite.client.model.ReportMetaData;
+import com.vericite.client.model.ReportScoreReponse;
+import com.vericite.client.model.ReportURLLinkReponse;
+
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ContentReviewServiceVeriCite implements ContentReviewService {
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
+public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	
 	@Setter
 	private UserDirectoryService userDirectoryService;
@@ -561,56 +563,27 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			}
 		}
 
-		Optional<ContentReviewItem> reviewItem = crqs.getQueuedItem(getProviderId(), contentId);
-		if(score == null){
-			//nothing was found, throw exception for this contentId
-			//remove from queue so that we can start again.
-			if(!preliminarySkipped && needsRequeue(reviewItem)){
-				if(reviewItem.isPresent()){
-					//in order to requeue, we need to delete the old queue:
-					crqs.removeFromQueue(getProviderId(), contentId);
-				}
-				throw new QueueException("No report was found for contentId: " + contentId);
-			}else{
-				return -1;
-			}
-		}else{
-			//update the score in the db so admins can run reports:
-			if(reviewItem.isPresent()){
-				if(reviewItem.get().getReviewScore() == null || reviewItem.get().getReviewScore().intValue() != score.intValue()){
-					//score has changed, update it and save it in the db
-					reviewItem.get().setReviewScore(score);
-					crqs.update(reviewItem.get());
-				}
-			}
-			//score wasn't null and there should have only been one score, so just return that value
-			return score;
-		}
+		return score;
 	}
 	
-	private boolean needsRequeue(Optional<ContentReviewItem> reviewItem){
+	private boolean needsRequeue(ContentReviewItem reviewItem){
 		boolean requeue = false;
-		if(reviewItem.isPresent()){
-			//see whether the queue is old or reties failed:
-			Date submitted = reviewItem.get().getDateSubmitted();
-			if(submitted == null){
-				//check if there is another date
-				submitted = reviewItem.get().getDateQueued();
-			}
-			if(submitted != null){
-				//see how long it has been since queue status
-				Calendar cal = Calendar.getInstance();
-				cal.add(Calendar.HOUR, -2);
-				//if it has been over 3 hours, try again
-				if(cal.getTime().after(submitted)){
-					requeue = true;
-				}
-			}else{
-				//something is weird here since dates are missing, just requeue:
+		//see whether the queue is old or reties failed:
+		Date submitted = reviewItem.getDateSubmitted();
+		if(submitted == null){
+			//check if there is another date
+			submitted = reviewItem.getDateQueued();
+		}
+		if(submitted != null){
+			//see how long it has been since queue status
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -2);
+			//if it has been over 3 hours, try again
+			if(cal.getTime().after(submitted)){
 				requeue = true;
 			}
 		}else{
-			//there is no queue item, so create one!
+			//something is weird here since dates are missing, just requeue:
 			requeue = true;
 		}
 		return requeue;
@@ -976,8 +949,32 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			
 			//Vericite specific work			
 			try {
-				int score = getReviewScore(contentId, item.getTaskId(), null);
+				//get most up to date score
+				Integer scoreInt = getReviewScore(contentId, item.getTaskId(), null);
+				int score = scoreInt == null ? -1 : scoreInt.intValue();
 				log.debug(" getReviewScore returned a score of: {} ", score);
+				//update the score in the db if it changed (update status as well)
+				if(item.getReviewScore() == null || item.getReviewScore().intValue() != score){
+					//score has changed, update it and save it in the db
+					item.setReviewScore(score);
+					if(score < 0) {
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
+					}else {
+						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+					}
+					crqs.update(item);
+				}
+
+				if(score < 0 && needsRequeue(item)){
+					//need to make sure this content item get's requeued
+					ContentResource cr = contentHostingService.getResource(contentId);
+					if(cr != null) {
+						log.info("Requeuing contentId: " + contentId);
+						//in order to requeue, we need to delete the old queue:
+						removeFromQueue(contentId);
+						queueContent(item.getUserId(), item.getSiteId(), item.getTaskId(), Arrays.asList(cr));
+					}
+				}
 			} catch(Exception e) {
 				log.error("Vericite - getReviewScore error called from getContentReviewItemByContentId with content {} - {}", contentId, e.getMessage());
 			}
@@ -985,5 +982,26 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			return item;
 		}
 		return null;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementLink(String userId) {
+		return null;
+	}
+
+	@Override
+	public Instant getEndUserLicenseAgreementTimestamp() {
+		return null;
+	}
+
+	@Override
+	public String getEndUserLicenseAgreementVersion() {
+		return null;
+	}
+
+	@Override
+	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -30,6 +30,7 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
+import org.sakaiproject.assignment.impl.reminder.prefs.AssignmentUserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -44,6 +45,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.LearningResourceStoreService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
@@ -53,7 +55,9 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -266,5 +270,20 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
     public SchedulerManager schedulerManager() {
         return mock(SchedulerManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.user.api.UserNotificationPreferencesRegistration")
+    public UserNotificationPreferencesRegistration userNotificationPreferencesRegistration() {
+        return mock(AssignmentUserNotificationPreferencesRegistrationImpl.class);
+    }
+
+    @Bean(name = "org.sakaiproject.user.api.PreferencesService")
+    public PreferencesService preferencesService() {
+        return mock(PreferencesService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.rubrics.logic.RubricsService")
+    public RubricsService rubricsService() {
+        return mock(RubricsService.class);
     }
 }

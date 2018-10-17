@@ -56,6 +56,10 @@
             <artifactId>lessonbuilder-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.commons</groupId>
+            <artifactId>commons-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
@@ -70,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -97,6 +101,10 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -105,12 +113,6 @@
                 <directory>${basedir}/src/bundle</directory>
                 <includes>
                     <include>**/*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/sql</directory>
-                <includes>
-                    <include>**/*.sql</include>
                 </includes>
             </resource>
         </resources>

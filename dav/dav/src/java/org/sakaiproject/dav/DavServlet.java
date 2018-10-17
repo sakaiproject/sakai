@@ -87,6 +87,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -3151,7 +3152,7 @@ public class DavServlet extends HttpServlet
 							break;
 						case Node.ELEMENT_NODE:
 							strWriter = new StringWriter();
-							domWriter = new DOMWriter(strWriter, true);
+							domWriter = new DOMWriter(strWriter);
 							domWriter.print(currentNode);
 							lock.owner += strWriter.toString();
 							break;
@@ -3770,7 +3771,7 @@ public class DavServlet extends HttpServlet
 			}
 		}
 
-		destinationPath = UDecoder.URLDecode(normalize(destinationPath), "UTF8");
+		destinationPath = UDecoder.URLDecode(normalize(destinationPath), StandardCharsets.UTF_8);
 
 		return destinationPath;
 

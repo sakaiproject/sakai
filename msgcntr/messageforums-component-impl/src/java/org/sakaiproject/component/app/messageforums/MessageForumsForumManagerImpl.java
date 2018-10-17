@@ -35,6 +35,7 @@ import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.collection.internal.PersistentSet;
+import org.sakaiproject.hibernate.HibernateUtils;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -712,11 +713,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
               
           if (results != null) {
             if (results[0] instanceof Topic) {
-              tempTopic = (Topic)results[0];
-              tempTopic.setBaseForum((BaseForum)results[1]);            
+              tempTopic = (Topic) HibernateUtils.unproxy(results[0]);
+              tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[1]));
             } else {
-              tempTopic = (Topic)results[1];
-              tempTopic.setBaseForum((BaseForum)results[0]);
+              tempTopic = (Topic) HibernateUtils.unproxy(results[1]);
+              tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[0]));
             }
             resultSet.add(tempTopic);
           }
@@ -818,20 +819,20 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * Save a discussion forum
      */
-    public void saveDiscussionForum(DiscussionForum forum) {
-        saveDiscussionForum(forum, false);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum) {
+        return saveDiscussionForum(forum, false);
     }
 
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft) {
-    	saveDiscussionForum(forum, draft, false);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft) {
+        return saveDiscussionForum(forum, draft, false);
     }
     
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) {
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) {
     	String currentUser = getCurrentUser();
-    	saveDiscussionForum(forum, draft, logEvent, currentUser);
+        return saveDiscussionForum(forum, draft, logEvent, currentUser);
     }
     
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser) {
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser) {
     
         boolean isNew = forum.getId() == null;
 
@@ -880,9 +881,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         //make sure availability flag is set properly
         forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate()));
-        
-        getHibernateTemplate().saveOrUpdate(forum);
-        
+
+        forum = getHibernateTemplate().merge(forum);
+
         //make sure that any open and close dates are scheduled:
         ForumScheduleNotificationCover.scheduleAvailability(forum);
         
@@ -894,7 +895,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         	}
         }
 
-        log.debug("saveDiscussionForum executed with forumId: " + forum.getId() + ":: draft: " + draft);
+        log.debug("saveDiscussionForum executed with forumId: {} :: draft: {}", forum.getId(), draft);
+
+        return forum;
     }
     
     public DiscussionTopic createDiscussionForumTopic(DiscussionForum forum) {
@@ -963,17 +966,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         //make sure availability is set properly
         topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
         
-        if (topic.getId() == null) {
-            
-          DiscussionForum discussionForum = 
-            (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
-          discussionForum.addTopic(topic);
-
-          saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
-          //sak-5146 saveDiscussionForum(discussionForum, parentForumDraftStatus);
-            
+        if (isNew) {
+            DiscussionForum discussionForum = (DiscussionForum) getForumByIdWithTopics(topic.getBaseForum().getId());
+            discussionForum.addTopic(topic);
+            saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
         } else {
-            getHibernateTemplate().saveOrUpdate(topic);
+            getHibernateTemplate().update(topic);
         }
         //now schedule any jobs that are needed for the open/close dates
         //this will require having the ID of the topic (if its a new one)

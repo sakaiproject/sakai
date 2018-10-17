@@ -103,14 +103,15 @@ public class PDFExportServiceTest {
         when(event.getDisplayName()).thenReturn("Test Event");
         events.add(event);
 
-        when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)))).thenReturn(events);
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)) )).thenReturn(events);
+        when(baseCalendarService.getEvents(eq(calendarReferenceList), argThat(arg -> arg.contains(eventTimeRange)), anyBoolean())).thenReturn(events);
 
         Path file = Files.createTempFile("calendar", ".pdf");
         OpenOption[] options = (deleteFiles)?new OpenOption[]{DELETE_ON_CLOSE, CREATE}:new OpenOption[]{CREATE};
         OutputStream out = new BufferedOutputStream(Files.newOutputStream(file.toAbsolutePath(), options));
 
         String xslFileNameForScheduleType = pdfExportService.getXSLFileNameForScheduleType(CalendarService.LIST_VIEW);
-        pdfExportService.generateXMLDocument(CalendarService.LIST_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService);
+        pdfExportService.generateXMLDocument(CalendarService.LIST_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService, Boolean.FALSE);
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
@@ -140,7 +141,7 @@ public class PDFExportServiceTest {
         OutputStream out = new BufferedOutputStream(Files.newOutputStream(file.toAbsolutePath(), options));
 
         String xslFileNameForScheduleType = pdfExportService.getXSLFileNameForScheduleType(CalendarService.DAY_VIEW);
-        pdfExportService.generateXMLDocument(CalendarService.DAY_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService);
+        pdfExportService.generateXMLDocument(CalendarService.DAY_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService, false);
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
@@ -170,7 +171,7 @@ public class PDFExportServiceTest {
         OutputStream out = new BufferedOutputStream(Files.newOutputStream(file.toAbsolutePath(), options));
 
         String xslFileNameForScheduleType = pdfExportService.getXSLFileNameForScheduleType(CalendarService.WEEK_VIEW);
-        pdfExportService.generateXMLDocument(CalendarService.WEEK_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService);
+        pdfExportService.generateXMLDocument(CalendarService.WEEK_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService, false);
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();
         if (!deleteFiles) {
@@ -200,7 +201,7 @@ public class PDFExportServiceTest {
         OutputStream out = new BufferedOutputStream(Files.newOutputStream(file.toAbsolutePath(), options));
 
         String xslFileNameForScheduleType = pdfExportService.getXSLFileNameForScheduleType(CalendarService.MONTH_VIEW);
-        pdfExportService.generateXMLDocument(CalendarService.MONTH_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService);
+        pdfExportService.generateXMLDocument(CalendarService.MONTH_VIEW, doc, range, officeHours, calendarReferenceList, "userId", baseCalendarService, false);
 
         pdfExportService.generatePDF(doc, xslFileNameForScheduleType, out);
         out.close();

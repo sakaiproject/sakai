@@ -173,6 +173,8 @@ function renderChart(gbChartData) {
 				}],
 				yAxes: [{
 					ticks: {
+						beginAtZero:true,
+						stepSize: 1,
 						fontStyle: 'bold'
 					},
 					scaleLabel: {

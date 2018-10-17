@@ -55,11 +55,13 @@ public class GradePointsMapping extends GradeMapping {
         grades.add("C+ (2.33)");
         grades.add("C (2.0)");
         grades.add("C- (1.67)");
+        grades.add("D+ (1.33)");
         grades.add("D (1.0)");
+        grades.add("D- (0.67)");
         grades.add("F (0)");
 
         defaultValues = new ArrayList<Double>();
-        defaultValues.add(Double.valueOf(100));
+        defaultValues.add(Double.valueOf(93));
         defaultValues.add(Double.valueOf(90));
         defaultValues.add(Double.valueOf(87));
         defaultValues.add(Double.valueOf(83));
@@ -68,6 +70,8 @@ public class GradePointsMapping extends GradeMapping {
         defaultValues.add(Double.valueOf(73));
         defaultValues.add(Double.valueOf(70));
         defaultValues.add(Double.valueOf(67));
+        defaultValues.add(Double.valueOf(63));
+        defaultValues.add(Double.valueOf(60));
         defaultValues.add(Double.valueOf(00));
     }
 

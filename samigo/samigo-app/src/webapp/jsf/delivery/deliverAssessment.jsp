@@ -32,70 +32,37 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
-      </title>
-      <style type="text/css">
-        .TableColumn {
-          text-align: center
-        }
-        .TableColumnLeft {
-          text-align: left
-        }
-       .TableClass {
-         border-style: dotted;
-         border-width: 0.5px;
-         border-color: light grey;
-       }
-       
-       #delivAssessmentWrapper
-       {
-            width: 96%;
-            float: left;
-       }
-      </style>
-
+      <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <samigo:script path="/../sakai-editor/editor-bootstrap.js"/>
-      <samigo:script path="/../sakai-editor/editor.js"/>
-      <samigo:script path="/../sakai-editor/editor-launch.js"/>
-	  <samigo:script path="/js/saveForm.js"/>	  	  
-    
+      <script type="text/javascript" src="/sakai-editor/editor-bootstrap.js"></script>
+      <script type="text/javascript" src="/sakai-editor/editor.js"></script>
+      <script type="text/javascript" src="/sakai-editor/editor-launch.js"></script>
+      <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>
+
+    <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
+      <script>
+        var imports = [
+          '/rubrics-service/imports/sakai-rubric-student.html'
+        ];
+        var Polymerdom = 'shady';
+        var rbcstoken = '<h:outputText value="#{delivery.rbcsToken}" />';
+      </script>
+
+      <script src="/rubrics-service/js/sakai-rubrics.js"></script>
+    </h:panelGroup>
+
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       </head>
 	<body>
+
+  <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
+    <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{!delivery.assessmentSubmitted}">
  
       <h:outputText value="<a name='top'></a>" escape="false" />
       
-       <div id="timer-warning" style="display:none">
-      	 <h:panelGrid columns="1" rowClasses="TableColumn, TableColumnLeft, TableColumnLeft" width="100%"  border="0">
-           <h:outputText value="<b>#{deliveryMessages.five_minutes_left1}</b>" escape="false"/>
-      	   <h:outputText value="<br/>#{deliveryMessages.five_minutes_left2}" escape="false"/>
-      	   <h:outputText value="#{deliveryMessages.five_minutes_left3}"  escape="false"/>
-      	 </h:panelGrid>
-      </div>
-      
-		
-		<div id="time-30-warning" style="display:none;text-align:center">
-		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false">
-                <f:param value="#{delivery.dayDueDateString}"/>
-        </h:outputFormat>
-        <br /><br /><br />
-        <h:outputText value="#{deliveryMessages.time_30_warning_2}" escape="false"/>
-        <br />
-		</div>
-		
-		
-		<div id="time-due-warning" style="display:none;text-align:center" >
-				<h:outputText value="#{deliveryMessages.time_due_warning_1}" escape="false"/>
-				<br/><br />
-				<button type="button" onclick="clickSubmit();"><h:outputText value="#{deliveryMessages.button_submit}" escape="false"/></button>
-				<br /><br />	
-				<a href="#" onclick="clickDoNotSubmit();"><h:outputText value="<u>#{deliveryMessages.link_do_not_submit}</u>" escape="false"/></a>
-				<br /><br />
-				<h:outputText value="#{deliveryMessages.time_due_warning_2}" escape="false"/>
-				<br /><br />
-		</div>
- 
 <div class="portletBody Mrphs-sakai-samigo">
 <div>
 
@@ -229,8 +196,8 @@ document.links[newindex].onclick();
 	</f:verbatim>
 </h:panelGroup>
 
-<samigo:stylesheet path="/css/imageQuestion.student.css"/>
-<samigo:stylesheet path="/css/imageQuestion.author.css"/>
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 
 <script type="text/JavaScript">
 	var dynamicListMap = [];		
@@ -286,6 +253,7 @@ document.links[newindex].onclick();
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
+<h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -322,16 +290,18 @@ document.links[newindex].onclick();
   <div class="tier1">
   <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
-     <!-- f:subview id="parts" -->
-      <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
-       <h:panelGroup>
-      <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-      <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
-         </h:panelGroup>
-
-        <h:outputText value="#{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-      </h:panelGrid>
-      <h:outputText value="#{part.description}" escape="false"/>
+    <h4 class="part-header">
+        <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
+        <small class="part-text">
+            <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
+        </small>
+        <span class="badge"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
+    </h4>
+    <h4 class="tier1">
+        <small class="part-text">
+            <h:outputText value="#{part.description}" escape="false"/>
+        </small>
+    </h4>
 
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
@@ -341,21 +311,33 @@ document.links[newindex].onclick();
 
    <h:dataTable width="100%" value="#{part.itemContents}" var="question">
      <h:column>
-       <h:panelGroup styleClass="row" layout="block">
-         <h:panelGroup styleClass="col-md-6" layout="block">
-           <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
-           <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-         </h:panelGroup>
-         <h:panelGroup styleClass="col-md-6 pull-right" layout="block">
-          <h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-          <h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
-			<f:convertNumber maxFractionDigits="2"/>
-          </h:outputText>
-		  <h:outputText value=" #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
-          <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
-			<f:convertNumber maxFractionDigits="2"/>
-          </h:outputText>
-         </h:panelGroup>
+		<h:panelGroup layout="block" styleClass="input-group col-sm-6">
+			<span class="input-group-addon">
+				<h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
+				<h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
+			</span>
+			<%-- REVIEW ASSESSMENT --%>
+			<h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+			<span class="input-group-addon">
+				<%-- REVIEW ASSESSMENT --%>
+				<h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+				<%-- DELIVER ASSESSMENT --%>
+				<h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
+					<f:convertNumber maxFractionDigits="2"/>
+				</h:outputText>
+				<h:outputText value="#{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
+				<h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
+					<f:convertNumber maxFractionDigits="2"/>
+				</h:outputText>
+			</span>
+		</h:panelGroup>
+
+       <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
+         <sakai-rubric-student
+           tool-id="sakai.samigo"
+           entity-id='<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}"/>'
+           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
+         </sakai-rubric-student>
        </h:panelGroup>
 
        <div class="samigo-question-callout">
@@ -568,9 +550,9 @@ document.links[newindex].onclick();
 
 <!-- CLOSING THE WRAPPER DIVS -->
 <f:verbatim></div></f:verbatim>
-<%@ include file="/jsf/delivery/questionProgress.jspf" %>
 <f:verbatim></div>
 </f:verbatim>
+<%@ include file="/jsf/delivery/questionProgress.jspf" %>
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -583,7 +565,7 @@ document.links[newindex].onclick();
 <!-- end content -->
 </div>
 <f:verbatim></div></f:verbatim>
-<samigo:script path="/js/questionProgress.js"/>
+<script type="text/javascript" src="/samigo-app/js/questionProgress.js"></script>
 <script type="text/JavaScript">
 	<%= request.getAttribute("html.body.onload") %> 
 	setLocation(); 
@@ -595,6 +577,7 @@ document.links[newindex].onclick();
 	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
     questionProgress.setUp();
 </script>
+</h:panelGroup>
     </body>
   </html>
 </f:view>

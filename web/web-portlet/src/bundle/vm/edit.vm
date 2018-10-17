@@ -82,12 +82,11 @@ ${includeLatestJQuery}
         #end
 
             #if ($showPopup)
-                        <div class="form-group">    
+                    <div class="form-group">    
                         <input type="checkbox" value="true" name="popup" id="opentrue" #if ($popup) checked="checked" #end  class="indnt1" />
                         <label for="opentrue" class="control-label form-control-label">$tlang.getString("gen.info.pop")</label>
-                        </div>
-                        <br />
-
+                        <div style="padding-left: 1.5em;"><i>$tlang.getString("gen.popup.info")</i></div>
+                    </div>
             #end
 
                 <p class="act">

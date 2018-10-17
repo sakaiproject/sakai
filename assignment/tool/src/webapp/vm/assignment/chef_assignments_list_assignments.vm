@@ -36,7 +36,7 @@
 		## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
 		#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div class="clear"></div>#end
 
 	<div class="page-header">
 		<h1>
@@ -44,67 +44,44 @@
 		</h1>
 	</div>
 
-	#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
-		<div class="row" id="filterByGroupDiv">
-			<div class="col-md-12">
-			<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-				<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
-					<div class="spinnerBesideContainer">
-						<label for="groupFilter">
-							$!tlang.getString("listassig.filterbygroup")
-						</label>
-						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select id="filterByGroup" name="filterByGroup" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
-							<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
-							#foreach($group in $!filterGroupIterator)
-								<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
-							#end
-						</select>
-					</div>
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-			</div>
-		</div>
-	#end
-
 	#if (!$!assignments.hasNext())
 		<p class="instruction">
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
-	<div class="navPanel row">
-		#if ($allowAddAssignment)
-			#if (!$!view.equals('stuvie'))
-			<div class="col-sm-5 col-xs-12">
-				<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doView" value="view" />
-					<div class="spinnerBesideContainer">
-						<label for="view">
-							$tlang.getString("gen.view2")
-						</label>
-						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-						<select id="view" name="view" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
-							<option value="lisofass1" #if($!view.equals('lisofass1'))selected="selected"#end >$!tlang.getString('lisofass1')</option>
-							<option value="lisofass2" #if($!view.equals('lisofass2'))selected="selected"#end >$!tlang.getString('lisofass2')</option>
-						</select>
-					</div>
+	#if ($allowAddAssignment)
+		#if ($!view.equals('stuvie'))
+			<div class="messageInformation">$tlang.getString("stulistassig.selanass1")</div>
+		#end
+	#else
+		<div>$tlang.getString("stulistassig.selanass")</div>
+	#end
+
+	<div class="sakai-table-toolBar">
+		#if($!groupFilterEnabled && $!filterGroupIterator.hasNext())
+		<div class="sakai-table-filterContainer">
+			<div class="row" id="filterByGroupDiv">
+				<div class="col-md-12">
+				<form id="groupFilterForm" name="groupFilterForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+					<input type="hidden" name="eventSubmit_doFilterByGroup" value="filterByGroup" />
+					<label for="groupFilter">
+						$!tlang.getString("listassig.filterbygroup")
+					</label>
+					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+					<select id="filterByGroup" name="filterByGroup" onchange="SPNR.disableControlsAndSpin(this, null); ASN.submitForm( 'groupFilterForm', null, null, null ); return false;">
+						<option value="all" #if($!filterByGroup.equals('all'))selected="selected"#end>$!tlang.getString("listassig.allgroups")</option>
+						#foreach($group in $!filterGroupIterator)
+							<option value="$group.getId()" #if($!filterByGroup.equals($group.getId()))selected="selected"#end>$group.getTitle()</option>
+						#end
+					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
+				</div>
 			</div>
-			<div class="col-sm-7 col-xs-12">
-			#else
-				<div class="col-md-12">
-				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
-			</div>
-			<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-			#end
-		#else
-			<div class="col-md-12">
-				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
-			</div>
-			<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
+		</div>
 		#end
-			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
+		<div class="sakai-table-pagerContainer">
+			#pagerPanel("pager1")
 		</div>
 	</div>
 
@@ -255,55 +232,106 @@
 								#end
 							</td>						
 							<td headers="title" scope="row">
-									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignmentReference)) && $!view.equals('lisofass1'))
-										<strong>
-											#assignmentTitleIcon($assignment)
-											## normal instructor view
-											#if ($assignment.Draft && $!allowUpdateAssignment )
-												<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
-											#else
-												<a name="asnActionLink" href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
-											#end
-											#if ($!assignment.draft)
-												<span class="highlight">$tlang.getString("gen.dra2")</span>
-											#end
-												$validator.escapeHtml($!assignment.Title)
+								#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignmentReference)) && $!view.equals('lisofass1'))
+									<strong>
+										#assignmentTitleIcon($assignment)
+										## normal instructor view
+										#if ($assignment.Draft && $!allowUpdateAssignment )
+											<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
+										#else
+											<a name="asnActionLink" href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
+										#end
+										#if ($!assignment.draft)
+											<span class="highlight">$tlang.getString("gen.dra2")</span>
+										#end
+											$validator.escapeHtml($!assignment.Title)
+										</a>
 
-											#if ($assignment.getContentReview())
-												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
-											#end
-											</a>
-										</strong>
-										<div class="itemAction">
-											#set($prevAction=false)
-											#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $validator.escapeHtml($!assignment.Title)</span></a>#end
-											#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")<span class="skip"> $validator.escapeHtml($!assignment.Title)</span></a>#end
-											#if ($taggable && $allowAddAssignment)
-												#foreach ($provider in $providers)
-													#set ($helperInfo = false)
-													#set ($activity = $producer.getActivity($assignment))
-													#set ($helperInfo = $provider.getActivityHelperInfo($activity.reference))
-													#if ($helperInfo)
-														#if($prevAction)
-															|
-														#else
-															#set($prevAction=true)
-														#end
-															<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$!helperInfo.description">$!helperInfo.name</a>
+										#if ($assignment.getContentReview())
+											<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
+										#end
+										#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
+											<i class="fa fa-table" aria-hidden="true" title="$tlang.getString("asn.list.userubric")"></i>
+										#end
+
+									</strong>
+									<div class="itemAction">
+										#set($prevAction=false)
+										#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $validator.escapeHtml($!assignment.Title)</span></a>#end
+										#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) |#else#set($prevAction=true)#end<a name="asnActionLink" onclick="duplicateLink(this);SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );return false;" href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")<span class="skip"> $validator.escapeHtml($!assignment.Title)</span></a>#end
+										#if ($taggable && $allowAddAssignment)
+											#foreach ($provider in $providers)
+												#set ($helperInfo = false)
+												#set ($activity = $producer.getActivity($assignment))
+												#set ($helperInfo = $provider.getActivityHelperInfo($activity.reference))
+												#if ($helperInfo)
+													#if($prevAction)
+														|
+													#else
+														#set($prevAction=true)
 													#end
+														<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$!helperInfo.description">$!helperInfo.name</a>
 												#end
 											#end
-											#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))#if($prevAction) |#end
-											#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
-											## show "view submissions" link for ungraded type of assignment
-												<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $validator.escapeHtml($!assignment.getTitle())</span></a>
+										#end
+										#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))#if($prevAction) |#end
+										#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
+										## show "view submissions" link for ungraded type of assignment
+											<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end<span class="skip"> $validator.escapeHtml($!assignment.getTitle())</span></a>
+										#end
+										<div id="linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
+									</div>
+								#else
+									#if ($!allowAddAssignment)
+										## still for instructor, different view
+										#if ($!submission && $submitTime)
+											#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
+											#if(!$!allowResubmitNumber.equals("0"))
+												#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
+												#if($!allowResubmitCloseTimeString)
+													#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
+												#end
 											#end
-											<div id="linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
-										</div>
+											## if not submitted or returned and still allowed to submit within the due time
+											#assignmentTitleIcon($assignment)
+											#if ($service.canSubmit($assignment))
+												## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
+											#else
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">
+											#end
+											$validator.escapeHtml($assignment.Title)</a>
+										#else
+											#assignmentTitleIcon($assignment)
+											$validator.escapeHtml($assignment.Title)
+											#if ($!allowSubmit)
+												<div class="itemAction">
+													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$validator.escapeHtml($!assignment.Title)">
+														$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($assignment.Title)</span>
+													</a>
+													<div id="subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
+												</div>
+											#end
+										#end
 									#else
-										#if ($!allowAddAssignment)
-											## still for instructor, different view
-											#if ($!submission && $submitTime)
+										## SAK-21525 START
+										## If this assignment has groups, their access controls must take precedence
+										#set($groupIds='')
+										#set($groupIds=$assignment.getGroups())
+										#if($groupIds != '' && $groupIds.size() > 0)
+											#set($allowSubmit=false)
+											## If asn.submit is set on at least one of the assignment's authz groups, set allowSubmit to true
+											#foreach($groupId in $groupIds)
+												#if($AuthzGroupService.isAllowed($user.getId(),'asn.submit',$groupId))
+													#set($allowSubmit=true)
+												#end
+											#end
+										#end
+										## SAK-21525 END
+										#if($!allowSubmit)
+											## for those who can submit
+											#if ($!submission && ($submitTime || $!submissionReturned))
+												## is there a submission already?
 												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 												#if(!$!allowResubmitNumber.equals("0"))
 													#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
@@ -312,109 +340,71 @@
 													#end
 												#end
 												## if not submitted or returned and still allowed to submit within the due time
-												#assignmentTitleIcon($assignment)
-												#if ($service.canSubmit($assignment.Context, $assignment))
-													## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
-												#else
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">
-												#end
-												$validator.escapeHtml($assignment.Title)</a>
-											#else
-												#assignmentTitleIcon($assignment)
-												$validator.escapeHtml($assignment.Title)
-												#if ($!allowSubmit)
-													<div class="itemAction">
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)&submitterIdInstructor=instructor")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" title="$validator.escapeHtml($!assignment.Title)">
-															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($assignment.Title)</span>
-														</a>
-														<div id="subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
-													</div>
-												#end
-											#end
-										#else
-											## SAK-21525 START
-											## If this assignment has groups, their access controls must take precedence
-											#set($groupIds='')
-											#set($groupIds=$assignment.getGroups())
-											#if($groupIds != '' && $groupIds.size() > 0)
-												#set($allowSubmit=false)
-												## If asn.submit is set on at least one of the assignment's authz groups, set allowSubmit to true
-												#foreach($groupId in $groupIds)
-													#if($AuthzGroupService.isAllowed($user.getId(),'asn.submit',$groupId))
-														#set($allowSubmit=true)
-													#end
-												#end
-											#end
-											## SAK-21525 END
-											#if($!allowSubmit)
-												## for those who can submit
-												#if ($!submission && ($submitTime || $!submissionReturned))
-													## is there a submission already?
-													#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
-													#if(!$!allowResubmitNumber.equals("0"))
-														#set($allowResubmitCloseTimeString=$!submissionProperties.getProperty($!allowResubmitCloseTimeProp))
-														#if($!allowResubmitCloseTimeString)
-															#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
-														#end
-													#end
-													## if not submitted or returned and still allowed to submit within the due time
-													#if ($service.canSubmit($assignment.Context, $assignment))
+												#if ($service.canSubmit($assignment))
+													## if assignment honor pledge is enabled and the student hasn't agreed
+													#if ($assignment.HonorPledge && !$submission.HonorPledge)
+                                                        <a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
+													#else
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<strong>#assignmentTitleIcon($assignment)
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 														</strong>
-												#else
-														<strong>#assignmentTitleIcon($assignment)
-															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
-														</strong>
 													#end
 												#else
-												<strong>#assignmentTitleIcon($assignment)
-													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
-												</strong>
+													<strong>#assignmentTitleIcon($assignment)
+														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submissionReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
+													</strong>
 												#end
-												#if ($taggable && $allowAddAssignment)
-													<div class="itemAction">
-														#set($prevAction=false)
-														#foreach ($provider in $providers)
-															#set ($activityHelperInfo = false)
-															#set ($activity = $producer.getActivity($assignment))
-															#set ($activityHelperInfo = $provider.getActivityHelperInfo($activity.reference))
-															#if ($activityHelperInfo)
+											#else
+												<strong>#assignmentTitleIcon($assignment)
+													#if ($assignment.HonorPledge)
+														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
+													#else
+                                                    	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
+													#end
+												</strong>
+											#end
+											#if ($taggable && $allowAddAssignment)
+												<div class="itemAction">
+													#set($prevAction=false)
+													#foreach ($provider in $providers)
+														#set ($activityHelperInfo = false)
+														#set ($activity = $producer.getActivity($assignment))
+														#set ($activityHelperInfo = $provider.getActivityHelperInfo($activity.reference))
+														#if ($activityHelperInfo)
+															#if($prevAction)
+																|
+															#else
+																#set($prevAction=true)
+															#end
+															<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!activityHelperInfo.description">$!activityHelperInfo.name</a>
+														#end
+														#if ($!submission)
+															#set ($itemHelperInfo = false)
+															#set ($item = $producer.getItem($submission, $user.getId()))
+															#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
+															#if ($itemHelperInfo)
 																#if($prevAction)
 																	|
 																#else
 																	#set($prevAction=true)
 																#end
-																<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!activityHelperInfo.description">$!activityHelperInfo.name</a>
-															#end
-															#if ($!submission)
-																#set ($itemHelperInfo = false)
-																#set ($item = $producer.getItem($submission, $user.getId()))
-																#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
-																#if ($itemHelperInfo)
-																	#if($prevAction)
-																		|
-																	#else
-																		#set($prevAction=true)
-																	#end
-																	<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
-																#end
+																<a name="asnActionLink" href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
 															#end
 														#end
-													</div>
-												#end
-											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
+													#end
+												</div>
 											#end
-										#end
-										#set ($deleted = false)
-										#set ($deleted = $assignment.Deleted)
-										#if ($!deleted.equalsIgnoreCase("true"))
-											<span class="highlight">$tlang.getString("stulistassig.asshasbee1")</span>
+										#else
+											<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignmentReference")" title="$validator.escapeHtml($!assignment.Title)">$validator.escapeHtml($assignment.Title)</a>
 										#end
 									#end
+									#set ($deleted = false)
+									#set ($deleted = $assignment.Deleted)
+									#if ($!deleted.equalsIgnoreCase("true"))
+										<span class="highlight">$tlang.getString("stulistassig.asshasbee1")</span>
+									#end
+								#end
 							</td>
 						#if ($!allowGradeSubmission)
 							<td headers="for" class="hidden-xs">
@@ -488,7 +478,7 @@
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
 									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
-									#set($totalNumber = $!service.countSubmissions($assignmentReference, $null))
+									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >
 											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $validator.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber

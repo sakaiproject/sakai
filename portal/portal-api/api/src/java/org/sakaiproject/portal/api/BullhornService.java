@@ -47,7 +47,7 @@ public interface BullhornService {
      * @param userId The user to retrieve the alert count for
      * @return the number of current social alerts for the specified user
      */
-    public int getSocialAlertCount(String userId);
+    public long getSocialAlertCount(String userId);
 
     /**
      * @param userId The user to retrieve alerts for
@@ -65,7 +65,7 @@ public interface BullhornService {
      * @param userId The user to retrieve the alert count for
      * @return the number of current academic alerts for the specified user
      */
-    public int getAcademicAlertCount(String userId);
+    public long getAcademicAlertCount(String userId);
 
     /**
      * @param userId The user to retrieve alerts for

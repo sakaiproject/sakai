@@ -24,10 +24,6 @@
  /* siteTitle is added by portal, but we don't want it */
 	 .siteTitle{display:none !important;}
 	 .pageTitle{width:auto !important;}
-
-         .Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
-            top: 2px !important;
-         }
  </style>
  <script type="text/javascript" rsf:id="iframeJavascript">
  function resizeiframe(id) {
@@ -70,7 +66,7 @@
  <script type="text/javascript" src="$context/js/jquery.cluetip.min.js"></script>
  <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
  <link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css"/>
- <link type="text/css" href="/library/webjars/fullcalendar/3.0.0/fullcalendar.min.css" rel="stylesheet" />
+ <link type="text/css" href="/library/webjars/fullcalendar/3.9.0/fullcalendar.min.css" rel="stylesheet" />
  <script type="text/javascript" src="$context/js/peer-eval.js"></script>
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
@@ -81,8 +77,8 @@
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
  <script type="text/javascript" src="$context/js/checklistDisplay.js"></script>
  <script type="text/javascript" src="$context/js/forum-summary.js"></script>
- <script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
- <script type="text/javascript" src="/library/webjars/fullcalendar/3.0.0/fullcalendar.min.js"></script>
+ <script type="text/javascript">includeWebjarLibrary('momentjs');</script>
+ <script type="text/javascript" src="/library/webjars/fullcalendar/3.9.0/fullcalendar.min.js"></script>
  <script type="text/javascript" src="$context/js/lessons-calendar.js"></script>
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
@@ -151,6 +147,7 @@
 		   <a role="button" href="#" rsf:id="next" class="nexprev prev menuitem button">next</a>
 		 </span>
 		 <a role="button"  href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle"></span></a>
+		 <a role="button"  href="#" rsf:id="print-all" id="print-all" onclick="window.open(printViewWithParameter(window.location.href));return false" class="Mrphs-toolTitleNav__link top-icon fa fa-print"><span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle"></span></a>
 		 <a role="button" href="#" rsf:id="show-pages" id="show-pages" class="Mrphs-toolTitleNav__link top-icon fa fa-list-ul"><span rsf:id="msg=simplepage.showallpages" class="Mrphs-itemTitle"></span></a>
 		 <span rsf:id="gradingSpan" class="gradingarea">
 		   <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
@@ -211,7 +208,7 @@
 
 				<li class="contentButton dropdown" id="dropdownc">
 					<span>
-					    <a aria-haspopup="true" aria-controls="addContentDiv" href="#" rsf:id="addcontent" onclick="return false;" class="add-at-end" role="menuitem button">
+					    <a aria-haspopup="true" aria-controls="addContentDiv" href="#" rsf:id="addcontent" onclick="return false;" class="add-at-end" role="button">
 					      <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
 					        <span aria-hidden="true" class="fa-button-text fa-plus"></span>
 					    </a>				
@@ -219,7 +216,7 @@
 				</li>
 				<li class="contentButton dropdown" rsf:id="dropdown" id="dropdown">
 					<span>
-					    <a aria-haspopup="true" aria-controls="moreDiv" role="menuitem button" href="#" onclick="return false;">
+					    <a aria-haspopup="true" aria-controls="moreDiv" role="button" href="#" onclick="return false;">
 					        <span rsf:id="msg=simplepage.more-tools" ></span>
                             &nbsp;&nbsp;<img rsf:id="icondrop" src="/library/image/sakai/icon-dropdn.gif" style="height:15px" alt="" />
 					    </a>				
@@ -227,12 +224,12 @@
 				</li>
 
                 
-		<li rsf:id="remove-student" class="contentButton"><span><a role="menuitem button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
+		<li rsf:id="remove-student" class="contentButton"><span><a role="button" href="#" rsf:id="remove-page-student" class="add-at-end remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></span></li>
 
-                <li class="contentButton"><span><a role="menuitem button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
+                <li class="contentButton"><span><a role="button" class="add-at-end" href="#" rsf:id="reorder"><span aria-hidden="true" class="fa-button-text"></span></a></span></li>
                 <li  class="contentButton">
                     <span rsf:id="title-descrip">
-                    <a role="menuitem button" aria-haspopup="dialog" aria-controls="edit-title-dialog" href="#" rsf:id="edit-title" id="edit-title"><span aria-hidden="true" class="fa-button-text fa-cog"></span><span class="offscreen" rsf:id="edit-title-text"></span></a>
+                    <a role="button" aria-haspopup="dialog" aria-controls="edit-title-dialog" href="#" rsf:id="edit-title" id="edit-title"><span aria-hidden="true" class="fa-button-text fa-cog"></span><span class="offscreen" rsf:id="edit-title-text"></span></a>
                     </span>
                 </li>
 			</ul>                
@@ -270,36 +267,36 @@
 		<div class="addContentMessage instruction" rsf:id="msg=simplepage.add-item-page"></div>
 		<ul>
 		  <li>
-		    <a role="menuitem button" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
+		    <a role="button" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
 		  </li>
 		  <li>
-		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
+		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
 		  </li>
 		  <li>
-		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-resource" class="add-resource add-before-param"><span rsf:id="msg.simplepage.resource"></span></a>
+		    <a role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-resource" class="add-resource add-before-param"><span rsf:id="msg.simplepage.resource"></span></a>
 		  </li>
 		  <li>
-		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="subpage-dialog" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
+		    <a role="button" aria-haspopup="dialog" aria-controls="subpage-dialog" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
 		  </li>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
 		  </li>
 		  <li rsf:id="blti-app-li">
-		    <a href="#" role="menuitem button" rsf:id="add-blti-app" class="add-before-param"><span rsf:id="msg.simplepage.blti.app"></span></a>
+		    <a href="#" role="button" rsf:id="add-blti-app" class="add-before-param"><span rsf:id="msg.simplepage.blti.app"></span></a>
 		  </li>
 		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
 		  <li rsf:id="add-break2" class="addbreak">
-		    <a role="menuitem button" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
+		    <a role="button" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
 		  </li>
 		  <li rsf:id="add-break4" class="addbreak">
-		    <a role="menuitem button" href="#" rsf:id="add-break5" class="add-break-column"><span rsf:id="msg=simplepage.break-columns"></span></a>
+		    <a role="button" href="#" rsf:id="add-break5" class="add-break-column"><span rsf:id="msg=simplepage.break-columns"></span></a>
 		  </li>
 		  <hr style="border:none"/>
 		  <li rsf:id="assignment-li">
-		    <a role="menuitem button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
+		    <a role="button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
 		  </li>
 		  <li rsf:id="calendar-li">
-		    <a role="menuitem button" href="#" id="calendar-link" rsf:id="calendar-link" class="calendar-link"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
+		    <a role="button" href="#" id="calendar-link" rsf:id="calendar-link" class="calendar-link"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
 		    <form rsf:id="add-calendar-form" style="display:none" action="#" id="add-calendar-form" method="post" enctype="multipart/form-data">
 		      <input type="hidden" rsf:id="calendar-addBefore" id="calendar-addBefore" />
 		      <input type="hidden" rsf:id="csrf28" />
@@ -308,10 +305,10 @@
 
 		  </li>
 		  <li rsf:id="quiz-li">
-		    <a role="menuitem button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
+		    <a role="button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
 		  </li>
                   <li rsf:id="forum-li">
-                    <a role="menuitem button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
+                    <a role="button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
                   </li>
                   <li rsf:id="twitter-li">
                     <a href="#" role="menuitem" rsf:id="add-twitter" class="twitter-link"><span rsf:id="msg=simplepage.twitter"></span></a>
@@ -324,13 +321,13 @@
 		  </li>
 		  <hr style="border:none"/>
             <li rsf:id="checklist-li">
-                <a role="menuitem button" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
+                <a role="button" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
             </li>
 		  <li rsf:id="question-li">
-		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="question-dialog"  href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
+		    <a role="button" aria-haspopup="dialog" aria-controls="question-dialog"  href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
 		  </li>
                   <li rsf:id="student-li">
-		     <a id="add-comments-link" rsf:id="add-comments-link" href="#" role="menuitem button"><span rsf:id="msg=simplepage.comments"></span></a>
+		     <a id="add-comments-link" rsf:id="add-comments-link" href="#" role="button"><span rsf:id="msg=simplepage.comments"></span></a>
 		     <form rsf:id="add-comments-form" style="display:none" action="#" id="add-comments-form" method="post" enctype="multipart/form-data">
 		      <input type="hidden" rsf:id="comments-addBefore" id="comments-addBefore" />
 		      <input type="hidden" rsf:id="csrf25" />
@@ -338,7 +335,7 @@
 		    </form>
                   </li>
                   <li rsf:id="studentcontent-li">
-		    <a id="add-student-link" rsf:id="add-student-link" href="#" role="menuitem button"><span rsf:id="msg=simplepage.add-student-content"></span></a>
+		    <a id="add-student-link" rsf:id="add-student-link" href="#" role="button"><span rsf:id="msg=simplepage.add-student-content"></span></a>
 		    <form rsf:id="add-student-form" style="display:none" action="#" id="add-student-form" method="post" enctype="multipart/form-data">
 		      <input type="hidden" rsf:id="add-student-addBefore" id="add-student-addBefore" />
 		      <input type="hidden" rsf:id="csrf26" />
@@ -347,13 +344,13 @@
 
                   </li>
                   <li rsf:id="addwebsite-li">
-                    <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" rsf:id="add-website" class="add-website add-before-param"><span rsf:id="msg.simplepage.website"></span></a>
+                    <a href="#" role="button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" rsf:id="add-website" class="add-website add-before-param"><span rsf:id="msg.simplepage.website"></span></a>
                   </li>
                   <li rsf:id="blti-tool:">
-                    <a href="#" role="menuitem button" rsf:id="add-blti-tool" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
+                    <a href="#" role="button" rsf:id="add-blti-tool" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
                   </li>
                   <li rsf:id="blti-li">
-                    <a href="#" role="menuitem button" rsf:id="add-blti" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
+                    <a href="#" role="button" rsf:id="add-blti" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
                   </li>
 		</ul>
 		</div>
@@ -362,36 +359,36 @@
 		  <ul>
                     <!-- add new page -->
                     <li>
-                      <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="new-page-dialog"  rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a>
+                      <a href="#" role="button" aria-haspopup="dialog" aria-controls="new-page-dialog"  rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a>
                     </li>
                     <!-- remove page -->
                     <li rsf:id="remove-li">
-                      <a href="#" role="menuitem button" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
+                      <a href="#" role="button" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
                     </li>
 		    <!-- permissions --> 		
                     <li>
-                      <a href="#" role="menuitem button"  rsf:id="permissions" id="permissions"><span rsf:id="msg=simplepage.permissions"></span></a>
+                      <a href="#" role="button"  rsf:id="permissions" id="permissions"><span rsf:id="msg=simplepage.permissions"></span></a>
                     </li>
                     <li rsf:id="delete-orphan-li">
                       <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">
 			<input type="hidden" rsf:id="csrf1" />
 			<input type="submit" style="display:none" rsf:id="delete-orphan" id="delete-orphan"/>
-                        <a rsf:id="delete-orphan-link" id="delete-orphan-link" href="#" role="menuitem button" class="delete-orphan"><span rsf:id="msg=simplepage.delete-orphan-pages"></span></a>
+                        <a rsf:id="delete-orphan-link" id="delete-orphan-link" href="#" role="button" class="delete-orphan"><span rsf:id="msg=simplepage.delete-orphan-pages"></span></a>
 		      </form>
                     </li>
                     <li>
-                      <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="import-cc-dialog" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
+                      <a href="#" role="button" aria-haspopup="dialog" aria-controls="import-cc-dialog" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
                       <!-- just a message, so will display when it should not-->
                     </li>
                     <li>
-                      <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="export-cc-dialog" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
+                      <a href="#" role="button" aria-haspopup="dialog" aria-controls="export-cc-dialog" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
                       <!-- just a message, so will display when it should not-->
                     </li>
                     <li rsf:id="show-lti-import">
                       <form action="#" rsf:id="lti-import-form" method="post" enctype="multipart/form-data">
 			<input type="hidden" rsf:id="csrf1" />
 			<input type="submit" style="display:none" rsf:id="lti-import" id="lti-import"/>
-                        <a rsf:id="lti-import-link" id="lti-import-link" href="#" role="menuitem button" class="lti-import"><span rsf:id="msg=simplepage.import_lti_button"></span></a>
+                        <a rsf:id="lti-import-link" id="lti-import-link" href="#" role="button" class="lti-import"><span rsf:id="msg=simplepage.import_lti_button"></span></a>
 		      </form>
                       <!-- just a message, so will display when it should not-->
                     </li>

@@ -18,72 +18,77 @@
 
 #pageBody{
 	@include align-items(stretch);
-	@include display-flex(flex);
+	@include display-flex;
 	@include flex-direction(row);
+	
 	> .#{$namespace}pagebody{
+		@include display-flex;
+		@include flex-direction(column);
 		width: 100%;
 	}
 }
 
-#content, .#{$namespace}container--footer{
+#content {
+	@include display-flex();
+	@include flex-wrap(wrap);		// allows the site unpublished banner to be on its own line at 100%
 	margin: 0;
 	width: 100%;
 
-	@media #{$nonPhone} {
-		#col1of2, #col2of2{
-			margin: 0 0 0 1%;
-			vertical-align: top;
-	    display: inline-block;
-    }
-		#col1of2 {
-      width: $col1of2-width;
-    }
-    #col2of2 {
-      width: $col2of2-width;
-    }
-  }
+	@media #{$tablet} {
+		@include flex-direction(column);
+	}
+	
+	@media #{$phone}{
+		margin: 0;
+		padding-top: $standard-spacing; // make way for the button container
+	}
+
+	#col1of2, #col2of2{
+		@include flex-shorthand(1, 1, 0); 	// flex: 1 1 0; vs flex: 1; because of IE11 bug
+		display: inline-block;
+		margin: 0 0 $standard-spacing $standard-spacing;
+		vertical-align: top;
+
+		@media #{$tablet} {
+			display: block;
+			margin-right: $standard-spacing; 	// space on the right of the column view
+		}
+	}
+	#col1of2 {
+		min-width: $col1of2-width;
+	}
+	#col2of2 {
+		min-width: $col2of2-width;
+		margin-right: $standard-spacing;		// space on the end
+	}
 }
 
 .#{$namespace}mainContent{
 	background: $main-content-background;
-	padding-top: 1em;
 }
 
-#content {
-	@media #{$phone}{
-		margin: 0;
-		padding-top: 2em; // make way for the button container
-	}
-}
-
-.#{$namespace}pageColumns--single, .#{$namespace}footer{
-	margin: 0 1em;
+.#{$namespace}pageColumns--single {
+	margin: 0;
 	clear: both;
+	width: 100%;
+	
 	@media #{$phone}{
 		margin: 0;
 	}
+			
+	.#{$namespace}container {
+		margin: 0 $standard-spacing;
+	}
 }
 
-.#{$namespace}container--footer{
+// Note: this is the footer container; see _footer.scss for the rest of the design of the footer
+.#{$namespace}container--footer {
+	margin-top: auto; 	// push the footer to the bottom of the page
 	background-color: $footer-background-color;
 	border-top: 1px solid $footer-border-color;
 }
 
-.#{$namespace}footer{
-	color: $footer-color;
-	padding: 0.8em;
-	font-size: 0.8em;
-	#footer-links{
-		list-style: none;
-		padding: 0 0 0 0;
-		li{
-			display: inline-block;
-		}
-	}
-}
-
-.#{$namespace}noJs.js-warn-no-js
-{
+.#{$namespace}noJs.js-warn-no-js {
 	position: fixed;
 	bottom: 0;
 	left: 10%;

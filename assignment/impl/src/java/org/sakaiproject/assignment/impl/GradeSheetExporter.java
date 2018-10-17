@@ -30,7 +30,6 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -41,7 +40,6 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -113,7 +111,28 @@ public class GradeSheetExporter {
             // no assignments to download
             log.warn("No gradable assignments can be downloaded for reference: {}", reference);
         } else {
-            Workbook wb = new SXSSFWorkbook();
+        	// site members excluding those who can add assignments
+            // hashmap which stores the Excel row number for particular user
+
+            String refToCheck = group == null ? site.getReference() : group.getReference();
+            List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(refToCheck);
+            List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
+            boolean isNotesEnabled = candidateDetailProvider != null &&
+                    site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
+            // For details of all the users in the site.
+            Map<String, Submitter> submitterMap = new HashMap<>();
+            members.sort(new UserComparator());
+            for (User user : members) {
+                // put user displayid and sortname in the first two cells
+                Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
+                submitterMap.put(user.getId(), submitter);
+                if (isNotesEnabled) {
+                    Optional<List<String>> additionalNotes = candidateDetailProvider.getAdditionalNotes(user, site);
+                    submitter.setNotes(additionalNotes);
+                }
+            }
+            
+            Workbook wb = new SXSSFWorkbook(6 + members.size());
             Sheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 
             // cell 0,0 - title
@@ -155,27 +174,6 @@ public class GradeSheetExporter {
             cell.setCellStyle(style);
             cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
 
-            // site members excluding those who can add assignments
-            // hashmap which stores the Excel row number for particular user
-
-            String refToCheck = group == null ? site.getReference() : group.getReference();
-            List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(refToCheck);
-            List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
-            boolean isNotesEnabled = candidateDetailProvider != null &&
-                    site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
-            // For details of all the users in the site.
-            Map<String, Submitter> submitterMap = new HashMap<>();
-            members.sort(new UserComparator());
-            for (User user : members) {
-                // put user displayid and sortname in the first two cells
-                Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
-                submitterMap.put(user.getId(), submitter);
-                if (isNotesEnabled) {
-                    Optional<List<String>> additionalNotes = candidateDetailProvider.getAdditionalNotes(user, site);
-                    submitter.setNotes(additionalNotes);
-                }
-            }
-
             // We have to build a Map of the results so that we can sort them afterwards so that we don't expose data
             // by having the anonymous results in the same position as the original listing.
             Map<Submitter, List<Object>> results = new TreeMap<>();
@@ -214,22 +212,12 @@ public class GradeSheetExporter {
                                     if (assignmentType == Assignment.GradeType.SCORE_GRADE_TYPE) {
                                         try {
                                             // numeric cell type?
-                                            String grade = null;
-                                            if (StringUtils.isNotBlank(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))) {
-                                                grade = assignmentService.getGradeForUserInGradeBook(submission.getAssignment().getId(), userId);
-                                            }
-
-                                            if (grade == null) {
-                                                // TODO originally called submission.getGradeForUser(userId);
-                                                grade = submissionSubmitter.getGrade() != null ? submissionSubmitter.getGrade() : submission.getGrade();
-                                            }
-
                                             int factor = submission.getAssignment().getScaleFactor();
                                             int dec = (int) Math.log10(factor);
 
                                             //We get float number no matter the locale it was managed with.
-                                            NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
-                                            float f = nbFormat.parse(grade).floatValue();
+                                            final NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
+                                            float f = nbFormat.parse(getGrade(submissionSubmitter)).floatValue();
 
                                             style = wb.createCellStyle();
                                             String format = "#,##0.";
@@ -263,44 +251,47 @@ public class GradeSheetExporter {
                             continue;
                         }
                         Submitter submitter = submitterMap.get(submissionSubmitters[0].getSubmitter());
-                        // Get the user ID for this result
-                        if (assignmentService.assignmentUsesAnonymousGrading(a)) {
-                            submitter = new Submitter(submission.getId() + " " + rb.getString("grading.anonymous.title"), submitter);
-                        }
-
-                        List<Object> objects = results.computeIfAbsent(submitter, k -> new ArrayList<>(Collections.nCopies(assignmentSize, null)));
-                        // Create item and fill up if doesn't exist.
-                        // find right row
-
-                        if (submission.getGraded() && submission.getGrade() != null) {
-                            // graded and released
-                            String grade = assignmentService.getGradeDisplay(submission.getGrade(), submission.getAssignment().getTypeOfGrade(), submission.getAssignment().getScaleFactor());
-                            if (assignmentType == Assignment.GradeType.SCORE_GRADE_TYPE) {
-                                try {
-                                    // numeric cell type?
-                                    int factor = submission.getAssignment().getScaleFactor();
-                                    int dec = (int) Math.log10(factor);
-
-                                    //We get float number no matter the locale it was managed with.
-                                    NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
-                                    float f = nbFormat.parse(grade).floatValue();
-
-                                    String format = "#,##0.";
-                                    for (int j = 0; j < dec; j++) {
-                                        format = format.concat("0");
-                                    }
-                                    style.setDataFormat(wb.createDataFormat().getFormat(format));
-                                    cell.setCellStyle(style);
-                                    objects.set(index, new FloatCell(format, f));
-                                } catch (Exception e) {
-                                    objects.set(index, grade);
-                                }
-                            } else {
-                                objects.set(index, grade);
-                            }
-                        } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
-                            objects.set(index, rb.getString("gen.nograd"));
-                        }
+                        if (submitter != null) {
+	                        // Get the user ID for this result
+	                        if (assignmentService.assignmentUsesAnonymousGrading(a)) {
+	                            submitter = new Submitter(submission.getId() + " " + rb.getString("grading.anonymous.title"), submitter);
+	                        }
+                        
+	                        List<Object> objects = results.computeIfAbsent(submitter, k -> new ArrayList<>(Collections.nCopies(assignmentSize, null)));
+	                        // Create item and fill up if doesn't exist.
+	                        // find right row
+	
+	                        if (submission.getGraded() && submission.getGrade() != null) {
+	                            // graded and released
+	                            String grade = assignmentService.getGradeForSubmitter(submission, submissionSubmitters[0].getSubmitter());
+	                            
+	                            if (assignmentType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+	                                try {
+	                                    // numeric cell type?
+	                                    int factor = submission.getAssignment().getScaleFactor();
+	                                    int dec = (int) Math.log10(factor);
+	
+	                                    //We get float number no matter the locale it was managed with.
+	                                    NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
+	                                    float f = nbFormat.parse(grade).floatValue();
+	
+	                                    String format = "#,##0.";
+	                                    for (int j = 0; j < dec; j++) {
+	                                        format = format.concat("0");
+	                                    }
+	                                    style.setDataFormat(wb.createDataFormat().getFormat(format));
+	                                    cell.setCellStyle(style);
+	                                    objects.set(index, new FloatCell(format, f));
+	                                } catch (Exception e) {
+	                                    objects.set(index, grade);
+	                                }
+	                            } else {
+	                                objects.set(index, grade);
+	                            }
+	                        } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
+	                            objects.set(index, rb.getString("gen.nograd"));
+	                        }
+                    	}
                     }
                 }
                 index++;
@@ -360,8 +351,20 @@ public class GradeSheetExporter {
             } catch (IOException e) {
                 log.warn("Failed to write out spreadsheet:" + e.getMessage());
             }
+            finally {
+            	try {
+            		wb.close();
+            	}
+            	catch(IOException e) {
+            		log.warn("Failed to close spreadsheet:" + e.getMessage());
+            	}
+            }
         }
     }
+
+	private String getGrade(final AssignmentSubmissionSubmitter submissionSubmitter) {
+        return assignmentService.getGradeForSubmitter(submissionSubmitter.getSubmission(), submissionSubmitter.getSubmitter());
+	}
 
     // This small holder is so that we can hold details about a floating point number while building up the list.
     // We can't create cells when we don't know where they will go yet.

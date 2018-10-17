@@ -25,242 +25,153 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
- * JavaBean to hold data associated with a Gradebook assignment.
- * The Course Grade is not considered an assignment.
+ * JavaBean to hold data associated with a Gradebook assignment. The Course Grade is not considered an assignment.
  */
+@NoArgsConstructor
+@ToString
 public class Assignment implements Serializable, Comparable<Assignment> {
 	private static final long serialVersionUID = 1L;
 
-    private String name;
-    private Long id;
-    private Double points;
-    private Date dueDate;
-    private boolean counted;
-    private boolean externallyMaintained;
-    private String externalId;
-    private String externalAppName;
-    private boolean released;
-    private String categoryName;
-    private Double weight;
-    private boolean ungraded;
-    private boolean extraCredit;
-    //Needed for transfer
-    private boolean categoryExtraCredit;
-    private Integer sortOrder;
-    private Integer categorizedSortOrder;
-    private Long categoryId;
-    private Integer categoryOrder;
-    
-
-    public Assignment() {
-    }
-
 	/**
-	 * @return Returns the name of the assignment. The assignment name is unique among
-	 *         currently defined assignments. However, it is not a safe UID for persistance,
-	 *         since an assignment can be renamed. Also, an assignment can be deleted and a
-	 *         new assignment can be created re-using the old name.
+	 * @return Returns the name of the assignment. The assignment name is unique among currently defined assignments. However, it is not a
+	 *         safe UID for persistance, since an assignment can be renamed. Also, an assignment can be deleted and a new assignment can be
+	 *         created re-using the old name.
 	 */
-	public String getName() {
-		return name;
-	}
-	
+	@Getter
+	@Setter
+	private String name;
+
 	/**
-	 * 
+	 *
 	 * @return Returns the ID of the assignment in the gradebook
 	 */
-	public Long getId() {
-		return id;
-	}
+	@Getter
+	@Setter
+	private Long id;
 
 	/**
-	 * @return Returns the total points the assignment is worth.
+	 * the total points the assignment is worth.
 	 */
-	public Double getPoints() {
-		return points;
-	}
+	@Getter
+	@Setter
+	private Double points;
 
 	/**
-	 * @return Returns the due date for the assignment, or null if none is defined.
+	 * the due date for the assignment, or null if none is defined.
 	 */
-	public Date getDueDate() {
-		return dueDate;
-	}
+	@Getter
+	@Setter
+	private Date dueDate;
 
-    /**
-     * @return Returns true if the assignment is maintained by some software
-     *         other than the Gradebook itself.
-     */
-    public boolean isExternallyMaintained() {
-    	return externallyMaintained;
-    }
-
-    /**
-     *
-     * @return true if the assignment has been released for view to students
-     */
-    public boolean isReleased() {
-    	return released;
-    }
-
-    /**
-     *
-     * @return Returns the externalAppName, or null if the assignment is
-     * maintained by the Gradebook
-     */
-    public String getExternalAppName() {
-    	return externalAppName;
-    }
-
-    /**
-     *
-     * @return Returns the external Id, or null if the assignment is
-     * maintained by the Gradebook
-     */
-    public String getExternalId() {
-    	return externalId;
-    }
-
-	public boolean isCounted() {
-		return counted;
-	}
-
-	public void setCounted(boolean notCounted) {
-		this.counted = notCounted;
-	}
-
-	public void setPoints(Double points) {
-		this.points = points;
-	}
-
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
-
-	public void setExternalAppName(String externalAppName) {
-		this.externalAppName = externalAppName;
-	}
-
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
-	}
-
-	public void setExternallyMaintained(boolean externallyMaintained) {
-		this.externallyMaintained = externallyMaintained;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setReleased(boolean released) {
-		this.released = released;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	public String getCategoryName() {
-		return categoryName;
-	}
-
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
-	}
-		
-	public Double getWeight() {
-		return weight;
-	}
-		
-	public void setWeight(Double weight) {
-		this.weight = weight;
-	}
-
-	public boolean getUngraded()
-	{
-		return ungraded;
-	}
-
-	public void setUngraded(boolean ungraded)
-	{
-		this.ungraded = ungraded;
-	}
-	
-	//Extra credit columns
-	public void setExtraCredit(boolean extraCredit) {
-		this.extraCredit = extraCredit;
-	}
-
-	public boolean isExtraCredit() {
-		return extraCredit;
-	}
-
-	public boolean getExtraCredit() {
-		return isExtraCredit();
-	}
-	
-	//Needed for cateogry transfer
-	public void setCategoryExtraCredit(boolean categoryExtraCredit) {
-		this.categoryExtraCredit = categoryExtraCredit;
-	}
-	public boolean isCategoryExtraCredit() {
-		return categoryExtraCredit;
-	}
-
-	public Integer getSortOrder() {
-		return sortOrder;
-	}
-	
 	/**
-	 * Note that any calls setSortOrder will not be persisted.
-	 * If you want to change the sort order of an assignment you must call 
-	 * GradebookService.updateAssignmentOrder as that method properly handles
-	 * the reordering of all other assignments for the gradebook.
-	 * 
-	 * @return
+	 * true if the assignment is maintained by some software other than the Gradebook itself.
 	 */
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
-	}
+	@Getter
+	@Setter
+	private boolean externallyMaintained;
 
-	public Long getCategoryId() {
-		return categoryId;
-	}
+	/**
+	 * the external id, or null if the assignment is maintained by the Gradebook
+	 */
+	@Getter
+	@Setter
+	private String externalId;
 
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
-	}
+	/**
+	 * the external app name, or null if the assignment is maintained by the Gradebook
+	 */
+	@Getter
+	@Setter
+	private String externalAppName;
 
-	public Integer getCategoryOrder() {
-		return categoryOrder;
-	}
+	/**
+	 * the external data, or null if the assignment is maintained by the Gradebook
+	 */
+	@Getter
+	@Setter
+	private String externalData;
 
-	public void setCategoryOrder(Integer categoryOrder) {
-		this.categoryOrder = categoryOrder;
-	}
-	
+	/**
+	 * true if the assignment has been released for view to students
+	 */
+	@Getter
+	@Setter
+	private boolean released;
+
+	/**
+	 * Note that any calls setSortOrder will not be persisted, if you want to change the sort order of an assignment you must call
+	 * GradebookService.updateAssignmentOrder as that method properly handles the reordering of all other assignments for the gradebook.
+	 */
+	@Getter
+	@Setter
+	private Integer sortOrder;
+
+	@Getter
+	@Setter
+	private boolean counted;
+	@Getter
+	@Setter
+	private String categoryName;
+	@Getter
+	@Setter
+	private Double weight;
+	@Getter
+	@Setter
+	private boolean ungraded;
+	@Getter
+	@Setter
+	private boolean extraCredit;
+	@Getter
+	@Setter
+	private boolean categoryExtraCredit;
+	@Getter
+	@Setter
+	private Long categoryId;
+	@Getter
+	@Setter
+	private Integer categoryOrder;
+	@Getter
+	@Setter
+	private Integer categorizedSortOrder;
+
+	/**
+	 * For editing. Not persisted.
+	 */
+	@Getter
+	@Setter
+	private boolean scaleGrades;
+
 	@Override
-	public int compareTo(Assignment o) {
+	public int compareTo(final Assignment o) {
 		return new CompareToBuilder()
-	       .append(this.id, o.id)
-	       .toComparison();
+				.append(this.id, o.id)
+				.toComparison();
 	}
-	
+
 	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	public boolean equals(final Object o) {
+		if (!(o instanceof Assignment)) {
+			return false;
+		}
+		final Assignment other = (Assignment) o;
+		return new EqualsBuilder()
+				.append(this.id, other.id)
+				.isEquals();
 	}
 
-	public Integer getCategorizedSortOrder() {
-		return categorizedSortOrder;
-	}
-
-	public void setCategorizedSortOrder(Integer categorizedSortOrder) {
-		this.categorizedSortOrder = categorizedSortOrder;
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(this.id)
+				.toHashCode();
 	}
 }

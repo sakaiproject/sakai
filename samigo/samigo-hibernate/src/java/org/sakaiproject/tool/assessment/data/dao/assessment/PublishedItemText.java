@@ -23,7 +23,6 @@ package org.sakaiproject.tool.assessment.data.dao.assessment;
 
 import java.io.*;
 import java.util.*;
-import org.sakaiproject.samigo.util.SamigoConstants;
 
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -35,6 +34,8 @@ public class PublishedItemText
     implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
 
   private static final long serialVersionUID = 7526471155622776147L;
+  static ResourceBundle rb =
+      ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private Long id;
   private ItemDataIfc item;
@@ -132,31 +133,47 @@ public class PublishedItemText
     return list;
   }
 
-  public ArrayList getAnswerArrayWithDistractorSorted() {
-    ArrayList list = getAnswerArray();
-    Collections.sort(list);
-    if (this.getItem().getTypeId() == 9) {
-      if (hasDistractors()) {
-        if (hasCorrectAnswers()) {
-          PublishedAnswer distractorAnswer = new PublishedAnswer();
-          distractorAnswer.setId(new Long(0));
-          distractorAnswer.setText(NONE_OF_THE_ABOVE);
-          distractorAnswer.setIsCorrect(false);
-          distractorAnswer.setScore(this.getItem().getScore());
-          distractorAnswer.setLabel(Character.toString(SamigoConstants.ALPHABET.charAt(list.size())));
-          list.add(distractorAnswer);
-        }else{
-          PublishedAnswer distractorAnswer = new PublishedAnswer();
-          distractorAnswer.setText(NONE_OF_THE_ABOVE);
-          distractorAnswer.setIsCorrect(true);
-          distractorAnswer.setScore(this.getItem().getScore());
-          distractorAnswer.setId(new Long(0));
-          distractorAnswer.setLabel(Character.toString(SamigoConstants.ALPHABET.charAt(list.size())));
-          list.add(distractorAnswer);
+  /**
+   * This is used for displaying the enumerated answers, with a distractor option if necessary.
+   * If the question has a distractor, it should be presented once and only once, at the end of the list of choices. Ex:
+   * A. Option 1
+   * B. Option 2
+   * C. None of the above
+   * @return
+   */
+  public List<AnswerIfc> getAnswerArrayWithDistractorSorted() {
+    List<AnswerIfc> answers = getAnswerArraySorted();
+    List<ItemTextIfc> questions = item.getItemTextArray();
+
+    // If the number of questions differs from the number of answers, there's either distractors or questions with the same answer
+    if (questions.size() != answers.size()) {
+      for (ItemTextIfc question : questions) {
+
+        boolean isDistractor = true;
+        List<AnswerIfc> answersSorted = question.getAnswerArraySorted();
+        for (AnswerIfc answer : answersSorted) {
+          if (answer.getIsCorrect()) {
+            isDistractor = false;
+            break;
+          }
+        }
+
+        // There's at least one distractor; add the distractor answer to the end of the list for presentation purposes
+        if (isDistractor) {
+          Answer distractor = new Answer();
+          distractor.setId(new Long(0));
+          distractor.setLabel(rb.getString("choice_labels").split(":")[answersSorted.size()]);
+          distractor.setText(NONE_OF_THE_ABOVE);
+          distractor.setIsCorrect(false);
+          distractor.setScore(this.getItem().getScore());
+          distractor.setSequence(new Long(answers.size()));
+          answers.add(distractor);
+          break;
         }
       }
     }
-    return list;
+
+    return answers;
   }
 
   public int compareTo(ItemTextIfc o) {

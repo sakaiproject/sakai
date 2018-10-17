@@ -39,8 +39,11 @@
 		 		});
 		 	});
 		#end
-		if ($("#generalAlert").length <= 0) {
+		window.onload = function() {
 			SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
+			if( $('#new_assignment_group_submit').is(':checked') ) {
+				ASN.toggleAddOptions('GROUP');
+			}
 		}
 	});
 
@@ -58,6 +61,10 @@
 			document.forms[0].new_assignment_grade_points.focus();
 			obj_textfield.style.backgroundColor = '#ffe';
 			document.getElementById('req-$name_GradePoints').style.display="inline";
+			var elems = document.getElementsByTagName('sakai-rubric-association');
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'inline';
+			}
 		}
 		else
 		{
@@ -65,6 +72,10 @@
 			obj_textfield.style.backgroundColor = '#eee';
 			document.getElementById('req-$name_GradePoints').style.display="none";
 			document.getElementById('new_assignment_grade_points').value="";
+			var elems = document.getElementsByTagName('sakai-rubric-association');
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'none';
+			}
 		}
 	}
 
@@ -117,6 +128,21 @@
 </script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
+<!-- RUBRICS JAVASCRIPT -->
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-association.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
+<!-- END RUBRICS JAVASCRIPT -->
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+
 <div class="portletBody container-fluid">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
 
@@ -132,7 +158,7 @@
 
 	#if ($alertMessage)
 		<div class="alertMessage" id="generalAlert">
-			<strong>$tlang.getString("gen.alert")</strong> <small> $alertMessage </small>
+			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end
 
@@ -236,7 +262,7 @@
                     $tlang.getString("allowVisibleDate")
 				</label>
 				<div class="col-sm-10">
-					<input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();ASN.resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
+					<input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="ASN.changeVisibleDate();" />
 				</div>
 			</div>
 		</div>
@@ -751,7 +777,7 @@
 					</div>
 
 					<!-- Start TII custom options -->
-					#if($reviewServiceName.equals("Turnitin"))
+					#if($reviewServiceProviderId == $turnitinProviderId)
 
 					#if ($content_review_note)
 						$content_review_note
@@ -995,6 +1021,106 @@
                         </div>
 
                         <!-- End VeriCite custom options -->
+					#elseif($reviewServiceProviderId == $turnitinOCProviderId)
+						<!-- Start TurnitinOC custom options -->
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+							<br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.exclude.header"):</label>
+							</div>
+							<div style="display:inline-block">
+								<!-- Exclude Bibliographic materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)
+									<div class="checkbox">
+										<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC.equals("true"))
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" checked="checked" />
+											#else
+												<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" />
+											#end
+											$tlang.getString("turnitinoc.exclude.bibliography")
+										</label>
+									</div>
+								#end
+								<!-- Exclude Quoted materials -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("turnitinoc.exclude.quoted")
+		                                </label>
+		                            </div>
+								#end
+							</div>
+						#end
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+							<br/><br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.index.header"):</label>
+								<p class="text-muted small">
+									$tlang.getString("turnitinoc.index.info")
+								</p>
+							</div>
+							<div style="display:inline-block">
+		                        <!-- Store Inst Index -->
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+		                            <div class="checkbox">
+		                                <label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX">
+											#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX.equals("true"))
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true" checked="checked"/>
+											#else
+		                                        <input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX"
+		                                               type="checkbox" value="true"/>
+											#end
+											$tlang.getString("turnitinoc.index.all")
+		                                </label>
+		                             </div>
+								#end
+							</div>
+						#end
+						
+						
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT)
+						 	<br/><br/>
+							<div>
+								<label>$tlang.getString("turnitinoc.generate.header"):</label>
+							</div>
+							<div style="display:inline-block">
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")</label>
+									</div>
+								#end
+								#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE))
+									<div class="radio">
+										<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_AND_DUE"))checked#end/>$tlang.getString("review.originality.reports.immediately_and_due")</label>
+									</div>
+								#end
+							</div>
+						#end
+						<br/><br/>
+						<p class="text-muted small">
+							<a href="https://guides.turnitin.com/03_Integrations/Turnitin_Partner_Integrations/Sakai" target="_blank">$tlang.getString("turnitinoc.instructions")</a>
+						</p>
+                        <!-- End TurnitinOC custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))
 						#if ($content_review_note)
 							$content_review_note
@@ -1215,6 +1341,25 @@
 				</p>
 			#end
 		#end
+
+		<sakai-rubric-association style="display:none;"
+			dont-associate-label="$tlang.getString("dont.associate.label")"
+			dont-associate-value="0"
+			associate-label="$tlang.getString("associate.label")"
+			associate-value="1"
+
+			#if("$!assignment.Id" != "")
+			tool-id="sakai.assignment"
+			entity-id="$assignment.Id"
+			#end
+
+			#if($rbcs-state-details && "$!rbcs-state-details" != "")
+			state-details="$rbcs-state-details"
+			#end
+
+			config-fine-tune-points="$tlang.getString("option.pointsoverride")"
+			config-hide-student-preview="$tlang.getString("option.studentpreview")"
+		></sakai-rubric-association>
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
 		#if( $enableAnonGrading || $value_CheckAnonymousGrading)
@@ -1826,6 +1971,7 @@
 			#buttonBar()
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" name="rbcs-token" value="$!rbcs-token"/>
 	</form>
 </div>
 <!-- end: chef_assignments_instructor_new_edit_assignment.vm  -->

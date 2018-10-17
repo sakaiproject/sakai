@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.Collection;
 import java.util.List;
 
 
@@ -98,10 +97,10 @@ public interface MessageForumsForumManager {
     /**
      * Save a discussion forum
      */
-    public void saveDiscussionForum(DiscussionForum forum);
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft);
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent);
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent);
+    public DiscussionForum saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser);
 
 
     /**

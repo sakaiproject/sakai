@@ -2,6 +2,9 @@
 
 This is the source code for the Sakai CLE.
 
+The master branch is the most current development release, Sakai 19.
+The other branches are currently or previously supported releases. See below for more information on the release plan and support schedule.
+
 ## Building
 
 [![Build Status](https://travis-ci.org/sakaiproject/sakai.svg?branch=master)](https://travis-ci.org/sakaiproject/sakai)
@@ -67,7 +70,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-[Sakai 12.1](https://confluence.sakaiproject.org/display/DOC/Sakai+12+Release+Notes) is the second community supported release of Sakai 12.
+[Sakai 12.4](https://confluence.sakaiproject.org/display/DOC/Sakai+12+Release+Notes) is the fourth community supported release of Sakai 12.
 
 [Sakai 11.4](https://confluence.sakaiproject.org/display/DOC/Sakai+11+Release+Notes) is still supported. The possibility of a Sakai 11.5 is under review. It's recommended for anyone using this release to build from source off of the 11.x branch.
 
@@ -76,7 +79,9 @@ Sakai 10.0 and earlier are no longer supported by the community.
 For full history of supported releases please see our [release information on confluence](https://confluence.sakaiproject.org/display/DOC/Sakai+Release+Date+list).
 
 ## Under Development
-Sakai 12.2 is under development as the second maintenance release of Sakai 12. It is expected to be released in the Q3 July/August 2018 timeframe.
+[Sakai 19.0](https://confluence.sakaiproject.org/display/REL/Sakai+19+Straw+person) is the current developement release of Sakai 19. It is expected to release Q4 2018 - Q1 2019.
+
+Sakai 12.5 is under development as the fifth maintenance release of Sakai 12. It is expected to be released in Q4 2018 timeframe.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.
@@ -85,6 +90,33 @@ CKSource has created a GPL licensed open source version of their [Accessibility 
 
 ## Skinning Sakai
 Documentation on how to alter the Sakai skin (look and feel) is here https://github.com/sakaiproject/sakai/tree/master/library
+
+## Translating Sakai
+
+Translation, internationalization and localization of the Sakai project are coordinated by the Sakai Internationalization/localization community. This community maintains a publicly-accessible report that tracks what percentage of Sakai has been translated into various global languages and dialects. If the software is not yet available in your language, you can translate it with support from the broader Sakai Community to assist you. 
+
+From its inception, the Sakai project has been envisioned and designed for global use. Complete or majority-complete translations of Sakai are available in the languages listed below. 
+
+### Supported languages
+| Locale | Language|
+| ------ | ------ |
+| en_US | English (Default) |
+| ca_ES | Catalán |
+| es_ES | Español |
+| eu | Euskera |
+| fa_IR | Farsi |
+| fr_FR | Français |
+| hi_IN | Hindi |
+| ja_JP | Japanese |
+| mn | Mongolian |
+| pt_BR | Portuguese (Brazil) |
+| sv_SE | Swedish |
+| tr_TR | Turkish |
+| zh_CN | Chinese |
+
+### Other languages
+
+Other languages have been declared legacy in Sakai 19 and have been moved to [Sakai Contrib as language packs](https://github.com/sakaicontrib/legacy-language-packs).
 
 ## Community (contrib) tools
 A number of institutions have written additional tools for Sakai that they use in their local installations, but are not yet in an official release of Sakai. These are being collected at https://github.com/sakaicontrib where you will find information about each one. You might find just the thing you are after!

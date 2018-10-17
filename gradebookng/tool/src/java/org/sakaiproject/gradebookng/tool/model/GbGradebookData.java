@@ -63,6 +63,7 @@ public class GbGradebookData {
 		private String hasComments;
 		private String hasConcurrentEdit;
 		private String readonly;
+		private String hasExcuse;
 
 		private String studentNumber;
 		private String hasDroppedScores;
@@ -86,6 +87,7 @@ public class GbGradebookData {
 		private boolean isIncludedInCourseGrade;
 		private boolean isExtraCredit;
 		private boolean isExternallyMaintained;
+		private boolean hasAssociatedRubric;
 		private String externalId;
 		private String externalAppName;
 		private String externalAppIconCSS;
@@ -113,11 +115,16 @@ public class GbGradebookData {
 				return new ReadOnlyScore(null);
 			} else {
 				final String grade = gradeInfo.getGrade();
+				final boolean excused = gradeInfo.isExcused();
 
 				if (isUserAbleToEditAssessments || gradeInfo.isGradeable()) {
-					return new EditableScore(grade);
+				    EditableScore score = new EditableScore(grade);
+				    score.setExcused(excused);
+					return score;
 				} else {
-					return new ReadOnlyScore(grade);
+				    ReadOnlyScore score = new ReadOnlyScore(grade);
+				    score.setExcused(excused);
+					return score;
 				}
 			}
 		}
@@ -191,6 +198,7 @@ public class GbGradebookData {
 	private Map<String, String> toolNameIconCSSMap;
 	private String defaultIconCSS;
 	private Map<String, Double> courseGradeMap;
+	private Map<String, Boolean> hasAssociatedRubricMap;
 	private boolean isStudentNumberVisible;
 
 	private Component parent;
@@ -211,6 +219,7 @@ public class GbGradebookData {
 
 		this.toolNameIconCSSMap = gbGradeTableData.getToolNameToIconCSS();
 		this.defaultIconCSS = gbGradeTableData.getDefaultIconCSS();
+		this.hasAssociatedRubricMap = gbGradeTableData.getHasAssociatedRubricMap();
 
 		this.columns = loadColumns(gbGradeTableData.getAssignments());
 		this.students = loadStudents(studentGradeInfoList);
@@ -251,7 +260,7 @@ public class GbGradebookData {
 	}
 
 	private String serializeGrades(final List<Score> gradeList) {
-		if (gradeList.stream().anyMatch(score -> score.isLarge())) {
+		if (gradeList.stream().anyMatch(score -> !score.isPackable())) {
 			return "json:" + serializeLargeGrades(gradeList);
 		} else {
 			return "packed:" + serializeSmallGrades(gradeList);
@@ -259,7 +268,7 @@ public class GbGradebookData {
 	}
 
 	private String serializeLargeGrades(final List<Score> gradeList) {
-		final List<Double> scores = gradeList.stream().map(score -> score.isNull() ? -1 : score.getScore()).collect(Collectors.toList());
+		final List<Double> scores = gradeList.stream().map(score -> score.isNull() ? null : score.getScore()).collect(Collectors.toList());
 
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
@@ -301,6 +310,11 @@ public class GbGradebookData {
 			}
 
 			final double grade = score.getScore();
+
+			if (grade < 0) {
+			    throw new IllegalStateException("serializeSmallGrades doesn't support negative scores");
+			}
+
 
 			final boolean hasFraction = ((int) grade != grade);
 
@@ -442,6 +456,7 @@ public class GbGradebookData {
 			studentDefinition.setLastName(student.getStudentLastName());
 			studentDefinition.setHasComments(formatColumnFlags(student, g -> StringUtils.isNotBlank(g.getGradeComment())));
 			studentDefinition.setHasDroppedScores(formatColumnFlags(student, g -> g.isDroppedFromCategoryScore()));
+			studentDefinition.setHasExcuse(formatColumnFlags(student, g -> g.isExcused()));
 
 			if (this.isStudentNumberVisible) {
 				studentDefinition.setStudentNumber(student.getStudentNumber());
@@ -486,7 +501,7 @@ public class GbGradebookData {
 				counted = false;
 			}
 			result.add(new AssignmentDefinition(a1.getId(),
-					a1.getName(),
+					FormatHelper.stripLineBreaks(a1.getName()),
 					FormatHelper.abbreviateMiddle(a1.getName()),
 					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
 					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
@@ -495,6 +510,7 @@ public class GbGradebookData {
 					counted,
 					a1.isExtraCredit(),
 					a1.isExternallyMaintained(),
+					a1.isExternallyMaintained() ?  this.hasAssociatedRubricMap.get(a1.getExternalId()) : this.hasAssociatedRubricMap.get(String.valueOf(a1.getId())),
 					a1.getExternalId(),
 					a1.getExternalAppName(),
 					getIconCSSForExternalAppName(a1.getExternalAppName()),
@@ -572,6 +588,7 @@ public class GbGradebookData {
 		return sb.toString();
 	}
 
+
 	private String nullable(final Object value) {
 		if (value == null) {
 			return null;
@@ -590,6 +607,7 @@ public class GbGradebookData {
 
 	private abstract class Score {
 		private String score;
+		private boolean isExcused;
 
 		public Score(final String score) {
 			this.score = score;
@@ -606,10 +624,18 @@ public class GbGradebookData {
 			return score == null;
 		}
 
-		public boolean isLarge() {
-			return score != null && Double.valueOf(score) > 16384;
+		public boolean isPackable() {
+			return isNull() || (Double.valueOf(score) >= 0 && Double.valueOf(score) < 16384);
 		}
-	}
+
+        public boolean isExcused() {
+            return isExcused;
+        }
+
+        public void setExcused(boolean excused) {
+            isExcused = excused;
+        }
+    }
 
 	private class EditableScore extends Score {
 		public EditableScore(final String score) {

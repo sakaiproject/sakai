@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -11,8 +11,8 @@
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 		<!-- discussionForum/statistics/dfStatisticsFullTextForOne.jsp -->
   	       	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 			
 			<script type="text/javascript">
 	  			$(document).ready(function() {
@@ -36,14 +36,14 @@
 			      		rendered="#{ForumTool.messagesandForums}" />
 			 <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
-			 <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			 <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			 <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
-			 <f:verbatim><h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			 <h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " />
 			 <h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}" rendered="#{empty mfStatisticsBean.selectedAllTopicsTopicId && empty mfStatisticsBean.selectedAllTopicsForumId}">
 			 </h:commandLink>
 			 <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId || !empty mfStatisticsBean.selectedAllTopicsForumId}"/>
 		      <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsForumId}">
-			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			      <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
   				    <f:param value="" name="topicId"/>
   				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
@@ -51,17 +51,17 @@
 	          	  </h:commandLink>
 			  </h:panelGroup>
 			  <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId}">
-		      	  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		      	  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
   				    <f:param value="#{mfStatisticsBean.selectedAllTopicsTopicId}" name="topicId"/>
   				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
   				    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsTopicTitle}" />
 	          	  </h:commandLink>
 	          </h:panelGroup> 
-			 <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			 <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			 <h:commandLink action="#{ForumTool.processActionShowFullTextForAll}" value="#{msgs.stat_authored}">
 			 </h:commandLink>
-			 <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+			 <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 			  <h:outputText value="#{mfStatisticsBean.selectedMsgSubject}" />
 			  <f:verbatim></h3></div></f:verbatim>
   
@@ -79,9 +79,9 @@
 					<f:verbatim><div style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden"></f:verbatim>
 						<f:verbatim><p style="width:80%;float:left;margin:0;padding:0;font-size:110%;color:#000;font-weight:bold"></f:verbatim>
 							<h:outputText value="#{stat.forumTitle}" />
-							 <f:verbatim><h:outputText value="/" /></f:verbatim>
+							 <h:outputText value="/" />>
 							<h:outputText value="#{stat.topicTitle}" />
-							 <f:verbatim><h:outputText value="/" /></f:verbatim>
+							 <h:outputText value="/" />
 							<h:outputText  value= "#{stat.forumSubject} " />
 							<h:outputText value="#{stat.forumDate}">
 								<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>

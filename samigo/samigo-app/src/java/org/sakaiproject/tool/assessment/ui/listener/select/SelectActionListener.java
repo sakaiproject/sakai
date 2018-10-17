@@ -34,8 +34,8 @@ import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -554,11 +554,11 @@ public class SelectActionListener
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private List getTakeableList(List assessmentList, Map h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
+  private List getTakeableList(List assessmentList, Map <Long,Integer> h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
     List takeableList = new ArrayList();
     GradingService gradingService = new GradingService();
     Map<Long, StudentGradingSummaryData> numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
-    Map<Long, Long> actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
+    Map<Long, Integer> actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
     ExtendedTimeDeliveryService extendedTimeDeliveryService;
     for (int i = 0; i < assessmentList.size(); i++) {
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
@@ -584,7 +584,7 @@ public class SelectActionListener
     return takeableList;
   }
 
-  public boolean isAvailable(PublishedAssessmentFacade f, Map h, Map numberRetakeHash, Map actualNumberRetakeHash, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
+  public boolean isAvailable(PublishedAssessmentFacade f, Map <Long, Integer> h, Map<Long, StudentGradingSummaryData> numberRetakeHash, Map <Long, Integer> actualNumberRetakeHash, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
     boolean returnValue = false;
     //1. prepare our significant parameters
     Integer status = f.getStatus();
@@ -651,7 +651,7 @@ public class SelectActionListener
 			} else {
 				int actualNumberRetake = 0;
 				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
+					actualNumberRetake = (actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
 				}
 				if (actualNumberRetake < numberRetake) {
 					returnValue = true;
@@ -664,7 +664,7 @@ public class SelectActionListener
     		if (retractDate == null || retractDate.after(currentDate)) {
 				int actualNumberRetake = 0;
 				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
+					actualNumberRetake = (actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
 				}
 				if (actualNumberRetake < numberRetake) {
 					returnValue = true;

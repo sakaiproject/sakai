@@ -36,8 +36,8 @@
     <h:outputText  value="#{select.secureDeliveryHTMLFragments}" escape="false" />
 
     <!--JAVASCRIPT -->
-    <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
-    <samigo:script path="/js/naturalSort.js"/>
+    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
+    <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
     <script type="text/JavaScript">
         $(document).ready(function() {
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {
@@ -236,7 +236,7 @@
                             </h:panelGroup>
                         </f:facet>
                         <h:outputText value="#{selectIndexMessages.na}" rendered="#{takeable.dueDate == null}" />
-                        <h:outputText value="#{takeable.dueDateString}" style="color: red;" rendered="#{takeable.pastDue}" />
+                        <h:outputText value="#{takeable.dueDateString} #{selectIndexMessages.late}" style="color: red;" rendered="#{takeable.pastDue}" />
                         <h:outputText value="#{takeable.dueDateString}" rendered="#{!takeable.pastDue}" />
                     </t:column>
                 </t:dataTable>

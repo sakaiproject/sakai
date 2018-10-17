@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -33,7 +33,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <samigo:script path="/js/authoring.js"/>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
       </head>
       <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
 
@@ -100,7 +100,9 @@
             </h:selectOneRadio>
         </div>
     </div>
-    
+
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
+
     <%-- 2 QUESTION TEXT --%>
     <div class="longtext"> 
         <h:outputLabel value="#{authorMessages.q_text}" /><br/>

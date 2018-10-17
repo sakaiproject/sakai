@@ -79,6 +79,7 @@ import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
@@ -128,6 +129,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.PathEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
@@ -180,6 +182,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
 	private static LessonBuilderAccessService lessonBuilderAccessService;
+	
+	private List<Long> printedSubpages;
 	
 	private Map<String,String> imageToMimeMap;
 	public void setImageToMimeMap(Map<String,String> map) {
@@ -401,8 +405,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localegetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
 
-		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
-		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery()));
+		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", "/library/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery()));
 
 		UIOutput.make(tofill, "portletBody").decorate(new UIFreeAttributeDecorator("sakaimajor", Integer.toString(majorVersion)))
 		    .decorate(new UIFreeAttributeDecorator("sakaiversion", fullVersion));
@@ -718,6 +721,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		showAll.setSource("summary");
 		UIInternalLink.make(tofill, "print-view", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_view")));
+		UIInternalLink.make(tofill, "print-all", showAll)
+		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.print_all")));
 		UIInternalLink.make(tofill, "show-pages", showAll)
 		    .decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.showallpages")));
 		
@@ -1116,7 +1121,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// Is anything visible?
 		// Note that we don't need to check whether any item is available, since the first visible
 		// item is always available.
-		boolean anyItemVisible = false;
+		boolean[] anyItemVisible = new boolean[1];
+		anyItemVisible[0]=false;
 
 		if (itemList.size() > 0) {
 			UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
@@ -1134,7 +1140,132 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer tableContainer = null;
 
 			boolean first = true;
+					
+			printedSubpages = new ArrayList<Long>();
+			
+			printSubpage(itemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
+					container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
+					M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId, 
+					addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
 
+			// end of items. This is the end for normal users. Following is
+			// special
+			// checks and putting out the dialogs for the popups, for
+			// instructors.
+
+			boolean showBreak = false;
+
+			// I believe refresh is now done automatically in all cases
+			// if (showRefresh) {
+			// UIOutput.make(tofill, "refreshAlert");
+			//
+			// // Should simply refresh
+			// GeneralViewParameters p = new GeneralViewParameters(VIEW_ID);
+			// p.setSendingPage(currentPage.getPageId());
+			// UIInternalLink.make(tofill, "refreshLink", p);
+			// showBreak = true;
+			// }
+
+			// stuff goes on the page in the order in the HTML file. So the fact
+			// that it's here doesn't mean it shows
+			// up at the end. This code produces errors and other odd stuff.
+
+			if (canSeeAll) {
+				// if the page is hidden, warn the faculty [students get stopped
+				// at
+				// the top]
+				if (currentPage.isHidden()) {
+					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.pagehidden")));
+					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.pagehidden.text"));
+
+					showBreak = true;
+					// similarly warn them if it isn't released yet
+				} else if (currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
+					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
+					TimeZone tz = timeService.getLocalTimeZone();
+					df.setTimeZone(tz);
+					String releaseDate = df.format(currentPage.getReleaseDate());
+					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
+					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
+					showBreak = true;
+				}
+			}
+
+			if (showBreak) {
+				UIOutput.make(tofill, "breakAfterWarnings");
+			}
+		}
+
+		// more warnings: if no item on the page, give faculty instructions,
+		// students an error
+		if (!anyItemVisible[0]) {
+			if (canEditPage) {
+				String helpUrl = null;
+				// order:
+				// localized placedholder
+				// localized general
+				// default placeholder
+				// we know the defaults exist because we include them, so
+				// we never need to consider default general
+				if (simplePageBean.isStudentPage(currentPage)) {
+				    helpUrl = getLocalizedURL("student.html", true);
+				}
+				else {
+				    helpUrl = getLocalizedURL("placeholder.html", false);
+				    if (helpUrl == null)
+					helpUrl = getLocalizedURL("general.html", false);
+				    if (helpUrl == null)
+					helpUrl = getLocalizedURL("placeholder.html", true);
+				}
+
+				UIOutput.make(tofill, "startupHelp")
+				    .decorate(new UIFreeAttributeDecorator("src", helpUrl))
+				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
+				if (!iframeJavascriptDone) {
+				    UIOutput.make(tofill, "iframeJavascript");
+				    iframeJavascriptDone = true;
+				}
+			} else {
+				UIOutput.make(tofill, "error-div");
+				UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));
+			}
+		}
+
+		// now output the dialogs. but only for faculty (to avoid making the
+		// file bigger)
+		if (canEditPage) {
+			createSubpageDialog(tofill, currentPage);
+		}
+
+		createDialogs(tofill, currentPage, pageItem, cssLink);
+
+		// Add pageids to the page so the portal lessons subnav menu can update its state
+		List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
+		if (path.size() > 2) {
+			SimplePageBean.PathEntry topLevelSubPage = path.get(1);
+			UIOutput.make(tofill, "lessonsSubnavTopLevelPageId")
+				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(topLevelSubPage.pageId)));
+		} else {
+			UIOutput.make(tofill, "lessonsSubnavPageId")
+				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
+		}
+		UIOutput.make(tofill, "lessonsSubnavToolId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(placement.getId())));
+		UIOutput.make(tofill, "lessonsSubnavItemId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
+
+		UIOutput.make(tofill, "lessonsCurrentPageId")
+			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
+	}
+
+	public void printSubpage(List<SimplePageItem> itemList, boolean first, UIBranchContainer sectionWrapper, UIBranchContainer sectionContainer, UIBranchContainer columnContainer, UIBranchContainer tableContainer, 
+			UIBranchContainer container, int cols, int colnum, boolean canEditPage, SimplePage currentPage, boolean[] anyItemVisible, long newItemId, boolean showRefresh, boolean canSeeAll, 
+			Locale M_locale, int ieVersion, boolean showDownloads, boolean iframeJavascriptDone, UIContainer tofill, Placement placement, GeneralViewParameters params, long postedCommentId, 
+			boolean addedCommentsScript, boolean cameFromGradingPane, SimplePageItem pageItem, boolean noEditor, int commentsCount, int textboxcount) {
+			
+			boolean subPageTitleIncluded = false;
+			boolean subPageTitleContinue = false;
+		
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
@@ -1220,6 +1351,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    continue;
 				    // for first item, if wasn't break, process it
 				}
+				
+				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
+						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
+				{
+					// is a subpage		
+															
+					printedSubpages.add(Long.valueOf(i.getSakaiId()));
+					
+					List<SimplePageItem> subitemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(Long.valueOf(i.getSakaiId()));
+					printSubpage(subitemList, first, sectionWrapper, sectionContainer, columnContainer, tableContainer, 
+							container, cols, colnum, canEditPage, currentPage, anyItemVisible, newItemId, showRefresh, canSeeAll, 
+							M_locale, ieVersion, showDownloads, iframeJavascriptDone, tofill, placement, params, postedCommentId,
+							addedCommentsScript, cameFromGradingPane, pageItem, noEditor, commentsCount, textboxcount);
+					
+					subPageTitleContinue = true;					
+				}
+				else
+				{
 
 				// listitem is mostly historical. it uses some shared HTML, but
 				// if I were
@@ -1241,7 +1390,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 				// break isn't a real item. probably don't want to count it
 				if (i.getType() != SimplePageItem.BREAK)
-				    anyItemVisible = true;
+				    anyItemVisible[0] = true;
 
 				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 
@@ -2356,19 +2505,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						List<String>groupMembers = simplePageBean.studentPageGroupMembers(i, null);
 
-						boolean evalIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
-
-						//If groupMembers is empty this should be true (individual) even if this is set to being in a group
-						if (groupMembers == null || groupMembers.isEmpty()) {
-							evalIndividual = true;
-						}
+						boolean groupOwnedIndividual = (i.isGroupOwned() && "true".equals(i.getAttribute("group-eval-individual")));
 
 						// if we should show form. 
 						// individual owned
 						// group owned and eval group
 						// group owned and eval individual and we're in the group
 						// i.e. not eval individual and we're outside group
-						if(!(evalIndividual && !groupMembers.contains(currentUser))) {
+						if(!(groupOwnedIndividual && !groupMembers.contains(currentUser))) {
 						    UIOutput.make(tableRow, "peerReviewRubricStudent");
 						    UIOutput.make(tableRow, "peer-eval-title-student", String.valueOf(i.getAttribute("rubricTitle")));
 						    UIForm peerForm = UIForm.make(tableRow, "peer-review-form");
@@ -2393,7 +2537,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 
 						    List<Target>evalTargets = new ArrayList<Target>();
-						    if (evalIndividual) {
+						    if (groupOwnedIndividual) {
 							String group = simplePageBean.getCurrentPage().getGroup();
 							if (group != null)
 							    group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
@@ -2426,7 +2570,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // for old format entries always need page owner or evaluee
 						    // for new format when evaluating page need groupId
 						    String groupId = null;
-						    if (i.isGroupOwned() && !evalIndividual)
+						    if (i.isGroupOwned() && !groupOwnedIndividual)
 							groupId = simplePageBean.getCurrentPage().getGroup();
 
 						    for (Target target: evalTargets) {
@@ -2437,7 +2581,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// current data to show to target, all evaluations of target
 							// But first see if we should show current data. Only show
 							// user data evaluating him
-							if ((i.isGroupOwned() && !evalIndividual && groupMembers.contains(currentUser)) ||
+							if ((i.isGroupOwned() && !groupOwnedIndividual && groupMembers.contains(currentUser)) ||
 							    target.id.equals(currentUser)) {
 							
 							    List<SimplePagePeerEvalResult> evaluations = simplePageToolDao.findPeerEvalResultByOwner(pageId.longValue(), target.id, groupId);
@@ -2445,7 +2589,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    if(evaluations!=null) {
 								for(SimplePagePeerEvalResult eval : evaluations) {
 								    // for individual eval only show results for that one
-									if (evalIndividual && !currentUser.equals(eval.getGradee()))
+									if (groupOwnedIndividual && !currentUser.equals(eval.getGradee()))
 									    continue;
 									Long rowId = eval.getRowId();
 									if (rowId == 0L)
@@ -2490,8 +2634,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 							// keep this is sync with canSubmit in SimplePageBean.savePeerEvalResult
 							boolean canSubmit = (!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
-									     i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
-									     evalIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
+									     i.isGroupOwned() && !groupOwnedIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+									     groupOwnedIndividual && groupMembers.contains(currentUser) && (peerEvalAllowSelfGrade || !target.id.equals(currentUser)));
 
 							makePeerRubric(entry, i, makeStudentRubric, selectedCells, 
 								       dataMap, canSubmit);
@@ -2503,8 +2647,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // group and (not in group or gradingself)
 						    // group individual eval and in group
 						    if(!i.isGroupOwned() && (!owner.equals(currentUser) || gradingSelf) ||
-						       i.isGroupOwned() && !evalIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
-						       evalIndividual && groupMembers.contains(currentUser)) {
+						       i.isGroupOwned() && !groupOwnedIndividual && (!groupMembers.contains(currentUser) || peerEvalAllowSelfGrade) ||
+						       groupOwnedIndividual && groupMembers.contains(currentUser)) {
 
 							// can actually submit
 
@@ -3355,8 +3499,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (canSeeAll) {
 					    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 					    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+					    String subPagePath = null;
+					    if(!subPageTitleIncluded && httpServletRequest.getParameter("printall") != null)
+					    {
+					    	subPagePath = simplePageBean.getSubPagePath(i, false);
+					    	subPageTitleIncluded = true;					    	
+					    }
+					    if(subPageTitleContinue && httpServletRequest.getParameter("printall") != null)
+					    {
+					    	subPagePath = simplePageBean.getSubPagePath(i, true);
+					    	subPageTitleContinue = false;					    	
+					    }
+					    if (itemGroupTitles != null && subPagePath != null) {
+					    	itemGroupTitles = subPagePath +" - "+itemGroupTitles;
+					    }
+					    else if(subPagePath != null)
+					    {
+					    	itemGroupTitles = subPagePath;
+					    }
+					    
 					    if (itemGroupTitles != null) {
-						itemGroupTitles = "[" + itemGroupTitles + "]";
+					    	itemGroupTitles = "[" + itemGroupTitles + "]";
 					    }
 					    
 					    UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
@@ -3388,117 +3551,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						textboxcount++;
 					}
 				}
+				} // else - is not a subpage
 			}
-
-			// end of items. This is the end for normal users. Following is
-			// special
-			// checks and putting out the dialogs for the popups, for
-			// instructors.
-
-			boolean showBreak = false;
-
-			// I believe refresh is now done automatically in all cases
-			// if (showRefresh) {
-			// UIOutput.make(tofill, "refreshAlert");
-			//
-			// // Should simply refresh
-			// GeneralViewParameters p = new GeneralViewParameters(VIEW_ID);
-			// p.setSendingPage(currentPage.getPageId());
-			// UIInternalLink.make(tofill, "refreshLink", p);
-			// showBreak = true;
-			// }
-
-			// stuff goes on the page in the order in the HTML file. So the fact
-			// that it's here doesn't mean it shows
-			// up at the end. This code produces errors and other odd stuff.
-
-			if (canSeeAll) {
-				// if the page is hidden, warn the faculty [students get stopped
-				// at
-				// the top]
-				if (currentPage.isHidden()) {
-					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.pagehidden")));
-					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.pagehidden.text"));
-
-					showBreak = true;
-					// similarly warn them if it isn't released yet
-				} else if (currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
-					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-					TimeZone tz = timeService.getLocalTimeZone();
-					df.setTimeZone(tz);
-					String releaseDate = df.format(currentPage.getReleaseDate());
-					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
-					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
-					showBreak = true;
-				}
-			}
-
-			if (showBreak) {
-				UIOutput.make(tofill, "breakAfterWarnings");
-			}
-		}
-
-		// more warnings: if no item on the page, give faculty instructions,
-		// students an error
-		if (!anyItemVisible) {
-			if (canEditPage) {
-				String helpUrl = null;
-				// order:
-				// localized placedholder
-				// localized general
-				// default placeholder
-				// we know the defaults exist because we include them, so
-				// we never need to consider default general
-				if (simplePageBean.isStudentPage(currentPage)) {
-				    helpUrl = getLocalizedURL("student.html", true);
-				}
-				else {
-				    helpUrl = getLocalizedURL("placeholder.html", false);
-				    if (helpUrl == null)
-					helpUrl = getLocalizedURL("general.html", false);
-				    if (helpUrl == null)
-					helpUrl = getLocalizedURL("placeholder.html", true);
-				}
-
-				UIOutput.make(tofill, "startupHelp")
-				    .decorate(new UIFreeAttributeDecorator("src", helpUrl))
-				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
-				if (!iframeJavascriptDone) {
-				    UIOutput.make(tofill, "iframeJavascript");
-				    iframeJavascriptDone = true;
-				}
-			} else {
-				UIOutput.make(tofill, "error-div");
-				UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));
-			}
-		}
-
-		// now output the dialogs. but only for faculty (to avoid making the
-		// file bigger)
-		if (canEditPage) {
-			createSubpageDialog(tofill, currentPage);
-		}
-
-		createDialogs(tofill, currentPage, pageItem, cssLink);
-
-		// Add pageids to the page so the portal lessons subnav menu can update its state
-		List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
-		if (path.size() > 2) {
-			SimplePageBean.PathEntry topLevelSubPage = path.get(1);
-			UIOutput.make(tofill, "lessonsSubnavTopLevelPageId")
-				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(topLevelSubPage.pageId)));
-		} else {
-			UIOutput.make(tofill, "lessonsSubnavPageId")
-				.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
-		}
-		UIOutput.make(tofill, "lessonsSubnavToolId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(placement.getId())));
-		UIOutput.make(tofill, "lessonsSubnavItemId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(pageItem.getId())));
-
-		UIOutput.make(tofill, "lessonsCurrentPageId")
-			.decorate(new UIFreeAttributeDecorator("value", String.valueOf(simplePageBean.getCurrentPage().getPageId())));
 	}
+			
 	
 	public void makeCsrf(UIContainer tofill, String rsfid) {
 	    Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
@@ -5554,4 +5610,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return itemText;
 	}
 
+	public List<Long> getPrintedSubpages() {
+		return printedSubpages;
+	}
+
+	public void setPrintedSubpages(List<Long> printedSubpages) {
+		this.printedSubpages = printedSubpages;
+	}
 }

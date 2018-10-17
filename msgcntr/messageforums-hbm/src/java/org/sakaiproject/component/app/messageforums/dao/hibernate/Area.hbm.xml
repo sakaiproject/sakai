@@ -67,15 +67,15 @@
     </property>
     <property name="openDate" column="OPEN_DATE" type="timestamp" />
     <property name="closeDate" column="CLOSE_DATE" type="timestamp" />
-    <set name="openForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="save-update" batch-size="50">
+    <set name="openForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="persist,merge,save-update" batch-size="50">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"/>            
     </set>
-    <set name="privateForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="save-update" batch-size="50">
+    <set name="privateForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="persist,merge,save-update" batch-size="50">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"/>            
     </set>
-    <set name="discussionForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="save-update" batch-size="50">
+    <set name="discussionForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="persist,merge,save-update" batch-size="50">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"/>            
     </set>    

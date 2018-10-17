@@ -83,26 +83,10 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	 */
 	@Override
 	@Transactional(readOnly=true)
+	@Deprecated
 	public int getReviewScore(Integer providerId, String contentId) throws QueueException, ReportException, Exception {
-		Objects.requireNonNull(providerId, "providerId cannot be null");
-		Objects.requireNonNull(contentId, "contentId cannot be null");
-		
-		log.debug("Getting review score for providerId: " + providerId + " contentId: " + contentId);
-		
-		Optional<ContentReviewItem> matchingItem = itemDao.findByProviderAndContentId(providerId, contentId);
-		
-		if (!matchingItem.isPresent()) {
-			log.debug("Content " + contentId + " has not been queued previously");
-			throw new QueueException("Content " + contentId + " has not been queued previously");
-		}
-		
-		ContentReviewItem item = matchingItem.get();
-		if (item.getStatus().compareTo(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE) != 0) {
-			log.debug("Report not available: " + item.getStatus());
-			throw new ReportException("Report not available: " + item.getStatus());
-		}
-		
-		return item.getReviewScore().intValue();
+		Optional<ContentReviewItem> item = getQueuedItem(providerId, contentId);
+		return item.isPresent()  ? item.get().getReviewScore() : null;
 	}
 
 	/* (non-Javadoc)
@@ -110,40 +94,21 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	 */
 	@Override
 	@Transactional(readOnly=true)
+	@Deprecated
 	public Long getReviewStatus(Integer providerId, String contentId) throws QueueException {
-		Objects.requireNonNull(providerId, "providerId cannot be null");
-		Objects.requireNonNull(contentId, "contentId cannot be null");
-
-		log.debug("Returning review status for content: " + contentId);
-
-		Optional<ContentReviewItem> matchingItem = itemDao.findByProviderAndContentId(providerId, contentId);
-
-		if (!matchingItem.isPresent()) {
-			log.debug("Content " + contentId + " has not been queued previously");
-			throw new QueueException("Content " + contentId + " has not been queued previously");
-		}
-
-		return matchingItem.get().getStatus();
+		Optional<ContentReviewItem> item = getQueuedItem(providerId, contentId);
+		return item.isPresent()  ? item.get().getStatus() : null;
 	}
-
+		
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.contentreview.common.service.ContentReviewCommonService#getDateQueued(java.lang.Integer, java.lang.String)
 	 */
 	@Override
 	@Transactional(readOnly=true)
+	@Deprecated
 	public Date getDateQueued(Integer providerId, String contentId) throws QueueException {
-		Objects.requireNonNull(providerId, "providerId cannot be null");
-		Objects.requireNonNull(contentId, "contentId cannot be null");
-
-		log.debug("Returning date queued for content: " + contentId);
-
-		Optional<ContentReviewItem> matchingItem = itemDao.findByProviderAndContentId(providerId, contentId);
-		if (!matchingItem.isPresent()) {
-			log.debug("Content " + contentId + " has not been queued previously");
-			throw new QueueException("Content " + contentId + " has not been queued previously");
-		}
-
-		return matchingItem.get().getDateQueued();
+		Optional<ContentReviewItem> item = getQueuedItem(providerId, contentId);
+		return item.isPresent()  ? item.get().getDateQueued() : null;
 	}
 
 	/* (non-Javadoc)
@@ -151,26 +116,10 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	 */
 	@Override
 	@Transactional(readOnly=true)
+	@Deprecated
 	public Date getDateSubmitted(Integer providerId, String contentId) throws QueueException, SubmissionException {
-		Objects.requireNonNull(providerId, "providerId cannot be null");
-		Objects.requireNonNull(contentId, "contentId cannot be null");
-
-		log.debug("Returning date queued for content: " + contentId);
-
-		Optional<ContentReviewItem> matchingItem = itemDao.findByProviderAndContentId(providerId, contentId);
-
-		if (!matchingItem.isPresent()) {
-			log.debug("Content " + contentId + " has not been queued previously");
-			throw new QueueException("Content " + contentId + " has not been queued previously");
-		}
-
-		ContentReviewItem item = matchingItem.get();
-		if (item.getDateSubmitted() == null) {
-			log.debug("Content not yet submitted: " + item.getStatus());
-			throw new SubmissionException("Content not yet submitted: " + item.getStatus());
-		}
-
-		return item.getDateSubmitted();
+		Optional<ContentReviewItem> item = getQueuedItem(providerId, contentId);
+		return item.isPresent()  ? item.get().getDateSubmitted() : null;
 	}
 
 	/* (non-Javadoc)
@@ -240,6 +189,18 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 		
 		return itemDao.findByProviderAndContentId(providerId, contentId);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.contentreview.service.ContentReviewQueueService#getQueuedItem(java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public Optional<ContentReviewItem> getQueuedItemByExternalId(Integer providerId, String externalId) {
+		Objects.requireNonNull(providerId, "providerId cannot be null");
+		Objects.requireNonNull(externalId, "externalId cannot be null");
+		
+		return itemDao.findByProviderAndExternalId(providerId, externalId);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.contentreview.service.ContentReviewQueueService#getQueuedNotSubmittedItems(java.lang.Integer)
@@ -278,7 +239,6 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	@Transactional
 	public void update(ContentReviewItem item) {
 		Objects.requireNonNull(item, "item cannot be null");
-		Objects.requireNonNull(item.getId(), "Id cannot be null");
 		Objects.requireNonNull(item.getProviderId(), "providerId cannot be null");
 		
 		itemDao.save(item);

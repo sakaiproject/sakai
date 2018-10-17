@@ -1907,25 +1907,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		p.addProperty(ResourceProperties.PROP_CONTENT_TYPE, r.getContentType());
 
 		p.addProperty(ResourceProperties.PROP_IS_COLLECTION, "false");
-
-		if (StringUtils.isBlank(p.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE))) {
-			String copyright = m_serverConfigurationService.getString("copyright.type.default", "not_determined");
-			// if copyright is null don't set a default copyright
-			if (copyright != null) {
-				String[] copyrightTypes = m_serverConfigurationService.getStrings("copyright.types");
-				if (copyrightTypes != null && copyrightTypes.length > 0) {
-					List<String> l = Arrays.asList(copyrightTypes);
-					if (l.contains(copyright)) {
-						p.addProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
-					} else {
-						log.warn("Cannot set the default copyright " + copyright + " on " + r.getId() + " does not match any copyright types");
-					}
-				} else {
-					log.warn("Cannot set the default copyright " + copyright + " on " + r.getId() + " no copyright types are defined");
-				}
-			}
-		}
-
 	} // addLiveResourceProperties
 
 	/**
@@ -6365,6 +6346,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// Post an available event for now or later
 		postAvailableEvent(edit, ref, priority);
 
+		//Post an event when a new version of the file is uploaded
+		if(contentUpdated){
+			// post EVENT_RESOURCE_UPD_NEW_VERSION event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, priority));
+		}
+
 		if(titleUpdated) {
 			// post EVENT_RESOURCE_UPD_TITLE event
 			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_TITLE, edit.getReference(), true, priority));
@@ -8388,6 +8375,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								p.addAll(oProperties);
 								// SAK-23305
 								hideImportedContent(edit);
+								//Register the events
+								this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(), true, NotificationService.NOTI_NONE));
+								boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
+								if(contentUpdated){
+									this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, NotificationService.NOTI_NONE));
+								}
 								// complete the edit
 								m_storage.commitResource(edit);
 								((BaseResourceEdit) edit).closeEdit();

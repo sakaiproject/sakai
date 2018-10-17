@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
 <!DOCTYPE html
@@ -35,8 +35,8 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.create_modify_p}" /></title>
       <!-- AUTHORING -->
-      <samigo:script path="/js/authoring.js"/>
-      <samigo:script path="/../library/js/spinner.js" type="text/javascript"/>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script type="text/javascript" src="/library/js/spinner.js"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -61,7 +61,7 @@
         <div class="infoEditor">
             <h:outputLabel value="#{authorMessages.information}" />
             <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}" hasToggle="yes" mode="author">
-              <f:validateLength minimum="1" maximum="60000"/>
+              <f:validateLength maximum="60000"/>
             </samigo:wysiwyg>
         </div>
         

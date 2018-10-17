@@ -23,17 +23,19 @@ package org.sakaiproject.portal.charon.site;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,8 +46,6 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
@@ -55,31 +55,33 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
+import org.sakaiproject.portal.charon.PortalStringUtil;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.MapUtil;
-import org.sakaiproject.util.Web;
-import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.util.MapUtil;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -457,7 +459,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 		
-		String siteTitle = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		String siteTitle = Validator.escapeHtml(getUserSpecificSiteTitle(s, false, false, siteProviders));
 		String siteTitleTruncated = FormattedText.makeShortenedText(siteTitle, null, null, null);
 		m.put("siteTitle", siteTitle);
 		m.put("siteTitleTrunc", siteTitleTruncated);
@@ -661,6 +663,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		List<Map> l = new ArrayList<Map>();
 
 		String addMoreToolsUrl = null;
+		String manageOverviewUrl = null;
+
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 
@@ -684,6 +688,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					addMoreToolsUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, 
 						resetTools, effectiveSiteId, null);
 					addMoreToolsUrl += "?sakai_action=doMenu_edit_site_tools&panel=Shortcut";
+
+					manageOverviewUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, resetTools, effectiveSiteId, null);
+					manageOverviewUrl += "?sakai_action=doManageOverview";
 				}
 			}
 			if ( count != 1 ) {
@@ -725,7 +732,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					}
 				}
 
-				if ( ! siteUpdate ) addMoreToolsUrl = null;
+				if ( ! siteUpdate ){
+					addMoreToolsUrl = null;
+					manageOverviewUrl = null;
+				}
 
 				boolean legacyAddMoreToolsPropertyValue = ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false);
 				if ( ! ServerConfigurationService.getBoolean("portal.addmoretools.enable", legacyAddMoreToolsPropertyValue) ) addMoreToolsUrl = null;
@@ -848,6 +858,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			theMap.put("pageNavCanAddMoreTools", false);
 		}
 
+		if(manageOverviewUrl != null){
+			theMap.put("manageOverviewUrl", manageOverviewUrl);
+			theMap.put("canManageOverview", true);
+		}else{
+			theMap.put("canManageOverview", false);
+		}
 		theMap.put("pageNavTools", l);
 
 		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
@@ -1088,11 +1104,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		else
 		{
-			Time modDate = site.getModifiedTime();
+			Date modDate = site.getModifiedDate();
 			// Yes, some sites have never been modified
 			if (modDate != null)
 			{
-				m.put("rssPubDate", (modDate.toStringRFC822Local()));
+				m.put("rssPubDate", (new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z").format(modDate)));
 			}
 			return false;
 		}

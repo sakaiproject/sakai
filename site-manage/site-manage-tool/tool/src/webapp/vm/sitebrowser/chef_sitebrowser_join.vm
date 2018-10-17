@@ -1,7 +1,4 @@
 <div class="portletBody">
-	#if( $menu )
-		#toolbar( $menu )
-	#end
 	
 	<div class="navPanel">
 		<div class="itemNav">

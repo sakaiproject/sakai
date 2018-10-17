@@ -39,6 +39,8 @@ import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -99,7 +101,9 @@ public class DiscussionTopicBean
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
-  
+
+  private static RubricsService rubricsService = ComponentManager.get(RubricsService.class);
+
   private List messages = new ArrayList();
 
   private SimpleDateFormat ourDateFormat() {
@@ -1343,5 +1347,8 @@ public class DiscussionTopicBean
 	public void setRestrictPermissionsForGroups(String restrictPermissionsForGroups) {
 		log.debug("setRestrictPermissionsForGroups()");
 		topic.setRestrictPermissionsForGroups(Boolean.parseBoolean(restrictPermissionsForGroups));
+	}
+	public String getHasRubric(){
+		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, topic.getUuid()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }

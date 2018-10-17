@@ -56,6 +56,23 @@
 					}
 				}
 			}
+			&.inactive {
+				* {
+					color: #333 !important;
+				}
+				.resource-name, .resource-access, .resource-creator, .resource-modified, .resource-size {
+					font-style: italic;
+				}
+				.not-available {
+					font-size: initial;
+				}
+				button {
+					border:1px solid #ccc !important;
+				}
+				.dropdown-menu a {
+					color:#000 !important;
+				}
+			} 
 		}
 
 		td.attach{
@@ -214,16 +231,6 @@
 	.breadCrumb #navigatePanel + button {
 		padding-left:10px;
 	}
-	.inactive button {
-		color: #fff !important;
-		border:1px solid #ccc !important;
-	}
-	.inactive button span {
-		color: #fff !important;
-	}
-	.inactive .dropdown-menu a {
-		color:#000 !important;
-	}
 
 	fieldset legend h4 {
 		margin: 0;
@@ -281,5 +288,30 @@
 				margin: 0.85em 0 0 -2.2em;
 			}
 		}
+	}
+
+	a.highlightlink {
+		text-decoration: none;
+
+		span.iconText {
+			margin-right: 0.1em;
+		}
+	}
+
+	.show {
+		display: block;
+	}
+
+	.hide {
+		display: none;
+	}
+
+	label.copyrightAlert {
+		width: 15.5em;
+	}
+
+	div.alertMessage {
+		display: none;
+		clear: both;
 	}
 }

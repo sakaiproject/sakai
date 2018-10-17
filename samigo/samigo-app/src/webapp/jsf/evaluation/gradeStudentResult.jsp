@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -34,57 +34,47 @@ $Id$
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <style type="text/css">
-        .TableColumn {
-          text-align: center
-        }
-        .TableClass {
-          border-style: dotted;
-          border-width: 0.5px;
-          border-color: light grey;
-        }
-      </style>
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
-    <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
-    
-		<samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-		<samigo:script path="/js/jquery.dynamiclist.student.preview.js"/>
-		<samigo:script path="/js/selection.student.preview.js"/>
-		<samigo:script path="/js/selection.author.preview.js"/>
 
-		<samigo:stylesheet path="/css/imageQuestion.student.css"/>
-		<samigo:stylesheet path="/css/imageQuestion.author.css"/>
-		
-		<script type="text/JavaScript">		
-			jQuery(window).load(function(){
-				
-				$('div[id^=sectionImageMap_]').each(function(){
-					var myregexp = /sectionImageMap_(\d+_\d+)/
-					var matches = myregexp.exec(this.id);
-					var sequence = matches[1];
-					var serializedImageMapId = $(this).find('input:hidden[id$=serializedImageMap]').attr('id').replace(/:/g, '\\:');
-					
-					var dynamicList = new DynamicList(serializedImageMapId, 'imageMapTemplate_'+sequence, 'pointerClass', 'imageMapContainer_'+sequence);
-					dynamicList.fillElements();
-					
-				});	
-				
-				$('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
-					var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
-					var matches = myregexp.exec(this.id);
-					var sequence = matches[1];
-					var label = parseInt(matches[2])+1;
-					
-					var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'answerImageMapContainer_'+sequence);
-					try {
-						sel.setCoords(jQuery.parseJSON(this.value));
-						sel.setText(label);
-					}catch(err){}
-					
-				});	
-			});
-		</script>
-		
+    <script type="text/javascript" src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/selection.student.preview.js"></script>
+    <script type="text/javascript" src="/samigo-app/js/selection.author.preview.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
+    <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+    
+    <script type="text/JavaScript">   
+      jQuery(window).load(function(){
+        
+        $('div[id^=sectionImageMap_]').each(function(){
+          var myregexp = /sectionImageMap_(\d+_\d+)/
+          var matches = myregexp.exec(this.id);
+          var sequence = matches[1];
+          var serializedImageMapId = $(this).find('input:hidden[id$=serializedImageMap]').attr('id').replace(/:/g, '\\:');
+          
+          var dynamicList = new DynamicList(serializedImageMapId, 'imageMapTemplate_'+sequence, 'pointerClass', 'imageMapContainer_'+sequence);
+          dynamicList.fillElements();
+          
+        }); 
+        
+        $('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
+          var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
+          var matches = myregexp.exec(this.id);
+          var sequence = matches[1];
+          var label = parseInt(matches[2])+1;
+          
+          var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'answerImageMapContainer_'+sequence);
+          try {
+            sel.setCoords(jQuery.parseJSON(this.value));
+            sel.setText(label);
+          }catch(err){}
+          
+        }); 
+      });
+    </script>
+
       </head>
   <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
@@ -96,6 +86,43 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 </script>
+
+<script>
+  // rubrics-specific code
+  var rubricChanged = false;
+  rubricsEventHandlers = function() {   
+    $('body').on('rubrics-event', function(e, payload){
+      var itemId = $(e.target).parent().attr("item-id");
+      if (payload.event == "total-points-updated") {
+        handleRubricsTotalPointChange(itemId, payload.value);
+      }
+      if (payload.event == "rubric-ratings-changed") {
+        rubricChanged = true;
+      }
+    });
+
+    console.log('Rubrics event handlers loaded');
+  }
+  
+  // handles point changes for assignments, updating the grade field if it exists.
+  handleRubricsTotalPointChange = function(itemId, points) {   
+    var gradeField = $('.adjustedScore' + itemId);
+    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || rubricChanged)) {
+      gradeField.val(points);
+    }
+  }
+</script>
+
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-grading.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = <h:outputText value="'#{submissionStatus.rbcsToken}'"/>;
+  rubricsEventHandlers();
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
 <div class="portletBody container-fluid">
 <h:form id="editStudentResults">
@@ -159,6 +186,7 @@ function toPoint(id)
    </div>
 </div>
 
+
 <h2>
   <h:outputText value="#{deliveryMessages.table_of_contents}" />
 </h2>
@@ -167,7 +195,7 @@ function toPoint(id)
   <t:dataList styleClass="part-wrapper" value="#{delivery.tableOfContents.partsContents}" var="part">
     <h:panelGroup styleClass="toc-part">
       <samigo:hideDivision id="part" title=" #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash}
-       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
+       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
                 <span class="badge">
                   <h:outputText escape="false" value="#{question.roundedMaxPoints}">
@@ -207,7 +235,7 @@ function toPoint(id)
               <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
               <h:outputText value="#{part.questions}#{deliveryMessages.column}  " />
             </span>
-            <h:inputText styleClass="form-control" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
+            <h:inputText styleClass="form-control adjustedScore#{question.itemData.itemId}" id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
               <f:validateDoubleRange/>
             </h:inputText>
             <span class="input-group-addon">
@@ -217,6 +245,25 @@ function toPoint(id)
             <h:message for="adjustedScore" style="color:red"/>
         </h:panelGroup>
 
+        <br/>
+
+      <h:panelGroup rendered="#{question.hasAssociatedRubric}">
+        <ul class="nav nav-tabs">
+          <li class="active">
+            <a data-toggle="tab" href="<h:outputText value="#submition#{question.itemData.itemId}" />">
+              <h:outputText value="#{commonMessages.student_response}" />
+            </a>
+          </li>
+          <li>
+            <a data-toggle="tab" href="<h:outputText value="#rubric#{question.itemData.itemId}" />">
+              <h:outputText value="#{assessmentSettingsMessages.grading_rubric}" />
+            </a>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div id="<h:outputText value="submition#{question.itemData.itemId}" />" class="tab-pane active">
+      </h:panelGroup>
           <div class="samigo-question-callout">
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
               <f:subview id="deliverAudioRecording">
@@ -230,10 +277,10 @@ function toPoint(id)
               </f:subview>
             </h:panelGroup>
 
-   			<h:panelGroup rendered="#{question.itemData.typeId == 11}">
-	      	<f:subview id="deliverFillInNumeric">
-	        <%@ include file="/jsf/delivery/item/deliverFillInNumeric.jsp" %>
-	      </f:subview>
+        <h:panelGroup rendered="#{question.itemData.typeId == 11}">
+          <f:subview id="deliverFillInNumeric">
+          <%@ include file="/jsf/delivery/item/deliverFillInNumeric.jsp" %>
+        </f:subview>
             </h:panelGroup>
 
 
@@ -255,7 +302,7 @@ function toPoint(id)
               </f:subview>
             </h:panelGroup>
 
-			<h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- // IMAGEMAP_QUESTION -->
+      <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- // IMAGEMAP_QUESTION -->
               <f:subview id="deliverImageMapQuestion">
                 <%@ include file="/jsf/delivery/item/deliverImageMapQuestion.jsp" %>
               </f:subview>
@@ -299,12 +346,30 @@ function toPoint(id)
             </h:panelGroup>
           </div>
 
+        <h:panelGroup rendered="#{question.hasAssociatedRubric}">
+          </div>
+          <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
+            <sakai-rubric-grading
+              id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+              tool-id="sakai.samigo"
+              entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+              evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
+              item-id='<h:outputText value="#{question.itemData.itemId}"/>'
+
+              <h:panelGroup rendered="#{question.rubricStateDetails != ''}">
+                state-details='<h:outputText value="#{question.rubricStateDetails}"/>'
+              </h:panelGroup>>
+            </sakai-rubric-grading>
+          </div>
+          </div>
+        </h:panelGroup>
+
           <div class="tier2">
           <h:panelGrid columns="2" border="0" >
             <h:outputLabel value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
             <h:outputText value="&#160;" escape="false" />
             <h:inputTextarea value="#{question.gradingComment}" rows="4" cols="40"/>
-    	    <%@ include file="/jsf/evaluation/gradeStudentResultAttachment.jsp" %>
+            <%@ include file="/jsf/evaluation/gradeStudentResultAttachment.jsp" %>
           </h:panelGrid>
           </div>
       </t:dataList>

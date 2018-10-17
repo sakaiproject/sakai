@@ -42,6 +42,8 @@ import org.apache.wicket.request.IRequestMapper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -63,8 +65,10 @@ public class SiteStatsApplication extends WebApplication {
 		getResourceSettings().setResourceStreamLocator(new SiteStatsResourceStreamLocator());
 		getDebugSettings().setAjaxDebugModeEnabled(debug);
 
-		// Home page
+		// Mount pages
 		mountPage("/home", OverviewPage.class);
+		mountPage("/reports", ReportsPage.class);
+		mountPage("/preferences", PreferencesPage.class);
 		
 		// On wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);

@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE faces-config PUBLIC
-  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
-  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
-<faces-config>
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+    version="2.3">
     <application>
         <message-bundle>org.sakaiproject.api.app.messagecenter.bundle.Messages</message-bundle>
         <locale-config>
@@ -551,6 +552,11 @@
             <property-name>threadLocalManager</property-name>
             <value>#{Components["org.sakaiproject.thread_local.api.ThreadLocalManager"]}</value>
         </managed-property>
+        <managed-property>
+            <description>RubricsService</description>
+            <property-name>rubricsService</property-name>
+            <value>#{Components["org.sakaiproject.rubrics.logic.RubricsService"]}</value>
+        </managed-property>
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
@@ -815,15 +821,5 @@
             <value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
         </managed-property>
  	</managed-bean>
- 
-    <!-- =================== Application Objects ============== -->
 
-    <!-- 
-	<application>	
-		<navigation-handler>
-			org.sakaiproject.tool.messageforums.jsf.MessageForumsNavigationHandler
-		</navigation-handler>
-	</application>
-	-->
-    
 </faces-config>

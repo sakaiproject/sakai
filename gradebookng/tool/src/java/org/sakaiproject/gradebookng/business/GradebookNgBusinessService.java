@@ -15,10 +15,6 @@
  */
 package org.sakaiproject.gradebookng.business;
 
-import java.math.RoundingMode;
-import java.security.Permission;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,7 +42,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -63,9 +58,12 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -139,10 +137,11 @@ public class GradebookNgBusinessService {
 	@Setter
 	private SecurityService securityService;
 
+	@Setter
+	private RubricsService rubricsService;
+
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
-
-	public static final ResourceLoader externalAppLoader = new ResourceLoader("org.sakaiproject.localization.bundle.tool.tools");
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -317,9 +316,10 @@ public class GradebookNgBusinessService {
 	{
 		final List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
 		final List<User> users = getUsers(userUuids);
+		final Site site = getCurrentSite().orElse(null);
 
 		for (final User u : users) {
-			gbUsers.add(new GbUser(u));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
 		}
 
 		return gbUsers;
@@ -397,9 +397,24 @@ public class GradebookNgBusinessService {
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid) {
+		return getGradebookAssignmentsForStudent(studentUuid, SortType.SORT_BY_SORTING);
+	}
+
+	/**
+	 * Special operation to get a list of assignments in the gradebook that the specified student has access to. This taked into account
+	 * externally defined assessments that may have grouping permissions applied.
+	 *
+	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
+	 * are an instructor using the student review mode)
+	 *
+	 * Define the sortedBy to return these assignments back in the desired order.
+	 *
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final SortType sortedBy) {
 
 		final Gradebook gradebook = getGradebook(getCurrentSiteId());
-		final List<Assignment> assignments = getGradebookAssignments();
+		final List<Assignment> assignments = getGradebookAssignments(sortedBy);
 
 		// NOTE: cannot do a role check here as it assumes the current user but this could have been called by an instructor (unless we add
 		// a new method to handle this)
@@ -411,8 +426,8 @@ public class GradebookNgBusinessService {
 			final Assignment a = iter.next();
 			if (a.isExternallyMaintained()) {
 				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gradebook.getUid(), a.getExternalId()) &&
-						!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
-								studentUuid)) {
+					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
+						studentUuid)) {
 					iter.remove();
 				}
 			}
@@ -778,6 +793,9 @@ public class GradebookNgBusinessService {
 			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
 			rval = GradeSaveResponse.ERROR;
 		}
+
+		EventHelper.postUpdateGradeEvent(gradebook, assignmentId, studentUuid, newGrade, rval, getUserRoleOrNone());
+
 		return rval;
 	}
 
@@ -795,6 +813,41 @@ public class GradebookNgBusinessService {
 		}
 	}
 
+	/**
+	 *
+	 * @param assignmentId
+	 * @param studentUuid
+	 * @param excuse
+	 * @return
+	 */
+	public GradeSaveResponse saveExcuse(final Long assignmentId, final String studentUuid, final boolean excuse){
+		final Gradebook gradebook = this.getGradebook();
+		if (gradebook == null) {
+			return GradeSaveResponse.ERROR;
+		}
+
+		// get current grade
+		final String storedGrade = this.gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId,
+				studentUuid);
+
+		GradeSaveResponse rval = null;
+
+		// save
+		try {
+			//must pass in the raw grade as the service does conversions between percentage etc
+			this.gradebookService.saveGradeAndExcuseForStudent(gradebook.getUid(), assignmentId, studentUuid,
+					storedGrade, excuse);
+
+			if (rval == null) {
+				// if we don't have some other warning, it was all OK
+				rval = GradeSaveResponse.OK;
+			}
+		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred saving the excuse. " + e.getClass() + ": " + e.getMessage());
+			rval = GradeSaveResponse.ERROR;
+		}
+		return rval;
+	}
 	/**
 	 * Build the matrix of assignments, students and grades for all students
 	 *
@@ -827,6 +880,21 @@ public class GradebookNgBusinessService {
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final GradebookUiSettings uiSettings) throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
+	}
+
+	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
+		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
+		for (Assignment assignment : assignments) {
+			if(assignment.getExternalAppName()!=null){
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(assignment.getExternalAppName(), assignment.getExternalId());
+				map.put(assignment.getExternalId(), hasAssociatedRubric);
+			} else {
+				Long assignmentId = assignment.getId();
+				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
+				map.put(assignmentId.toString(), hasAssociatedRubric);
+			}
+		}
+		return map;
 	}
 
 	/**
@@ -1140,8 +1208,8 @@ public class GradebookNgBusinessService {
 					final Map<Long, String> gradeMap = new HashMap<>();
 					for (final Long assignmentId : categoryAssignmentIds) {
 						final GbGradeInfo gradeInfo = grades.get(assignmentId);
-						if (gradeInfo != null) {
-							gradeMap.put(assignmentId, gradeInfo.getGrade());
+						if (gradeInfo != null && !gradeInfo.isExcused()) {
+								gradeMap.put(assignmentId, gradeInfo.getGrade());
 						}
 					}
 
@@ -1697,6 +1765,8 @@ public class GradebookNgBusinessService {
 			updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignmentId,
 					Integer.MAX_VALUE);
 
+			EventHelper.postAddAssignmentEvent(gradebook, assignmentId, assignment, getUserRoleOrNone());
+
 			return assignmentId;
 
 			// TODO wrap this so we can catch any runtime exceptions
@@ -1940,11 +2010,15 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
+
+			EventHelper.postUpdateAssignmentEvent(gradebook, assignment, getUserRoleOrNone());
+
 			if (original.getCategoryId() != null && assignment.getCategoryId() != null
 					&& original.getCategoryId().longValue() != assignment.getCategoryId().longValue()) {
 				updateAssignmentCategorizedOrder(gradebook.getUid(), assignment.getCategoryId(), assignment.getId(),
 						Integer.MAX_VALUE);
 			}
+
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -2009,6 +2083,9 @@ public class GradebookNgBusinessService {
 				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
 						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), null);
 			}
+
+			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
+
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred updating the assignment", e);
@@ -2086,6 +2163,26 @@ public class GradebookNgBusinessService {
 		return null;
 	}
 
+	public String getAssignmentExcuse(final long assignmentId, final String studentUuid){
+		return getAssignmentExcuse(getCurrentSiteId(), assignmentId, studentUuid);
+	}
+
+	public String getAssignmentExcuse(final String siteId, final long assignmentId, final String studentUuid){
+		final Gradebook gradebook = getGradebook(siteId);
+
+		try{
+			final boolean excuse = this.gradebookService.getIsAssignmentExcused(gradebook.getUid(), assignmentId, studentUuid);
+			if(excuse){
+				return "1";
+			}else{
+				return "0";
+			}
+		} catch (GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred retrieving the excuse. " + e.getClass() + ": " + e.getMessage());
+		}
+		return null;
+	}
+
 	/**
 	 * Update (or set) the comment for a student's assignment
 	 *
@@ -2104,6 +2201,9 @@ public class GradebookNgBusinessService {
 			// could do a check here to ensure we aren't overwriting someone
 			// else's comment that has been updated in the interim...
 			this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
+
+			EventHelper.postUpdateCommentEvent(getGradebook(), assignmentId, studentUuid, comment, getUserRoleOrNone());
+
 			return true;
 		} catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
 			log.error("An error occurred saving the comment. {}: {}", e.getClass(), e.getMessage());
@@ -2154,6 +2254,19 @@ public class GradebookNgBusinessService {
 		}
 
 		return rval;
+	}
+
+	/**
+	 * Get the role of the current user in the given site or GbRole.NONE if the user does not have access
+	 *
+	 * @return GbRole for the current user
+	 */
+	public GbRole getUserRoleOrNone() {
+		try {
+			return getUserRole();
+		} catch (GbAccessDeniedException e) {
+			return GbRole.NONE;
+		}
 	}
 
 	/**
@@ -2253,6 +2366,8 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		this.gradebookService.updateGradebookSettings(gradebook.getUid(), settings);
+
+		EventHelper.postUpdateSettingsEvent(gradebook);
 	}
 
 	/**
@@ -2262,6 +2377,8 @@ public class GradebookNgBusinessService {
 	 */
 	public void removeAssignment(final Long assignmentId) {
 		this.gradebookService.removeAssignment(assignmentId);
+
+		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());
 	}
 
 	/**
@@ -2542,6 +2659,7 @@ public class GradebookNgBusinessService {
 
 		try {
 			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade);
+			EventHelper.postOverrideCourseGradeEvent(gradebook, studentUuid, grade, grade != null);
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred saving the course grade. {}: {}", e.getClass(), e.getMessage());
@@ -2611,11 +2729,12 @@ public class GradebookNgBusinessService {
 		final String externalAppName = assignment.getExternalAppName();
 
 		String iconClass = getDefaultIconClass();
-		if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.assignment.title"))) {
+		if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"))) {
 			iconClass = getAssignmentsIconClass();
-		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.samigo.title"))) {
+		} else if (StringUtils.equals(externalAppName, this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"))) {
 			iconClass = getSamigoIconClass();
-		} else if (StringUtils.equals(externalAppName, externalAppLoader.getString("sakai.lessonbuildertool.title"))) {
+		// "Lesson Builder" is currently hardcoded in SimplePageBean.java (no localization required)
+		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
 			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
@@ -2629,16 +2748,8 @@ public class GradebookNgBusinessService {
 	public Map<String, String> getIconClassMap() {
 		final Map<String, String> mapping = new HashMap<>();
 
-		final Tool assignment = this.toolManager.getTool("sakai.assignment.grades");
-		if (assignment != null) {
-			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
-		}
-
-		final Tool samigo = this.toolManager.getTool("sakai.samigo");
-		if (samigo != null) {
-			mapping.put(samigo.getTitle(), getSamigoIconClass());
-		}
-
+		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.assignment", "title"), getAssignmentsIconClass());
+		mapping.put(this.toolManager.getLocalizedToolProperty("sakai.samigo", "title"), getSamigoIconClass());
 		mapping.put("Lesson Builder", getLessonBuilderIconClass());
 
 		return mapping;

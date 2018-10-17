@@ -94,18 +94,6 @@ implements java.io.Serializable{
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
-	/**
-	 * Truncate the title to 13 characters.  We'll append "..." to the end in the jsp page
-	 * @return
-	 */
-	public String getShortenedTitle() {
-	   String newTitle = title;
-	   if (title.length() > 13) {
-	      newTitle = title.substring(0, 13);
-	   }
-	   return newTitle;
-	}
 
 	public String getUserEid() {
 		return userEid;

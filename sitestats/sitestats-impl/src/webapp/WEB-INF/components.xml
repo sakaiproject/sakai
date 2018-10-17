@@ -154,7 +154,7 @@
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory" />

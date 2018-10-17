@@ -30,15 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -57,23 +57,14 @@ import org.sakaiproject.util.ParameterParser;
  * 
  * @author bjones86
  */
+@Slf4j
 public class EnrolmentsHandler
 {
-    // Logger
-    private static final Log LOG = LogFactory.getLog(EnrolmentsHandler.class );
-
     // Sakai APIs
     private static final UserDirectoryService       UDS             = (UserDirectoryService)    ComponentManager.get( UserDirectoryService.class );
     private static final CourseManagementService    CMS             = (CourseManagementService) ComponentManager.get( CourseManagementService.class );
     private static final AuthzGroupService          AZGS            = (AuthzGroupService)       ComponentManager.get( AuthzGroupService.class );
     private static final SiteService                SITE_SERV       = (SiteService)             ComponentManager.get( SiteService.class );
-    private static final SecurityService            SEC_SERV        = (SecurityService)         ComponentManager.get( SecurityService.class );
-
-    // sakai.properties
-    private static final String SAK_PROP_PORTAL_USE_SECTION_TITLE           = "portal.use.sectionTitle";
-    private static final String SAK_PROP_PORTAL_USE_SEC_TITLE_PREFERRED_CAT = "portal.use.sectionTitle.preferredCategory";
-    private static final String USE_SEC_TITLE_PREFERRED_CAT                 = ServerConfigurationService.getString( SAK_PROP_PORTAL_USE_SEC_TITLE_PREFERRED_CAT, "LEC" );
-    private static final boolean USE_SEC_TITLE                              = ServerConfigurationService.getBoolean( SAK_PROP_PORTAL_USE_SECTION_TITLE, false );
 
     // Academic session helper object
     public static final AcademicSessionHelper SESSION_HELPER = new AcademicSessionHelper( CMS.getAcademicSessions() );
@@ -90,12 +81,8 @@ public class EnrolmentsHandler
 
     // Permissions and realm prefix constants
     private static final String PERM_VISIT_UNPUB    = "site.visit.unp";
-    private static final String PERM_SITE_UPDATE    = "site.upd";
     private static final String GROUP_REALM_PREFIX  = "/group/";
     private static final String SITE_REALM_PREFIX   = "/site/";
-
-    // CMS 'Student' role constant
-    private static final String CMS_STUDENT_ROLE = "S";
 
     // Enrolment cache map and filtered list
     private final Map<String, EnrolmentsWrapper>    enrolmentsCacheMap = new HashMap<>();
@@ -133,7 +120,7 @@ public class EnrolmentsHandler
                 }
                 catch( IdNotFoundException ex )
                 {
-                    LOG.debug( "Couldn't find section with id=" + sectionEID, ex );
+                    log.debug( "Couldn't find section with id={}", sectionEID, ex );
                 }
 
                 if( section != null )
@@ -159,7 +146,7 @@ public class EnrolmentsHandler
                         }
                         catch( IdUnusedException ex )
                         {
-                            LOG.debug( "Couldn't find site with id=" + realmID, ex );
+                            log.debug( "Couldn't find site with id={}", realmID, ex );
                         }
                     }
 
@@ -242,7 +229,7 @@ public class EnrolmentsHandler
      * @param data
      * @param state
      */
-    public void getSortModeFromMyEnrolments( RunData data, SessionState state )
+    public void setSortModeFromMyEnrolments( RunData data, SessionState state )
     {
         ParameterParser params = data.getParameters();
         String sortParam = params.get( "sortParam" );
@@ -253,12 +240,12 @@ public class EnrolmentsHandler
     }
 
     /**
-     * Set the sort mode for the context
+     * Get the sort mode from the state
      * 
      * @param state
      * @return the sort mode being used
      */
-    public String setSortModeForMyEnrolments( SessionState state )
+    public String getSortModeForMyEnrolments( SessionState state )
     {
         String sortMode = USE_TERM_SORT;
         if( state.getAttribute( SORT_MODE ) != null )
@@ -377,7 +364,7 @@ public class EnrolmentsHandler
         List<Enrolment> retVal = new ArrayList<>();
         for( AcademicSession session : sessions )
         {
-            Collections.sort( buckets.get( session.getEid() ), SECTION_COMP );
+            Collections.sort( buckets.get( session.getEid() ), sortAsc ? SECTION_COMP : Collections.reverseOrder( SECTION_COMP ) );
             retVal.addAll( buckets.get( session.getEid() ) );
         }
 

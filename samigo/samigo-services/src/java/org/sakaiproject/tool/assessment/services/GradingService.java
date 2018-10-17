@@ -48,7 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
@@ -2533,15 +2533,15 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return actualNumberReatke;
   }
   
-  public Map<Long, Long> getActualNumberRetakeHash(String agentIdString) {
-	    Map<Long, Long> actualNumberReatkeHash = new HashMap<>();
+  public Map<Long, Integer> getActualNumberRetakeHash(String agentIdString) {
+	    Map<Long, Integer> actualNumberRetakeHash = new HashMap<>();
 	    try {
-	    	actualNumberReatkeHash = PersistenceService.getInstance().
+	    	actualNumberRetakeHash = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getActualNumberRetakeHash(agentIdString);
 	    } catch (Exception e) {
 	      log.error(e.getMessage(), e);
 	    }
-	    return actualNumberReatkeHash;
+	    return actualNumberRetakeHash;
   }
     
   public Map<Long, Map<String, Long>> getSiteActualNumberRetakeHash(String siteIdString) {

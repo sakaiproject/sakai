@@ -281,7 +281,17 @@
   content: '\f0fe';
   color: rgb(200,144,0);
 }
-.gb-flag-external:before {
+#gradeTableWrapper .gb-excused {
+  text-decoration: line-through;
+  color: #555;
+}
+
+.gb-flag-excused::before {
+  content: '\e600';
+}
+
+
+ .gb-flag-external:before {
   content: '\f045';
 }
 .gb-flag-read-only:before {
@@ -329,11 +339,13 @@
   content: "\f06a" !important;
   color: rgb(204,0,0) !important;
 }
-#gradeTableWrapper .gb-save-invalid {
+#gradeTableWrapper .gb-save-invalid,
+#gradeTableWrapper .gb-external-invalid {
   background-color: #FCF8E3 !important;
 }
 #gradeTableWrapper .gb-save-invalid .gb-notification:before,
-.gb-flag-save-invalid:before {
+.gb-flag-save-invalid:before,
+#gradeTableWrapper .gb-external-invalid .gb-notification:before {
   font-family: "gradebook-icons";
   content: "\f071" !important;
   color: rgb(200,144,0) !important;

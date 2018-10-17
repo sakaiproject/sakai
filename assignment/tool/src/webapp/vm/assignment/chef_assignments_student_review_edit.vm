@@ -26,7 +26,7 @@
 			#end
 		</div>
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both"></div>#end
+	#if ($alertMessage)<div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div><div style="display:block;clear:both"></div>#end
 	
 	## the form
     <form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
@@ -94,43 +94,13 @@
 				</p>	
 			#end
 			#if ($assignment_expand_flag)
-					#if ($assignment.Instructions.length()>0)
-						<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
-					#else
-					#end
-					## attachments of assignment
-					<h4>$tlang.getString("gen.addres2")</h4>
-					#set ($size = 0)
-					#set ($attachments = $assignment.Attachments)
-					#set ($props = false)
-					#foreach ($attachment in $attachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
-					#end
-					#if ($size == 0)
-						<p class="instruction">$tlang.getString("gen.noatt")</p>
-					#else
-						<ul class="attachList indnt1">
-							#foreach ($attachment in $attachments) 
-								#set ($props = false)
-								#set ($props = $attachment.Properties) 
-								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#propertyDetails($props)
-									</li>
-								#end
-							#end
-						</ul>
-					#end	
-				#end	## show the assignment content
+				#if ($assignment.Instructions.length()>0)
+					<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
+				#else
+				#end
+				## attachments of assignment
+				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
+			#end	## show the assignment content
 			## model answer
 			#if($allowViewModelAnswer)
 			<h4  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString('modelAnswer')</h4>
@@ -230,7 +200,7 @@
 				#if ($!prevFeedbackText)
 					<h4  id="toggleInline" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString("gradingsub.prefeetex3")</h4>
 					<div class="inlinecoms toggledContent">
-						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+						$cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText)
 					</div>
 					#end
 

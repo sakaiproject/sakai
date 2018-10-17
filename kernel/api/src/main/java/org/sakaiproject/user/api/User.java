@@ -72,6 +72,16 @@ public interface User extends Entity, Comparable
 	String getDisplayName();
 
 	/**
+	 * Access the user's name for display purposes in the given context.
+	 *
+	 * @param context
+	 *        The display context, typically a site id.
+	 *
+	 * @return The user's name for display purposes.
+	 */
+	String getDisplayName(String context);
+
+	/**
 	 * Access the user's name for sorting purposes.
 	 * 
 	 * @return The user's name for sorting purposes, never <code>null</code>
@@ -124,4 +134,15 @@ public interface User extends Entity, Comparable
 	 * @return The user's display id string.
 	 */
 	String getDisplayId();
+
+	/**
+	 * Access a string portraying the user's enterprise identity, for display purposes in the given context.<br />
+	 * Use this, not getEid(), when displaying the user's id, probably along with the user's sort or display name, for disambiguating purposes.
+	 *
+	 * @param context
+	 *        The display context, typically a site id.
+	 *
+	 * @return The user's display id string.
+	 */
+	String getDisplayId(String context);
 }

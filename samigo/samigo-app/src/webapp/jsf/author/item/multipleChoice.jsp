@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -35,7 +35,8 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <!-- AUTHORING -->
-      <samigo:script path="/js/authoring.js"/>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+
       </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>;resetInsertAnswerSelectMenus();disablePartialCreditField();">
 
@@ -45,7 +46,7 @@
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm" onsubmit="return editorCheck();">
-
+<p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
@@ -68,7 +69,7 @@
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>
- 
+</p>
   <!-- NOTE:  Had to call this.form.onsubmit(); when toggling between single  -->
   <!-- and multiple choice, or adding additional answer choices.  -->
   <!-- to invoke the onsubmit() function for htmlarea to save the htmlarea contents to bean -->
@@ -95,11 +96,13 @@
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
       <ul class="show-item-score">
-        <li><t:radio for="itemScoreDisplay" index="0" /></li>
-        <li><t:radio for="itemScoreDisplay" index="1" /></li>
+        <li><t:radio renderLogicalId="true" for="itemScoreDisplay" index="0" /></li>
+        <li><t:radio renderLogicalId="true" for="itemScoreDisplay" index="1" /></li>
       </ul>
     </div>
   </div>
+
+  <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="form-group row">
@@ -230,7 +233,7 @@
           <!-- WYSIWYG -->
           <h:panelGrid>
               <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
-                  <f:validateLength minimum="1" maximum="60000"/>
+                  <f:validateLength maximum="60000"/>
               </samigo:wysiwyg>
           </h:panelGrid>
        </div>
@@ -346,8 +349,8 @@
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
       <ul class="question-randomize">
-        <li><t:radio for="question-randomize" index="0" /></li> 
-        <li><t:radio for="question-randomize" index="1" /></li> 
+        <li><t:radio renderLogicalId="true" for="question-randomize" index="0" /></li> 
+        <li><t:radio renderLogicalId="true" for="question-randomize" index="1" /></li> 
       </ul>
     </div>
   </div>
@@ -361,8 +364,8 @@
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
       <ul class="question-rationale">
-        <li><t:radio for="question-rationale" index="0" /></li> 
-        <li><t:radio for="question-rationale" index="1" /></li> 
+        <li><t:radio renderLogicalId="true" for="question-rationale" index="0" /></li> 
+        <li><t:radio renderLogicalId="true" for="question-rationale" index="1" /></li> 
       </ul>
     </div>
   </div>

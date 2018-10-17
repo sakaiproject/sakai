@@ -135,7 +135,6 @@ public interface SyllabusData
    * flag used to associate date to the calendar tool
    * @return
    */
-  public Boolean isLinkCalendar();
   public Boolean getLinkCalendar();
   
   /**

@@ -84,8 +84,8 @@
       <artifactId>commons-collections</artifactId>
     </dependency>
     <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>javax.mail</artifactId>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
     </dependency>
     <dependency>
     	<groupId>org.sakaiproject.search</groupId>
@@ -99,6 +99,11 @@
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler-api</artifactId>
     </dependency>
+      <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-private</artifactId>
+          <scope>compile</scope>
+      </dependency>
   </dependencies>
   <build>
     <resources>

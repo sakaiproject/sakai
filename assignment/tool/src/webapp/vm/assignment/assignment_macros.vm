@@ -111,6 +111,15 @@
                 <span class="current">$!tlang.getString( "lisofass1" )</span>
             #end
         </li>
+        <li>
+            #if( !$!view.equals( "lisofass2" ) )
+                <span>
+                    <a href="#toolLinkParam( "$action" "doView" "view=lisofass2" )" title="$!tlang.getString( "lisofass2" )">$!tlang.getString( "lisofass2" )</a>
+                </span>
+            #else
+                <span class="current">$!tlang.getString( "lisofass2" )</span>
+            #end
+        </li>
 
         #if( $withGrade && $!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
@@ -214,6 +223,23 @@
                 <span class="disabled">$!tlang.getString( "lisofass1" )</span>
             </li>
         #end
+        #if( !$!view.equals( "lisofass2" ) )
+            <li>
+                <span>
+                    <a href="javascript:void(0)" title="$!tlang.getString( "lisofass2" )" onclick="ASN.submitForm( '$formID', 'view', null, 'lisofass2' ); return false;">
+                        $!tlang.getString( "lisofass2" )
+                    </a>
+                </span>
+            </li>
+        #elseif( $current == "list" )
+            <li>
+                <span class="current">$!tlang.getString( "lisofass2" )</span>
+            </li>
+        #else
+            <li>
+                <span class="disabled">$!tlang.getString( "lisofass2" )</span>
+            </li>
+        #end
         #if( $withGrade && $!allowGradeSubmission )
             <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
                 #if( $current == "gradeReport" )
@@ -287,5 +313,47 @@
             </li>
         #end
     </ul>
+#end
+
+## macro for rendering attachment ui
+#macro( attachmentFragment $attachmentsSet $attachmentReferencesMap $decoratedUrlMap )
+    <h4>$tlang.getString("gen.addres2")</h4>
+    #if ($attachmentsSet)
+        #set ($size = $attachmentsSet.size())
+        #if ($size < 1)
+            <p class="instruction">
+                #if ($submissionType == 5)
+                    $tlang.getString("gen.noatt.single")
+                #else
+                    $tlang.getString("gen.noatt")
+                #end
+            </p>
+        #else
+            <ul class="attachList">
+                #foreach ($attachmentReference in $attachmentsSet)
+                    #set ($reference = $attachmentReferencesMap.get($attachmentReference))
+                    #if ($reference)
+                        #set ($props = false)
+                        #set ($props = $reference.Properties)
+                        #if ($!props)
+                            <li>
+                                #if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+                                #else
+                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+                                #end
+                                #if ($decoratedUrlMap)
+                                    <a href="$decoratedUrlMap.get($reference.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                #else
+                                    <a href="$reference.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                #end
+                                #propertyDetails($props)
+                            </li>
+                        #end
+                    #end
+                #end
+            </ul>
+        #end
+    #end
 #end
 <!-- end:  assignment_macros.vm -->

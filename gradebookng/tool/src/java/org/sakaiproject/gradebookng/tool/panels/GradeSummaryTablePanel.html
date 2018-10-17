@@ -11,6 +11,8 @@
 			<a href="javascript:void(0);" class="gb-summary-collapse-all" wicket:id="collapseCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
 		</div>
 
+		<div wicket:id="rubricStudentWindow" />
+
 		<table id="gradeSummaryTable" class="table table-bordered table-striped table-hover table-condensed">
 			<caption class="sr-only"><wicket:message key="studentsummary.caption"/></caption>
 			<thead>
@@ -48,12 +50,14 @@
 								<span wicket:id="isExtraCredit" class="gb-flag-extra-credit"></span>
 								<span wicket:id="isNotCounted" class="gb-flag-not-counted"></span>
 								<span wicket:id="isNotReleased" class="gb-flag-not-released"></span>
+								<span wicket:id="isExcused" class="gb-flag-excused"></span>
 								<span wicket:id="isExternal"></span>
 							</span>
 						</th>
 						<td class="gb-summary-grade-score" wicket:id="gradeScore">
 							<span class="gb-summary-grade-score-raw" wicket:id="grade" wicket:message="aria-label:studentsummary.gradebookitem.score"></span>
 							<span class="gb-summary-grade-score-outof" wicket:id="outOf" wicket:message="aria-label:studentsummary.gradebookitem.outof"></span>
+							<span class="gb-summary-grade-score-rubric fa fa-fw fa-table" wicket:id="rubricIcon"></span>
 						</td>
 						<td wicket:id="weight"><!-- empty --></td>
 						<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>

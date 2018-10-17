@@ -73,7 +73,7 @@
 			width="100%"
 			id="wciframe"
 			name="wciframe"
-			style="width:100%;padding:0 !important; height:$validator.escapeHtml($height)"
+			style="width:100%;height:$validator.escapeHtml($height)"
 			frameborder="0"
 			marginwidth="0"
 			marginheight="0"

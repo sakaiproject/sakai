@@ -49,20 +49,20 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * an object of a different class than the original.
  * <p>
  * TODO For the functionality being checked in (site-to-site migration), this class
- * is not strictly necessary. It's here on a speculative basis for upcoming 
- * import/archive/merge development. 
- * 
+ * is not strictly necessary. It's here on a speculative basis for upcoming
+ * import/archive/merge development.
+ *
  * @deprecated This is part of the import/export for gradebook1 which will be removed at some point
  */
 @Deprecated
 public abstract class VersionedExternalizable implements Externalizable {
 	public static String VERSION_ATTRIBUTE = "externalizableVersion";
-	
+
 	/**
 	 * @return non-null archivable version identifier for the object definition
 	 */
 	public abstract String getExternalizableVersion();
-	
+
     /**
      * This XStream converter stores the externalizable version of the
      * class as a Document-level attribute for easy access by translators.
@@ -71,55 +71,63 @@ public abstract class VersionedExternalizable implements Externalizable {
      * version.
      */
 	public static class Converter extends AbstractReflectionConverter {
-     	public Converter(Mapper mapper, ReflectionProvider reflectionProvider) {
+     	public Converter(final Mapper mapper, final ReflectionProvider reflectionProvider) {
     		super(mapper, reflectionProvider);
     	}
-        public boolean canConvert(Class type) {
+
+		@Override
+		public boolean canConvert(final Class type) {
             return VersionedExternalizable.class.isAssignableFrom(type);
         }
-        public void marshal(Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
-        	writer.addAttribute(VERSION_ATTRIBUTE, ((VersionedExternalizable)source).getExternalizableVersion());
-        	super.marshal(source, writer, context);
+
+		@Override
+		public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
+			writer.addAttribute(VERSION_ATTRIBUTE, ((VersionedExternalizable) source).getExternalizableVersion());
+			super.marshal(source, writer, context);
         }
-        public Object doUnmarshal(Object result, HierarchicalStreamReader reader, UnmarshallingContext context) {
-        	String currentVersion = ((VersionedExternalizable)result).getExternalizableVersion();
-        	String oldVersion = reader.getAttribute(VERSION_ATTRIBUTE);
-        	if ((oldVersion == null) || !currentVersion.equals(oldVersion)) {
-    			// This is one place we might put a version translation method in the future....
-        		throw new ConversionException("Cannot convert " + result + " from version " + oldVersion + " to version " + currentVersion);       		
-        	}
-        	return super.doUnmarshal(result, reader, context);
+
+		@Override
+		public Object doUnmarshal(final Object result, final HierarchicalStreamReader reader, final UnmarshallingContext context) {
+			final String currentVersion = ((VersionedExternalizable) result).getExternalizableVersion();
+			final String oldVersion = reader.getAttribute(VERSION_ATTRIBUTE);
+			if ((oldVersion == null) || !currentVersion.equals(oldVersion)) {
+				// This is one place we might put a version translation method in the future....
+				throw new ConversionException("Cannot convert " + result + " from version " + oldVersion + " to version " + currentVersion);
+			}
+			return super.doUnmarshal(result, reader, context);
         }
     }
-	
+
 	protected static XStream getXStream() {
-    	XStream xstream = new XStream(new DomDriver());	// does not require XPP3 library
+    	final XStream xstream = new XStream(new DomDriver());	// does not require XPP3 library
     	xstream.registerConverter(new Converter(xstream.getMapper(), xstream.getReflectionProvider()));
     	return xstream;
 	}
 
-	public void readExternal(ObjectInput inputStream) throws IOException, ClassNotFoundException {
+	@Override
+	public void readExternal(final ObjectInput inputStream) throws IOException, ClassNotFoundException {
 		getXStream().fromXML(inputStream.readUTF(), this);
 	}
 
-	public void writeExternal(ObjectOutput outputStream) throws IOException {
+	@Override
+	public void writeExternal(final ObjectOutput outputStream) throws IOException {
 		outputStream.writeUTF(getXStream().toXML(this));
 	}
-	
+
 	/**
 	 * @param obj the Java object (usually a subclass of VersionedExternalizable) to describe
 	 * as XML
 	 * @return XML describing the object
 	 */
-	public static String toXml(Object obj) {
+	public static String toXml(final Object obj) {
 		return getXStream().toXML(obj);
 	}
-	
+
 	/**
 	 * @param xmlString XML string (presumably created by this class) describing a Java object
 	 * @return the Java object it describes
 	 */
-	public static Object fromXml(String xmlString) {
+	public static Object fromXml(final String xmlString) {
 		return getXStream().fromXML(xmlString);
 	}
 

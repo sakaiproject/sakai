@@ -63,7 +63,7 @@ public interface Editor {
 	 * Retrieve any inline script that should be run before loading this Editor.
 	 * In some cases, an editor may depend on environmental setup before loading the main script file.
 	 * This offers an opportunity to supply such pre-loading script as inline markup. It should not include any
-	 * <script> or other tags as it is a script snippet. This will typically return null or an empty string,
+	 * script or other tags as it is a script snippet. This will typically return null or an empty string,
 	 * either of which will be handled by the portal.
 	 * @return Any inline script that should be embedded before the Editor URL is loaded.
 	 */

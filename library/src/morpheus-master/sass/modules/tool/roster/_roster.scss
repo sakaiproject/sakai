@@ -1,204 +1,297 @@
-##{$namespace}sakai-roster {
+.#{$namespace}sakai-site-roster2 {
 
-    .filterLabel {
-        vertical-align:top;
-        font-weight:bold;
+    div#rosterMainContainer {
+        margin-top: 0.5em;
     }
 
-    .instruction.rosterTitleMessage {
-        display: block;
+    // toolbar styles
+    .sakai-table-toolBar {
+        .sakai-table-viewFilter ~ .sakai-table-viewFilter {
+            margin-top: $standard-spacing;
+        }
+
+        .sakai-table-buttonContainer {
+            @include flex-direction(column);
+            text-align: center;
+
+            #roster_hide_options {
+                display: none;
+
+                input[type=checkbox] {
+                    margin: 0;
+                    vertical-align: text-top;
+                }
+            }
+        }
+
+        div.displayFilterContainer {
+            margin:  0 0 $standard-spacing auto;
+            padding: 0 0 0 $standard-spacing;
+            text-align: center;
+
+            div.sakai-table-viewFilter {
+                @include justify-content(center);
+
+                fieldset.roundedBorder {
+                    border: 2px solid #c8c8c8;
+                    @include border-radius(5px);
+                    padding: 5px;
+                    white-space: nowrap;
+
+                    legend {
+                        padding: 0 5px 0 5px;
+                        font-size: $default-font-size;
+                        font-weight: normal;
+                        color: #505050;
+                    }
+                }
+
+                label {
+                    margin-bottom: 0;
+                }
+            }
+
+            @media #{$tablet} {
+                margin-left: 0;
+                padding-left: 0;
+            }
+
+            /* override breakpoint inherited from _table.scss */
+            @media all and (max-width: 400px) {
+                .sakai-table-viewFilter {
+                    @include align-items(center);
+
+                    fieldset.roundedBorder {
+                        @include display-flex();
+                        @include flex-direction(column);
+                        @include align-items(flex-start);
+
+                        input[type=radio] {
+                            margin: 0 5px 0 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .roster-filter-totals {
+        text-align: center;
+        padding: $standard-spacing 0 $standard-spacing 0;
+    }
+
+    #roster-members-total, #roster-role-totals {
+        color: #505050;
+        font-size: 12px;
     }
 
     .role {
         font-weight: bold;
     }
+    // end tool bar styles
 
-    .rosterRoleTopLine {
-        padding-top:10px;
-        padding-left:10px;
-    }
-
-    .rosterRoleBottomLine {
-        padding-left:10px;
-    }
-
-    .rosterActionAlignment {
-        vertical-align:top;
-    }
-
-    .rosterActions {
-        margin-top:0.5em;
-    }
-
-    .connection-email {
-        background-image: url(/library/image/silk/email.png);
-    }
-
-    .roster-pictureview {
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-width: 1px;
-        @include border-radius(5px);
-        padding: 5px;
-        margin-bottom: 5px;
-        width: 161px;
-        .roster-pictureview-picture {
-            width: 150px;
-            height: 150px;
-            img {
-                width: 150px;
-                max-height: 150px;
-            }
-        }
-        .roster-name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    }
-
-
-    #roster_type_selector {
-        margin-left: 10px;
-        margin-top: 1em;
-        margin-bottom: 15px;
-    }
-
+    // common view styles
     #roster-loading-image {
         display: none;
     }
 
     .roster-table {
-        display: table;
         width: 100%;
 
         .roster-table-header-group {
-            display: table-header-group;
-            font-weight: bold;
-            padding-bottom: 10px;
-        }
-
-        .roster-table-row-group {
-            display: table-row-group;
+            display: none;
         }
 
         .roster-table-row {
-            display: table-row;
             margin-bottom: 5px;
 
             .roster-table-cell {
-                display: table-cell;
-                padding-right: 10px;
-                white-space: nowrap;
-
-                .roster-picture {
-                    width: 80px;
-                    min-height: 60px;
-                    max-height: 140px;
-                    padding: 5px 0px 5px 5px;
+                .roster-name-cell .namePronunciation {
+                    overflow: visible;
                 }
 
                 .roster-mobile-label {
                     display: none;
-                    font-weight: bold;
-                    padding-right: 10px;
                 }
 
                 .roster-user-properties {
                     list-style: none;
                 }
+
+                .roster-no-groups-label {
+                    font-size: smaller;
+                    font-weight: bold;
+                }
             }
+
             .roster-last-visit-time-cell {
                 font-size: 0.9em;
             }
-
-            .roster-name-cell {
-                max-width: 150px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
         }
+
         .roster-member:nth-child(odd){
             background: $tool-tab-background-color;
         }
     }
 
-    .roster-picture {
-        width: 50px;
-    }
-
-    #roster_content{
-        margin-top: 1em;
-    }
-
-    #summary{
-        margin-left: 2px;
-    }
-
-    .roster-group-cell {
-        display: inline-block;
-        min-width: 60px !important;
-        max-width: 140px !important;
-        white-space: normal !important;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        vertical-align: middle;
-
-        .roster-group-link {
-            white-space: nowrap !important;
-            font-size: smaller;
-        }
-    }
-
-    .roster-no-groups-label {
-        font-size: smaller;
-        font-weight: bold;
-    }
-
-    #roster-filters {
-        div {
-            display: inline-block;
-            margin-right: 20px;
-        }
-    }
-
-    #roster-search-group {
-        div {
-            display: inline-block;
-        }
-    }
-
-    @media #{$phone} {
-        .roster-table-header-group {
-            display: none !important;
-        }
-
-        .roster-mobile-label {
-            display: inline-block !important;
+    .view_mode_cards, .view_mode_photogrid {
+        #roster-members {
+            @include display-flex();
+            @include flex-wrap(wrap);
         }
 
         .roster-table-row {
-            display: block !important;
+            background: $body-background-color;
             border: 1px solid #ccc;
-            border-width: 1px;
-            -moz-border-radius: 5px;
-            -webkit-border-radius: 5px;
-            border-radius: 5px;
+            @include border-radius(5px);
             padding: 5px;
-            margin-bottom: 5px;
-            max-width: 400px;
+            margin-right: 5px;
 
-            .roster-table-cell {
-                display: block !important;
-                max-width: 400px;
+            .roster-picture-cell .roster-picture {
+                width: 74px;
+                height: 94px;
+                object-fit: cover;
+                border: 1px solid #BBB;
+            }
 
-                .roster-picture {
-                    width: 160px !important;
+            .roster-name-cell, .roster-userId-cell, .roster-role-cell, .roster-email-cell {
+                .roster-mobile-label ~ span, .roster-mobile-label ~ a {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
             }
-            .roster-name-cell {
-                max-width: 250px !important;
+
+            .roster-status-cell, .roster-credits-cell, .roster-total-visits-cell, .roster-last-visit-cell, .roster-user-props-cell {
+                display: none;
             }
+        }
+    }
+    // end common view styles
+
+    // card view styles
+    .view_mode_cards {
+        .roster-table-row {
+            width: 340px;
+            max-height: 128px;
+
+            .roster-table-cell .roster-mobile-label {
+                display: inline;
+                margin-right: 20px;
+            }
+
+            .roster-picture-cell {
+                float: left;
+                margin-right: 5px;
+            }
+
+            .roster-name-cell, .roster-userId-cell, .roster-role-cell, .roster-groups-cell, .roster-email-cell {
+                @include display-flex();
+                @include align-items(center);
+                @include justify-content(space-between);
+                max-width: 250px;
+            }
+
+            .roster-groups-cell .roster-group-cell {
+                display: inline;
+
+                .roster-groups-selector {
+                    max-width: 174px;
+
+                    @media all and (max-width: 375px) {
+                        max-width: 90px;
+                    }
+                }
+            }
+        }
+    }
+    // end card view styles
+
+    // photo grid view styles
+    .view_mode_photogrid {
+        .roster-table-row {
+            @include display-flex();
+            @include flex-direction(column);
+            @include align-items(center);
+            width: 155px;
+            max-height: 172px;
+
+            .roster-table-cell {
+                max-width: 145px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .roster-groups-cell, .roster-email-cell, .roster-mobile-label {
+                display: none;
+            }
+        }
+
+        .roster-hide-names {
+            display: none;
+        }
+    }
+    // end photo grid view styles
+
+    // spreadsheet view styles
+    .view_mode_spreadsheet {
+        .roster-table {
+            display: table;
+            border-spacing: 5px;
+
+            .roster-table-header-group {
+                display: table-header-group;
+                font-weight: bold;
+                padding-bottom: $standard-spacing;
+
+                .roster-table-cell {
+                    border-bottom: 1px solid;
+                    margin-bottom: 5px;
+                    text-overflow: ellipsis;
+                }
+
+                .roster-hide-pictures {
+                    display: none;
+                }
+            }
+
+            .roster-table-row-group {
+                display: table-row-group;
+            }
+
+            .roster-table-row {
+                display: table-row;
+
+                .roster-table-cell {
+                    display: table-cell;
+                    vertical-align: middle;
+                    padding: 0 5px;
+                    text-overflow: ellipsis;
+                    word-break: break-all;
+
+                    .roster-picture {
+                        width: 30px;
+                        height: 24px;
+                        padding: 0;
+                    }
+                }
+
+                .roster-picture-cell {
+                    text-align: center;
+                }
+
+                .roster-hide-pictures {
+                    display: none;
+                }
+            }
+        }
+    }
+    // end spreadsheet view styles
+
+    @media #{$phone} {
+        input#roster-spreadsheet-view-radio, label[for=roster-spreadsheet-view-radio] {
+            display: none;
         }
     }
 }

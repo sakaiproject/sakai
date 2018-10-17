@@ -6,7 +6,7 @@
                  org.sakaiproject.tool.cover.ToolManager" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -133,10 +133,10 @@
 			  			
   	
   	       	<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>      		
-  			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
-  			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/dialog.js"></script>
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
   			
@@ -226,7 +226,7 @@
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.topicTitleSort3 && mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_topic_title}"/>
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.topicTitleSort3 && !mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_topic_title}"/>
 					</h:commandLink>
-	  				<f:verbatim><h:outputText value=" " /><h:outputText value=" | " /><h:outputText value=" " /></f:verbatim>
+	  				<h:outputText value=" " /><h:outputText value=" | " /><h:outputText value=" " />
 					<h:commandLink action="#{mfStatisticsBean.toggleDateSort3}" title=" #{msgs.stat_sort_by_date}">	
 						<h:outputText value="#{msgs.stat_sort_by_date}" />
 						<h:graphicImage value="/images/sortascending.gif" rendered="#{mfStatisticsBean.forumDateSort3 && mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_forum_date}"/>
@@ -248,9 +248,9 @@
 						<br>
 						<p style="width:74%;float:left;margin:0;padding:0;font-size:110%;color:#000"></f:verbatim>
 						<h:outputText value="#{stat.forumTitle}" />
-						<f:verbatim><h:outputText value=" / " /></f:verbatim>
+						<h:outputText value=" / " />
 						<h:outputText value="#{stat.topicTitle}" />
-						<f:verbatim><h:outputText value=" / " /></f:verbatim>
+						<h:outputText value=" / " />
 						<h:outputText  value= "#{stat.forumSubject} " />
 						<h:outputText value="#{stat.forumDate}" styleClass="textPanelFooter">
 							<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>

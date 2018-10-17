@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -37,7 +37,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <samigo:script path="/js/authoring.js"/>
+      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
       </head>
 <body onload="countNum();<%= request.getAttribute("html.body.onload") %>">
 
@@ -47,7 +47,7 @@
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
-
+<p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
@@ -69,7 +69,7 @@
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>
-
+</p>
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
   <div class="form-group row"> 
@@ -90,11 +90,13 @@
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
       <ul class="item-score">
-        <li><t:radio for="itemScore" index="0" /></li> 
-        <li><t:radio for="itemScore" index="1" /></li> 
+        <li><t:radio renderLogicalId="true" for="itemScore" index="0" /></li> 
+        <li><t:radio renderLogicalId="true" for="itemScore" index="1" /></li> 
       </ul>
     </div>
   </div>
+
+  <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
 <!-- 1.2 MIN POINTS -->
 <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}" >
@@ -117,7 +119,7 @@
           <!-- WYSIWYG -->
           <h:panelGrid>
               <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
-                  <f:validateLength minimum="1" maximum="60000"/>
+                  <f:validateLength maximum="60000"/>
               </samigo:wysiwyg>
           </h:panelGrid>
       </div>

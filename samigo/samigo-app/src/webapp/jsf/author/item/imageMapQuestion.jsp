@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -35,11 +35,11 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
 	  
-	  <samigo:script path="/../library/webjars/jquery/1.12.4/jquery.min.js"/>
-	  <samigo:script path="/js/jquery.dynamiclist.author.js"/>
-	  <samigo:script path="/js/selection.author.js"/>
+	  <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+	  <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
+	  <script type="text/javascript" src="/samigo-app/js/selection.author.js"></script>
 	  
-	  <samigo:stylesheet path="/css/imageQuestion.author.css"/>
+	  <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
 <%--
 <script type="text/JavaScript">
 <!--
@@ -171,6 +171,8 @@
             </h:selectOneRadio>
         </div>
     </div>    
+
+    <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
     <!-- 2 TEXT -->
     <div class="form-group row">

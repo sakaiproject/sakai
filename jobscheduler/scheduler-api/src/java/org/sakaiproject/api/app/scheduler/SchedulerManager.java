@@ -136,5 +136,11 @@ public interface SchedulerManager
    public void registerBeanJob(String jobName, JobBeanWrapper job);
 
    public JobBeanWrapper getJobBeanWrapper(String beanWrapperId);
+
+  /**
+   * Is the job scheduler auto provisioning jobs and triggers.
+   * @return true if we're set to globally auto provision
+   */
+   boolean isAutoProvisioning();
 }
 

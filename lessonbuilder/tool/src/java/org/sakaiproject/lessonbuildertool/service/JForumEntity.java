@@ -68,6 +68,7 @@ import org.sakaiproject.tool.api.ToolManager;
 public class JForumEntity implements LessonEntity, ForumInterface {
     static boolean initdone = false;
     static boolean haveJforum = false;
+    private SimplePageBean simplePageBean;
 
     public void init() {
 
@@ -726,6 +727,10 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	return null;
 
     }
+	@Override
+	public void setSimplePageBean(SimplePageBean simplePageBean) {
+		this.simplePageBean = simplePageBean;
+	}
 
 
 }

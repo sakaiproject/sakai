@@ -15,8 +15,8 @@ $(function(){
         eventSources: [
             {
                 events: function(start, end, timezone, callback) {
-                    var start_date =  $('.calendar-div').fullCalendar('getView').start.format('YYYY-MM-DD');
-                    var end_date  =   $('.calendar-div').fullCalendar('getView').end.format('YYYY-MM-DD');
+                    var start_date = start.format('YYYY-MM-DD');
+                    var end_date = end.format('YYYY-MM-DD');
                     $.ajax({
                         url: url+'.json',
                         dataType: 'json',

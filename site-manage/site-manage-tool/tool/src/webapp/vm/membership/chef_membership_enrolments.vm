@@ -1,199 +1,113 @@
-<div id="dialog"></div>
-<script type="text/javascript">
-    $( document ).ready( function()
-    {
-        sakai.getSiteInfo( 'getSiteDesc', 'dialog', '$tlang.getString( "mb.nosd" )', '$tlang.getString( "mb.nold" )' );
-        sakai.setupMessageListener( "messageHolder", "information messageInformation" );
-        sakai.setupSelectList( 'currentSites', 'selunselallid', 'selectedSelected' );
-    });
-</script>
+<div class="portletBody specialLink container-fluid">
+    #if($menu)#toolbar($menu)#end
 
-<div class="portletBody">
-    <ul class="navIntraTool actionToolBar">
-        <li class="firstToolBarItem">
-            <span><a href="#toolLink( "$action" "doGoto_unjoinable" )" title="$tlang.getString( 'mb.cursit' )">$tlang.getString( 'mb.cursit' )</a></span>
-        </li>
-        <li><span class="current">$tlang.getString( "mb.enrolments" )</span></li>
-        <li>
-            <span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span>
-        </li>
-    </ul>
+    <div class="membershipContent">
 
-    <div class="navPanel">
-        <h3>$tlang.getString( "mb.enrolments" )</h3>
-
-        #if( $alertMessage )
-            <p class="information messageInformation viewNav" id="messageHolder">
-                $validator.escapeHtml( $alertMessage )
-            </p>
+        #if ($alertMessage)
+            <div class="alertMessage">$validator.escapeHtml( $alertMessage )</div>
+            <div class="clear"></div>
         #end
 
-        <div class="navPanel">
-            #if( $hasBlurb )
-                <div class="instruction">
-                    $enrolmentsBlurb
-                </div>
-            #end
+        <div class="messageInformation">
+            #if( $hasBlurb )<p>$enrolmentsBlurb</p>#end
+            <p>$tlang.getString( "mb.enrolments.instructions" )</p>
+        </div>
 
-            <div class="instruction">
-                #if( $enrolments.size() > 0 )
-                    $tlang.getString( "mb.enrolments.instructions" )
-                #elseif( $search.length() > 0 )
-                    $tlang.getString( "mb.enrolments.noMatchingEnrolments" )${validator.escapeHtml( $search )}$tlang.getString( "mb.list.nosearchsites2" )
-                #else
-                    $noEnrolments
+        <div class="sakai-table-toolBar">
+            <div class="sakai-table-filterContainer">
+                #if( !$enrolments.isEmpty() || !$search.isEmpty() )
+                    #searchFilterPanel("searchFilter1", $search, "doSearch", "doSearch_clear")
                 #end
+            </div>
+
+            <div class="sakai-table-pagerContainer">
+                #pagerPanel("pager1")
             </div>
         </div>
 
-        #if( $enrolments.size() > 0 || $search.length() > 0 )
-            <div class="searchNav">
-                <form name="searchform" method="post" class="inlineForm" action="#toolForm( "$action" )">
-                    <label for="search" class="skip">$tlang.getString( "mb.list.search" )</label>
-                    <input type="text" size="15" id="search" name="search" value="$validator.escapeHtml( $search )" />
-                    <input type="submit" name="eventSubmit_doSearch" value="$tlang.getString( "mb.list.search" )" />
-                    <input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString( "mb.list.clear" )" />
-                    <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                </form>
-            </div>
-        #end
-
-        #if( $enrolments.size() > 0 )
-            <div class="listNav">
-                <div>
-                    $tlang.getString( "mb.list.viewing" ) $topMsgPos - $btmMsgPos $tlang.getString( "mb.list.of" ) $allMsgNumber $tlang.getString( "mb.list.enrolments" )
-                </div>
-                <div class="innerPannel">
-                    #if( $pagesize != 0 )
-                        #if( $goPPButton == "true" )
-                            <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString( "mb.list.pager.first" )" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                            <form name="nextpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString( "mb.list.pager.prev" ) $pagesize" accesskey="p" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                        #else
-                            <form name="firstpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                            <form name="nextpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                        #end
-                    #end
-
-                    <form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                        <input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-                        <label class="skip" for="pagerSelect">$tlang.getString( "mb.list.select" )</label>
-                        <select name="selectPageSize" onchange="document.pagesizeForm.submit();" id="pagerSelect">
-                            <option value="5" #if( $pagesize == 5 ) selected="selected" #end>$tlang.getString( "mb.list.pager.show5" )</option>
-                            <option value="10" #if( $pagesize == 10 ) selected="selected" #end>$tlang.getString( "mb.list.pager.show10" )</option>
-                            <option value="20" #if( $pagesize == 20 ) selected="selected" #end>$tlang.getString( "mb.list.pager.show20" )</option>
-                            <option value="50" #if( $pagesize == 50 ) selected="selected" #end>$tlang.getString( "mb.list.pager.show50" )</option>
-                            <option value="100" #if( $pagesize == 100 ) selected="selected" #end>$tlang.getString( "mb.list.pager.show100" )</option>
-                            <option value="200" #if( $pagesize == 200 ) selected="selected" #end>$tlang.getString( "mb.list.pager.show200" )</option>
-                        </select>
-                        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                    </form>
-
-                    #if( $pagesize != 0 )
-                        #if ($goNPButton == "true")
-                            <form name="nextpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString( "mb.list.pager.next" ) $pagesize" accesskey="n" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                            <form name="lastpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString( "mb.list.pager.last" )" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                        #else
-                            <form name="nextpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                            <form name="lastpageForm" class="inlineForm" method="post" action="#toolForm( "$action" )">
-                                <input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
-                                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                            </form>
-                        #end
-                    #end
-                </div>
-            </div>
-
-            <form action="#toolForm( "$action" )" method="post">
-                <table class="listHier lines" cellspacing="0" border="0" summary="$summary" >
-                    <tr>
-                        <th id="term">
-                            <a href="#toolLinkParam( "$action" "doToggle_sort" "sortParam=use_term_sort" )" title="$tlang.getString( "mb.enrolments.sortByTerm" )">
-                                $tlang.getString( "mb.enrolments.columnHeader.term" )
-                                #if( $sortMode.equals( "use_term_sort" ) )
-                                    #if( $currentSortAsc )
-                                        <img src="#imageLink( "sakai/sortascending.gif" )" border="0" title ="$tlang.getString('mb.enrolments.sortByTerm.asc')" 
-                                                alt ="$tlang.getString( 'mb.enrolments.sortByTerm.asc' )" />
-                                    #else
-                                        <img src="#imageLink( "sakai/sortdescending.gif" )" border="0" title ="$tlang.getString('mb.enrolments.sortByTerm.desc')" 
-                                                alt ="$tlang.getString( 'mb.enrolments.sortByTerm.desc' )" />
-                                    #end
-                                #end
-                            </a>
-                        </th>
-                        <th id="section">
-                            <a href="#toolLinkParam( "$action" "doToggle_sort" "sortParam=use_section_sort" )" title="$tlang.getString( "mb.enrolments.sortBySection" )">
-                                $tlang.getString( "mb.enrolments.columnHeader.section" )
-                                #if( $sortMode.equals( "use_section_sort" ) )
-                                    #if( $currentSortAsc )
-                                        <img src="#imageLink( "sakai/sortascending.gif" )" border="0" title ="$tlang.getString('mb.enrolments.sortBySection.asc')" 
-                                                alt ="$tlang.getString( 'mb.enrolments.sortBySection.asc' )" />
-                                    #else
-                                        <img src="#imageLink( "sakai/sortdescending.gif" )" border="0" title ="$tlang.getString('mb.enrolments.sortBySection.desc')" 
-                                                alt ="$tlang.getString( 'mb.enrolments.sortBySection.desc' )" />
-                                    #end
-                                #end
-                            </a>
-                        </th>
-                        <th id="worksite">
-                            <a href="#toolLinkParam( "$action" "doToggle_sort" "sortParam=use_site_sort" )" title="$tlang.getString( "mb.enrolments.sortBySite" )">
-                                $tlang.getString( "mb.enrolments.columnHeader.courseSite" )
-                                #if( $sortMode.equals( "use_site_sort" ) )
-                                    #if( $currentSortAsc )
-                                        <img src="#imageLink( "sakai/sortascending.gif" )" border="0" title ="$tlang.getString('mb.enrolments.sortBySite.asc')" 
-                                                alt ="$tlang.getString( 'mb.enrolments.sortBySite.asc' )" />
-                                    #else
-                                        <img src="#imageLink( "sakai/sortdescending.gif" )" border="0" title ="$tlang.getString('mb.enrolments.sortBySite.desc')" 
-                                                alt ="$tlang.getString( 'mb.enrolments.sortBySite.desc' )" />
-                                    #end
-                                #end
-                            </a>
-                        </th>
-                    </tr>
-
-                    #foreach( $enrolment in $enrolments )
+        <form action="#toolForm( "$action" )" method="post">
+            <div class="table-responsive">
+                <table id="enrolments" class="table table-responsive table-bordered table-striped table-hover" summary="$summary" >
+                    <thead>
                         <tr>
-                            <td headers="term" class="grayText">$sessionHelper.getSessionByEID( $enrolment.getSessionEID() ).getTitle()</td>
-                            <td headers="section">$enrolment.getSectionTitle()</td>
-                            <td headers="worksite">
-                                #if ($enrolment.siteWrappers.size() > 0)
-                                    #foreach( $site in $enrolment.siteWrappers )
-                                        <h4>
+                            <th id="term">
+                                <a href="#toolLinkParam( "$action" "doToggle_sortEnrolments" "sortParam=use_term_sort" )" title="$tlang.getString( "mb.enrolments.sortByTerm" )">
+                                    $tlang.getString( "mb.enrolments.columnHeader.term" )
+                                    #if( $sortMode.equals( "use_term_sort" ) )
+                                        #if( $currentSortAsc )
+                                            <img src="#imageLink( "sakai/sortascending.gif" )" border="0" title="$tlang.getString('mb.enrolments.sortByTerm.asc')" alt="$tlang.getString( 'mb.enrolments.sortByTerm.asc' )" />
+                                        #else
+                                            <img src="#imageLink( "sakai/sortdescending.gif" )" border="0" title="$tlang.getString('mb.enrolments.sortByTerm.desc')" alt="$tlang.getString( 'mb.enrolments.sortByTerm.desc' )" />
+                                        #end
+                                    #end
+                                </a>
+                            </th>
+                            <th id="section">
+                                <a href="#toolLinkParam( "$action" "doToggle_sortEnrolments" "sortParam=use_section_sort" )" title="$tlang.getString( "mb.enrolments.sortBySection" )">
+                                    $tlang.getString( "mb.enrolments.columnHeader.section" )
+                                    #if( $sortMode.equals( "use_section_sort" ) )
+                                        #if( $currentSortAsc )
+                                            <img src="#imageLink( "sakai/sortascending.gif" )" border="0" title="$tlang.getString('mb.enrolments.sortBySection.asc')" alt="$tlang.getString( 'mb.enrolments.sortBySection.asc' )" />
+                                        #else
+                                            <img src="#imageLink( "sakai/sortdescending.gif" )" border="0" title="$tlang.getString('mb.enrolments.sortBySection.desc')" alt="$tlang.getString( 'mb.enrolments.sortBySection.desc' )" />
+                                        #end
+                                    #end
+                                </a>
+                            </th>
+                            <th id="worksite">
+                                <a href="#toolLinkParam( "$action" "doToggle_sortEnrolments" "sortParam=use_site_sort" )" title="$tlang.getString( "mb.enrolments.sortBySite" )">
+                                    $tlang.getString( "mb.enrolments.columnHeader.courseSite" )
+                                    #if( $sortMode.equals( "use_site_sort" ) )
+                                        #if( $currentSortAsc )
+                                            <img src="#imageLink( "sakai/sortascending.gif" )" border="0" title="$tlang.getString('mb.enrolments.sortBySite.asc')" alt="$tlang.getString( 'mb.enrolments.sortBySite.asc' )" />
+                                        #else
+                                            <img src="#imageLink( "sakai/sortdescending.gif" )" border="0" title="$tlang.getString('mb.enrolments.sortBySite.desc')" alt="$tlang.getString( 'mb.enrolments.sortBySite.desc' )" />
+                                        #end
+                                    #end
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        #foreach( $enrolment in $enrolments )
+                            <tr>
+                                <td headers="term" class="grayText">$sessionHelper.getSessionByEID( $enrolment.getSessionEID() ).getTitle()</td>
+                                <td headers="section">$enrolment.getSectionTitle()</td>
+                                <td headers="worksite">
+                                    #if ($enrolment.siteWrappers.size() > 0)
+                                        #foreach( $site in $enrolment.siteWrappers )
                                             <a href="$site.getSiteURL()" target="_top" title="$tlang.getString( "mb.gotosite" ) $validator.escapeHtml( $site.getSiteTitle() )">
                                                 $validator.escapeHtml( $site.getSiteTitle() )
                                             </a>
-                                        </h4>
+                                        #end
+                                    #else
+                                        $tlang.getString('mb.enrolments.siteNotAvailable')
                                     #end
-                                #else
-                                    $tlang.getString('mb.enrolments.siteNotAvailable')
-                                #end
-                            </td>
-                        </tr>
-                    #end
-
+                                </td>
+                            </tr>
+                        #end
+                    </tbody>
                 </table>
-                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-            </form>
+
+                #if( !$search.isEmpty() )
+                    <div class="sakai-table-noResultsMessage">$tlang.getString( "mb.enrolments.noMatchingEnrolments" )${validator.escapeHtml( $search )}$tlang.getString( "mb.list.nosearchsites2" )</div>
+                #elseif( $enrolments.isEmpty() )
+                    <div class="sakai-table-noResultsMessage">$noEnrolments</div>
+                #end
+            </div>
+            <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        </form>
+
+        #if( $enrolments.size() > 10 && $pagesizeInt > 10 )
+            <div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+                <div class="sakai-table-filterContainer">
+                    #searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
+                </div>
+                <div class="sakai-table-pagerContainer">
+                    #pagerPanel("pager2")
+                </div>
+            </div>
         #end
     </div>
 </div>

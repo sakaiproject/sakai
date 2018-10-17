@@ -31,8 +31,10 @@ public class CopyrightInfo implements org.sakaiproject.content.copyright.api.Cop
 	public void add(org.sakaiproject.content.copyright.api.CopyrightItem item){
 		items.add(item);
 	}
+	public void addToBeginning(org.sakaiproject.content.copyright.api.CopyrightItem item) {
+		items.add(0, item);
+	}
 	public List<org.sakaiproject.content.copyright.api.CopyrightItem> getItems(){
 		return items;
 	}
-	
 }

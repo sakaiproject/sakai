@@ -57,7 +57,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
 
@@ -997,9 +999,12 @@ public class UserPageSiteSearch extends BasePage {
 				if(fileObj != null && fileObj instanceof File){
 					File file = (File) fileObj;
 					IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(file));
-					//TODO: FIX THIS
-					log.error("TODO: Fix code to exportData removed in migration.");
-//					getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, file.getName()).setFileName(new StringResourceModel("searchExportFileName", null).getObject() + ".csv"));
+					
+					ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(resourceStream, file.getName());
+					handler.setFileName(new StringResourceModel("searchExportFileName", null).getString() + ".csv");
+					handler.setContentDisposition(ContentDisposition.ATTACHMENT);
+					
+					getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
 				}
 			}
 		});

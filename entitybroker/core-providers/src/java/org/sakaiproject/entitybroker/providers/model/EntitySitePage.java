@@ -345,6 +345,14 @@ public class EntitySitePage implements SitePage {
         }
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void setTools(List tools){
+        if(sitePage != null){
+            sitePage.setTools(tools);
+        }
+        throw new UnsupportedOperationException();
+    }
     @Override
     public void moveUp() {
         if (sitePage != null) {

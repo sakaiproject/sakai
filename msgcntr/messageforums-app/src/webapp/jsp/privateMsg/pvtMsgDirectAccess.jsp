@@ -3,7 +3,7 @@
                  org.sakaiproject.tool.messageforums.ui.*,javax.servlet.http.HttpUtils,java.util.Enumeration"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
 
@@ -29,8 +29,8 @@
 %>
 
 		    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					if ($('ul[class="alertMessage"]').length==0) {

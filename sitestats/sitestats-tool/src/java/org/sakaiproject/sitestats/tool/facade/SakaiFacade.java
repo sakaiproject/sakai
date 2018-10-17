@@ -28,7 +28,7 @@ import org.sakaiproject.sitestats.api.StatsUpdateManager;
 import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -54,7 +54,6 @@ public interface SakaiFacade {
 	public AuthzGroupService getAuthzGroupService();
 	public UserDirectoryService getUserDirectoryService();
 	public ContentHostingService getContentHostingService();
-	public TimeService getTimeService();
-	
-	
+	public UserTimeService getUserTimeService();
+
 }

@@ -70,7 +70,7 @@ public class AuthzGroupProviderSync implements InterruptableJob {
 				AuthzGroup group = groupsIt.next();
 				groupsProcessed++;
 				if (group.getProviderGroupId() != null && group.getProviderGroupId().length() > 0) {
-					if (System.currentTimeMillis() - group.getModifiedTime().getTime() > refreshAge) {
+					if (System.currentTimeMillis() - group.getModifiedDate().getTime() > refreshAge) {
 						try {
 							// Need to load the group before we can save it.
 							AuthzGroup groupToRefresh = authzGroupService.getAuthzGroup(group.getId());

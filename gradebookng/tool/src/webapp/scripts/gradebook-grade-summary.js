@@ -6,6 +6,7 @@
  * A GradebookGradeSummary to encapsulate all the grade summary content behaviours 
  */
 function GradebookGradeSummary($content, blockout, modalTitle) {
+  var self = this;
   this.$content = $content;
 
   this.blockout = blockout || false;
@@ -31,6 +32,10 @@ function GradebookGradeSummary($content, blockout, modalTitle) {
       }
     }, this));
   }
+
+  $("body").on("DOMNodeInserted", ".wicket-top-modal", function() {
+    self.positionModalAtTop($(this));
+  });
 };
 
 
@@ -302,8 +307,7 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
       stickyHeaders_yScroll : null,
       stickyHeaders_filteredToTop: true
     },
-    //sort by due date descending and secondarily by assignment title
-    sortList: [[3, 0], [0, 0]],
+    sortReset   : true,
     textExtraction: function(node) {
       var $node = $(node);
       // sort dates by data-sort-key
@@ -329,6 +333,13 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
     },
     cssInfoBlock: "gb-summary-category-tbody"
   });
+};
+
+
+GradebookGradeSummary.prototype.positionModalAtTop = function($modal) {
+    // position the modal at the top of the viewport
+    // taking into account the current scroll offset
+    $modal.closest('.wicket-modal').css('top', 30 + $(window).scrollTop() + "px");
 };
 
 

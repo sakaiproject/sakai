@@ -1,8 +1,4 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/tags/sakai-10.4/samigo-services/src/java/org/sakaiproject/tool/assessment/integration/helper/integrated/GradebookServiceHelperImpl.java $
- * $Id: GradebookServiceHelperImpl.java 127473 2013-07-21 00:04:12Z nbotimer@unicon.net $
- ***********************************************************************************
- *
  * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
@@ -25,11 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -193,19 +188,19 @@ public void removeExternalAssessment(String gradebookUId,
 
     if (g.isGradebookDefined(gradebookUId))
     {
-      String title = StringEscapeUtils.unescapeHtml(publishedAssessment.getTitle());
+      String title = StringEscapeUtils.unescapeHtml3(publishedAssessment.getTitle());
       if(!g.isAssignmentDefined(gradebookUId, title))
       {
-        g.addExternalAssessment(gradebookUId,
-                              publishedAssessment.getPublishedAssessmentId().
-                              toString(), null,
-                              title,
-                              publishedAssessment.getTotalScore().doubleValue(),
-                              publishedAssessment.getAssessmentAccessControl().
-                              getDueDate(),
-                              getAppName(),	// Use the app name from sakai
-                              false,
-                              categoryId); 
+          g.addExternalAssessment(gradebookUId,
+                  publishedAssessment.getPublishedAssessmentId().toString(),
+                  null,
+                  title,
+                  publishedAssessment.getTotalScore(),
+                  publishedAssessment.getAssessmentAccessControl().getDueDate(),
+                  getAppName(), // Use the app name from sakai
+                  null,
+                  false,
+                  categoryId);
         added = true;
       }
     }
@@ -231,12 +226,12 @@ public void removeExternalAssessment(String gradebookUId,
 
     log.debug("before g.isAssignmentDefined()");
 	g.updateExternalAssessment(gradebookUId,
-				publishedAssessment.getPublishedAssessmentId().
-				toString(), null,
-				publishedAssessment.getTitle(),
-				publishedAssessment.getTotalScore().doubleValue(),
-				publishedAssessment.getAssessmentAccessControl().
-				getDueDate());
+            publishedAssessment.getPublishedAssessmentId().toString(),
+            null,
+            null,
+            publishedAssessment.getTitle(),
+            publishedAssessment.getTotalScore(),
+            publishedAssessment.getAssessmentAccessControl().getDueDate());
     return true;
   }
 

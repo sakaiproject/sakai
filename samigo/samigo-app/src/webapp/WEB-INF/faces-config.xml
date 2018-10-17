@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE faces-config PUBLIC
-  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
-  "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
-
-<faces-config>
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+    version="2.3">
 
  <managed-bean>
  	<description>
@@ -812,6 +812,10 @@
       <to-view-id>/jsf/delivery/tableOfContents.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>accessDenied</from-outcome>
+      <to-view-id>/jsf/delivery/accessDenied.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>accessError</from-outcome>
       <to-view-id>/jsf/delivery/accessError.jsp</to-view-id>
     </navigation-case>
@@ -1366,18 +1370,6 @@
   
   <!-- Custom Renderers -->
   <render-kit>
-    <!-- stylesheet -->
-    <renderer>
-      <component-family>javax.faces.Output</component-family>
-      <renderer-type>Stylesheet</renderer-type>
-      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.StylesheetRenderer</renderer-class>
-    </renderer>
-    <!-- script -->
-    <renderer>
-      <component-family>javax.faces.Output</component-family>
-      <renderer-type>Script</renderer-type>
-      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.ScriptRenderer</renderer-class>
-    </renderer>
     <!-- color picker -->
     <renderer>
       <component-family>javax.faces.Input</component-family>
@@ -1395,17 +1387,11 @@
       <renderer-type>HideDivision</renderer-type>
       <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.HideDivisionRenderer</renderer-class>
     </renderer>
-    <!-- alpha index -->
-    <renderer>
-      <component-family>javax.faces.Output</component-family>
-      <renderer-type>AlphaIndex</renderer-type>
-      <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.AlphaIndexRenderer</renderer-class>
-    </renderer>
     <!-- 'sideways' dataTable, renders all on one line -->
     <renderer>
        <component-family>javax.faces.Data</component-family>
        <renderer-type>DataLine</renderer-type>
-    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.DataLineRenderer</renderer-class>
+       <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.DataLineRenderer</renderer-class>
     </renderer>
     <!-- modified version of Sakai rich text editor control  -->
     <renderer>
@@ -1417,38 +1403,19 @@
     <renderer>
        <component-family>javax.faces.Output</component-family>
        <renderer-type>NavigationMap</renderer-type>
-    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.NavigationMapRenderer</renderer-class>
-    </renderer>
-    <!-- pager control -->
-    <renderer>
-       <component-family>javax.faces.Output</component-family>
-       <renderer-type>PagerButton</renderer-type>
-    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerButtonRenderer</renderer-class>
+       <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.NavigationMapRenderer</renderer-class>
     </renderer>
     <!-- timer bar -->
     <renderer>
        <component-family>javax.faces.Output</component-family>
        <renderer-type>TimerBar</renderer-type>
-    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.TimerBarRenderer</renderer-class>
-    </renderer>
-    <!-- pager control, obsolete -->
-    <renderer>
-       <component-family>javax.faces.Output</component-family>
-       <renderer-type>Pager</renderer-type>
-    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerRenderer</renderer-class>
-    </renderer>
-
-    <!-- pager buttons for pager control, obsolete -->
-    <renderer>
-       <component-family>javax.faces.Output</component-family>
-       <renderer-type>PagerButtonControl</renderer-type>
-    <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerButtonControlRenderer</renderer-class>
+       <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.TimerBarRenderer</renderer-class>
     </renderer>
     
     <renderer>
        <component-family>CustomSelectOneRadio</component-family>
        <renderer-type>CustomSelectOneRadio</renderer-type>
-    <renderer-class>org.sakaiproject.jsf.renderer.CustomSelectOneRadioRenderer</renderer-class>
+       <renderer-class>org.sakaiproject.jsf.renderer.CustomSelectOneRadioRenderer</renderer-class>
     </renderer>
 
    </render-kit>

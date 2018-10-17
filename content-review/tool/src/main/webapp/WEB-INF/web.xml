@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app		xmlns="http://java.sun.com/xml/ns/j2ee"		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"		xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_5.xsd"		version="2.5">
+  <!-- Sakai Request Filter -->
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <servlet-name>spring-mvc</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+  <display-name>sakai.contentreview.tool</display-name>
+  <!-- Sakai Spring Listener -->
+  <listener>
+    <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+  </listener>
+  <servlet>
+    <servlet-name>spring-mvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>spring-mvc</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+</web-app>

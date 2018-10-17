@@ -1773,6 +1773,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 				ProfileConstants.SAKAI_PROP_PROFILE2_ONLINE_STATUS_ENABLED);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SiteService.SiteTitleValidationStatus validateSiteTitle(String orig, String stripped) {
+		return this.siteService.validateSiteTitle(orig, stripped);
+	}
+
 	// PRIVATE METHODS FOR SAKAIPROXY
 
 	/**

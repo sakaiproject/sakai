@@ -70,22 +70,18 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-storage-util</artifactId>
-      <version>${project.version}</version>
     </dependency>
 	<!-- Resource MIME type identification -->
 	<!-- http://mvnrepository.com/artifact/jmimemagic/jmimemagic -->
@@ -113,8 +109,6 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-private</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
@@ -152,7 +146,7 @@
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jvnet.opendmk</groupId>
@@ -193,7 +187,7 @@
     <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>16.0.1</version>
+        <version>23.0</version>
     </dependency>
     <dependency>
         <groupId>com.google.code.findbugs</groupId>
@@ -211,7 +205,7 @@
     </dependency>
     <dependency>
       <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
+      <artifactId>javax.activation-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -246,7 +240,10 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-    
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
@@ -324,7 +321,7 @@
     <dependency>
         <groupId>org.jmock</groupId>
         <artifactId>jmock-legacy</artifactId>
-        <version>2.5.1</version>
+        <version>2.8.4</version>
         <scope>test</scope>
     </dependency>
     <dependency>

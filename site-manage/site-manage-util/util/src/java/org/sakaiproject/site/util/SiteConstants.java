@@ -54,7 +54,9 @@ public class SiteConstants {
 	 * This stores the list of roles that a group should have as participants from the containing sites.
 	 */
 	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
-	
+
+	public static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+
 	public static final int SITE_GROUP_TITLE_LIMIT = 99;
 	
 	// system property variable to hide PageOrder tab for certain types of sites, e.g. if set to "course,project", the PageOrder tool tab will be hidden for all course sites and project sites. 
@@ -80,5 +82,17 @@ public class SiteConstants {
 
 	//SAK-32127
 	public final static String SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN = "poh.resources.content.sync.visibility";
-	public final static boolean SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT = false;
+	public final static boolean SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT = true;
+
+	public final static String PARTICIPANT_FILTER_TYPE_ALL = "[all]";
+	public final static String PARTICIPANT_FILTER_TYPE_ROLE = "[role]";
+	public final static String PARTICIPANT_FILTER_TYPE_GROUP = "[group]";
+	public final static String PARTICIPANT_FILTER_TYPE_SECTION = "[section]";
+
+	// For returning to Site Info landing page after clicking 'Cancel' from sub-projects
+	public static final String STATE_TEMPLATE_INDEX = "site.templateIndex"; // The name of the Attribute for display template index
+	public static final String SITE_INFO_TEMPLATE_INDEX = "12";
+
+	// For returning to 'Manage Participants' after successful participant add
+	public static final String MANAGE_PARTICIPANTS_TEMPLATE_INDEX = "63";
 }

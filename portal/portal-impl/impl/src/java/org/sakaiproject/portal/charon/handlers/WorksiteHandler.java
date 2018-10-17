@@ -162,7 +162,7 @@ public class WorksiteHandler extends PageHandler
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 				getUrlFragment());
 
-		portal.includeBottom(rcontext);
+		portal.includeBottom(rcontext, site);
 
 
 		portal.sendResponse(rcontext, res, "worksite", null);

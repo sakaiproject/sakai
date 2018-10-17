@@ -374,7 +374,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 
 /* only up to 4 cols has been tuned */
 .cols9 {
-    width: calc(100$ / 9  - 17px) !important;
+    width: calc(100% / 9  - 17px) !important;
     margin-right: 2px !important;
 }
 [class~="cols9"][class~="double"] {
@@ -940,7 +940,6 @@ a.peer-eval-stats {
 #toolbar {
   margin: 0;
   margin-bottom: -10px;
-  margin-top: -10px;
   display: inline-block;
 }
 
@@ -995,7 +994,6 @@ a.peer-eval-stats {
 }
 .lessons-siteHierarchy-title {
    font-weight: bold;
-   margin-left: 0;
 }
 .itemAction {
   padding-top: 0px;
@@ -1452,15 +1450,6 @@ padding: 10px 15px 0 15px
 div.navIntraTool {
   border-top:none;
 }
-/* our additions to the top menu */
-
-.top-icon:before {
-   margin-right: 5px;
-}
-#print-view {
-    margin-right: 7px;
-}
-
 /* temporary, to avoid changing old stuff for the moment */
 .edit-col {
   padding-top: 0px !important;
@@ -1470,7 +1459,7 @@ div.navIntraTool {
 }
 
 .edit-col {
-margin-top:5px;
+margin-top:4px;
 display:inline-block;
 position:absolute;
 background-color:#eee;
@@ -1638,7 +1627,7 @@ margin-left: 0px;
 
 li.listType .contentCol {
 }
-li.question .contentCol
+li.question .contentCol {
 }
 /* links should be spaced as close as possible to each other, so override padding */
 li.resourceType .right-col {
@@ -1658,13 +1647,6 @@ li.resourceType .right-col {
 }
 .questionDivControl a, .commentsDiv a.gradingPaneLink{
  padding: 5px 10px;
-}
-
-/* in full width mode, if we don't do this, and the
-   first region is split, the right column doesn't fit
-   must be overridden for narrow format */
-.Mrphs-container--toolTitleNav {
-  margin-bottom:-30px;
 }
 
 /* for ShowItem */
@@ -1690,10 +1672,6 @@ font-size: 12px;
 .itemTitle {
   line-height:10px;
   margin-bottom:5px;
-}
-/* fit the actual height, so it doesn't overlap title */
-.Mrphs-toolTitleNav__button_container {
-  height: 30px;
 }
 .portletBody {
   margin-top:2px;
@@ -1761,10 +1739,6 @@ div.portletBody[sakaiversion="12"] {
 .cols2 .right-col,.cols3 .right-col,.cols4 .right-col,.cols5 .right-col,.cols6 .right-col,.cols7 .right-col,.cols8 .right-col,.cols9 .right-col {
   padding-left: 7px;
   padding-right: 7px;
-}
-/* Give the repositioned button container some room */
-#toolbar {
-  margin-top: 20px;
 }
 }
 /* 480 is boundary of most phones */
@@ -1839,9 +1813,6 @@ span.nextprev {
 /* nothing - used to save information */
 }
 
-.Mrphs-siteHierarchy span:last-child {
-  margin-left: 6px;
-}
 .Mrphs-siteHierarchy .action .lessonsToolButton {
   background-color: transparent;
   padding-top: 1px;
@@ -1923,7 +1894,7 @@ body > .portletBody > .action {
 }
 
 .cols9 {
-    width: calc(100$ / 9  - 32px) !important;
+    width: calc(100% / 9  - 32px) !important;
 }
 [class~="cols9"][class~="double"] {
     width: calc(200% / 9 - 32px) !important;
@@ -1997,10 +1968,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     font-size: 100%;
     font-weight: normal;
     color: #000;
-}
-.checklistDiv h3 {
-    margin-top: 0px;
-    font-size: 100%;
 }
 .checklistSaveMessage {
     font-family:Arial, Helvetica, sans-serif;

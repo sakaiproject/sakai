@@ -4,15 +4,10 @@
 	var INDIVIDUAL_TYPE = 'individual';
 	var signupMeetingType=INDIVIDUAL_TYPE;
 	function initialLayoutsSetup(){	
-		
-		var table = document.getElementById("meeting:groupSubradio");
-        row = table.getElementsByTagName("tr");
-        for (i=0; i<row.length; i++) {
-                cell = row[i].getElementsByTagName("td");
-                inp = cell[0].getElementsByTagName("input");                         
-                if (inp[0].checked &&  i ==1)
-                      document.getElementById("meeting:maxAttendee").style.display="none";
-         }                                          
+
+		if (document.getElementById("meeting:radioUnlimitedAttendee") && document.getElementById("meeting:radioUnlimitedAttendee").checked) {
+		  	document.getElementById("meeting:maxAttendee").style.display="none";
+		}
 		//init repeat Calendar
 		var recurSelectorVal = document.getElementById("meeting:recurSelector").value;
 		if(recurSelectorVal =='no_repeat')

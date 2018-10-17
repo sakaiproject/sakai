@@ -9,9 +9,7 @@
 <%
 
   FacesContext context = FacesContext.getCurrentInstance();
-  Application app = context.getApplication();
-  ValueBinding binding = app.createValueBinding("#{ForumTool}");
-  DiscussionForumTool forumTool = (DiscussionForumTool) binding.getValue(context);
+  DiscussionForumTool forumTool = context.getApplication().evaluateExpressionGet(context, "#{ForumTool}", DiscussionForumTool.class);
 
   String target = "";
 
@@ -31,7 +29,7 @@
   }
 
 if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
-  target = "/jsp/discussionForum/message/dfAllMessages.jsf?topicId="
+  target = "/jsp/discussionForum/message/dfAllMessages.jsp?topicId="
   	       + request.getParameter("topicId");
 
   forumTool.processActionDisplayTopic();
@@ -49,7 +47,7 @@ if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
 	if(request.getParameter("topicId") == null) {
 		// If we're in here it means we have lost topicId. We should direct
 		// them to the topic's parent forum which will then render the topic.
-		target = "/jsp/discussionForum/message/dfAllMessages.jsf?forumId="
+		target = "/jsp/discussionForum/message/dfAllMessages.jsp?forumId="
   	       		+ request.getParameter("forumId");
 
 		  forumTool.processActionDisplayForum();

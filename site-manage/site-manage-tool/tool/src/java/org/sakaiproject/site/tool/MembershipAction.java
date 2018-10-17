@@ -26,7 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -45,6 +47,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.tool.EnrolmentsHandler.Enrolment;
 import org.sakaiproject.site.tool.EnrolmentsHandler.EnrolmentsWrapper;
+import org.sakaiproject.site.tool.MenuBuilder.MembershipActiveTab;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -173,7 +176,7 @@ public class MembershipAction extends PagedResourceActionII
 
 		if( MY_ENROLMENTS_MODE.equals( mode ) )
 		{
-			String sortMode = ENROLMENTS_HANDLER.setSortModeForMyEnrolments( state );
+			String sortMode = ENROLMENTS_HANDLER.getSortModeForMyEnrolments( state );
 			ENROLMENTS_HANDLER.getSectionEnrolments( userDirectoryService.getCurrentUser().getId() );
 			rv = ENROLMENTS_HANDLER.getSortedAndPagedEnrolments( page, sortMode, sortAsc, StringUtils.isNotBlank( search ) );
 		}
@@ -237,13 +240,16 @@ public class MembershipAction extends PagedResourceActionII
 		}
 		context.put(SEARCH_TERM, state.getAttribute(SEARCH_TERM));
 
+		MembershipActiveTab activeTab = MembershipActiveTab.CURRENT_SITES;
 		String mode = (String) state.getAttribute( STATE_VIEW_MODE );
 		if( MY_ENROLMENTS_MODE.equals( mode ) )
 		{
+			activeTab = MembershipActiveTab.OFFICIAL_ENROLMENTS;
 			template = buildMyEnrolmentsContext( portlet, context, rundata, state );
 		}
 		else if( JOINABLE_MODE.equals( mode ) )
 		{
+			activeTab = MembershipActiveTab.JOINABLE_SITES;
 			template = buildJoinableContext(portlet, context, rundata, state);
 		}
 		else
@@ -284,6 +290,9 @@ public class MembershipAction extends PagedResourceActionII
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("membershipTextEdit", new SiteTextEditUtil());
 
+		// Add the menu to the vm
+		MenuBuilder.buildMenuForMembership(portlet, rundata, state, context, RB, activeTab);
+
 		return template;
 
 	} // buildMainPanelContext
@@ -299,23 +308,9 @@ public class MembershipAction extends PagedResourceActionII
 	 */
 	public String buildMyEnrolmentsContext( VelocityPortlet portlet, Context context, RunData runData, SessionState state )
 	{
-		// Get the sorting sequence (ascending/descending)
-		if( state.getAttribute( SORT_ASC ) == null )
-		{
-			state.setAttribute( SORT_ASC, Boolean.TRUE );
-		}
-		context.put( "currentSortAsc", state.getAttribute( SORT_ASC ) );
-
 		// Get the sort mode
-		String sortMode = ENROLMENTS_HANDLER.setSortModeForMyEnrolments( state );
+		String sortMode = ENROLMENTS_HANDLER.getSortModeForMyEnrolments( state );
 		context.put( "sortMode", sortMode );
-
-		// Get the search string (if any)
-		if( state.getAttribute( SEARCH_TERM ) == null )
-		{
-			state.setAttribute( SEARCH_TERM, "" );
-		}
-		context.put( SEARCH_TERM, state.getAttribute( SEARCH_TERM ) );
 
 		// Get the enrolments for the user, taking into consideration sorting, paging and filtering
 		List<Enrolment> currentUserEnrolments = prepPage( state );
@@ -425,19 +420,6 @@ public class MembershipAction extends PagedResourceActionII
 	 */
 	public String buildJoinableContext(VelocityPortlet portlet, Context context, RunData runData, SessionState state)
 	{
-		// the sorting sequence
-		if (state.getAttribute(SORT_ASC) == null)
-		{
-			state.setAttribute(SORT_ASC, Boolean.TRUE);
-		}
-		context.put("currentSortAsc", state.getAttribute(SORT_ASC));
-
-		if (state.getAttribute(SEARCH_TERM) == null)
-		{
-			state.setAttribute(SEARCH_TERM, "");
-		}
-		context.put(SEARCH_TERM, state.getAttribute(SEARCH_TERM));
-
 		List<Site> openSites = prepPage(state);
 		for (Site site : openSites)
 		{
@@ -454,7 +436,7 @@ public class MembershipAction extends PagedResourceActionII
 	}
 
 	/**
-	 * Handle the eventSubmit_doGoto_unJoinable command to shwo the list of site which are unjoinable.
+	 * Handle the eventSubmit_doGoto_unJoinable command to show the list of site which are unjoinable.
 	 * @param data
 	 */
 	public void doGoto_unjoinable(RunData data)
@@ -510,7 +492,8 @@ public class MembershipAction extends PagedResourceActionII
 				// SAK-24423 - joinable site settings - join the site
 				if( JoinableSiteSettings.doJoinForMembership( id ) )
 				{
-					addAlert( state, RB.getString( "mb.youhave2" ) + " " + SITE_SERV.getSite( id ).getTitle() );
+					String msg = RB.getFormattedMessage( "mb.youhave2", new Object[] {SITE_SERV.getSite( id ).getTitle()} );
+					addAlert( state, msg );
 				}
 				else
 				{
@@ -615,4 +598,17 @@ public class MembershipAction extends PagedResourceActionII
 			state.setAttribute(SORT_ASC, !((Boolean) state.getAttribute(SORT_ASC)));
 		}
 	} // doToggle_sort
+
+	/**
+	 * toggle the sort ascending vs descending by property in enrolments view
+	 * @param data
+	 */
+	public void doToggle_sortEnrolments(RunData data)
+	{
+		doToggle_sort(data);
+
+		// Set the sort mode
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ENROLMENTS_HANDLER.setSortModeFromMyEnrolments(data, state);
+	}
 }

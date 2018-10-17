@@ -25,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
+      <artifactId>javax.activation-api</artifactId>
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>

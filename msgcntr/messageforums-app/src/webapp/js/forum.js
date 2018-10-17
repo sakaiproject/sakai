@@ -887,3 +887,45 @@ $(document).ready(function(){
     });
 
 });
+
+$(document).ready(function(){
+    $("#prefs_pvt_form\\:pvtmsgs\\:checkAll, #prefs_pvt_form\\:threaded_pvtmsgs\\:checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+        if(this.checked){
+            toggleBulkOperations(true, 'prefs_pvt_form');
+        }else{
+            toggleBulkOperations(false, 'prefs_pvt_form');
+        }
+    });
+    $("#prefs_form_search\\:pvtmsgs\\:checkAll, #prefs_form_search\\:threaded_pvtmsgs\\:checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+        if(this.checked){
+            toggleBulkOperations(true, 'prefs_form_search');
+        }else{
+            toggleBulkOperations(false, 'prefs_form_search');
+        }
+    });
+});
+
+// rubrics-specific code
+var rubricChanged = false;
+rubricsEventHandlers = function () {
+    $('body').on('rubrics-event', function(e, payload){
+        if (payload.event == "total-points-updated") {
+            handleRubricsTotalPointChange(payload.value);
+        }
+        if (payload.event == "rubric-ratings-changed") {
+            console.log('rubric-ratings-changed');
+            rubricChanged = true;
+        }
+    });
+    console.log('Rubrics event handlers loaded');
+}
+
+// handles point changes for assignments, updating the grade field if it exists.
+handleRubricsTotalPointChange = function (points){
+    var gradeField = document.getElementById("msgForum:dfMsgGradeGradePoint");
+	if (gradeField != null && (gradeField.value === "" || rubricChanged)) {
+        gradeField.value = points;
+    }
+}

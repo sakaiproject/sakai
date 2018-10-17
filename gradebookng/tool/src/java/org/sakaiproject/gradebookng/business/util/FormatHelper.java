@@ -50,7 +50,12 @@ public class FormatHelper {
 	 * @return double to decimal places
 	 */
 	public static String formatDoubleToDecimal(final Double score) {
-		return formatDoubleToDecimal(score, 2);
+		if (score == null) {
+                        return "";
+		}
+		else {
+                        return formatDoubleToDecimal(score, 2);
+		}
 	}
 
 	/**
@@ -192,6 +197,16 @@ public class FormatHelper {
 	}
 
 	/**
+	 * Convert an empty grade to a dash for display purposes
+	 *
+	 * @param grade
+	 * @return a dash if the grade is empty, the original grade if not
+	 */
+	public static String convertEmptyGradeToDash(final String grade) {
+		return StringUtils.defaultIfBlank(grade, " - ");
+	}
+
+	/**
 	 * Format a grade using the locale
 	 *
 	 * @param grade - string representation of a grade
@@ -260,6 +275,16 @@ public class FormatHelper {
 	}
 
 	/**
+	 * Strips out line breaks
+	 *
+	 * @param s String to abbreviate
+	 * @return string without line breaks
+	 */
+	public static String stripLineBreaks(final String s) {
+		return s.replaceAll("\\r\\n|\\r|\\n", "");
+	}
+
+	/**
 	 * Abbreviate a string via {@link StringUtils#abbreviateMiddle(String, String, int)}
 	 *
 	 * Set at 45 chars
@@ -269,17 +294,6 @@ public class FormatHelper {
 	 */
 	public static String abbreviateMiddle(final String s) {
 		return StringUtils.abbreviateMiddle(s, "...", 45);
-	}
-
-	/**
-	 * Validate if a string is a valid Double using the specified Locale.
-	 *
-	 * @param value - The value validation is being performed on.
-	 * @return true if the value is valid
-	 */
-	public static boolean isValidDouble(final String value) {
-		final DoubleValidator dv = new DoubleValidator();
-		return dv.isValid(value, rl.getLocale());
 	}
 
 	/**

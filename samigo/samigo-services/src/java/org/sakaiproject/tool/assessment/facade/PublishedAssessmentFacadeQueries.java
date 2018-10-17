@@ -359,7 +359,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							.getLastModifiedBy(), item.getLastModifiedDate(),
 					null, null, null, // set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
-					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash(),item.getHash());
+					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash(),item.getHash(),
+					item.getItemId());
 			Set publishedItemTextSet = preparePublishedItemTextSet(
 					publishedItem, item.getItemTextSet(), protocol);
 			Set publishedItemMetaDataSet = preparePublishedItemMetaDataSet(
@@ -2735,5 +2736,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		} // end:if (assessmentStringData != null)
 		
 		return updatedAssessmentStringData;
+	}
+
+	public List getQuestionsIdList(final Long publishedAssessmentId) {
+		HibernateCallback<List<Long>> hcb = session -> session
+				.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s,  PublishedAssessmentData a where a = s.assessment and s = i.section and a.publishedAssessmentId=?")
+				.setLong(0, publishedAssessmentId.longValue())
+				.list();
+		return getHibernateTemplate().execute(hcb);
 	}
 }

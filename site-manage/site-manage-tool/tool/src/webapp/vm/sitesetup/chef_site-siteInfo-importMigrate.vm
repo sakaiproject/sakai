@@ -1,5 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMigrate.vm,v 1.0 2007/11/01 15:40:02 tnguyen.iupui.edu Exp $ -->
 <div class="portletBody">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("sitinfimp.reuse")
 	</h3>

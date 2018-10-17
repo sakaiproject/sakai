@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -46,21 +45,19 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItem;
-
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -79,6 +76,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class podHomeBean {
@@ -619,12 +618,12 @@ public class podHomeBean {
 
 		// get release/publish date - else part needed for podcasts created before release/retract dates
 		// feature implemented
-		if (podcastResource.getReleaseDate() == null) {
+		if (podcastResource.getReleaseInstant() == null) {
 			tempDate = podcastService.getGMTdate(podcastProperties
-													.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+													.getInstantProperty(PodcastService.DISPLAY_DATE).toEpochMilli());
 		} 
 		else {
-			tempDate = new Date(podcastResource.getReleaseDate().getTime());
+			tempDate = new Date(podcastResource.getReleaseInstant().toEpochMilli());
 		}
 
 		// store result of hidden property OR after retract date OR before release date
@@ -701,7 +700,7 @@ public class podHomeBean {
 				podcastInfo.setType("UNK");
 			}
 
-			tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+			tempDate = podcastProperties.getDateProperty(ResourceProperties.PROP_MODIFIED_DATE);
 
 			podcastInfo.setPostedDatetime(DateFormatterUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
 

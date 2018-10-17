@@ -1,0 +1,29 @@
+<dom-module id="sr-lang">
+  <script>
+    Polymer({
+      is: "sr-lang",
+      properties: {
+        key: {
+          type: String
+        },
+        values: {
+          type : Array
+        }
+      },
+      ready: function() {
+      	var translation = rubrics.i18n(this.key);
+        var valuesArray = [];
+
+      	if (translation && this.values === undefined) {
+            this.innerText = translation;
+      	}else if(translation && this.values !== undefined ){
+            valuesArray = JSON.parse(this.values);
+            for (var i in valuesArray) {
+              translation = translation.replace("{}", typeof valuesArray[i] === "string" ? valuesArray[i] : "" );
+            }
+            this.innerText = translation;
+        }
+      }
+    });
+  </script>
+</dom-module>
