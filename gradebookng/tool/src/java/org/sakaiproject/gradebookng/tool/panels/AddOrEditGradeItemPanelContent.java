@@ -286,7 +286,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		sakaiRubricAssociation.add(AttributeModifier.append("config-fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
 		sakaiRubricAssociation.add(AttributeModifier.append("config-hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
 		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-		if (assignment.getId() != null) {
+		
+    if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
 		}
 		add(sakaiRubricAssociation);

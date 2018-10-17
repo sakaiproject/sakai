@@ -155,8 +155,26 @@
 				tag.onclick = handleRetractDatePopupRequest;
 			}
 		}
+
+		jQuery("#hidden_false").click(function() { toggleEmailNotification(true); });
+		jQuery("#hidden_true").click(function() { toggleEmailNotification(false); });
+
 	  return false;
 	}
+
+	function toggleEmailNotification(enable)
+	{
+		var select = jQuery("#notify");
+		var notificationsDisabledMsg = "$tlang.getString('gen.email.disabled')";
+		select.prop("disabled", !enable);
+		select.prop("title", enable ? "" : notificationsDisabledMsg);
+
+		if(!enable)
+		{
+			select.val('n');
+		}
+	}
+
 	function handleEnterKey(evt) 
 	{
 		evt = (typeof(evt)!= 'undefined') ? evt : ((typeof(event) != 'undefined') ? event : null);

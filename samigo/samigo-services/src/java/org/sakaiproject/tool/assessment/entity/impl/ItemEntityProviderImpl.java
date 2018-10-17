@@ -23,10 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.osid.assessment.Assessment;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -38,12 +35,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Entity Provider impl for samigo questions.

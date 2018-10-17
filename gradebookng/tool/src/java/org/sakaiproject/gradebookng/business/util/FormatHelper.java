@@ -197,6 +197,16 @@ public class FormatHelper {
 	}
 
 	/**
+	 * Convert an empty grade to a dash for display purposes
+	 *
+	 * @param grade
+	 * @return a dash if the grade is empty, the original grade if not
+	 */
+	public static String convertEmptyGradeToDash(final String grade) {
+		return StringUtils.defaultIfBlank(grade, " - ");
+	}
+
+	/**
 	 * Format a grade using the locale
 	 *
 	 * @param grade - string representation of a grade

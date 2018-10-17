@@ -1827,7 +1827,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         };
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
         for (Object[] o : countList) {
-            actualNumberRetakeHash.put((Long) o[0], (Integer) o[1]);
+            Long l = (Long) o[1];
+            actualNumberRetakeHash.put((Long) o[0], l.intValue());
         }
         return actualNumberRetakeHash;
     }

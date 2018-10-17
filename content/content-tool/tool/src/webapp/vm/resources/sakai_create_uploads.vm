@@ -108,7 +108,7 @@
                         #end
                         <div class="form-group">
                             <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
-                            <select name="notify" id="notify">
+                            <select name="notify" id="notify" #if($upload_visibility_hidden) title="$tlang.getString('gen.email.disabled')" disabled #end>
                                 #if ($noti)
                                     <option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("gen.email2")</option>
                                     <option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("gen.email3")</option>
