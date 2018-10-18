@@ -3560,18 +3560,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId().toString());
 				// this call happens in a separate transaction, so a rollback only affects this iteration
 				boolean success = saveOrUpdateAssessmentGrading(adata);
-				if (success && updateGrades == true) 
+				if (success && updateGrades && autoSubmitCurrent)
 				{
 					GradingService gs = new GradingService();
 					gs.updateAutosubmitEventLog(adata);
 					gs.notifyGradebookByScoringType(adata, publishedAssessment);
 				}
-				else 
+				else if (!success)
 				{
 					++failures;
 				}
 
-    			adata = null;
 	    	}catch (Exception e) {
 				++failures;
 	    		if(adata != null){
@@ -3580,6 +3579,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    			log.error(e.getMessage(), e);
 	    		}
 			}
+      finally {
+            adata = null;
+      }
 	    }
 	    
 		return failures;
