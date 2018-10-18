@@ -118,7 +118,6 @@ import org.sakaiproject.entity.api.serialize.EntityReader;
 import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
 import org.sakaiproject.entity.api.serialize.EntitySerializer;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
