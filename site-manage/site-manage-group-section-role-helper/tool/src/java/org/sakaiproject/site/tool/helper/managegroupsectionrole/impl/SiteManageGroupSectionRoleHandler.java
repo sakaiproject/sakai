@@ -698,8 +698,8 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
-			log.debug("Check if the group is locked : {}", group.isLocked());
-			if(group.isLocked()) {
+			log.debug("Check if the group is locked : {}", group.isLocked(Group.LockMode.MODIFY));
+			if(group.isLocked(Group.LockMode.MODIFY)) {
 				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 				return null;
 			}
