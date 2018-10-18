@@ -22,6 +22,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.data.rest.webmvc.version>2.6.16.RELEASE</spring.data.rest.webmvc.version>
     </properties>
 
     <dependencyManagement>
