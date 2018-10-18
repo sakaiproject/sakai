@@ -33,4 +33,8 @@
             </list>
         </property>
     </bean>
+
+    <bean id="org.springframework.hateoas.hal.HalConfiguration.rubrics"
+        class="org.springframework.hateoas.hal.HalConfiguration" />
+
 </beans>
