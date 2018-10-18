@@ -17,8 +17,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>org.sakaiproject.rubrics.RubricsApplication</start-class>
-        <rest.assured.version>2.9.0</rest.assured.version>
-        <spring.boot.version>1.5.10.RELEASE</spring.boot.version>
+        <rest.assured.version>3.1.1</rest.assured.version>
+        <spring.boot.version>1.5.17.RELEASE</spring.boot.version>
+        <thymeleaf.version>3.0.10.RELEASE</thymeleaf.version>
     </properties>
 
     <dependencies>
@@ -83,7 +84,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
-            <version>2.6.7.RELEASE</version>
+            <version>${spring.data.rest.webmvc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -111,12 +112,12 @@
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>3.0.9.RELEASE</version>
+            <version>${thymeleaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring4</artifactId>
-            <version>3.0.9.RELEASE</version>
+            <version>${thymeleaf.version}</version>
         </dependency>
         <!-- Spring AOP -->
         <dependency>
@@ -159,7 +160,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jayway.restassured</groupId>
+            <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${rest.assured.version}</version>
             <scope>test</scope>
