@@ -36,32 +36,30 @@
             </div>
           </div>
           <div class="criterion-actions">
-              <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}" entity-id="{{entityId}}"></sakai-rubric-grading-comment>
+              <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}" evaluated-item-id="{{evaluatedItemId}}" entity-id="{{entityId}}"></sakai-rubric-grading-comment>
               
               <strong class$="points-display {{isOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)}}">
                 &nbsp;
                 {{criterionitem.selectedvalue}}
                 &nbsp;
-              </strong>
-
-              
+              </strong>              
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
-                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control hide-input-arrows" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
+                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control hide-input-arrows" id="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
               </template>
-              <input type="hidden" id="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
+              <input aria-labelledby="[[lang('points','Points')]]" type="hidden" id="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
           </div>
         </div>
       </template>
     </div>
     <div class="rubric-totals">
-      <input type="hidden" id="rbcs-[[entityId]]-totalpoints" name="rbcs-[[entityId]]-totalpoints" value="{{totalPoints}}">
+      <input type="hidden" aria-labelledby="[[lang('total','Total')]]" id="rbcs-[[evaluatedItemId]]-[[entityId]]-totalpoints" name="rbcs-[[evaluatedItemId]]-[[entityId]]-totalpoints" value="{{totalPoints}}">
       <div class="total-points">
         <sr-lang key="total">Total</sr-lang>: <strong>{{totalPoints}}</strong>
       </div>
     </div>
 
-    <input name="rbcs-[[entityId]]-state-details" id="rbcs-[[entityId]]-state-details" type="hidden" value="[[stateDetails]]">
+    <input aria-labelledby="[[lang('rubric','rubric')]]" name="rbcs-[[evaluatedItemId]]-[[entityId]]-state-details" id="rbcs-[[evaluatedItemId]]-[[entityId]]-state-details" type="hidden" value="[[stateDetails]]">
 
   </template>
     
@@ -117,6 +115,9 @@
           type: Array,
         },
         entityId: {
+          type: String,
+        },
+        evaluatedItemId: {
           type: String,
         }
       },

@@ -51,24 +51,93 @@ function downloadAll(url){
 	window.location = url;
 }
 
-function hiddenLinkOnClick(){
-	alert('here111!');
-
-	for (i=0; i<document.links.length; i++) {
-		  if(document.links[i].id == 'editTotalResults:hiddenlink')
-		  {
-		    newindex = i;
-		    alert('newindex=' + newindex);
-		    break;
-		  }
-		}
-
-		document.links[newindex].onclick();
-		alert('here111 end!');
-	//document.getElementById['editTotalResults:hiddenlink'].click();
-}
-
 </script>
+<script>
+// RUBRICS CODE
+  var rubricChanged = false;
+  rubricsEventHandlers = function() {
+    $('body').on('rubrics-event', function(e, payload){	
+      var itemId = $(e.target).parent().attr("item-id");
+      if (payload.event == "total-points-updated") {
+        handleRubricsTotalPointChange(itemId, payload.value);
+      }
+      if (payload.event == "rubric-ratings-changed") {
+        rubricChanged = true;
+      }
+    });
+     console.log('Rubrics event handlers loaded');
+  }
+  
+  // handles point changes for assignments, updating the grade field if it exists.
+  handleRubricsTotalPointChange = function(itemId, points) {
+    var gradeField = $('.adjustedScore' + itemId);
+    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || rubricChanged)) {
+      gradeField.val(points);
+    }
+  }
+
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-grading.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = <h:outputText value="'#{submissionStatus.rbcsToken}'"/>;
+  rubricsEventHandlers();
+  //opens rubric modal
+  function initRubricDialog(itemId) {
+	var modalId = "modal"+itemId;
+	var previousScore =  $('.adjustedScore' + itemId).val();
+	var modalclonedid = modalId+'cloned';
+	var cloned;
+	if($('#'+modalclonedid).length>0){
+		cloned = $('#'+modalclonedid);
+	} else {
+		cloned = $('#'+modalId).clone().attr('id',modalclonedid);
+	}
+	cloned.dialog({
+		modal: true,
+		buttons: [{
+			text:<h:outputText value="'#{evaluationMessages.saver}'"/>,
+			click: function () {
+				$(this).dialog("close");
+            }},{
+				text: <h:outputText value="'#{evaluationMessages.cancel}'"/>,
+				click: function () {
+				$(this).dialog("close");
+					cloned.remove();                
+					$('.adjustedScore' + itemId).val(previousScore);				
+				}                    
+			}],	 
+		height: "auto",
+		margin: 100,
+		width: 1100,
+		title: <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+	});
+  }
+  $(document).ready(function() {
+	//set back the values from the modals to the hidden inputs
+	$('#editTotalResults').submit(function (e){
+		$('[id$=cloned').each(function(){
+			var modId = $(this).attr('id').replace('cloned','');
+			$(this).find('input').each(function() {
+				var name = $(this).attr('name');
+				$('#'+modId+ ' [name="' + name + '"]').val($(this).val());			
+			});
+			var myregex = /\|[^\|]*\|/g;
+			$(this).find('textarea').each(function () {
+				for( var instance in CKEDITOR.instances){
+					var ckname = CKEDITOR.instances[instance].name.replace(myregex, '');
+					var textareaid = $(this).attr('id').replace(myregex, '');
+					if(ckname == textareaid){
+						CKEDITOR.instances[instance].setData($(this).val());
+					}
+				}
+			});
+		});
+	});
+  });
+</script>
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 
 <!-- content... -->
 <div class="portletBody container-fluid">
@@ -877,11 +946,14 @@ function hiddenLinkOnClick(){
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.totalAutoScore}" size="5" id="qscore" required="false" onchange="toPoint(this.id);">
-<f:validateDoubleRange/>
-</h:inputText>
-<br />
- <h:message for="qscore" style="color:red"/>
+      <h:inputText value="#{description.totalAutoScore}" size="5" id="qscore" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">	  
+        <f:validateDoubleRange/>
+      </h:inputText>
+      <h:message for="qscore" style="color:red"/>
+       <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
+        <h:outputText styleClass="fa fa-table" id="rubrics-question-icon1" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+      </h:outputLink>
+      <%@ include file="/jsf/evaluation/rubricModal.jsp" %> 
  </h:column>
  
  
@@ -897,10 +969,14 @@ function hiddenLinkOnClick(){
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore2" required="false" onchange="toPoint(this.id);">
+	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore2" styleClass="adjustedScore#{description.assessmentGradingId}"  required="false" onchange="toPoint(this.id);">
 	  	<f:validateDoubleRange/>
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
+	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
+	  	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon2" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	  </h:outputLink>
+	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'totalAutoScore' && !questionScores.sortAscending}">
@@ -915,12 +991,15 @@ function hiddenLinkOnClick(){
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore3" required="false" onchange="toPoint(this.id);">
+	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore3" styleClass="adjustedScore#{description.assessmentGradingId}" required="false" onchange="toPoint(this.id);">
 	  	<f:validateDoubleRange/>
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
-    </h:column>    
- 
+	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
+	  	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon3" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
+	  </h:outputLink>
+	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
+    </h:column>
 
     <!-- ANSWER -->
     <h:column rendered="#{questionScores.sortType!='answer'}">

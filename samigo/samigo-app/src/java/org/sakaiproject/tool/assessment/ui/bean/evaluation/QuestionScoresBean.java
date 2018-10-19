@@ -118,6 +118,10 @@ public class QuestionScoresBean
 
     private String showTagsInEvaluationStyle;
 
+  // Rubrics
+  private String rubricStateDetails;
+  private boolean hasAssociatedRubric;
+
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -990,4 +994,20 @@ public void clear(ActionEvent event) {
     public void setShowTagsInEvaluationStyle(String showTagsInEvaluationStyle) {
         this.showTagsInEvaluationStyle = showTagsInEvaluationStyle;
     }
+
+	public String getRubricStateDetails() {
+		return rubricStateDetails;
+	}
+
+	public void setRubricStateDetails(String rubricStateDetails) {
+		this.rubricStateDetails = rubricStateDetails;
+	}
+
+	public boolean isHasAssociatedRubric() {
+		return hasAssociatedRubric;
+	}
+
+	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
+		this.hasAssociatedRubric = hasAssociatedRubric;
+	}
 }

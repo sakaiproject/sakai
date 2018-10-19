@@ -29,12 +29,15 @@ public class ParameterUtil {
      * @param entityId Entity ID of a rubric association
      * @return Map of parameters key and parameters value
      */
-    public Map<String,String> getRubricConfigurationParameters(String entityId) {
+    public Map<String,String> getRubricConfigurationParameters(String entityId, String evaluatedItemId) {
         FacesContext context = FacesContext.getCurrentInstance();
         Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
         Map<String, String> list = new HashMap<>();
 
         String entity = RubricsConstants.RBCS_PREFIX;
+        if (evaluatedItemId != null && !evaluatedItemId.isEmpty()) {
+            entity += evaluatedItemId + "-";
+        }
         if (entityId != null && !entityId.isEmpty()) {
             entity += entityId + "-";
         }
