@@ -70,13 +70,13 @@
 		String stateDetails = forumTool.getRbcsStateDetails();
 		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
 		String entityId = forumTool.getRubricAssociationUuid();
-		String rbcsEvaluationId = "";
+		String rbcsEvaluationId = userId+".";
 		if (forumTool.getSelectedMessage() != null) {
-			rbcsEvaluationId = forumTool.getSelectedMessage().getMessage().getUuid();
+			rbcsEvaluationId += forumTool.getSelectedMessage().getMessage().getUuid();
 		} else if (forumTool.getSelectedTopic() != null) {
-			rbcsEvaluationId = forumTool.getSelectedTopic().getTopic().getUuid();
+			rbcsEvaluationId += forumTool.getSelectedTopic().getTopic().getUuid();
 		} else {
-			rbcsEvaluationId = forumTool.getSelectedForum().getForum().getUuid();
+			rbcsEvaluationId += forumTool.getSelectedForum().getForum().getUuid();
 		}
 		%>
 		
