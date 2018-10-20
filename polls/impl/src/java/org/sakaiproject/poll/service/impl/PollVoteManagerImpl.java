@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -40,24 +41,12 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 
 @Slf4j
+@Setter
 public class PollVoteManagerImpl implements PollVoteManager {
 
 	private ExternalLogic externalLogic;    
-	public void setExternalLogic(ExternalLogic externalLogic) {
-		this.externalLogic = externalLogic;
-	}
-
-
 	private PollDao dao;
-	public void setDao(PollDao dao) {
-		this.dao = dao;
-	}
-
 	private PollListManager pollListManager;
-	public void setPollListManager(PollListManager pollListManaver) {
-		this.pollListManager = pollListManaver;
-	}
-
 
 	public void saveVoteList(List<Vote> votes) {
 		Long pollId = null;
@@ -83,7 +72,6 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		List<Vote> votes = dao.findBySearch(Vote.class, search); 
 		return votes;
 	}
-
 
 	public List<Vote> getAllVotesForOption(Option option) {
 
@@ -236,7 +224,6 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 		return false;
 	}
-
 
 	public void deleteVote(Vote vote) {
 		dao.delete(vote);

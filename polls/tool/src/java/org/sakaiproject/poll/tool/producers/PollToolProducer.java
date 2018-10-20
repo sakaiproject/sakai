@@ -239,7 +239,7 @@ DefaultView,NavigationCaseReporter {
 				poll.setOptions(pollListManager.getOptionsForPoll(poll.getPollId()));
 				
 				//is this not votable because of no options?
-				if (poll.getPollOptions().size() == 0 )
+				if (poll.getOptions().size() == 0 )
 					UIOutput.make(pollrow,"poll-text",poll.getText() + " (" + messageLocator.getMessage("poll_no_options") + ")");
 				else
 					UIOutput.make(pollrow,"poll-text",poll.getText());
