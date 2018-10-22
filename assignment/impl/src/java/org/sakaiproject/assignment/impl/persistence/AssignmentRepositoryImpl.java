@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.hibernate.Criteria;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -31,8 +33,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -133,6 +133,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Transactional
     public void updateSubmission(AssignmentSubmission submission) {
         if (existsSubmission(submission.getId())) {
+            submission.setDateModified(Instant.now());
             sessionFactory.getCurrentSession().merge(submission);
         }
     }
@@ -147,10 +148,15 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public AssignmentSubmission newSubmission(String assignmentId, Optional<String> groupId, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
         Assignment assignment = findAssignment(assignmentId);
         if (assignment != null) {
+            Session session = sessionFactory.getCurrentSession();
+            // Since this transaction is going to add a submission to the assignment we lock the assignment
+            // the lock is freed once transaction is committed or rolled back
+            session.buildLockRequest(LockOptions.UPGRADE).setLockMode(LockMode.PESSIMISTIC_WRITE).lock(assignment);
+
             AssignmentSubmission submission = new AssignmentSubmission();
             submission.setDateCreated(Instant.now());
             submitters.ifPresent(submission::setSubmitters);
@@ -163,7 +169,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             submission.setAssignment(assignment);
             assignment.getSubmissions().add(submission);
 
-            sessionFactory.getCurrentSession().persist(assignment);
+            session.persist(assignment);
             return submission;
         }
         return null;
