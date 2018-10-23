@@ -17,6 +17,24 @@ div#questionProgressPanel>div.tier1>table>tbody>tr {
 div#questionProgressPanel>div.tier1>table>tbody>tr:hover {
   background: #bcd8ff;
 }
+table.table.stat-table {
+  margin-bottom: 0;
+}
+span.progress-num {
+  padding-left: 2px;
+  color: #000;
+  font-weight: bold;
+}
+.progress {
+  margin-bottom: 0;
+}
+.progress-bar {
+  background-color: #70A7D7;
+  border-right: 1px solid #000;
+}
+.progress-bar-success {
+  background-color: #5cb85c;
+}
 .samigo-subheading {
   font-weight: 400;
   border-bottom: 1px solid #999;
