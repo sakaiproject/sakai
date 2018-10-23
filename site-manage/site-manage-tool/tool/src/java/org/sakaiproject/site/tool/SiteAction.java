@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -664,9 +663,6 @@ public class SiteAction extends PagedResourceActionII {
 	public static final String STATE_SITE_PARTICIPANT_FILTER = "site_participant_filter";
 
 	private boolean warnedNoSubjectCategory = false;
-
-	// the string marks the protocol part in url
-	private static final String PROTOCOL_STRING = "://";
 	
 	/**
 	 * {@link org.sakaiproject.component.api.ServerConfigurationService} property.
@@ -10655,28 +10651,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");
 		}
-		String skin = params.getString("skin"); 	 
-		if (skin != null) { 	 
-			// if there is a skin input for course site 	 
-			skin = StringUtils.trimToNull(skin);
-			siteInfo.iconUrl = skin; 	 
-		} else { 	 
-			// if ther is a icon input for non-course site 	 
-			String icon = StringUtils.trimToNull(params.getString("icon")); 	 
-			if (icon != null) { 	 
-				if (icon.endsWith(PROTOCOL_STRING)) { 	 
-					addAlert(state, rb.getString("alert.protocol")); 	 
-				} 	 
-				siteInfo.iconUrl = icon; 	 
-			} else { 	 
-				siteInfo.iconUrl = "";
-			} 	 
-		} 	 
 		if (params.getString("additional") != null) {
 			siteInfo.additional = params.getString("additional");
 		}
-		if (params.getString("iconUrl") != null) {
-			siteInfo.iconUrl = params.getString("iconUrl");
+		String icon = params.getString("iconUrl");
+		if (icon != null) {
+			if (!(icon.isEmpty() || FormattedText.validateURL(icon))) {
+				addAlert(state, rb.getString("alert.protocol"));
+			}
+			siteInfo.iconUrl = icon;
 		} else if (params.getString("skin") != null) {
 			siteInfo.iconUrl = params.getString("skin");
 		}
