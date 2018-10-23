@@ -86,7 +86,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         }
         checkOptionPermission(userReference, option);
         // set default values
-        option.setUUId( UUID.randomUUID().toString() );
+        option.setUuid( UUID.randomUUID().toString() );
         boolean saved = pollListManager.saveOption(option);
         if (!saved) {
             throw new IllegalStateException("Unable to save option ("+option+") for user ("+userReference+"): " + ref);

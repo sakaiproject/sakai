@@ -83,16 +83,16 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
     	//we shouldNot find this poll
     	Poll pollFail = pollListManager.getPollById(Long.valueOf(9999999));
     	Assert.assertNull(pollFail);
-    	
+
     	//this one should exist -- the preload saves one poll and remembers its ID
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	Poll poll1 = pollListManager.getPollById(tdp.getFirstPollId());
     	Assert.assertNotNull(poll1);
-    	
+
     	//it should have options
-    	Assert.assertNotNull(poll1.getPollOptions());
-    	Assert.assertTrue(poll1.getPollOptions().size() > 0);
-    	
+    	Assert.assertNotNull(poll1.getOptions());
+    	Assert.assertTrue(poll1.getOptions().size() > 0);
+
     	//we expect this one to fails
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
 		try {
@@ -133,7 +133,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		
 		Poll poll2 = pollListManager.getPollById(poll1.getPollId());
 		Assert.assertNotNull(poll2);
-		Assert.assertEquals(poll1.getPollText(), poll2.getPollText());
+		Assert.assertEquals(poll1.getText(), poll2.getText());
 		
 		//TODO add failure cases - null parameters
 		
