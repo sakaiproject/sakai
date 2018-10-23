@@ -67,7 +67,7 @@
 			styleClass="listHier lines nolines"
 			expanded="true"
 			rowClasses="#{overviewBean.rowStyles}"
-			headerClasses="attach,left,center,center,center,center,center,center,center,external,center">
+			headerClasses="categoryIcon,left,center,center,center,center,center,center,center,external,center">
 			
 			<h:column id="_toggle" rendered="#{overviewBean.categoriesEnabled}">
 				<f:facet name="header">

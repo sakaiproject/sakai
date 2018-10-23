@@ -57,6 +57,8 @@ th.center {white-space:nowrap; text-align:center !important; padding-left: 1.0em
 th.right {white-space:nowrap; text-align: right;}
 th.comments {width: 16em;}
 
+th.categoryIcon { width: 1.5em; }
+
 /* Most but not all tables are shown 100% width in the spec. */
 table.wideTable {
 	width:100%;
