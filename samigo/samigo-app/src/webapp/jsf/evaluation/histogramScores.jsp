@@ -158,7 +158,7 @@ $Id$
         <strong><h:outputText value="#{evaluationMessages.tot}" /></strong>
       </div>
       <div class="table-reponsive">
-        <h:dataTable styleClass="table table-condensed" value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
+        <h:dataTable styleClass="table table-condensed stat-table" value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
           <h:column>
             <f:facet name="header">
               <h:outputText escape="false" value="#{evaluationMessages.num_points}" /> 
@@ -172,7 +172,9 @@ $Id$
             <h:panelGroup>
               <div class="progress">
                 <h:outputText value="<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
-                  <h:outputText value="#{bar.numStudents}" />
+                <span class="progress-num">
+                    <h:outputText value="#{bar.numStudents}" />
+                </span>
                 </div>
               </div>
             </h:panelGroup>
@@ -286,7 +288,9 @@ $Id$
                 <div class="progress">
                   <h:outputText rendered="#{bar.isCorrect}" value="<div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
                   <h:outputText rendered="#{!bar.isCorrect}" value="<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
-                    <h:outputText value="#{bar.numStudentsText}" />
+                    <span class="progress-num">
+                      <h:outputText value="#{bar.numStudentsText}" />
+                    </span>
                   </div>
                 </div>
                 <div class="num-students-text hide">
