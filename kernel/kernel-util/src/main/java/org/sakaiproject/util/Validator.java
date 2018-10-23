@@ -96,6 +96,8 @@ public class Validator
 	/** Valid special email local id characters (- those that are invalid resource ids) */
 	protected static final String VALID_EMAIL = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$&'*+-=?^_`{|}~.";
 
+	protected static final String INVALID_CHARS_IN_FILENAME = "[\\/:\"*?<>|]+";
+
 	/**
 	 * Escape a plaintext string so that it can be output as part of an HTML document. Amperstand, greater-than, less-than, newlines, etc, will be escaped so that they display (instead of being interpreted as formatting).
 	 * 
@@ -922,5 +924,31 @@ public class Validator
 		}
 		if ( sb.length() < 1 ) return null;
 		return sb.substring(0, sb.length()-1);
+	}
+
+	/**
+	 * Return a safe filename by replacing all whitespace and invalid characters
+	 *
+	 * @param filename
+	 *        The string to clean
+	 * @return safe filename string
+	 */
+	public static String cleanFilename(String filename) {
+		// replace all whitespace
+		String cleanFilename = filename.replaceAll("\\s", "_");
+
+		// replace all invalid characters
+		final int len = cleanFilename.length();
+		StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			char c = cleanFilename.charAt(i);
+			if (INVALID_CHARS_IN_FILENAME.indexOf(c) != -1) {
+				buf.append("_");
+			} else {
+				buf.append(c);
+			}
+		}
+
+		return buf.toString();
 	}
 }
