@@ -193,6 +193,7 @@
 			</bean>
 		</property>
 		<property name="searchAliases"><value>false</value></property>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		
 	</bean>
 			
