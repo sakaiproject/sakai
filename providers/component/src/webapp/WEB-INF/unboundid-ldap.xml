@@ -135,6 +135,15 @@
 			<value>10</value>
 		</property -->
 
+		<!-- Specifies whether attempts to process operations should be retried on a
+		     newly-created connection if the initial attempt fails in a manner that
+		     indicates that the connection used to process that request may no longer
+		     be valid. May help with networks that close idle connections
+		     Defaults to UnboundidDirectoryProvider.DEFAULT_RETRY_FAILED_OPERATIONS_DUE_TO_INVALID_CONNECTIONS (false) -->
+		<!-- property name="retryFailedOperationsDueToInvalidConnections">
+			<value>false</value>
+		</property -->
+
 		<!-- Optional. Size of batch when loading multiple users at once.
 		     Defaults to DEFAULT_BATCH_SIZE = 200 -->
 		<!-- property name="batchSize">
