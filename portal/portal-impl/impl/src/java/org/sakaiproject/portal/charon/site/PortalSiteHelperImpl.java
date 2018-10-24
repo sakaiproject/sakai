@@ -460,7 +460,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						.equals(myWorkspaceSiteId))));
 		
 		String siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
-		String siteTitle = Validator.escapeHtml(getUserSpecificSiteTitle(s, false, false, siteProviders));
+		String siteTitle = Validator.escapeHtml(siteTitleRaw);
 		String siteTitleTruncated = Validator.escapeHtml(FormattedText.makeShortenedText(siteTitleRaw, null, null, null));
 		m.put("siteTitle", siteTitle);
 		m.put("siteTitleTrunc", siteTitleTruncated);
