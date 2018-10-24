@@ -287,6 +287,11 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
 
         getLog().info("Initializing ElasticSearch index builder [" + getName() + "]...");
 
+        String indexNamespace = serverConfigurationService.getString("search.indexNamespace", null);
+        if (StringUtils.isNotBlank(indexNamespace)) {
+            this.indexName = indexNamespace + "_" + this.indexName;
+        }
+
         this.eventRegistrar = eventRegistrar;
         this.client = client;
 
