@@ -76,7 +76,7 @@ public class MessageBundleProperty {
     @Column(name = "LOCALE", length = 32, nullable = false)
     private String locale;
 
-    @Column(name = "PROP_NAME", length = 350, nullable = false)
+    @Column(name = "PROP_NAME", length = 250, nullable = false)
     private String propertyName;
 
     @Lob
