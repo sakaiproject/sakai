@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -177,16 +178,9 @@ public class BeginDeliveryActionListener implements ActionListener
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
 
-    FacesContext context = FacesContext.getCurrentInstance();
-    ExternalContext external = context.getExternalContext();
-    String paramValue = ((Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX")).toString();
-    Long sizeMax = null;
-    float sizeMax_float = 0f;
-    if (paramValue != null) {
-    	sizeMax = Long.parseLong(paramValue);
-    	sizeMax_float = sizeMax.floatValue()/1024;
-    }
-    delivery.setFileUploadSizeMax(Math.round(sizeMax_float));
+    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+    Long sizeMax = Long.valueOf(serverConfigurationService.getInt("samigo.sizeMax", 40960));
+    delivery.setFileUploadSizeMax(Math.round(sizeMax.floatValue()/1024));
     delivery.setPublishedAssessment(pub);
 
     // populate backing bean from published assessment
