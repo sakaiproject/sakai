@@ -615,9 +615,9 @@
 							</tr>
 
 							<!-- end peer assessment overview row -->
-							<!-- peer assessment items rows->
+							<!-- peer assessment items rows -->
 							#if ($!submission && $!service.isPeerAssessmentOpen($!assignment) && $!reviews)
-								<!-- peer assessment is open and user has submitted, show item details
+								<!-- peer assessment is open and user has submitted, show item details -->
 								#set ($reviewCount = 0)
 								#foreach ($review in $reviews)
 									#set ($reviewCount = $reviewCount + 1)
@@ -676,7 +676,7 @@
 									</tr>
 								#end
 							#end
-						<!-- End peer assessment items rows->
+						<!-- End peer assessment items rows -->
 
 						<!-- End Peer assessment rows -->
 						#end
