@@ -111,6 +111,7 @@
           this.item = this.rubric;
           this.type = "rubric";
           this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id;
+          addClass(this.$$('iron-icon'), 'rubric-delete-icon');
         } else {
           this.item = this.criterion;
           this.type = "criterion";
