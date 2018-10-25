@@ -52,5 +52,10 @@
           init-method="init">
         <property name="sessionFactory" ref="sessionFactory"/>
         <property name="scheduleSaves" value="false"/>
+        <property name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <property name="transactionManager" ref="transactionManager"/>
+            </bean>
+        </property>
     </bean>
  </beans>

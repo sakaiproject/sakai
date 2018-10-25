@@ -58,6 +58,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 	
 	public void destroy() {
+		super.destroy();
 		cache.close();
 		cache = null;
 	}
