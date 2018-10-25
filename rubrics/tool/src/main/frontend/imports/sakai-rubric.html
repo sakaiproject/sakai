@@ -28,10 +28,19 @@
       <div><span>[[rubric.metadata.modified]]</span></div>
 
       <div class="actions">
-        <iron-icon role="button" title="[[lang(shareTitleKey, shareTitle)]] [[rubric.title]]" tabindex="0" class="share" icon$="rubrics-icons:{{shareicon}}" on-tap="sharingChange"></iron-icon>
-        <iron-icon role="button" title="[[lang('clone', 'Clone')]] [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="cloneRubric"></iron-icon>
+        <div class="action-container">
+          <span class="hidden-sm hidden-xs"><sr-lang key="share_label">share_label</sr-lang> </span>
+          <iron-icon role="button" title="[[lang(shareTitleKey, shareTitle, shareValues)]]" tabindex="0" class="share" icon$="rubrics-icons:{{shareicon}}" on-tap="sharingChange"></iron-icon>
+        </div>
+        <div class="action-container">
+          <span class="hidden-sm hidden-xs"><sr-lang key="clone_label">clone_label</sr-lang> </span>
+          <iron-icon role="button" title="[[lang('clone', 'Clone')]] [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="cloneRubric"></iron-icon>
+        </div>
         <template is="dom-if" if="[[!rubric.metadata.locked]]">
-          <sakai-rubric-delete rubric="{{rubric}}"></sakai-rubric-delete>
+          <div class="action-container">
+            <span class="hidden-sm hidden-xs"><sr-lang key="remove_label">remove_label</sr-lang> </span>
+            <sakai-rubric-delete rubric="{{rubric}}" class="sakai-rubric"></sakai-rubric-delete>
+          </div>
         </template>
       </div>
     </div>
@@ -164,14 +173,15 @@
       },
       handleShareLink: function() {
         if (this.rubric.metadata.public) {
-          this.shareTitle = "Revoke sharing for"
-          this.shareTitleKey = "revoke"
+          this.shareTitle = "Revoke sharing for " + this.rubric.title;
+          this.shareTitleKey = "revoke";
           this.shareicon = "unshare";
         } else {
-          this.shareTitle = "Share"
-          this.shareTitleKey = "share"
+          this.shareTitle = "Share " + this.rubric.title;
+          this.shareTitleKey = "share";
           this.shareicon = "share";
         }
+        this.shareValues = [this.rubric.title];
       },
       ready: function() {
         this.rubricExpanded = "false";
