@@ -26,18 +26,27 @@
   .rubric-title .rubric-name {
     cursor: default;
     color: #0093b8; }
-  .rubric-title iron-icon:not(.collpase-icon), .rubric-title sakai-rubric-edit, .rubric-title sakai-rubric-delete {
-    display: none; }
   .rubric-title:hover, .rubric-title.active, .rubric-title:focus {
     background: #ced5e0; }
-    .rubric-title:hover iron-icon:not(.collpase-icon), .rubric-title:hover sakai-rubric-edit, .rubric-title:hover sakai-rubric-delete, .rubric-title.active iron-icon:not(.collpase-icon), .rubric-title.active sakai-rubric-edit, .rubric-title.active sakai-rubric-delete, .rubric-title:focus iron-icon:not(.collpase-icon), .rubric-title:focus sakai-rubric-edit, .rubric-title:focus sakai-rubric-delete {
-      display: inline-block; }
   .rubric-title iron-icon.locked {
     display: inline-block; }
   .rubric-title .edit {
     margin-left: 10px; }
   .rubric-title .actions {
-    width: 100px; }
+    width: 100px;
+    float: right; }
+    .rubric-title .actions .action-container {
+      display: inline-block; }
+      @media only screen and (min-width: 992px) {
+        .rubric-title .actions .action-container {
+          padding-left: 6px;
+          padding-right: 10px;
+          border-right: 2px solid #e4e4e6; }
+          .rubric-title .actions .action-container > span {
+            font-weight: normal; }
+          .rubric-title .actions .action-container:last-of-type {
+            padding-right: 0;
+            border-right: 0; } }
 
 #site-rubrics-title {
   display: flex;

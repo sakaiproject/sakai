@@ -28,15 +28,8 @@
     cursor: default;
     color: #0093b8;
   }
-
-  iron-icon:not(.collpase-icon), sakai-rubric-edit, sakai-rubric-delete {
-    display: none;
-  }
   &:hover, &.active, &:focus {
     background: #ced5e0;
-    iron-icon:not(.collpase-icon), sakai-rubric-edit, sakai-rubric-delete {
-      display: inline-block;
-    }
   }
   iron-icon.locked {
     display: inline-block;
@@ -46,6 +39,22 @@
   }
   .actions {
     width: 100px;
+    float: right;
+    .action-container {
+      display: inline-block;
+      @media only screen and (min-width : 992px) {
+        padding-left: 6px;
+        padding-right: 10px;
+        border-right: 2px solid #e4e4e6;
+        > span {
+          font-weight: normal;
+        }
+        &:last-of-type {
+          padding-right: 0;
+          border-right: 0;
+        }
+      }
+    }
   }
 }
 

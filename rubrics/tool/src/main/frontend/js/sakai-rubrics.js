@@ -151,8 +151,15 @@ var rubrics = {
     }
   },
   behaviors: {
-    lang: function(key, backup) {
-      return rubrics.i18n(key, backup);
+    lang: function(key, backup, values) {
+      var translation = rubrics.i18n(key, backup);
+
+      if(translation && values !== undefined ){
+        for (var i in values) {
+          translation = translation.replace("{}", typeof values[i] === "string" ? values[i] : "" );
+        }
+      }
+      return translation;
     },
     checkForEnter: function (e) {
         // check if 'enter' was pressed
