@@ -38,7 +38,7 @@
           <div class="criterion-actions">
               <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}" entity-id="{{entityId}}"></sakai-rubric-grading-comment>
               
-              <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
+              <strong class$="points-display {{isOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)}}">
                 &nbsp;
                 {{criterionitem.selectedvalue}}
                 &nbsp;
@@ -47,7 +47,7 @@
               
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
-                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control hide-input-arrows" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.selectedvalue}}">
+                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control hide-input-arrows" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
               </template>
               <input type="hidden" id="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
           </div>
@@ -202,13 +202,12 @@
         this.updateTotalPoints();
 
       },
-      isOverridden: function(ovrdvl) {
-        if (ovrdvl || ovrdvl === 0) {
+      isOverridden: function(ovrdvl,selected) {
+        if ((ovrdvl || ovrdvl === 0) && (parseInt(ovrdvl) !== parseInt(selected))) {
           return 'strike';
         } else {
           return '';
         }
-        
       },
       selectRating: function(e) {
         var cindex = this.$.criterion.indexForElement(e.target);
@@ -217,9 +216,8 @@
 
         this.set('criterions.' + cindex + '.selectedvalue', critem.points);
         this.set('criterions.' + cindex + '.selectedRadingId', critem.id);
-        
-        
-        
+        this.set('criterions.' + cindex + '.pointoverride', critem.points.toString());
+
         var items = this.$$('#criterion_row_'+citem.id).querySelectorAll('.rating-item');
         var item = this.$$('#rating_item_'+critem.id);
         if (hasClass(item, 'selected')) {
