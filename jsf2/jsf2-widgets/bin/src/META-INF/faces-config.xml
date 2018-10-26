@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+
+<!-- This registers the Sakai 13.x JSF widgets (Tags, Components, and Renderers) -->
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+    version="2.3">
+
+  <!-- =================== Components ============== -->
+
+  <component>
+    <component-type>org.sakaiproject.ButtonBar</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ButtonBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.GroupBox</component-type>
+    <component-class>org.sakaiproject.jsf2.component.GroupBoxComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InstructionMessage</component-type>
+    <component-class>org.sakaiproject.jsf2.component.InstructionMessageComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.PanelEdit</component-type>
+    <component-class>org.sakaiproject.jsf2.component.PanelEditComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ToolBar</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ToolBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ToolBarMessage</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ToolBarMessageComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.View</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ViewComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ViewTitle</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ViewTitleComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.SeparatedList</component-type>
+    <component-class>org.sakaiproject.jsf2.component.SeparatedListComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InputRichText</component-type>
+    <component-class>org.sakaiproject.jsf2.component.InputRichTextComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.DocSection</component-type>
+    <component-class>org.sakaiproject.jsf2.component.DocSectionComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.JsfContentTypeMap</component-type>
+    <component-class>org.sakaiproject.jsf2.component.JsfContentTypeMapComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.PanelTitled</component-type>
+    <component-class>org.sakaiproject.jsf2.component.PanelTitledComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.ViewContent</component-type>
+    <component-class>org.sakaiproject.jsf2.component.ViewContentComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InputDate</component-type>
+    <component-class>org.sakaiproject.jsf2.component.InputDateComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.InputFileUpload</component-type>
+    <component-class>org.sakaiproject.jsf2.component.InputFileUploadComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.TimerBar</component-type>
+    <component-class>org.sakaiproject.jsf2.component.TimerBarComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.Pager</component-type>
+    <component-class>org.sakaiproject.jsf2.component.PagerComponent</component-class>
+  </component>
+
+  <component>
+    <component-type>org.sakaiproject.FlowState</component-type>
+    <component-class>org.sakaiproject.jsf2.component.FlowStateComponent</component-class>
+  </component>
+
+  <!-- =================== Renderers ============== -->
+
+  <render-kit>
+
+    <renderer>
+      <component-family>org.sakaiproject.ButtonBar</component-family>
+      <renderer-type>org.sakaiproject.ButtonBar</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ButtonBarRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.GroupBox</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.GroupBoxRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.InstructionMessage</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.InstructionMessageRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>org.sakaiproject.ToolBar</component-family>
+      <renderer-type>org.sakaiproject.ToolBar</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ToolBarRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.ToolBarMessage</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ToolBarMessageRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.View</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ViewRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.ViewTitle</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ViewTitleRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+        <component-family>javax.faces.Output</component-family>
+        <renderer-type>org.sakaiproject.SeparatedList</renderer-type>
+        <renderer-class>org.sakaiproject.jsf2.renderer.SeparatedListRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+        <component-family>javax.faces.Input</component-family>
+        <renderer-type>org.sakaiproject.Pager</renderer-type>
+        <renderer-class>org.sakaiproject.jsf2.renderer.PagerRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>org.sakaiproject.InputRichText</component-family>
+      <renderer-type>org.sakaiproject.InputRichText</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.InputRichTextRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.DocSection</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.DocSectionRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+        <component-family>javax.faces.Output</component-family>
+        <renderer-type>org.sakaiproject.JsfContentTypeMap</renderer-type>
+        <renderer-class>org.sakaiproject.jsf2.renderer.JsfContentTypeMapRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>org.sakaiproject.ViewContent</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.ViewContentRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>org.sakaiproject.InputDate</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.InputDateRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>org.sakaiproject.InputFileUpload</renderer-type>
+      <renderer-class>org.sakaiproject.jsf2.renderer.InputFileUploadRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+       <component-family>javax.faces.Output</component-family>
+       <renderer-type>org.sakaiproject.TimerBar</renderer-type>
+       <renderer-class>org.sakaiproject.jsf2.renderer.TimerBarRenderer</renderer-class>
+    </renderer>
+
+  </render-kit>
+
+</faces-config>

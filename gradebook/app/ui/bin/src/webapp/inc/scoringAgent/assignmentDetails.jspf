@@ -1,0 +1,56 @@
+<h:column
+	rendered="#{assignmentDetailsBean.scoringAgentEnabled && assignmentDetailsBean.scoringAgentData.scoringComponentEnabled && !assignmentDetailsBean.emptyEnrollments}">
+	<f:facet name="header">
+		<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}">
+			<h:outputLink id="gradeAll" value="#"
+				onclick='showPopup(encodeUrl(\"#{assignmentDetailsBean.scoringAgentData.scoreAllUrl}\")); return false;'>
+				<h:graphicImage
+					value="#{assignmentDetailsBean.scoringAgentData.scoringAgentImageRef}"
+					alt="#{assignmentDetailsBean.scoringAgentData.gradeAllWithScoringAgentText}"
+					title="#{assignmentDetailsBean.scoringAgentData.gradeAllWithScoringAgentText}" />
+			</h:outputLink>
+			<f:verbatim> / </f:verbatim>
+			<h:outputLink id="refreshAll" value="#"
+				onclick='refreshAllScores(\"#{assignmentDetailsBean.scoringAgentData.retrieveScoresUrl}\", \"#{msgs.refreshAllReminder}\");'>
+				<h:graphicImage
+					value="/../library/image/silk/arrow_refresh-blue.png"
+					alt="#{assignmentDetailsBean.scoringAgentData.refreshAllGradesText}"
+					title="#{assignmentDetailsBean.scoringAgentData.refreshAllGradesText}" />
+			</h:outputLink>
+
+		</h:panelGroup>
+	</f:facet>
+	
+	<h:outputLink id="grade" value="#"
+		onclick='showPopup(encodeUrl(\"#{scoreRow.scoringComponentUrl}\")); renderLinkUpdate(this.id, event,\"#{msgs.refreshReminder}\"); return false;'
+		rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
+		<h:graphicImage
+			value="#{assignmentDetailsBean.scoringAgentData.scoringAgentImageRef}"
+			alt="#{assignmentDetailsBean.scoringAgentData.gradeWithScoringAgentText}"
+			title="#{assignmentDetailsBean.scoringAgentData.gradeWithScoringAgentText}" />
+	</h:outputLink>
+
+	<h:outputLink id="viewgrade" value="#"
+		onclick='showPopup(encodeUrl(\"#{scoreRow.scoringComponentUrl}\")); return false;'
+		rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
+		<h:graphicImage
+			value="#{assignmentDetailsBean.scoringAgentData.scoringAgentImageRef}"
+			alt="#{assignmentDetailsBean.scoringAgentData.viewWithScoringAgentText}"
+			title="#{assignmentDetailsBean.scoringAgentData.viewWithScoringAgentText}" />
+	</h:outputLink>
+
+	<f:verbatim>&nbsp;&nbsp;</f:verbatim>
+
+	<h:outputLink id="getgrade" value="#"
+		onclick='refreshGrade(getScoreTextBoxId(this.id), \"#{scoreRow.retrieveScoreUrl}\");'
+		rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
+		<h:graphicImage value="/../library/image/silk/arrow_refresh-blue.png"
+			alt="#{assignmentDetailsBean.scoringAgentData.refreshGradeText}"
+			title="#{assignmentDetailsBean.scoringAgentData.refreshGradeText}" />
+	</h:outputLink>
+
+	<%-- for some reason, JSF validation fails if this is an inputHidden - so fudging with a span with display:none;
+	       We need the studentUid to refresh the grade from the ScoringAgent --%>
+	<h:outputText id="associatedId" style="display:none;"
+		styleClass="associatedId" value="#{scoreRow.enrollment.user.userUid}" />
+</h:column>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.aliases"
+			title="Aliases"
+			description="An administration tool to edit Aliases.">
+	</tool>
+
+</registration>

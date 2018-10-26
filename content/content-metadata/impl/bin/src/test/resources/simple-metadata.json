@@ -1,0 +1,25 @@
+[ {
+    "metadataTypes" : [ { "@class" : "org.sakaiproject.content.metadata.model.DateMetadataType",
+          "name" : "Date",
+          "id" : "date"
+        },
+        { "@class" : "org.sakaiproject.content.metadata.model.EnumMetadataType",
+          "name" : "Enum",
+          "id" : "enum",
+          "allowedValues" : ["yes", "no"]
+        },
+        { "@class" : "org.sakaiproject.content.metadata.model.NumberMetadataType",
+          "name" : "Number",
+          "id" : "id"
+        },
+        { "@class" : "org.sakaiproject.content.metadata.model.BooleanMetadataType",
+          "name" : "Boolean",
+          "id" : "boolean"
+        }
+      ],
+    "expanded" : true,
+    "name" : "Example",
+    "id" : "example",
+    "@class" : "org.sakaiproject.content.metadata.model.GroupMetadataType"
+  }
+]

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradebookItemProducer" >
+		<property name="dateEvolver" ref="fieldDateInputEvolver" />
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="assignmentBeanLocator" ref="Assignment" />
+	</bean>
+	
+	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.GradeGradebookItemProducer" >
+		<property name="messageLocator" ref="messageLocator" />
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="httpServletResponse" ref="httpServletResponse" />
+	</bean>
+	
+	<bean class="org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer" />
+		   
+   <bean id="GradebookItemBean" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.GradebookItemBean">
+   	  <property name="messages" ref="targettedMessageList"/>
+   	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+   	  <property name="assignmentEntityBeanLocator" ref="Assignment"/>
+   	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+   </bean>
+   
+   <bean id="AssignmentGradeRecordBean" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentGradeRecordBean">
+   	  <property name="messages" ref="targettedMessageList"/>
+   	  <property name="messageLocator" ref="messageLocator" />
+   	  <property name="gradebookManager" ref="org_sakaiproject_tool_gradebook_business_GradebookManager" />
+   	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+   </bean>
+   
+   <bean id="FinishedHelperProducer" class="org.sakaiproject.tool.gradebook.ui.helpers.producers.FinishedHelperProducer">
+   </bean>
+
+</beans>

@@ -1,0 +1,62 @@
+#set ( $historyBean = ${requestScope.historyBean} ) 
+#set ( $renderBean = ${requestScope.reviewRenderBean} )
+#set ( $rightRenderBean = ${requestScope.reviewRightRenderBean} )
+#set ( $permissionsBean = ${requestScope.permissionsBean} )
+#set ( $interestedRevision = ${requestScope.reviewHelperBean.interestedRevision} )
+#set ( $reviewRenderBean = ${requestScope.reviewRenderBean} )
+#set ( $currentRWikiObject = ${requestScope.currentRWikiObject} )
+#set ( $homeBean = ${requestScope.homeBean} )
+#set ( $rlb = ${requestScope.resourceLoaderBean} )
+#set ( $title = "${rlb.jsp_review}: ${util.escapeHtml($historyBean.localName)} ${rlb.jsp_version}: ${interestedRevision}" )
+#header(${title} ${historyBean} "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+		<ul class="navIntraTool actionToolBar">	  	
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	  	 #commandlinks(true true false ${rlb.jsp_view}	false  false true false false	${homeBean} ${historyBean} ${rlb} ) 
+		</ul>	 
+	  </form>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+
+	<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb" >
+					<span id="breadPref">${rlb.jsp_review}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+	 <div class="lastmodified" >
+	 	<span style="font-weight:bold;color:#000">
+		 	${util.escapeHtml($renderBean.localisedPageName)}
+		</span>	
+	 	#set( $value= ["#formatDisplayName(${currentRWikiObject.user})","#formatDateTime($currentRWikiObject.version)"])
+				${rlb.getFormattedMessage("jsp_last_modified_by", $value.toArray())}
+	 </div>
+  
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <div class="rwikiRenderBody">
+	      <div class="rwikiRenderedContent"> 
+			${renderBean.renderedPage}<br/>	    
+	      </div>
+	    </div>
+	  </div>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()

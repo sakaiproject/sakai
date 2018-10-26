@@ -1,0 +1,40 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<title>Dynamic List Input</title>
+<script type="text/javascript" src="../yui/yahoo/yahoo.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/event/event.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/logger/logger.js"
+  rsf:id="scr=contribute-script"></script>
+  
+<script type="text/javascript" src="../js/rsf.js" rsf:id="scr=contribute-script">
+</script>
+<script type="text/javascript" src="../js/dynamic-list-input.js" rsf:id="scr=contribute-script">
+</script>
+</head>
+<body>
+<h1>Dynamic List Input Control</h1>
+<form>
+<div rsf:id="dynamic-list-input:">
+  <div rsf:id="dynamic-list-input-core:">
+  <div id="nameBase:dynamic-list-input-row:0:" rsf:id="dynamic-list-input-row:">
+    <input id="nameBase:dynamic-list-input-row:0:input" rsf:id="input" value="Strongly Disagree" size="20" type="text"/>&nbsp;
+    <input id="nameBase:dynamic-list-input-row:0:remove" rsf:id="remove" value="Remove" type="button"/>
+  </div>
+  <div id="nameBase:dynamic-list-input-row:1:" rsf:id="dynamic-list-input-row:">
+    <input id="nameBase:dynamic-list-input-row:1:input" rsf:id="input" value="Disagree" size="20" type="text"/>&nbsp;
+    <input id="nameBase:dynamic-list-input-row:1:remove" rsf:id="remove" value="Remove" type="button"/>
+  </div>
+  <input id="nameBase:add-row" rsf:id="add-row" type="button" value="Add Scale Point"/>
+  </div> <!-- End core HTML -->
+<span rsf:id="list-control"> <!-- Empty span required to render binding --> </span>
+<script rsf:id="init-script">
+  DynamicListInput.init_DynamicListInput("nameBase:", 2, 2, 15);
+</script>
+</div> <!-- End component def -->
+</form>
+</body>
+</html>

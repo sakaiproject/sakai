@@ -1,0 +1,17 @@
+FLV Player
+-------------------------------
+HomePage:           [http://flv-player.net/]            
+License in page:    [http://flv-player.net/players/normal/license/]
+                    The player is under the Creative Commons BY SA and MPL 1.1 license.
+                    You can use the player without citing the author.
+Files:              player_flv_maxi.swt
+
+
+ICON
+-------------------------------
+HomePage:           [http://commons.wikimedia.org/wiki/File:Filmreel.png]
+License in page:    [http://commons.wikimedia.org/wiki/File:Filmreel.png]
+                    I, the copyright holder of this work, hereby release it into the public domain. This applies worldwide.
+                    In case this is not legally possible:
+                    I grant anyone the right to use this work for any purpose, without any conditions, unless such conditions are required by law.
+Files:              filmreel.png, filmreel.gif                    

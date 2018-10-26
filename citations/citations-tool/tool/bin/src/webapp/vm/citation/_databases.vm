@@ -1,0 +1,35 @@
+#if( $category.hasDatabases() )
+<p class="instruction">$tlang.getFormattedMessage("instr.search.db",$maxDbArgs)</p>
+<div class="itemAction">
+  <a href="#" onclick="showDbDescriptions('$tlang.getString("alt.dbhide.search")'); return false;">$tlang.getString("link.dbshow.search")</a> |
+  <a href="#" onclick="hideDbDescriptions('$tlang.getString("alt.dbshow.search")'); return false;">$tlang.getString("link.dbhide.search")</a>
+</div>
+<table class="listHier lines nolines">
+	#foreach($database in $category.databases)
+		<tr>
+			<td class="attach">
+			  <input type="checkbox" #if($category.isDatabaseRecommended($database.id))
+			    checked="checked" #end id="$database.id" name="databasesSelected"
+			    value="$database.id" onclick="javascript: countDatabases(this, $maxDbNum); highlightCheckedSelections();"
+			  />
+			</td>
+			<td>
+			  <img onclick="toggleDbDescription('$database.id', '$tlang.getString("alt.dbshow.search")', '$tlang.getString("alt.dbhide.search")');"
+			    id="toggle_$database.id" class="dbToggleIcon"
+			    style="cursor: pointer;" src="/library/image/sakai/expand.gif?panel=Main"
+			    alt="$tlang.getString("alt.dbshow.search")" align="top" border="0"
+			    height="13" width="13"
+			  />
+			  <label for="$database.id"><strong id="title_$database.id">$xilator.escapeHtml($database.displayName)</strong></label>
+			  <p class="dbDescription" id="description_$database.id" style="display: none;">$xilator.escapeHtml($database.description)</p>
+			</td>
+		</tr>
+	#end
+</table>
+<div class="itemAction">
+  <a href="#" onclick="showDbDescriptions('$tlang.getString("alt.dbhide.search")'); return false;">$tlang.getString("link.dbshow.search")</a> |
+  <a href="#" onclick="hideDbDescriptions('$tlang.getString("alt.dbshow.search")'); return false;">$tlang.getString("link.dbhide.search")</a>
+</div>
+#else
+	<p class="instruction">$tlang.getString("empty.cat.search")</p>
+#end

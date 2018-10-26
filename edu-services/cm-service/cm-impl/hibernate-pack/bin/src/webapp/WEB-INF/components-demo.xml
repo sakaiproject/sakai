@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- A DataLoader to load sample CM data into Sakai's CM reference impl. -->
+
+	<bean id="org.sakaiproject.coursemanagement.impl.DataLoader"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+        <property name="target">
+			<bean class="org.sakaiproject.coursemanagement.impl.SampleDataLoader"
+				init-method="init" destroy-method="destroy">
+				<property name="cmAdmin"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"/></property>
+				<property name="cmService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+				<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+				<property name="loadSampleData"><value>true</value></property>
+			</bean>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,130 @@
+#set( $searchBean = ${requestScope.fullSearchBean}	)
+#set( $currentLocalSpace = ${requestScope.currentLocalSpace} )
+#set( $rightRenderBean = ${requestScope.searchRightRenderBean} )
+#set( $recentlyVisitedBean = ${requestScope.recentlyVisitedBean} )
+#set( $homeBean = ${requestScope.homeBean} )
+#set( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_search}: ${util.escapeHtml($searchBean.search)}")
+#header(${title} false "" )  
+<div id="rwiki_container">
+	<div class="portletBody">
+		<form action="?#" method="get" class="rwiki_searchForm">
+			<ul class="navIntraTool actionToolBar">	  	
+				##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+				##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+				##  $homeBean $viewBean $resourceLoaderBean )
+				##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+				#commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} false ${rlb} ) 
+				<li class="rwiki_searchBox">
+					<label for="searchField">${rlb.jsp_search}:</label>
+					<input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
+					<input type="hidden" name="panel" value="Main" />
+					<input type="text" id="searchField" name="search" />
+				</li>
+			</ul>
+		</form>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	
+	#set ($searchBean.pagesize = 10 )
+	#set ($searchResults = ${searchBean.searchResults} )
+	#set ($searchPages = ${searchBean.searchPages} )
+	#set ($requestSearchPages = ${searchBean.requestPage} )
+	<div class="navPanel">
+		<div class="viewNav">
+			<h3 class="breadcrumb">
+				<span id="breadPref">${rlb.jsp_search}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($searchBean.search)}</span><span class="instruction textPanelFooter" style="font-size:80%">&nbsp;&nbsp;(${rlb.jsp_search_took} ${searchBean.timeTaken} ${rlb.jsp_ms_found} ${searchBean.nresults})</span>
+			</h3>
+		</div>	
+		<div class="listNav specialLink">
+			<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+			<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+		})
+	</script>
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+
+	#set ($searchViewBean = ${util.newViewBean($requestScope)} ) 
+	#set ($searchViewBean.localSpace = $currentLocalSpace)
+	
+				<ol class="searchResultPager topPager specialLink">
+					## for this to be a useful pager we need to indicate in the UI what page one is on at the very least
+					<li>${rlb.jsp_search_result_page}</li>
+					#set ($pageTotal=0)
+					#foreach( $pages in ${searchPages})
+					#set ($pageTotal=$pageTotal + 1)
+						<li><a href="${util.escapeHtml(${pages.fullSearchLinkUrl})}" >${util.escapeHtml($pages.page)}</a></li>
+					#end
+				</ol>
+
+	#set ($itemCount=0)
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+		<ol class="searchResultList">
+			<!--ls--> 	
+			#foreach( $result in ${searchResults} )
+				#set ($itemCount =$itemCount + 1)
+				<!--is-->
+				<li>
+					<h5> <a href="${result.url}" class="searchTopLink" >${util.escapeHtml($searchBean.pageNameFromSearchTitle(${result.title}))}</a></h5> 
+					<div class="searchItemBody" >${util.escapeHtml($result.searchResult)}</div>
+					<div class="searchItemFooter" ><a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a></div>
+				</li>	
+				<!--ie-->
+			#end   
+		</ol>
+		<p class="instruction" id="noResultsMessage" style="display:none">${rlb.jsp_no_results_found_for}${rlb.jsp_search_open_q}${util.escapeHtml($searchBean.search)}${rlb.jsp_search_close_q}</p>
+		<!--le--> 
+
+				<ol class="searchResultPager bottomPager specialLink">
+					## for this to be a useful pager we need to indicate in the UI what page one is on at the very least
+					<li>${rlb.jsp_search_result_page}</li>
+					#set ($pageTotal=0)
+					#foreach( $pages in ${searchPages})
+					## what is the reason for this?
+					#set ($pageTotal=$pageTotal + 1)
+						<li><a href="${util.escapeHtml(${pages.fullSearchLinkUrl})}" >${pages.page}</a></li>
+					#end
+				</ol>
+				<script type="text/javascript">
+					$(document).ready(function(){
+						if ($pageTotal <= 1){
+							$('.searchResultPager').remove();
+							utils.resizeFrame('shrink')
+						}
+						if ($itemCount == 0){
+						$('.searchResultList').remove();
+						$('#noResultsMessage').show();
+						utils.resizeFrame('shrink')
+					}
+					})
+				</script>
+	</div>
+	#sidebar()
+	</div>
+#footer()
+
+#* and what is this?
+	<p>
+	${foundItem.index}&nbsp;<a href="${util.escapeHtml(${foundItem.url})}" >${foundItem.title}</a><br />
+	${rlb.jsp_search_content}: <br />
+	${util.escapeHtml($foundItem.searchResult)} <br />
+	<span style="font-size: smaller;" >${rlb.jsp_search_realms}:<br />
+	#foreach( $realm in ${foundItem.valueMap.realm} )
+	${realm}<br />
+	#end
+	<br />
+	${rlb.jsp_search_score}: ${foundItem.score}
+	</span>	  		  
+	</p>
+*#

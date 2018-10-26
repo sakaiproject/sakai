@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<toolOrder>
+
+    <category name="project">
+        <tool id="tool1" required="true" selected="true"/>
+        <tool id="tool2" required="false" selected="false"/>
+        <tool id="tool3"/>
+    </category>
+
+    <category name="course">
+    </category>
+
+</toolOrder>

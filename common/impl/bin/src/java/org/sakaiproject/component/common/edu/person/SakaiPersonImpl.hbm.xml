@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.component.common.edu.person">
+
+  <class name="org.sakaiproject.component.common.edu.person.PersonImpl"
+    table="SAKAI_PERSON_T" optimistic-lock="version"
+    discriminator-value="P">
+
+    <!-- Hibernate cannot cache BLOB types :( -->
+    <!--     <cache usage="read-write" /> -->
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">SAKAI_PERSON_S</param>
+      </generator>
+    </id>
+
+    <discriminator column="PERSON_TYPE" type="string" length="3" />
+
+    <version name="version" column="VERSION" />
+
+    <!--  Persistable fields -->
+    <property name="uuid" column="UUID" length="36" unique="true" not-null="true" />
+    <property name="lastModifiedBy" column="LAST_MODIFIED_BY" length="36" not-null="true" />
+    <property name="lastModifiedDate" column="LAST_MODIFIED_DATE" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="createdDate" column="CREATED_DATE" not-null="true" />
+
+    <!-- business key fields -->
+    <property name="agentUuid">
+      <column name="AGENT_UUID" not-null="true" length="99"
+        index="SAKAI_PERSON_AGENT_UUID_I"
+        unique-key="SAKAI_PERSON_BUSINESS_KEY_I" />
+    </property>
+
+    <property name="typeUuid">
+      <column name="TYPE_UUID" not-null="true" length="36"
+        index="SAKAI_PERSON_TYPE_UUID_I"
+        unique-key="SAKAI_PERSON_BUSINESS_KEY_I" />
+    </property>
+
+    <!-- To get hbm2ddl schema-export to recognize indexes, I added column attribute jtl -->
+    <property name="commonName" column="COMMON_NAME" />
+    <property name="description" column="DESCRIPTION" />
+    <property name="seeAlso" column="SEE_ALSO" />
+    <property name="street" column="STREET" />
+    <property name="surname" column="SURNAME" index="SAKAI_PERSON_SURNAME_I" />
+    <property name="telephoneNumber" column="TELEPHONE_NUMBER" />
+	
+    <subclass
+      name="org.sakaiproject.component.common.edu.person.OrganizationalPersonImpl"
+      discriminator-value="OP">
+      <property name="facsimileTelephoneNumber" column="FAX_NUMBER" />
+      <property name="localityName" column="LOCALITY_NAME" />
+      <property name="organizationalUnit" column="OU" />
+      <property name="physicalDeliveryOfficeName" column="PHYSICAL_DELIVERY_OFFICE_NAME" />
+      <property name="postalAddress" column="POSTAL_ADDRESS" />
+      <property name="postalCode" column="POSTAL_CODE" />
+      <property name="postOfficeBox" column="POST_OFFICE_BOX" />
+      <property name="stateOrProvinceName" column="STATE_PROVINCE_NAME" />
+      <property name="streetAddress" column="STREET_ADDRESS" />
+      <property name="title" column="TITLE" />
+
+      <subclass
+        name="org.sakaiproject.component.common.edu.person.InetOrgPersonImpl"
+        discriminator-value="IOP">
+        <!-- <property name="audio"/> -->
+        <property name="businessCategory" column="BUSINESS_CATEGORY" />
+        <property name="carLicense" column="CAR_LICENSE" />
+        <property name="departmentNumber" column="DEPARTMENT_NUMBER" />
+        <property name="displayName" column="DISPLAY_NAME" />
+        <property name="employeeNumber" column="EMPLOYEE_NUMBER" />
+        <property name="employeeType" column="EMPLOYEE_TYPE" />
+        <property name="givenName" column="GIVEN_NAME" index="SAKAI_PERSON_GIVEN_NAME_I" />
+        <property name="homePhone" column="HOME_PHONE" />
+        <property name="homePostalAddress" column="HOME_POSTAL_ADDRESS" />
+        <property name="initials" column="INITIALS" />
+        <!-- blobImage is a workaround for Oracle and BLOB handling with jpegPhoto byte[] property -->
+	    <property name="blobImage" type="blob" column="JPEG_PHOTO" />
+        <property name="labeledURI" column="LABELED_URI" />
+        <property name="mail" column="MAIL" />
+        <property name="manager" column="MANAGER" />
+        <property name="mobile" column="MOBILE" />
+        <property name="organization" column="ORGANIZATION" />
+        <property name="pager" column="PAGER" />
+        <property name="preferredLanguage" column="PREFERRED_LANGUAGE" />
+        <property name="roomNumber" column="ROOM_NUMBER" />
+        <property name="secretary" column="SECRETARY" />
+        <property name="uid" column="UID_C" index="SAKAI_PERSON_UID_I" />
+        <property name="userCertificate" column="USER_CERTIFICATE" />
+        <property name="userPKCS12" column="USER_PKCS12" />
+        <property name="userSMIMECertificate" column="USER_SMIME_CERTIFICATE" />
+        <property name="x500UniqueIdentifier" column="X500_UNIQUE_ID" />
+
+        <subclass
+          name="org.sakaiproject.component.common.edu.person.EduPersonImpl"
+          discriminator-value="EP">
+          <property name="affiliation" column="AFFILIATION" />
+          <property name="entitlement" column="ENTITLEMENT" />
+          <property name="nickname" column="NICKNAME" />
+          <property name="orgDn" column="ORG_DN" />
+          <property name="orgUnitDn" column="ORG_UNIT_DN" />
+          <property name="primaryAffiliation" column="PRIMARY_AFFILIATION" />
+          <property name="primaryOrgUnitDn" column="PRIMARY_ORG_UNIT_DN" />
+          <property name="principalName" column="PRINCIPAL_NAME" />
+
+          <subclass
+            name="org.sakaiproject.component.common.edu.person.SakaiPersonImpl"
+            discriminator-value="SP">
+            <property name="campus" column="CAMPUS" />
+            <property name="hidePrivateInfo" column="HIDE_PRIVATE_INFO" />
+            <property name="hidePublicInfo" column="HIDE_PUBLIC_INFO" />
+            <property name="notes" column="NOTES" type="materialized_clob" length="75000" />
+            <property name="pictureUrl" column="PICTURE_URL" />
+            <property name="systemPicturePreferred" column="SYSTEM_PICTURE_PREFERRED" />
+            <property name="ferpaEnabled" column="ferpaEnabled" index="SAKAI_PERSON_ferpaEnabled_I" />
+            <property name="dateOfBirth" column="dateOfBirth" type="date" />
+            <property name="locked" column="locked" type="boolean" />
+            
+            <property name="favouriteBooks" column="FAVOURITE_BOOKS" type="materialized_clob" length="75000" />
+            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" type="materialized_clob" length="75000" />
+            <property name="favouriteMovies" column="FAVOURITE_MOVIES" type="materialized_clob" length="75000" />
+            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" type="materialized_clob" length="75000" />
+            
+            <property name="educationCourse" column="EDUCATION_COURSE" type="materialized_clob" length="75000" />
+            <property name="educationSubjects" column="EDUCATION_SUBJECTS" type="materialized_clob" length="75000" />
+            
+            <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
+            
+			<property name="staffProfile" column="STAFF_PROFILE" type="materialized_clob" length="75000" />
+			<property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" type="materialized_clob" length="75000" />
+			<property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" type="materialized_clob" length="75000" />
+			<property name="publications" column="PUBLICATIONS" type="materialized_clob" length="75000"  />
+			<property name="businessBiography" column="BUSINESS_BIOGRAPHY" type="materialized_clob" length="75000" />
+            
+          </subclass>
+        </subclass>
+      </subclass>
+    </subclass>
+  </class>
+
+  <query name="findEduPersonByAgentAndType">
+    <![CDATA[from org.sakaiproject.component.common.edu.person.PersonImpl as ep where ep.agentUuid = :agentUuid and ep.typeUuid = :typeUuid]]>
+  </query>
+
+  <query name="findEduPersonsByAgentsAndType">
+    <![CDATA[from org.sakaiproject.component.common.edu.person.PersonImpl as ep where ep.agentUuid in (:agentUuidCollection) and ep.typeUuid = :typeUuid]]>
+  </query>
+
+  <query name="findSakaiPersonByUid">
+    <![CDATA[from org.sakaiproject.component.common.edu.person.InetOrgPersonImpl as iop where iop.uid = :uid]]>
+  </query>
+
+  <query name="findSakaiPersonByUidAndType">
+    <![CDATA[from org.sakaiproject.component.common.edu.person.InetOrgPersonImpl as iop where iop.uid = :uid and iop.typeUuid = :typeUuid]]>
+  </query>
+
+</hibernate-mapping>

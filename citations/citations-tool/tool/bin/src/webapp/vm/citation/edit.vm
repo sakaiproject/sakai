@@ -1,0 +1,457 @@
+#set($default = "")
+#if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
+
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+<link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
+
+<div class="indnt1" class="portletBody">
+	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">
+		<div style="margin: 10px 10px 10px 10px;">
+			<h3>
+				$tlang.getString("title.close")
+			</h3>
+			<h4>
+				$tlang.getString("subtitle.close")
+			</h4>
+			<p class="act">
+				<input type="button" name="Close" id="Close" value="$tlang.getString("button.close")" onclick="window.close();" />
+			</p>
+		</div>
+	</div>
+	<div class="indnt1">
+		<h3>$tlang.getString("title.edit")</h3>
+
+		<p class="instruction">$tlang.getFormattedMessage( "instr.edit", $instrArgs )</p>
+		<p class="instruction">$tlang.getString( "instr.edit.sub" )</p>
+		
+		<p class="act">
+			<input class="active" type="button" name="Save" id="Save"
+			 value="$tlang.getString("submit.edit")"
+			 onclick="javascript: if( checkRequiredFields( '$tlang.getString( "required.alert" )' ) ) { document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME'); }"
+			/>
+			<input type="button" name="Cancel" id="Cancel"
+			  value="$tlang.getString("cancel.edit")"
+			  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+			/>
+		</p>
+		
+		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
+			<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+			<input name="sakai_action" id="sakai_action" value="doReviseCitation" type="hidden" />
+			<p class="shorttext">
+				<label for="type">
+					<strong>$tlang.getString("type.select")</strong>
+				</label>
+				<select name="type" id="type_selector" onchange="changeSchema(this);">
+					#foreach($template in $TEMPLATES)
+						<option value="$template.identifier"#if("$template.identifier" == "$default") selected="selected"#end>
+							$tlang.getString("type.$!{template.identifier}")
+						</option>
+					#end
+				</select>
+			</p>
+			<div id="div_$!FORM_NAME">
+				#set($count = 0)
+				#foreach($field in $DEFAULT_TEMPLATE.fields)
+					#set( $currentValue = $!{citation.getCitationProperty("$field.identifier")} )
+					<p class="shorttext">
+						#if ($field.isRequired())						 
+							<span class="reqStar">*</span>
+							#if( $field.isMultivalued() )
+								<span class="requiredField_multi">
+							#else
+								<span class="requiredField">
+							#end
+						#end
+						#if($field.isMultivalued())
+							<label for="${field.identifier}0">
+								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
+							</label>
+							#getMultivalued($field $currentValue "$!count")
+						#else
+							<label for="$field.identifier">
+								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
+							</label>
+							#getFieldValue($field "$!currentValue" "")
+						#end
+						#if ($field.isRequired())						 
+							</span>
+						#end
+					</p>
+					#set($count = $count + 1)
+				#end
+			</div>
+			<div id="url_div" class="shorttext">
+				<label>
+					<strong>$tlang.getString("title.link")</strong>
+				</label>
+				<table id="nextTable">
+					#set($count = 0)
+					#if($citation.hasCustomUrls())
+						#foreach($urlId in $citation.customUrlIds)
+						<tr>
+							<td>
+								<label for="url_${count}">
+									$tlang.getString("url.link")
+								</label>
+      					#if($citation.addPrefixToUrl("$urlId"))
+                <!-- Prefixed URLs -->
+      					<!-- Display (but not edit) the prefixed URL, always return the unprefixed URL -->
+								<input name="displayed_url_$count" id="displayed_url_$count" disabled="disabled"
+       								 value="$!{citation.getCustomUrl("$urlId")}" type="text" size="50" />
+								<input name="url_$count" id="url_$count"
+       								 value="$!{xilator.escapeHtml($citation.getUnprefixedCustomUrl("$urlId"))}" type="hidden" />
+                <!-- Inddicate this URL requires the prefix (value is Citation.ADD_PREFIX_TEXT) -->
+								<input name="addprefix_$count" id="addprefix_$count"
+       								 value="y" type="hidden" />
+								#else
+								<!-- Non-prefixed URL -->
+								<input name="url_$count" id="url_$count" 
+       								 value="$!{xilator.escapeHtml($citation.getCustomUrl("$urlId"))}" type="text" size="50" />
+       				  #end
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="pref_${count}">
+									$tlang.getString("preferred.link")
+								</label>
+								<input class="prefLink" name="pref_$count" id="pref_$count"
+									type="checkbox" value="$tlang.getString("preferred.text")"
+									#if( $citation.hasPreferredUrl() && ( $citation.getPreferredUrlId() == $urlId ) ) checked="checked" #end
+									onclick="trackPreferredUrl('pref_$count');" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="label_${count}">
+									$tlang.getString("label.link")
+								</label>
+								<input name="label_$count" id="label_$count" value="$!{xilator.escapeHtml( $citation.getCustomUrlLabel("$urlId") )}" type="text" size="20" />
+								<input type="hidden" name="urlid_$count" id="urlid_$count" value="$!urlId" />
+								<hr />
+							</td>
+						</tr>
+						#set($count = $count + 1)
+						#end
+					#else
+						<tr>
+							<td>
+								<label for="url_${count}">
+									$tlang.getString("url.link")
+								</label>
+								<input name="url_$count" id="url_$count" value="" type="text" size="50" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label class="block" for="pref_${count}">
+									$tlang.getString("preferred.link")
+								</label>
+								<input class="prefLink" name="pref_${count}" id="pref_${count}"
+									type="checkbox" value="$tlang.getString("preferred.text")" onclick="trackPreferredUrl('pref_${count}');" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="label_${count}">
+									$tlang.getString("label.link")
+								</label>
+								<input name="label_$count" id="label_$count" type="text" size="20" />
+								<input type="hidden" name="urlid_$count" id="urlid_$count" value="" />
+								<hr />
+							</td>
+						</tr>
+						#set($count = $count + 1)
+					#end
+					<tr id="bottomRow">
+						<td>
+							<a href="#" onclick="javascript:addUrl();">$tlang.getString( "addanother.create" )</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<input type="hidden" name="url_count" id="url_count" value="$count" />
+	 		<p class="act">
+				<input class="active" type="button" name="Save" id="Save"
+				  value="$tlang.getString("submit.edit")"
+				  onclick="javascript: if( checkRequiredFields( '$tlang.getString( "required.alert" )' ) ) { document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME'); }"
+				/>
+				<input type="button" name="Cancel" id="Cancel"
+				  value="$tlang.getString("cancel.edit")"
+				  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+				/>
+	    	</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+		<div id="scratch_space">
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var templates = new Array();
+	var templateIdentifiers = new Array();
+	var defaultTemplate = "$DEFAULT_TEMPLATE.identifier";
+	#foreach($template in $TEMPLATES)
+	
+		templateIdentifiers[templateIdentifiers.length] = "$template.identifier";
+		templates["$template.identifier"] = new Array();
+		templates["$template.identifier"]["label"] = "$tlang.getString("type.$!{template.identifier}")";
+		templates["$template.identifier"]["fields"] = new Array();
+		#set($index = 0)
+		#foreach($field in $template.fields)
+			templates["$template.identifier"][$index] = new Object();
+			templates["$template.identifier"][$index].identifier = "$!{field.identifier}";
+			templates["$template.identifier"][$index].label = "$tlang.getString("$!{template.identifier}.$!{field.identifier}")"
+			templates["$template.identifier"][$index].description = "$!{field.description}";
+			templates["$template.identifier"][$index].minCardinality = $!{field.minCardinality};
+			templates["$template.identifier"][$index].maxCardinality = $!{field.maxCardinality};
+			templates["$template.identifier"][$index].defaultValue = "$!{field.defaultValue}";
+			templates["$template.identifier"][$index].isRequired = $field.isRequired();
+			templates["$template.identifier"][$index].valueType = "$!{field.valueType}";
+			#set($index = $index + 1)
+		#end
+	#end
+	
+	var currentValues = new Array();
+	
+    // resize frame on document ready
+    function heavyResize() {
+      var frame = parent.document.getElementById( window.name );
+      
+      if( frame ) {
+        var clientH = document.body.clientHeight + 50;
+        $( frame ).height( clientH );
+      }
+    }
+	
+	function changeSchema(type_element)
+	{
+		var form_div = document.getElementById("div_$!FORM_NAME");
+		var type = type_element.value;
+		var fields = document.getElementsByTagName("input");
+		
+		for(var i = 0; i < fields.length; i++)
+		{
+			if(fields[i].value)
+			{
+				currentValues[ fields[i].id ] = fields[i].value;
+			}
+		}
+		
+		var html = " ";
+		
+		for(var t = 0; t < templates[type].length; t++)
+		{
+			html += '<p class="shorttext">\n';
+			if(templates[type][t].isRequired)
+			{						 
+				html += '<span class="reqStar">*</span>\n';
+				if(templates[type][t].maxCardinality > 1)
+				{
+					html += '<span class="requiredField_multi">\n';
+				}
+				else
+				{
+					html += '<span class="requiredField">\n';
+				}
+			}
+			if(templates[type][t].maxCardinality > 1)
+			{
+				html += '<label for="' + templates[type][t].identifier + '0">\n<strong>' + templates[type][t].label + '</strong>\n</label>\n';
+				html += getMultivalued(type, t);
+			}
+			else
+			{
+				html += '<label for="' + templates[type][t].identifier + '">\n<strong>' + templates[type][t].label + '</strong>\n</label>\n';
+				html += getValue(type, t, "");
+			}
+			if(templates[type][t].isRequired)
+			{
+				html += "</span>\n";
+			}
+			html += "</p>\n";
+		}
+		form_div.innerHTML = html;
+		//for electronic citation url is required
+		checkReqStarForElectronicCitation();
+		resizeFrame();
+	}
+	function getValue(type, t, index)
+	{
+		var html = "";
+		if("shorttext" == templates[type][t].valueType)
+		{
+			html += '<input name="' + templates[type][t].identifier + index + '" id="' 
+					+ templates[type][t].identifier + index + '" type="text" size="50" ';
+			if(currentValues[templates[type][t].identifier + index])
+			{
+				var str = jsEscapeHtml( currentValues[templates[type][t].identifier + index] );
+				html += 'value="' + str + '" ';
+			}
+			html += '/>\n';
+		}
+		else if("number" == templates[type][t].valueType)
+		{
+			html += '<input name="' + templates[type][t].identifier + index + '" id="' 
+					+ templates[type][t].identifier + index + '" type="text" size="20" ';
+			if(currentValues[templates[type][t].identifier])
+			{
+				var str = jsEscapeHtml( currentValues[templates[type][t].identifier + index] );
+				html += 'value="' + str + '" ';
+			}
+			html += '/>\n</p>\n';
+		}
+		else if("longtext" == templates[type][t].valueType)
+		{
+			html += '<textarea name="' + templates[type][t].identifier + index + '" id="'
+					 + templates[type][t].identifier + index + '" cols="50" rows="4">'; 
+			if(currentValues[templates[type][t].identifier + index])
+			{
+				html += currentValues[templates[type][t].identifier + index] ;
+			}
+			html += "</textarea>\n</p>\n";
+		}
+		else if("date" == templates[type][t].valueType)
+		{
+			html += '<input name="' + templates[type][t].identifier + index + '" id="' 
+					+ templates[type][t].identifier + index + '" type="text" size="20" ';
+			if(currentValues[templates[type][t].identifier])
+			{
+				var str = jsEscapeHtml( currentValues[templates[type][t].identifier + index] );
+				html += 'value="' + str + '" ';
+			}
+			html += '/>\n</p>\n';
+		}
+
+		return html;
+	}
+	function getMultivalued(type, t)
+	{
+		var identifier = templates[type][t].identifier;
+		var count = 1;
+		var count_item = document.getElementById(identifier + "_count");
+		if(count_item)
+		{
+			count = count_item.value;
+		}
+				
+		var html = "<div id=\"div_" + identifier + "\">\n<table class=\"multiAdded\">\n";
+		for(var i = 0; i < count; i++)
+		{
+			html += "<tr>\n<td>\n" + getValue(type, t, i) + "</td>\n</tr>\n";
+		}
+		html += "<tr>\n<td>\n<a href=\"#\" onclick=\"javascript:getAnother('" + type + "', '" + t + "');\">$tlang.getString( "addanother.create" )</a>\n</td>\n</tr>\n</table>\n</div>\n"
+				+ "<input type=\"hidden\" name=\"" + identifier + "_count\" id=\"" + identifier 
+				+ "_count\" value=\"" + count + "\" />\n";
+		
+		return html;
+	}
+	function getAnother(type, t)
+	{
+		var identifier = templates[type][t].identifier;
+		var div = document.getElementById("div_" + identifier);
+		var counter = document.getElementById(identifier + "_count");
+		var count = 1 + parseInt(counter.value);
+		
+		var html = "<table class=\"getAnother\">\n";
+		for(var i = 0; i < count; i++)
+		{
+			var oldElement = document.getElementById(identifier + i);
+			if(oldElement && oldElement.value)
+			{
+			    var str = jsEscapeHtml( oldElement.value );
+				currentValues[templates[type][t].identifier + i] = str;
+			}
+			html += "<tr>\n<td>\n" + getValue(type, t, i) + "</td>\n</tr>\n";
+		}
+		html += '<tr>\n<td>\n<a href="#" onclick="javascript:getAnother(\'' + type + '\', \'' + t + '\')">$tlang.getString( "addanother.create" )</a>\n</td>\n</tr>\n</table>\n';
+		
+		div.innerHTML = html;
+		counter.value = count;
+		
+		// focus the newly added item
+		var focusNum = String( count-1 );
+		document.getElementById( identifier + focusNum ).focus();
+		
+		resizeFrame();
+		
+		return false;
+	}
+	
+	function addUrl()
+	{
+		// get the current count of urls
+		var count = document.getElementById("url_count");
+		var i = parseInt( count.value );
+		
+		// generate empty url datafields for one new url
+		var html = "<tr>\n<td>\n<label class=\"block\" for=\"url_" + i + "\">\n$tlang.getString("url.link")\n</label>\n"
+						+ "<input name=\"url_" + i + "\" id=\"url_" + i + "\" type=\"text\" size=\"50\" />\n</td>\n</tr>\n"
+						+ "<tr>\n<td>\n<label class=\"block\" for=\"pref_" + i + "\">\n$tlang.getString("preferred.link")\n</label>\n"
+						+ "<input class=\"prefLink\" name=\"pref_" + i + "\" id=\"pref_" + i + "\" type=\"checkbox\" value=\"$tlang.getString("preferred.text")\" onclick=\"javascript:trackPreferredUrl('pref_" + i + "');\" />\n</td>\n</tr>\n"
+						+ "<tr>\n<td>\n<label class=\"block\" for=\"label_" + i + "\">\n$tlang.getString("label.link")\n</label>\n"
+						+ "<input name=\"label_" + i + "\" id=\"label_" + i + "\" type=\"text\" size=\"20\" />\n<hr />\n</td>\n</tr>\n";
+		
+		// jQuery: insert new blank url datafields before the #bottomRow
+		$("#bottomRow").before( html );
+		
+		// focus the newly added item
+		document.getElementById( "url_" + i ).focus();
+		
+		// increment the count
+		count.value = String( i + 1 );
+
+		// resize the frame because we've added a new set of datafields
+		resizeFrame();
+	}
+	
+	/*
+	 * This function is called onclick of a preferred title URL checkbox.
+	 * It makes sure that either only one or zero links are selected as preferred.
+	 *
+	 * Params:
+	 *   checkboxId  id of checkbox HTML element that has been changed
+	 */
+	function trackPreferredUrl( checkboxId )
+	{
+		var checkBoxClicked = $( "#" + checkboxId );
+		// has this been checked?
+		if( checkBoxClicked.is(':checked') )
+		{
+			// clear all checkboxes except the clicked one
+			$(".prefLink").not(checkBoxClicked).removeAttr("checked");
+		}
+		
+		// if the checkbox has been unchecked, we do nothing
+	}
+	
+	function jsEscapeHtml( rawString )
+	{
+	  var str = new String( rawString );
+	  //str = str.replace(/&/g, "&amp;");
+      str = str.replace(/</g, "&lt;");
+      str = str.replace(/>/g, "&gt;");
+      str = str.replace(/"/g, "&quot;");
+      return str;
+	}
+	
+</script>
+<script type="text/javascript">	
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+</script>

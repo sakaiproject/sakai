@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault"   class="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlHSql"      class="org.sakaiproject.authz.impl.DbAuthzGroupSqlHSql"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlMySql"     class="org.sakaiproject.authz.impl.DbAuthzGroupSqlMySql"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle"    class="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle"/>
+
+	<bean id="org.sakaiproject.authz.api.AuthzGroupService"
+			class="org.sakaiproject.authz.impl.DbAuthzGroupService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
+ 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
+ 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+ 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		<property name="promoteUsersToProvided"><value>true</value></property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="default"><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlHSql"   /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle" /></entry>
+           </map>
+        </property>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.authz.api.SecurityService"
+			class="org.sakaiproject.authz.impl.SakaiSecurity"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+ 		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
+ 		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService"/>
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+
+  		<property name="cacheMinutes"><value>5</value></property>
+	</bean>
+
+	<bean id="org.sakaiproject.authz.api.FunctionManager"
+			class="org.sakaiproject.authz.impl.FunctionManagerComponent"
+			init-method="init"
+			destroy-method="destroy">
+	</bean>
+
+</beans>

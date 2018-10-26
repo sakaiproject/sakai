@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+        
+<body>
+
+<wicket:panel>	
+	
+	<h3 wicket:id="confirmedFriendsHeading" class="header icon connection-confirmed">
+		<span wicket:id="confirmedFriendsLabel">[My friends - ]</span>
+		<span wicket:id="confirmedFriendsNumber">[36]</span>
+	</h3>
+
+	<form class="confirmed-friends-button-form" wicket:id="confirmedFriendsButtonForm">
+		<div>
+			<span><input type="submit" wicket:id="createWorksiteButton" value="Create worksite" /></span>
+			<span><input type="submit" wicket:id="searchConnectionsButton" value="Search friends" /></span>
+		</div>
+		<div class="create-worksite" wicket:id="createWorksitePanel"></div>
+	</form>
+
+	<span wicket:id="navigator">[dataview navigator]</span>
+	<div class="connections-wrap" wicket:id="confirmedFriendsContainer">
+		
+		<div class="connection" wicket:id="connections">
+			<a wicket:id="connectionPhotoWrap">
+				<img class="connection-img" wicket:id="connectionPhoto"/>
+			</a>
+	    	
+	    	<div class="connection-info-wrap">
+	    		<a href="#" wicket:id="connectionLink"><span wicket:id="connectionName" class="connection-info-name">[name]</span></a>
+	    		<span wicket:id="connectionStatus" class="status-msg">[status]</span>
+	    	</div>
+	    	<div class="connection-actions-wrap">
+	    		<ul class="connection-actions">
+	    			<li wicket:id="removeConnectionContainer"><span><a wicket:id="removeConnectionLink" class="icon connection-delete"><span wicket:id="removeConnectionLabel">remove friend</span></a></span></li>
+	    			<li wicket:id="viewFriendsContainer"><a wicket:id="viewFriendsLink" class="icon connections"><span wicket:id="viewFriendsLabel">view friends</span></a></li>
+			    	<li wicket:id="emailContainer"><span><a wicket:id="emailLink" class="icon email-link">email</a></span></li>
+			    	<li wicket:id="websiteContainer"><span><a wicket:id="websiteLink" class="icon website-link">website</a></span></li>
+	    		</ul>
+	    	</div>
+	    	<div class="connection-summary-wrap">
+				<div wicket:id="connectionSummary">summary</div>
+			</div>
+	  	</div>
+	  	
+	</div>
+	<div wicket:id="connectionWindow"></div>	
+	
+	<!-- 
+	<div wicket:id="noFriendsContainer">
+		<a wicket:id="noFriendsLink"><span wicket:id="noFriendsLabel">search for some friends?</span></a>
+	</div>
+	-->
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

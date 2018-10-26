@@ -1,0 +1,95 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<title>Double List Selection</title>
+<link href="../css/tool-default.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=contribute-style"/>
+<link href="../css/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=contribute-style"/> 
+<!-- Comment out YAHOO logger defns for production -->
+<link type="text/css" rel="stylesheet" 
+  href="../yui/logger/assets/logger.css" rsf:id="scr=contribute-style"/> 
+
+<script type="text/javascript" src="../yui/yahoo/yahoo.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/dom/dom.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/event/event.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/dragdrop/dragdrop.js"
+  rsf:id="scr=contribute-script"></script> 
+<script type="text/javascript" src="../yui/logger/logger.js"
+  rsf:id="scr=contribute-script"></script>
+  
+<script type="text/javascript" src="../js/double-list-select.js"
+  rsf:id="scr=contribute-script"></script>
+</head>
+<body>
+<div class="portletBody">
+
+<h1>Double List Selection</h1>
+<!-- 
+<script>
+//<![CDATA[
+window.setTimeout(function() {
+var myLogReader1 = new YAHOO.widget.LogReader(null,{width: "60em", verboseOutput: false}); 
+myLogReader1.formatMsg = function(oLogMsg) { 
+  var category = oLogMsg.category; 
+  return "<p><span class='"+category+"'>"+category+"</span> "+ 
+          this.html2Text(oLogMsg.msg)+"</p>"; }}, 10 );
+//]]>
+</script>
+-->
+<!-- Implementation of double list input control, markup taken from 
+http://www-personal.umich.edu/~gsilver/sak-ui-elements/html/inputDoubleList.html 
+-->
+<form>
+<div id="input-doublelist:" rsf:id="input-doublelist:">
+<table class="inputDoubleList" summary="layout">
+  <tr>
+    <th><label rsf:id="label1" for="input-doublelist:list1">Source pick list</label></th>
+    <th></th>
+    <th><label rsf:id="label2" for="input-doublelist:list2">Destination pick list</label></th>
+  </tr>
+  <tr>
+    <td>
+      <select multiple="multiple" size="10" rsf:id="list1" 
+        id="input-doublelist:list1-selection" name="list1">
+        <option value="1a">Option 1a</option>
+        <option value="2a">Option 2a</option>
+        <option value="3a">Option 3a</option>
+        <option value="4a">Option 4a</option>
+        <option value="5a">Option 5a</option>
+      </select>
+    </td>
+    <td>
+      <span style="display:block;text-align:center"> Move selected </span> 
+      <span style="display:block;text-align:center"> 
+        <input type="button" id="input-doublelist:move-left" 
+           rsf:id="move-left" title="Move selected" value="&lt;"></input>
+        <input type="button" id="input-doublelist:move-right" 
+          rsf:id="move-right" title="Move selected" value="&gt;"></input> 
+      </span> 
+      <span style="display:block;text-align:center"> Move all </span> 
+      <span style="display:block;text-align:center"> 
+        <input type="button" id="input-doublelist:move-all-left" 
+          rsf:id="move-all-left" title="Move all" value="&lt;&lt;"></input>
+        <input type="button" id="input-doublelist:move-all-right" 
+          rsf:id="move-all-right" title="Move all" value="&gt;&gt;"></input> 
+      </span>
+    </td>
+    <td>
+      <select multiple="multiple" size="10" rsf:id="list2" id="input-doublelist:list2-selection">
+        <option value="1b">Option 1b</option>
+      </select>
+    </td>
+  </tr>
+</table>
+<script rsf:id="init-select">
+  DoubleList.init_DoubleList("input-doublelist:");
+</script>
+</div>
+<input type="submit" rsf:id="submitbutton" value="Submit" /></form>
+
+</div>
+</body>
+</html>

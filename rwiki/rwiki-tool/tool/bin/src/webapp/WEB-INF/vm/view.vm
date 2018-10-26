@@ -1,0 +1,109 @@
+#set( $viewBean = ${requestScope.ViewBean} )  
+#set( $renderBean = ${requestScope.RenderBean} )
+#set( $rightRenderBean = ${requestScope.ViewRightRenderBean} )
+#set( $permissionsBean = ${requestScope.PermissionsBean} )
+#set( $homeBean = ${requestScope.HomeBean} )
+#set( $recentlyVisitedBean = ${requestScope.RecentlyVisitedBean} )
+#set( $currentRWikiObject = ${requestScope.CurrentRWikiObject} )
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+#set(${recentlyVisitedBean.ViewPage}=${viewBean})  
+#set( $title = "${rlb.jsp_view}: ${util.escapeHtml($renderBean.localisedPageName)}" )
+#header(${title} ${viewBean} "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+  <form action="?#" method="get" class="rwiki_searchForm inlineForm">
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+		})
+	</script>
+	<ul class="navIntraTool actionToolBar">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+		#if ($renderBean.localisedPageNameLength>255)
+			#commandlinks(true false true ${rlb.jsp_view}  false  false false false ${requestScope.Withnotification}       ${homeBean} ${viewBean} ${rlb} )
+		#else
+			#commandlinks(true true true ${rlb.jsp_view}   true  true true true ${requestScope.Withnotification}   ${homeBean} ${viewBean} ${rlb} )
+		#end
+	    <li class="rwiki_searchBox">
+	      <label for="searchField">${rlb.jsp_search}:</label>
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" id="searchField" name="search" />
+	    </li>
+	</ul>
+	  </form>
+
+
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	#if ($renderBean.localisedPageNameLength>200)
+	<div class="navPanel">
+			<div class="viewNav">
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+	</div>
+		<div class="messageError">
+			<h4>
+				${rlb.jsp_page_length_alert_title}
+			</h4>
+			<div class="messageError">
+				${rlb.jsp_page_length_alert_view}
+			</div>
+		</div> 
+	#else
+	<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb">
+					## note - need to put the current page name in the context (see ${util.escapeHtml($renderBean.localisedPageName)} )
+					<span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+	</div>
+			<div class="lastmodified specialLink" >
+			 	<span style="font-weight:bold;color:#000">
+				${util.escapeHtml($renderBean.localisedPageName)}
+				</span>
+				
+				#set( $value= ["#formatDisplayName(${currentRWikiObject.user})","#formatDateTime($currentRWikiObject.version)"])
+				${rlb.getFormattedMessage("jsp_last_modified_by", $value.toArray())}
+				<a id="toCommentsLink" href="#tocomments" style="display:none" style="padding:0 1em 0 0">${rlb.jsp_comment_gotolink} <span></span></a>
+			 </div>
+
+
+	<div id="rwiki_head"><!-- avoid min height in IEX-->
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <div class="rwikiRenderBody">
+	      <div class="rwikiRenderedContent"> 
+			${renderBean.renderedPage}<br/>	    
+	      </div>
+	    </div>
+		 #comments()
+	#end ##end of if else that checks for page title length
+  </div>
+	 #sidebar()
+  </div>
+<script type="text/javascript">
+$(".tree").each(function(){
+	if ($(this).height() > 300) {
+		$(this).addClass("oversize")
+	}
+})
+
+</script>
+##	</div>
+#footer()

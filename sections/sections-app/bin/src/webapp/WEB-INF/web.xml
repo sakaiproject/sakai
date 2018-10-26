@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-sections-tool</display-name>
+	<description>Sakai Sections Tool</description>
+
+	<context-param>
+    	<param-name>javax.faces.CONFIG_FILES</param-name>
+    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml</param-value>
+  	</context-param>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+            /WEB-INF/spring-services.xml
+            /WEB-INF/spring-ui.xml
+		</param-value>
+	</context-param>
+ 
+    <listener>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+	<listener>
+		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+	</listener>
+
+    <servlet>
+        <servlet-name>sakai.sections</servlet-name>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>entry.servlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+	<!-- Redirects the user to the appropriate starting page, based on their role -->
+	<servlet>
+		<servlet-name>Entry Servlet</servlet-name>
+		<servlet-class>org.sakaiproject.tool.section.EntryServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>Entry Servlet</servlet-name>
+		<url-pattern>/entry.servlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>SectionAuthzFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.section.filter.RoleFilter</filter-class>
+        <init-param>
+            <param-name>authorizationFilterConfigurationBean</param-name>
+            <param-value>org.sakaiproject.tool.section.filter.AuthorizationFilterConfigurationBean</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnServiceBean</param-name>
+            <param-value>org.sakaiproject.section.api.facade.manager.Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzServiceBean</param-name>
+            <param-value>org.sakaiproject.section.api.facade.manager.Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextManagementServiceBean</param-name>
+            <param-value>org.sakaiproject.section.api.facade.manager.Context</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>SectionAuthzFilter</filter-name>
+        <url-pattern>*.jsf</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+	<jsp-config>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<include-prelude>/inc/prelude.jspf</include-prelude>
+			<include-coda>/inc/coda.jspf</include-coda>
+		</jsp-property-group>
+	</jsp-config>
+
+</web-app>

@@ -1,0 +1,45 @@
+<%/*
+	Search filter and paging controls for enrollment tables.
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+*/%>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
+<h:panelGrid styleClass="gbContainerNav" columns="2" columnClasses="gbLeftNav,gbRightNav">
+	<t:div>
+		<t:div styleClass="gbListView spinnerBesideContainer" id="selectSectionContainer">
+			<h:outputLabel value="#{msgs.search_sections_filter} " for="selectSectionFilter" /><h:outputText escape="false" value="&nbsp;&nbsp;" />
+			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}" onchange="SPNR.insertSpinnerAfter( this, null, 'gbForm:selectSectionContainer' ); this.form.submit()">
+				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
+			</h:selectOneMenu>
+			
+			<h:outputText escape="false" value="&nbsp;&nbsp;" /><h:outputLabel value="#{msgs.search_categories_filter} " for ="selectCategoryFilter"><h:outputText styleClass="skip" value=" #{msgs.search_categories_filter2}" /></h:outputLabel><h:outputText escape="false" value="&nbsp;&nbsp;" />
+			<h:selectOneMenu id="selectCategoryFilter" immediate="true" value="#{bean.selectedCategoryFilterValue}" onchange="SPNR.insertSpinnerAfter( this, null, 'gbForm:selectSectionContainer' ); this.form.submit()"
+				valueChangeListener="#{bean.setSelectedCategoryFilterValue}">
+				<f:selectItems value="#{bean.categoryFilterSelectItems}" />
+			</h:selectOneMenu>
+		</t:div>
+		<t:div style="margin-bottom: 5px;">
+		    <h:outputLabel value="#{msgs.search_sections_search}" for="searchString" styleClass="skip" />
+			<h:inputText
+				id="searchString"
+				value="#{bean.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msgs.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'gbForm:searchSubmitButton');"
+			/><f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.search}" value="#{msgs.search_find}" id="searchSubmitButton" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.clear}" value="#{msgs.search_clear}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</t:div>
+	</t:div>
+
+	<t:div>
+		<t:div styleClass="gbListView">
+			<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
+		</t:div>
+		<t:div styleClass="shorttext">
+			<h:outputLink value="hideShowColumns" target="dialogFrame" onclick="dialogutil.openDialog('dialogDiv', 'dialogFrame');">
+				   	<h:outputText value="#{msgs.hide_show_openLink}" />
+			</h:outputLink>
+		</t:div>
+	</t:div>
+
+</h:panelGrid>

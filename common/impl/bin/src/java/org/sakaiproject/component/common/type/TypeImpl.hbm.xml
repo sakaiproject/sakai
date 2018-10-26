@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.component.common.type">
+
+  <class name="org.sakaiproject.component.common.type.TypeImpl"
+    table="CMN_TYPE_T" optimistic-lock="version">
+
+    <cache usage="read-write" />
+
+    <!-- Persistable fields -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">CMN_TYPE_S</param>
+      </generator>
+    </id>
+
+    <version name="version" column="VERSION" />
+
+    <property name="uuid" column="UUID" length="36" unique="true"
+      not-null="true" />
+    <property name="lastModifiedBy" column="LAST_MODIFIED_BY"
+      length="36" not-null="true" />
+    <property name="lastModifiedDate" column="LAST_MODIFIED_DATE"
+      not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="36"
+      not-null="true" />
+    <property name="createdDate" column="CREATED_DATE" not-null="true" />
+
+
+    <!-- Type fields -->
+    <!-- length="166" to support MySQL max key length of 500
+      i.e. (166 * 3) < 500 -->
+
+    <property name="authority">
+      <column name="AUTHORITY" index="CMN_TYPE_T_AUTHORITY_I"
+        unique-key="CMN_TYPE_T_TUPLE_I" length="100" not-null="true" />
+    </property>
+
+    <property name="domain">
+      <column name="DOMAIN" index="CMN_TYPE_T_DOMAIN_I"
+        unique-key="CMN_TYPE_T_TUPLE_I" length="100" not-null="true" />
+    </property>
+
+    <property name="keyword">
+      <column name="KEYWORD" index="CMN_TYPE_T_KEYWORD_I"
+        unique-key="CMN_TYPE_T_TUPLE_I" length="100" not-null="true" />
+    </property>
+
+    <property name="displayName">
+      <column name="DISPLAY_NAME" length="255" not-null="true"
+        index="CMN_TYPE_T_DISPLAY_NAME_I" />
+    </property>
+
+    <property name="description">
+      <column name="DESCRIPTION" length="255" not-null="false" />
+    </property>
+
+  </class>
+
+  <query name="findTypeById">
+    <![CDATA[from org.sakaiproject.component.common.type.TypeImpl as type where type.id = :id]]>
+  </query>
+
+  <query name="findTypeByUuid">
+    <![CDATA[from org.sakaiproject.component.common.type.TypeImpl as type where type.uuid = :uuid]]>
+  </query>
+
+  <query name="findTypeByTuple">
+    <![CDATA[from org.sakaiproject.component.common.type.TypeImpl as type where type.authority = :authority and type.domain = :domain and type.keyword = :keyword]]>
+  </query>
+
+</hibernate-mapping>

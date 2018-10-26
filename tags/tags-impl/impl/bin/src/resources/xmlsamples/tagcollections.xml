@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<TagCollections>
+  <TagCollection>
+    <Name>Star Wars</Name>    
+    <Description>This is the Starwars tag collection</Description>
+    <ExternalSourceName>STARWARS</ExternalSourceName>
+    <ExternalSourceDescription>Comes from a standard update</ExternalSourceDescription>
+    <DateRevised>
+	<Year>2016</Year>
+	<Month>07</Month>
+   	<Day>12</Day>
+    </DateRevised>
+  </TagCollection>
+  <TagCollection>
+    <Name>Star Trek</Name>
+    <Description>This is the Startrek tag collection</Description>    
+    <ExternalSourceName>STARTREK</ExternalSourceName>
+    <ExternalSourceDescription>Comes from a standard update</ExternalSourceDescription>
+    <DateRevised>
+	<Year>2014</Year>
+	<Month>05</Month>
+   	<Day>11</Day>
+    </DateRevised>
+  </TagCollection>
+</TagCollections>
+
+

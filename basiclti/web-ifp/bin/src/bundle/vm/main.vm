@@ -1,0 +1,44 @@
+<div class="portletBody">
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+#if ($!popup) 
+#if ( ! $!popupdone ) 
+<script type="text/javascript" language="JavaScript">
+window.open('$!source','BasicLTI');
+</script>
+#end
+<p>
+$tlang.getString("new.page.launch") </p> <p>
+<a href="$source" onclick="window.open('$!source','BasicLTI'); return false;" target="LTI">$tlang.getString("new.page.relaunch")</a>
+</p>
+#else
+<div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
+<iframe 
+	width="100%"
+	id="wciframe"
+	style="width:100%;padding:0 !important; height:$height"
+	frameborder="0"
+	marginwidth="0"
+	marginheight="0"
+	scrolling="auto"
+	src="$!source">
+</iframe>
+<script>
+window.addEventListener('message', function(e) {
+  try {
+    var message = JSON.parse(e.data);
+    var idval = 'wciframe';
+    if ( message.subject == 'lti.frameResize' ) {
+      var height = message.height;
+      document.getElementById(idval).style.height = height;
+      document.getElementById(idval).style.width = '100%';
+      console.log('Reveived lti.frameResize height='+height);
+    }
+  } catch (error) {
+   console.log('lti.frameResize of '+idval+' failed height='+height);
+   console.log(e.data);
+  }
+});
+</script>
+</div>
+#end
+</div>

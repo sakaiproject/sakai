@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.email.api.DigestService"
+			class="org.sakaiproject.email.impl.DbDigestService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+
+ 		<property name="tableName"><value>SAKAI_DIGEST</value></property>
+ 		<property name="locksInDb"><value>false</value></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.sakaiproject.email.api.EmailService"
+			class="org.sakaiproject.email.impl.BasicEmailService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+
+		<property name="smtp"><null/></property>
+		<property name="smtpPort"><null/></property>
+		<property name="smtpFrom"><null/></property>
+		<property name="maxRecipients"><value>100</value></property>
+		<property name="oneMessagePerConnection"><value>false</value></property>
+		<property name="testMode"><value>false</value></property>
+	</bean>
+
+</beans>

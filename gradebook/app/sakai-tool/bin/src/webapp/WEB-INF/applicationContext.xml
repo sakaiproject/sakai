@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="org.sakaiproject.content.api.ContentResourceFilter.spreadsheetCsvFile"
+      parent="org.sakaiproject.content.api.ContentResourceFilter.base">
+      <property name="viewAll">
+         <value>true</value>
+      </property>
+      <property name="mimeTypes">
+         <list>
+            <value>text/csv</value>
+         </list>
+      </property>
+      <property name="acceptedExtensions">
+         <list>
+            <value>csv</value>
+         </list>
+      </property>
+   </bean>
+
+    <!-- EB Entity Providers - classes in sakai-gradebook-app-ui -->
+    <bean id="GradebookEntityProvider" 
+    	parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+    	class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntityProvider"
+        >
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+      	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+      	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+	  	<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+
+    <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+    </bean>
+
+    <!-- handles configuration of internationalization messages -->
+    <bean id="messageSource" parent="messageSourceParent"
+        depends-on="TLABPostProcessorLoader">
+      <property name="basename" value="WEB-INF/bundle/messages" />
+    </bean>
+
+    <bean parent="viewParamsInterceptorParent">
+        <!-- intercept incoming views to filter on permissions -->
+        <property name="value">
+            <bean id="GradebookViewParamsInterceptor" class="org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookViewParamsInterceptor">
+                <property name="localPermissionLogic" ref="LocalPermissionLogic" />
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="Assignment" parent="entityBeanLocatorParent">
+        <property name="newMethod" value="AssignmentCreator.create" />
+        <property name="fetchMethod" value="GradebookItemBean.getAssignmentById" />
+    </bean>
+
+    <bean id="AssignmentCreator" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentCreator" />
+
+    <bean parent="requestAddressibleParent">
+        <!-- Define the bean roots from the request scope file that are accessible via incoming request URL -->
+        <property name="value" value="Assignment,AssignmentGradeRecord,Comment,GradebookItemBean,AssignmentGradeRecordBean" />
+    </bean>
+    <!-- EB end -->
+
+</beans>

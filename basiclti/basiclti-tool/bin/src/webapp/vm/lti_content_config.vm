@@ -1,0 +1,74 @@
+<div class="portletBody">
+#if ( $autoLaunch ) 
+<p>$tlang.getString("content.redirecting")</p>
+<script type="text/javascript"><!--
+setTimeout('window.location="$autoLaunch";', 1500);
+// -->
+</script>
+#else
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('lti_content_config.vm');</script>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+	<h3>
+		$tlang.getString("content.put")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+<h4>$tool_title</h4>
+#if ( $tool_launch ) 
+<p>$validator.escapeHtml($tool_launch)</p>
+#end
+#if ( $tool_description ) 
+<p>$validator.escapeHtml($tool_description)</p>
+#end
+#if ( $contentLaunch )
+<p>
+$tlang.getString("contentitem.detail")
+</p>
+<p>
+<a href="$contentLaunch">$tlang.getString("contentitem.link")</a>
+</p>
+</p>
+#end
+#if ( $keyField ) 
+$tlang.getString("need.tool.info")
+		$keyField
+		$secretField
+#end
+#if ( $formInput ) 
+		$formInput
+#end
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                <input type="hidden" name="tool_id" value="$tool_id" />
+#if ( $returnUrl ) 
+                <input type="hidden" name="returnUrl" value="$returnUrl" />
+#end
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doAction" 
+				value="$tlang.getString('gen.save')" />
+#if ( $cancelUrl )
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
+ 				onclick="parent.location = '$cancelUrl';return false;">
+#end
+		</p>
+	</form>
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
+#if ( $isAdmin ) 
+$tlang.getString("content.admin.note")
+#end
+#if ( ! $isAdmin )
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+#end
+</div>

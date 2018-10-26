@@ -1,0 +1,50 @@
+@import "defaults";
+
+@import "base/extendables";
+@import "base/defaults";
+@import "base/icons";
+@import "modules/tool/menu";
+@import "modules/navigation/breadCrumbs";
+
+a[href]:after {
+	content: none !important;
+}
+
+#toolMenuWrap, 
+#mastLogin, 
+#skipNav,
+#linkNav,
+#selectSiteModal,
+#tutorial,
+.#{$namespace}container--extras,
+.#{$namespace}footer--details__build-info,
+.#{$namespace}footer--details__server-time,
+.#{$namespace}sitesNav__menuitem--myworkspace,
+.#{$namespace}headerLogo,
+.#{$namespace}toolTitleNav__button_container,
+.#{$namespace}toolTitleNav__button_container *,
+##{$namespace}footerApp__chat{
+	display: none !important;
+}
+
+#{$namespace}toolTitleNav__title{
+	font-size: 200%;
+	a{
+		text-decoration: none;
+	}
+}
+
+.navIntraTool {
+    font-size: 0.8em;
+    margin: 0.5em 0 0 0 !important;
+}
+
+.#{$namespace}siteHierarchy{
+    box-shadow: 0 0 0 0 rgba(0,0,0,0);
+    border: 0px none;
+	line-height: 1;
+}
+
+#footer{
+	border-top: 1px solid black;
+}

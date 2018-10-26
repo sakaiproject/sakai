@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Import from file - Confirm groups</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" src="/library/js/jquery.js"></script>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="../js/util.js"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
+</head>
+<body>
+<div class="portletBody">
+    <div rsf:id="content:">
+        <h3 rsf:id="msg=import2.check">import2.check</h3>
+        <div rsf:id="import2.error" class="alertMessage">import2.error</div>
+        <div rsf:id="import2.okay" class="instruction">import2.okay</div>
+		<p class="alertMessage" rsf:id="import2.couldntimportgroups">import2.couldntimportgroups</p>
+
+		<div rsf:id="groups:">
+			<h3 rsf:id="title">Group A</h3>
+			<span class="information" rsf:id="groupexistsmsg:">import2.groupexists</span>
+			<h4 rsf:id="invalidmemberheading:">import2.invalidmemberheading</h4>
+			<ol>
+				<li rsf:id="invalidmember:">jsmith26</li>
+			</ol>
+			<h4 rsf:id="existmemberheading:">import2.existmemberheading</h4>
+			<ol>
+				<li rsf:id="existmember:">jsmith26</li>
+			</ol>
+			<h4 rsf:id="newmemberheading:">import2.newmemberheading</h4>
+			<ol>
+				<li rsf:id="newmember:">jsmith26</li>
+			</ol>
+		</div>
+
+		
+        <form method="post" rsf:id="form">
+           
+			<p class="act">
+                <input type="submit" rsf:id="continue" id="continue" value="Create Groups" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                <input type="button" accesskey ="b" rsf:id="back" id="back" value="Back" onclick="history.back();" />
+                <input type="submit" accesskey ="x" rsf:id="cancel" id="cancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+        </form>
+        
+    </div>
+</div>
+</body>
+</html>

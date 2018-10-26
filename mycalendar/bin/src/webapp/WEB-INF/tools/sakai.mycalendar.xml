@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+    <tool id="sakai.mycalendar"
+        title="My Calendar"
+        description="A widget that shows a user's calendar and upcoming events">
+
+        <configuration name="reset.button" value="false" />
+        <configuration name="help.button" value="false" />
+        <configuration name="sakai:tool-directurl-enabled" value="false" />
+
+        <configuration name="renderInline" value="true" />
+        <configuration name="suppressTitle" value="true" />
+
+    </tool>
+</registration>

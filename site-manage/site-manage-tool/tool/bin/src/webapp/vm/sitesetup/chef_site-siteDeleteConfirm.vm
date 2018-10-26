@@ -1,0 +1,65 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteDeleteConfirm.vm,v 1.3 2005/05/25 16:54:27 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	<h3>
+		#if($softDelete)
+			$tlang.getString("sitegen.sitedel.remov.soft")
+		#else
+			$tlang.getString("sitegen.sitedel.remov")
+		#end
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitegen.sitedel.alert") $alertMessage</div>#end
+	<form action="#toolForm("$action")" method="post">
+	#if($removals && $removals.size() != 0)
+		<div class="alertMessage">
+			#if($softDelete)
+				$tlang.getString("sitegen.sitedel.soft")
+			#else
+				$tlang.getString("sitegen.sitedel.deleting1")
+			#end
+			
+			#if($hardDelete)
+				<p>$tlang.getString("sitegen.sitedel.hard")</p>
+			#end
+		</div>
+		<p class="highlight">
+			#if($removals.size() == 1)
+				#if($softDelete)
+					$tlang.getString("sitegen.sitedel.you.soft")
+				#else	
+					$tlang.getString("sitegen.sitedel.you")
+				#end
+			#else
+				#if($softDelete)
+					$tlang.getString("sitegen.sitedel.you2.soft")
+				#else	
+					$tlang.getString("sitegen.sitedel.you2")
+				#end
+			#end
+		</p>
+			<ul class="attachList indnt2">
+				#foreach($site in $removals)
+					<li>	<input type="hidden" name="selectedMembers" value="$site.getId()" />
+							$validator.escapeHtml($site.getTitle())
+					</li>
+				#end
+			</ul>
+	#end
+		<input type="hidden" name="continue" value="0" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<div class="act">
+		#if($removals && $removals.size() != 0)
+			#if($softDelete)
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.softly.delete")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#elseif($hardDelete)
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.hard.button")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#else	
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#end
+		#end
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.sitedel.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

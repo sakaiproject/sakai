@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="sakai.sitestats" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>SiteStats</display-name>
+	<description>Site Stats Tool</description>
+    <distributable />
+    
+    
+    <!-- Wicket mode (development/deployment) -->
+    <context-param>
+        <param-name>configuration</param-name>
+        <param-value>deployment</param-value>
+    </context-param>
+    
+
+    <!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <!--<init-param>
+            <param-name>http.session</param-name> 
+            <param-value>tool</param-value> 
+        </init-param>-->
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sitestats</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+                
+                
+    <!-- Tool: sakai.sitestats -->
+    <servlet>
+        <servlet-name>sakai.sitestats</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>        
+        <init-param>
+            <param-name>applicationFactoryClassName</param-name>
+            <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+        </init-param>
+        <init-param>
+            <param-name>applicationBean</param-name>
+            <param-value>siteStatsApplication</param-value>
+        </init-param>
+		<init-param> <!-- Wicket param, used instead of servlet-mapping because we have two servlets. See explanation below. -->
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
+    </servlet>
+                
+                
+    <!-- Tool: sakai.sitestats.admin -->
+    <servlet>
+        <servlet-name>sakai.sitestats.admin</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>        
+        <init-param>
+            <param-name>applicationFactoryClassName</param-name>
+            <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+        </init-param>
+        <init-param>
+            <param-name>applicationBean</param-name>
+            <param-value>siteStatsAdminApplication</param-value>
+        </init-param>
+		<init-param> <!-- Wicket param, used instead of servlet-mapping because we have two servlets. See explanation below. -->
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
+    </servlet>
+	
+	<!--
+	Two servlets mapped to the same url pattern in web.xml is invalid, but url-mappings other than /* don't work.
+	Had to resort to using the Wicket parameter "filterMappingUrlPattern" to get both servlets working. See above.
+	
+    <servlet-mapping>
+        <servlet-name>sakai.sitestats</servlet-name>
+        <url-pattern>/*</url-pattern>      
+    </servlet-mapping>
+        
+    <servlet-mapping>
+        <servlet-name>sakai.sitestats.admin</servlet-name>
+        <url-pattern>/*</url-pattern>      
+    </servlet-mapping>
+    -->
+
+
+    <!--  The ToolListener causes this tool to be registered with Sakai.  -->
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+    </listener>
+    
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    
+    <session-config>
+      <session-timeout>0</session-timeout>
+    </session-config>
+
+</web-app>

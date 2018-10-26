@@ -1,0 +1,4 @@
+## This Vm is loaded when the page requires a top refresh before building any template
+<script type="text/javascript" language="JavaScript">
+	parent.location.replace(parent.location);
+</script>

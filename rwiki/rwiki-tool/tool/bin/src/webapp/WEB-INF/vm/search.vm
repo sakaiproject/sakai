@@ -1,0 +1,72 @@
+#set($searchBean = ${requestScope.searchBean})
+#set($rightRenderBean = ${requestScope.searchRightRenderBean})
+#set($recentlyVisitedBean = ${requestScope.recentlyVisitedBean})
+#set(${recentlyVisitedBean.searchPage} = ${searchBean})
+#set($homeBean = ${requestScope.homeBean})
+#set($rlb = ${requestScope.resourceLoaderBean})
+#set($title = "${rlb.jsp_search}: ${util.escapeHtml($searchBean.search)}")
+#header(${title} false "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool actionToolBar">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} "" ${rlb} ) 
+	    <span class="rwiki_searchBox">
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.searchTarget)}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" name="search" />
+	    </span>
+	  </form>
+	</div>
+	
+	#if (${rightRenderBean.hasContent})
+		#set($rwikiContentStyle = "withsidebar")
+	#else
+		#set($rwikiContentStyle = "nosidebar")
+	#end
+	
+	
+			<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb">
+					<span id="breadPref">${rlb.jsp_search}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($searchBean.search)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+		})
+	</script>
+	<div id="rwiki_head" >				    
+		#sidebar_switcher()
+	</div>
+
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+		#set($searchResults = ${searchBean.searchResults})
+		#set($searchViewBean = ${util.newViewBean($requestScope)})
+      	<ul class="attachList">
+      	#if ( $searchResults.size() > 0 ) 
+      		#foreach( $result in $searchResults )
+      		   #set( $searchViewBean.pageName  = ${result.name})
+	      	    <li><a href="${util.escapeHtml(${searchViewBean.viewUrl})}" >${util.escapeHtml($searchViewBean.localName)}</a></li>
+      		#end
+      	#else
+      		<p class="instruction"></p>${rlb.jsp_no_results_found}</p>
+	  	#end
+	  	</ul>
+	 </div>
+	 #sidebar()
+  </div>
+</div>
+#footer()

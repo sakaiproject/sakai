@@ -1,0 +1,14 @@
+{
+    "tableOfContents": {
+        "name": "Table of Contents",
+        "description": "Present an automatic table of contents from any HTML page.",
+        "files": [
+            "./js/TableOfContents.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "framework",
+            "renderer"
+        ]
+    }
+}

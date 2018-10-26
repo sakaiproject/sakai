@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+	<title>Site Page Order</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+	<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
+	<script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
+	<script language="JavaScript" type="text/javascript">
+	var opt = new OptionTransfer("siteMembers-selection","groupMembers-selection");
+	opt.setAutoSort(true);
+	opt.setDelimiter("##");
+	opt.setStaticOptionRegex("^(Bill|Bob|Matt)$");
+	opt.saveRemovedLeftOptions("removedLeft");
+	opt.saveRemovedRightOptions("removedRight");
+	opt.saveAddedLeftOptions("addedLeft");
+	opt.saveAddedRightOptions("addedRight");
+	opt.saveNewLeftOptions("newLeft");
+	opt.saveNewRightOptions("newRight");
+	
+	var escapeList = ["siteMembers-selection", "groupMembers-selection"];
+	
+		function checkform ( form, message )
+		{
+		  // check whether the title field is null
+		
+		  // ** START **
+		  if (form.group_title.value === "") {
+		   	$('.messageValidation').show();
+		    form.group_title.focus();
+		    return false ;
+		  }
+		  // ** END **
+		  return true ;
+		}
+	</script>
+</head>
+<body>
+<div class="portletBody">
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+	</div>
+	<form rsf:id="groups-form" onsubmit="return checkform(this);">
+		<h3 rsf:id="prompt"></h3>
+		<p id="" class="messageValidation" rsf:id="emptyGroupTitleAlert" style="display:none"/>
+		<p rsf:id="instructions" class="instruction">
+			Select members of the site member list and add to group. Select members of group list and remove. Click Update to save changes.
+		</p>
+		<p class="shorttext">
+			<label style='float:none;clear:both;margin:0;padding:0' for="group_title">
+				<span class="reqStar">*</span>
+				<span rsf:id="group_title_label">Title</span>
+			</label>
+			<br /><input name="group_title" type="text" size="50" maxsize="99" rsf:id="group_title" id="group_title"/>
+		</p>	
+		<label rsf:id="group_description_label">
+			Description
+		</label>
+		<div  style="width:70%">
+			<textarea rsf:id="group_description" name="Description" cols="80" rows="10" wrap="virtual"></textarea>
+		</div>	
+
+
+		<h4 rsf:id="membership_label"></h4>
+		<table class="sidebyside" cellpadding="0" cellspacing="0" style="margin:0">
+			<tr>
+				<td style="padding:0">
+					<h4 rsf:id="membership_site_label"></h4>
+					<select style="width:auto" multiple="multiple" size="10" rsf:id="siteMembers" id="siteMembers-selection" name="siteMembers-selection" onDblClick="opt.transferRight()">
+					</select>
+				</td>
+				<td style="padding:.3em;text-align:center;vertical-align:bottom">
+					<input type="button" name="right" value="&gt;&gt;" onclick="opt.transferRight()" /><br /><br />
+					<input type="button" name="right" value="All &gt;&gt;" onclick="opt.transferAllRight()" /><br /><br />
+					<input type="button" name="left" value="&lt;&lt;" onclick="opt.transferLeft()" /><br /><br />
+					<input type="button" name="left" value="All &lt;&lt;" onclick="opt.transferAllLeft()" />
+				</td>
+				<td valign="top" style="padding:0">
+					<h3 rsf:id="membership_group_label"></h3>
+					<select style="width:auto"  multiple="multiple" rsf:id="groupMembers" id = "groupMembers-selection" name="groupMembers-selection" size="10" ondblclick="opt.transferLeft()" >
+					</select>
+				</td>
+			</tr>
+		</table>
+		<input rsf:id="newRight" id="newRight" type="hidden"/>
+		<input rsf:id="groupId" id="groupId" type="hidden"/>
+		<p class="act">
+
+			<input accesskey="s" rsf:id="save" class="active" value="Save" type="submit" />
+			<input accesskey="x" rsf:id="cancel" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, escapeList );" />
+		</p>			
+	</form>
+	<SCRIPT LANGUAGE="JavaScript">
+		opt.init(document.forms[0]);
+	</SCRIPT>
+</div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+
+/*
+ * Styles for our confirmation dialogs using JQuery UI Dialog
+ */
+
+
+.ui-dialog {
+	border: solid 1px #525252;
+	background-color: white;
+}
+ 
+.ui-dialog-container {
+
+}
+
+.ui-dialog-content {  
+
+}
+
+
+.ui-dialog-titlebar-close {
+    display: none;
+}
+
+.ui-dialog-titlebar {
+    display: none;
+}
+
+.ui-dialog-buttonpane {
+    display: none;
+}
+
+.ui-dialog-msg-list {
+	margin:0;
+	padding:0;
+	list-style-type:none;
+	list-style-position: outside; 
+	list-style: none;
+}

@@ -1,0 +1,267 @@
+<div class="portletBody container-fluid">
+
+	## SAK-23255
+	#if( $isAdmin || !$skipCourseSectionSelection )
+
+	#if (!$!site)
+		<h3>$tlang.getString("nscourse.creating")</h3>
+	#else
+		<h3>$tlang.getString("nscourse.edit") <span class="highlight">$!siteTitle</span></h3>
+	#end
+	<p class="step">
+		$tlang.getString("nscourse.findCourse") - $term.title
+	</p>
+		
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+		   #if ($selectedProviderCourse || $cmRequestedSections)
+				<p>
+					$tlang.getString("sitegen.addcourse.you")
+				</p>	
+				<form name = "removeSectionForm" id="removeSectionForm" method="post" action="#toolForm($action)">
+					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
+					<input type="hidden" name="option" value="remove" />
+					<div class="table-responsive course-section">
+						<table class="table table-bordered table-hover table-striped" summary="">
+							#foreach($item in $!selectedProviderCourseTitles.keySet())
+								<tr>
+									<td>
+										$!selectedProviderCourseTitles.get($item)
+									</td>
+									<td>
+										<!-- Remove Section -->
+										<span class="itemAction">
+											<a href="#" onclick="submitRemoveSection('$item', 'removeSectionForm');">$tlang.getString("man.remove")</a>
+											<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
+										</span>	
+									</td>
+								</tr>	
+							#end
+							#if (!$!editSite)
+								#foreach($section in $!cmRequestedSections)
+									<tr>
+										<td>
+												$section.Title $tlang.getString("man.requested")
+										</td>
+										<td>
+											<!-- Remove Section -->
+											<span class="itemAction">
+												<a href="#" onclick="submitRemoveSection('$section.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
+												<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+											</span>	
+										</td>
+									</tr>	
+								#end
+							#else
+								#foreach($s in $!cmSelectedSections)
+									<tr>
+										<td>
+												$s.title $tlang.getString("man.requested")
+										</td>
+										<td>
+											<!-- Remove Section -->
+											<span class="itemAction">
+												<a href="#" onclick="submitRemoveSection('$s.eid', 'removeSectionForm');">$tlang.getString("man.remove")</a>
+												<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
+											</span>	
+										</td>
+									</tr>	
+								#end
+							#end
+						</table>
+					</div>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			#end
+			<!-- end if section for selected courses -->
+		<p class="instruction">$tlang.getString("nscourse.findInstruction")</p>
+	<form name="findCourseForm" id="findCourseForm" method="post" action="#toolForm($action)">
+		
+		<!-- loop through course identifier fields -->
+		<!-- these are place holders for the actual fields - they should
+		      be dynamically labelled based on the config. -->
+		#set ($i=0)
+		#set($maxLevel = $cmLevels.size() - 1)
+		
+		#foreach ($level in $cmLevels)
+			<div class="form-group row ">
+				
+					#set($fieldName="idField_$i")
+					<label for="id-$fieldName" class="col-sm-3 form-control-label">
+				  		<!-- label for this level in CM -->
+				  		${level}
+					</label>
+				
+				
+	##   Removed the manual entry page.  This is handled instead by template #37 from within
+	##   SiteAction.  This was preserved because of its ability to handle multiple levels
+	##   of ID fields, whereas find course is spec'd to use more than three levels:
+	##			CourseSetCategories I
+	##			CourseSetCategories II
+	##			....
+	##			CourseSetCategories X
+	##			CourseSet (filtered to match deployer configured category)
+	##			CourseOffering
+	##			Section
+	##
+				<div class="col-sm-6">
+				  	<!-- use dropdown list to select from coursemanagement service provided options -->
+					  <input type=hidden name="cmLevelChanged" id="cmLevelChanged" value="false" />
+					  <input type=hidden name="cmChangedLevel" id="cmChangedLevel" value="-1" />
+					  #if ($i == 0 || ($cmLevelSelections && $i < $cmLevelSelections.size() + 1))
+						  <select name="$fieldName" id="id-$fieldName" 
+						  	#if ($i == $maxSelectionDepth) 
+						  		onchange="blur();document.findCourseForm.submit();" multiple 
+						  	#else
+						  		onchange="blur();changeLevel($i);document.findCourseForm.submit();"
+						  	#end>
+					  #else
+					  	  <select name="$fieldName" disabled="true" id="id$fieldName" >
+					  #end
+					  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
+						#if ($cmLevelOptions && $i < $cmLevelOptions.size())
+						    #if ($cmLevelSelections && $i < $cmLevelSelections.size())
+								#set ($selectedItem = $cmLevelSelections.get($i))
+						    #end
+	                        #foreach ($coursething in $cmLevelOptions.get($i))
+								## down at the final three levels: CourseSet, CourseOffering, Section
+								<option value="$coursething.eid" 
+							   		#if (($i == $maxLevel && $cmLevelSelections.lastIndexOf($coursething.eid) >= $i) || ($i < $maxLevel && $coursething.eid == $selectedItem))						   ###if ($i < $cmLevelSelections.size() && $!selectedItem.contains($coursething.eid))) 
+							    		selected="true" 
+							 		#end
+								>
+									$coursething.title 
+								</option>
+					    	#end
+					     #end
+				      <!-- end population of select options -->
+					  </select>
+		      	</div>
+			  <!-- end creation of select box -->
+			  #set($i = $i + 1)
+			  </div>
+		   #end
+		
+	
+		   <div class="shorttext">
+		   	<label for ="selectedSections">
+		    	$tlang.getString("nscourse.findCourse.selected")
+		    </label>
+			<span class="highlight" id="selectedSections">
+			  #if ($selectedCourse)
+			  	<table class="listHier lines nolines indnt1" style="width:auto" border="0">
+				  	#foreach($course in $selectedCourse)
+				        <tr>
+				        	<td>
+				        		$course.title $tlang.getString("man.requested")
+				        		#set($authGroupSet=$!authzGroupService.getAuthzGroupIds($selectedCourse.eid))
+								#if ($!authGroupSet && !$!authGroupSet.isEmpty())
+									$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';utils.resizeFrame();">$tlang.getString("nscourse.select_anyways")</a></span>
+								#end
+							</td>
+						</tr>
+					#end
+				</table>
+			  #else
+				$tlang.getString("java.none")
+			  #end
+		 	</span>
+		 </div>
+		#if ($requireAuthorizer)
+			<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
+
+					<div class="shorttext required form-group row ">						
+						<label for="uniqname" class="col-sm-3 form-control-label">		
+							<span class="reqStar">*</span>						
+						   $tlang.getString("man.authoriz")
+						</label>
+						<div class="col-sm-6">
+							<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />
+						</div>
+					</div>
+					<p class="labelindnt">
+					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
+					</p>
+					<div class="shorttext  form-group row">
+						<label for="additional" class="col-sm-3 form-control-label">
+							$tlang.getString("man.spec")
+						</label>
+						<div class="col-sm-6">
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						</div>
+					</div>
+					<p  class="labelindnt">
+						<span class="textPanelFooter">$tlang.getString("man.please")</span>
+					</p>
+			</div>
+		#else
+			<input type="hidden" name="uniqname"  value="admin" />
+			<input type="hidden" name="additional" value="" />
+		#end
+		<a href="#" #if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty())) disabled="true"#end onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
+			<br />
+			<!-- end loop through fields-->
+		 
+		## determine to skip manual course site create link in worksite setup
+		#if( !$skipManualCourseCreation )
+			<p>
+				<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
+					$tlang.getString("nscourse.findCourse.stillNotFound")
+				</a>
+			</p>
+		#end
+		 
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
+		<input type="hidden" name="option" value="find"/>
+		## if site creation is based on template, this could be the final step!
+		#if ($!basedOnTemplate) 
+			<div class="instruction" id ="nextInstructions">
+				<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+			</div>
+		#end
+		<p class="act">
+			<input id="continueButton" name="continueButton"
+				#if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty()))
+  			disabled="true"
+				#end
+			 type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
+				#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('continue', 'findCourseForm');" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
+				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('back', 'findCourseForm');" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
+				onclick="SPNR.disableControlsAndSpin( this, null ); resetOption('cancel', 'findCourseForm');" />
+		</p>
+
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	
+	## SAK-23255
+	#else
+		## If the filter terms feature is enabled, show the user a message indicating they don't have any sections in the selected term
+		#if( $filterTerms )
+			<h3>$tlang.getString( 'nscourse.no_sections_in_term' )</h3>
+		## Otherwise, show the user a message indicating that the manual course site pages have been disabled globally
+		#else
+			<h3>$tlang.getString( 'nscourse.manual_disabled' )</h3>
+		#end
+		
+		## Provide the back and cancel buttons
+		<form name="findCourseForm" method="post" action="#toolForm($action)">
+		
+			<input type="hidden" name="back" value="$!backIndex" />
+			<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
+			<input type="hidden" name="eventSubmit_doFind_course" value="x" />
+			<input type="hidden" name="option" value="find"/>
+			<p class="act">
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
+					onclick="SPNR.disableControlsAndSpin( this, null );resetOption('back', 'findCourseForm');" class="active" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
+					onclick="SPNR.disableControlsAndSpin( this, null );resetOption('cancel', 'findCourseForm');" />
+ 			</p>
+
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#end
+</div>

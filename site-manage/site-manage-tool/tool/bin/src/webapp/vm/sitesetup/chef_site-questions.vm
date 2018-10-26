@@ -1,0 +1,46 @@
+<div class="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	<h4>
+	$questionSet.getInstruction()
+	#set($url=false)
+	#set($url=$questionSet.getUrl())
+	#if ($!url)
+	<a href="$url" target="$questionSet.getUrlTarget()">$questionSet.getUrlLabel()</a>
+	#end
+	</h4>
+	<form name = "removeSectionForm" method="post" action="#toolForm($action)">
+		#foreach ($question in $questionSet.getQuestions())
+			<h5>
+				#if ($question.required)
+					<span class ="reqStarInline">*</span>
+				#end
+				$question.getQuestion()
+			</h5>
+			#foreach($userAnswer in $userAnswers)
+				#if ($userAnswer.getQuestionId().equals($question.getId()))
+					#set($selectedAnswerId=$userAnswer.getAnswerId())
+					#set($answerString = $userAnswer.getAnswerString())
+				#end
+			#end
+			#foreach($answer in $question.getAnswers())
+				<input #if ($question.isMultipleAnswsers())type="checkbox"#else type="radio" #end name="$question.getId()" value="$answer.getId()" id="$question.getId()" #if ($answer.getId().equals($!selectedAnswerId)) checked="checked"#end/>
+				$answer.getAnswer()
+				#if ($answer.getIsFillInBlank())
+					<input type="text" name="fillInBlank_$answer.getId()" value="$!answerString" id="fillInBlank_$answer.getId()" />
+				#end
+				<br />
+			#end
+		#end
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="$continueIndex" />
+					
+		<p class="act">
+			<input type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

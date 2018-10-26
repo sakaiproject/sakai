@@ -1,0 +1,108 @@
+ <item ident="" title="Multiple Choice Survey">
+  <duration/>
+  <itemmetadata>
+    <qtimetadata>
+      <qtimetadatafield>
+        <fieldlabel>qmd_itemtype</fieldlabel>
+        <fieldentry>Multiple Choice Survey</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>TEXT_FORMAT</fieldlabel>
+        <fieldentry>HTML</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>PREDEFINED_SCALE</fieldlabel>
+        <fieldentry>EXCELLENT</fieldentry>
+        <!-- possible entries YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, ECXELLENT, 5, 10 -->
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_KEYWORD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_RUBRIC</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_TAGS</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>      
+    </qtimetadata>
+  </itemmetadata>
+  <rubric/>
+  <presentation label="Resp001">
+    <flow>
+      <material>
+        <mattext/>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+      <response_lid ident="TF02" rcardinality="Single">
+        <render_choice shuffle="No">
+          <response_label ident="A">
+            <material>
+              <mattext>Unacceptable</mattext>
+            </material>
+          </response_label>
+          <response_label ident="B">
+            <material>
+              <mattext>Below average</mattext>
+            </material>
+          </response_label>
+          <response_label ident="C">
+            <material>
+              <mattext>Average</mattext>
+            </material>
+          </response_label>
+          <response_label ident="D">
+            <material>
+              <mattext>Above average</mattext>
+            </material>
+          </response_label>
+          <response_label ident="E">
+            <material>
+              <mattext>Excellent</mattext>
+            </material>
+          </response_label>
+        </render_choice>
+      </response_lid>
+    </flow>
+  </presentation>
+  <resprocessing>
+    <outcomes>
+      <decvar defaultval="0" maxvalue="0" minvalue="0" varname="SCORE"/>
+    </outcomes>
+    <respcondition continue="No">
+      <conditionvar>
+        <other/>
+      </conditionvar>
+      <displayfeedback feedbacktype="Response" linkrefid="InCorrect"/>
+    </respcondition>
+  </resprocessing>
+  <itemfeedback ident="Correct" view="All">
+    <flow_mat>
+      <material>
+        <mattext/>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+    </flow_mat>
+  </itemfeedback>
+  <itemfeedback ident="InCorrect" view="All">
+    <flow_mat>
+      <material>
+        <mattext></mattext>
+      </material>
+    </flow_mat>
+  </itemfeedback>
+</item>

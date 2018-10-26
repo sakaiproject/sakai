@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="messageSource"
+    class="org.sakaiproject.util.ResourceLoaderMessageSource"
+    depends-on="TLABPostProcessorLoader">
+    <property name="basename" value="classpath:org/sakaiproject/site/tool/managegroup/bundle/Messages"/>
+  </bean>
+
+  <bean parent="requestAddressibleParent">
+    <property name="value" value="SiteManageGroupHandler" />
+  </bean>
+
+  <bean parent="templateContributorParent">
+    <property name="templateNames" value="GroupList"/>
+    <property name="baseDirectory" value="content/templates/" />
+  </bean>
+  
+  <bean id="ignoreFossilizedValues"
+    class="uk.org.ponder.springutil.BooleanFactory">
+    <property name="value" value="true" />
+  </bean>
+  
+  <!-- Create a scope to preserve the SiteManageGroupHandler (int the HTTP session for a standalone app -->
+  <bean id = "resultScope" parent="beanScopeParent">
+  	<property name="copyPreservingBeans" value="SiteManageGroupHandler" />
+  	<property name="exclusive" value="true" />
+  </bean>
+</beans>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:extend>
+	<h2><wicket:message key="permissionspage.main.heading">Grader Perms</wicket:message></h2>
+
+	<div wicket:id="instructions" class="instruction">Instruction text goes here</div>
+
+	<wicket:enclosure child="ta">
+		<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
+	
+		<div class="form-inline">
+			<select wicket:id="ta" class="select">
+				<option>TA 1</option>
+			</select>
+		</div>
+	</wicket:enclosure>
+
+	<div class="instruction" wicket:id="noPermissions" />
+
+	<form wicket:id="form" class="form-inline gb-permissions-form">
+		
+		<wicket:enclosure child="viewCourseGrade">
+			<div class="checkbox gb-permissions-view-grade">
+				<label>
+					<input wicket:id="viewCourseGrade" type="checkbox" />
+					<wicket:message key="permissionspage.instructions.coursegrade" />
+				</label>
+			</div>
+		</wicket:enclosure>
+
+		<div class="gb-permissions-rules">
+			<div wicket:id="permissions" class="gb-permissions-rule">
+				<span wicket:id="can">Can</span>
+				<select wicket:id="function" class="select"/>
+				<select wicket:id="category" class="select"/>
+				<span wicket:id="allGradeItems"><wicket:message key="permissionspage.allgradeitems"/></span>
+				<span wicket:id="in">in</span>
+				<select wicket:id="group" class="select"/>
+				<button wicket:id="remove" class="button"><wicket:message key="button.remove" /></button>
+			</div>
+		</div>
+
+		<div class="gb-permissions-add-rule">
+			<button wicket:id="addRule" type="submit" class="button gb-add-permission-rule"><wicket:message key="permissionspage.addrule" /></button>
+		</div>
+
+		<div>
+			<button wicket:id="submit" class="button_color"><wicket:message key="button.savechanges" /></button>
+			<button wicket:id="clear" class="button"><wicket:message key="button.clear" /></button>
+		</div>
+	</form>
+
+</wicket:extend>
+</body>
+</html>

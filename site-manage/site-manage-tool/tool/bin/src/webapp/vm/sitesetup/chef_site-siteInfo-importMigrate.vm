@@ -1,0 +1,55 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMigrate.vm,v 1.0 2007/11/01 15:40:02 tnguyen.iupui.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+		$tlang.getString("sitinfimp.reuse")
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<form name="featuresForm" action="#toolForm("$action")" method="post">
+		## import is possible when use has maintain rights on at least one site other than the current one
+		#if ($!sites && $sites.size()>1)
+			<p class="step">
+				$tlang.getString("sitinfimp.reuse")
+			</p>
+			<p class="instruction">
+				$tlang.getString("sitinfimp.replace")
+			</p>
+			#set ($siteIDCounter =0)
+			#foreach($site in $sites)
+			#set ($siteIDCounter = $siteIDCounter + 1)
+				#if ($!currentSite && ($site.Id != $!currentSite.Id))
+					<div class="radio">	
+						<label for="site_$siteIDCounter">
+							<input type="radio" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
+								#if ($!importSiteList.containsKey($!site))
+									checked="checked"
+								#end
+					 		/>
+							$validator.escapeHtml($site.getTitle())
+						</label>
+					</div>	
+				#end
+			#end
+			<input type="hidden" name="back" value="58" />
+			<input type="hidden" name="templateIndex" value="59" />
+			<input type="hidden" name="continue" value="60" />
+			<p class="act">
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitinfimp.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+		#else
+			## show "no site available warning"
+			<p class="instruction">
+				$tlang.getString("import.noOtherSite")
+			</p>
+			<p class="act">
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+		#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

@@ -1,0 +1,113 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_aliases_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	<h3>
+		$tlang.getString("alias.aliases")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="instruction">
+		$tlang.getString("alias.list.defined")
+	</div>
+	
+	## paging widget
+			<div class="listNav">
+						#if($totalNumber>0)
+						<div class="instruction">
+						$tlang.getFormattedMessage("alias.list.youare", $numbers)
+						</div>
+						#end
+						#if ($pagesize != 0)
+							#if ($goFPButton == "true")
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("alias.list.first")" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+							#if ($goPPButton == "true")
+								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('alias.list.previous.withsize', $pagesize)"  accesskey="p" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+						#end
+						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+							<span class="skip">$tlang.getString("alias.list.listnavselect")</span>
+							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+								#foreach ($value in $sizeList)
+									## $value is an Integer array of length one
+									#foreach($intValue in $value)
+										## this is to get the first and only Integer element and its int value
+										#set($ivalue=$intValue.intValue())
+									#end
+									<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("alias.list.show", $value)</option>
+								#end
+							</select>
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						</form>
+						#if ($pagesize != 0)
+							#if ($goNPButton == "true")
+								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('alias.list.next.withsize', $pagesize)"  accesskey="n" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+							#if ($goLPButton == "true")
+								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('alias.list.last')" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+						#end
+				</div> ##end navPanel
+	#if ($aliases.size() > 0)
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("alias.list.summary")">
+			<tr>
+				<th id="Id">$tlang.getString("alias.list.alias")</th>
+				<th id="Target">$tlang.getString("alias.target")</th>
+			</tr>
+				#foreach ($alias in $aliases)
+					<tr>
+						<td headers="Id">
+							<h4>
+								#if ($service.allowEdit($alias.Id))
+									<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($alias.Id)")">
+										$validator.escapeHtml($alias.Id)
+									</a>
+								#else
+									$validator.escapeHtml($alias.Id)
+								#end
+							</h4>	
+						</td>
+						<td headers="Target">$validator.escapeHtml($alias.Target)</td>
+					</tr>
+				#end
+		</table>
+	#else
+		<div class="instruction">
+			$tlang.getString("alias.list.nodefined")
+		</div>
+	#end
+</div>

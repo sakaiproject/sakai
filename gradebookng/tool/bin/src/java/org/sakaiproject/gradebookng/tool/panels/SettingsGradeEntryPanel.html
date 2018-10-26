@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+	<wicket:panel>
+
+		<div class="panel panel-default">
+			<div class="panel-heading" role="tab" id="settingsGradeEntryHeader">
+				<h3 class="panel-title">
+					<a role="button" data-toggle="collapse" href="#settingsGradeEntry" aria-expanded="false" aria-controls="settingsGradeEntry">
+						<wicket:message key="settingspage.gradeentry.heading">Grade Entry</wicket:message>
+					</a>
+				</h3>
+			</div>
+			<div wicket:id="settingsGradeEntryPanel" id="settingsGradeEntry" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeEntryHeader">
+				<div class="panel-body">
+					<p><wicket:message key="settingspage.gradeentry.instructions">How will graders enter grades...</wicket:message></p>
+
+					<div wicket:id="gradeEntry">
+						<div class="radio"><label><input wicket:id="points" type="radio"/><wicket:message key="settingspage.gradeentry.points" /></label></div>
+						<div class="radio"><label><input wicket:id="percentages" type="radio"/><wicket:message key="settingspage.gradeentry.percentages" /></label></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</wicket:panel>
+</body>
+</html>

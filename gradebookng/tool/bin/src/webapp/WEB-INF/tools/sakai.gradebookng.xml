@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.gradebookng" 
+		title="Gradebook" 
+		description="For storing, calculating, distributing, and submitting grades">
+
+		<!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
+		<category name="course" />
+      	<category name="project" />
+      	<!--
+      	<category name="myworkspace" />
+       	<category name="sakai.admin" />
+       	-->
+
+		<!--  If the visibility/access of this tool should be dependent on a user permission, you can list that here -->
+		<!--  <configuration name="functions.require" value="some.permission"/> -->
+		
+    </tool>
+</registration>
+

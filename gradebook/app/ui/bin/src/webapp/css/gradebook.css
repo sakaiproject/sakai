@@ -1,0 +1,243 @@
+/* Gradebook specific CSS definitions. */
+
+/* Item property editing. THIS SHOULD BE MOVED INTO SAKAI CSS. */
+table.itemSummary td.itemName {
+	font-weight:bold;
+	white-space:nowrap;
+	vertical-align:top;
+	text-align:left;
+	padding:.3em 1em .3em .3em
+}
+
+/* Create a container for filter/paging controls to enable bottom-alignment. */
+/* THIS SHOULD BE MOVED INTO SAKAI CSS. */
+table.gbContainerNav {
+	width:100%;
+}
+/*
+	OVERRIDE NAV CONTROL SAKAI CSS DEFINITIONS FOR NOW.
+	They don't handle our situation, with search filters bottom-aligned
+	on the left and paging controls on the right.
+*/
+.gbLeftNav  {
+	vertical-align:bottom;
+    text-align:left;
+    white-space:nowrap;
+}
+.gbRightNav  {
+	vertical-align:bottom;
+    text-align:right;
+    white-space:nowrap;
+}
+
+tr.internal {}
+tr.external {
+	width:100%;
+	background-color:#FFC;
+}
+td.external {
+	font-style:italic;
+	text-align:right;
+	padding-right:2em;
+}
+/* The "Course Grade" is called out from individual assessments. */
+.courseGrade {
+	font-weight:bold;
+}
+
+/* Number fields are right-aligned with a bit of padding. */
+
+td.left {text-align:left; vertical-align:bottom; padding-right: 2.0em !important;}
+td.center {text-align:center; vertical-align:bottom; padding-right:1.0em; padding-left:1.0em;}
+td.right {text-align:right; vertical-align:bottom; padding-right:2em !important;}
+td.rightpadded {text-align:right; vertical-align:bottom; padding-right:5em !important;}
+
+th.left {white-space:nowrap; text-align:left; padding-right: 2.0em !important;}
+th.center {white-space:nowrap; text-align:center !important; padding-left: 1.0em !important; padding-right: 1.0em !important;}
+th.right {white-space:nowrap; text-align: right;}
+th.comments {width: 16em;}
+
+/* Most but not all tables are shown 100% width in the spec. */
+table.wideTable {
+	width:100%;
+}
+table.narrowTable {
+	width:auto;
+}
+/*
+	It would be better to use margin-right in a div or to apply this to specific
+	columns, but JSF can't manage either of those.
+*/
+table.narrowTable tr th {
+	padding-right:5em;
+}
+table.narrowTable td.rightpadded {
+	text-align:right;
+	vertical-align:bottom;
+	padding-right:6em !important;
+}
+
+table.narrowerTable {
+	width:auto;
+}
+
+.allowWrap {
+	white-space:normal;
+}
+
+/* Allow some space after checkbox and radio inputs. */
+td.prefixedCheckbox {
+	vertical-align:top;
+	padding-right:.5em;
+}
+
+/*
+	TEMPORARY WORKAROUND - SAK-1154
+	Until we break out of iframes or get a user-movable calendar DHTML popup,
+	we need to add some space to the bottom of the assignment editor pages
+	so that the calendar doesn't get cut off by the bottom of the portal's
+	iframe.
+*/
+.calendarPadding {
+	margin-bottom:100px;
+}
+
+/* List filter label */
+/*
+	TODO Once the Sakai-wide version is OK, replace with "listView".
+	class.
+*/
+.gbListView {
+	font-weight:bold;
+	padding-bottom:.5em;
+}
+
+/* A table cell with an optional message above the content */
+td.gbMessageAbove {vertical-align:top;}
+td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em !important;}
+
+/* Offset to better match icon and input heights. */
+.gbTextOnRow {
+	margin-top: 2px;
+	max-height: 100px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+/* Try to make the standard message formatting work with other cell content. */
+.gbMessageAdjustForContent {margin-left:1px; margin-bottom:.5em;}
+
+.gbHeader {white-space:nowrap; padding-right:4em !important;}
+
+.gbSizeCheckMessage {
+	padding-right:1em;
+	text-align:right;
+	font-size:.9em;
+}
+
+.gbSection
+{
+	padding-top: 1.0em;
+}
+
+.alertMessageInline
+{
+	display: inline;
+	margin-left: 1.0em;
+}
+
+.categoryHeading {
+	font-size: 1.1em !important;
+	font-weight: bold !important;
+}
+
+.gradebookItem {
+	padding-left: 1.2em;
+}
+
+.gbButtonBar {
+	text-align: right;
+}
+
+/* for the Grader Rules UI */
+
+.graderRuleMenu {
+	margin: 0 1.0em 0 1.0em;
+}
+
+.graderName {
+	padding-right:3.0em;
+	font-weight: bold;
+}
+
+.graderRulesAdd {
+	position: relative;
+	right: 0;
+	margin-top: 1.0em;
+}
+
+.selectGrader {
+	font-weight: bold;
+	margin-bottom: 1.0em;
+}
+
+.graderRulesWrap {
+   background-color: #eee;
+   padding: 5px;
+   width: 100%;
+}
+
+.sortSpacer {
+    padding: 0px 10px;
+}
+
+.sortUp {
+    padding: 0px 10px;
+    background-image: url('../images/sortascending.gif');
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-decoration: none;
+}
+
+.sortDown {
+    padding: 0px 10px;
+    background-image: url('../images/sortdescending.gif');
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-decoration: none !important;
+}
+
+#exportPrefsLink {
+    text-decoration: none;
+    font-weight: bold
+}
+.exportPrefsVals {
+    position: absolute;
+    border:1px solid #ccc !important;
+    background: #fff;
+    display: none;
+    -webkit-box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.26);
+    -moz-box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.26);
+    box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.26);
+}
+.exportPrefsVals p{
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 2px;
+    width:45%;
+}
+.exportPrefsVals #exportPrefsValsClose {
+    position: absolute;
+    top: 3px;
+    right: 7px;
+    text-decoration:none;
+    font-size:90%;
+    font-weight: bold;
+}
+
+.setUngradedItemsSpinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+}

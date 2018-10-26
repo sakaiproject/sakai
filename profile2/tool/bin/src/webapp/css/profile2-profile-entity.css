@@ -1,0 +1,118 @@
+/**
+ * Copyright (c) 2008-2012 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/* stylesheet for the formatted version of the Profile2 profile entity */
+
+div.profile2-profile {
+	font-size: inherit;
+	font-weight: inherit;
+	font-family: inherit;
+	overflow: auto;
+	width: 620px;
+	background-color: white;
+}
+
+div.profile2-profile-image {
+	float:left;
+}
+
+div.profile2-profile-image-thumb {
+	float:left;
+}
+
+div.profile2-profile-image img {
+	max-width: 200px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 200 ) + "px"); /* ie6 max-width hack */
+	padding: 2px;
+	border: 1px solid silver;
+  	display: block;
+}
+
+div.profile2-profile-image-thumb img {
+	max-width: 100px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+	padding: 2px;
+	border: 1px solid silver;
+   display: block;
+   margin: auto;
+}
+
+
+div.profile2-profile-content {
+	text-align: left;
+	float: left;
+	width: 400px;
+	font-size: 0.9em;
+	margin-left: 10px;
+}
+
+div.profile2-profile-content-thumb {
+	text-align: left;
+	float: left;
+	width: 400px;
+}
+
+.profile2-profile-userUuid {
+	display:none !important;
+}
+
+.profile2-profile-displayName {
+	font-size: 1.4em;
+	font-weight: bold;
+	margin-bottom: 7px;
+}
+
+.profile2-profile-statusMessage {
+	font-size: 1em;
+	word-wrap: break-word;
+	margin-bottom: 2px;
+}
+
+.profile2-profile-statusDate {
+	font-size: 1em;
+	color: #5D5D5D;
+	margin-bottom: 2px;
+}
+
+.profile2-profile-view-full {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.icon {
+	background-position: center left;
+    background-repeat: no-repeat;
+    padding-left: 18px;
+}
+
+.connection-request {
+	background-image: url(/library/image/silk/group_gear.png);
+}
+
+.connection-add {
+	background-image: url(/library/image/silk/user_add.png);
+}
+
+.connection-confirmed {
+	background-image: url(/library/image/silk/group_link.png);
+}
+
+.connection-self {
+	background-image: url(/library/image/silk/vcard.png);
+}
+
+.profile-image {
+	background-image: url(/library/image/silk/vcard.png);
+}

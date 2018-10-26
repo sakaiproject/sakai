@@ -1,0 +1,33 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_saveas_role.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $ 
+<script type="text/javascript" src="/library/js/spinner.js"></script>
+<script type="text/javascript">
+  focus_path = ["id"];
+</script>
+<div class="portletBody">
+	<h3>
+		$tlang.getString("reasavrol.coprol")
+	</h3>
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("reasavrol.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="instruction">
+		$tlang.getString("reasavrol.entanew")
+	</div>
+	<form action="#toolForm("$action")" method="post">
+		<h4>
+			$tlang.getString("realm.role.role")
+		</h4>
+		<p class="shorttext required">
+			<span class="reqStar">*</span>
+			<label for="id">
+				 $tlang.getString("reasavrol.rolid")
+			</label>
+			<input type="text" name="id" id="id" />
+		</p>	
+		<div class="act">
+			<input type="submit" class="active" name="eventSubmit_doSave_role_as" value="$tlang.getString("reasavrol.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_role_saveas" value="$tlang.getString("reasavrol.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

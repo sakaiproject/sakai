@@ -1,0 +1,98 @@
+<!--
+
+    $URL$
+    $Id$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html xmlns:wicket>
+<wicket:head>
+    <script type="text/javascript">
+    function showMoreLess(middle, more, less) {
+        var display = jQuery(middle).css('display');
+        var isVisible = !display || display != 'none';
+        if(!isVisible) {
+        	   setMainFrameHeightNoScroll(window.name, 0, 400); 
+               
+               // Load by ajax only for the first time (remaining action will only be hide/show)
+               if(jQuery(middle + ' .loaded').length == 0) {
+                   jQuery(middle + ' .tabsel a').click();
+                   jQuery(middle).append('<span class="loaded" style="display: none"></span>');
+               }
+
+               jQuery(more).hide();
+               jQuery(less).show();
+               if (navigator.userAgent.match(/MSIE 8/) !== null) {
+                    // as usual, MS IE is buggy...
+            	    jQuery(middle).show();
+               }else{
+            	    jQuery(middle).slideDown('300', function() {
+            	        setMainFrameHeightNoScroll(window.name, 0, 100);
+            	    });
+               } 
+        }else{
+        	jQuery(more).show();
+            jQuery(less).hide();
+            jQuery(middle).slideUp('300', function() {
+                setMainFrameHeightNoScroll(window.name, 0, 100);
+            });
+        }
+    }
+    </script>
+</wicket:head>
+<wicket:panel>
+
+  <div class="widget">
+    <div class="top">
+      <div class="header">
+        <img wicket:id="icon" class="alpha"/>
+        <div wicket:id="title" class="title">[title]</div>
+        <div class="bottom">
+          <a wicket:id="showMore" href="#">
+            <div class="showText">
+                <wicket:message key="overview_show_more">[show more]</wicket:message>
+            </div>
+            <img src="/library/image//sakai/arrowDown.gif" alt="[ + ]" wicket:message="title:overview_show_more"/>
+          </a>
+          <a wicket:id="showLess" href="#" style="display: none">
+            <img src="/library/image//sakai/arrowUp.gif" alt="[ - ]" wicket:message="title:overview_show_less"/>
+            <div class="showText">
+                <wicket:message key="overview_show_less">[show less]</wicket:message>
+            </div>            
+          </a>
+        </div>
+      </div>
+      <div wicket:id="ministatContainer" class="ministatContainer"></div>
+      <wicket:fragment wicket:id="ministatFragment">
+	      <div wicket:id="ministat" class="ministat">
+	        <div wicket:id="value">
+	           <span wicket:id="valueLabel">931</span><span wicket:id="secvalue" class="secvalue">89%</span>
+	        </div>
+	        <a wicket:id="report">
+	          <span wicket:id="label">Visits</span>
+	        </a>
+	      </div>
+      </wicket:fragment>
+    </div>
+    
+    <div wicket:id="middle" class="middle">
+        <span wicket:id="widgetTabs"></span>
+    </div>
+  </div>
+  
+</wicket:panel>
+</html>
+  

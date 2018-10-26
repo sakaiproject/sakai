@@ -1,0 +1,144 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-duplicate.vm,v 1.2 2005/04/29 13:44:25 zqian.umich.edu Exp $ -->
+## enter the site title for duplicated site.
+<div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
+	<form name = "duplicateSiteForm" method = "post" action="#toolForm($action)">
+		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
+		<input type="hidden" name="option" value="cancel" />
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $alertMessage</div>#end
+			#if (!$!siteDuplicated)
+				<p class="instruction">
+					#if ($!isCourseSite)
+						$tlang.getString("sitdup.dupaclacourse")
+					#else
+						$tlang.getString("sitdup.dupaclanoncourse")
+					#end
+				</p>
+				<div class="form-group row">					
+					<label for="title" class="col-sm-2 form-control-label">
+						<span class ="reqStar">*</span>
+						$tlang.getString("sitdup.sitti")
+					</label>
+					<div class="col-sm-6">
+						<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
+					</div>
+				</div>
+				#if ($!isAdmin)
+				    <div class="form-group row">
+				        <label for="newSIteId" class="col-sm-2 form-control-label">
+				            $tlang.getString("sitdup.newsitid")
+				        </label>
+				        <div class="col-sm-6">
+				            <input type="text" name="newSiteId" id="newSiteId" maxlength="$!siteIdMaxLength" size="50" value="" />
+				        </div>
+				    </div>
+				#end
+				#if ($canSelect)
+				#if ($allowUnmanaged)			
+				<p class="checkbox indnt1">
+					<input type="radio" name="adminSite" id="unmanaged" value="unmanaged" #if ("unmanaged" == $adminSite) checked="checked" #end/>
+						<label for="unmanaged">
+							$tlang.getString("siteseladm.unmanaged")
+						</label>	
+				</p>
+				#end
+				#foreach ($site in $adminSites)
+				<p class="checkbox indnt1">
+					<input type="radio" name="adminSite" id="$site.reference" value="$site.reference" #if ($site.reference == $adminSite) checked="checked" #end/>
+						<label for="$site.reference">
+							$site.title
+						</label>	
+				</p>
+				#end
+				#end
+				#if ($!isCourseSite)
+						<div class="form-group row">										
+									<label for="selectTerm" class="col-sm-2 form-control-label">
+										<span class ="reqStar"> *</span>
+										$tlang.getString("sitetype.acater")
+									</label>	
+									<div class="col-sm-6">
+									<select name="selectTerm" id="selectTerm">
+										#foreach($term in $termList)
+											<option value ="$term.eid"
+												#if ($!currentTermId)
+													#if ($term.eid == $currentTermId)
+														selected="selected"
+													#end
+												#else
+													#if ($term.isCurrentTerm())
+														selected="selected"
+													#end
+												#end
+											>
+											$term.title
+											</option>
+										#end
+									</select> 
+									</div>
+						</div>
+							#if($scoringAgentOption)	
+								<p>
+									<input id="transferScoringData" type="checkbox" value="transferScoringData" name="selectScoringData">
+									<label for="transferScoringData">$tlang.getFormattedMessage("sitdup.dupscoredata", $scoringAgentName)</label>
+								</p>
+							#end
+						#end	
+					#if ($hasSiteSpecificQuota)
+					<h4>$tlang.getString("sitdup.duptit")</h4>
+					<p class="instruction">$tlang.getString("sitdup.curquot") $quotaSize</p>
+					<p class="checkbox indnt2">
+						## release uploaded info
+						<input type="radio" name="dupequota" id="yes_dupequota" value="true" checked="checked"/>
+						<label for="yes_dupequota">$tlang.getString("sitdup.yesdupequota")</label>
+						<br/>
+						## NOT release uploaded info
+						<input type="radio" name="dupequota" id="no_dupequota" value="false" />
+						<label for="no_dupequota">$tlang.getString("sitdup.nodupequota")</label>					
+					</p>					
+					#end					
+				</p>
+				<input type="hidden" name="back" value="12" />
+				<input type="hidden" name="continue" value="12" />
+			#else
+				<p class="instruction">
+					$tlang.getString("sitdup.dupsit2") "$!duplicatedName" $tlang.getString("sitdup.hasbeedup")
+				</p>
+			#end
+		<input type="hidden" name="templateIndex" value="29" />
+		<div class="act">
+			#if (!$!siteDuplicated)
+				<input
+					type="submit"
+					class="active"
+					name="$tlang.getString("sitdup.dup")"
+					id="duplicateSite" 
+					accesskey="s"
+					value="$tlang.getString("sitdup.dup")"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.duplicateSiteForm.option.value='duplicate'; document.duplicateSiteForm.submit(); return false;"
+				/>
+				<input
+					class="disableme" 
+					type="button" 
+					name="$tlang.getString("sitdup.can")" 
+					id="$tlang.getString("sitdup.can")" 
+					accesskey="x"
+					value="$tlang.getString("sitdup.can")"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.duplicateSiteForm.option.value='cancel'; document.duplicateSiteForm.submit(); return false;"
+				/>
+			#else
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("pubuncon.fin")" />
+				<input
+					class="disableme" 
+					type="button" 
+					name="$tlang.getString("pubuncon.fin")" 
+					id="$tlang.getString("pubuncon.fin")" 
+					accesskey="x"
+					value="$tlang.getString("pubuncon.fin")"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.duplicateSiteForm.option.value='finish'; document.duplicateSiteForm.submit(); return false;"
+				/>
+			#end
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

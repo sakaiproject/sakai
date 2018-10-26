@@ -1,0 +1,432 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>kernel</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>19-SNAPSHOT</version><!-- KernelVersion -->
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Core Kernel Implementation</name>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>sakai-kernel-impl</artifactId>
+  <organization>
+    <name>Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+    <maven.test.jvmargs />
+    <kernel.basedir>${basedir}/..</kernel.basedir>
+  </properties>
+  <build>  
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
+          <testFailureIgnore>false</testFailureIgnore> 
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <systemPropertyVariables>
+            <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file>
+            <derby.system.durability>test</derby.system.durability>
+            <known.issues />
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+
+        <!-- This means we get a JAR artifact for this project, this allows other projects to depend on it
+             in their tests. This isn't an optimal solution as you end up with the situation where tests
+             in a very different part of the codebase break when you attempt to refactor something in the
+             kernel. The problem is that some interfaces/classes aren't easy to mock out. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+            <artifacts>
+              <artifact>
+                <file>${project.build.directory}/${project.build.finalName}/WEB-INF/lib/${project.build.finalName}.jar</file>
+                <type>jar</type>
+              </artifact>
+            </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-storage-util</artifactId>
+    </dependency>
+	<!-- Resource MIME type identification -->
+	<!-- http://mvnrepository.com/artifact/jmimemagic/jmimemagic -->
+
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-core</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-parsers</artifactId>
+	</dependency>
+     <!-- https://jira.sakaiproject.org/browse/KNL-1320 -DH -->
+         <dependency>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi</artifactId>
+          <version>${sakai.poi.version}</version>
+        </dependency>
+        <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi-ooxml</artifactId>
+         <version>${sakai.poi.version}</version>
+        </dependency>
+    <!--  needed to make the tests work as we need to bring up the Component Manager -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-private</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId>
+	</dependency>
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+    </dependency>
+    <dependency>
+        <!-- for parsing CSV data from config service files -->
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jvnet.opendmk</groupId>
+      <artifactId>jmxremote_optional</artifactId>
+    </dependency>
+    <!-- For ehcache caching - MUST match version in master POM -->
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${sakai.ehcache.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-ehcache</artifactId>
+    </dependency>
+    <!-- For distributed ehcache - need to load these locally - KNL-1257 -->
+    <dependency>
+        <groupId>org.terracotta</groupId>
+        <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-terracotta</artifactId>
+    </dependency>
+
+    <!-- HazelCast (http://hazelcast.org/) distributed map cache -->
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hazelcast</groupId>
+      <artifactId>hazelcast-client</artifactId>
+    </dependency>
+
+    <!-- for the reference map -->
+    <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>23.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>2.0.3</version>
+    </dependency>
+    <dependency>
+        <groupId>org.azeckoski</groupId>
+        <artifactId>reflectutils</artifactId>
+        <version>0.9.19</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.activation</groupId>
+      <artifactId>javax.activation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+      <version>1.9.2</version>
+    </dependency>
+
+    <!-- antisamy -->
+    <dependency>
+      <groupId>org.owasp.antisamy</groupId>
+      <artifactId>antisamy</artifactId>
+      <version>1.5.7</version>
+    </dependency>
+    <!-- This is needed by antisamy because batik-css has wrong versions getting pulled in -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xmlParserAPIs</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- KNL-1253 -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <!-- TESTING -->
+    <dependency>
+      <groupId>org.subethamail</groupId>
+      <artifactId>subethasmtp</artifactId>
+      <version>3.1.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>2.5.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-junit4</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
+        <!-- This is so that we only get one copy of junit. -->
+        <exclusions>
+           <exclusion>
+               <groupId>junit</groupId>
+               <artifactId>junit-dep</artifactId>
+           </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-legacy</artifactId>
+        <version>2.8.4</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jmock</groupId>
+      <artifactId>jmock-junit3</artifactId>
+      <version>2.5.1</version>
+      <scope>test</scope>
+    </dependency>
+   <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+   </dependency>
+   <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+   </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+   <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jdbc</artifactId>
+      <scope>test</scope>
+   </dependency>
+       <!-- Java 8 Maven Artifact -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <!-- This profile will enable you to run the StorageConverter -->
+      <id>storage-convert</id>
+      <dependencies>
+        <!-- need to setup this dependency to your database driver.
+        <dependency>
+          <groupId>mysql</groupId>
+           <artifactId>connector</artifactId>
+           <version>5.1.30</version>
+           <scope>system</scope>
+           <systemPath>path/to/mysql-connector-java-5.1.30-bin.jar</systemPath>
+        </dependency>
+        -->
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.3.1</version>
+            <!-- This execution runs the storage conversion from one FileSystemHandler to another. -->
+            <configuration>
+              <classpathScope>test</classpathScope>
+              <skip>false</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath />
+                <argument>org.sakaiproject.content.impl.util.StorageConverter</argument>
+                <!-- Use either a properties file or the properties...or both
+                <argument>-p</argument>
+                <argument>src/main/resource/my.properties</argument>
+                -->
+                <!-- just set the properties
+                <argument>-connectionDriver</argument>
+                <argument>The database connection driver class.</argument>
+                <argument>-connectionURL</argument>
+                <argument>The database connection URL.</argument>
+                <argument>-connectionUsername</argument>
+                <argument>The database connection username.</argument>
+                <argument>-connectionPassword</argument>
+                <argument>The database connection password.</argument>
+                <argument>-sourceFileSystemHandler</argument>
+                <argument>This is the full class name of the source FileSystemHandler.</argument>
+                <argument>-sourceFileSystemHandler.{some property}</argument>
+                <argument>You can set any property on the source FileSystemHandler by referensing their property names.</argument>
+                <argument>-sourceBodyPath</argument>
+                <argument>The path set in sakai.properties for the source.</argument>
+                <argument>-destinationFileSystemHandler</argument>
+                <argument>This is the full class name of the destination FileSystemHandler.</argument>
+                <argument>-destinationFileSystemHandler.{some property}</argument>
+                <argument>You can set any property on the destination FileSystemHandler by referensing their property names.</argument>
+                <argument>-destinationBodyPath</argument>
+                <argument>The path set in sakai.properties for the destination.</argument>
+                <argument>-deleteFromSource</argument>
+                <argument>Whether to delete the source files. Default false.</argument>
+                <argument>-contentSql</argument>
+                <argument>The sql statement to retrieve the resource id's and paths. Default is new ContentServiceSqlDefault().getResourceIdAndFilePath()</argument>
+                -->
+              </arguments>
+            </configuration>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

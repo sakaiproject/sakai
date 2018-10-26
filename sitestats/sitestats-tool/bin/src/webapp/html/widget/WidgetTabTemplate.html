@@ -1,0 +1,58 @@
+<!--
+
+    $URL:$
+    $Id:$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html xmlns:wicket>
+<wicket:panel>
+        
+        <!-- FILTERS -->
+        <div class="filters">
+          <select wicket:id="dateFilter"/>
+          <select wicket:id="roleFilter"/>
+          <select wicket:id="toolFilter"/>
+          <select wicket:id="resactionFilter"/>
+          <select wicket:id="lessonActionFilter"/>
+        </div>
+        
+        <!-- DATA -->
+        <table class="listHier nolines narrowTable" cellspacing="0">
+          <tr>
+          
+            <td wicket:id="chartTd" class="chartTd">
+              <!-- CHART -->
+              <div wicket:id="chart"></div>
+            </td>
+            
+            <td wicket:id="tableTd" class="tableTd">
+              <!-- TABLE -->
+              <table wicket:id="table" class="table listHier lines narrowTable" style="width: 99.9% !important; display: none;" cellspacing="0">[table]</table>
+              <!-- SHOW FULL REPORT -->
+              <div class="showAll">
+                <a wicket:id="link" href="#" style="display: none;">
+                    <wicket:message key="overview_show_report">[View complete report]</wicket:message>
+                </a>
+              </div>
+              <script wicket:id="tableJs" type="text/javascript"></script>
+            </td>
+            
+          </tr>
+        </table>
+        <span class="sitestats-widgetFooterMsg additionalInfo" wicket:id="widgetFooterMsg">[footer message]</span>
+</wicket:panel>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!--
+		Proof-of-concept implementation of database-stored properties which can override
+		file systems properties files even during component bean initialization.
+	-->
+
+	<bean id="fileBasedProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="file:${sakai.home}sakai.properties"/>
+	</bean>
+	
+	<!--
+		This section goes through a lot of fuss to avoid loading the Sakai-wide DataSource
+		singleton before SakaiProperties is available. In real life, we'd probably want
+		to figure out a way to allow that.
+	-->
+	<bean id="dbProperties.driverClassName" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="fileBasedProperties" />
+		<property name="targetMethod" value="getProperty" />
+		<property name="arguments"><list><value>driverClassName@javax.sql.BaseDataSource</value></list></property>
+	</bean>
+	<bean id="dbProperties.url" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="fileBasedProperties" />
+		<property name="targetMethod" value="getProperty" />
+		<property name="arguments"><list><value>url@javax.sql.BaseDataSource</value></list></property>
+	</bean>
+	<bean id="dbProperties.username" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="fileBasedProperties" />
+		<property name="targetMethod" value="getProperty" />
+		<property name="arguments"><list><value>username@javax.sql.BaseDataSource</value></list></property>
+	</bean>
+	<bean id="dbProperties.password" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="fileBasedProperties" />
+		<property name="targetMethod" value="getProperty" />
+		<property name="arguments"><list><value>password@javax.sql.BaseDataSource</value></list></property>
+	</bean>
+	<bean id="org.sakaiproject.component.test.dynamic.propertiesDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" ref="dbProperties.driverClassName"/>
+		<property name="url" ref="dbProperties.url"/>
+		<property name="username" ref="dbProperties.username"/>
+		<property name="password" ref="dbProperties.password"/>
+	</bean>
+	
+	<bean id="dbBasedProperties" 
+		factory-bean="org.sakaiproject.component.test.dynamic.DbProperties"
+		factory-method="getProperties"/>
+
+	<bean id="org.sakaiproject.component.SakaiProperties" parent="org.sakaiproject.component.DefaultSakaiProperties">
+		<property name="propertiesArray">
+			<list merge="true">
+				<ref bean="fileBasedProperties"/>
+				<ref bean="dbBasedProperties"/>
+			</list>
+		</property>
+	</bean>
+
+</beans>

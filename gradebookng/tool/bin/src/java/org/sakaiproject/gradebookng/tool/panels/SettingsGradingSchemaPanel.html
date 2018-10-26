@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:panel>
+
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="settingsGradingSchemaHeader">
+			<h3 class="panel-title">
+				<a role="button" data-toggle="collapse" href="#settingsGradingSchema" aria-expanded="false" aria-controls="settingsGradingSchema">
+					<wicket:message key="settingspage.gradingschema.heading">Grading Schema</wicket:message>
+				</a>
+			</h3>
+		</div>
+		<div wicket:id="settingsGradingSchemaPanel" id="settingsGradingSchema" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradingSchemaHeader">
+			<div class="panel-body">
+
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-3">
+							
+							<!--  schema selector --> 
+							<div class="form-group">
+								<label for="gradingschemaType"><wicket:message key="settingspage.gradingschema.type" /></label>
+								<select wicket:id="type" id="gradingschemaType" class="select">
+									<option>Letter Grade</option>
+								</select>
+							</div>
+							
+							<!--  message about duplicates -->
+							<div class="messageError" wicket:id="duplicateEntries">Duplicates found.</div>
+						
+							<!--  schema table -->
+							<div wicket:id="schemaWrap">
+								<table class="table table-striped table-bordered table-hover" style="width: auto;">
+									<thead>
+									<tr>
+										<th class="col-md-1"><wicket:message key="settingspage.gradingschema.grade" /></th>
+										<th class="col-md-1"><wicket:message key="settingspage.gradingschema.minpercent" /></th>
+										<th class="col-md-1"><wicket:message key="settingspage.gradingschema.removecolhead" /></th>
+									</tr>
+									</thead>
+									<tbody>
+									<tr wicket:id="schemaView">
+										<td><input wicket:id="grade" type="text" size="10" class="form-control" /></td>
+										<td><input wicket:id="minPercent" type="text" size="10" class="form-control" /></td>
+										<td><button wicket:id="remove" class="btn btn-default btn-table"><wicket:message key="button.remove" /></button></td>
+									</tr>
+									</tbody>
+								</table>
+								
+								<div>
+									<button wicket:id="addMapping" type="submit" class="btn-add-category btn btn-default btn-sm"><wicket:message key="settingspage.gradingschema.add" /></button>
+								</div>
+							</div>
+														
+						</div>
+						
+						<div class="col-md-8">
+													
+							<!-- chart -->
+							<div>
+								<div wicket:id="noStudentsWithGradesMessage" class="messageInstruction">There are no students with grades</div>
+								<canvas wicket:id="gradingSchemaChart" id="gradingSchemaChart"></canvas>
+							</div>
+			
+							<!--  stats -->
+							<div wicket:id="statsWrap">
+								<div wicket:id="stats"></div>
+							</div>
+								
+							<!-- info about students with course grade overrides -->						
+							<wicket:enclosure child="studentsWithCourseGradeOverrides">
+								<div class="instruction">
+									<p><wicket:message key="settingspage.gradingschema.overrides" /></p>
+									<ul wicket:id="studentsWithCourseGradeOverrides">
+										<li wicket:id="name" />
+									</ul>
+								</div>
+							</wicket:enclosure>
+						</div>
+					</div>
+				</div>
+				<div class="messageWarning" wicket:id="modifiedSchema">Schema has been modified from default</div>
+				<div class="messageError" wicket:id="unsavedSchema">There are unsaved changes</div>
+				
+			</div>
+		</div>
+	</div>
+
+</wicket:panel>
+</body>
+</html>

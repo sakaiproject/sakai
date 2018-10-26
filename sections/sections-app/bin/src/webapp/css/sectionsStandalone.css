@@ -1,0 +1,168 @@
+/* Non-section-specific CSS class definitions and overrides. */
+
+body  {
+	font-family:verdana,arial,helvetica,sans-serif;
+	font-size:.8em;
+	margin:0em;
+}
+
+a, a:link  {
+	color:#44A;
+}
+a:hover  {
+	color:#44A;
+	text-decoration:none
+}
+a:visited  {
+    color:#43196F
+}
+hr  {
+    height:0
+}
+img {
+    border:0px;
+}
+
+h4 {
+	font-weight:bold;
+	font-size:1.17em;
+	padding:0px;
+	margin-bottom:.2em;
+}
+
+/*navigator to move between sections of a tool, place above View Title*/
+.navIntraTool  {
+	background-color: #dde3eb;
+    text-align:center;
+	padding:.3em;
+	vertical-align:middle;
+}
+
+/*action links for list items, use with <a> tag*/
+.itemAction  { 
+    font-size:.8em; 
+    margin-left:3em;
+}
+
+/* Indicate the default buttons. */
+.act  { padding:1em; }
+/*the default action control*/
+.act input.active  {
+	border:2px solid #000;
+}
+
+/* Force table cells to inherit "body" font-size. */
+table {
+	font-size:1em;
+}
+
+/*
+	See "validation" class in tool-default.css. Our spec shows different
+	colors and icons for errors and informational messages.
+*/
+.success {
+	background-color:#D8FED9;
+	border:1px solid maroon;
+	padding:1em 2em;
+	background-image:url("../images/confirm.gif");
+	background-repeat:no-repeat;
+	background-position:5px 50%;
+	margin:1em 1em 1em 1em;
+}
+/* Copied from the default, but with added margins and without the "important"s. */
+.validation  {
+	background-color:#FFC;
+	border:1px solid maroon;
+	padding:1em 2em;
+	background-image:url("../images/validation.gif");
+	background-repeat:no-repeat;
+	background-position:5px 50%;
+	margin:1em 1em 1em 1em;
+}
+/* Attempt to make embedded error messages fit table rows better. */
+.validationEmbedded  {
+	background-color:#FFC;
+	border:1px solid maroon;
+	padding:5px 1em 5px 2em;
+	background-image:url("../images/validation.gif");
+	background-repeat:no-repeat;
+	background-position:5px 50%;
+	margin-left:1em;
+}
+
+/* Non-rows item property editing. */
+td.itemSummary {
+	vertical-align:top;
+	font-weight:bold;
+	padding-right:3em;
+	padding-bottom:.5em;
+}
+td.subItemSummary {
+	vertical-align:top;
+	padding-left:0px;
+}
+td.subItemSummary table {
+	margin-left:0px;
+}
+td.subItemSummary table tr td {
+	padding-left:0px;
+}
+
+/*
+	Make the currently sorted column header text bold, and make all sort headers
+	not underlined
+*/
+.currentSort {
+    font-weight:bold;
+    text-decoration:none;
+}
+
+.notCurrentSort {
+	font-weight:normal;
+    text-decoration:none;
+}
+
+/*
+	Standard item list tables.
+*/
+table.listHier {
+	border-collapse:separate; border-spacing:2px;	/* Replace cellspacing */
+	width:100%;
+	clear:both;
+}
+table.listHier tr th  {
+	background-color:#CCC;
+	vertical-align:bottom;
+	text-align:left;
+	padding-left:.3em;
+	padding-top:.2em;
+	padding-bottom:.2em;
+}
+table.listHier tr td {
+	padding-left:.3em;
+	padding-top:.2em;
+	padding-bottom:.2em;
+}
+
+/*
+	Assignment navigation buttons.
+	USE NEW DIV STYLES?
+*/
+.nav {
+	text-align:right;
+}
+.leftNav {
+}
+.rightNav {
+	width:100%;
+}
+
+/* Page content (everything under the application navigation bar). */
+div.portletBody {
+	margin:2em;
+}
+
+/* "important" as in tool_base.css. */
+.indnt1  {
+	margin-left:1em  !important
+}

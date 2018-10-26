@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.createuser"
+			title="New Account"
+			description="Create a new user account.">
+
+		<configuration name="create-blurb" value="" />
+		<configuration name="create-type" value="registered" />
+		<configuration name="force-eid-equals-email" value="false" />
+		<configuration name="validate-through-email" value="false" />
+
+		<configuration name="create-login" value="true" type="final" />
+		<configuration name="create-user" value="true" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+		<configuration name="user.recaptcha-enabled" value="true"/>
+
+	</tool>
+
+</registration>

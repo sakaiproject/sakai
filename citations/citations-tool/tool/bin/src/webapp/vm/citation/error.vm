@@ -1,0 +1,43 @@
+<script type="text/javascript" src="#scriptLink('citationscript.js')">	
+</script>
+
+</script>
+
+<div class="portletBody">
+	<div class="indnt1">
+		#if ($alertMessage)
+			<br />
+			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div class="clear" ></div>
+		#end
+		<h3>$tlang.getString("title.error")</h3>
+		<h4>$tlang.getString("subtitle.error")</h4>
+	
+		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="">
+			<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+			
+			<p class="act">
+				<input type="button" name="Cancel" id="Cancel" value="$tlang.getString("cancel.error")" onclick="closePopup();" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+		<div id="scratch_space">
+		</div>
+	</div>
+
+</div>
+<script type="text/javascript">	
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+</script>
+

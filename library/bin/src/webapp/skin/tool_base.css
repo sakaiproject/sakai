@@ -1,0 +1,919 @@
+/* tool-base.css  - base values - focus on positioning, margins, paddings 
+- all skins can participate in these shared definitions 
+- and still style things differently in their skin*/
+@media print  {
+   body {
+	font-size: 9pt !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+	h3, h4, h5, h6{
+	width: 50%;
+}
+
+.itemAction, .act, .navPanel, .screenOnly {
+	display: none;
+}
+
+	a:link, a:visited{
+	text-decoration: underline !important;
+}
+
+	table{
+	font-size: inherit !important;
+}
+
+	.listHier th {
+	background: #fff !important;
+	font-weight: bold !important;
+	border-bottom: 1px dashed #555;
+}
+
+	.portletBody {
+	padding: 0 !important;
+}
+
+}
+/* SECTION 1 - STANDARD COMPONENTS*/
+body{
+	padding: 0;
+	margin: 0;
+}
+
+hr{
+	height: 0;
+}
+
+h3,h4,h5, h6{
+	padding: .2em 0;
+}
+
+a img{
+	border: 0;
+}
+
+fieldset{
+	border: none;
+	margin-top: 1em;
+	padding: 0;
+}
+
+legend{
+	font-weight: bold;
+	color: #000;
+	font-size: 100%;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+iframe{
+	margin-top: 2px;
+}
+
+table{
+	font-size: 1em;
+}
+code {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size:1em;
+}
+
+/* SECTION 2 - LAYOUT*/
+/*only child of body (example: any tool)*/
+.portletBody{
+	padding: 1px 1px 1em 1px;
+	border-width: 0px;
+	border-color: #fff;
+	border-style: solid;
+}
+.portletMainWrap > .portletBody {
+    word-wrap:break-word
+}
+.portletMainWrap > .portletBody img {
+    max-width: 100%;
+    height: auto !important;
+}
+.helpBody {
+	padding: 0 1em 1em 1em
+	} 
+
+
+/*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
+/*see  a course site web contentn tool  - as instructor and as student - ends with a IE hack needed to make the make the bottom scrolbar (when present) behave.*/
+/*the margin/padding adjustments for both are to avoid https://bugzilla.mozilla.org/show_bug.cgi?id=361768 they essentially tuck the iframe borders "underneath" the outside of the containing block*/
+.wcwmenu{
+	padding: .1em 0;
+	margin: -.2em 0;
+}
+.wcwomenu{
+	padding: 0;
+	margin: -.1em 0 -1em 0;
+}
+
+* html #wciframe{
+	margin-bottom:1em
+}
+
+/* SECTION 3 - TABULAR DATA LAYOUTS*/
+/*itemSummary: table for displaying the details of an item - layout is th-td, th-td*/
+/*see an announcement*/
+.itemSummary, .itemSummaryLite{
+	margin: .5em 0;
+}
+
+/*format the th - since jsf cannot do <th> vertically in a column,
+ certain tds are classed (header) in jsf based tools to render the same as the th*/
+.itemSummary th, .itemSummary td.header, .itemSummaryHeader, .itemSummaryLite td.header{
+	font-weight: bold;
+	color: #555;
+	white-space: nowrap;
+	vertical-align: top;
+	text-align: left;
+	padding: .3em 1em .3em .3em;
+}
+
+.itemSummaryHeader, .itemSummaryValue {
+	padding: .3em 1em .3em .3em;
+}
+
+table.itemSummary td, td.itemSummaryLite{
+	text-align: left;
+	padding: .3em 1em;
+	vertical-align: top;
+}
+
+table.itemSummary caption, caption.itemSummaryLite {
+	text-align: left;
+	font-weight: bold;
+	padding: 1em 0 0 0;
+}
+
+/*table and cells for displaying a flat or hierarchical list of tabular data*/
+/*see an annoucement, assignment list*/
+table.listHier{
+	font-size: 1em;
+	width: 100%;
+	clear: both;
+	margin-top: .5em;
+	border:none; /*keep ff from giving it a border*/
+}
+
+table.listHier th{
+	font-weight: normal;
+	text-align: left;
+	white-space: nowrap;
+	padding: .3em;
+}
+
+table.listHier td{
+	padding: .3em;
+}
+
+table.listHier td img{
+	margin-right: .2em;
+	vertical-align: text-top;
+}
+
+table.listHier td a:hover,
+table.listHier th a:hover{
+	text-decoration: none;
+}
+
+/*a column in a table that contains only a very small icon - all cells in the column have that class */
+/*see an announcement list where one announcement has an attachment*/
+table.listHier .attach{
+	width: .5em;
+}
+
+/*make the currently sorted column header text bold,apply to <th> tag*/
+/*see gradebook roster*/
+.currentSort{
+	font-weight: bold;
+}
+
+/*make the not currently sorted column header text not bold,apply to <th> tag*/
+/*see gradebook roster*/
+.notCurrentSort{
+	font-weight: normal;
+	text-decoration: none;
+}
+
+/*list used everywhere to list attachments to an item*/
+/*see an announcement with attachments*/
+ul.attachList{
+	margin: 1em 0;
+	padding: 0;
+}
+
+ul.attachList img{
+	vertical-align: middle;
+	margin: 0 1em 0 0;
+}
+
+ul.attachList li{
+	list-style: none;
+	margin: 0 0 .3em 0;
+}
+
+/*SECTION 4 -  NAVIGATION */
+/*navPanel is the parent of any navigation subpanel - provides for clearing the floats of the inner pannels, styling of pannel groups*/
+/*see announcement list*/
+.navPanel{
+	clear: both;
+	margin: 5px 0 0 0;
+	overflow: hidden;
+	height: 100%;
+}
+
+/*searchNav panel has a special text input*/
+.searchNav input.searchField{
+	background-color: #fff;
+	padding: 2px;
+}
+
+
+/*for link controls in views */
+/*see calendar */
+.viewLinkControl
+{
+	padding:.5em 0
+}
+
+/*for abc or 123 navigators*/
+/*not sure where used - samigo?*/
+span.abc{
+	letter-spacing: .2em;
+	color: #555;
+}
+
+span.abc a:hover{
+	font-weight: bold;
+	color: maroon;
+	text-decoration: none;
+}
+
+span.abc a,span.abc a:link{
+	font-weight: bold;
+}
+
+/*navigator for a view's global actions (i.e. actions not associated with particular items)*/
+/*used in samigo - gradebook*/
+.navViewAction{
+	background-color: #CCC;
+	text-align: center;
+	font-size: .8em;
+	padding: .3em;
+	vertical-align: middle;
+}
+
+table.discTria img, .topicHeadings img,  .msgHeadings img{
+	vertical-align: text-top;
+	margin:0 .3em;
+}
+.discTria h4{
+	display:inline;
+}
+.discTria .itemAction a{
+	border:1px solid #555 !important;
+	padding:.3em .6em !important;
+	background:#eee;
+	
+}
+.discTria .itemAction a:hover{
+	border:1px solid #555 !important;
+	background:#fff;
+}
+
+
+/*a block that contains a twistie and a title - used to hide then reveal optional elements*/
+/*see or preview an assignment*/
+.discTria{
+	background-color: #CCC;
+	padding: .3em;
+}
+
+/*block to act on items it is listed under*/
+/*see list of links under an assignment in assignment list*/
+.itemAction{
+	font-size: .85em;
+	font-family: verdana,arial;
+	margin: .1em 0 0 .5em;
+	line-height: 1.6em;
+	color: #888;
+	padding: 2px;
+}
+
+/*itemAction will become a list for 2.6*/
+.itemAction li{
+	list-style: none;
+	display: inline;
+}
+h4 + div.itemAction{
+	margin: .1em 0 0 1.5em;
+}
+
+/*SECTION 6 MESSAGES */
+/*for status text in wizards
+ie - site creation*/
+.step{
+	background-color: #eee;
+	padding: .3em .5em;
+}
+
+/*for instructions*/
+/*create an announcement*/
+.instruction{
+	line-height: 1.3em;
+	margin: .5em 0;
+}
+
+/* indicate status change */
+/*see: join or unjoin sites*/
+.information{
+	background-color: transparent;
+	background-image: url('images/info.gif');
+	background-position: 5px 5px;
+	background-repeat: no-repeat;
+	border: 1px solid #888;
+	display: block;
+	width: 80%;
+	clear: both;
+	color: #888;
+	font-size: 1em;
+	margin: 5px 0px;
+	padding: 5px 5px 5px 25px !important;
+}
+
+/*indicate success*/
+/*see: create a gradebook assignment*/
+.success{
+	background-color: #fff;
+	background-image: url('images/check.gif');
+	background-position: 5px 5px;
+	background-repeat: no-repeat;
+	border: 1px solid #4a4;
+	display: block;
+	width: 80%;
+	clear: both;
+	color: #000;
+	font-size: 1em;
+	margin: 5px 0px;
+	padding: 5px 5px 5px 25px !important;
+}
+
+/*indicate failed validation, non-system errors*/
+/*TODO: consolidate - validationEmbedded used in gradebook, validation in many places, alertMessage legacy*/
+/*see: create an announcement but "forget" to give it a title*/
+ul.alertMessage{
+   list-style-type: none;
+}
+/*yet another way to indicate a field that failed validation - treats just the label color via inheritance*/
+/*create a resource but forget a required field*/
+.validFail label{
+	color: #b11 !important;
+}
+
+/*when displaying a validaiton failure inline (used with a span)*/
+.alertMessageInline{
+	background: #fff url(images/warn.gif) 5px 5px no-repeat;
+	border: 1px solid #b11;
+	width: 80%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.error{
+}
+
+.fatalerror{
+}
+
+/*highlight certain texts*/
+/*see: create a draft announcement - see the list*/
+.highlight{
+	color: #b01111;
+    font-weight:bold;
+}
+
+/*see: top of resources*/
+.breadCrumb{
+	clear: both;
+	margin: 1em 0;
+}
+
+/*see: top of resources*/
+h3 .breadCrumb{
+	clear: both;
+	font-size: .8em;
+}
+
+/* SECTION 5 INDENTING CLASSES:use these classes with <div> blocks to structure layout hierarchically.*/
+.indnt0,.tier0{
+	margin-left: 0;
+}
+
+.indnt1,.tier1{
+	margin-left: 1em;
+}
+
+.indnt2,.tier2{
+	margin-left: 2em;
+}
+
+.indnt3,.tier3{
+	margin-left: 3em;
+}
+
+.indnt4,.tier4{
+	margin-left: 4em;
+}
+
+.indnt5,.tier5{
+	margin-left: 5em;
+}
+
+.indnt6,.tier6{
+	margin-left: 6em;
+}
+
+.indnt7,.tier7{
+	margin-left: 7em;
+}
+
+.indnt8,.tier8{
+	margin-left: 8em;
+}
+
+.indnt9,.tier9{
+	margin-left: 9em;
+}
+
+.indnt10,.tier10{
+	margin-left: 10em;
+}
+
+.pad0{
+	padding-left: 0;
+}
+
+/*SECTION 7 DATA PANELS*/
+/*panels of normal text can have a header (ie - title) and a footer element (ie - metadata such as author, date, etc)*/
+/*see synoptic view of announcements*/
+h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
+	font-size: 1em;
+	color: #555;
+	margin: 1em 1em .2em 0;
+}
+
+.textPanel{
+	margin: .5em 0;
+}
+
+.textPanel > div.disc * {
+	margin: inherit;
+}
+
+.textPanel > div.disc p {
+	margin: 5px 0;
+}
+
+.textPanelFooter{
+	font-size: 85%;
+	margin: 0;
+	color: #555;
+	font-weight: normal;
+}
+
+/*for panels that "look" like forms but are read only ie. assignment preview - student view*/
+/*see: preview an assignment - view the student view*/
+.inopPanel {
+	border: 1px solid #eee;
+	padding: 1em;
+	background: #fff url(images/ib.gif) top left repeat;
+}
+
+/*to highlight info or controls in some high threshhold situations*/
+/*do an assignment that requires honor code check as a student*/
+.highlightPanel {
+	margin: 1em 0;
+	padding: .5em;
+}
+
+/*to isolate blocks of data in low threshhold situations*/
+/*see admin / memory / status*/
+.infoPanel{
+	padding: .3em;
+	width: 99%;
+}
+
+.infoPanelHead{
+	padding: .3em;
+}
+
+/*for separating data blocks*/
+hr.itemSeparator{
+	height: 1px;
+	border-style: solid;
+	border-width: 1px 0 0 0;
+}
+
+/* SECTION 8 FORM ELEMENTS
+	all form elements are formed by a label/input pair wrapped in a block - with JSF based tools it is another matter 
+	.shorttext - label / input (type=text)
+	.filepicker - label / input (type=file)
+	.longtext - label / textarea
+	.checkbox - input (type=checkbox or radio)
+	*/
+	
+/*	see: create a resource*/
+	
+.shorttext{
+	clear:both;
+}
+
+#attachForm .shorttext label, #attachForm .filepicker  label{
+	min-width: 19.5em;
+}
+
+.shorttext input[type="text"]{
+	padding: .1em .3em;
+	border: 1px solid #888;
+}
+.shorttext input[type="password"]{
+	padding: .1em .3em;
+	border: 1px solid #888;
+}
+
+.shorttext input.disabled{
+	background:#eee
+}
+textarea{
+	margin-top: .5em;
+}
+
+/*border that needs to match the background to avoid some tedious problems in IE	*/
+.checkbox{
+	margin: .2em 0;
+}
+
+/*certain longtext/label pairs need to display label and control on separate lines - their label is classed "block"*/
+label.block{
+	display: block;
+}
+/*all RT Editors should be composed of an iframe inside of a longtext div*/
+/*bellow padding is to avoid FF ghost borders*/
+.longtext iframe{
+		padding: 0.2em 0em 0em 0em;
+}
+
+/*input type="file" are classed "upload" YMMV*/
+input.upload{
+}
+
+/*some forms need to be displayed inline*/
+.inlineForm{
+	margin: 0;
+	padding: 0;
+	display: inline;
+}
+
+.inlineForm a{
+	border: none;
+	background-color: transparent;
+}
+
+/*SECTION 9 MISC*/
+/*all purpose clearing action when nature of prec or following items floating nature is in doubt*/
+.clear {
+	margin: 1em 0;
+	clear: both;
+}
+
+/*informational texts intended for screen readers - renders offscreen*/
+.skip, .fl-offScreen-hidden {
+	position: absolute !important;
+	height: 0px; width: 0px; 
+	overflow: hidden;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px); 
+}
+/*"inactive" gets applied to a container whose children you want to make look grayed out (not inactive per se) - applies to all textual elements and images
+placeholder till more standard way of doing it*/
+.inactive img{
+	filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=50), progid:DXImageTransform.Microsoft.BasicImage(grayscale=1) !important;
+	opacity:.50 !important;
+}
+.inactive *
+{
+	color: #999 !important;
+}
+.inactiveBack, .inactiveBack:hover{
+    background:#F7F7F7 !important;
+}
+
+/*external login form formatting*/
+.login{
+	margin: 5em auto;
+	border: 1px solid #555;
+	width: auto;
+}
+
+.login th{
+	background-color: #eee;
+	padding: .5em;
+	border-bottom: 1px solid #555;
+}
+
+.login td.logo{
+	width: 13em;
+	background:#fff url(../image/sakai.jpg) top left no-repeat
+}
+
+.login td.form, .login td.form{
+	padding: .5em;
+}
+
+.loginform{
+	color: #fff;
+}
+
+.loginform label{
+	color: #fff;
+}
+
+.loginform td {
+	padding: .3em;
+	color: #fff;
+}
+
+.loginform td #eid, .loginform td #pw {
+	padding:.2em;
+	font-family:verdana, arial, helvetica, sans-serif;
+	border: 1px solid #AAAAAA;
+}
+
+.loginform td #submit{
+	color:#09C;
+	float: right;
+}
+
+.loginform td .loginsubmit {
+        color:#09C;
+}
+
+#login-choice {
+	border-spacing: 0;
+	text-align: center;
+}
+
+/*
+Buttons dont have hover anymore
+.loginform td #submit:hover{
+	border: 1px solid #888; 
+	background-color: #eee;
+}
+*/
+
+/*SECTION 10 JSF HACKS*/
+/*Tools based on JSF have some unique rendering requirements dictated by the way jsf chooses to render standard html components*/
+/* IE gives forms a top margin unless told not to
+this affects jsf based tools*/
+.portletBody form{
+	margin-top: 0;
+}
+
+/*for jsf label/input pairs that need to be rendered in a table (because otherwise they will not work)*/
+.jsfFormTable{
+	padding: 0;
+}
+
+/*in order to get the label/imput pair to work in jsf, they need to be wrapped up in a table in 
+order to display them in the same cell they need to be wrapped in a h:panelGroup, which for some
+ reason renders as a span. In order for the required star to "show" that span needs to be a block
+  level element. So - if the input is required, add the "required" class to the h:panelGroup
+   (in addition to the shorttext, checkbox or longtext classes) pant, pant...*/
+.jsfFormTable .required{
+	display: block;
+	margin-left: -.2em;
+}
+
+.jsfFormTable td{
+	padding: .3em 0;
+	vertical-align: top;
+}
+
+.jsfFormTable td .reqStar{
+	margin: 0 .2em 0 0;
+}
+
+.jsfFormTable td .labelindnt{
+	margin-left: 17.5em !important;
+}
+
+.jsfFormTable td .shorttext {
+	margin: 0;
+}
+
+.jsfFormTable td .shorttext .syllabusLabel{
+	width: 17em;
+	display: inline-block;
+}
+
+.jsfFormTable td .shorttext label{
+	width: 17em;
+}
+
+.jsfFormTable td .required input {
+	margin-left: -.6em;
+}
+
+/*since jsf multiple radio are rendered in a table, substract the padding of the parent td with a negative margin */
+td table.checkbox {
+	margin: 0;
+}
+
+/*so that the same table does not inherit the padding from the parent*/
+td table.checkbox td{
+	padding: 0;
+}
+
+/*SECTION 11 WIDGETS*/
+/*list manager - two side by side select items,children of table.sidebyside*/
+/*see: preferences / tab management or site info / create a group*/
+.sidebyside{
+}
+
+.sidebyside th{
+	padding: .3em;
+	text-align: left;
+	font-weight: normal;
+}
+
+.sidebyside td{
+	padding: .3em;
+}
+
+.sidebyside select{
+	width: 18em;
+}
+.sidebyside select.notsbs{
+	width: auto;
+}
+
+/*messagecenter stuff*/
+.msgAdvSearch {
+	float:right;
+}
+.msgAdvSearch td{
+}
+.msgNav{
+float:right;
+text-align: right;
+white-space: nowrap;
+}
+.unreadMsg{
+font-weight: bold;
+}
+
+.bordered{
+	border: 1px solid #000000;
+	padding: 0.5em;
+}
+/*span surrounding folder icons - used to decorate them (new in dropbox, locked, etc.)
+a fake border makes the icon and the title align for IE8*/
+span.nil{
+	border:0px solid transparent
+}
+span.nil a{
+	border:0px solid transparent
+}
+
+/*any list (ul) of messages in a synoptic list view*/
+.synopticList{
+	margin:0;
+	padding:0;
+	list-style: none;
+    height:100%;
+    overflow: hidden;
+}
+/*a list item - children are h3.textPanelHeader, p.textPanelFooter, div.textPanel*/
+.synopticList li{ 
+	padding:0;
+	margin:.5em 0 ;
+} 
+
+.audioaudio {
+    visibility: hidden\9;
+    visibility: hidden\10;
+}
+
+.audioobject {
+    visibility: hidden;
+    visibility: visible\9;
+    visibility: visible\10;
+}
+
+blockquote {
+  background: #f9f9f9;
+  border-left: 6px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+  quotes: "\201C""\201D""\2018""\2019";
+}
+blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 3em; 
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+blockquote:after {
+  color: #ccc;
+  content: close-quote;
+  font-size: 3em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+blockquote p {
+  display: inline;
+}
+
+ul.calendarLegend{
+	padding:10px 0;
+}
+ul.calendarLegend li{
+  list-style: none;
+  width:200px;
+  float:left;
+  margin:3px;
+  line-height: 25px;
+}
+
+/*From https://github.com/trentrichardson/jQuery-Timepicker-Addon/blob/master/src/jquery-ui-timepicker-addon.css for lang-datepicker.js*/
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 40%; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+.ui-timepicker-div .ui_tpicker_unit_hide{ display: none; }
+
+.ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input { background: none; color: inherit; border: none; outline: none; border-bottom: solid 1px #555; width: 95%; }
+.ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input:focus { border-bottom-color: #aaa; }
+
+.ui-timepicker-rtl{ direction: rtl; }
+.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
+.ui-timepicker-rtl dl dt{ float: right; clear: right; }
+.ui-timepicker-rtl dl dd { margin: 0 40% 10px 10px; }
+
+/* Shortened version style */
+.ui-timepicker-div.ui-timepicker-oneLine { padding-right: 2px; }
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time, 
+.ui-timepicker-div.ui-timepicker-oneLine dt { display: none; }
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time_label { display: block; padding-top: 2px; }
+.ui-timepicker-div.ui-timepicker-oneLine dl { text-align: right; }
+.ui-timepicker-div.ui-timepicker-oneLine dl dd, 
+.ui-timepicker-div.ui-timepicker-oneLine dl dd > div { display:inline-block; margin:0; }
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_minute:before,
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_second:before { content:':'; display:inline-block; }
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_millisec:before,
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_microsec:before { content:'.'; display:inline-block; }
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide,
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }
+
+.ui-timepicker-div span.ui-button-icon.ui-icon {top: 50%; left: 50%; }
+
+/*jQuery Datepicker button class*/
+.ui-datepicker-trigger{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger:hover{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger span.fa{color:#000;}
+.ui-datepicker-trigger:hover span.fa{color:#000;}
+
+/* css for duplicate site alert*/
+#flashNotif  a.flashNotifClose {
+    text-decoration: none;
+    font-size:120%;
+    position:absolute;
+    top:5px;
+    right:5px;
+}
+#flashNotif {
+    position:fixed;
+    top:45px;
+    left:30%;
+    right:30%;
+    padding:15px;
+    border:1px solid #ccc;
+    background: #ffe;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow:2px 2px 2px #cccccc;
+    vertical-align:middle;
+}

@@ -1,0 +1,503 @@
+.#{$namespace}sakai-assignment-grades {
+	#req-new_assignment_grade_points{
+		color: $error-color;
+	    margin: 9px 0 0 -13px;
+		position: absolute;
+	}
+	.assignment-pager {
+		text-align: center;
+		.panel-heading {
+			padding: 5px 10px;
+		}
+		input {
+			margin: 0;
+		}
+
+		button{
+			margin: 0;
+		}
+	}
+
+	.form-required{
+		label{
+			&:after{
+				content: "*";
+				color: $error-color;
+				position: relative;
+				top: 3px;
+			}
+		}
+	}
+
+	#gradeOverridePanel{
+		margin-left: 50px;
+		width:100%;
+		background-color: $tool-background-color;
+		.row-override:nth-child(odd){
+			background: darken($tool-background-color, 5%);
+		}
+		.row-override{
+			padding: 0.5em 0 0.5em;
+		}
+		.shorttext{
+			display: block;
+		}
+		.assignment-checkbox-inline{
+			display: inline-block;
+		}
+	}
+
+	#reorder-list-sortingToolBar, #reorder-list{
+		max-width: 1200px;
+	}
+
+	label.innerRadio{
+		margin-left: 20px;
+	}
+
+	#sendFeedbackPanel, #allowResubmissionPanel{
+		.discTria{
+			font-weight: bold;
+			background-color: #cef;
+		}
+	}
+
+	// Styles for navigators in Grading Student Screen
+	.leftColumn{
+		float: left;
+		display: table-cell;
+		width: 40%;
+
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+
+	.centreColumn {
+		display: table-cell;
+		width: 20%;
+		text-align: center;
+
+		#subsOnlyContainer{
+			display: block;
+			text-align: center;
+			margin-top: 0.5em;
+		}
+	}
+
+	.rightColumn {
+		display: table-cell;
+		width: 40%;
+		text-align: right;
+
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+
+	.leftColumn, .rightColumn, .centreColumn{
+		@media #{$phone}{
+			display:block;
+			width: 100%;
+			text-align:center;
+		}
+	}
+
+	.table{
+		h5{
+			margin: 0 0 0.5em 0;
+		}
+		.peer-header{
+			font-size: 0.9em;
+			line-height: 1;
+			padding: 0.5em 0 0.5em 2.5em;
+		}
+	}
+
+	.toggleAnchor {
+	  border: 1px solid #cef;
+	  background: #cef  !important;
+	  padding: 5px !important;
+	  cursor: pointer;
+	  margin-bottom: 0;
+	  &:hover {
+	    border: 1px solid #9cf;
+	  }
+	}
+
+	.toggleAnchorOpen {
+	  &:hover {
+	    border: 1px solid #9cf;
+	  }
+	  border: 1px solid #cef;
+	  background: #cef !important;
+	  padding: 5px !important;
+	  cursor: pointer;
+	}
+
+	a.toggleAnchor {
+	  display: block;
+	  text-decoration: none !important;
+	  > {
+	    h3, h4 {
+	      display: inline;
+	    }
+	  }
+	}
+
+	.discTria > a {
+	  text-decoration: none !important;
+	}
+
+	.toggledContent {
+	  margin: 0;
+	  border: 2px solid #cef;
+	  border-top: none;
+	  padding: 1em;
+	  h4 {
+	    color: #000 !important;
+	    width: 40em;
+	    margin: .5em 0 !important;
+	    padding: .3em 0;
+	    border-bottom: 2px solid #ccc;
+	  }
+	}
+
+	.smallCol {
+	  width: 25px;
+	}
+
+	#allowResubmission_shownInner, #sendFeedback_shownInner {
+	  padding: 1em;
+	}
+
+	#allowResubmission_shownInner, #sendFeedback_shownInner p {
+	  border: none;
+	}
+
+	.highLightBlock {
+	  background: #eee;
+	}
+
+	.popupMessage {
+	  background-color: #ffffcb !important;
+	  border: 1px solid lightgray;
+	  padding: 0.4em;
+	  width: 475px;
+	  position: absolute;
+	  z-index: 1000;
+	}
+
+	.reportIcon {
+	  display: inline-block;
+	  width: 20px;
+	}
+
+	.disclosureTriangle {
+	  vertical-align: top;
+	}
+
+	.attachmentsIcon {
+	  max-width: none;
+	}
+
+	.assignmentUnsubmittable {
+	  background-color: #900;
+	  color: #fff;
+	}
+
+	.assignmentUnsubmittableAttachments {
+	  background-color: #fdd;
+	}
+
+	.assignmentUnsubmittable, .assignmentUnsubmittableAttachments {
+	  border: 1px solid #900;
+	  padding: 0 10px 10px;
+	  margin: 1em 0;
+	}
+
+	.assignmentUnsubmittable {
+	  h3 {
+	    color: #fff;
+	  }
+	  .assignmentInline {
+	    background-color: #fff;
+	    border: 1px solid #eee;
+	    color: #000;
+	    margin-top: 10px;
+	    max-height: 300px;
+	    overflow-y: auto;
+	    padding: 0 10px;
+	  }
+	}
+
+	.assignmentWarning {
+	  background: url('/library/skin/images/error.png') no-repeat left;
+	  padding-left: 2em;
+	}
+
+	.assignmentAttachRadio {
+	  margin: 2px;
+	  padding: 0 1em;
+	  input, img, span, input[type=file] {
+	    line-height: 2.5em;
+	    vertical-align: middle;
+	  }
+	}
+
+	.assignmentAttachmentHighlight {
+	  background-color: #ffe;
+	}
+
+	.assignmentAttachBox {
+	  background-color: #eee;
+	  padding: 10px;
+	  h3 {
+	    margin: 0;
+	  }
+	}
+
+	.assignmentRosette {
+	  vertical-align: middle;
+	}
+
+	/* SAK-26349 */
+
+	.groupsContainer {
+	  strong {
+	    font-weight: normal;
+	    cursor: pointer;
+	    padding-left: 1em !important;
+	  }
+	  .expand {
+	    background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
+	  }
+	  .collapse {
+	    background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+	    display: block !important;
+	  }
+	}
+
+	label.disabled {
+	  color: #aaa;
+	}
+
+	/* start SAK-29314 */
+
+	.navigator {
+	  width: 100%;
+	  display: table;
+	  fieldset.roundedBorder {
+	    border: 2px solid #c8c8c8;
+	    border-radius: 5px;
+	    padding: 1em;
+	    margin-bottom: 1em;
+	    legend {
+	      padding-left: 6px;
+	      padding-right: 6px;
+	      background: rgba(255, 255, 255, 0);
+	      color: #444444;
+	    }
+	  }
+	}
+
+	td.specialLink a {
+	  &:link, &:visited {
+	    color: #197FA8;
+	  }
+	}
+
+	.gradingHeader {
+	  width: 100%;
+	  line-height: 1.4em;
+	  padding: 3px;
+	}
+
+	/* end SAK-29314 */
+
+	select.selectSet {
+	  display: none;
+	}
+
+	#extraNodeLinkList {
+	  max-width: 1200px;
+	}
+
+	.extraNode {
+	  border: 1px solid #69d;
+	  padding: 0  1.5em 1em 1.5em;
+	  width: 100%;
+	  max-width: 1200px;
+	  legend {
+	    margin-bottom: 1em;
+	  }
+	}
+
+	.extraNodeLink {
+	  cursor: pointer;
+	}
+
+	.extraNode legend {
+	  padding: 0 .5em;
+	  color: #555;
+	}
+
+	.members {
+	  font-size: 0.9em;
+	}
+
+	.userList {
+	  margin-left: 36px !important;
+	  .selectedItem {
+	    background: #def;
+	    color: #000;
+	    font-weight: bold;
+	  }
+	  li label:hover {
+	    cursor: pointer;
+	    background: #ffe;
+	  }
+	}
+
+	fieldset {
+	  .alertMessageInline, .alertMessage {
+	    border: none;
+	  }
+	}
+
+	.smallMatches {
+	  background-color: lightyellow;
+	  border-style: solid;
+	  border-width: 1px;
+	  border-color: lightgray;
+	  padding: 1em 1em 1em 2em;
+	}
+
+	.itemAction {
+	  &.spinnerBesideContainer a {
+	    margin: 0 4px;
+	  }
+	  a:link {
+	    border: 1px solid transparent;
+	  }
+	}
+
+	.contentReviewIcon {
+		@extend .fa, .fa-flag;
+	}
+
+	.contentReviewIconDraft {
+		@extend .fa, .fa-pencil-square;
+	}
+
+	.contentReviewIconWarn {
+		@extend .fa, .fa-exclamation-triangle;
+		color: #FFC107;
+	}
+
+	.contentReviewIconPending {
+		@extend .fa, .fa-hourglass-half;
+		color: #2196F3;
+	}
+
+	.contentReviewIconNoService {
+		@extend .fa, .fa-cog;
+		color: #212121;
+	}
+
+	.contentReviewIconThreshold-1 {
+		@extend .contentReviewIcon;
+		color: #F44336;
+	}
+
+	.contentReviewIconThreshold-1-draft {
+		@extend .contentReviewIconDraft;
+		color: #F44336;
+	}
+
+	.contentReviewIconThreshold-2 {
+		@extend .contentReviewIcon;
+		color: #FF9800;
+	}
+
+	.contentReviewIconThreshold-2-draft {
+		@extend .contentReviewIconDraft;
+		color: #FF9800;
+	}
+
+	.contentReviewIconThreshold-3 {
+		@extend .contentReviewIcon;
+		color: #FFD600;
+	}
+
+	.contentReviewIconThreshold-3-draft {
+		@extend .contentReviewIconDraft;
+		color: #FFD600;
+	}
+
+	.contentReviewIconThreshold-4 {
+		@extend .contentReviewIcon;
+		color: #4CAF50;
+	}
+
+	.contentReviewIconThreshold-4-draft {
+		@extend .contentReviewIconDraft;
+		color: #4CAF50;
+	}
+
+	.contentReviewIconThreshold-5 {
+		@extend .contentReviewIcon;
+		color: #2196F3;
+	}
+
+	.contentReviewIconThreshold-5-draft {
+		@extend .contentReviewIconDraft;
+		color: #2196F3;
+	}
+
+	.contentReviewIconThreshold-6 {
+		@extend .contentReviewIcon;
+		color: #9E9E9E;
+	}
+
+	.contentReviewIconThreshold-6-draft {
+		@extend .contentReviewIconDraft;
+		color: #9E9E9E;
+	}
+
+	div#pagingHeader {
+		height: 20px;
+		padding: 15px;
+		@include display-flex;
+		@include align-items(center);
+		@include justify-content(center);
+	}
+
+	#groupTable, #filterByGroupDiv{
+		button.multiselect-clear-filter{
+			padding: 6px 12px;
+			font-size: 14px;
+			line-height: 1.42857143;
+			background-color: #eee;
+		}
+	}
+
+	.borderPanel {
+		border: 1px solid #aaa;
+		padding: 0.6em;
+	}
+
+	.sakai-asn-controlRow {
+		@include justify-content(space-between);
+		@include align-items(flex-end);
+		-webkit-flex-wrap: wrap;
+		flex-wrap: wrap;
+	}
+
+	#honor-pledge-agreement {
+		h4 {
+			font-size: $jumbotron-heading-font-size;
+		}
+		margin-bottom: 0;
+	}
+}

@@ -1,0 +1,79 @@
+.left {
+	vertical-align: top;
+	text-align: left;
+	padding: 0px;
+}
+
+.right {
+	vertical-align: bottom;
+	text-align: right;
+	padding: 0px;
+}
+
+/* SAK-29637 */
+div#sitelistform\:headerContainer1, div#sitelistform\:headerContainer2 {
+	margin-top: 1em;
+}
+
+div.headerWrapper {
+	display: inline-block;
+	background-color: #EEE !important;
+	padding: 1em 1em 1em 0.5em;
+}
+
+div#sitelistform\:headerContainer1 span.collapsed, div#sitelistform\:headerContainer1 span.expanded,
+div#sitelistform\:headerContainer2 span.collapsed, div#sitelistform\:headerContainer2 span.expanded {
+	cursor: pointer;
+	padding-left: 13px;
+}
+
+div#sitelistform\:headerContainer1 span.collapsed, div#sitelistform\:headerContainer2 span.collapsed {
+	background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+}
+
+div#sitelistform\:headerContainer1 span.expanded, div#sitelistform\:headerContainer2 span.expanded {
+	background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
+}
+
+div#sitelistform\:actionContainer1, div#sitelistform\:actionContainer2 {
+	display: none;
+	background-color: #EEE;
+	padding: 1em;
+}
+
+div#sitelistform\:actionContainer1 div, div#sitelistform\:actionContainer2 div {
+	display: inline-block;
+}
+
+div#sitelistform\:actionContainer1 input, div#sitelistform\:actionContainer2 input {
+	display: block;
+	margin: 0.25em 0;
+	border: 0 !important;
+	background: 0 !important;
+	background-color: #EEE !important;
+	width: 100%;
+	text-align: left;
+	text-shadow: none !important;
+	color: #4398BB !important;
+	text-decoration: underline !important;
+}
+
+div#sitelistform\:actionContainer1 input:hover:enabled, div#sitelistform\:actionContainer2 input:hover:enabled {
+	background-color: #CCC !important;
+}
+
+div#sitelistform\:actionContainer1 input:active:enabled, div#sitelistform\:actionContainer2 input:active:enabled {
+	background-color: #75B9C2 !important;
+	color: #FFF !important;
+	box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.15) inset !important;
+	text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.3) !important;
+}
+
+div#sitelistform\:actionContainer1 div.column2, div#sitelistform\:actionContainer1 div.column3,
+div#sitelistform\:actionContainer2 div.column2, div#sitelistform\:actionContainer2 div.column3 {
+	border-left: 2px solid #C8C8C8;
+	padding-left: 1em;
+	margin-left: 1em;
+	vertical-align: top;
+}
+/* end SAK-29637 */

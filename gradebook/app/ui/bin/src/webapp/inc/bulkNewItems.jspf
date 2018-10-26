@@ -1,0 +1,168 @@
+<%/*
+	Additional Add Assignment panes for bulk creation of Gradebook Items
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+*/%>
+<style>
+  .hide { display:none; }
+  
+  .hideRemove { display:none; }
+  
+  .errHide { display:none; }
+ </style>
+
+<h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+
+<t:div id="bulkAssignments" styleClass="gbSection">
+	<t:dataTable cellpadding="0" cellspacing="0"
+		id="bulkNewAssignmentsTable"
+		value="#{bean.newBulkItems}"
+		var="item"
+	    columnClasses=""
+   		rowClasses="#{bean.rowClasses}"
+		styleClass="listHier narrowTable"
+		rowIndexVar="rowIndex">
+	
+		<h:column>
+			<%-- Used to determine if this item should be added/was displayed
+		  		Done to deal with removing item in 'middle' 				--%>
+		  	<h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
+		  
+<%-- Commented out with roll back of non-graded items 
+			<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" 
+				valueChangeListener="#{item.processUngradedSettingChange}">
+					<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
+		  			<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
+			</h:selectOneRadio>
+--%>
+		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
+		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
+		  			styleClass="highlightPanel" width="100%">
+						<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"
+							rendered="#{!item.assignment.externallyMaintained}"/>
+			
+						<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+							<h:inputText id="title" value="#{item.assignment.name}" 
+								onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							</h:inputText>
+							<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
+								styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'blank'}" />
+							<h:outputText id="noTitleErrMsgH"  value="#{msgs.add_assignment_no_title}" 
+								styleClass="alertMessageInline errHide" rendered="#{item.bulkNoTitleError != 'blank'}" />
+
+							<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_duplicate_name}"
+								styleClass="alertMessageInline" rendered="#{item.bulkNoTitleError == 'dup'}" />
+							<h:outputText id="dupTitleErrMsgH" value="#{msgs.add_assignment_duplicate_name}"
+								styleClass="alertMessageInline errHide" rendered="#{item.bulkNoTitleError != 'dup'}" />
+		
+					<%-- Will remove this pane from the page --%>
+					<h:panelGroup rendered="#{rowIndex != 0}">
+						<h:commandLink title="#{msgs.add_assignment_remove_title}" styleClass="indnt2"
+								onclick="removeItem(event, 'gbForm:bulkNewAssignmentsTable:', #{rowIndex}); return false;" >
+							<h:graphicImage value="/../library/image/silk/cross.png" title="#{msgs.add_assignment_remove_title}" />
+						</h:commandLink>
+					</h:panelGroup>
+					<%-- Hide for first item, but display if more than one. Will remove this pane from the page --%>
+					<h:panelGroup rendered="#{rowIndex == 0}">
+						<h:commandLink onclick="removeItem(event, 'gbForm:bulkNewAssignmentsTable:', #{rowIndex}); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="hideRemove indnt2">
+							<h:graphicImage value="/../library/image/silk/cross.png" title="#{msgs.add_assignment_remove_title}" />
+						</h:commandLink>
+					</h:panelGroup>  
+				</h:panelGroup>
+	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
+				<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
+				<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+					<h:inputText id="points" value="#{item.pointsPossible}" rendered="#{bean.localGradebook.grade_type != 3 && ((item.assignment.category.dropScores && item.selectedGradeEntryValue == 'Adjustment') || !item.assignment.category.dropScores || (item.assignment.category.dropScores && empty item.assignment.category.assignmentList))}" >
+					</h:inputText>
+                    <%-- If the category drops scores --%>
+					<h:outputText id="pointsDropScores" value="#{item.pointsPossible}"
+						rendered="#{bean.localGradebook.grade_type != 3 && item.assignment.category.dropScores && item.selectedGradeEntryValue != 'Adjustment' && not empty item.assignment.category.assignmentList}" />
+    				<%-- end, if the category drops scores --%>
+					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'blank'}" />
+					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'blank'}" />
+					<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'NaN'}" />
+					<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'NaN'}" />
+					<%-- Added per SAK-13459 --%>
+					<h:outputText id="invalidPtsErrMsg" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'invalid'}" />
+					<h:outputText id="invalidPtsErrMsgH" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'invalid'}" />
+					<h:outputText id="precisionPtsErrMsg" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'precision'}" />
+					<h:outputText id="precisionPtsErrMsgH" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'precision'}" />
+				</h:panelGroup>
+				<h:outputText value=""/>
+				<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+					<h:selectBooleanCheckbox id="extraCredit" value="#{item.assignment.isExtraCredit}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+					<h:outputLabel for="extraCredit" value="#{msgs.extra_credit}" />
+				</h:panelGrid>
+				
+			  </h:panelGrid>
+
+			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
+		  					styleClass="itemSummaryLite">
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+					<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.due_date} #{msgs.date_entry_format_description}"/>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+  					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
+  							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" popupDateFormat="#{msgs.date_entry_format}" popupGotoString="#{msgs.date_entry_goto}" />
+					<h:message for="dueDate" styleClass="alertMessageInline" />
+				</h:panelGroup>
+	
+				<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
+				<h:panelGroup rendered="#{bean.categoriesEnabled}">
+					<h:selectOneMenu id="selectCategory" value="#{item.category}"  onchange="this.form.submit();">
+						<f:selectItems value="#{bean.categoriesSelectList}" />
+					</h:selectOneMenu>
+
+					<h:outputText value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
+				</h:panelGroup>
+			  </h:panelGrid>
+
+			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
+	   			<h:selectBooleanCheckbox id="released" value="#{item.assignment.released}"
+    				onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+				<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
+
+				<h:outputText escape="false" value="&nbsp;" rendered="#{!bean.localGradebook.assignmentsDisplayed}"/> 
+				<h:outputText value="#{msgs.add_assignment_released_conditional}"
+							rendered="#{!bean.localGradebook.assignmentsDisplayed}"/>
+
+ 				<h:outputText escape="false" value="&nbsp;" />
+ 				
+ 				<h:panelGroup>
+					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
+					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+				</h:panelGroup>
+		  	  </h:panelGrid>
+			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+
+	  		  <f:verbatim><hr class="itemSeparator" /></f:verbatim>
+		</h:column>	
+	</t:dataTable>
+</t:div>
+		<%
+		  if (thisId == null) 
+		  {
+	    	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+		  }
+		%>
+ <script type="text/javascript">
+    setMainFrameHeight('<%= thisId %>');
+    var i=0;
+	for (i=0;i<=49;i++)
+	{
+		assignmentReleased(('gbForm:bulkNewAssignmentsTable:' + i), false);
+		categorySelected(('gbForm:bulkNewAssignmentsTable:' + i), '<h:outputText value="#{bean.extraCreditCategories}"/>');
+	}
+    
+  </script>

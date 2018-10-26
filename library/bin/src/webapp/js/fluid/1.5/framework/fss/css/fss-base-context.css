@@ -1,0 +1,161 @@
+/*
+Based on YUI fonts and base
+
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.5.2
+*/
+
+/* from fonts.css, part of YUI's CSS Foundation */
+
+/**
+ * Percents could work for IE, but for backCompat purposes, we are using keywords.
+ * x-small is for IE6/7 quirks mode.
+ */
+ 
+body.fl-base {}
+
+.fl-base table {font-size:inherit; font:100%;}
+
+/**
+ * Bump up IE to get to 13px equivalent
+ */
+.fl-base pre,
+.fl-base code,
+.fl-base kbd,
+.fl-base samp,
+.fl-base tt {font-family:monospace; *font-size:108%; line-height:100%;}
+
+/* from base.css, part of YUI's CSS Foundation */
+.fl-base h1 {
+	/*18px via YUI Fonts CSS foundation*/
+	font-size:138.5%;  
+}
+
+.fl-base h2 {
+	/*16px via YUI Fonts CSS foundation*/
+	font-size:123.1%; 
+}
+
+.fl-base h3 {
+	/*14px via YUI Fonts CSS foundation*/
+	font-size:108%;  
+}
+
+.fl-base h1,
+.fl-base h2,
+.fl-base h3 {
+	/* top & bottom margin based on font size */
+	margin:1em 0;
+}
+
+.fl-base h1,
+.fl-base h2,
+.fl-base h3,
+.fl-base h4,
+.fl-base h5,
+.fl-base h6,
+.fl-base strong {
+	/*bringing boldness back to headers and the strong element*/
+	font-weight:bold; 
+}
+
+.fl-base abbr,
+.fl-base acronym {
+	/*indicating to users that more info is available */
+	border-bottom:1px dotted #000;
+	cursor:help;
+} 
+
+.fl-base em {
+	/*bringing italics back to the em element*/
+	font-style:italic;
+}
+
+.fl-base blockquote,
+.fl-base ul,
+.fl-base ol,
+.fl-base dl {
+	/*giving blockquotes and lists room to breath*/
+	margin:1em;
+}
+
+.fl-base ol,
+.fl-base ul,
+.fl-base dl {
+	/*bringing lists on to the page with breathing room */
+	margin-left:2em;
+}
+
+.fl-base ol li {
+	/*giving OL's LIs generated numbers*/
+	list-style: decimal outside;	
+}
+
+.fl-base ul li {
+	/*giving UL's LIs generated disc markers*/
+	list-style: disc outside;
+}
+
+.fl-base dl dd {
+	/*giving UL's LIs generated numbers*/
+	margin-left:1em;
+}
+
+.fl-base th,td {
+	/*borders and padding to make the table readable*/
+	border:1px solid #000;
+	padding:.5em;
+}
+
+.fl-base th {
+	/*distinguishing table headers from data cells*/
+	font-weight:bold;
+	text-align:center;
+}
+
+.fl-base caption {
+	/*coordinated margin to match cell's padding*/
+	margin-bottom:.5em;
+	/*centered so it doesn't blend in to other content*/
+	text-align:center;
+}
+
+.fl-base p,
+.fl-base fieldset,
+.fl-base table,
+.fl-base pre {
+	/*so things don't run into each other*/
+	margin-bottom:1em;
+}
+
+/* setting a consistent width, 160px; 
+   control of type=file still not possible */
+.fl-base input[type=text],
+.fl-base input[type=password],
+.fl-base textarea{width:12.25em; *width:11.9em;}
+
+.fl-base input,
+.fl-base textarea,
+.fl-base select{font-family:inherit; font-size:inherit; font-weight:inherit;}
+.fl-base 
+/*************************************************************************************/
+/* Prevent unecessary scrollbars in IE */
+/* Put font data on the HTML element to allow overrides on the body */
+/* IE6 cant zoom text properly, so text size reset is a rough approximation */
+html.fl-base {overflow:auto; font:13px/1.231 arial,helvetica,clean,sans-serif; *font-size:small;}
+
+/*to enable resizing for IE*/
+.fl-base input,
+.fl-base textarea,
+.fl-base select{*font-size:100%; *font-family:sans-serif;}
+
+/* IE rendering fix for extra padding on buttons. Padding can now be set safely */
+.fl-base input {*overflow:visible; *padding:0 1em;}
+
+/* custom default focus indicator - theme overwrites this */
+.fl-focus:focus,
+.fl-focus :focus{    
+   outline: 2px solid black;
+}

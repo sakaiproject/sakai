@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Site Manage Group</title>
+		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" rsf:id="resize"/>
+		<script type="text/javascript" src="../js/util.js"></script>
+		<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
+		<script type="text/javascript" src="/library/js/headscripts.js"></script>
+		<script type="text/javascript">includeLatestJQuery('site-manage');</script>
+		<script type="text/javascript" src="/library/js/spinner.js"></script>
+	</head>
+
+	<body rsf:id="scr=sakai-body">
+		<div class="portletBody">
+			<!-- action links -->
+			<ul rsf:id="actions:" class="navIntraTool actionToolBar">
+				<li class="firstToolBarItem"><span><a href="#" rsf:id="add" class="item_control" title="Create New Group" onclick="">Create New Group</a></span></li>
+				<li><span><a href="#" rsf:id="joinableset_add" class="item_control" title="Create New Joinable Set" onclick="">Create New Joinable Set</a></span></li>
+				<li><span><a href="#" rsf:id="auto_add" class="item_control" title="Automatically Create New Group" onclick="">Auto Groups</a></span></li>
+				<li><span><a href="#" rsf:id="import_add" class="item_control" title="Automatically Create New Group" onclick="">Auto Groups</a></span></li>
+			</ul>
+
+			<h3 rsf:id="group-list-title">Groups</h3>
+			<!-- alert message -->
+			<div rsf:id="error-row:">
+				<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+			</div>
+			<form rsf:id="delete-group-form">
+				<p rsf:id="no-group" class="instruction">No group</p>
+				<!-- This span is needed here to guide the renderer away to the checkboxes -->
+				<span rsf:id="delete-group"/>
+				<div class="table-responsive">
+				<table class="table table-striped table-bordered table-hover table-condensed">
+					<thead>
+						<tr>
+							<th rsf:id="group-title-title"></th>
+							<th rsf:id="group-joinable-set-title"></th>
+							<th rsf:id="group-size-title"></th>
+							<th rsf:id="group-members-title"></th>
+							<th>
+								<input type="checkbox" id="selectAll" onclick="toggleCheckboxes( this );" />
+								<label for="selectAll">
+									<span rsf:id="msg=groupList.selectAllNone">Remove?</span>
+								</label>
+							</th>
+						</tr>
+					</thead>
+					<tbody id="tasks:grouplist:tbody_element">
+						<tr rsf:id="group-row:">
+							<td><span class="itemAction"><span rsf:id="group-icon" class="fa fa-fw" aria-hidden="true"></span><a href="GroupEdit.html" rsf:id="group-title">Edit</a></span></td>
+							<td>
+								<span class="itemAction"><a rsf:id="group-joinable-set" href="CreateJoinableGroups.html">Joinable Set</a></span>
+								<span rsf:id="group-no-joinable-set">---</span>
+							</td>
+							<td rsf:id="group-size">Group Size</td>
+							<td rsf:id="group-members"></td>
+							<td>
+								<label rsf:id="delete-label" class="skip">Label for element</label>
+								<input rsf:id="group-select" title="Select to remove" type="checkbox" id="check-2" name="deleteGroup" value="" onclick="adjustCount(this, 'removeCount');syncSelectAll();" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				</div>
+
+				<p class="act">
+					<input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update" accesskey="s" disabled="disabled" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" rsf:id="cancel" id="cancel" value="Cancel"  accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				</p>
+
+				<input type="hidden" id="removeCount" value="0" />
+			</form>
+		</div>
+		<script  type="text/javascript">
+			$(document).ready(function(){
+				if ($('.listHier td').length === 0) {
+					$('.listHier').hide();
+				}
+				$('tbody :checkbox').click(function(){
+					if (this.checked){
+						$(this).parents("tr").addClass('selectedSelected');
+					}
+					else{
+						$(this).parents("tr").removeClass('selectedSelected');
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

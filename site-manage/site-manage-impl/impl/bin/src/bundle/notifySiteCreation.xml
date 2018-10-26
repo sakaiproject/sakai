@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>Site Created by ${currentUserDisplayName}</subject>
+<message>
+ 
+From Worksite Setup to ${serviceName} support:
+
+&lt;#if courseSite ="true"&gt;Official Course Site&lt;#else&gt;Site &lt;/#if&gt; ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} &lt;#if courseSite ="true"&gt;for ${termTitle} &lt;/#if&gt;
+&lt;#if numSections = "1"&gt;with access to the roster for this section:&lt;#elseif numSections != "0"&gt;with access to rosters for these ${numSections} sections:&lt;/#if&gt;
+
+${sections}
+
+</message>
+<locale></locale>
+</emailTemplate>
+</emailTemplates>

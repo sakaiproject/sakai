@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- behavior-helper factory implementation injected for the integrated version -->
+<bean name="integrationContextFactory"
+    class="org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext">
+   <property name="integrated">
+        <value>true</value>
+   </property>
+
+   <property name="agentHelper">
+     <ref bean="agentHelper"/>
+   </property>
+
+   <property name="gradebookHelper">
+     <ref bean="gradebookHelper"/>
+   </property>
+
+   <property name="publishingTargetHelper">
+     <ref bean="publishingTargetHelper"/>
+   </property>
+
+   <property name="gradebookServiceHelper">
+     <ref bean="gradebookServiceHelper"/>
+   </property>
+
+   <property name="sectionAwareServiceHelper">
+     <ref bean="sectionAwareServiceHelper"/>
+   </property>
+
+   <property name="serverConfigurationServiceHelper">
+     <ref bean="serverConfigurationServiceHelper"/>
+   </property>
+
+   <property name="calendarServiceHelper">
+     <ref bean="calendarServiceHelper"/>
+   </property>
+</bean>
+
+<!-- context-sensitive agent behavior -->
+<bean name="agentHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.AgentHelperImpl">
+</bean>
+
+<!-- context-sensitive gradebook behavior -->
+<bean name="gradebookHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookHelperImpl">
+</bean>
+
+<!-- context-sensitive publishing target behavior -->
+<bean name="publishingTargetHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.PublishingTargetHelperImpl">
+</bean>
+
+<!-- context-sensitive gradebook service helper -->
+<bean name="gradebookServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.GradebookServiceHelperImpl">
+</bean>
+
+<!-- context-sensitive sectionAware service helper -->
+<bean name="sectionAwareServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl">
+</bean>
+
+<bean name="serverConfigurationServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.ServerConfigurationServiceHelperImpl">
+</bean>
+
+<bean name="calendarServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.CalendarServiceHelperImpl">
+     <property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
+</bean>
+
+<!-- External Assignment Provider -->
+<!-- This advises Gradebook on information like group access of assessments -->
+
+<bean name="assessmentGradeInfoProvider"
+      class="org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider"
+      lazy-init="false" init-method="init" destroy-method="destroy">
+      <property name="gradebookExternalAssessmentService"><ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/></property>
+      <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+      <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+      <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+</bean>
+
+<bean name="tagServiceHelper"
+      class="org.sakaiproject.tool.assessment.integration.helper.integrated.TagServiceHelperImpl">
+    <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService" />
+    <property name="tagService" ref="org.sakaiproject.tags.api.TagService" />
+</bean>
+
+<bean name="tagSyncEventHandler"
+      class="org.sakaiproject.tool.assessment.integration.helper.integrated.TagSyncEventHandlerImpl"
+      init-method="init" destroy-method="destroy">
+    <property name="tagServiceHelper" ref="tagServiceHelper"/>
+</bean>
+
+</beans>
+
+
+

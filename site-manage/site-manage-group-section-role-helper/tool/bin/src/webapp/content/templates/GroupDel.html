@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Site Manage Group</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
+	<script type="text/javascript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
+	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="/library/js/spinner.js"></script>
+</head>
+
+<body rsf:id="scr=sakai-body">
+<div class="portletBody">
+<!-- alert message -->
+
+<h3 rsf:id="page-title">Delete Groups</h3>
+<div rsf:id="error-row:">
+	<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+</div>
+
+<form rsf:id="delete-confirm-form">
+<!-- This span is needed here to guide the renderer away to the checkboxes -->
+<table class="listHier" border="0" cellspacing="0">
+  <thead>
+    <tr> 
+      	<th rsf:id="group-title-title">
+		</th>
+		<th rsf:id="group-size-title">
+		</th>
+    </tr>
+  </thead>
+  <tbody id="tasks:grouplist:tbody_element">
+
+    <tr rsf:id="group-row:"> 
+       <td><span rsf:id="group-title">Group Title</span>
+          <div class="itemAction"><a href="GroupEdit.html" target="_self"  rsf:id="group-revise">Edit</a></div>
+       </td>
+      <td rsf:id="group-size">
+      	Group Size
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="act">
+<input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update"  accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+<input type="submit" rsf:id="cancel" id="cancel" value="Cancel" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+</p>
+</form>
+</div>
+</body>
+</html>

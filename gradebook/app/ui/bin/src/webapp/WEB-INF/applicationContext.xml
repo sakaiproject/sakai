@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+   <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">
+	  <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+   </bean>
+   
+    <bean id="GradebookEntityProvider" class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntityProvider"
+      init-method="init" destroy-method="destroy">
+      <property name="entityProviderManager" ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
+      <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+    </bean>
+    
+    <!-- handles configuration of internationalization messages -->
+    <bean id="messageSource" parent="messageSourceParent"
+        depends-on="TLABPostProcessorLoader">
+      <property name="basename" value="WEB-INF/bundle/messages" />
+    </bean>
+   
+   <!--  intercept incoming views to filter on permissions -->
+   <bean parent="viewParamsInterceptorParent">
+   	  <property name="value">
+   	     <bean id="GradebookViewParamsInterceptor" class="org.sakaiproject.tool.gradebook.ui.helpers.params.GradebookViewParamsInterceptor">
+   	     	 <property name="localPermissionLogic" ref="LocalPermissionLogic" />
+   	     </bean>
+   	  </property>
+   </bean>	
+   
+      <!-- Override the default style of user messages -->
+   <bean id="messageTemplateContributor" parent="templateContributorParent">
+      <property name="baseDirectory" value="component-templates/" />
+      <property name="templateNames" value="Messages" />
+   </bean>
+   
+   <!-- Define the bean roots from the request scope file that are accessible 
+    via incoming request URL -->
+   <bean parent="requestAddressibleParent">
+	  <property name="value" value="Assignment,AssignmentGradeRecord,Comment,GradebookItemBean,AssignmentGradeRecordBean"/>
+   </bean>
+
+	<bean id="AssignmentCreator"
+		class="org.sakaiproject.tool.gradebook.ui.helpers.beans.AssignmentCreator">
+	</bean>
+   
+   <bean id="Assignment" parent="entityBeanLocatorParent">
+      <property name="newMethod" 
+      	value="AssignmentCreator.create" />
+      <property name="fetchMethod"
+      	value="GradebookItemBean.getAssignmentById" />
+   </bean>
+
+</beans>

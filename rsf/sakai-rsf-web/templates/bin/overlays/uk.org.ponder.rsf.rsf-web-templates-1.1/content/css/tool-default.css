@@ -1,0 +1,1114 @@
+/* tool-base.css  - base values - focus on positioning, margins, paddings 
+- all skins in a given instalation then can participate in these definitions 
+- and still style things differently in tool.css*/
+/*first pass at a printable sheet - essentially omitting from the print all controls,
+and reformatting info for the print media.
+If your institution is soemehow heavy in Internet Explorer Win 5.5 users this will merit
+testing as this browser in some configurations will sometimes apply these definitions to the screen */
+@media print  {
+   body {
+	font-size: 9pt !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+	h3, h4, h5, h6{
+	width: 50%;
+}
+
+	.navIntraTool,.navIntraToolLink, .actionItem, .act, .actionButtonBar, stNav, .viewNav, .navPanel, .screenOnly, .actionToolBar {
+
+	display: none;
+}
+
+	a:link, a:visited{
+	text-decoration: underline !important;
+}
+
+	table{
+	font-size: inherit !important;
+}
+
+	.tableHierarchical th, .tableAction th, .tableFlat th {
+	background: red !important;
+	font-weight: bold !important;
+	border-bottom: 1px dashed #555;
+}
+
+	.layoutViewContainer {
+	padding: 0 !important;
+}
+
+}
+/* SECTION 1 - STANDARD COMPONENTS*/
+body{
+	padding: 1em;
+	margin: 0;
+	font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em
+}
+
+hr{
+	height: 0;
+}
+
+h3,h4,h5, h6{
+	padding: .2em 0;
+}
+
+img{
+	border: 0;
+}
+
+fieldset{
+	margin-top: 1em;
+	padding: 0;
+	border:none;
+}
+
+legend{
+	width:100%;
+	font-weight: bold;
+	color: #000;
+	font-size: 100%;
+	margin-left: 0;	
+	padding-left: 0;
+}
+ fieldset.inputCheckboxGroup,  fieldset.inputRadioGroup{
+	 padding:1em .5em
+}
+
+
+iframe{
+	margin-top: 2px;
+}
+
+table{
+	font-size: 1em;
+}
+code {
+	font-family:courier, verdana, arial, helvetica, sans-serif;
+	font-size:1.2em;
+	color: greenyellow;
+	color:forestgreen
+}
+
+/* SECTION 2 - LAYOUT*/
+/*only child of body (example: any tool)*/
+.layoutViewContainer{
+	padding: 1px 1px 1em 1px;
+}
+.layoutViewContainer .layoutViewContainer{
+	padding: .3em;
+}
+.layoutFlowPanel, .layoutVerticalPanel
+{
+	padding:0;
+	overflow:hidden;
+	margin:.3em 0
+}
+
+.layoutHorizontalPanel {
+	margin:.5em 0;
+}
+.layoutHorizontalPanel div{
+	margin:0;
+}
+.layoutFlowPanel div{
+	margin:0;
+	padding:0;
+	float:left;
+}
+
+.layoutVerticalPanel div{
+}
+
+
+.panelNum2 div.panel1, .panelNum2 div.panel2{
+	margin:0;
+	padding:0;
+	float:left;
+	width:50%;
+}
+.panelNum3 div.panel1, .panelNum3 div.panel2, .panelNum3 div.panel3{
+	margin:0;
+	padding:0;
+	float:left;
+	width:33.333%;
+}
+.panelNum4 div.panel1, .panelNum4 div.panel2, .panelNum4 div.panel3, .panelNum4 div.panel4{
+	margin:0;
+	padding:0;
+	float:left;
+	width:25%;
+}
+.layoutFlowPanel div{
+	width:auto !important
+
+} 
+.layoutHorizontalPanel div{
+	border:1px solid transparent;
+} 
+
+ div.panel1{
+	background:#FFCCDD
+	}
+ div.panel2{
+	background:#EEFFCC
+	}
+div.panel3{
+	background:#CCFFDD
+	}
+div.panel4{
+	background:#88DDDD
+	}
+.layoutFlowPanel div p, .layoutVerticalPanel div p, .layoutHorizontalPanel div p{
+	padding:.5em
+}
+.layoutStackPanel{
+	width:25%;
+	border:5px solid #ccc;
+	}
+.layoutStackPanel div p{
+	padding:0;
+	margin:0;	
+}
+.panelStackHeader{
+	background:#ccc url(../images/layoutStackPanelbg.gif) top left repeat-x;
+	padding:.3em;
+	border:1px solid transparent
+}
+.panelStackHeader:hover{
+	cursor:pointer;
+}
+.panelStackHeader h4{
+	display:inline;
+	color: #35b;
+	font-size:1em;
+	font-weight:normal
+}
+
+.panelStackContent{
+	padding:.3em;
+	background:#ffc;
+	border:1px solid transparent
+	}
+
+.layoutTabPanel{
+	width:100%!important
+}
+.layoutTabPanelTabs{
+		font-size:1.3em;
+		margin-bottom:0;
+		margin-left: 0;
+		padding-left: 0;
+		border-bottom:1px solid #888
+}
+.layoutTabPanelTabs .tab{
+	display:inline;
+	margin-left: 0;
+	cursor:pointer;
+	padding:.2em .3em 0 .3em;
+	background:#fff;
+	border-width:1px;
+	border-style: solid;
+	border-color: #888
+	}	
+.layoutTabPanelTabs .curTab{	
+	background:#ffc;
+	padding-top: .4em;
+	border-bottom:1px solid #ffc;
+}
+.layoutTabPanel	.panel{
+	margin-top:0;
+	background:#ffc;
+	
+	border-width:1px;
+	border-style: none solid solid solid;
+	border-color: #888;
+	padding:.5em
+}
+.layoutTabPanel	.panel .innerPanel{
+	border:1px solid #ccc;
+	background: #fff;
+	padding:.3em;
+	min-height:18em;
+}
+.helpBody {
+	padding: 0 1em 1em 1em
+	} 
+/*for web content - 2 states of the body > div that used instead of div.layoutViewContainer in web content), with toolbar, without*/
+/*see  a course site web contentn tool  - as instructor and as student*/
+.wcwmenu{
+	padding: 0;
+	margin: 3px 0 -1em  0;
+}
+
+.wcwomenu{
+	padding: 0;
+	margin: -.3em 0 -1em 0;
+}
+
+/* SECTION 3 - TABULAR DATA LAYOUTS*/
+/*tableItemSummary: table for displaying the details of an item - layout is th-td, th-td*/
+/*see an announcement*/
+.tableItemSummary{
+	margin: .5em 0;
+	border-collapse: collapse;
+}
+
+/*format the th - since jsf cannot do <th> vertically in a column,
+ certain tds are classed (header) in jsf based tools to render the same as the th*/
+.tableItemSummary th, .tableItemSummary td.header{
+	font-weight: normal;
+	font-family: Arial,Helvetica,sans-serif;
+	white-space: nowrap;
+	vertical-align: top;
+	text-align: right;
+	padding: .3em 1em .3em .3em;
+	border-right:2px solid #aaa;
+
+}
+
+table.tableItemSummary td{
+	text-align: left;
+	padding: .3em 1em;
+	vertical-align: top;
+}
+
+table.tableItemSummary tr:hover{
+	background:#eee;
+}
+table.tableItemSummary caption{
+	display:none;
+}
+
+table.tableItemSummary col.labelColumn{
+	background:#ffc;
+}
+/*table and cells for displaying a flat or hierarchical list of tabular data*/
+/*see an annoucement, assignment list*/
+table.tableHierarchical, table.tableAction, table.tableFlat{
+	font-size: 1em;
+	width: 100%;
+	clear: both;
+	margin-top: .5em;
+}
+table.tableHierarchical caption, table.tableAction caption, table.tableFlat caption{
+display:none
+}
+table.tableHierarchical th, table.tableAction th, table.tableFlat th{
+	font-weight: normal;
+	text-align: left;
+	white-space: nowrap;
+	padding: .3em;
+}
+
+table.tableHierarchical td, table.tableAction td, table.tableFlat td{
+	padding: .3em;
+}
+
+table.tableHierarchical td img, table.tableAction td img, table.tableFlat td img{
+	margin-right: .2em;
+	vertical-align: text-top;
+}
+
+table.tableHierarchical td a:hover, table.tableAction td a:hover
+table.tableHierarchical th a:hover, table.tableAction th a:hover,
+table.tableFlat th a:hover, table.tableFlat th a:hover{
+
+	text-decoration: none;
+}
+
+/*a column in a table that contains only a very small icon - all cells in the column have that class */
+/*see an announcement list where one announcement has an attachment*/
+table.tableHierarchical .attach, table.tableAction .attach, table.tableFlat .attach{
+	width: .5em;
+}
+table.tableHierarchical .checkBoxCell, table.tableAction .checkBoxCell, table.tableFlat .checkBoxCell{
+	width: .5em;
+}
+
+
+/*make the currently sorted column header text bold,apply to <th> tag*/
+/*see gradebook roster*/
+col.currentSort{ 
+	background:#efc;
+}
+col.actionItem:hover{
+	background:#fc6;
+}
+col.checkBoxCell{
+	width:2em;
+
+}
+/*make the not currently sorted column header text not bold,apply to <th> tag*/
+/*see gradebook roster*/
+.notCurrentSort{
+	font-weight: normal;
+	text-decoration: none;
+}
+
+/*list used everywhere to list attachments to an item*/
+/*see an announcement with attachments*/
+ul.attachList{
+	margin: 1em 0;
+	padding: 0;
+}
+
+ul.attachList img{
+	vertical-align: middle;
+	margin: 0 1em 0 0;
+}
+
+ul.attachList li{
+	list-style: none;
+	margin: 0 0 .3em 0;
+}
+
+/*SECTION 4 -  NAVIGATION */
+/*navPanel is the parent of any navigation subpanel - provides for clearing the floats of the inner pannels, styling of pannel groups*/
+/*see announcement list*/
+.layoutNavPanel,.navPanel{
+	clear: both;
+	margin: 5px 0 0 0;
+	overflow: hidden;
+/*	height: 100%;*/
+/*	width: 100%;*/
+}
+
+/*boxes controls and filters on views ("view by"*/
+/*see announcement list*/
+.viewNav, .filterViewSelect{
+	font-size: 1em;
+	padding: .2em;
+	float: left;
+	width: auto;
+	line-height: 2em;
+	margin: 0 .1em;
+}
+
+.viewNav label, .filterViewSelect label{
+	padding-right: 1em;
+	width:auto !important;
+}
+
+/*formish elements in the listView subpanel - see schedule list, range of events filters*/
+.viewNav .inputText, .filterViewSelect .inputText{
+	margin: 0;
+	clear:both
+}
+
+.viewNav .inputText label, .filterViewSelect .inputText label{
+	width: 8em;
+	float: left;
+}
+
+.viewNav .labelindnt, .filterViewSelect .labelindnt{
+	margin-left: 10em !important;
+}
+
+/* listNav: boxes paging controls on list views,  searchNav: boxes searching controls on views */
+/*see announcement list, email archive list*/
+.listNav,.searchNav, .filterSearch, .navPageList{
+	float: right;
+	vertical-align: bottom;
+	padding: 0;
+	font-size: 1em;
+	text-align: right;
+	line-height: 2em;
+	clear: right;
+	margin: .2em;
+}
+
+/* tan hack:  ie6 will wrap all the input children of these unless told not to do so */
+* html body .listNav, * html body .searchNav {
+	white-space: nowrap;
+}
+
+/*these panels will sometimes have a block with instructions, status markers, etc - we can get at it via inheritance*/
+.listNav div.instruction, .searchNav div.instruction, .navPageList div.messageInstruction, .navItem div.messageInstruction{
+	text-align: center;
+	font-size: .9em;
+}
+
+/*searchNav panel has a special text input*/
+.searchNav input.searchField{
+	background-color: #fff;
+	padding: 2px;
+}
+
+/*boxes a set of controls for navigating through a series of items - ie. emails, announcements*/
+/*see an announcement */
+.navItem{
+	float: right;
+	vertical-align: bottom;
+	text-align: right;
+	line-height: 2em;
+	clear: both;
+	margin: .5em;
+}
+
+* html body .itemNav input{
+	font-size: 85%;
+}
+
+.itemNav input{
+	font-size: 90%;
+}
+/*for link controls in views */
+/*see calendar */
+.viewLinkControl
+{
+	padding:.5em 0
+}
+
+/*for abc or 123 navigators*/
+/*not sure where used - samigo?*/
+.navAlphaIndex{
+	letter-spacing: .3em;
+	color: #aaa;
+}
+
+.navAlphaIndex a, .navAlphaIndex a:link{
+	font-weight: bold;
+}
+.navAlphaIndex a:hover{
+
+	color: maroon;
+	text-decoration: none;
+}
+
+
+
+/*navigator for a view's global actions (i.e. actions not associated with particular items)*/
+/*used in samigo - gradebook*/
+.navViewAction{
+	background-color: #CCC;
+	text-align: center;
+	font-size: .8em;
+	padding: .3em;
+	vertical-align: middle;
+}
+
+/*a block that contains a twistie and a title - used to hide then reveal optional elements*/
+/*see or preview an assignment*/
+.discTria{
+	background-color: #CCC;
+	padding: .3em;
+}
+
+/*block to act on items it is listed under*/
+/*see list of links under an assignment in assignment list*/
+.actionItem{
+	font-size: .85em;
+	margin: .1em 0 0 .5em;
+	line-height: 1.6em;
+	color: #888;
+	padding: 2px;
+}
+
+h4 + div.actionItem{
+	margin: .1em 0 0 1.5em;
+}
+
+/*for action controls */
+/*create any item type*/
+.act, .actionButtonBar{
+	padding: 1em 0;
+}
+
+/*the default action in this control - keep in mind that anything you do to it (except to the font) will make 
+you loose the native buttonishness affordance of the os/browser  - empty here - color defiend in tool.css*/
+.act input.active, .actionButtonBar input.active{
+	color:#3333FF
+}
+
+/* SECTION 5 INDENTING CLASSES:use these classes with <div> blocks to structure layout hierarchically.*/
+.indnt0,.tier0{
+	margin-left: 0  !important;
+}
+
+.indnt1,.tier1{
+	margin-left: 1em  !important;
+}
+
+.indnt2,.tier2{
+	margin-left: 2em  !important;
+}
+
+.indnt3,.tier3{
+	margin-left: 3em  !important;
+}
+
+.indnt4,.tier4{
+	margin-left: 4em  !important;
+}
+
+.indnt5,.tier5{
+	margin-left: 5em  !important;
+}
+
+.indnt6,.tier6{
+	margin-left: 6em  !important;
+}
+
+.indnt7,.tier7{
+	margin-left: 7em  !important;
+}
+
+.indnt8,.tier8{
+	margin-left: 8em  !important;
+}
+
+.indnt9,.tier9{
+	margin-left: 9em  !important;
+}
+
+.indnt10,.tier10{
+	margin-left: 10em  !important;
+}
+	
+.pad0{
+	padding-left: 0  !important;
+}
+
+/*SECTION 6 MESSAGES */
+/*for status text in wizards
+ie - site creation*/
+.step, .messageStep{
+	background-color: #eee;
+background-image: url('../images/step.gif');
+	background-position: .3em;
+	background-repeat: no-repeat;
+	border: 1px solid #888;
+	display: block;
+	width: 80%;
+	clear: both;
+	color: #999;
+	font-size: 1em;
+	margin: 5px 0px;
+	padding: 5px 5px 5px 25px;
+}
+
+.messageStepGraphic
+{
+	height:100%;
+	overflow: hidden;
+}
+.messageStepGraphic div{
+	width:100px;
+	float:left;
+
+}
+.messageStepGraphic div span{
+	margin-top:2em;
+	text-align: center;
+	color:#aaa;
+	display:block;
+}
+.first-cur-step span, .med-cur-step span, .last-cur-step span{
+	color: blue !important;
+	font-weight:bold;
+}
+.messageStepGraphic .first-noncur-step{
+	background:#fff url(../images/first-noncur-step.gif) top left no-repeat;
+}
+.messageStepGraphic .first-cur-step{
+	background:#fff url(../images/first-cur-step.gif) top left no-repeat;
+}
+.messageStepGraphic .med-noncur-step{
+	background:#fff url(../images/med-noncur-step.gif) top left no-repeat;
+}
+.messageStepGraphic .med-cur-step{
+	background:#fff url(../images/med-cur-step.gif) top left no-repeat;
+}
+.messageStepGraphic .last-noncur-step{
+	background:#fff url(../images/last-noncur-step.gif) top left no-repeat;
+}
+.messageStepGraphic .last-cur-step{
+	background:#fff url(../images/last-cur-step.gif) top left no-repeat;
+}
+
+
+/*for instructions*/
+/*create an announcement*/
+.messageInstruction{
+	line-height: 1.3em;
+	margin: .5em 0;
+}
+
+/* indicate status change */
+/*see: join or unjoin sites*/
+.information, .infoMessage, .messageInfo{
+	background-color: transparent;
+	background-image: url('../images/info.gif');
+	background-position: .3em;
+	background-repeat: no-repeat;
+	border: 1px solid #888;
+	display: block;
+	width: 80%;
+	clear: both;
+	color: #888;
+	font-size: 1em;
+	margin: 5px 0px;
+	padding: 5px 5px 5px 25px;
+}
+
+/*indicate success*/
+/*see: create a gradebook assignment*/
+.success, .successMessage, .messageSuccess{
+	background-color: #fff;
+	background-image: url('../images/check.gif');
+	background-position: .3em;
+	background-repeat: no-repeat;
+	border: 1px solid #4a4;
+	display: block;
+	width: 80%;
+	clear: both;
+	color: #000;
+	font-size: 1em;
+	margin: 5px 0px;
+	padding: 5px 5px 5px 25px;
+}
+
+
+/*indicate failed validation, non-system errors*/
+/*TODO: consolidate - validationEmbedded used in gradebook, validation in many places, alertMessage legacy*/
+/*see: create an announcement but "forget" to give it a title*/
+.validationEmbedded,.validation,.alertMessage, .warningMessage, .messageValidationErrorGlobal, .messageWarn{
+	background: #fff url(../images/warn.gif) .3em center no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: #b11;
+	margin: 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+.messageWarn{
+	background: #fff url(../images/question.gif) .3em center no-repeat;
+}
+.inline{
+	display:inline!important;
+}
+.validationError textarea, .validationError input{background:#ffc;border:1px solid #b11!important;}
+  .validationError textarea:focus, .validationError input:focus{background:#fff;border:1px dashed #b11!important }  
+/*yet another way to indicate a field that failed validation - treats just the label color via inheritance*/
+/*create a resource but forget a required field*/
+.validFail label{
+	color: #b11 !important;
+}
+.validationError legend{
+	color:#b11
+}
+/*when displaying a validaiton failure inline (used with a span)*/
+.alertMessageInline{
+	background: #fff url(../images/warn.gif) center left no-repeat;
+	border: 1px solid #fff;
+	width: 50%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.validationMessage, .messageValidationErrorItem {
+	background: #fff url(../images/warn.gif) center left no-repeat;
+	border: 1px solid #fff;
+	width: 50%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.error{
+}
+
+.fatalerror{
+}
+
+/*highlight certain texts*/
+/*see: create a draft announcement - see the list*/
+.highlight{
+	color: #b11;
+}
+
+.messagePanelAlert
+{
+	padding:1em;
+	border:1px solid #b11;
+}
+.messagePanelAlert h3{
+	margin:0;
+	background: url(../images/info.gif) 0 center no-repeat;
+	background-color: #fff !important;
+	padding:.5em 25px ;
+	color:#b11;
+	
+}
+.messagePanelError
+{
+	padding:1em;
+	background:#fff!important;
+	border:2px solid #B11;
+}
+.messagePanelError h3{
+	border:1px solid #B11;
+	margin:-1em -1em 1em -1em;
+	background:#b11!important;
+	padding:.5em;
+	color:#fff;
+}
+/*see: top of resources*/
+.breadCrumb{
+	clear: both;
+	margin: 1em 0;
+}
+
+/*see: top of resources*/
+h3 .breadCrumb{
+	clear: both;
+	font-size: .8em;
+}
+
+/*SECTION 7 DATA PANELS*/
+/*panels of normal text can have a header (ie - title) and a footer element (ie - metadata such as author, date, etc)*/
+/*see synoptic view of announcements*/
+h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader{
+	font-size: 1em;
+	color: #555;
+	margin: 1em 1em .2em 0;
+}
+
+.textPanel{
+	margin: .5em 0;
+}
+
+.textPanel > div.disc * {
+	margin: inherit;
+}
+
+.textPanel > div.disc p {
+	margin: 5px 0;
+}
+
+.textPanelFooter{
+	font-size: 85%;
+	margin: 0;
+	color: #555;
+	font-weight: normal;
+}
+
+/*for panels that "look" like forms but are read only ie. assignment preview - student view*/
+/*see: preview an assignment - view the student view*/
+.inopPanel {
+	border: 1px solid #eee;
+	padding: 1em;
+	background: #fff url(images/ib.gif) top left repeat;
+}
+
+/*to highlight info or controls in some high threshhold situations*/
+/*do an assignment that requires honor code check as a student*/
+.highlightPanel {
+	margin: 1em 0;
+	padding: .5em;
+}
+
+/*to isolate blocks of data in low threshhold situations*/
+/*see admin / memory / status*/
+.infoPanel{
+	padding: .3em;
+	width: 99%;
+}
+
+.infoPanelHead{
+	padding: .3em;
+}
+
+/*for separating data blocks*/
+hr.itemSeparator{
+	height: 1px;
+	border-style: solid;
+	border-width: 1px 0 0 0;
+}
+
+/* SECTION 8 FORM ELEMENTS
+	all form elements are formed by a label/input pair wrapped in a block - with JSF based tools it is another matter 
+	.inputText - label / input (type=text)
+	.inputLongText - label / textarea
+	.inputCheck - input (type=checkbox or radio)
+	*/
+	
+/*	see: create a resource*/
+	
+/*these two have a border that needs to match the background to avoid some tedious problems in IE*/	
+.inputText,.inputLongText,.inputSelect{
+	margin: .4em 1em;
+
+}
+
+.inputText label, .inputSelect label{
+	margin-right: 1em;
+	width: 14.5em;
+	font-weight: normal;
+	float: left;
+}
+
+.inputText input{
+	padding: .1em .3em;
+	border: 1px solid #888;
+}
+
+textarea{
+	margin-top: .5em;
+}
+
+.inputLongText label{
+	display:block
+}
+.inputLongText label.inline{
+	float:left;
+	padding-right:1em
+
+}
+/*border that needs to match the background to avoid some tedious problems in IE	*/
+.inputCheck{
+	margin: .2em 0;
+}
+.inputRadio{
+	margin: .2em 0;
+}
+.inputCheck input{
+	border:none !important;
+	background:none !important;
+}
+.inputRadio input{
+	border:none !important;
+	background:none !important;
+}
+
+
+.inputCheck label{
+}
+.disabled label {
+	color:#888
+}
+.checked {
+	padding:1px 2px;
+	background:#ffc;
+	width:auto;
+	display:inline;
+
+}
+
+/*certain longtext/label pairs need to display label and control on separate lines - their label is classed "block"*/
+label.block{
+	display: block;
+}
+
+/*input type="file" are classed "upload" YMMV*/
+input.upload{
+}
+
+/*some forms need to be displayed inline*/
+.inlineForm{
+	margin: 0;
+	padding: 0;
+	display: inline;
+}
+
+.inlineForm a{
+	border: none;
+	background-color: transparent;
+}
+
+/*SECTION 9 MISC*/
+/*all purpose clearing action when nature of prec or following items floating nature is in doubt*/
+.clear {
+	margin: 1em 0;
+	clear: both;
+}
+
+/*informational texts intended for screen readers - renders offscreen*/
+.skip{
+	display: inline;
+	position: absolute;
+	top: -999px;
+	left: -999px;
+	height: 0;
+}
+
+/*external login form formatting*/
+.login{
+	margin: 5em auto;
+	border: 1px solid #555;
+	width: auto;
+}
+
+.login th{
+	background-color: #eee;
+	padding: .5em;
+	border-bottom: 1px solid #555;
+}
+
+.login td.logo{
+	width: 0;
+/*	background:#fff url(../image/sakai.jpg) top left no-repeat*/
+}
+
+.login td.form{
+
+}
+
+.loginform{
+	color: #fff;
+}
+
+.loginform label{
+	color: #fff;
+}
+
+.loginform td{
+/*	padding: .3em;*/
+	color: #fff;
+}
+
+.loginform td #eid{
+	width: 11em;
+}
+
+.loginform td #pw{
+	width: 11em;
+}
+
+.loginform td #submit{
+	color:#09C;
+	float: right;
+}
+
+.loginform td #submit:hover{
+	border: 1px solid #888;
+	background-color: #eee;
+}
+
+/*SECTION 10 JSF HACKS*/
+/*Tools based on JSF have some unique rendering requirements dictated by the way jsf chooses to render standard html components*/
+/* IE gives forms a top margin unless told not to
+this affects jsf based tools*/
+.layoutViewContainer form{
+	margin-top: 0;
+}
+
+/*for jsf label/input pairs that need to be rendered in a table (because otherwise they will not work)*/
+.jsfFormTable{
+	padding: 0;
+}
+
+/*in order to get the label/imput pair to work in jsf, they need to be wrapped up in a table in 
+order to display them in the same cell they need to be wrapped in a h:panelGroup, which for some
+ reason renders as a span. In order for the required star to "show" that span needs to be a block
+  level element. So - if the input is required, add the "required" class to the h:panelGroup
+   (in addition to the shorttext, checkbox or longtext classes) pant, pant...*/
+.jsfFormTable .required{
+	display: block;
+	margin-left: -.2em;
+}
+
+.jsfFormTable td{
+	padding: .3em 0;
+}
+
+.jsfFormTable td .reqStar{
+	margin: 0 .2em 0 0;
+}
+
+.jsfFormTable td .labelindnt{
+	margin-left: 17.5em !important;
+}
+
+.jsfFormTable td .inputText {
+	margin: 0;
+}
+
+.jsfFormTable td .inputText label{
+	width: 17em;
+}
+
+.jsfFormTable td .required input {
+	margin-left: -.6em;
+}
+
+/*since jsf multiple radio are rendered in a table, substract the padding of the parent td with a negative margin */
+td table.inputCheck {
+	margin: 0;
+}
+
+/*so that the same table does not inherit the padding from the parent*/
+td table.inputCheck td{
+	padding: 0;
+}
+
+/*to avoid IE drawing a border around the input*/
+table.inputCheck label input {
+	border: 1px solid #fff;
+}
+
+/*SECTION 11 WIDGETS*/
+/*list manager - two side by side select items,children of table.inputDoubleList*/
+/*see: preferences / tab management or site info / create a group*/
+.inputDoubleList{
+}
+
+.inputDoubleList th{
+	padding: .3em;
+	text-align: left;
+	font-weight: normal;
+}
+
+.inputDoubleList td{
+	padding: .3em;
+
+}
+
+.inputDoubleList select{
+	width: 18em;
+}
+
+.collapsibleSection{
+	padding:1em;
+	display:block;
+	margin: 0;
+}
+.widgetCollapsibleSectionToggle{
+	border: 1px solid tan;
+	padding: .5em;
+	background:#ffc;
+}
+.widgetCollapsibleSectionToggle:hover{
+	cursor:pointer;
+	border: 1px solid #fc6;
+
+}
+.widgetCollapsibleSectionToggle h4{
+	display:inline;	
+
+}
+.tableAction select{
+	margin:0;
+	border:1px solid #aaa
+}
+.tableAction select option{
+	padding:.1em;
+	background:#FFC
+}
+.tableAction input.text{
+	border:1px solid #aaa;
+	margin:0;
+	padding:.1em;
+}
+.tableAction input.text:focus{
+	border:1px solid #000;
+}
+

@@ -1,0 +1,838 @@
+body.active-more-sites{
+  overflow: hidden;
+
+  @media #{$phone} {
+    overflow: auto;
+
+    // hide the tool body
+    .#{$namespace}pagebody {
+      #content {
+        display: none;
+      }
+    }
+
+    // make the banner stick to the top on scroll when the tool menu is visible
+    .#{$namespace}mainHeader {
+      position: absolute;
+      top: -$banner-height;
+
+      .#{$namespace}topHeader {
+        position: relative;
+        padding-top: 0 !important;
+
+        .#{$namespace}headerLogo {
+          position: relative;
+        }
+      }
+    }
+
+
+    #selectSiteModal {
+      width: 100% !important;
+      right: 0 !important;
+      top: ($banner-height - 4) !important;
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      position: absolute !important;
+
+      .tab-pane {
+        height: auto !important;
+      }
+    }
+  }
+}
+
+#portalMask{
+	background: $all-sites-mask-background;
+	position: fixed;
+}
+
+#selectSiteModal{
+	position: fixed;
+	z-index: 10000;
+	overflow:visible;
+	outline: none;
+	@include transition( left 0.4s linear 0s );
+	&.dhtml_more_tabs{
+		background: $all-sites-background-color;
+		display: block;
+		position: fixed;
+		width: 60% ;
+		max-height: 100%;
+		padding: 0 1em 1em 1em;
+		box-shadow: $all-sites-drop-shadow;
+		@media #{$phone}{
+			width: 100%;
+			height: 100%;
+			top: $banner-height + ($banner-height - 4);
+			left: 0;
+			overflow: visible;
+			position: fixed;
+			padding: 0;
+			box-shadow: 0px 0 0px 0px rgba(0,0,0,0);
+			@include transition( left 0.26s linear 0s );
+			&:after {
+				bottom: 100%;
+				left: auto;
+				right: 40px;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(255, 255, 255, 0);
+				border-bottom-color: $tool-menu-background-color;
+				border-width: 7px;
+				margin-left: -7px;
+				outline: 0;
+			}
+		}
+	}
+	&.outscreen{
+		left: 110%;
+		max-width: 100%;
+		display: none !important; //Important added by SAK-31260
+		@media #{$phone}{
+			display: none;
+		}
+	}
+	&:after{
+	        bottom: 100%;
+		left: 95%;
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+		border-color: rgba(255, 255, 255, 0);
+		border-bottom-color: $tool-menu-background-color;
+		border-width: 7px;
+		margin-left: -7px;
+		outline: 0;
+	}
+}
+
+#selectSite{
+	.tab-pane{
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+
+	.tab-box{
+		padding: 5px 5px 5px 1em;
+		height: 100%;
+		background-color: $all-sites-tab-active-background-color;
+		margin: 0 1px 0 0;
+	}
+
+	.tab-bar{
+		list-style: none;
+		padding: 0 0 0 0;
+		border-bottom: 1px solid $all-sites-tab-border-color;
+	}
+
+	.tab-bar .tab-btn{
+		position: relative;
+		display: inline-block;
+		padding: 0 2em;
+		height: $tool-tab-height;
+		line-height: $tool-tab-height;
+		border: 1px solid $all-sites-tab-border-color;
+		border-bottom:  0;
+		margin: 0;
+		color: $all-sites-tab-text-color;
+		background-color: $all-sites-tab-background-color;
+	}
+
+	.tab-bar .tab-btn:hover{
+		cursor: pointer;
+		color: $all-sites-tab-hover-text-color;
+		background-color: $all-sites-tab-hover-background-color;
+		&:before {
+			border-top: 4px solid $all-sites-tab-hover-highlight;
+			content: '';
+			display: block;
+			position: absolute;
+			left: -1px;
+			right: -1px;
+			top: -1px;
+		}
+	}
+
+	.tab-bar .tab-btn.active{
+		cursor: default;
+		color: $all-sites-tab-active-text-color;
+		background: $all-sites-tab-active-background-color;
+		&:before {
+			border-top: 4px solid $all-sites-tab-active-highlight-color;
+			content: '';
+			display: block;
+			position: absolute;
+			left: -1px;
+			right: -1px;
+			top: -1px;
+		}
+		&:after{
+			border-bottom: 1px solid $tool-tab-active-background-color;
+			content: '';
+			display: block;
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: -1px;
+		}
+	}
+
+	.tab-bar .tab-btn.tab-disabled{
+		color: lighten( $text-color, 50% );
+	}
+
+	.tab-bar .tab-btn.tab-disabled:hover{
+		cursor:default;
+	}
+
+	.tab-bar{
+		margin: 5px 0 0 0;
+		position: relative;
+		z-index: 2;
+	}
+
+
+	.tab-bar{
+		.tab-btn{
+			.favorites-tab-label {
+				font-weight: $tool-tab-text-weight;
+				font-size: $tool-tab-text-size;
+				line-height: $tool-tab-height;
+				text-decoration: none;
+				padding: 0;
+				margin: 0;
+			}
+			&.active{
+				.favorites-tab-label {
+					font-size: $tool-tab-active-text-size;
+				}
+			}
+			&.organizeFavorites {
+				margin-left: -5px;
+			}
+		}
+	}
+
+	#selectSite-navbar{
+		overflow: hidden;
+		margin: 0;
+		padding: 0;
+	}
+
+	.favorites-term-header {
+		color: $all-sites-title-text-color;
+		font-size: $all-sites-title-text-size;
+		font-weight: $all-sites-title-text-weight;
+		margin: 1.5em 0 0.6em 0;
+	}
+}
+
+ul#otherSitesMenu{
+	margin: 0;
+	padding: 0 0 0 0;
+	list-style: none;
+	@media #{$desktop}{
+		margin-top: 0.5em;
+		width: 100%;
+		text-align: right;
+	}
+	@media #{$phone}{
+		margin-left: 5px;
+	}
+	display: inline-block;
+	li:not(.otherSitesMenuClose){
+		display: inline-block;
+		a{
+			@extend .button;
+			@media #{$phone}{
+				padding: 0.3em;
+			}
+		}
+	}
+
+	li.otherSitesMenuClose{
+		display: inline-block;
+		font-size: 1.5em;
+
+		a {
+			color: $all-sites-close-action-color;
+
+			&:hover {
+				color: $all-sites-close-action-hover-color;
+			}
+		}
+
+		@media #{$phone}{
+			position: absolute;
+			right: 10px;
+			top: 3px;
+		}
+	}
+}
+
+
+#otherSitesCategorWrap{
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	.moresites-left-col{
+ 		display: inline-block;
+		width: 49%;
+		float: left;
+		margin-right: 1%;
+		@media #{$more-sites-single-column}{
+			width: 100%;
+			float: none;
+		}
+		.fav-sites-term:first-child .favorites-term-header{
+			margin-top: 0;
+		}
+	}
+	.moresites-right-col{
+		display: inline-block;
+		width: 49%;
+		float: left;
+		@media #{$more-sites-single-column}{
+			width: 100%;
+			float: none;
+		}
+		.fav-sites-term:first-child .favorites-term-header{
+			margin-top: 0;
+		}
+	}
+}
+
+
+
+ul.otherSitesCategorList,
+ul.favoriteSiteList{
+	clear: both;
+	list-style: none;
+	padding: 0 0 0 0;
+	li{
+		display: inline-block;
+		font-size: $all-sites-button-text-size;
+		background: $all-sites-button-background-color;
+		border: 1px solid $all-sites-button-border-color;
+		@include border-radius( $all-sites-button-border-radius );
+		margin: 0.3em;
+		padding: 0;
+		position: relative;
+
+		a{
+			color: $all-sites-button-text-color;
+			font-weight: $all-sites-button-text-weight;
+
+			&:hover {
+				color: $all-sites-button-hover-text-color;
+			}
+		}
+
+		.site-favorite-btn {
+			padding: 0 0.5em 0 10px;
+			height: $all-sites-button-height;
+			display: inline-block;
+
+			.site-nonfavorite {
+				color: $all-sites-button-star-empty-color;
+			}
+			.site-favorite {
+				color: $all-sites-button-star-full-color;
+			}
+		}
+
+		.toolMenus {
+			display: inline-block;
+			color: $all-sites-button-dropdown-color;
+			padding: 0 1em 0 0;
+			height: $all-sites-button-height;
+			line-height: $all-sites-button-height;
+
+			&.toolMenusActive {
+				i {
+					@include transform( rotate(180deg) );
+				}
+			}
+		}
+
+		&.is-selected{
+			color: $all-sites-button-selected-text-color;
+			font-size: $all-sites-button-selected-text-size;
+			font-weight: $all-sites-button-selected-text-weight;
+			background: $all-sites-button-selected-background-color;
+			border-color: $all-sites-button-selected-border-color;
+			border-radius: $all-sites-button-selected-border-radius;
+
+			.toolMenus {
+				color: $all-sites-button-selected-dropdown-color;
+			}
+
+			.site-favorite-btn {
+				.site-nonfavorite {
+					color: $all-sites-button-selected-star-empty-color;
+				}
+				.site-favorite {
+					color: $all-sites-button-selected-star-full-color;
+				}
+			}
+		}
+
+		&:hover {
+			color: $all-sites-button-hover-text-color;
+			font-size: $all-sites-button-hover-text-size;
+			font-weight: $all-sites-button-hover-text-weight;
+			background: $all-sites-button-hover-background-color;
+			border: 1px solid $all-sites-button-hover-border-color;
+
+			.toolMenus {
+				color: $all-sites-button-hover-dropdown-color;
+			}
+
+			.site-favorite-btn {
+				.site-nonfavorite {
+					color: $all-sites-button-hover-star-empty-color;
+				}
+				.site-favorite {
+					color: $all-sites-button-hover-star-full-color;
+				}
+			}
+		}
+	}
+}
+
+#otherSiteSearch{
+	display: block;
+
+	@media #{$more-sites-single-column}{
+		text-align: left;
+		margin-bottom: 1em;
+	}
+
+	label{
+		color: $text-color;
+	}
+
+	margin: 1em 1em 1em 0;
+
+	#txtSearch{
+		width: 18em;
+		min-height: 2em;
+
+		padding: 0 5px 0 5px;
+		border-radius: 50px !important;
+		border: 1px solid #e5e5e5;
+	}
+
+	#txtSearch:focus {
+		outline: none;
+	}
+
+        .other-site-search-clear{
+		position: relative;
+		text-decoration: none;
+		font-family: 'FontAwesome';
+	}
+
+	.other-site-search-clear:before{
+		position: absolute;
+		top: -5px;
+		right: 14px;
+		content: '\f057';
+		font-family: 'FontAwesome';
+		color: #ccc;
+		font-size: 1.2em;
+		line-height: 1.5em;
+		text-align: right;
+	}
+}
+
+.otherSiteToolIcon{
+	padding-right: 0.5em;
+}
+
+ul#otherSiteTools{
+	list-style: none;
+	padding-left: 0;
+	padding-bottom: 5px;
+	background: $all-sites-tool-menu-background-color;
+
+	li{
+		border: 0;
+		margin: 0;
+		display: block;
+
+		a{
+			display: block;
+			padding: 5px 6px;
+			color: $all-sites-tool-menu-text-color;
+			font-size: $all-sites-tool-menu-text-size;
+			background: $all-sites-tool-menu-background-color;
+			text-decoration: none;
+			font-weight: $all-sites-tool-menu-text-weight;
+			border-left: $all-sites-tool-menu-left-border;
+
+			.otherSiteToolIcon{
+				display: inline-block;
+				color: $all-sites-tool-menu-icon-color;
+			}
+
+			&:hover {
+				background: $all-sites-tool-menu-hover-background-color;
+				color: $all-sites-tool-menu-hover-text-color;
+				border-left: $all-sites-tool-menu-hover-left-border;
+
+				.otherSiteToolIcon{
+					color: $all-sites-tool-menu-hover-icon-color;
+				}
+			}
+		}
+
+		&.gotosite {
+			border-top: 1px solid $all-sites-tool-menu-divider-color;
+
+			a {
+				&:after {
+					color: $all-sites-tool-menu-icon-color;
+					font-family: FontAwesome;
+					content: '\f178';
+					margin-left: 10px;
+				}
+
+				&:hover {
+					&:after {
+						color: $all-sites-tool-menu-hover-icon-color;
+					}
+				}
+			}
+		}
+
+		.icon-sakai--see-all-tools{
+			display: none;
+		}
+	}
+}
+
+ul.favoriteSiteList{
+	list-style: none;
+	padding: 0 0 0 0;
+	> li{
+		display: block;
+		font-size: $all-sites-button-text-size;
+		background: $all-sites-button-background-color;
+		border: 1px solid $all-sites-button-border-color;
+		@include border-radius( $all-sites-button-border-radius );
+		width: 305px;
+		white-space: nowrap;
+		overflow: hidden;
+		margin: 0.3em;
+		padding: 0;
+	}
+}
+
+	div.fav-title-myworkspace {
+		width: 276px;
+		
+		a {
+			width: 100%;
+
+			.fa-home {
+				font-size: 1.33333em;
+				padding: 0 0.5em 0 10px;
+			}
+
+			&:hover {
+				text-decoration: none;
+			}
+			.fa-home, .fullTitle {
+				height: $all-sites-button-height;
+				line-height: $all-sites-button-height;
+			}
+		}
+	}
+
+.fav-title{
+	width: 240px;
+	overflow: hidden;
+	display: inline-block;
+	vertical-align: middle;
+	a{
+		width: 100%;
+		display: inline-block;
+		height: $all-sites-button-height;
+		line-height: $all-sites-button-height;
+		text-decoration: none !important;
+		vertical-align: middle;
+	}
+}
+
+#organizeFavorites{
+	padding-left: 1em;
+	@media #{$phone}{
+		.heading{
+			display: none;
+		}
+	}
+}
+
+.tab-btn.organizeFavorites{
+	.favorites-desktop{
+		display: inline;
+	}
+	.favorites-mobile{
+		display: none;
+	}
+	.favoriteCount{
+		display: inline-block;
+	}
+
+	@media #{$phone}{
+		.favorites-desktop{
+			display: none;
+		}
+		.favorites-mobile{
+			display: inline;
+		}
+	}
+}
+
+.organizeFavoritesList{
+	list-style: none;
+	padding: 0 0 0 0;
+	.fav-drag-handle{
+		display: inline-block;
+		position: relative;
+		right: 2px;
+		padding: 0 6px;
+		height: $tool-tab-height;
+		line-height: $tool-tab-height;
+		color: $all-sites-button-drag-icon-color;
+		cursor: move; /* fallback if grab cursor is unsupported */
+		cursor: grab;
+		cursor: -moz-grab;
+		cursor: -webkit-grab;
+		border-left: 1px dotted $all-sites-button-border-color;
+	}
+	> li {
+		&:hover {
+			.fav-drag-handle {
+				color: $all-sites-button-drag-icon-hover-color;
+			}
+		}
+	}
+	.fav-drag-handle:active{
+		cursor: grabbing;
+		cursor: -moz-grabbing;
+		cursor: -webkit-grabbing;
+	}
+	.site-favorite-btn{
+		padding-right: 0.5em;
+	}
+
+	.site-favorite-is-past-max {
+		opacity: 0.5;
+	}
+}
+
+
+li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
+	font-weight: bold;
+	color: #de8e07;
+}
+
+/* If we've hit max favorites, show a warning icon */
+.favoriteCountAndWarning {
+	&.maxFavoritesReached {
+		#favoriteMaxWarningIndicator {
+			display: inline;
+		}
+	}
+	&:not(.maxFavoritesReached) {
+		#favoriteMaxWarningIndicator {
+			display: none;
+		}
+	}
+}
+
+/* Selector length arms race! */
+#selectSiteModal #selectSite .tab-pane .organizeFavoritesList li.favorites-max-marker {
+	font-family: $header-font-family;
+	width: 95%;
+	border: 0;
+	background: transparent !important;
+	border-top: rgb(229, 229, 229) 2px dashed;
+	padding-left: 12px !important;
+	&:hover {
+		border-top: rgb(229, 229, 229) 2px dashed;
+		background: transparent !important;
+	}
+
+	.warning-icon {
+		color: #de8e07;
+		padding-right: 8px;
+	}
+
+}
+
+
+#organizeFavoritesPurgatoryList{
+	.fav-drag-handle{
+		display: none;
+	}
+	a{
+		color: darken($background-color-secondary, 10%);
+		.fullTitle{
+			color: darken($background-color-secondary, 10%);
+		}
+	}
+}
+
+.site-favorite-icon.site-favorite:before{
+	@extend .fa;
+	@extend .fa-star;
+	color: #F49D08;
+}
+
+.site-favorite-icon.site-nonfavorite:before{
+	@extend .fa;
+	@extend .fa-star-o;
+	color: #CDCDCD;
+}
+
+.site-favorite-icon.site-workspace:before{
+	@extend .fa;
+	@extend .fa-home;
+	color: #000;
+}
+
+
+.site-favorite-icon{
+	font-size: 1.3em;
+	display: inline-block;
+	position: relative;
+	top: 2px;
+}
+
+.favorites-select-all-none {
+    padding-left: 14px;
+    padding-right: 8px;
+    cursor: pointer;
+    margin: 0;
+    height: 28px;
+    float: left;
+
+    &:hover {
+        .site-favorite-icon:before {
+            color: $all-sites-button-star-empty-color;
+        }
+        .site-favorite-icon.site-favorite:before {
+            color: $all-sites-button-star-full-color;
+        }
+    }
+
+    .site-favorite-icon {
+        font-size: 95%;
+        top: 0;
+    }
+}
+
+.favorites-help-text {
+    margin-top: 1em;
+}
+
+.site-favorite-icon.site-favorite:hover{
+	text-shadow: -1px 0 #F49D08, 0 1px #F49D08, 1px 0 #F49D08, 0 -1px #F49D08;
+}
+
+.site-favorite-icon.site-nonfavorite:hover:before{
+	color: #999;
+}
+
+
+.moresites-refresh-notification{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	top: 13px;
+	border: 1px solid #EAC276;
+	z-index: 1000;
+	display: inline-block;
+	box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+
+	-webkit-transition: background-color 0.2s, color 0.2s;
+	-moz-transition: background-color 0.2s, color 0.2s;
+	-ms-transition: background-color 0.2s, color 0.2s;
+	-o-transition: background-color 0.2s, color 0.2s;
+	transition: background-color 0.2s, color 0.2s;
+
+	background-color: #F9EDBE;
+	color: #000 !important;
+	text-align: center;
+	padding: 0 8px;
+	text-decoration: none;
+
+	a
+	{
+		display: inline-block; // to override flex on login links
+		color: #191919;
+		text-decoration: underline !important;
+	}
+
+	@media #{$phone}{
+		display: none;
+	}
+}
+
+#organize-favorites-pane {
+	float: left;
+	width: 70%;
+	border-right: solid 1px $all-sites-tab-border-color;
+}
+
+#favorite-settings-pane {
+	float: left;
+	width: 28%;
+	padding-left: 1em;
+
+	button {
+		color: $text-color !important;
+		background: $background-color;
+		border-color: $button-primary-border-color;
+		border-radius: $button-radius;
+		padding: 0.6em;
+
+		&[aria-checked="true"] :first-child, &[aria-checked="false"] :last-child {
+			background-color: $button-primary-hover-background-color;
+			color: $button-primary-text-color;
+		}
+
+		span {
+			padding: 0.2em 0.6em;
+			border-radius: $button-radius;
+		}
+	}
+}
+
+@media #{$phone} {
+	#organizeFavorites {
+		#organize-favorites-pane {
+			float: none;
+			width: 100%;
+			border-right: none;
+			border-bottom: 1px solid $all-sites-tab-border-color;
+		}
+		#favorite-settings-pane {
+			float: none;
+			width: 100%;
+			padding: 1em 0 0 0;
+		}
+	}
+}

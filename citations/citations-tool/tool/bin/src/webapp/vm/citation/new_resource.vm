@@ -1,0 +1,223 @@
+<!-- citations/new_resource.vm
+#*
+ $URL:https://source.sakaiproject.org/svn/citations/trunk/citations-tool/tool/src/webapp/vm/citation/new_resource.vm $
+ $Id$
+*#
+ **********************************************************************************
+ *
+ * Copyright (c) 2012 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************
+-->
+<script type="text/javascript" src="#libraryLink('webjars/jquery/1.12.4/jquery.min.js')">
+</script>
+<script type="text/javascript" src="#libraryLink('webjars/jquery-ui/1.12.1/jquery-ui.min.js')">
+</script>
+<script type="text/javascript" src="#libraryLink('js/jquery/sortable/jquery.sortable.min.js')">
+</script>
+<script src="/library/js/spinner.js" type="text/javascript">
+</script>
+<link media="all" rel="stylesheet" type="text/css" href="#libraryLink('webjars/jquery-ui/1.12.1/jquery-ui.min.css')">
+<link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
+<style type="text/css">
+</style>
+
+<div id="citationsPortletBody" class="portletBody">
+    <div id="messageSuccess" class="messageSuccess" style="display:none">
+    </div>
+    <div id="messageValidation" class="messageValidation" style="display:none">
+    </div>
+    <div id="messageError" class="messageError" style="display:none; height: 6.3em;">
+    </div>
+	<h3>
+		#if($resourceAdd)
+			$tlang.getString("resource.new")
+		#else
+			$tlang.getString("resource.revise")
+		#end
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $xilator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">
+		$!instruction
+		$!required
+	</p>
+	
+	<form id="newCitationListForm" action="#toolForm("CitationHelperAction")" method="post">
+		<input name="ajaxRequest" id="ajaxRequest" class="ajaxRequest" value="true" type="hidden" />
+		<input name="$REQUESTED_MIMETYPE" id="requested_mimetype" class="requested_mimetype" value="$MIMETYPE_JSON" type="hidden" />
+		<input name="citation_action" id="citation_action" class="citation_action" value="$citation_action" type="hidden" />
+		<input name="contentCollectionId" id="contentCollectionId" value="$!contentCollectionId" type="hidden" />
+		<input name="resourceUuid" id="resourceUuid" value="$!resourceUuid" type="hidden" />
+		<input name="citationCollectionId" id="citationCollectionId" value="$!citationCollectionId" type="hidden" />
+		<input name="sakai_action" id="sakai_action" value="" type="hidden" />
+		<input name="currentSort" id="currentSort" value="$currentSort" type="hidden" />
+		<input name="savedSort" id="savedSort" value="$savedSort" type="hidden" />
+		<input name="pageSelector" id="pageSelector" value="$pageSelector" type="hidden" />
+		<input name="newPageSize" id="newPageSize" value="$listPageSize" type="hidden" />
+		<input name="saveciteClientId" id="saveciteClientId" value="" type="hidden" />
+				
+		<div id="propertiesDiv" style="display:block;">
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="displayName">
+					<strong>$tlang.getString("resource.title")</strong>
+				</label>
+				<input type="text" size="40" class="citationFields" id="displayName" name="displayName" value="$xilator.escapeHtml("$!resourceTitle")" />
+			</p>
+            <p class="shorttext">
+                <label for="notify">
+                    $tlang.getString("resource.gen.email1")
+                </label>
+                <select name="notify" id="notify" class="citationFields">
+                    <option value="r">$tlang.getString("resource.gen.email2")</option>
+                    <option value="o">$tlang.getString("resource.gen.email3")</option>
+                    <option value="n" selected="selected">$tlang.getString("resource.gen.email4")</option>
+                </select>
+            </p>
+			<br />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>	
+	<br />
+	<div class="addCitationsText">
+		<span class="current">
+			$tlang.getString("resource.search.target")
+	    </span>
+    </div>
+	<ul class="navIntraTool actionToolBar">
+		#if( $saveciteClients )
+			#foreach($client in $saveciteClients)
+				<li>
+					<span class="saveciteClient searchTargetLink">
+						<input type="button" name="$client.id" id="$client.id"  title="$client.searchurl_label" value="$client.searchurl_label" class="active">
+						<span class="saveciteClientUrl" style="display:none;">${client.searchurl_base}?linkurl_base=${client.saveciteUrl}#if(${client.linkurl_id})&linkurl_id=${client.linkurl_id}#end&</span>
+						<span class="popupTitle" style="display:none;">$client.searchurl_label</span>
+						<span class="windowHeight" style="display:none;">${client.window_height}</span>
+						<span class="windowWidth" style="display:none;">${client.window_width}</span>
+					</span>
+				</li>
+			#end
+		#end
+		
+		#if( $searchLibrary )
+		  <li>
+			  <span class="searchTargetLink">
+				<input type="button" name="Search" id="Search"  title="$tlang.getString("resource.library.search")" value="$tlang.getString("resource.library")" class="active">
+				<span class="searchUrl" style="display:none;">#toolLink("CitationHelperAction" "doSearch")</span>
+				<span class="popupTitle" style="display:none;">$tlang.getString("resource.library.search")"</span>
+			  </span>
+		  </li>
+		#end
+		
+		#if( $googleUrl )
+		  <li>
+			  <span class="searchTargetLink">
+				<input type="button" name="SearchGoogle" id="SearchGoogle"  title="$tlang.getString("resource.google.search")" value="$tlang.getString("resource.google")" class="active">
+			    <span class="googleUrl" style="display:none;">$googleUrl</span>
+			    <span class="popupTitle" style="display:none;">$tlang.getString("popup.title.google")</span>
+			  </span>
+		  </li>
+		#end
+
+          <li>
+			  <span class="searchTargetLink">
+				<input type="button" name="PickResource" id="PickResource"  title="$tlang.getString("resource.pick.resource")"
+                       onclick="javascript:document.getElementById('sakai_action').value='doPickResource'" value="$tlang.getString("resource.resourcepicker")" class="active"></td>
+			  </span>
+          </li>
+		
+	    #if(! $fromListPage)
+		  <li>
+			  <span class="searchTargetLink">
+				<input type="button" name="CreateCitation" id="CreateCitation"  title="$tlang.getString("addAction.create")" value="$tlang.getString("resource.editor")" class="active">
+			  </span>
+		  </li>
+		#end
+	  <!-- Markup for Import/RIS -->
+	  <li>
+		  <span class="searchTargetLink">
+			<input type="button" name="ImportCitation" id="ImportCitation"  title="$tlang.getString("resource.import.file")" value="$tlang.getString("resource.import")" class="active">
+			<span class="importUrl" style="display:none;">#toolLink("CitationHelperAction" "doGet")</span>
+			<span class="popupTitle" style="display:none;">$tlang.getString("resource.import.file")</span>
+		  </span>
+	  </li>
+	</ul>
+	<div class="act">
+		<div class="citationsDisplay"#if(! ($collectionSize || $collectionSize < 1) && ! ($nestedSectionsSize || $nestedSectionsSize < 1)) style="display:none;"#end>
+			<div class="act">
+				<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
+			</div>
+			<div class="currentListCitations">
+				#parse( "vm/citation/_listCitations.vm" )
+			</div>
+		</div>
+		<p class="noCitationsDisplay" #if(($nestedCollection && $nestedCollection.getCountCitations() > 0) || ($unnestedCitationCollectionSize && $unnestedCitationCollectionSize > 0)) style="display:none;"#end>
+			$tlang.getString("resource.nocitations")
+		</p>	
+	</div>
+	<div class="act">
+		<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
+        <span class="firstPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+            <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
+            $stlang.getString("gen.proces")
+        </span>
+ 
+	</div>
+	<form id="fossils">
+		<input type="hidden" name="displayName" id="displayName_fossil" value="$validator.escapeHtml("$!resourceTitle")" />
+		<input type="hidden" name="access_mode" id="access_mode_fossil" value="$!{contentProperties.accessMode}" />
+#foreach ($group in $!{contentProperties.possibleGroups})
+		<input type="hidden" name="access_groups" id="access_groups_${group.Id}_fossil" value="$group.Id" />	
+#end	
+		<input type="hidden" name="hidden" id="hidden_fossil" value="$!{contentProperties.isHidden}" />
+		<input type="hidden" name="use_start_date" id="use_start_date_fossil" value="$!{contentProperties.useReleaseDate}" />
+		<input type="hidden" name="releaseDate" id="releaseDate_fossil" value="$!{contentProperties.releaseDate}" />
+		<input type="hidden" name="releaseDateStr" id="releaseDateStr_fossil" value="$!{contentProperties.releaseDateStr}" />
+		<input type="hidden" name="use_end_date" id="use_end_date_fossil" value="$!{contentProperties.useRetractDate}" />
+		<input type="hidden" name="retractDate" id="retractDate_fossil" value="$!{contentProperties.retractDate}" />
+		<input type="hidden" name="retractDateStr" id="retractDateStr_fossil" value="$!{contentProperties.retractDateStr}" />
+		<input name="contentCollectionId" id="contentCollectionId_fossil" value="$!contentCollectionId" type="hidden" />
+		<input name="resourceUuid" id="resourceUuid_fossil" value="$!resourceUuid" type="hidden" />
+		<input name="citationCollectionId" id="citationCollectionId_fossil" value="$!citationCollectionId" type="hidden" />
+	</form>
+</div>
+
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">	
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/new_resource.js">	
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/edit_nested_citations.js">
+</script>
+<script type="text/javascript">
+    addSectionHeightsToPageHeight($num);
+</script>
+<script type="text/javascript">
+    #if ($!resourceManagingLibrary)
+        selectManagingLibrary('$resourceManagingLibrary');
+    #end
+</script>
+<script type="text/javascript">
+	focus_path = [ "displayName" ];
+	function focusOnNameElement()
+	{
+		var nameElement = document.getElementById("displayName");
+		nameElement.focus();
+		nameElement.select();
+	}
+	setTimeout(focusOnNameElement, 25);
+</script>
+
+<iframe id="download-frame" style="display:none"></iframe>
+

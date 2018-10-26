@@ -1,0 +1,172 @@
+#user-create_edit label, #useredit label
+{
+    margin-top: 0;
+    font-weight: bold;
+    color: rgb(85, 85, 85);
+}
+
+#user-create_edit .shorttext label, #useredit .shorttext label
+{
+    display: inline-block;
+    float: none;
+    text-align: left;
+    width: 14em;
+    margin: 0 1em 0 0;
+    vertical-align: middle;
+}
+
+#user-create_edit .reqStar, #useredit .reqStar
+{
+    float: none;
+}
+
+#user-create_edit input[type="text"], #user-create_edit input[type="password"]
+, #useredit input[type="text"], #useredit input[type="password"]
+{
+    width: 185px;
+}
+
+#user-create_edit #strengthInfo, #useredit #strengthInfo
+{
+    display: block;
+    position: absolute;
+    left: 30.3em;
+    width: 50%;
+    margin-top: -11.9em;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    color: #000;
+}
+
+#user-create_edit #strengthInfo:before, #useredit #strengthInfo:before
+{
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 108px;
+    left: -10px;
+    border-top: 10px solid transparent;
+    border-right: 10px solid #ccc;
+    border-bottom: 10px solid transparent;
+}
+
+#user-create_edit #matchMsg, #user-create_edit #strongMsg, #user-create_edit #weakMsg,
+#useredit #matchMsg, #useredit #strongMsg, #useredit #noMatchMsg, #useredit #weakMsg, #user-create_edit #emailWarningMsg,
+#useredit #emailWarningMsg, #useredit #curPassReqMsg, #user-create_edit #failMsg, #user-create_edit #moderateMsg,
+#useredit #failMsg, #useredit #moderateMsg, #user-create_edit #noMatchMsg
+{
+    display: block;
+    margin: 0.2em 0 0.5em 15.2em;
+    padding-left: 1.5em;
+    vertical-align: top;
+    line-height: 1.3em;
+}
+
+#user-create_edit #noMatchMsg, #user-create_edit #failMsg, #useredit #noMatchMsg, #useredit #failMsg,
+#user-create_edit #emailWarningMsg, #useredit #emailWarningMsg, #useredit #curPassReqMsg
+{
+    background: transparent url("/library/image/silk/cancel.png") no-repeat left center;
+    color: #000;
+}
+
+#user-create_edit #matchMsg, #user-create_edit #strongMsg, #useredit #matchMsg, #useredit #strongMsg,
+#user-create_edit #moderateMsg, #useredit #moderateMsg, #user-create_edit #weakMsg, #useredit #weakMsg
+{
+    background: transparent url("/library/image/silk/accept.png") no-repeat left center;
+    color: #000;    
+}
+
+#user-create_edit #strengthBar, #useredit #strengthBar
+{
+    background-color: #ccc;
+    width: 186px;
+    height: 5px;
+    margin: 5px 0px 0px 15.2em;
+    text-align: left;
+}
+
+#user-create_edit #strengthBarMeter, #useredit #strengthBarMeter
+{
+    display: inline-block;
+    width: 0%;
+    height: 100%;
+    background-color: #900;
+}
+
+#user-create_edit .act input[type="submit"], #useredit .act input[type="submit"],
+#userViewForm .act input[type="submit"]
+{
+    display: inline-block;
+    margin: 0 1em;
+}
+
+#userViewForm label
+{
+    font-weight: bold;
+    color: rgb(85, 85, 85);
+    display: inline-block;
+    float: none;
+    text-align: left;
+    margin-right: 1em;
+    min-width: 9em;
+}
+
+@media only screen and (max-width : 800px){
+    #userViewForm label, #useredit .shorttext label{
+        display: block;
+    }
+}
+
+#userViewForm .act, #user-create_edit .act, #useredit .act
+{
+    text-align: left; /* SAK-31159 - Consistency with the rest of the tools */
+}
+
+#user-create_edit fieldset, #useredit fieldset, #userViewForm fieldset
+{
+    border: 2px solid rgb(200, 200, 200);
+    padding: 1em;
+    position: relative;
+}
+
+#user-create_edit fieldset > div.shorttext{
+    margin: 0 0 0.8em 0;
+}
+
+form .shorttext{
+    margin: 0 0 0.5em 0;
+} 
+
+#user-create_edit fieldset
+{
+    display:inline-block;
+    width: 100%;
+}
+
+.createBlurb
+{
+    display:table;
+    width:33em;
+}
+
+.createBlurb p
+{
+    margin: 10px 0;
+}
+
+#userViewForm fieldset legend, #user-create_edit fieldset legend, #useredit fieldset legend
+{
+    padding: 0 0.5em;
+    color: rgb(85, 85, 85);
+}
+
+.spinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+}
+

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.tags.api.TagService"
+          class="org.sakaiproject.tags.impl.TagServiceImpl"
+          init-method="init"
+          destroy-method="destroy">
+        <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+        <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="tagCollections"><ref bean="org.sakaiproject.tags.api.TagCollections"/></property>
+        <property name="tags"><ref bean="org.sakaiproject.tags.api.Tags"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.api.TagCollections" class="org.sakaiproject.tags.impl.storage.TagCollectionStorage">
+        <property name="db" ref="org.sakaiproject.tags.impl.common.DB"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.api.Tags" class="org.sakaiproject.tags.impl.storage.TagStorage">
+        <property name="db" ref="org.sakaiproject.tags.impl.common.DB"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.common.DB" class="org.sakaiproject.tags.impl.common.DB">
+        <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
+        <property name="vendor" ref="sakaiDatabaseType" />
+    </bean>
+
+    <bean id="sakaiDatabaseType" factory-bean="org.sakaiproject.db.api.SqlService"
+          factory-method="getVendor" />
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.tags.impl.rest.TagServiceEntityProvider">
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.tags.impl.rest.TagServiceAdminEntityProvider">
+    </bean>
+
+    <!--  Import Tags Job  -->
+
+    <bean id="org.sakaiproject.tags.impl.job.meshTagsSyncJob"
+          class="org.sakaiproject.tags.impl.job.MeshTagsSyncJob">
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.meshTagsSyncJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId"><value>org.sakaiproject.tags.impl.job.meshTagsSyncJob</value></property>
+        <property name="jobName"><value>Mesh Tags Update</value></property>
+        <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/></property>
+
+    </bean>
+
+    <bean id="org.sakaiproject.tags.impl.job.tagsSyncJob"
+          class="org.sakaiproject.tags.impl.job.TagsSyncJob">
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.tagsSyncJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId"><value>org.sakaiproject.tags.impl.job.tagsSyncJob</value></property>
+        <property name="jobName"><value>Generic Tags Update</value></property>
+        <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/></property>
+
+    </bean>
+
+
+    <bean id="org.sakaiproject.tags.impl.job.tagsExportedXMLSyncJob"
+          class="org.sakaiproject.tags.impl.job.TagsExportedXMLSyncJob">
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.tagsExportedXMLSyncJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId"><value>org.sakaiproject.tags.impl.job.tagsExportedXMLSyncJob</value></property>
+        <property name="jobName"><value>Generic Tags Update (Full Collection Import)</value></property>
+        <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/></property>
+
+    </bean>
+
+</beans>

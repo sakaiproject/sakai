@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- create a DAO bean, use the hibernate implementation -->
+	<bean id="org.sakaiproject.signup.dao.SignupMeetingDaoTarget"
+			class="org.sakaiproject.signup.dao.SignupMeetingDaoImpl"
+			init-method="init">
+		<property name="sessionFactory" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="persistentClasses">
+			<list>
+				<value>org.sakaiproject.signup.model.SignupMeeting</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- This wraps our DAO so that the transactions are managed -->
+	<bean id="org.sakaiproject.signup.dao.SignupMeetingDao"
+			class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.signup.dao.SignupMeetingDaoTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_SUPPORTS,readOnly</prop>
+				<prop key="loadSignupMeeting">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="updateMeeting">PROPAGATION_REQUIRED</prop>
+				<prop key="updateMeetings">PROPAGATION_REQUIRED</prop>
+				<prop key="updateModifiedMeetings">PROPAGATION_REQUIRED</prop>
+				<prop key="saveMeeting">PROPAGATION_REQUIRED</prop>
+				<prop key="saveMeetings">PROPAGATION_REQUIRED</prop>
+				<prop key="removeMeetings">PROPAGATION_REQUIRED</prop>
+				<!-- prop key="*">PROPAGATION_REQUIRED</prop -->
+			</props>
+		</property>
+	</bean>
+
+	
+</beans>

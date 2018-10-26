@@ -1,0 +1,36 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMtrlCopyConfirm.vm,v 1.2 2005/06/06 20:06:02 htripath.indiana.edu Exp $ -->
+## Might want to get these dynamically 
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+	Confirm Tools
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<p class="step">
+	Confirm the copying of other sites' material to this site
+	</p>
+	<p class="instruction">
+	Confirm the copying of the following tools to your present site:
+	</p>
+	<form name="featuresForm" action="#toolForm("$action")" method="post" >
+
+	  <br>
+					#foreach($item in $finalZipSites)
+						$item.getLegacyTool() -> $item.getSakaiTool() <br>
+					#end
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />>
+		
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doSaveMtrlSite" value="Finish" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" class="active" name="eventSubmit_doBack" value="Back" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" class="active" name="eventSubmit_doCancel" value="Cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		
+					
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

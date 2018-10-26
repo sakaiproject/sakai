@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+	<wicket:panel>
+		<div class="instruction"><wicket:message key="coursegrade.override.instructions.1" /></div>
+				
+		<form wicket:id="form">
+		
+			<div wicket:id="feedback"></div>
+		
+			<table class="table table-bordered table-striped table-hover table-condensed">
+				<thead>
+					<tr>
+						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.studentname" /></th>
+						<th class="col-md-2"><wicket:message key="column.header.coursegradeoverride.studentid" /></th>
+						<th class="col-md-1"><wicket:message key="column.header.coursegradeoverride.points" /></th>
+						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.calculated" /></th>
+						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.gradeoverride" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td wicket:id="studentName">Tony Stark</td>
+						<td wicket:id="studentEid">tstark1</td>
+						<td wicket:id="points">123/456</td>
+						<td wicket:id="calculated">C (63.15%)</td>
+						<td><input type="text" wicket:id="overrideGrade" size="15" /></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div>
+				<a wicket:id="revertOverride" wicket:message="title:link.coursegradeoverride.revert.tooltip">
+					<wicket:message key="link.coursegradeoverride.reverttocalculated" />
+				</a>
+			</div>
+			
+			<div>
+				<button wicket:id="submit" type="submit" class="button_color"><wicket:message key="button.saveoverride" /></button>
+				<button wicket:id="cancel" type="button"><wicket:message key="button.cancel" /></button>
+			</div>
+		
+		</form>
+
+	</wicket:panel>
+</body>
+</html>

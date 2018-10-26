@@ -1,0 +1,9 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/chef_header.vm,v 1.1 2005/04/13 19:20:45 ggolden.umich.edu Exp $
+## This is here so that we can add extra bits to the <head> of the page.
+#set($quote ='"')
+
+#header_append("<script type=${quote}text/javascript${quote}>includeLatestJQuery(${quote}site-manage-chef-header${quote});</script>")
+#header_append("<script type=${quote}text/javascript${quote} src=${quote}/sakai-site-manage-tool/js/site-manage.js$!{portalCdnQuery}${quote}></script>")
+#header_append("<script type=${quote}text/javascript${quote} src=${quote}/library/js/spinner.js$!{portalCdnQuery}${quote}></script>")
+
+#chef_start()

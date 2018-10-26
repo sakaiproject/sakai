@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>${localSakaiName} Site Notification</subject>
+		<message>
+			Dear ${userName},
+
+				${currentUserName} added you to the following ${localSakaiName} site:
+					${siteName}
+
+			&lt;#if newNonOfficialAccount == "true" &gt;
+			&lt;#if hasNonOfficialAccountUrl == "true" &gt;
+				To get a guest account, follow the steps on ${nonOfficialAccountUrl}
+
+			&lt;/#if&gt;
+				Once you have your guest account, you can log into ${localSakaiName}:
+
+					1. Visit ${localSakaiName}: ${localSakaiURL}
+					2. In the top right corner of the page, type your guest account user id and password into the login fields, and click the "Log In" button.
+					3. Once you're logged in, find this site using these steps:
+						a. click the "Sites" link in the top right corner, then
+						b. type the site name in the provided search field
+					4. Click on the name of the site that appears to visit it
+
+			&lt;#else&gt;
+				To log in:
+
+					1. Open ${localSakaiName}: ${localSakaiURL}
+					2. In the top right corner of the page, type your user id and password into the login fields, and click the "Log In" button.
+					3. Once you're logged in, find this site using these steps:
+						a. click the "Sites" link in the top right corner, then
+						b. type the site name in the provided search field
+					4. Click on the name of the site that appears to visit it
+			&lt;/#if&gt;
+		</message>
+		<locale></locale>
+	</emailTemplate>
+	
+	<emailTemplate>
+		<subject>${localSakaiName} Notificació de lloc
+		</subject>
+		<message>${userName}: Se us ha
+			afegit al/s següent/s ${localSakaiName} lloc: per
+			${currentUserDisplayName}. &lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
+
+Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName} : 
+1. Obriu ${localSakaiName} : ${localSakaiURL}
+2. Feu clic al botó Entrar.
+3. Escriviu el vostre compte d'amic d'inici de sessió i contrasenya, i feu clic a Entrar.
+&lt;#else &gt;Per entrar:
+1. Obriu ${localSakaiName} : ${localSakaiURL}
+2. Feu clic al botó Entrar.
+3. Escriviu el vostre nom d'usuari i contrasenya i feu clic a Entrar.
+&lt;/#if&gt;4. Aneu al lloc, feu clic a la pestanya del lloc (veureu dues o més pestanyes en una fila a la part superior de la pantalla).</message>
+ <locale>ca</locale>
+</emailTemplate>
+<emailTemplate>
+	<subject>${localSakaiName} Site Notification</subject>
+	<message>
+		Dear ${userName},
+
+		${currentUserName} added you to the following ${localSakaiName} site:
+			${siteName}
+
+		&lt;#if newNonOfficialAccount == "true" &gt;
+			&lt;#if hasNonOfficialAccountUrl == "true" &gt;	
+				To get a guest account, follow the steps on ${nonOfficialAccountUrl}
+
+			&lt;/#if&gt;
+			Once you have your guest account, you can log into ${localSakaiName}:
+
+				1. Visit ${localSakaiName}: ${localSakaiURL}
+				2. In the top right corner of the page, type your guest account user id and password into the login fields, and click the "Log In" button.
+				3. Once you're logged in, find this site using these steps:
+					a. click the "Sites" link in the top right corner, then
+					b. type the site name in the provided search field
+				4. Click on the name of the site that appears to visit it
+
+		&lt;#else&gt;
+			To log in:
+
+				1. Open ${localSakaiName}: ${localSakaiURL}
+				2. In the top right corner of the page, type your user id and password into the login fields, and click the "Log In" button.
+				3. Once you're logged in, find this site using these steps:
+					a. click the "Sites" link in the top right corner, then
+					b. type the site name in the provided search field
+				4. Click on the name of the site that appears to visit it
+		&lt;/#if&gt;
+	</message>
+	<locale>en_GB</locale>
+</emailTemplate>
+<emailTemplate>
+ <subject>${localSakaiName} Site melding</subject>
+ <message>${userName}:
+
+U bent toegevoegd aan de volgende ${localSakaiName}  site:
+door ${currentUserDisplayName}. 
+
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here &lt;/#if&gt;
+
+Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} : 
+1. Open ${localSakaiName} : ${localSakaiURL}
+2. Klik op de inlog knop.
+3. Vul uw inloggegevens als gast in en klik op Inloggen.
+&lt;#else &gt;Voor inlog:
+1. Open ${localSakaiName} : ${localSakaiURL}
+2. Klik op de inlog knop.
+3. Vul uw gebruikersnaam en wachtwoord in en klik op Inloggen.
+&lt;/#if&gt;4. Ga naar de site en klik op de site tab. (U ziet twee of meer tabs naast elkaar over het bovenste deel van het scherm.)</message>
+ <locale>nl</locale>
+</emailTemplate>
+</emailTemplates>

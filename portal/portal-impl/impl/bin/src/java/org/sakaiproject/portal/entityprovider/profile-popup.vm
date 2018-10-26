@@ -1,0 +1,62 @@
+<div class="profile-popup">
+    <table cols="2" class="profile-popup-table">
+        <tr>
+            <td class="profile-popup-icon-cell">
+                <a href="${profileUrl}" target="_blank" title="${i18n.profile_tooltip}">
+                    <span class="fa fa-user profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">${i18n.profile_label}</span>
+                </a>
+            </td>
+            <td class="profile-popup-icon-cell">
+                <a href="mailto:${email}" title="${i18n.email_tooltip}">
+                    <span class="fa fa-envelope profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">${i18n.email}</span>
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td class="profile-popup-icon-cell">
+                #if ($facebookUrl != "")
+                <a href="${facebookUrl}" target="_blank" title="${i18n.facebook_tooltip}">
+                    <span class="fa fa-facebook profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">Facebook</span>
+                </a>
+                #else
+                <span class="fa fa-facebook profile-popup-icon" title="${i18n.no_facebook_tooltip}"></span>
+                <span class="profile-popup-label" title="${i18n.no_facebook_tooltip}">Facebook</span>
+                #end
+            </td>
+            <td class="profile-popup-icon-cell">
+                #if ($twitterUrl != "")
+                <a href="${twitterUrl}" target="_blank" title="${i18n.twitter_tooltip}">
+                    <span class="fa fa-twitter profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">Twitter</span>
+                </a>
+                #else
+                <span class="fa fa-twitter profile-popup-icon" title="${i18n.no_twitter_tooltip}"></span>
+                <span class="profile-popup-label" title="${i18n.no_twitter_tooltip}">Twitter</span>
+                #end
+            </td>
+        </tr>
+    </table>
+
+    <button id="profile-popup-remove-button-${connectionUserId}" title="${i18n.remove_tooltip}" #if (!${connected})style="display: none;"#end>
+        ${i18n.remove}
+    </button>
+
+    <button id="profile-popup-cancel-button-${connectionUserId}" title="${i18n.cancel_tooltip}" #if (!${requested})style="display: none;"#end>
+        ${i18n.cancel}
+    </button>
+
+    <div id="profile-popup-incoming-block-${connectionUserId}" class="profile-popup-incoming-block" #if (!${incoming})style="display: none;"#end>
+        <button id="profile-popup-accept-button-${connectionUserId}" title="${i18n.accept_tooltip}" class="profile-popup-accept-button">
+            ${i18n.accept}
+        </button><button id="profile-popup-ignore-button-${connectionUserId}" title="${i18n.ignore_tooltip}">
+            ${i18n.ignore}
+        </button>
+    </div>
+
+    <button id="profile-popup-request-button-${connectionUserId}" title="${i18n.connect_tooltip}" #if (!${unconnected})style="display: none;"#end>
+        ${i18n.connect}
+    </button>
+</div>

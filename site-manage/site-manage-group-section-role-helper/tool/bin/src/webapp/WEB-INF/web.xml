@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+	  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+  version="2.4">
+	<display-name>sakai-site-manage-group-section-role-helper</display-name>
+	<description>Sakai Manage Group Helper</description>
+
+<!-- CONFIG This is the name of the "punch-through" URL which will access the
+    servlet directly bypassing the Sakai request filter. Paths beginning with
+    / will be considered RELATIVE TO THE FIRST SLASH APPEARING IN THE REQUEST
+    URL. Other paths will be considered as absolute URLS. 
+    THIS MUST AGREE WITH THE DEPLOYED WEBAPP NAME, i.e. the artifactId of this
+    tool, where the Sakai plugin build was used.
+    -->
+  <context-param>
+    <param-name>resourceurlbase</param-name>
+    <param-value>/sakai-site-manage-group-section-role-helper/</param-value>
+  </context-param>
+
+ <!-- Configure standard Spring application contexts. Be sure to mention
+    rsf config files first, so any overrides may be processed. The first two
+    config files are loaded from inside the rsfutil.jar  -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      classpath:conf/rsf-config.xml,
+      classpath:conf/blank-applicationContext.xml,
+      classpath:conf/sakai-applicationContext.xml,
+      classpath:conf/components-applicationContext.xml,
+      classpath:conf/sakaiComponents-applicationContext.xml,
+      classpath:conf/sakai-portalErrors-applicationContext.xml,
+      /WEB-INF/applicationContext.xml
+    </param-value>
+  </context-param>
+  <!-- Configure "request scope" Spring application contexts (RSAC).
+    Be sure to mention rsf config files first, so any overrides may be
+    processed. -->
+  <context-param>
+    <param-name>requestContextConfigLocation</param-name>
+    <param-value>
+      classpath:conf/rsf-requestscope-config.xml,
+      classpath:conf/blank-requestContext.xml,
+      classpath:conf/sakai-requestContext.xml,
+      classpath:conf/components-requestContext.xml,
+      classpath:conf/sakaiComponents-requestContext.xml,
+      classpath:conf/sakai-portalErrors-requestContext.xml,
+      /WEB-INF/requestContext.xml
+    </param-value>
+  </context-param>
+	
+  <!--
+    The Sakai Request Handler - standard stanza. Do NOT apply the sakai 
+    request filter to anything that falls outside the "mapped path", in this
+    instance, /faces/*. Anything that falls outside this path (interpreted
+    as a resource URL) will be handled directly by the container (Tomcat).
+  -->
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <url-pattern>/faces/*</url-pattern>
+    <!--    <servlet-name>sakai.rsf.numberguess</servlet-name> -->
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
+  <servlet>
+    <!-- This servlet was named ToolSinkTunnel. However was renamed
+      so that sakai.flowtalk appears in UI for Sakai 2.0, with
+      new Sakai dispatching architecture. Note that this must agree with tool id -->
+    <servlet-name>sakai-site-manage-group-section-role-helper</servlet-name>
+    <servlet-class>
+      org.sakaiproject.rsf.servlet.ReasonableSakaiServlet
+    </servlet-class>
+    <!--<load-on-startup>1</load-on-startup>-->
+  </servlet>
+  <!-- This is the mapping we would LIKE to apply, if it were supported by Sakai.
+    Instead it is mocked up by SakaiRequestParser -->
+  <servlet-mapping>
+    <servlet-name>sakai-site-manage-group-section-role-helper</servlet-name>
+    <url-pattern>/faces/*</url-pattern>
+  </servlet-mapping>
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.ToolListener
+		</listener-class>
+	</listener>
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.SakaiContextLoaderListener
+		</listener-class>
+	</listener>
+</web-app>

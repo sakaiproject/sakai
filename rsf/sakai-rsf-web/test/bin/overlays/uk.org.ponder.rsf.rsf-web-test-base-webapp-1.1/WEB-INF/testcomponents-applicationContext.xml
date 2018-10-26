@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- For security purposes, only beans listed in this collection may be the
+    target of EL operations coming in over the request -->
+  <bean parent="requestAddressibleParent">
+    <property name="value" value="dataBean, componentChoice, localeSetter" />
+  </bean>
+  
+  <!-- The beans which will be preserved across a flow via simple instance
+    copying -->
+  <bean parent="copyPreservingParent">
+    <property name="value" value="dataBean"/>
+  </bean>
+
+  <bean parent="beanScopeParent">
+    <property name="copyPreservingBeans" value="componentChoice" />
+  </bean>
+  
+  <bean id="sessionLocaleScope" parent="beanScopeParent">
+    <property name="copyPreservingBeans" value="localeSetter"/>
+  </bean>
+  
+  <bean id="dateEvolvers" class="uk.org.ponder.springutil.StringListFactory">
+    <property name="strings" value="fieldDateInputEvolver, brokenDateInputEvolver"/>
+  </bean>
+  
+  <bean id="textEvolvers" class="uk.org.ponder.springutil.StringListFactory">
+    <property name="strings" value="plainTextInputEvolver"/>
+  </bean>
+  
+  <bean id="selectEvolvers" class="uk.org.ponder.springutil.StringListFactory">
+    <property name="strings" value="standardDoubleSelectEvolver, plainSelectEvolver"/>
+  </bean>
+  
+  <bean id="componentsTemplateResourceBase" class="java.lang.String">
+    <constructor-arg value="/../RSFComponents-templates/"/>
+  </bean>
+<!-- 
+  <bean parent="templateContributorParent">
+    <property name="templateNames" value="sakai-old-date, sakai-FCKEditor, 
+      sakai-plainTextEditor, yahoo-date"/>
+  </bean>
+  -->
+
+</beans>

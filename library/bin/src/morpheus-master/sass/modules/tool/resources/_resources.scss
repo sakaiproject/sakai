@@ -1,0 +1,321 @@
+.#{$namespace}sakai-resources {
+
+	ul, ol {
+		padding-top: 0;
+	}
+
+	input, textarea{
+		max-width: 100%;
+	}
+
+	label {
+		vertical-align: top;
+	}
+
+	label[for="hidden_false_0"] {
+		padding-right: 2em;
+	}
+
+
+	input[type="checkbox"] + label{
+        display: inline;
+        strong{
+        	vertical-align: text-bottom;
+        }
+    }
+
+	.itemSummary {
+		@media #{$phone}{
+			th, td.header{
+				white-space: initial;
+			}
+			input[type="text"], textarea {
+				width: 100%;
+			}
+		}
+	}
+
+	table#groupTable_0 td {
+		margin-top: 0;
+		border-top: 0;
+		label {
+			padding-left: 0;
+		}
+	}
+
+	table.resourcesList{
+		tr{
+			&:first-child{
+				td, th{
+					font-size: #{$default-font-size};
+					font-family: $header-font-family;
+					font-weight: 700;
+					text-align: center;
+					a{
+						display: block;
+					}
+				}
+			}
+			&.inactive {
+				* {
+					color: #333 !important;
+				}
+				.resource-name, .resource-access, .resource-creator, .resource-modified, .resource-size {
+					font-style: italic;
+				}
+				.not-available {
+					font-size: initial;
+				}
+				button {
+					color: #fff !important;
+					border:1px solid #ccc !important;
+					span {
+						color: #fff !important;
+					}
+				}
+				.dropdown-menu a {
+					color:#000 !important;
+				}
+			} 
+		}
+
+		td.attach{
+			min-width: 32px;
+		}
+
+		@media #{$phone}{
+			display: block;
+			margin: 3em 0;
+			overflow: auto;
+		}
+	}
+
+	.tableActions {
+		display: block;
+		padding-bottom: 10px;
+		float: left;
+		clear: both;
+		width: 100%;
+	}
+
+	#navigatePanel {
+		height:388px;
+		width:auto;
+		z-index:100000;
+		min-width:300px;
+	}
+
+	#navigatePanelInner {
+		height:98%;
+		overflow:auto
+	}
+	#navigatePanel p.close{
+		margin:0 5px;
+	}
+
+	.navigatePanelControls{
+		padding:0 10px 5px 5px;
+		border-bottom:1px solid #ccc;
+	}
+	#navigatePanelSearch {
+	   font-size: 12px;
+		height: 23px;
+		margin-top: -1px;
+		width: 201px;
+	}
+	.jstree-search {
+		border:1px solid #ffe4bb;
+		background:#ffe;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+	}
+	.jstree-anchor:hover {
+		text-decoration:none !important;
+	}
+	#spinner {
+		color: $primary-color;
+		width:100%;
+		height:128px;
+		position: absolute;
+		top:20%;
+		text-align: center;
+	}
+	li[data_visible="false" ]{
+		.jstree-anchor{
+			font-style: oblique;
+			.jstree-icon{
+				@extend .fa;
+				@extend .fa-eye-slash;
+				margin: 0 20px 0 0;
+				&:before{
+					position: relative;
+					top: 5px;
+					color: $text-color;
+					padding: 0 0 0 26px;
+				}
+			}
+		}
+		* {
+			color:#999 !important;
+		}
+	}
+	/* move this one to tool-base.css as it goes along*/
+	.table th h3, .table th h4, .table th h5, .table th h6, .table td h3, .table td h4, .table td h5, .table td h6 {
+		display: inline;
+		font-size:1em;
+	}
+	td.actions2 .dropdown-toggle {
+		padding: 2px 6px !important;
+	}
+	td.actions2 .dropdown-header {
+		padding: 0 21px;
+	}
+	.table tr{
+		border-bottom: 1px solid #ddd;
+	}
+
+	.breadCrumb .btn-group button.breadProp {
+			padding-left:25px;
+			@include border-radius( 3px );
+			-webkit-border-top-right-radius: 25px !important;
+			-webkit-border-bottom-right-radius: 25px !important;
+			-moz-border-radius-topright: 25px !important;
+			-moz-border-radius-bottomright: 25px !important;
+			border-top-right-radius: 25px !important;
+			border-bottom-right-radius: 25px !important;
+			margin-right: -20px !important;
+	}
+
+	.dropdown-menu{
+
+		padding: 1em 0;
+
+		@media #{$phone}{
+			position: fixed;
+			top: 2%;
+			left: 2%;
+			width: 96% !important;
+			z-index: 1000;
+			float: left;
+			min-width: 160px;
+			list-style: none;
+			font-size: 1em;
+			text-align: left;
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border: 1px solid rgba(0,0,0,0.15);
+			border-radius: 4px;
+			-webkit-box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+			box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+			background-clip: padding-box;
+
+			.close-button{
+				display:block !important;
+			}
+
+		}
+
+		.close-button {
+			@extend .fa;
+			@extend .fa-close;
+			float:right;
+			padding: 4px 8px 0px 0px;
+			display: none;
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+	}
+
+	#navigate {
+		margin-right:10px !important;
+		@include border-radius( 3px );
+	}
+	.breadCrumb #navigatePanel + button {
+		padding-left:10px;
+	}
+
+	fieldset legend h4 {
+		margin: 0;
+	}
+	fieldset .form-group {
+		padding-top: 0.5em;
+	}
+
+	.instruction {
+		margin-top: 0;
+	}
+	
+	/* SAK-32289 : Overlapping texts when uploading a new resource too big */
+	.dz-error-message{
+		top: 150px !important;
+	}
+	
+	/* SAK-32371 : Resources doesnt use font awesome icons */
+	.fa {
+		display : inline;
+		color : $primary-color;
+		text-decoration: none;
+	}
+	
+	/* SAK-33897 - Restore + symbols in folders */
+	a.nil.fa-folder {
+		position: static;
+		&::after {
+			color: #fff;
+			content: "+";
+			display: inline-block;
+			position: absolute;
+			margin: 0.45em 0 0 -2.2em;
+			text-align: center;
+			font-size: 11px;
+			font-family: monospace;
+			@media #{$tablet} {
+				margin: 0.75em 0 0 -2.2em;
+			}
+		}
+	}
+
+	a.nil.fa-folder-open {
+		position: static;
+		&::after {
+			color: #FFF;
+			content: "-";
+			display: inline-block;
+			position: absolute;
+			margin: 0.55em 0 0 -2.2em;
+			text-align: center;
+			font-size: 11px;
+			font-family: monospace;
+			@media #{$tablet} {
+				margin: 0.85em 0 0 -2.2em;
+			}
+		}
+	}
+
+	a.highlightlink {
+		text-decoration: none;
+
+		span.iconText {
+			margin-right: 0.1em;
+		}
+	}
+
+	.show {
+		display: block;
+	}
+
+	.hide {
+		display: none;
+	}
+
+	label.copyrightAlert {
+		width: 15.5em;
+	}
+
+	div.alertMessage {
+		display: none;
+		clear: both;
+	}
+}

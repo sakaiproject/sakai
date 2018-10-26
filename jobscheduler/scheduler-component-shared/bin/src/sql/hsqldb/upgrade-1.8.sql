@@ -1,0 +1,3 @@
+-- There isn't an upgade script for HSQLDB when going from 1.6 to 1.8 as you
+-- should just wipe out the tables and start again as HSQLDB isn't deisgned for
+-- production use.

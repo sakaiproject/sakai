@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+     <import resource="component-components.xml" />
+     <import resource="configstore-components.xml" />
+     <import resource="alias-components.xml" />
+     <import resource="db-components.xml" />
+     <import resource="site-components.xml" />
+     <import resource="authz-components.xml" />
+     <import resource="email-components.xml" />
+     <import resource="tool-components.xml" />
+     <import resource="cluster-components.xml" />
+     <import resource="antivirus-components.xml"/>
+     <import resource="content-components.xml" />
+	 <import resource="conditions-components.xml" />
+     <import resource="entity-components.xml" />
+     <import resource="user-components.xml" />
+     <import resource="event-components.xml" />
+     <import resource="memory-components.xml" />
+     <import resource="util-components.xml" />
+     <import resource="time-components.xml" />
+     <import resource="messagebundle-components.xml" />
+</beans>

@@ -1,0 +1,91 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_edit_page.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["title"];
+</script>
+<div class="portletBody">
+
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		<h3>
+			$tlang.getString("sitedigrp.edisit") $!site.Id / $tlang.getString("sitedigrp.grp") $!group.Id
+		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedigrp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("sitedigrp.revandmod")
+		</div>
+
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h4>
+				$tlang.getString("sitedigrp.grp")
+			</h4>	
+			<table  summary="$tlang.getString("sitedigrp.revandmod")">
+				<tr>
+					<td>$tlang.getString("sitedigrp.grp2")</td>
+					<td>
+						$validator.escapeHtml($group.Id)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="title">
+							$tlang.getString("sitedigrp.tit")
+						</label>
+					</td>
+					<td>
+						<input type="text" name="title" id="title" #if($group) value="$!validator.escapeHtml($group.Title)"#end />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="desctiption">
+							$tlang.getString("sitedigrp.des")
+						</label>
+					</td>
+					<td>
+						<textarea wrap="virtual" name="description" id="description"  rows="3" cols="30">#if($group)$!validator.escapeHtmlTextarea($group.Description)#end</textarea>
+					</td>
+				</tr>
+			</table>
+
+			#if ($group)
+				<h4>
+					$tlang.getString("sitedi.pro")
+				</h4>
+				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+					#set ($paramNames = $group.Properties.PropertyNames)
+					#foreach ($paramName in $paramNames)
+						#set ($paramValue = $group.Properties.getPropertyFormatted($paramName))
+						<tr>
+							<th>
+								<label for="param_$paramName">
+									$paramName:
+								</label>
+							</th>
+							<td>
+								<input type="text" disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+							</td>
+						</tr>
+					#end
+				</table>
+			#end
+
+			<h4>	
+				$tlang.getString("sitedigrp.conedi")
+			</h4>	
+			<div class="act">
+				<input type="submit" name="eventSubmit_doDone_group" value="$tlang.getString("sitedigrp.don")" />
+			</div>
+			<h4>
+				$tlang.getString("sitedigrp.comthesit")
+			</h4>	
+			<div class="act">
+				<input type="submit" name="eventSubmit_doSave_group" value="$tlang.getString("sitedigrp.sav")"  accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedigrp.can")"  accesskey="x" />
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+</div>

@@ -1,0 +1,76 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_edit_role.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
+#javascript("/library/js/spinner.js")
+<script type="text/javascript">
+  focus_path = ["id"];
+</script>
+<div class="portletBody">
+
+#if($menu)
+	#toolbar($menu)
+#end
+	
+	<h3>
+		$tlang.getString("realm.role.set")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.role.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">	
+		$tlang.getString("realm.role.edit")
+		$validator.escapeHtml($!realm.Id)
+	</p>
+	<p class="instruction">
+		$tlang.getString("realm.role.used")
+		</p>
+		<p class="instruction">
+		$validator.escapeHtml($!realm.Description)
+	</p>
+	<form name="$form-name" action="#toolForm("$action")" method="post">
+		<h4>
+			$tlang.getString("realm.role.role")
+		</h4>
+		<p class="shorttext required">
+			#if(!$role)<span class="reqStar">*</span>#end
+			<label #if(!$role) for="id" #end>
+				 $tlang.getString("realm.role.id")
+			</label>
+			#if(!$role)<input type="text" name="id" id="id" />#else$validator.escapeHtml($role.Id)#end
+		</p>
+		<p class="shorttext">
+			<label for="description">
+				$tlang.getString("realm.role.description")
+			</label>
+			<input type="text" name="description" id="description" #if($role) value="$!role.Description"#end />
+		</p>
+		<p class="shorttext">
+			$tlang.getString("realm.role.group")
+			<input type="radio" name="providerOnly" id="providerOnly" value="true" #if($role.providerOnly) checked="checked"#end  /> $tlang.getString("gen.yes")
+			<input type="radio" name="providerOnly" id="providerOnly" value="false" #if( ! $role.providerOnly) checked="checked"#end  /> $tlang.getString("gen.no")
+		</p>
+
+		<h4>
+			$tlang.getString("realm.role.functions")
+		</h4>	
+		#foreach ($lock in $allLocks)
+			<div class="checkbox">
+				<label for="lock$velocityCount">
+					<input type="checkbox" name="locks" id="lock$velocityCount" value="$lock" #if($role.AllowedFunctions.contains($lock))checked="checked"#end />
+					$lock
+				</label>
+			</div>
+		#end
+		<h4>		
+			$tlang.getString("realm.role.continue")
+		</h4>	
+		<div class="act">
+			<input type="submit" name="eventSubmit_doDone_role" value="$tlang.getString("realm.role.done")" />
+		</div>
+		<h4>
+			$tlang.getString("realm.role.complete")
+		</h4>	
+		<div class="act">
+			<input type="submit" class="active" name="eventSubmit_doSave_role" value="$tlang.getString("realm.role.save")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.role.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

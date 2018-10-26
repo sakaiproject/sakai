@@ -1,0 +1,267 @@
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+#if( $editorIntegration )
+  <script type="text/javascript" src="/sakai-citations-tool/js/searchresultcommon.js">
+  </script>
+#end
+
+<!-- template: sakai_citation-search.vm -->
+
+<div class="portletBody">
+  <div class="indnt1">
+
+  #if( $editorIntegration )
+    #parse( "vm/citation/_integration_disconnect_alert.vm" )
+  #end
+
+  <h3 id="advancedSearchHeader" style="display: none;">$tlang.getString("title.adv.search")</h3>
+  <h3 id="basicSearchHeader">$tlang.getString("title.basic.search")</h3>
+
+  #if( $resourcesTool )
+    #parse( "vm/citation/_details.vm" )
+  #end
+
+  <form name="$FORM_NAME" id="$FORM_NAME" method="post"
+    action="#toolForm("CitationHelperAction")">
+    <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
+	<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+    <input name="searchType" id="searchType" value="$searchType" type="hidden" />
+    <input name="cancelOp" id="cancelOp" value="$FORM_NAME" type="hidden" />
+
+    <p class="instruction">$tlang.getString("instr.search.main")</p>
+    <p class="instruction">$tlang.getString("instr.search.sub")</p>
+
+    #set( $searchpage = "search" )
+
+    #parse( "vm/citation/_advSearch.vm" )
+
+    #parse( "vm/citation/_basicSearch.vm" )
+
+    <div id="categories" class="shorttext">
+      #set( $count = 0 )
+      #foreach( $category in $categoryListing )
+        #if( $category.hasSubCategories() )
+          #set( $count = $count + 1 )
+          <div style="display:none;" id="categoryDiv_$category.id" class="categoryDiv">
+            <label for="selectCat_$category.id">
+            #if( $velocityCount == 1 ) $tlang.getString("select.search")
+            #else $tlang.getString("select.sub.search")
+            #end
+            </label>
+
+            <select name="$category.id" id="$category.id" class="selectCategory" onchange="categoryChange($count, this.value)">
+              #if( $velocityCount == 1 )
+                #if( $defaultCategory )
+                  <option value="$defaultCategory.id">$xilator.escapeHtml($defaultCategory.displayName)</option>
+                #else
+                  <option value="null"> - $tlang.getString("select.search") - </option>
+                #end
+              #else
+                <option value="null"> - $tlang.getString("select.sub.search") - </option>
+              #end
+
+              #foreach( $subCategory in $category.subCategories )
+                <option value="$subCategory.id">$xilator.escapeHtml($subCategory.displayName)</option>
+              #end
+            </select>
+
+            #if( $velocityCount == 1 )
+              <span id="databasesSelectedWidget" style="margin-left:1em;">($tlang.getString( "dbSelected.search" ) <span id="dbSelectedCount"></span>)</span>
+            #end
+          </div>
+        #end
+      #end
+    </div>
+
+    <div id="dbLoading">
+      <p class="instruction">
+        <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "dbLoad.search" )" />
+        $tlang.getString( "dbLoad.search" )
+      </p>
+    </div>
+
+    <!-- database list is dynamically loaded using AJAX (see showDatabases()) -->
+    <div id="databaseArea"></div>
+
+    <p class="act">
+      <span class="basicSearch">
+        <input type="button" class="active" name="basicSearchButton" id="basicSearchButton"
+          value="$tlang.getString("submit.search")"
+          onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+        />
+      </span>
+      <input type="button" class="basicCancel" name="basicCancelButton" id="basicCancelButton"
+        value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
+        onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
+      />
+      <span class="advSearch">
+        <input style="display: none;" type="button" class="active" name="advancedSearchButton"
+          id="advancedSearchButton" value="$tlang.getString("submit.search")"
+          onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+        />
+      </span>
+      <input type="button" class="advCancel" name="advCancelButton" id="advCancelButton"
+        value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
+        onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
+      />
+      #if( $resourcesTool )
+        <input type="button" name="AddCitations" id="AddCitations"
+          value="$tlang.getString("label.back.search")"
+          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
+        />
+        #if( $resourcesAddAction )
+        <input type="button" name="Cancel" id="Cancel"
+          value="$tlang.getString("label.cancel")"
+-         onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+        />
+        #else
+        <input type="button" name="Done" id="Done"
+          value="$tlang.getString("label.done")"
+          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+        />
+        #end
+      #end
+      #if( $editorIntegration )
+        <input type="button" name="Done" id="Done"
+          value="$tlang.getString("close.integration")"
+          onclick="javascript:window.close();"
+        />
+      #end
+      <span class="basicSearchLoad" style="display: none;">
+        <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.search" )" />
+        $tlang.getString( "wait.search" )
+      </span>
+      <span class="advancedSearchLoad" style="display: none;">
+        <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.search" )" />
+        $tlang.getString( "wait.search" )
+      </span>
+    </p>
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+  </form>
+  </div>
+</div>
+<div id="messageDiv" style="display: none;"></div>
+<script type="text/javascript">
+// set up count refresh
+top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperAction")", "$citationsHelperMode" );
+
+/*
+  // initialize the AJAX spinner
+  $( "#dbLoading" ).ajaxStart( function() {
+    $( this ).show();
+  });
+  $( "#dbLoading" ).ajaxStop( function() {
+    $( this ).hide();
+  });
+*/
+
+  // catch the "enter" key
+  $( '.basicField, .advField' ).keydown( function( e ) {
+    if (e.keyCode == 13) {
+      submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );
+      return false;
+    }
+  });
+
+function showTopCategory() {
+  // get first div underneath #categories div
+  $( ".categoryDiv:first" ).show();
+
+  var selectBox = $( ".selectCategory:first" ).get(0);
+  var selectedCatId = selectBox.options[0].value;
+
+  if( selectedCatId != "null" ) {
+    showDatabases( selectedCatId );
+  }
+}
+
+function categoryChange( level, id ) {
+  // hide databases
+  $( "#databaseArea" ).hide();
+
+  // hide categories below this level
+  $( ".categoryDiv" ).gt( level-1 ).hide();
+
+  // set selected count to 0
+  $( "#dbSelectedCount" ).html( "0" );
+
+  // show either databases or subcategories
+  var categoryDiv = document.getElementById( id );
+  if( categoryDiv ) {
+    // subcategories exist
+    $( "#categoryDiv_" + id ).show();
+    var selectBox = document.getElementById( id );
+    selectBox.selectedIndex = 0;
+  } else {
+    // no subcategories, show databases
+    showDatabases( id );
+  }
+}
+
+function showDatabases( id ) {
+  $("#databaseArea").hide()
+  if( id != "null" ) {
+    $( "#dbLoading" ).show();
+    $("#databaseArea").load("#toolForm("CitationHelperAction")&sakai_action=doDatabasePopulate&categoryId=" + id,
+      function() {
+        $( "#dbLoading" ).hide();
+        $( "#databaseArea" ).show();
+        resizeFrame();
+        highlightCheckedSelections();
+      }
+    );
+  }
+}
+
+/*
+ * Resizes the frame to avoid double scroll bars without scrolling to the top
+ * of the page when making dynamic changes to the page.
+ * This method has not been tested with IE 5.5.
+ */
+function resizeFrame() {
+  var frame = parent.document.getElementById( window.name );
+
+  if( frame ) {
+    var clientH = document.body.clientHeight + 10;
+    $( frame ).height( clientH );
+  }
+}
+
+/*
+ * Highlights rows selected in a table using a checkbox element
+ */
+function highlightCheckedSelections() {
+  $( "tr[input]" ).removeClass( "highLightAdded" );
+  $( "tr[input[@checked]]" ).addClass( "highLightAdded" );
+
+  // set selected count
+  var count = $( "tr[input[@checked]]" ).size();
+  if( !count || count == "" ) {
+    count = "0";
+  }
+  $( "#dbSelectedCount" ).html( count );
+}
+
+/*
+ * Checks to make sure the user has entered search terms and selected
+ * at least one database.
+ *
+ * Returns a boolean: true if search can proceed, false otherwise
+ */
+function legalSearch( searchType ) {
+  if (!gotAQuery( searchType, '$basicSearchType', '$advancedSearchType' )) {
+      alert("$tlang.getString( "noTerms.search" )");
+      return false;
+  }
+
+  if (numCheckedDatabases() == 0) {
+      alert("$tlang.getString( "noDbs.search" )");
+      return false;
+  }
+
+  // user has entered search terms & selected at least one db
+  return true;
+}
+</script>

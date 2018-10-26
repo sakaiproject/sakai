@@ -1,0 +1,25 @@
+{
+    "reorderer": {
+        "name": "Reorderer",
+        "description": "Reposition content using drag and drop with the mouse or the keyboard.",
+        "cssFiles": [
+            "Reorderer.css",
+            "ImageReorderer.css"
+        ],
+        "files": [
+            "./js/ReordererDOMUtilities.js",
+            "./js/GeometricManager.js",
+            "./js/Reorderer.js",
+            "./js/ImageReorderer.js",
+            "./js/ModuleLayout.js",
+            "./js/LayoutReorderer.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "jQueryUICore",
+            "jQueryUIWidgets",
+            "framework",
+            "json"
+        ]
+    }
+}

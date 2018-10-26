@@ -1,0 +1,84 @@
+<item title="Audio Recording" ident="">
+  <duration></duration>
+    <itemmetadata>
+      <qtimetadata>
+        <qtimetadatafield>
+          <fieldlabel>qmd_itemtype</fieldlabel>
+          <fieldentry>Audio Recording</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>TEXT_FORMAT</fieldlabel>
+          <fieldentry>HTML</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+           <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+           <fieldentry/>
+        </qtimetadatafield>
+        <qtimetadatafield>
+        <fieldlabel>ITEM_KEYWORD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_RUBRIC</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_TAGS</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>TIMEALLOWED</fieldlabel>
+        <fieldentry>30</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>NUM_OF_ATTEMPTS</fieldlabel>
+        <fieldentry>9999</fieldentry>
+      </qtimetadatafield>
+    </qtimetadata>
+  </itemmetadata>
+  <rubric>
+      <material>
+        <mattext/>
+      </material>
+    </rubric>
+  <presentation label="Resp005">
+    <flow>
+      <material><mattext /></material>
+      <material>
+        <mat_extension>jsp/aam/applet/soundRecorder_captured.jsp</mat_extension>
+      </material>
+      <response_str ident="audio">
+        <material_ref />
+      </response_str>
+    </flow>
+  </presentation>
+  <resprocessing>
+    <outcomes>
+      <decvar varname="SCORE" minvalue="0" defaultval="0" maxvalue="0" />
+    </outcomes>
+  </resprocessing>
+  <itemfeedback ident="Correct" view="All">
+    <flow_mat>
+      <material>
+        <mattext/>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+    </flow_mat>
+  </itemfeedback>
+  <itemfeedback ident="InCorrect" view="All">
+    <flow_mat>
+      <material>
+        <mattext></mattext>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+    </flow_mat>
+  </itemfeedback>
+</item>

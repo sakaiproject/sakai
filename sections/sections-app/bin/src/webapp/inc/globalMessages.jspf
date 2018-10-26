@@ -1,0 +1,6 @@
+<%/*
+	Included as a fragment to centralize style class defintions.
+	The eventual Sakai messages tag will probably default to Style Guide compliant class names.
+*/%>
+<h:messages globalOnly="true" infoClass="success" warnClass="validation" errorClass="validation" fatalClass="validation" />
+

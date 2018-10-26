@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>${localSakaiName} Site import completed for "${worksiteName}"</subject>
+<message>The import process you started for "${worksiteName}" has completed.
+
+Visit the site to view the imported materials:
+
+${linkToWorksite}
+		
+Regards,
+		
+The ${localSakaiName} Administrators
+${institution}
+</message>
+<locale>en</locale>
+<version>1</version>
+</emailTemplate>
+<emailTemplate>
+<subject>${localSakaiName} Importación del sitio completada para "${worksiteName}"</subject>
+<message>El proceso de importación que usted comenzó para el sitio "${worksiteName}" ha sido completado.
+
+Por favor, visite el sitio para ver los materiales importados:
+
+${linkToWorksite}
+		
+Atentamente,
+		
+Los Administradores de ${localSakaiName}
+${institution}
+</message>
+<locale>es</locale>
+<version>1</version>
+</emailTemplate>
+</emailTemplates>

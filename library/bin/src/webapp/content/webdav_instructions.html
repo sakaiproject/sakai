@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>Upload-Download Multiple Resources</title>
+		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+	</script>
+    <script>includeLatestJQuery('webdav_instructions.html');</script>
+    <link href="/library/js/jquery/ui/1.12.1/css/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" media="all" />
+    <style type="text/css">
+        #tabs img{
+            border:1px solid #ccc;
+            -webkit-box-shadow: 3px 3px 20px 4px rgba(204,204,204,1);
+            -moz-box-shadow: 3px 3px 20px 4px rgba(204,204,204,1);
+            box-shadow: 3px 3px 20px 4px rgba(204,204,204,1);
+            margin:10px;
+        }
+    </style>
+        
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+        resizeFrame = function(updown){
+        var clientH;
+        if (top.location !== self.location) {
+            var frame = parent.document.getElementById(window.name);
+        }
+        if (frame) {
+            if (updown === 'shrink') {
+                clientH = document.body.clientHeight;
+            }
+            else {
+                clientH = document.body.clientHeight + 50;
+            }
+            $(frame).height(clientH);
+        }
+        else {
+            // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+        }
+        };
+        
+        
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+	function trim(s){
+		if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
+		}
+        
+	function splitedWebDavLink() {
+        return $(parent.document.getElementById("webDavUrl")).val().split('/');
+	}
+	var swdl = splitedWebDavLink();
+	function localizeData() {
+		for(i=0; (p = document.getElementsByTagName("span")[i]); i++) {
+			if (p.className=='webDavPort') {
+				p.innerHTML=getHostPort();
+			}
+			if (p.className=='webDavHostName') {
+				p.innerHTML=getServerName();
+			}
+			if (p.className=='webDavUrlEncoded') {
+				p.innerHTML=getBaseUrlEncoded();
+			}
+			if (p.className=='webDavService') {
+				p.innerHTML=getWebDavType();
+			}
+			if (p.className=='webDavFolderUrlEncoded') {
+				p.innerHTML=getFolderUrlEncoded();
+			}
+			if (p.className=='webDavGnomeUrl') {
+				p.innerHTML=getGnomeUrl();
+			}
+		}
+	}
+	function getBaseUrlEncoded() {
+		return '<b>'+swdl[0]+'//'+swdl[2]+'/'+swdl[3]+'/'+escape(swdl[4]).replace('@','%40')+'</b>';
+	}
+	function getFolderUrlEncoded() {
+		var folder = '<b>'+swdl[3];
+		for (var i = 4; i < swdl.length; i++) {
+			folder+='/'+swdl[i];
+		}
+		folder+='</b>';
+		return folder;
+	}
+	function getHostPort() {
+		// Return HTTP specific port
+		if (swdl[2].indexOf(":")>0) return swdl[2].substring(swdl[2].indexOf(':')+1);
+		else {
+			// Return HTTP default ports
+			if (swdl[0]=='https:') return '443';
+			else return '80';
+		}
+	}
+	function getWebDavType() {
+		if (swdl[0]=='https:') return '(HTTP/SSL)';
+		else return '';
+	}
+	function getServerName() {
+		// remove the port
+		if (swdl[2].indexOf(":")>0) return swdl[2].substring(0,swdl[2].indexOf(':'));
+		else {
+			return swdl[2];
+		}
+	}
+	function getGnomeUrl() {
+		// replace http by dav
+		return 'dav'+$(parent.document.getElementById("webDavUrl")).val().substring(4);
+	}
+	
+		// -->
+		</script>
+		
+	</head>
+<body onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):'';localizeData()">
+          <div id="tabs" style="font-size:95%">
+        <ul>
+            <li>
+                <a href="#instr-windows8">Windows 8/10</a>
+            </li>
+
+            <li>
+                <a href="#instr-windows7">Windows 7</a>
+            </li>
+            <li>
+                <a href="#instr-mac">Mac</a>
+            </li>
+            <li>
+                <a href="#instr-linux">Linux</a>
+            </li>
+            <li>
+                <a href="#instr-other">Other versions</a>
+            </li>
+        </ul>
+        <div id="instr-windows8">
+            <h4>Setting up WebDAV for Windows 8/10</h4>
+             <ol>
+                <li>First you need to navigate to the Desktop: after logging into Windows 8/10, click the Desktop icon.
+                <li>From the Desktop, click File Explorer and make sure 'This PC' is selected in the left-hand pane.
+                <p><img src="win8img2.png" alt ="Picture of Windows 8 file explorer" /></p></li>
+                <li>At the top of the File Explorer window, click Computer &gt; Map Network Drive &gt; Map network drive.
+                <p><img src="win8img3.png" alt ="Picture of Windows 8 Mapping Netword Drive Interface" /></p></li>
+                <li>Select a vacant drive letter (e.g., Y) from the Drive drop down menu.
+                <p><img src="win8img4.png" alt ="picture of Windows 8 drive selection dialog" /></p></li>
+                <li>In the Folder field, type (or copy and paste) the URL for this site (shown above). Click Finish.</li>
+                <li>When prompted, enter your username and password and click OK.</li>
+                <li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
+            </ol>
+            <h5>Alternate method of setting up WebDAV on Windows</h5>
+            <p>
+				If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
+        </div>
+        <div id="instr-windows7">
+            <h4>Setting up WebDAV for Windows Vista/Windows 7</h4>
+            <p>
+                <strong>Note</strong>: Use of WebDAV functionality on <em>Windows Vista</em>
+                requires that you have Vista Service Pack 2 installed. If you do not yet have Service Pack 2 installed, please run Windows Update by clicking <strong>Start &gt; All Programs &gt; Windows Update</strong>.
+            </p>
+            <ol>
+                <li>
+                    From the desktop or the Start menu, click <strong>Computer</strong>.
+                </li>
+                <li>
+                    At the top of the window, click <strong>Map Network Drive</strong>.
+                </li>
+                <li>
+                    Select a vacant drive letter (e.g., Z) from the <em>Drive</em>
+                    drop down menu.
+                </li>
+                <li>
+                    In the <em>Folder</em>
+                    field, type (or copy and paste) the URL for this site shown above.  Click <strong>Finish</strong>.
+                </li>
+                <li>
+                    When prompted, enter your username and password and click <strong>OK</strong>.
+                </li>
+                <li>
+                    You can now drag files and folders to and from your computer and the site Resources folder.
+                </li>
+            </ol>
+            <p>
+                When the setup process is complete, the course or project resources folder will appear under Computer as a drive, where it will act just like any other drive in Windows Explorer. You can now drag files and folders to and from your computer and the site's Resources folder.
+            </p>
+            <h5>Alternate method of setting up WebDAV on Windows</h5>
+            <p>
+                If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <a class="activateTab" href="#instr-other">Cyberduck</a>.
+			</p>
+        </div>
+        <div id="instr-mac">
+            <h4>Setting up WebDAV for Mac (OS X)</h4>
+            <p>
+                <strong>Note</strong>: Depending upon the exact update of OS X, The Webdav support in the Macintosh Finder may well be too buggy to use. If you have problems with this approach, consider using <a class="activateTab" href="#instr-other">Cyberduck</a>.
+            </p>
+            <ol>
+                <li>
+                    From the menu bar at the top of the screen in Finder, select <strong>Go &gt; Connect to Server...</strong>
+                </li>
+                <li>
+                    In the <em>Server Address</em>
+                    dialog box, type (or copy and paste) the path as shown above in <b>Step 1</b>.
+                </li>
+                <li>
+                    Press the <strong>+</strong>
+                    button to save this path for future use.
+                </li>
+                <li>
+                    Click <strong>Connect</strong>.
+                </li>
+                <li>
+                    Type in your username and password and click <strong>Connect</strong>.
+                </li>
+            </ol>
+            <p>
+                You will now see a window on your screen that represents the resources in your site. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
+            </p>
+        </div>
+        <div id="instr-linux">
+        <h4>Setting up WebDAV for Linux (Gnome)</h4>
+
+            <ol>
+                <li>
+                    Go to <b>Files &gt; Connect to Server...</b>
+                </li>
+                <li>
+                    In <b>Server adress</b>, type (or copy and paste) the URL: <b><em><span class="webDavGnomeUrl">davs://xxxx/dav/xxxx</span></em></b>
+                </li>                
+                <li>
+                    Now click on <b>Connect</b>.
+                </li>
+                <li>
+                    Finally, you will be asked to supply your password.
+                </li>
+            </ol>
+            <p>
+                You will now see a new drive under <b>Files</b>. This represents the resources in your site. It will act like any other folder on your computer. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
+            </p>
+            <h4>Setting up WebDAV for Linux (Gnome) older versions</h4>
+
+            <ol>
+                <li>
+                    Go to <b>Places &gt; Connect to Server...</b>
+                </li>
+                <li>
+                    In <b>Service type</b>
+                    select WebDav <span class="webDavService"></span>.
+                </li>
+                <li>
+                    In <b>Server</b>, type (or copy and paste): <b><span class="webDavHostName">hostname</span></b>
+                </li>
+                <li>
+                    In <b>Port</b>, type (or copy and paste): <span class="webDavPort">80</span>
+                </li>
+                <li>
+                    In <b>Folder</b>, type (or copy and paste) the last part of the "Step 1" URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>
+                </li>
+                <li>
+                    Check the option <b>Add bookmark</b>
+                </li>
+                <li>
+                    In <b>Bookmark name</b>, supply the name of the folder to create under "Network" and click <strong>Next</strong>.
+                </li>
+                <li>
+                    Now click on <b>Connect</b>.
+                </li>
+                <li>
+                    Finally, you will be asked to supply your password.
+                </li>
+            </ol>
+            <p>
+                You will now see a new drive under <b>Places</b>. This represents the resources in your site. It will act like any other folder on your computer. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
+            </p>
+            <h4>Setting up WebDAV for Linux (KDE)</h4>
+
+            <ol>
+                <li>
+                    Open the file manager <em>(Dolphin)</em>.
+                </li>
+                <li>
+                    On the left side, in <strong>Places</strong>, choose <b>Network</b>.
+                </li>
+                <li>
+                    Click on <b>Add network folder</b>.
+                </li>
+                <li>
+                    Check <em>web folder (webdav)</em>
+                    and click on <em>Next</em>.
+                </li>
+                <li>
+                    In <b>Name</b>
+                    supply the name of the folder to create under "Network" and click <strong>Next</strong>.
+                </li>
+                <li>
+                    In <b>User</b>
+                    supply your username.
+                </li>
+                <li>
+                    In <b>Server</b>, type (or copy and paste): <b><span class="webDavHostName">hostname</span></b>
+                </li>
+                <li>
+                    In <b>Folder</b>, type (or copy and paste) the last part of the "Step 1" URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>
+                </li>
+                <li>
+                    If the URL uses HTTPS, check the option <b>Encoded</b>, and the port will change automatically to <span class="webDavPort">80</span>.
+                </li>
+                <li>
+                    Check the option <b>Create an icon for this remote folder</b>.
+                </li>
+                <li>
+                    Now click on <b>Save and connect</b>.
+                </li>
+                <li>
+                    Finally, you will be asked to supply your password.
+                </li>
+            </ol>
+            <p>
+                You will now see a new drive under <b>Network</b>
+                inside the file manager <em>(Dolphin)</em>. This represents the resources in your site. It will act like any other folder from your computer. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
+            </p>
+            <h4>Setting up WebDAV for Linux (console)</h4>
+            <ol>
+                <li>
+                    Open a new terminal.
+                </li>
+                <li>
+                    Type in the command <strong>cadaver <span class="webDavUrlEncoded">URL from Step 1</span></strong>
+                </li>
+                <li>
+                    You might be asked to accept a certificate
+                </li>
+                <li>
+                    Type in your username and password
+                </li>
+                <li>
+                    Now you can download and upload documents from the command line.
+                </li>
+            </ol>
+            <p>
+                Type <b>help</b>
+                for all avaliable commands.
+            </p>
+        </div>
+        <div id="instr-other">
+            <h4>Setting up WebDAV for Mac/Windows using Cyberduck</h4>
+            <ol>
+                <li>
+                    Download the Cyberduck WebDAV client.
+                    <ul>
+                        <li>
+                            For Windows or OS X version 10.5 and later, download and install the most recent software at: <a href="http://cyberduck.io/" target="_blank">http://cyberduck.io/</a>
+                        </li>
+                        <li>
+                            OS X versions before 10.5, download the Cyberduck WebDAV client at: <a href="http://update.cyberduck.io/Cyberduck-2.8.5.dmg" target="_blank">http://update.cyberduck.io/Cyberduck-2.8.5.dmg</a>
+                        	<ul>
+                        		<li>
+									Decompress the file and double-click on the .dmg file. (Depending on the configuration of your decompression software, the disk image may automatically mount.)
+                				</li>
+                				<li>
+                    				A disk image with a name similar to <em>Cyberduck-2.8.5</em>
+                    				should now be available. Simply drag and drop the folder from the disk image to your Applications folder.
+                				</li>
+                        	</ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    Open the Cyberduck application in your Applications folder.
+                </li>
+                <li>
+                    Click the <strong>Open Connection</strong> button.
+                </li>
+                <li>
+                	In <b>Server</b>, copy and paste the "Step 1" URL. 
+                	This will autofill all needed fields. 
+                	Also, you can manually introduce the requested information:
+					<ul>
+						<li>
+		                    Select WebDAV <span class="webDavService"></span>
+		                </li>
+						<li>
+		                    In <b>Server</b>, type: <b><span class="webDavHostName">hostname</span></b>
+		                </li>
+		                <li>
+		                    In <b>Port</b>, type: <span class="webDavPort">80</span>
+		                </li>
+						<li>
+		                    Click on <i>More options</i>
+		                    and type (or copy and paste) in <b>Folder</b>
+		                    the last part of the "Step 1" URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>
+		                </li>
+					</ul>
+				</li>
+				<li>
+					Disable the Anonymous Login option.</li>
+				<li>
+                    Type in your username and password
+                </li>
+                <li>
+                    Now click on <b>Connect</b>.
+                </li>
+            </ol>
+            <p>
+                You will now see a window on your screen that represents the resources that are in your site.  Simply drag and drop between this window and other folders on your computer to transfer files to and from your site's resources folder.
+            </p>
+			<p>
+				You can save these settings for future connections:
+			</p>
+			<ol>
+				<li>
+					Click on <b>Bookmark</b> in top menu bar.
+				</li>
+				<li>
+					Click on <b>New bookmark</b> option.
+				</li>
+				<li>
+					In the pop-up window, change the nickname. 
+					Remove <em>"<span class="webDavHostName">hostname</span> – WebDAV (HTTPS)"</em>
+					and type the name for this connection.
+				</li>
+				<li>
+					Close this window.
+				</li>
+			</ol>
+        </div>
+	</div>
+        
+        
+        <!--// onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):'';localizeData()" //-->
+        <script type="text/javascript">
+            
+            $(document).ready(function(){
+                $("#tabs").tabs({
+                    activate: function( event, ui ) {
+                        resizeFrame('grow')
+                    }
+                });
+                $( "#tabs" ).on( "tabsselect", function( event, ui ) {
+                    resizeFrame('grow')
+                } );
+                $('.activateTab').click(function(){
+                    $( '#tabs ul li a[href="'+$(this).attr('href')+'"]' ).trigger( "click" ); 
+                });                
+            })
+        </script>
+	</body>
+</html>

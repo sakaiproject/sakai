@@ -1,0 +1,6 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_aliases_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $
+<div class="portletBody">
+	<h3>
+		$tlang.getString("sites.noaccess")
+	</h3>
+</div>

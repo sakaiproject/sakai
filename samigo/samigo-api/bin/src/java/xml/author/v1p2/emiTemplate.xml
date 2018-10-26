@@ -1,0 +1,79 @@
+<item ident="" title="Extended Matching Items" label="">
+	<qticomment>
+		This is a QTI implementation for Extended Matching Items (EMIs).
+		Note that this is only valid for Samigo's import export of EMI's.
+		This is not FULL QTI Standard
+	</qticomment>
+	<itemmetadata>
+		<qtimetadata>
+			<qtimetadatafield>
+				<fieldlabel>qmd_itemtype</fieldlabel>
+				<fieldentry>Extended Matching Items</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>TEXT_FORMAT</fieldlabel>
+				<fieldentry>HTML</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_KEYWORD</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_RUBRIC</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_TAGS</fieldlabel>
+				<fieldentry/>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ATTACHMENT</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>hasRationale</fieldlabel>
+				<fieldentry>false</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>RANDOMIZE</fieldlabel>
+				<fieldentry>false</fieldentry>
+			</qtimetadatafield>
+		</qtimetadata>
+	</itemmetadata>
+	<rubric>
+		<material>
+			<mattext />
+		</material>
+	</rubric>
+	<presentation label="">
+		<flow class="Options">
+			<material>
+				<mattext />
+			</material>
+			<response_lid ident="" rcardinality="Multiple">
+				<render_choice shuffle="No">
+				</render_choice>
+			</response_lid>
+		</flow>
+		<flow class="Leadin">
+			<material>
+				<mattext />
+			</material>
+		</flow>
+	</presentation>
+	<resprocessing>
+		<qticomment>Overall Score</qticomment>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="0" minvalue="0" varname="SCORE" />
+		</outcomes>
+		<respcondition continue="Yes" title="Score">
+			<conditionvar>
+				<unanswered respident="SCORE" />
+			</conditionvar>
+		</respcondition>
+	</resprocessing>
+</item>

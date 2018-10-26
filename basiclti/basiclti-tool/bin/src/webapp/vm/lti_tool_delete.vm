@@ -1,0 +1,32 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("tool.delete")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<div class="alertMessage">$tlang.getString("tool.delete.sure")</div><div style="display:block;clear:both" ></div>
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		$formOutput
+		Uses: $tool_count uses in $tool_unique_site_count sites
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                <input type="hidden" name="id" value="$tool.get("id")" />
+		<p class="act">
+ 			<input type="submit" accesskey ="d" class="active" name="$doToolAction" 
+				value="$tlang.getString('gen.delete')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+		</p>
+	</form>
+#if ( ! $isAdmin )
+<script>includeLatestJQuery('lti_tool_delete.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+</div>

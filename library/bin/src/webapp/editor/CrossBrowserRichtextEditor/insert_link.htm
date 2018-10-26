@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+	<title>Insert Link</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script language="JavaScript" type="text/javascript">
+<!--
+function AddLink() {
+	var oForm = document.linkForm;
+	
+	//validate form
+	if (oForm.url.value == '') {
+		alert('Please enter a url.');
+		return false;
+	}
+	if (oForm.linkText.value == '') {
+		alert('Please enter link text.');
+		return false;
+	}
+	
+	var html = '<a href="' + document.linkForm.url.value + '" target="' + document.linkForm.linkTarget.options[document.linkForm.linkTarget.selectedIndex].value + '">' + document.linkForm.linkText.value + '</a>';
+	
+	window.opener.insertHTML(html);
+	window.close();
+	return true;
+}
+//-->
+</script>
+</head>
+
+<body style="margin: 10px; background: #D3D3D3;">
+
+<form name="linkForm" onSubmit="return AddLink();">
+<table cellpadding="4" cellspacing="0" border="0">
+	<tr><td colspan="2"><span style="font-style: italic; font-size: x-small;"><b>Tip:</b> To insert an email link, start your URL with "mailto:"</span></td></tr>
+	<tr>
+		<td align="right">URL:</td>
+		<td><input name="url" type="text" id="url" size="40"></td>
+	</tr>
+	<tr>
+		<td align="right">Text:</td>
+		<td><input name="linkText" type="text" id="linkText" size="40"></td>
+	</tr>
+	<tr>
+		<td align="right">Target:</td>
+		<td align="left">
+			<select name="linkTarget" id="linkTarget">
+				<option value="_blank">_blank</option>
+				<option value="_parent">_parent</option>
+				<option value="_self" selected>_self</option>
+				<option value="_top">_top</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3" align="center">
+			<input type="submit" value="Insert Link" />
+			<input type="button" value="Cancel" onClick="window.close();" />
+		</td>
+	</tr>
+</table>
+
+</form>
+
+</body>
+</html>

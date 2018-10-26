@@ -1,0 +1,218 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfoConfirm.vm,v 1.2 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
+## Edit Site Information Confirmation page
+<div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+		$tlang.getString("sitediconf.con") <span class="highlight">$validator.escapeHtml($!title)</span>
+	</h3>
+	<p class="instruction">
+		$tlang.getString("sitediconf.cli")
+	</p>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
+	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">		
+			<div class="form-group row">
+				<label class="col-sm-2 form-control-label">
+					$tlang.getString("sitediconf.sittit")
+				</label>
+				<div class="col-sm-8">
+					#if (!$!title.equals($!oTitle))
+						<span class="highlight">$validator.escapeHtml($!title)</span>
+					#else
+						$validator.escapeHtml($!title)
+					#end
+				</div>					
+			</div>
+			#if ($displaySiteAlias)
+				<div class="form-group row">
+	 				<label class="col-sm-2 form-control-label">
+	 					$tlang.getString("newsc.url")
+	 				</label>
+	 				<div class="col-sm-8">
+	 					$validator.escapeHtml($!form_url_alias_full)
+	 				</div>	
+	 			</div>
+	 		#end
+			#if ($!isCourseSite)
+				<div class="form-group row">
+					<label class="col-sm-2 form-control-label">
+						$tlang.getString("sitediconf.term")
+					</label>
+					<div class="col-sm-8">
+						$!siteTerm
+					</div>					
+				</div>
+			#end
+			<div class="form-group row">
+				<label class="col-sm-2 form-control-label">
+					$tlang.getString("sitediconf.siteurls")
+				</label>
+				<div class="col-sm-8">
+					#if ( $!siteUrls.size() < $!oSiteUrls.size() )
+						#if ( $!siteUrls.Empty )
+							<span class="highlight">$tlang.getString("sitediconf.none")</span>
+						#else
+							#foreach ( $siteUrl in $siteUrls )
+								<span class="highlight">$validator.escapeHtml($!siteUrl)</span><br/>
+							#end
+						#end
+					#elseif ($!siteUrls.Empty)
+						<span>$tlang.getString("sitediconf.none")</span>
+					#else
+						#foreach ( $siteUrl in $siteUrls )
+							#if ( !$!oSiteUrls.contains($!siteUrl) )
+								<span class="highlight">$validator.escapeHtml($!siteUrl)</span><br/>
+							#else
+								$validator.escapeHtml($!siteUrl)<br/>
+							#end
+						#end
+					#end
+				</div>	
+			</div>
+			<div class="form-group row">
+ 				<label class="col-sm-2 form-control-label">
+ 					$tlang.getString("sitediconf.language")
+ 				</label>
+ 				<div class="col-sm-8">					
+ 					#if (!$new_locale.equals("") && !$oLocale.equals(""))
+ 						#if (!$new_locale.toString().equals($oLocale.toString()))
+ 							<span class="highlight">$validator.escapeHtml($new_locale.getDisplayName())</span>
+ 						#else
+ 							$validator.escapeHtml($new_locale.getDisplayName())
+ 						#end
+ 					#elseif (!$new_locale.equals(""))
+ 						<span class="highlight">$validator.escapeHtml($new_locale.getDisplayName())</span>
+ 					#elseif ($oLocale.equals(""))
+ 						<span>$tlang.getString("newsc.language.none")</span>
+ 					#else
+ 						<span class="highlight">$tlang.getString("newsc.language.none")</span>
+ 					#end
+ 				</div>
+ 			</div>
+			#if($!description)
+				<div class="form-group row">
+					<label class="col-sm-2 form-control-label">
+						$tlang.getString("sitediconf.des")
+					</label>
+					<div class="col-sm-8">	
+						#if (!$!description.equals($!oDescription))
+							<span class="highlight">$!description</span>
+						#else	
+							$!description
+						#end	
+					</div>					
+				</div>
+			#end
+			#if ($!short_description)
+				<div class="form-group row">
+					<label class="col-sm-2 form-control-label">
+						$tlang.getString("sitediconf.shodes")
+					</label>
+					<div class="col-sm-8">	
+						#if (!$!short_description.equals($!oShort_description))
+							<span class="highlight">$validator.escapeHtml($!short_description)</span>
+						#else
+								$validator.escapeHtml($!short_description)
+						#end
+					</div>
+				</div>
+			#end	
+			#if ($allowSkinChoice)
+				## course site
+				<div class="form-group row">
+					<label class="col-sm-2 form-control-label">
+						$tlang.getString("sitediconf.app")
+					</label>
+					<div class="col-sm-8">
+						#foreach ($s in $skins)
+							#set($url="")
+							#set($url=$!s.Url)
+							#set($newSkin="")
+							#set($newSkin=$!skin)
+							#set($oldSkin="")
+							#set($oldSkin=$!oSkin)
+							#if ($url == $newSkin)
+								#if (!$newSkin.equals($!oldSkin))
+									<span class="highlight">$s.Name</span>
+								#else
+									$s.Name
+								#end
+							#end
+						#end
+					</div>
+				</div>
+			#else
+				## other sites
+				<div class="form-group row">
+					<label class="col-sm-2 form-control-label">
+						$tlang.getString("newsc.icon")
+					</label>
+					<div class="col-sm-8">
+						#if (!$!icon || $icon.length() == 0)
+							<span>$tlang.getString("newsc.icon.none")</span>
+						#else
+							#if (!$!icon.equals($!oIcon))
+								<span class="highlight">$!validator.escapeHtml($!icon)</span>
+							#else
+								<span class="textPanelFooter">$!validator.escapeHtml($!icon)</span>
+							#end
+						#end
+					</div>
+				</div>
+			#end
+			<div class="form-group row">
+				<label class="col-sm-2 form-control-label">
+					$tlang.getString("sitediconf.sitconnam")
+				</label>
+				<div class="col-sm-8">
+					#if ($!name=="")
+						<span>$tlang.getString("sitediconf.none")</span>
+					#else	
+						#if (!$!name.equals($!oName))
+							<span class="highlight">$validator.escapeHtml($!name)</span>
+						#else
+							$validator.escapeHtml($!name)
+						#end
+					#end	
+				</div>					
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-2 form-control-label">
+					$tlang.getString("sitediconf.siticonema")
+				</label>
+				<div class="col-sm-8">
+					#if ($!email=="")
+						<span>$tlang.getString("sitediconf.none")</span>
+					#else
+						#if (!$!email.equals($!oEmail))
+							<span class="highlight">$!email</span>
+						#else
+							$!email
+						#end
+					#end
+				</div>					
+			</div>
+            #if ($isMathJaxInstalled)
+            <div class="form-group row">
+                <label class="col-sm-2 form-control-label">
+                    $tlang.getString("sinfo.mathjax.name")
+                </label>
+                <div class="col-sm-8">
+                #if ($isMathJaxEnabledForSite)
+                    $tlang.getString("sinfo.mathjax.allowed")
+                #else
+                    $tlang.getString("sinfo.mathjax.notAllowed")
+                #end
+                <div>
+            </div>
+            #end		
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="12" />
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_siteInfo" value="$tlang.getString("sitediconf.fin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("sitediconf.bac")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediconf.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

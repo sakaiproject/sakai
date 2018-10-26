@@ -1,0 +1,154 @@
+.navIntraTool{
+	margin: 0;
+	border-bottom: 1px solid $tool-border-color;
+	padding: 0 1em 0 0;
+	//max-width: calc(100% - 170px);
+	font-size: 0;
+	&:after{
+		content: " ";
+		display: block;
+		width: 100%;
+	}
+	li{
+		display: inline-block;
+		font-size: $default-font-size;
+		margin: 0 -1px 0 0;
+		span{
+			display: inline;
+			a{
+				background: $tool-tab-background-color;
+				border-top: 1px solid $tool-tab-border-color;
+				border-left: 1px solid $tool-tab-border-color;
+				border-right: 1px solid $tool-tab-border-color;
+				color: $tool-tab-text-color;
+				font-size: $tool-tab-text-size;
+				font-weight: $tool-tab-text-weight;
+				display: block;
+				margin: 0;
+				padding: 0 0.6em;
+				line-height: $tool-tab-height;
+				height: $tool-tab-height;
+				text-decoration: none;
+				text-transform: $tool-tab-text-transform;
+				letter-spacing: $tool-tab-text-letter-spacing;
+
+				&:hover{
+					color: $tool-tab-hover-text-color;
+					background: $tool-tab-hover-background-color;
+					text-decoration: none;
+					position: relative;
+
+					&:before{
+						border-top: 4px solid $tool-tab-hover-highlight-color;
+						content: "";
+						display: block;
+						position: absolute;
+						left: -1px;
+						right: -1px;
+						top: -1px;
+					}
+			  }
+			}
+			&.current{
+				color: $tool-tab-active-text-color;
+				font-size: $tool-tab-active-text-size;
+				background-color: $tool-tab-active-background-color;
+				border-top: 1px solid $tool-tab-border-color;
+				border-left: 1px solid $tool-tab-border-color;
+				border-right: 1px solid $tool-tab-border-color;
+				position: relative;
+				margin: 0;
+				padding: 0 0.6em;
+				line-height: $tool-tab-height;
+				height: $tool-tab-height;
+				display: block;
+				margin-bottom: -1px;
+
+				&:before {
+					border-top: 4px solid $tool-tab-active-highlight-color;
+					content: "";
+					display: block;
+					position: absolute;
+					left: -1px;
+					right: -1px;
+					top: -1px;
+				}
+				&:after{
+					border-bottom: 1px solid $tool-tab-active-background-color;
+					content: '';
+					display: block;
+					position: absolute;
+					left: 0;
+					right: 0;
+					bottom: -1px;
+				}
+				a{
+				    border: 0px none;
+				    font-size: 1em;
+				    margin: 0;
+				    padding: 0;
+				    top: 1px;
+				}
+			}
+			&.inactive{
+				border-left: 0px none;
+			}
+		}
+		a{
+
+			&.current{
+			}
+		}
+		.searchField{
+
+		}
+	}
+}
+
+.instruction{
+	@include bs-callout($instruction-color, $instruction-background-color);
+}
+
+.listNav{
+	margin: 1em 0;
+	.inlineForm{
+		display: inline-block;
+		@media #{$phone}{
+			padding: 0.1em !important;
+			&[name="pagesizeForm"]{
+				text-align: center;
+			}
+			select{
+				width: 100%;
+			}
+			input[type="submit"]{
+				margin: 0 0 0 0;
+				&[disabled="disabled"]{
+					display: none;
+				}
+			}
+		}
+		legend{
+			display: none;
+		}
+
+		fieldset{
+			display:inline-block;
+		}
+	}
+}
+
+.viewNav{
+
+}
+
+.navPanel {
+	.floatLeft {
+		float: left;
+		padding: 1em;
+	}
+
+	.floatRight {
+		float: right;
+	}
+}

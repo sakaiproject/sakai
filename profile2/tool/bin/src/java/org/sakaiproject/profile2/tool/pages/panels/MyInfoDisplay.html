@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+        
+<body>
+
+<wicket:panel>	
+	
+	
+	<div class="mainSection editable">
+		<div class="mainSectionHeading"><span wicket:id="heading">[Basic Information]</span></div>
+		
+		<a href="#" wicket:id="editButton" class="edit-button">
+			<span wicket:id="editButtonLabel">edit</span> 
+			<span class="offscreen">
+				<wicket:message key="accessibility.edit.basic" />
+			</span>
+		</a>
+		
+		<div class="mainSectionContent">
+		
+			<!--  message if no fields filled in -->	
+			<span wicket:id="noFieldsMessage" class="profile_instruction">No fields</span>
+						
+			<table class="profileContent">
+		
+				<!-- firstName -->
+				<!-- 
+				<tr wicket:id="firstNameContainer">
+					<td class="label" wicket:id="firstNameLabel">[firstNameLabel]</td>
+					<td class="content" wicket:id="firstName">[firstName]</td>
+				</tr>
+				-->
+				<!-- middleName -->
+				<!-- 
+				<tr wicket:id="middleNameContainer">
+					<td class="label" wicket:id="middleNameLabel">[middleNameLabel]</td>
+					<td class="content" wicket:id="middleName">[middleName]</td>
+				</tr>
+				-->
+				<!-- lastName -->
+				<!-- 
+				<tr wicket:id="lastNameContainer">
+					<td class="label" wicket:id="lastNameLabel">[lastNameLabel]</td>
+					<td class="content" wicket:id="lastName">[lastName]</td>
+				</tr>
+				-->
+		
+				<!-- nickname -->
+				<tr wicket:id="nicknameContainer">
+					<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
+					<td class="content" wicket:id="nickname">[nickname]</td>
+				</tr>
+				
+				<!-- birthday -->
+				<tr wicket:id="birthdayContainer">
+					<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
+					<td class="content" wicket:id="birthday">[birthday]</td>
+				</tr>
+				
+				<!-- personal summary -->
+				<tr wicket:id="personalSummaryContainer">
+					<td class="label" wicket:id="personalSummaryLabel">[personalSummaryLabel]</td>
+					<td class="content" wicket:id="personalSummary">[personalSummary]</td>
+				</tr>
+												
+			</table>
+		
+		</div>
+		
+	</div>
+	
+	<!-- panel specific Javascript -->
+	<script type="text/javascript">
+		
+		$(document).ready(function(){ 
+
+			//force hide on init
+			$(".edit-button").addClass("offscreen");
+
+			//show the edit button when hovering over an editable section
+			$(".editable").hover(
+				function () {
+					$(this).children(".edit-button").removeClass("offscreen");
+				}, 
+				function () {
+					$(this).children(".edit-button").addClass("offscreen");
+				}
+			);
+		});
+	</script>
+	
+			
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

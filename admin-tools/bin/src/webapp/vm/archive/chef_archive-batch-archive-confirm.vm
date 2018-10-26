@@ -1,0 +1,40 @@
+<style type="text/css">
+.smalltext {
+	font-size: x-small;
+}
+ul.sitelist {
+	padding-left: 10px;
+}
+ul.sitelist li {
+	list-style: none;
+}
+
+</style>
+
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	
+	<h3>
+		$tlang.getString("archive.batch.term.heading.confirm")
+	</h3>
+	
+	#if ($alertMessage)<br /><div class="alertMessage">$alertMessage</div>#end
+	
+	<p>$confirmString</p>
+	<ul class="sitelist">
+	#foreach($site in $sites)
+		<li>$!site.title <span class="smalltext">($!site.id)</span></li>
+	#end
+	</ul>
+	
+	<form action="#toolForm("$action")" method="post">
+		<p class="act">
+			<input type="submit" name="eventSubmit_doBatch_Archive" value="$tlang.getString("archive.batch.term.button.confirm")" class="indnt1" />
+			<input type="submit" name="eventSubmit_doBatch_Archive_Cancel" value="$tlang.getString("archive.batch.term.button.cancel")" class="indnt1" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	
+</div>

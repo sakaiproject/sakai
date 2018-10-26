@@ -1,0 +1,70 @@
+<!-- Sakai Rubrics Imports -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+
+<!-- Sakai Rubrics Imports -->
+<link rel="import" href="sakai-rubrics-styles.html">
+<link rel="import" href="sakai-rubrics-icons.html">
+<link rel="import" href="sakai-rubric-criterion-preview.html">
+
+<dom-module id="sakai-rubric-preview">
+  <template>
+    <iron-ajax
+         id="getRubric"
+         url="/rubrics-service/rest/rubrics/ID"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="application/json"
+         on-response="rubricResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <style include="sakai-rubrics-styles"></style>
+
+    <h3>[[rubric.title]]</h3>
+    <p>[[rubric.description]]</p>
+
+    <sakai-rubric-criterion-preview
+      rubric="[[rubric]]"
+      grade-field-id="{{gradeFieldId}}"
+      ></sakai-rubric-criterion-preview>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric-preview",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        rubricId: {
+          type: Number,
+          observer: "idChanged"
+        },
+        gradeFieldId: {
+          type: String,
+        }
+      },
+      rubricResponse: function(request) {
+        this.rubric = request.detail.response;
+      },
+      idChanged: function() {
+        setTimeout(function(){
+          this.$.getRubric.url = "/rubrics-service/rest/rubrics/" + this.rubricId + "?projection=inlineRubric";
+          this.$.getRubric.generateRequest();
+        }.bind(this));
+      },
+      ready: function() {
+        setTimeout(function(){
+          this.$.getRubric.url = "/rubrics-service/rest/rubrics/" + this.rubricId + "?projection=inlineRubric";
+          this.$.getRubric.generateRequest();
+        }.bind(this));
+      }
+    });
+  </script>
+</dom-module>

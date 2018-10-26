@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+        UI authorization filtering. Handled here instead of in Faces configuration files
+        because Faces won't necessarily be loaded on the first authorization check.
+    -->
+    <bean id="org.sakaiproject.tool.section.filter.AuthorizationFilterConfigurationBean"
+        class="org.sakaiproject.tool.section.filter.AuthorizationFilterConfigurationBean">
+        <property name="manageAllSections">
+            <list>
+                <value>addSections</value>
+                <value>deleteSections</value>
+                <value>editSection</value>
+                <value>config</value>
+            </list>
+        </property>
+        <property name="viewAllSections">
+            <list>
+                <value>overview</value>
+                <value>roster</value>
+                <value>options</value>
+            </list>
+        </property>
+        <property name="manageTeachingAssistants">
+            <list>
+                <value>editManagers</value>
+            </list>
+        </property>
+        <property name="manageEnrollments">
+            <list>
+                <value>editStudents</value>
+                <value>editStudentSections</value>
+            </list>
+        </property>
+        <property name="viewOwnSections">
+            <list>
+                <value>studentView</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>

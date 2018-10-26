@@ -1,0 +1,151 @@
+<!--
+
+    $URL:$
+    $Id:$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+
+		<div class="portletBody">
+            <!-- Menu -->
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+            <!-- Page title -->
+            <h2>
+                <span wicket:id="pageTitle">[reports]</span>
+            </h2>
+            
+		    <!-- Last Job run -->
+            <span wicket:id="lastJobRun"></span>
+		    
+		    <form wicket:id="reportsForm">
+		        <!-- Feedback panel (messages) -->
+		        <span wicket:id="messages"></span>
+		        
+		        
+                <!--  My reports -->
+                <span wicket:id="myReportsContainer">
+	                <h4 class="summaryHeader">
+	                    <wicket:message key="report_myreports">[report_myreports]</wicket:message>
+		                <span class="summaryInstruction">
+		                    <wicket:message key="report_my_instr">[report_my_instr]</wicket:message>
+		                </span>	                    
+	                </h4>
+	                <ul class="navIntraTool actionToolbar" style="margin: 1px 0 0 0; padding: 0 0 2px 5px;">
+	                    <li>
+		                    <!-- Add -->
+		                    <img src="/library/image/silk/add.png" border="0" alt="New report" style="vertical-align:middle"/>
+		                    <a wicket:id="lnkNewReport" class="itemAction" style="margin: 0; display: inline; ">
+		                       <wicket:message key="report_new">[report_new]</wicket:message>
+		                    </a>
+	                    </li>
+	                </ul>         
+	                <table class="listHier lines" style="margin-top: 1px; width: 99.9% !important" cellspacing="0">
+	                    <tbody>
+		                   <tr wicket:id="myReports">
+	                           <span wicket:id="reportRow"></span>
+		                   </tr>
+		                </tbody>
+		            </table>
+		            <p wicket:id="noReports" class="instruction">
+		               <wicket:message key="report_noreports">[report_noreports]</wicket:message>
+		            </p>
+	                
+	                <br/>
+                </span>
+                
+                
+                <!--  Predefined reports -->
+                <span wicket:id="predefinedReportsContainer">
+	                <h4 class="summaryHeader">
+	                    <wicket:message key="report_predefinedreports">[report_predefinedreports]</wicket:message>
+                        <span class="summaryInstruction">
+                            <wicket:message key="report_predefined_instr">[report_predefined_instr]</wicket:message>
+                        </span>
+	                </h4>
+                    <ul wicket:id="adminAddContainer" class="navIntraTool actionToolbar" style="margin: 1px 0 0 0; padding: 0 0 2px 5px;">
+                        <li>
+                            <!-- Add -->
+                            <img src="/library/image/silk/add.png" border="0" alt="New report" style="vertical-align:middle"/>
+                            <a wicket:id="lnkNewReport" class="itemAction" style="margin: 0; display: inline; ">
+                               <wicket:message key="report_new">[report_new]</wicket:message>
+                            </a>
+                        </li>
+                    </ul>
+	                <table class="listHier lines" style="margin-top: 1px; width: 99.9% !important" cellspacing="0">
+	                    <tbody>
+	                       <tr wicket:id="predefinedReports">
+	                           <span wicket:id="reportRow"></span>
+	                       </tr>
+	                    </tbody>
+	                </table>
+                    <p wicket:id="noReports" class="instruction">
+                       <wicket:message key="report_noreports">[report_noreports]</wicket:message>
+                    </p>
+                </span>
+			</form>            
+                
+                <!-- Report table row Fragment -->
+		        <wicket:fragment wicket:id="reportRowFragment">
+		          <td style="width: 30%">
+		            <img wicket:id="icon" border="0" alt="Report" src="/library/image/silk/report_user.png"/>
+		            <a wicket:id="link"><span wicket:id="title"></span></a>
+		            <div class="itemAction" style="margin:0; padding: 0 0 0 22px">
+		                <small>
+		                    <a wicket:id="edit">
+		                        <wicket:message key="report_edit">[report_edit]</wicket:message>
+		                    </a>
+		                    <span wicket:id="hideContainer">
+                                <span>&nbsp;|&nbsp;</span> 
+                                <a wicket:id="hide">
+                                    <span wicket:id="hideLabel">[hide_unhide]</span>
+                                </a>
+		                    </span>
+                            <span wicket:id="duplicateContainer">
+                                <span>&nbsp;|&nbsp;</span> 
+                                <a wicket:id="duplicate">
+                                    <wicket:message key="report_duplicate">[report_duplicate]</wicket:message>
+                                </a>
+                            </span>
+                            <span wicket:id="deleteContainer">
+	                            <span>&nbsp;|&nbsp;</span> 
+	                            <a wicket:id="delete">
+	                                <wicket:message key="report_delete">[report_delete]</wicket:message>
+	                            </a>
+                            </span>
+		                </small>
+		            </div>                               
+		          </td>
+		          <td>
+		            <span wicket:id="description" class="instruction"></span>
+		          </td>
+		        </wicket:fragment>
+                                
+		</div>
+		</wicket:extend>
+	</body>
+</html>

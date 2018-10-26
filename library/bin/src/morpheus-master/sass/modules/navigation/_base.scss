@@ -1,0 +1,1324 @@
+body.is-logged-out{
+	.#{$namespace}loginUser{
+		li{
+			a{
+				.login-Icon{
+					display: none;
+				}
+			}
+		}
+	}
+	.#{$namespace}topHeader{
+		@media #{$phone}{
+			min-height: $header-size;
+		}
+	}
+}
+
+.#{$namespace}mainHeader{
+		box-shadow: $divider-shadow;
+		position: relative;
+
+	.#{$namespace}headerLogo{
+		width: 100%;
+		overflow: hidden;
+		padding: 0 $standard-spacing;
+		height: $banner-height;
+		background: $top-header-background;
+
+		text-align: center;
+		@include transition( width 0.5s linear 0s );
+		.#{$namespace}headerLogo--institution{
+			background: url($logo) no-repeat center center;
+			width: 		$logo-width;
+			height: 100%; // align vertically center
+			float: left;
+			background-size: $logo-width $logo-height;
+		}
+	}
+
+	.#{$namespace}loginUser{
+		display: inline-flex;
+		li{
+			display: inline-block;
+			margin: 0 0.8em 0 0;
+			@media #{$phone}{
+				margin: 0 0.2em 0 0;
+			}
+			.#{$namespace}loginUser__message{
+				display: inline-block;
+				margin: 0 1em 0 0;
+			}
+			a{
+				.login-Icon{
+					@extend .fa-power-off;
+					@extend .fa;
+					@extend .fa-lg;
+					margin: 0 0.6em 0 0;
+					@media #{$phone}{
+						font-size: 1.7em;
+						position: relative;
+						left: 0.4em;
+					}
+				}
+			}
+		}
+		p{
+			margin: 0.05em 1.5em 0 0;
+		}
+	}
+
+	&.is-maximized{
+		.siteNavWrap{
+			@media #{$phone}{
+				display: none;
+			}
+			background: $sites-nav-background;
+		}
+	}
+
+	&.is-fixed {
+		.#{$namespace}topHeader {
+			padding-top: $banner-height;
+		}
+		.#{$namespace}headerLogo {
+			position: fixed;
+			top: 0;
+			width: 100%;
+			box-shadow: $divider-shadow;
+			z-index: 1000;
+			overflow: visible;
+		}
+	}
+
+	@media #{$phone}{
+		background: $primary-color;
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: 20;
+	}
+}
+
+.userNav_link{
+	color: $text-color;
+	font-family: $header-font-family;
+	font-size: 0.9em;
+	font-weight: $header-font-weight;
+	padding: 0 0.5em 0 0;
+	text-decoration: none;
+}
+
+.is-logged-out{
+	.userNav__subnav{
+		position: inherit;
+	}
+}
+
+.userNav__subnav{
+	font-family: $header-font-family;
+	position: absolute;
+	right: 0em;
+	width: 20em;
+	z-index: 99;
+	box-shadow: 0 0 4px rgba( $text-color ,0.35);
+	list-style: none;
+	padding: 0 0 0 0;
+	li{
+		display: block;
+		border: 0px none;
+		@include border-radius( 0 );
+		margin: 0 0 0 0;
+		padding: 0 0 0 0;
+		min-height: 15px;
+		a{
+			display: block;
+			padding: 0.65em;
+			text-decoration: none;
+			color: $primary-color-highContrast;
+			line-height: 1em;
+			&:focus, &:hover, &:active
+			{
+				text-decoration: underline;
+    			color: $primary-color-highContrast;
+			}
+			.toolMenuIcon{
+				@extend .fa-fw;			// standardize the width of all icons for proper text alignment
+				vertical-align: sub;
+				margin: 0 0.5em 0 0;
+			}
+		}
+	}
+	&.is-visible{
+		display: block;
+		margin: 0.4em 0 0 -0.55em;
+	}
+	&.is-hidden{
+		display: none;
+	}
+	.#{$namespace}userNav__submenuitem--fullname-and-id{
+		padding-top: 1em;
+		color: $text-color;
+		display: inline-block;
+		margin-bottom: 5px;
+		width: 10em;
+		word-wrap: break-word;
+		vertical-align: top;
+
+		.#{$namespace}userNav__submenuitem--fullname{
+			font-weight: $header-font-weight;
+			font-size: 120%;
+			line-height: 1.2;
+			padding: 2px 0;
+		}
+
+		.#{$namespace}userNav__submenuitem--displayid{
+			font-weight: normal;
+		}
+
+	}
+	.#{$namespace}userData{
+		border-bottom: 1px solid $tool-border-color;
+		margin-bottom: 0.5em;
+		background-color: $tool-menu-background-color;
+	}
+
+	.#{$namespace}userNav__submenuitem--profile-and-image{
+		display: inline-block;
+		vertical-align: top;
+		padding: 1em 1em 0 1em;
+
+		.#{$namespace}userNav__submenuitem--profilepicture{
+			width: 64px;
+			height: 64px;
+			margin: 0; /* to override, within the dropdown panel */
+		}
+
+		.#{$namespace}userNav__submenuitem--profile{
+			display: block;
+			margin-left: 0.5em;
+		}
+	}
+}
+
+.#{$namespace}topHeader{
+	background: $top-header-background;
+	color: $background-color;
+	font-size: 1em;
+	height: auto;
+	width: 100%;
+	box-shadow: $divider-shadow;
+
+	a
+	{
+		@include display-flex;
+		@include align-items( center );
+
+		color: $topNav-text-color;
+		@media #{$phone} {
+			line-height: 1;
+		}
+	}
+	> * {
+		transition: all 0.3s ease;
+		@media #{$phone}{
+			display: inline;
+		}
+	}
+	.#{$namespace}loginNav{
+		float: right;
+		height: $banner-height;
+		@include flex-shrink( 0 );
+		@include display-flex;
+		@include align-items( center );
+		@include justify-content( flex-end );
+
+		#roleSwitch {
+			@include display-flex;
+			@include align-items( center );
+			padding-right: $standard-spacing;
+			margin-right: $standard-spacing;
+			border-right: 1px solid $topNav-alt-color;
+			white-space: nowrap;
+
+				@media #{$phone} {
+					&.menu-not-setup {
+						display: none;
+					}
+				}
+
+			// Show as a menu on mobile
+			#roleSwitchDropDownToggle {
+				display: none;
+
+				@media #{$phone} {
+					display: block;
+				}
+
+				vertical-align: middle;
+				text-decoration: none;
+
+				i {
+					font-size: 1.33333em;
+					vertical-align: -15%;
+				}
+
+				&:hover {
+					text-decoration: none;
+					color: #FFF;
+					text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+				}
+			}
+
+			#roleSwitchDropDown {
+				@media #{$phone} {
+					position: absolute;
+					left: -100000000px;
+					height: 1px;
+					width: 1px;
+					overflow: hidden;
+
+					> i {
+						display: none;
+					}
+				}
+
+				@media #{$nonPhone} {
+					> i {
+						display: inline-block;
+						vertical-align: middle;
+					}
+					.#{$namespace}roleSwitch__anchor {
+						display: inline-block;
+					}
+				}
+
+				line-height: 1em;
+				display: inline-block;
+
+				@media #{$phone} {
+					&.open {
+						top: calc((#{$banner-height} / 2) + #{$default-font-size} + 4px); 	// half of the height of the banner plus the height of the line plus half the height of the arrow tip border (because it is a triangle)
+						left: auto;
+						height: auto;
+						width: auto;
+						background: #FAFAFA;
+						box-shadow: 2px 2px 4px rgba(33,33,33,0.35);
+						padding: 1em;
+						z-index: 50;
+						overflow: visible;
+
+						&:after {
+							bottom: 100%;
+							right: 21px;
+							border: solid transparent;
+							content: " ";
+							height: 0;
+							width: 0;
+							position: absolute;
+							pointer-events: none;
+							border-color: rgba(255,255,255,0);
+							border-bottom-color: #FAFAFA;
+							border-width: 7px;
+							margin-left: -7px;
+							outline: 0;
+						}
+
+						a {
+							display: inline-block;
+						}
+					}
+				}
+			}
+
+			#roleSwitchAnchor {
+				text-decoration: none;
+				text-transform: capitalize; 	// standardizes the capitalization of the first letter of each word, regardless of role name (e.g. "access" becomes "Access")
+				@media #{$phone} {
+					color: $primary-color;
+				}
+
+				@media #{$nonPhone} {
+					color: $topNav-text-color;
+					display: inline-block;
+				}
+
+				&:hover, &:active {
+					span {
+						text-decoration: underline;
+					}
+				}
+
+				&.#{$namespace}roleSwitch__exit {
+					color: $topNav-text-color;
+				}
+			}
+		}
+	}
+
+	@media #{$phone}{
+		@include display-flex;
+		position: fixed;
+		width: 100%;
+		top: 0;
+		font-size: 12px;
+		min-height: $header-size;
+		box-shadow: none;
+
+		&.moving{
+			top: -4.2em;
+			#mastLogin #loginLinks ul.#{$namespace}userNav__subnav{
+				display: none;
+			}
+		}
+	}
+
+}
+
+#mastLogin{
+
+	// make it so the separator lines are a consistent height
+	> * {
+		height: 2.3em;
+		line-height: 2.3em;
+	}
+
+	@media #{$phone}{
+		width: calc(100% - #{$logo-width} - 20px);
+	}
+
+	ul{
+		display: inline-block;
+		text-align: left;
+		padding: 0 0.5em;
+		margin-bottom:0px;
+	}
+
+
+	.is-hidden{
+		display: none;
+	}
+
+
+	#loginForm{
+
+		@include display-flex;
+		@include align-items( center );
+		@include justify-content( flex-end );
+
+		label{
+			margin: 0 0.5em 0 0;
+			font-weight: normal;
+			text-transform: capitalize;
+
+			@media #{$phone}{
+				display: none;
+			}
+		}
+		input[type="text"],input[type="password"],input[type="email"]{
+			margin: 0 1em 0 0;
+			padding: 0.25em;
+			border: 0px none;
+			@media #{$phone}{
+				width: 40%;
+				margin-right: 0.6em;
+				font-size: $default-font-size - 2px;
+			}
+		}
+		#submit{
+			margin: 0;
+			padding: 0.4em 1em;
+			font-size: $default-font-size;
+			color: #333333;
+			position: relative;
+
+			@media #{$phone}
+			{
+				font-size: $default-font-size - 2px;
+				padding: 0.25em 1em;
+			}
+		}
+		.#{$namespace}loginForm__button{
+			@extend .button;
+		}
+	}
+
+	#loginUser{
+		@include display-flex;
+		@include align-items( center );
+
+		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
+			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture
+		{
+			box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+		}
+
+		&.has-avatar:hover .#{$namespace}userNav__submenuitem--username,
+			&.has-avatar:hover .has-avatar .#{$namespace}userNav__submenuitem--userid
+		&.has-avatar:active .#{$namespace}userNav__submenuitem--username,
+			&.has-avatar:active .has-avatar .#{$namespace}userNav__submenuitem--userid,
+		&.has-avatar .#{$namespace}userNav__submenuitem--username:hover,
+			&.has-avatar .#{$namespace}userNav__submenuitem--username:active
+		{
+			color: $topNav-text-color;
+			text-decoration: underline;
+		}
+	}
+
+
+	.has-avatar, .no-avatar{
+		position: relative;
+
+		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
+			text-decoration: none;
+
+			span.textlink {
+				display: inline-block;
+				max-width: 100px;
+				overflow: hidden;
+				position: relative;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+		}
+	}
+
+	.no-avatar
+	{
+		text-decoration: none;
+
+		@media #{$phone} {
+			margin-top: 7px;
+		}
+
+		&::after
+		{
+			content: "\f0d7"; /* fa-carrot-down */
+			margin-top: 2px;
+			margin-left: 0.5em;
+			font-family: FontAwesome;
+			font-size: 1em;
+			color: $topNav-text-color;
+		}
+
+		span
+		{
+			line-height: 1.2;
+		}
+
+		&:hover .#{$namespace}userNav__submenuitem--username, &:active .#{$namespace}userNav__submenuitem--username
+		{
+			text-decoration: none;
+			color: $topNav-text-color;
+		}
+
+		.#{$namespace}userNav__submenuitem--userid
+		{
+			display: none;
+		}
+	}
+
+	.has-avatar{
+		.#{$namespace}userNav__submenuitem--profilelink{
+			padding: 0 !important;
+		}
+		.#{$namespace}userNav__submenuitem--profilepicture{
+			width: 2.3em;
+			height: 2.3em;
+			display:inline-block;
+			background-size: auto 100%;
+			background-position: 50%;
+			border-radius:50%;
+			margin: 0 4px 0 0;
+			position: relative;
+
+			&:hover, &:active
+			{
+				box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+			}
+			@media #{$phone}
+			{
+				margin-right: 0;
+			}
+		}
+		.#{$namespace}userNav__pic-changer{
+			overflow: hidden;
+			&:hover, &:active
+			{
+				&:after {
+					content: 'Change';
+					background: #888;
+					color: #FFFFFF;
+					position: absolute;
+					bottom: 0px;
+					font-size: 10px;
+					width: 100%;
+					text-align: center;
+					padding: 0 0 4px;
+					box-shadow: -1px 0 3px #666;
+				}
+			}
+		}
+		.#{$namespace}userNav__submenuitem--username span.textlink, .#{$namespace}userNav__submenuitem--userid span.textlink {
+			@media #{$phone}{
+				display: none;
+			}
+		}
+	}
+
+	.#{$namespace}loginUser{
+		padding: 0.9em 0.5em;
+		@media #{$phone}{
+			padding: 0em;
+		}
+	}
+
+	.#{$namespace}userNav__dropdown, .#{$namespace}userNav__drop{
+		float: right;
+		position: relative;
+		margin-top: -2.5em;
+		padding: 18px 22px 27px 14px;
+		display: block;
+		outline: 0;
+		left: 12px;
+		&.is-clicked{
+			@include transform( rotate(180deg) );
+			position: relative;
+			top: -0.2em;
+			left: 1.3em;
+			outline: 0;
+		}
+		@media #{$phone}{
+			padding: 18px 22px 3px 14px;
+		}
+	}
+
+	#loginLinks{
+		font-family: $header-font-family;
+		margin: 0;
+		list-style: none;
+		padding: 0 0 0 $standard-spacing;
+
+		@media #{$phone}
+		{
+			margin: 0;
+			border: 0 none;
+		}
+
+		.no-avatar ~ ul:after
+		{
+			left: 91.5%;
+
+			@media #{$phone}
+			{
+				margin-top: 3.3em;
+				left: auto;
+				right: 1.65em;
+			}
+		}
+
+		ul{
+			background-color: $tool-tab-background-color;
+			text-align: left;
+			padding: 0 0 0 0;
+			margin: 0.48em 1em 0 0.9em;
+			@extend .userNav__subnav;
+			&:after {
+				bottom: 100%;
+				left: 85%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: transparent;
+				border-bottom-color: $tool-menu-background-color;
+				border-width: 7px;
+				outline: 0;
+				@media #{$phone}{
+					left: auto;
+					right: 2.65em;
+				}
+			}
+			li:last-of-type
+			{
+				margin-bottom: 0.5em; /* to match the top of the dropdown */
+			}
+			.#{$namespace}userNav__submenuitem-indented{
+				padding-left: 1.5em;
+
+				@media #{$phone}
+				{
+					padding-left: 2em;
+				}
+			}
+			@media #{$phone}{
+				margin: 3.9em 0 0 -9.8em;
+				position: fixed;
+				top: 0.3em;
+				z-index: 61;
+			}
+			.#{$namespace}loginUser{
+				padding: 0 0 0 0;
+				width: 100%;
+				p{
+					width: 100%;
+				}
+			}
+			.#{$namespace}userData{
+				@media #{$phone}{
+					color: $text-color;
+					display: block;
+					font-weight: 400;
+					padding: 0.7em 0.65em;
+				}
+			}
+			a{
+				color: $primary-color;
+				padding: 0.25em 0.25em;
+				&:hover, &:active
+				{
+					color: lighten( $primary-color, 10% );
+				}
+			}
+		}
+		.#{$namespace}userNav__drop-btn{
+			i {
+				position: relative;
+				top: -0.6em;
+				left: 0.4em;
+			}
+		}
+	}
+
+	.#{$namespace}userNav__submenuitem--userid{
+		font-style: italic;
+	}
+}
+
+/* because #loginLinks appears on the Gateway page when two log-in links are available (e.g. for CAS), the following applies only when you are logged in: */
+.is-maximized #loginLinks
+{
+	border-left: 1px solid $topNav-alt-color;
+}
+
+.#{$namespace}sitesNav__menu{
+	list-style: none;
+	padding: 0 0 0 0;
+	margin-bottom:0px;
+}
+
+.portal-bullhorns-buttons{
+	position: relative;
+	display: inline-block;
+	padding-right: $standard-spacing;
+	border-right: 1px solid $topNav-alt-color;
+    white-space: nowrap;
+}
+
+##{$namespace}academic-bullhorn,
+##{$namespace}social-bullhorn {
+	display: inline-block; /* Sakai 11.1 makes it flex, which is wrong */
+
+	&:hover {
+		text-decoration: none;
+		color: $topNav-text-color;
+		text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+	}
+}
+
+
+.view-all-sites-btn{
+	position: relative;
+	display: inline-block;
+	padding: 0 $standard-spacing;
+
+	@media #{$phone}{
+		display: none;
+	}
+}
+
+.view-all-sites-btn a{
+	text-decoration: none;
+	&:hover, &:active
+	{
+		text-decoration: none;
+		color: $topNav-text-color;
+
+		i
+		{
+			text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+		}
+
+		span.all-sites-label
+		{
+			text-decoration: underline; /* just underline the text */
+		}
+	}
+}
+
+.all-sites-icon, .all-sites-label{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.all-sites-icon
+{
+	/* Using !important here because CKEditor pulls in its own
+		fontawesome.css which adjusts the size of our icon unless
+		we override it. */
+	font-size: 16pt !important;
+	padding-right: $standard-space;
+}
+#topnav_container
+{
+	@include display-flex;
+	@include align-items(center);
+	background-color: $sites-nav-background;
+	min-height: $banner-height;
+	padding: 0 $standard-spacing;		// space on the sides; top and bottom spacing will be determined by children
+}
+
+#linkNav{
+	ul{
+		@include display-flex;
+		@include flex-wrap( wrap );
+		font-family: $header-font-family;
+		margin: $standard-spacing 0 0 0;
+		padding: 0;
+		
+		li.#{$namespace}sitesNav__menuitem{
+			@include display-flex;
+			@include align-items(center);
+			margin: 0 $standard-spacing $standard-spacing 0;	// space the items apart, and space vertically if wrapped
+			padding: 0;
+			position: relative;
+
+			> a.link-container{
+				@include display-flex;
+				@include align-items( center );
+
+				border-top: $sites-nav-menu-item-border-top;
+				border-right: $sites-nav-menu-item-border-right;
+				border-bottom: $sites-nav-menu-item-border-bottom;
+				border-left: $sites-nav-menu-item-border-left;
+				background: $sites-nav-menu-item-background;
+				padding: ($standard-space * 2);
+				color: $sites-nav-menu-item-color;
+				text-decoration: none;
+
+				i.fa {
+					color: $sites-nav-menu-item-icon-color;
+				}
+				
+				&:hover {
+					border-top: $sites-nav-menu-item-hover-border-top;
+					border-right: $sites-nav-menu-item-hover-border-right;
+					border-bottom: $sites-nav-menu-item-hover-border-bottom;
+					border-left: $sites-nav-menu-item-hover-border-left;
+					background: $sites-nav-menu-item-hover-background;
+					
+					~ .#{$namespace}sitesNav__drop, ~ .#{$namespace}sitesNav__dropdown {
+						border-left: $sites-nav-menu-item-hover-border-left; 		// so the right border of the .link-container will show through the overlapping box
+					}
+				}
+				
+				&:active {
+					outline: 0 none;	// hiding on click
+				}
+			}
+
+			/* hover for sites when tool quick-menu isn't open */
+			&:not(.dropdown-is-visible){
+				> .link-container:hover,
+				> .link-container:active {
+					color: $sites-nav-menu-item-hover-color;
+
+					i.fa {
+						color: $sites-nav-menu-item-hover-icon-color;
+					}
+				}
+			}
+
+			&.dropdown-is-visible {
+				&:after {
+					content: "";
+					border-bottom: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-topleft-border-color;
+					width: 100%; // fallback for browsers who don't calculate nested equations
+					width: calc(100% - (2 * #{$sites-nav-menu-item-border-thickness}));	// width minus the left and right border widths
+					position: absolute;
+					bottom: 0;
+					left: $sites-nav-menu-item-border-thickness;					// left border width
+					z-index: 100;
+				}
+				
+				.link-container{
+					border-top: $sites-nav-menu-item-hover-border-top;
+					border-right: $sites-nav-menu-item-hover-border-right;
+					border-bottom: $sites-nav-menu-item-hover-border-bottom;
+					border-left: $sites-nav-menu-item-hover-border-left;
+					background: $sites-nav-menu-item-hover-background;
+				}
+			}
+
+			span
+			{
+				line-height: 1;
+			}
+			.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+				text-align: center;
+				text-decoration: none;
+				color: $sites-nav-menu-item-icon-color;
+				margin-left: -#{$sites-nav-menu-item-border-thickness}; 					// to overlap the left border with the site title's border, so border thickness will remain 1px and hover will still work
+				padding: ($standard-space * 2);
+				width: $default-font-size; 			// to match the height
+				height: $default-font-size;			// to match the link text size
+				box-sizing: content-box;			// to allow width and height control the size to match the site title link text
+				border-top: $sites-nav-menu-item-border-top;
+				border-right: $sites-nav-menu-item-border-right;
+				border-bottom: $sites-nav-menu-item-border-bottom;
+				border-left: $sites-nav-menu-item-border-left;
+				background: $sites-nav-menu-item-background;
+
+				@extend .fa-angle-down;
+				@extend .fa;
+				@extend .fa-lg;
+				@extend .sitesNav__drop;
+
+				&.is-clicked{
+					@include transform( rotate(180deg) );
+					top: 40%;
+					border-right: $sites-nav-menu-item-hover-border-left;	// using the left variable because of the item rotation (right is left)
+					border-bottom: $sites-nav-menu-item-hover-border-top;	// using top variable because of the item rotation (bottom is top)
+					border-left: $sites-nav-menu-item-hover-border-right;	// using the right variable because of the item rotation (left is right)
+					background: $sites-nav-menu-item-hover-background;
+				}
+
+				&:hover {
+					border-top: $sites-nav-menu-item-hover-border-top;
+					border-right: $sites-nav-menu-item-hover-border-right;
+					border-bottom: $sites-nav-menu-item-hover-border-bottom;
+					border-left: $sites-nav-menu-item-hover-border-left;
+					background: $sites-nav-menu-item-hover-background;
+					color: $sites-nav-menu-item-hover-icon-color;
+				}
+				
+				&:active {
+					outline: 0 none;	// hiding on click
+				}
+			}
+			ul{
+				background: $sites-nav-menu-item-background;
+				display: none;
+				font-family: $header-font-family;
+				position: absolute;
+				border: $sites-nav-menu-item-border-thickness solid $sites-nav-submenu-border-color;
+				top: calc( #{$default-font-size} + ( #{$standard-space} * 2) - #{$sites-nav-menu-item-border-thickness});	// 1px for item border
+				left: 0;
+				width: 17em;
+				z-index: 99;
+				box-shadow: 0 3px 2px rgba( $text-color, 0.35);
+				li{
+					display: block;
+					border: 0px none;
+					@include border-radius( 0 );
+					margin: 0 0 0 0;
+					padding: 0 0 0 0;
+					min-height: 15px;
+
+					a{
+						@include display-flex;
+						@include align-items(center);
+						padding: $standard-spacing;
+						text-decoration: none;
+						color: $sites-nav-submenu-item-color;
+						font-size: $sites-nav-submenu-item-text-size;
+						line-height: 1em;
+						&:hover, &:active
+						{
+							color: $sites-nav-submenu-item-color; /* to override default link hover color */
+						}
+						.toolMenuIcon{
+							@extend .fa-fw;
+							vertical-align: sub;
+							margin: 0;
+						}
+					}
+					.#{$namespace}sitesNav__submenuitem-icon {
+						display: inline-block;
+						vertical-align: middle;
+						padding: 0 $standard-spacing 0 0;
+					}
+					.#{$namespace}sitesNav__submenuitem-title {
+						display: inline-block;
+					}
+				}
+				&.is-visible{
+					display: block;
+				}
+				&.is-hidden{
+					display: none;
+				}
+
+			}
+			&.is-selected{
+				
+				a.link-container{
+					background: $sites-nav-menu-item-selected-background;
+					border-top: $sites-nav-menu-item-selected-border-top;
+					border-right: $sites-nav-menu-item-selected-border-right;
+					border-bottom: $sites-nav-menu-item-selected-border-bottom;
+					border-left: $sites-nav-menu-item-selected-border-left;
+					color: $sites-nav-menu-item-selected-color;
+					
+					i.fa {
+						color: $sites-nav-menu-item-selected-icon-color;
+					}
+					
+					&:hover {
+						border-top: $sites-nav-menu-item-selected-hover-border-top;
+						border-right: $sites-nav-menu-item-selected-hover-border-right;
+						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
+						border-left: $sites-nav-menu-item-selected-hover-border-left;
+						background: $sites-nav-menu-item-selected-hover-background;
+						
+						~ .#{$namespace}sitesNav__drop, ~ .#{$namespace}sitesNav__dropdown {
+							border-left: $sites-nav-menu-item-selected-hover-border-left; 		// so the right border of the .link-container will show through the overlapping box
+						}
+					}
+				}
+				/* hover for sites when tool quick-menu isn't open */
+				&:not(.dropdown-is-visible) {
+					> .link-container:hover,
+					> .link-container:active {
+						color: $sites-nav-menu-item-selected-hover-color;
+
+						i.fa {
+							color: $sites-nav-menu-item-selected-hover-icon-color;
+						}
+					}
+				}
+
+				&.dropdown-is-visible {
+					&:after {	// the rest of the properties will inherit from the default case above
+						content: "";
+						border-bottom: $sites-nav-menu-item-border-thickness solid $sites-nav-selected-submenu-topleft-border-color;
+					}
+					
+					.link-container, .#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+						border-top: $sites-nav-menu-item-selected-hover-border-top;
+						border-right: $sites-nav-menu-item-selected-hover-border-right;
+						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
+						border-left: $sites-nav-menu-item-selected-hover-border-left;
+						background: $sites-nav-menu-item-selected-hover-background;
+					}
+				}
+
+				.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+					background: $sites-nav-menu-item-selected-background;
+					border-top: $sites-nav-menu-item-selected-border-top;
+					border-right: $sites-nav-menu-item-selected-border-right;
+					border-bottom: $sites-nav-menu-item-selected-border-bottom;
+					border-left: $sites-nav-menu-item-selected-border-left;
+					color: $sites-nav-menu-item-selected-icon-color;
+					
+					&:hover {
+						border-top: $sites-nav-menu-item-selected-hover-border-top;
+						border-right: $sites-nav-menu-item-selected-hover-border-right;
+						border-bottom: $sites-nav-menu-item-selected-hover-border-bottom;
+						border-left: $sites-nav-menu-item-selected-hover-border-left;
+						background: $sites-nav-menu-item-selected-hover-background;
+						color: $sites-nav-menu-item-selected-hover-icon-color;
+					}
+				}
+
+				ul{
+					border-color: $sites-nav-selected-submenu-border-color;
+				}
+			}
+
+			&.#{$namespace}sitesNav__menuitem--myworkspace .fa-home{
+				margin-top: -1px; // to compensate for an issue with the icon
+				margin-bottom: 1px; // to compensate for an issue with the icon
+				margin-right: $standard-space;
+			}
+
+			ul.#{$namespace}sitesNav__submenu{
+				background: $sites-nav-submenu-background;
+				li.#{$namespace}sitesNav__submenuitem{
+					a {
+						position: relative;
+						background: $sites-nav-submenu-item-background;
+						color: $sites-nav-submenu-item-color;
+						
+						.toolMenuIcon {
+							color: $sites-nav-submenu-item-icon-color;
+						}
+
+						&:before{
+							border-left: 4px solid $sites-nav-submenu-item-left-border-color;
+							content: '';
+							height: 100%;
+							display: inline-block;
+							position: absolute;
+							top: 0;
+							left: 0;
+						}
+
+						&:hover, &:active, &:focus {
+							background: $sites-nav-submenu-item-hover-background;
+							color: $sites-nav-submenu-item-hover-color;
+							
+							.toolMenuIcon {
+								color: $sites-nav-submenu-item-hover-icon-color;
+							}
+							&:before{
+								border-left-color: $sites-nav-submenu-item-hover-left-border-color;
+							}
+						}
+					}
+					&.#{$namespace}sitesNav__submenuitem__gotosite {
+						border-top: 1px solid $sites-nav-submenu-item-divider-color;
+
+						> a:after {
+							font-family: FontAwesome;
+							content: '\f178';
+							margin-left: 10px;
+							color: $sites-nav-submenu-item-icon-color;
+						}
+
+						&:hover {
+							border-top: 1px solid $sites-nav-submenu-item-divider-color;
+
+							> a:after {
+								color: $sites-nav-submenu-item-hover-icon-color;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	&.opened{
+		@media #{$desktop}{
+			max-height: 100%;
+			overflow: visible;
+			#how-many-hidden{
+				display: none;
+			}
+		}
+	}
+	@media #{$phone}{
+		display: none;
+	}
+}
+
+.sitenav-dropdown-overlay{
+	height: 100%;
+	position: fixed;
+	width: 100%;
+	z-index: 20;
+}
+
+body.is-logged-out{
+	#linkNav{
+		ul{
+			li.#{$namespace}sitesNav__menuitem{
+				.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
+					display: none;
+				}
+			}
+		}
+	}
+}
+
+#show-all-sites{
+	display: none;
+}
+
+#show-all-sites-mobile{
+	color: $background-color-secondary;
+	background: lighten( $background-color, 5% );
+	display: none;
+	cursor: pointer;
+	position: absolute;
+	text-align: center;
+	font-size: 1.5em;
+	top: 0em;
+	right: 0em;
+	width:2.5em;
+	border-left: 1px solid darken( $background-color-secondary, 10% );
+	padding: 0 9px;
+	outline: 0;
+	> div{
+		display: inline-block;
+	}
+	#how-many-hidden-mobile{
+		font-size: 0.8em;
+		vertical-align: middle;
+		margin: 0 4px 2px 2px;
+		display: inline-block;
+	}
+	&.opened{
+		right: 10px;
+		border-left: 0px none;
+		> div {
+			color: $secondary-color;
+			@include transform( rotateZ(45deg) );
+		}
+	}
+}
+.#{$namespace}sitesNav__doubledrop{
+	@extend .fa-angle-double-down;
+	@extend .fa;
+	@extend .fa-lg;
+	padding-left:5px;
+}
+
+.#{$namespace}siteStatus{
+	@include display-flex;
+	@include align-items(center);
+	@include justify-content(center);
+	margin: $standard-spacing $standard-spacing 0 $standard-spacing;
+	padding: $standard-spacing;
+	
+	&.is-softly-deleted{
+		color: $siteDelete-color;
+		background-color: $siteDelete-background;
+		border: $siteDelete-border;
+		
+		p {
+			margin: 0;
+			padding: 0;
+		}
+	}
+	
+	&.is-unpublished{
+		color: $siteUnpublish-color;
+		background-color: $siteUnpublish-background;
+		border: $siteUnpublish-border;
+		
+		h4{
+			display: inline-block;
+			margin: 0;
+			padding: 0;
+		}
+		button{
+			@extend .button;
+			margin: 0 0 0 $standard-spacing;
+		}
+	}
+}
+
+.user-dropdown-overlay{
+	height: 100%;
+	position: fixed;
+	width: 100%;
+	z-index: 20;
+}
+
+#profileImageUpload {
+    .modal-dialog {
+        width: 332px !important;
+    }
+
+    #upload {
+        position: relative;
+
+        input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+    }
+    #cropme {
+        height: 300px;
+        width: 300px;
+        margin-bottom: 20px;
+
+       .cropper-view-box {
+            border-radius: 50% !important;
+        }
+    }
+
+    #cropToolbar {
+        margin-top: 10px;
+        .profile-image-zoom-in {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f00e';
+            }
+        }
+        .profile-image-zoom-out {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f010';
+            }
+        }
+        .profile-image-pan-left {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f060';
+            }
+        }
+        .profile-image-pan-right {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f061';
+            }
+        }
+        .profile-image-pan-up {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f062';
+            }
+        }
+        .profile-image-pan-down {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f063';
+            }
+        }
+        .profile-image-rotate {
+            &:before {
+                font-family: 'FontAwesome';
+                content: '\f01e';
+            }
+        }
+    }
+}
+
+@media only screen and (min-width: 801px) {
+	.manage-overview-link {
+		border: 1px solid #ccc;
+		color: #333 !important;
+		cursor: pointer;
+		display: inline-block;
+		font-family: "Open Sans", sans-serif;
+		font-size: 12px;
+		text-decoration: none !important;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+		border-radius: 3px;
+		padding: 5px !important; /* important needed for these two--otherwise gets overridden by hierarchy.*/
+		margin: 5px 30px !important;
+		position: absolute;
+		right: 0px;
+
+		span {
+			padding-right: 5px;
+		}
+	}
+}
+
+@media only screen and (max-width: 800px){
+	.manage-overview-link {
+		visibility: hidden;
+	}
+}

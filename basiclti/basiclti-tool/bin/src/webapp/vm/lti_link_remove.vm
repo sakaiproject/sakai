@@ -1,0 +1,30 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("link.remove")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	$tlang.getString("link.remove.detail")
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                <input type="hidden" name="id" value="$content.get("id")" />
+		<p class="act">
+ 			<input type="submit" accesskey ="d" class="active" name="$doAction" 
+				value="$tlang.getString('gen.remove')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+		</p>
+	</form>
+#if ( ! $isAdmin )
+<script>
+<script>includeLatestJQuery('lti_link_remove.vm');</script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+</div>

@@ -1,0 +1,193 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 TOOL</name>
+	<groupId>org.sakaiproject.profile2</groupId>
+	<artifactId>profile2-tool</artifactId>
+	
+	<packaging>war</packaging>
+	
+	<parent>
+		<groupId>org.sakaiproject.profile2</groupId>
+		<artifactId>profile2</artifactId>
+	    <version>19-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket</artifactId>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-extensions</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+    	</dependency>
+  		<dependency>
+	    	<groupId>org.wicketstuff</groupId>
+  			<artifactId>wicketstuff-objectautocomplete</artifactId>
+  		</dependency>
+		<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+   		<dependency>
+			<groupId>org.twitter4j</groupId>
+			<artifactId>twitter4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+		<dependency>
+      		<groupId>commons-io</groupId>
+      		<artifactId>commons-io</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+		<dependency>
+      		<groupId>org.sakaiproject.profile2</groupId>
+      		<artifactId>profile2-api</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject.profile2</groupId>
+      		<artifactId>profile2-util</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject.profile2</groupId>
+      		<artifactId>profile2-bundle</artifactId>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>sakai-common-api</artifactId>
+			<scope>provided</scope>
+    	</dependency>
+	    <dependency>
+      		<groupId>org.sakaiproject.entitybroker</groupId>
+      		<artifactId>entitybroker-api</artifactId>
+    	</dependency>
+	    <dependency>
+      		<groupId>org.sakaiproject.entitybroker</groupId>
+      		<artifactId>entitybroker-utils</artifactId>
+    	</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
+       	<dependency>
+           	<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<resources>
+			<!-- include our HTML but not the Java source -->
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+				<filtering>false</filtering>
+			</resource>
+			<!-- include our log4j.properties -->
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+		</resources>
+		
+		<plugins>
+			<!-- Unpack resource bundles JAR into webapp/bundle -->
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-dependency-plugin</artifactId>
+                 <executions>
+					<execution>
+						<id>unpack</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.sakaiproject.profile2</groupId>
+									<artifactId>profile2-bundle</artifactId>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/${project.build.finalName}/bundle</outputDirectory>
+									<includes>**/*.properties</includes>
+									<excludes />
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!-- compress CSS and JS -->
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>yuicompressor-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<id>compress</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>compress</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<sourceDirectory>${basedir}/src/webapp</sourceDirectory>
+					<outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+					<nosuffix>true</nosuffix>
+					<jswarn>false</jswarn>
+					<excludes>
+						<exclude>**/*.java</exclude>
+						<exclude>**/*.html</exclude>
+						<exclude>**/*.xml</exclude>
+						<exclude>**/*.gif</exclude>
+						<exclude>**/*.png</exclude>
+						<exclude>**/*.properties</exclude>
+						<exclude>**/*.min.js</exclude>
+						<exclude>**/*-min.js</exclude>
+					</excludes>
+				</configuration> 
+			</plugin>
+		</plugins>
+		
+	</build>
+
+	
+</project>

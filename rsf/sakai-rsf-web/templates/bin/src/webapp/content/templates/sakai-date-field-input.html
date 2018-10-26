@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf"
+	xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- These need to be pulled in all the time and the rsf:id does this. -->
+<script type="text/javascript"
+	src="/library/webjars/jquery/1.12.4/jquery.min.js"
+	rsf:id="scr=contribute-script"></script>
+<script type="text/javascript"
+	src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"
+	rsf:id="scr=contribute-script"></script>
+<link
+	href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css"
+	rel="stylesheet" type="text/css" rsf:id="scr=contribute-style" />
+<script type="text/javascript"
+	src="/library/webjars/jquery-migrate/1.4.1/jquery-migrate.min.js"
+	rsf:id="scr=contribute-script"></script>
+<script type="text/javascript"
+	src="/library/js/lang-datepicker/lang-datepicker.js"
+	rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" rsf:id="scr=contribute-script">
+	// Simple wrapper to make it easy to call from RSF.
+	var rsfDatePicker = function(id, hidden, time) {
+		// jQuery selectors need colons escaped.
+		id = "#" + id.replace(/:/g, "\\:");
+		hidden = hidden.replace(/:/g, "\\:");
+		// Load plugin on DOM ready.
+		$(function() {
+			$(id).sakaiDateTimePicker({
+				input : id,
+				useTime : time,
+				parseFormat : 'YYYY-MM-DD HH:mm:ss',
+				getval : "#" + hidden,
+				ashidden : {
+					iso8601 : hidden
+				}
+			});
+		});
+	};
+</script>
+</head>
+
+<body>
+
+	<!-- We have 2 HTML tags, one that is displayed to the user and one that stores our ISO8601 formatted date.
+     JavaScript is used to copy that updates between the two. This means if JS isn't enabled this won't work.
+  -->
+	<!-- The root of the component -->
+	<div rsf:id="sakai-date-field-input:">
+		<input rsf:id="iso8601" type="hidden" id="dateStart" name="dateStart"
+			value="MM/DD/YYYY" size="15" maxlength="15" /> <input
+			rsf:id="display" type="text" id="startDate" name="startDate" />
+		<script rsf:id="init-date">
+			rsfDatePicker(id, hidden, time);
+		</script>
+	</div>
+
+</body>
+</html>

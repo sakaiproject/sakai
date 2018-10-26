@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>${templateSiteId}: copied by ${currentUserDisplayName}</subject>
+<message>Dear Template Maintainer:
+ 
+Congratulations!
+ 
+The following user just created a new site based on your template.
+ 
+Template Name: ${templateSiteTitle}
+User:          ${currentUserDisplayName} (${currentUserDisplayId})
+Date:          ${currentDate}
+New Site Id:   ${newSiteId}
+New Site Title: ${newSiteTitle}
+ 
+Cheers,
+ 
+Alliance Team
+
+</message>
+<locale></locale>
+</emailTemplate>
+</emailTemplates>

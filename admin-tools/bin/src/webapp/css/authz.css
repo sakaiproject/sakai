@@ -1,0 +1,19 @@
+.checkGrid th:hover,.checkGrid td h4:hover{color:#369 !important}
+.checkGrid a{text-decoration:none !important}
+.checkGrid{border-top:1px solid #e5eff8;border-right:1px solid #e5eff8;border-collapse:collapse}
+.checkGrid th{background:#f4f9fe;text-align:center !important;color:#5896C7}
+.checkGrid th#permission{text-align:left !important}
+.checkGrid label{display:block;width:100%;height:100%;margin:0;text-align:center;padding:.3em 0}
+.checkGrid td{border:1px solid #eee;cursor:pointer;padding:0 !important;text-align:center;vertical-align:middle;width:10em}
+.checkGrid td label:hover{background:#C4DFFB;cursor:pointer}
+.checkGrid td.permissionDescription{width:auto;background:#F9FCFE;text-align:left;white-space:nowrap}
+.checkGrid td.permissionDescription a{padding:.3em;display:block}
+.checkGrid tr.evenrow .permissionDescription{background:#f4f9fe}
+.checkGrid tr.evenrow td{background:#f7fbff}
+.checkGrid .rowHover{background:#c4dffb !important}
+.checkGrid td.active{background:#DDECFC  !important}
+.checkGrid td.active:hover{background:#cde !important}
+
+div#groupSelector {
+    margin-top: 0.5em;
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+   <meta http-equiv="Pragma" content="no-cache" />
+   <meta http-equiv="Cache-Control" content="no-cache" />
+   <meta http-equiv="Expires" content="Sat, 01 Dec 2001 00:00:00 GMT" />
+
+   <title rsf:id="msg=gradebook.grade-gradebook-item.title">Gradebook</title>
+
+	<!-- vm/editor/FCKeditor/sakai_header.vm -->
+	<script type="text/javascript" src="/library/editor/FCKeditor/fckeditor.js"></script> 
+
+    <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+    <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+    <script type="text/javascript" src="/library/js/headscripts.js"></script>
+    <script type="text/javascript">includeLatestJQuery('gradebook');</script>
+    <script type="text/javascript" src="/sakai-gradebook-tool/content/js/grade-gradebook-item.js"></script>
+	<link href="/sakai-gradebook-tool/content/css/gradebook.css" type="text/css" rel="stylesheet" media="all" />
+</head>
+<body>
+<div class="portletBody">
+
+	<div rsf:id="message-for:*" class="error">
+		<ul style="margin:0px;">
+			<li>Message for user here</li>
+		</ul>
+	</div>
+
+	<h3 rsf:id="heading">Grade Gradebook Item</h3>
+
+	<form rsf:id="form">
+	<fieldset>
+		<legend rsf:id="msg=gradebook.grade-gradebook-item.gradebook_item_legend">Grading Details</legend>
+		<ol>
+			<li>
+				<label rsf:id="points_label"><span class="reqStar">*</span> Points</label>
+					<input rsf:id="score" type="text" size="10" maxlength="100"/> 
+					<span rsf:id="percent_sign">%</span>
+					<span rsf:id="points_out_of"></span>
+			</li>
+			<li>
+				<label rsf:id="msg=gradebook.grade-gradebook-item.instructor_comments">Instructor Comments</label>
+				<textarea rsf:id="commentText" cols="80" rows="5" wrap="virtual"></textarea>
+			</li>
+		</ol>
+	</fieldset>
+	<fieldset class="submit">
+		<input rsf:id="submit" accesskey="s" type="submit" class="active" value="Submit"/>
+		<input rsf:id="cancel" accesskey="x" type="submit" name="cancel" value="Cancel"/>
+	</fieldset>													
+	</form>
+</div>
+</body>
+</html>

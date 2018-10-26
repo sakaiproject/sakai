@@ -1,0 +1,69 @@
+/**
+ * Two main parts to Pager: Data, and UI
+ * Data and UI separated into 2 parts: Layout and Color Themes
+ */
+
+/***********************************************************/
+/** LAYOUT **/
+/* Pager data */
+.fl-pager .fl-pager-data {
+}
+.fl-pager .fl-pager-data .fl-pager-desc {
+  background: url(../images/arrow-up.png) no-repeat right;
+}
+.fl-pager .fl-pager-data .fl-pager-asc {
+  background: url(../images/arrow-dn.png) no-repeat right;
+}
+
+/* Pager UI */
+/* Class name for the list container */
+.fl-pager .fl-pager-ui {
+    margin:0; padding:0;
+}
+.fl-pager .fl-pager-ui li {
+    list-style-type:none;
+    display:inline;
+}
+.fl-pager .fl-pager-ui a {
+    padding:0 3px;
+    margin:0 2px;
+}
+.fl-pager .fl-pager-ui .fl-pager-links a {    
+    border:1px solid #ccc;
+    background-color:#fff;
+    zoom:1;
+}
+.fl-pager .fl-pager-ui .fl-pager-disabled,
+.fl-pager .fl-pager-ui .fl-pager-links .fl-pager-currentPage {
+    color:#000;
+    border:none;
+    background-color:transparent;
+    text-decoration:none;
+}
+.fl-pager .fl-pager-ui .fl-pager-links a:hover {
+    background-color:#0287C5;
+    color:#fff;
+    text-decoration:none;
+}
+.fl-pager .fl-pager-ui .fl-pager-disabled:hover,
+.fl-pager .fl-pager-ui .fl-pager-links .fl-pager-currentPage:hover {
+    background-color:transparent;
+    color:#000;
+    text-decoration:none;
+    cursor:default;
+}
+
+
+/***********************************************************/
+/** THEMES - High Contrast **/
+/* Pager data */
+.fl-theme-bw .fl-pager .fl-pager-data {
+}
+.fl-theme-bw .fl-pager .fl-pager-data .fl-pager-desc {
+  background: url(../images/arrow-up.png) no-repeat right;
+}
+.fl-theme-bw .fl-pager .fl-pager-data .fl-pager-asc {
+  background: url(../images/arrow-dn.png) no-repeat right;
+}
+
+/* Pager UI */

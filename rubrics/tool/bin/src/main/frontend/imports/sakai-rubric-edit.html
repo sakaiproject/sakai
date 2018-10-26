@@ -1,0 +1,111 @@
+<dom-module id="sakai-rubric-edit">
+  <template>
+    <!-- Styling -->
+    <style include="polymer-bootstrap"></style>
+    <style include="sakai-rubrics-styles"></style>
+  
+    <iron-icon class="edit" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls="edit_rubric_[[rubric.id]]" tabindex="0" icon="rubrics-icons:edit" on-tap="editRubric" title="[[lang('edit', 'Edit')]] {{rubric.title}}" ></iron-icon>
+
+    <div id="edit_rubric_[[rubric.id]]" class="popover rubric-edit-popover bottom">
+      <div class="arrow"></div>
+      <div class="popover-title">
+        <div class="buttons">
+          <button class="btn btn-primary btn-xs save" on-tap="saveEdit">
+            <sr-lang key="save">Save</sr-lang>
+          </button>
+          <button class="btn btn-link btn-xs cancel" on-tap="cancelEdit">
+            <sr-lang key="cancel">Cancel</sr-lang>
+          </button>
+        </div>
+      </div>
+      <div class="popover-content form">
+        <div class="form-group">
+          <label for="rubric_title_edit">
+            <sr-lang key="rubric_title">Rubric Title</sr-lang>
+          </label>
+          <input title="[[lang('rubric_title','Rubric Title')]]" name="rubric_title_edit" type="text" class="form-control" on-keypress="checkForEnter" value="{{rubricDataClone.title::input}}">
+        </div>
+      </div>
+    </div>
+
+    <iron-a11y-keys id="a11y" target="[[getNode('.popover')]]" keys="enter" on-keys-pressed="saveEdit"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[getNode('.popover')]]" keys="esc" on-keys-pressed="cancelEdit"></iron-a11y-keys>
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubric-edit",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        rubric: {
+          type: Object,
+          notify: true
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        'tap': 'hostEventCatch',
+      },
+      hostEventCatch: function(e) {
+        e.stopPropagation();
+        console.log('event stopped at host');
+      },
+      editRubric: function(e) {
+        e.stopPropagation();
+        var titleinput = this.tt.querySelector('[type="text"]');
+        this.fire('show-tooltip', this.rubric);
+
+        if (!hasClass(this.tt, 'show-tooltip')) {
+          this.popoverOpen = "true";
+          var triggerPosition = altOffset(e.target);
+
+          addClass(this.tt, 'show-tooltip');
+
+          css(this.tt, {
+            'top': e.target.offsetTop + 20 + "px",
+            'left': (e.target.offsetLeft + e.target.offsetWidth/2 - this.tt.offsetWidth/2) + "px",
+          });
+
+          // if (this.rubric.new) {
+            titleinput.focus();
+            titleinput.setSelectionRange(0, titleinput.value.length);
+          // }
+
+        } else {
+          this.popoverOpen = "false";
+          this.hideToolTip();
+        }
+
+
+      },
+      hideToolTip: function(){
+        removeClass(this.tt, 'show-tooltip');
+        this.fire('hide-tooltip', this.rubric);
+      },
+      cancelEdit: function(e){
+        e.stopPropagation();
+        this.set('rubricDataClone.title', this.rubric.title);
+        this.hideToolTip();
+      },
+      saveEdit: function(e){
+        e.stopPropagation();
+        this.fire('update-rubric-title', this.rubricDataClone.title);
+        this.hideToolTip();
+      },
+      ready: function(e) {
+        this.tt = this.$$('#edit_rubric_' + this.rubric.id);
+        this.popoverOpen = "false";
+        this.rubricDataClone = cloneObject(this.rubric);
+        if (this.rubric.new) {
+          setTimeout(function() {
+            this.$$('.edit').click();
+          }.bind(this),99);
+        }
+      }
+    });
+  </script>
+</dom-module>

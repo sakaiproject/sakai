@@ -1,0 +1,325 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-type.vm,v 1.3 2005/06/04 02:41:16 ggolden.umich.edu Exp $ -->
+
+#*
+    routing logic
+    
+    1 - if user selects a template with site type not course --> go to site after title is entered
+    2 - if user selects a template with site type course --> force term selection, go to roster selection, offer the choice there 
+        of going to site when done
+    3 - if build own selected --> as usual
+
+    in cases 1 and 2 site should be unpublished so that user can adjust before others have access
+
+*#
+
+#set($multipleTypes = ($templateSites.size() > 0) || ($canImportArchive))
+
+<script type="text/javascript" language="JavaScript">
+    $(document).ready(function(){
+        sakai.siteTypeSetup()
+    });
+</script>
+<div class ="portletBody">
+
+    <h3>
+        $tlang.getString("sitetype.crenewsit")
+    </h3>
+    <textarea id="templateControls" style="display:none">$templateControls</textarea>
+    
+        <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
+        
+    #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
+    #if ($multipleTypes)
+        <p class="instruction">
+            $tlang.getString("sitetype.chothetyp.different.ways")
+        </p>
+    #end
+    <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
+        #if ($multipleTypes)
+            <p class="checkbox indnt1">
+                ## only show the radio button when there is any template site defined
+                <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>
+                <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+            </p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
+        #else
+            ## otherwise, default to the choice
+            <input type="hidden" name="createMode" id="buildOwn" value="buildOwn" />
+            <p>$tlang.getString("sitetype.chothetyp.withouttemplate")</p>
+        #end
+
+        ## NOTE: end if create from template enabled
+        #* following block should show if "build own" has been selected,
+         a site type has been picked, and then the user (from the next screen) hits "back"  - the "Build own" radio
+         should be checked, as well as the selected site type
+         *#
+        <div id="siteTypeList" class="indnt3">
+            #foreach ($type in $siteTypes)
+				#set($courseTypeWithPerm    = (($courseSiteTypeStrings.contains($type) || $type == "course")    && $canAddCourse ))
+				#set($portfolioTypeWithPerm = (($portfolioSiteTypeStrings.contains($type) || $type == "portfolio") && $canAddPortfolio )) 
+				#set($projectTypeWithPerm   = (($projectSiteTypeStrings.contains($type)   || $type == "project")   && $canAddProject )) 
+				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type)) && (!$portfolioSiteTypeStrings.contains($type))))
+				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
+                    <p class="checkbox indnt1">
+                        <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
+                        <label for = "$type">
+                            $tlang.getFormattedMessage("sitetype.websit", $type)
+                        </label>    
+                    </p>        
+                    #if ($courseTypeWithPerm)
+                        <div class="indnt3" id="termList" style="display:none;">
+                        
+                        #if( !$hasTerms )
+                        	<p>$tlang.getFormattedMessage( "sitetype.noterms", $type )</p>
+                        #else
+                            <p class="required">
+                                <span class ="reqStar" id="term-required" style="height:1em;border:1px solid transparent"> * </span>
+                                <label for="selectTerm">
+                                    $tlang.getString("sitetype.acater")
+                                </label>    
+                                <select name="selectTerm" id="selectTerm">  ## onclick="selectSiteType('$type')"
+                                    #foreach($term in $termList)
+                                        <option value ="$term.eid"
+                                            #if ($!selectedTerm)
+                                                #if ($term.eid == $selectedTerm.eid)
+                                                    selected="selected"
+                                                #end
+                                            #else
+                                                #if ($term.isCurrentTerm())
+                                                    selected="selected"
+                                                #end
+                                            #end
+                                        >
+                                        $term.title
+                                        </option>
+                                    #end
+                                </select> 
+                            </p>
+                        #end
+                        </div>  
+                    #end ## end of #if ($courseTypeWithPerm)
+                #end ## end of #if (courseTypeWithPerm || portfolioTypeWithPerm || projectTypeWithPerm))
+            #end  ##end of #foreach ($type in $siteTypes)
+        </div>
+        #if ($templateSites.size() > 0)
+            ## if templates enabled
+            <p class="checkbox indnt1">
+                <input type="radio" name="itemType" id="copy" value="copy"/>
+                <label for="copy">$tlang.getString("sitetype.createfromtemplate")</label>
+            </p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.use.template.info")</p>
+            <div class="indnt3" id="templateSettings" style="display:none;">
+                <div id="allTemplateSettings" style="display:none;">
+                    <div id="templateSettingsTitleTermContainer">
+                        #*
+                        title length restrictions are copied from template chef_site-siteInfo-editInfo.vm maxlength needs to be set like in that template
+                        *#
+                        <span class="templateTitleTerm" id="siteTitle"  style="display:none;float:left;"><strong class="reqStarInline"> * </strong><label style="float:none;padding-right:1em;" for="siteTitleField">$tlang.getString("sitetype.sitetitle")</label><input type="text" value="" size="20" maxlength="$!titleMaxLength"  id="siteTitleField" name="siteTitleField"/></span>
+                        <span class="templateTitleTerm" id="siteTerms" style="display:none;float:left;"><strong class="reqStarInline"> * </strong>
+                            <label for="selectTermTemplate">Select term</label>
+                            <select name="selectTermTemplate" id="selectTermTemplate">
+                                <option value ="0">$tlang.getString("sitetype.selectTerm")</option>
+                                #foreach($term in $termList)
+                                    <option value ="$term.eid"
+                                        #if ($!selectedTerm)
+                                            #if ($term.eid == $selectedTerm.eid)
+                                                selected="selected"
+                                            #end
+                                        #else
+                                            #if ($term.isCurrentTerm())
+                                                selected="selected"
+                                            #end
+                                        #end
+                                        >
+                                        $term.title
+                                    </option>
+                                #end
+                            </select>
+                        </span>
+                    </div>
+                    <div id="fromTemplateSettingsContainer">
+                        <span id="copyUsersWrapper">
+                            <input type="checkbox" name="copyUsers" id="copyUsers" value="true"/>
+                            <label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
+                        </span>
+                        <span id="copyContentWrapper">
+                            <input type="checkbox" name="copyContent" id="copyContent" value="true"/>
+                            #* SAK25401 *#
+                            <input type="checkbox" name="lockedContent" id="lockedContent" checked="checked" disabled="disabled" style="display:none" />                            
+                            <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
+                        </span>
+                        <span id="publishSiteWrapper">
+                            <input type="checkbox" name="publishSite" id="publishSite" value="true"/>
+                            <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
+                        </span>
+                        <span id="fromTemplateSettingsContainer_instruction">
+                            <a href="#" id="fromTemplateSettingsContainer_instruction_control" class="itemAction">$tlang.getString("sitetype.template.get.info")</a>
+                            <div id="fromTemplateSettingsContainer_instruction_body" style="display:none;" title="$tlang.getString("sitetype.template.close.info")">
+                                <p id="fromTemplateSettingsContainer_instruction_body_copyUsers" style="display: none">
+                                    $tlang.getString("sitetype.template.copy.users.info") 
+                                </p>
+                                <p id="fromTemplateSettingsContainer_instruction_body_copyContent" style="display: none">
+                                    $tlang.getString("sitetype.template.copy.content.info")
+                                </p>
+                                <p id="fromTemplateSettingsContainer_instruction_body_publishSite">
+                                    $tlang.getString("sitetype.template.publish.now") 
+                                </p>
+                                </div>
+                            </span>
+                    </div>
+                </div>
+                
+                <ul id="templateList">
+                        #set($templateNum = 0)
+                        #set($templateCatNum = 0)
+                        #set($templateCatPrefix = "")
+                        #foreach($templateSite in $templateSites)
+                        #set($templateNum = $templateNum + 1)
+                            #set($description=false)
+                            #set($description=$templateSite.description)
+                            #set($siteType = false)
+                            #set($siteType = $!templateSite.type)
+
+                            #if (
+                                ($siteType == $projectSiteType && $canAddProject) || 
+                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse) ||
+                                ($siteType == $portfolioSiteType && $canAddPortfolio)
+                             )
+                            #if($siteTypePrev != $siteType)
+
+                              #if ($siteType == "course")
+                                 #set($templateCatDisp = $tlang.getString("sitetype.course.template.info"))
+                              #end
+                              #if ($siteType == "project")
+                                 #set($templateCatDisp = $tlang.getString("sitetype.project.template.info"))
+                              #end
+                              #if($siteType !="course" && $siteType !="project") 
+                                 #set($templateCatDisp = $tlang.getString("sitetype.other.template.info"))
+                              #end
+
+                            ## new site type - so render a row containg the toggle and type name
+                                #set($templateCatNum = $templateCatNum + 1)
+                                <li  class="siteTypeRow $siteType">
+                                    <div>
+                                        <h4 class="specialLink">
+                                            <a href="$siteType">
+                                                <span class="open"  style="display: none">&#9662;</span><span class="closed"> &#9656;</span>
+                                                 <em>$siteType.replace("_", " ")</em>
+                                                 <span class="siteTypeRowBlurb"></span>
+                                             </a>
+                                         </h4>
+                                    </div>
+                                </li>
+                           #end
+                            <li id="rowTemplate$templateNum" class="row$siteType" #if (!$isExpandTemplates) style="display: none"#end>
+                                <div class="templateName" style="white-space: nowrap;">
+                                    <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="Template$templateNum"/>
+                                    <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
+                                </div>
+                                <div class="templateDescription">#if($description)$description#end</div>
+                                <div class="templateSettingsPlaceholder"></div>
+                            </li>
+                            #set($siteTypePrev = $!templateSite.type)
+                            #end
+                        #end
+                </ul>
+            </div>   ## end of child of  div#templateSettings
+        #end
+        ## end templates enabled
+        
+        ## create site from archive
+        #if ($canImportArchive)
+            <p class="checkbox indnt1">
+                <input type="radio" id="archive" value="archive"/>
+                <label for="archive">$tlang.getString("archive.createsite")</label>
+            </p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("archive.createsite.info")</p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("archive.createsite.info.2")</p>
+
+            <div class="indnt3" id="archiveSettings" style="display:none;">
+                <div class="row">
+                    <div class="col-lg-2 col-sm-6 col-xs-12">
+                        <strong class="reqStarInline"> * </strong>
+                        <label for="archiveSiteType">
+                            $tlang.getString("archive.createsite.type")
+                        </label>
+                    </div>
+
+                    <div class="col-lg-10 col-sm-6 col-xs-12">
+                        <select name="itemType" id="archiveSiteType" onchange="toggleArchiveTermList()">
+                            #foreach ($type in $siteTypes)
+                                #if (
+                                        ($type == $projectSiteType && $canAddProject) || 
+                                        ($courseSiteTypeStrings.contains($type) && $canAddCourse) || 
+                                        ($type == $portfolioSiteType && $canAddPortfolio)
+                                    )
+                                    <option value="$!type">$tlang.getFormattedMessage("sitetype.websit", $type)</option>
+                                #end
+                            #end
+                        </select>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div id="archiveTermList" class="row">
+                    <div class="col-lg-2 col-sm-6 col-xs-12">
+                        <strong class="reqStarInline"> * </strong>
+                        <label for="archiveSelectTerm">
+                            $tlang.getString("archive.createsite.term")
+                        </label>
+                    </div>
+                    <div class="col-lg-10 col-sm-6 col-xs-12">
+                        <select name="selectTerm" id="archiveSelectTerm">
+                            #foreach($term in $termList)
+                                <option value ="$term.eid"
+                                    #if ($!selectedTerm)
+                                        #if ($term.eid == $selectedTerm.eid)
+                                            selected="selected"
+                                        #end
+                                    #else
+                                        #if ($term.isCurrentTerm())
+                                            selected="selected"
+                                        #end
+                                    #end
+                                >
+                                $term.title
+                                </option>
+                            #end
+                        </select> 
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+            </div>
+        #end
+
+
+        ## end create site from archive
+
+        #if ($multipleTypes)
+            <p class="instruction">
+                 $tlang.getString("sitetype.chothetyp.toolinfo")
+            </p>
+        #end
+
+        <input type="hidden" name="back" value="$!backIndex" />
+        <input type="hidden" name="templateIndex" value="$!templateIndex" />
+        <input type="hidden" name="eventSubmit_doSite_type_option" value="x" />
+        <input type="hidden" name="option" value="cancel" />
+        <div class ="act" style="padding-top:1em;">
+            #* this submit should create the site from the template and redirect user to site
+             it should be set style="display:none" if user is coming back
+             ot this template from building own flow
+             *#
+            <input type="submit" accesskey="s" id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="s" id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
+            <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null );  document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
+            ## this submit should be ther normal one
+            <input type="submit" accesskey="s" id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
+            <input type="submit" accesskey="x" id="cancelCreate" name="cancelCreate" value="$tlang.getString('sitetype.can')" onclick="SPNR.disableControlsAndSpin( this, null );document.typeform.option.value='cancel'; document.typeform.submit(); return false;" />
+        </div>
+
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    </form>             
+</div>  
+
+

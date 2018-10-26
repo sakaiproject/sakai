@@ -1,0 +1,147 @@
+@import "font-awesome";
+
+.Mrphs-toolsNav__menuitem--icon {
+  display: block;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/*
+ * Mixin sakai-icons
+ * This mixin should never be called directly as its only use is to output css for icons.
+ * This creates a data structure for icons so that it can be added to. It consists of a
+ * map of maps:  icons [ icon : options [ option : value, ... ], ... ]
+ * It basically produces for each icon in icons the following css:
+ *  .icon-sakai--sakai-message-bundle-manager { @extend .fa-gear }
+ *
+ * When the inner map options contains a keyword extend as an option it has special meaning
+ * and is expanded to "@extend .fa-gear" all other options are treated as css pairs
+ */
+@mixin sakai-icons($custom-icons: ()) {
+  $default-icons: (
+    // sakai native tools
+    sakai-adminsiteperms : ( extend : fa-sliders ),
+    sakai-aliases : ( extend : fa-tags ),
+    sakai-announcements : ( extend : fa-bullhorn ),
+    sakai-archive : ( extend : fa-archive ),
+    sakai-assignment-grades : ( extend : fa-file-text ),
+    sakai-basiclti : ( extend : fa-globe ),
+    sakai-basiclti-admin : ( extend : fa-globe ),
+    sakai-certification : ( extend : fa-trophy ),
+    sakai-chat : ( extend : fa-comments-o ),
+    sakai-createuser : ( extend : fa-user-plus ),
+    sakai-commons : ( extend : fa-bank ),
+    sakai-dashboard : ( extend : fa-dashboard ),
+    sakai-delegatedaccess : ( extend : fa-hand-o-right ),
+    sakai-dropbox : ( extend : fa-exchange ),
+    sakai-emailtemplateservice : ( extend : fa-envelope ),
+    sakai-feedback : ( extend : fa-paper-plane-o ),
+    sakai-forums : ( extend : fa-comments ),
+    sakai-gradebook-tool : ( extend : fa-book ),
+    sakai-gradebookng : ( extend : fa-book ),
+    sakai-help : ( extend : fa-question-circle ),
+    sakai-iframe : ( extend : fa-globe ),
+    sakai-iframe-site : ( extend : fa-list-ul ),
+    sakai-synoptic-announcement: ( extend : fa-list-ul),
+    sakai-synoptic-chat: ( extend : fa-list-ul),
+    sakai-synoptic-messagecenter: ( extend : fa-list-ul),
+    sakai-lessonbuildertool : ( extend : fa-leanpub ),
+    sakai-mailbox : ( extend : fa-envelope-o ),
+    sakai-mailtool : ( extend : fa-envelope-o ),
+    sakai-membership : ( extend : fa-users ),
+    sakai-memory : ( extend : fa-hdd-o ),
+    sakai-message-bundle-manager : ( extend : fa-gear ),
+    sakai-messages : ( extend : fa-inbox ),
+    sakai-motd : ( extend : fa-list-ul ),
+    sakai-news : ( extend : fa-rss ),
+    sakai-oauth : ( extend : fa-key ),
+    sakai-oauth-admin : ( extend : fa-key ),
+    sakai-online : ( extend : fa-server ),
+    sakai-pasystem : ( extend : fa-bell ),
+    sakai-podcasts : ( extend : fa-microphone ),
+    sakai-poll : ( extend : fa-bar-chart ),
+    sakai-postem : ( extend : fa-sticky-note-o ),
+    sakai-preferences : ( extend : fa-gear ),
+    sakai-profile2 : ( extend : fa-user ),
+    sakai-realms : ( extend : fa-sitemap ),
+    sakai-resetpass : ( extend : fa-user ),
+    sakai-resources : ( extend : fa-folder-open ),
+    sakai-rubrics : (extend :fa-table ),
+    sakai-rwiki : ( extend : fa-edit ),
+    sakai-samigo : ( extend : fa-check-square-o ),
+    sakai-schedule : ( extend : fa-calendar ),
+    sakai-scheduler : ( extend : fa-clock-o ),
+    sakai-sections : ( extend : fa-user ),
+    sakai-search : ( extend : fa-search ),
+    sakai-signup : ( extend : fa-calendar-check-o ),
+    sakai-simple-rss : ( extend : fa-newspaper-o ),
+    sakai-singleuser : ( extend : fa-user ),
+    sakai-site-roster2 : ( extend : fa-users ),
+    sakai-sitebrowser : ( extend : fa-globe ),
+    sakai-siteinfo : ( extend : fa-gear ),
+    sakai-sites : ( extend : fa-list ),
+    sakai-sitesetup : ( extend : fa-gears ),
+    sakai-sitestats : ( extend : fa-pie-chart ),
+    sakai-sitestats-admin : ( extend : fa-pie-chart ),
+    sakai-su : ( extend : fa-user-secret ),
+    sakai-syllabus : ( extend : fa-map-o ),
+    sakai-tagservice : (extend : fa-tag ),
+    sakai-usermembership : ( extend : fa-user ),
+    sakai-users : ( extend : fa-users ),
+    sakai-web-168 : ( extend : fa-globe ),
+
+    // other tools
+    kaltura-admin : ( extend : fa-gear ),
+    kaltura-media : ( extend : fa-file-video-o ),
+    kaltura-my-media : ( extend : fa-file-video-o ),
+    sakai-bbb : ( extend : fa-video-camera ),
+    sakai-rsf-evaluation : ( extend : fa-commenting ),
+    academic-bullhorn : ( extend : fa-bullhorn, padding-right: 5px ),
+    social-bullhorn : ( extend : fa-users ),
+    sakai-irubric : (extend: fa-table),
+
+    // other icons
+    check : ( extend : fa-check ),
+    clip : ( extend : fa-paperclip ),
+    default-tool : ( extend : fa-puzzle-piece ),
+    delete : ( extend : fa-times ),
+    help : ( extend : fa-question-circle ),
+    home : ( extend : fa-university ),
+    pdf : ( extend : fa-file-pdf-o ),
+    subsite : ( extend : fa-level-up ),
+    subsites-list : ( extend : fa-level-down ),
+    add-tool : ( extend : fa-plus ),
+  );
+
+
+  $icons : map-merge($default-icons, $custom-icons);
+
+  @each $icon, $options in $icons {
+    .icon-sakai--#{$icon} {
+      @each $option, $value in $options {
+        @if $option == extend {
+          @extend .#{$value};
+        } @else {
+          #{$option} : #{$value};
+        }
+      }
+    }
+  }
+}
+
+@if $skin-with-icons {
+  [class*="icon-sakai--"] {
+    @extend .fa-lg;
+    @extend .fa;
+  }
+
+  $sakai-custom-icons: () !default;
+  // call the mixin to actually create css for icons
+  @include sakai-icons($sakai-custom-icons);
+
+  // when we're showing the motd tool as "Welcome" on the gateway page, use a different icon.
+  a.Mrphs-hierarchy-item.Mrphs-hierarchy--toolName[href*="!gateway"] .icon-sakai--sakai-motd,
+  a.Mrphs-toolsNav__menuitem--link[href*="!gateway"] .icon-sakai--sakai-motd {
+    @extend .fa-sign-in;
+  }
+}

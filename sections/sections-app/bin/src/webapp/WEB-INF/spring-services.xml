@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.section.api.facade.manager.Authn"
+        class="org.sakaiproject.tool.section.facade.sakai.AuthnSakaiImpl"/>
+
+    <bean id="org.sakaiproject.section.api.facade.manager.Authz"
+        class="org.sakaiproject.tool.section.facade.sakai.AuthzSakaiImpl">
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.section.api.facade.manager.Context"
+        class="org.sakaiproject.tool.section.facade.sakai.ContextSakaiImpl"/>
+</beans>

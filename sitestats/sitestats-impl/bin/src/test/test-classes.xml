@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Create a test data preload bean -->
+    <bean id="org.sakaiproject.sitestats.test.data.FakeDataPreload"
+        class="org.sakaiproject.sitestats.test.data.FakeDataPreload"
+        init-method="init">
+    </bean>
+    
+    <!-- DB access class, for comparing actual with expected results -->
+    <bean id="org.sakaiproject.sitestats.test.DB.target" parent="sstTxTemplate" class="org.sakaiproject.sitestats.test.DBImpl"/>
+    <bean id="org.sakaiproject.sitestats.test.DB"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="org.sakaiproject.sitestats.SiteStatsTransactionManager" />
+        <property name="target" ref="org.sakaiproject.sitestats.test.DB.target" />
+        <property name="transactionAttributes">
+            <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+        </property>
+    </bean>
+        
+    <!-- [END] Classes that will test others -->
+
+    <!-- [START] Target classes to test -->
+    <bean id="org.sakaiproject.sitestats.test.StatsUpdateManager.target" parent="sstTxTemplate"
+        class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
+        lazy-init="true" init-method="init" destroy-method="destroy">
+                <property name="collectThreadEnabled" value="true"/>
+                <property name="collectThreadUpdateInterval" value="50"/>
+                <property name="collectAdminEvents" value="true" />
+                <property name="collectEventsForSiteWithToolOnly" value="false" />                
+                <property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory"/>
+                <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager" />
+                <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+                <property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>
+                <property name="aliasService" ref="org.sakaiproject.sitestats.test.mocks.FakeAliasService"/>
+                <property name="entityManager" ref="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+                <property name="usageSessionService" ref="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService" />
+                <property name="transactionTemplate">
+                    <bean class="org.springframework.transaction.support.TransactionTemplate">
+                        <property name="transactionManager" ref="org.sakaiproject.sitestats.SiteStatsTransactionManager"/>
+                    </bean>
+                </property>
+    </bean>
+
+    <!-- Transaction proxy: StatsUpdateManager -->
+    <bean id="org.sakaiproject.sitestats.test.StatsUpdateManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+          lazy-init="true">
+        <property name="transactionManager" ref="org.sakaiproject.sitestats.SiteStatsTransactionManager" />
+        <property name="target" ref="org.sakaiproject.sitestats.test.StatsUpdateManager.target"/>
+        <property name="transactionAttributes">
+            <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.sitestats.test.StatsManager.target" parent="sstTxTemplate"
+        class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
+        lazy-init="true" init-method="init" destroy-method="destroy">
+                <property name="chartBackgroundColor" value="#ffffff" />
+                <property name="chartIn3D" value="false" />
+                <property name="chartTransparency" value="1.00f" />
+                <property name="itemLabelsVisible" value="true" />
+                <property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory"/>
+                <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+                <property name="userService" ref="org.sakaiproject.mock.service.UserDirectoryService"/>
+                <property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>
+                <property name="serverConfigurationService" ref="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
+                <property name="toolManager" ref="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
+                <property name="memoryService" ref="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" />
+                <property name="sessionManager" ref="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" />
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+                <property name="entityManager" ref="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>                
+    </bean>
+
+    <bean id="org.sakaiproject.sitestats.test.StatsManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+          lazy-init="true">
+        <property name="transactionManager" ref="org.sakaiproject.sitestats.SiteStatsTransactionManager" />
+        <property name="target" ref="org.sakaiproject.sitestats.test.StatsManager.target"/>
+        <property name="transactionAttributes">
+            <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.sitestats.test.ReportManager.target" parent="sstTxTemplate"
+        class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
+        lazy-init="true" init-method="init" destroy-method="destroy">    
+                <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager" />
+                <property name="statsAuthz" ref="org.sakaiproject.sitestats.test.mocks.FakeStatsAuthz" />
+                <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+                <property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>
+                <!-- <property name="userService" ref="org.sakaiproject.mock.service.UserDirectoryService"/> -->
+                <property name="userService" ref="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService"/>
+                <!-- <property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/> -->
+                <property name="toolManager" ref="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
+                <!-- <property name="timeService" ref="org.sakaiproject.time.api.TimeService" /> -->    
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+                <property name="memoryService" ref="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" />                            
+    </bean>
+
+    <bean id="org.sakaiproject.sitestats.test.ReportManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+          lazy-init="true">
+        <property name="transactionManager" ref="org.sakaiproject.sitestats.SiteStatsTransactionManager" />
+        <property name="target" ref="org.sakaiproject.sitestats.test.ReportManager.target"/>
+        <property name="transactionAttributes">
+            <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+        </property>
+    </bean>
+    <!-- [END] Target classes to test -->
+
+</beans>

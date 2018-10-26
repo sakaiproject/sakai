@@ -1,0 +1,9 @@
+Title, Description, Date, Start, Duration,Type,Location,Frequency, Interval, Ends, Repeat, Test Custom Property,Required
+Example Event 1, This is the description for event #1, 5/2/2004, 11:00 AM, 1:00, event.activity, Taubman Library 2919
+Example Event 2, This is the description for event #2, 5/2/2004, 11:00 AM, 1:00, event.exam, Taubman Library 2919
+Example Event 3, This is the description for event #3, 5/2/2004, 11:00 AM, 30, event.meeting, Taubman Library 2919
+Event with a custom property, "If the site has a custom property called Test Custom Property, this will set it.", 5/2/2004, 11:00 AM, 30, event.meeting, Taubman Library 2919, ,,,,Test Value here,yes
+Repeating Event 1, "This event should repeat every week with no end", 6/7/2004, 2:00 PM, 1:30, ,, week
+Repeating Event 2, "This event should repeat every other week and end after 2 times", 6/7/2004, 2:00 PM, 30, event.activity, , week, 2,,2
+Repeating Event 3, "This event should repeat every other week and end on or before 7/7/2004", 6/7/2004, 2:00 PM, 1:30, event.activity, , week, 2, 7/7/2004
+

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.assignment.grades"
+			title="Assignments"
+			description="For posting, submitting and grading assignment(s) online.">
+		
+		<category name="course" />
+		<category name="project" />
+		<category name="portfolio" />
+		
+		<configuration name="pagesize" value="200" />
+		<configuration name="withGrades" value="TRUE" type="final" />
+		<configuration name="help.id" value="sakai.assignment" type="final" />
+		<configuration name="showNumSubmissionColumn" value="TRUE" />
+		
+		<configuration name="groupAware" value="true" />
+
+	</tool>
+
+</registration>

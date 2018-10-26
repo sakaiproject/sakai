@@ -1,0 +1,92 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editClass.vm,v 1.2 2005/05/13 21:39:38 gsilver.umich.edu Exp $ -->
+## edit classes list in course site
+<div class ="portletBody">
+	#if($menu)#toolbar($menu)#end
+
+	<div class="siteInfoContent">
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("sitedicla.alert") $alertMessage</div>
+			<div class="clear"></div>
+		#end
+		<form name="removeClassForm" id="removeClassForm" action="#toolForm("$action")" method="post">
+		#if ($!providerCourseList && !$!providerCourseList.isEmpty()|| $!manualCourseList && !$!manualCourseList.isEmpty() || $!cmRequestedCourseList && !$!cmRequestedCourseList.isEmpty())
+				<a href="#" onclick="location = '#toolLink($action "doMenu_siteInfo_addClass")'; return false;">$tlang.getString('java.addclasses')</a>
+				<div class="table-responsive">
+				<table id="removeClass" class ="table table-bordered table-striped table-hover" cellpadding="0" cellspacing="0" summary ="$tlang.getString("sitedicla.tabhol")">
+					<tr>
+						<th id="class">
+							$tlang.getString("sitedicla.class")
+						</th>
+						<th id="remove" class="screenOnly">
+							$tlang.getString("sitedicla.rem")
+						</th>
+					</tr>
+					#set ($providerCourseListNum =0)
+					#foreach($id in $!providerCourseTitles.keys())
+					#set ($providerCourseListNum =$providerCourseListNum + 1)
+						<tr>
+							<td headers="class">
+								<h5><label for="pcl$providerCourseListNum" title="$id">
+									$!providerCourseTitles.get($id)
+								</label></h5>
+							</td>
+							<td headers="remove" class="screenOnly">
+								<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="providerClassDeletes" value="$id" id="pcl$providerCourseListNum" onclick="checkEnableRemove();" />
+							</td>
+						</tr>
+					#end
+					#set ($cmRequestedCourseListNum = 0)
+					#foreach($id in $!cmRequestedCourseList)
+					#set ($cmRequestedCourseListNum =$cmRequestedCourseListNum + 1)
+						<tr>
+							<td headers="class">
+								<h5>
+									<label for="cmrcl$cmRequestedCourseListNum">
+										$id.title $tlang.getString("sitedicla.requested")
+									</label>
+								</h5>
+							</td>
+							<td headers="remove" class="screenOnly">
+								<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="cmRequestedClassDeletes" value="$id.eid" id="cmrcl$cmRequestedCourseListNum" onclick="checkEnableRemove();" />
+							</td>
+						</tr>
+					#end
+					#set ($manualCourseListNum =0)
+					#foreach($id in $!manualCourseList)
+					#set ($manualCourseListNum =$manualCourseListNum + 1)
+						<tr>
+							<td headers="class">
+								<h5>
+									<label for="mcl$manualCourseListNum">
+										$id $tlang.getString("sitedicla.requested")
+									</label>
+								</h5>
+							</td>
+							<td headers="remove" class="screenOnly">
+								<span class="skip">$tlang.getString("sitedicla.rem")</span><input type="checkbox" name="manualClassDeletes" value="$id" id="mcl$manualCourseListNum" onclick="checkEnableRemove();" />
+							</td>
+						</tr>
+					#end
+				</table>
+				</div>
+				<p class="act">
+					<input type="hidden" name="continue" value="$!templateIndex" />
+					<input type="hidden" name="back" value="12" />
+					<input type="hidden" name="templateIndex" value="$!templateIndex" />
+					<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" id="btnRemove" disabled="disabled" value="$tlang.getString("sitedicla.remsel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" accesskey="x" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				</p>
+
+		#else
+			$tlang.getString("sitedicla.theis") $!siteTitle $tlang.getString("sitedicla.yet")
+			<p class="act">
+				<input type="hidden" name="back" value="12" />
+				<input type="hidden" name="templateIndex" value="$!templateIndex" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+
+		#end
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+</div>

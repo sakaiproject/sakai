@@ -1,0 +1,276 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourseManual.vm,v 1.4 2005/06/03 14:08:16 gsilver.umich.edu Exp $ -->
+<div class="portletBody container-fluid">
+
+	## SAK-23255
+	#if( $isAdmin || !$skipManualCourseCreation )
+	
+	##if($menu)#toolbar($menu)#end<br/><br/>
+		#if (!$!site)
+			<h3>$tlang.getString("nscourse.creating")</h3>
+			<p class="step">
+				$tlang.getString("nscourse.course_sections_selection") - $term.title
+			</p>
+		#else
+			<h3>$tlang.getString("man.edit")</h3>
+		#end
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+			<div class="clear"></div>
+		#end
+		
+		<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">
+			<input type="hidden" name="option" id="option" value="add" />
+			<input type="hidden" name="eventSubmit_doManual_add_course" value="x" />
+			#if ($!site && ($!providerCourseList.size() > 0 || $!manualCourseList.size()>0 ))
+				<p>
+				$tlang.getString("nscourse.already")
+				</p>
+				#foreach($id in $!providerCourseTitles)
+					<p class="step">
+						$id
+					</p>
+				#end
+				#foreach($id in $!manualCourseList)
+					<p class="step">
+						$id $tlang.getString("man.requested")
+					</p>
+				#end
+			#end
+			#if ($!editSite)
+							#foreach($section in $!cmRequestedSections)
+								<p class="indnt2">
+										$section.title $tlang.getString("man.requested")
+								</p>
+							#end
+				#end
+				<p>$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
+				<div class="table-responsive course-section">
+					<table class="table table-striped table-bordered table-hover" summary="todo: summary">
+						#foreach ($item in $!selectedProviderCourseTitles.keySet())
+							<tr>
+								<td>
+									$!selectedProviderCourseTitles.get($item)
+								</td>
+								<td>
+								<span class="itemAction">
+								<!-- Remove Section -->
+								<a href="#" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'removeSectionSpinner' ); submitRemoveSection('$item', 'requestCourseForm');">$tlang.getString("man.remove")</a>
+								<div id="removeSectionSpinner" class="allocatedSpinPlaceholder"></div>
+								<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
+								</span>
+								</td>
+							</tr>
+						#end
+					</table>
+				</div>
+						#if (!$!editSite)
+							<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
+
+							#foreach($section in $!cmRequestedSections)
+								<tr>
+									<td>
+											$section.title $tlang.getString("man.requested")
+									</td>
+									<td>
+										<span class="itemAction">
+											<!-- Remove Section -->
+											<a href="#" onclick="submitRemoveSection('$section.eid', 'requestCourseForm');">$tlang.getString("man.remove")</a>
+											<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+										</span>	
+									</td>
+							</tr>
+							#end
+						</table>	
+						#else
+						<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
+							#foreach($s in $!cmSelectedSections)
+								<tr>
+									<td>
+										$s.title $tlang.getString("man.requested")
+									</td>
+									<td>
+									<span class="itemAction">
+										<!-- Remove Section -->
+										<a href="#" onclick="submitRemoveSection('$s.eid', 'requestCourseForm');">$tlang.getString("man.remove")</a>
+										<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
+										</span>
+									</td>
+								</tr>
+							#end
+						</table>	
+					#end
+				<p class="instruction">
+					#if (!$!isFutureTerm)
+						$tlang.getString("man.please_enter")
+					#else
+						$tlang.getString("man.enter2") <span class="reqStarInline">*</span> $tlang.getString("man.means")
+					#end
+				</p>
+				<div class="table-responsive course-section">
+					<table  class="table table-bordered table-hover table-striped" summary="$tlang.getString("man.list.summary")">
+						<tr>
+							#set($bound = $!form_requiredFields.size())
+							#set($bound = $bound - 1)
+							<th id="rownNum">
+								&nbsp;
+							</th>
+							#foreach ($fieldCount in [0..$!bound])
+									#set($field = $!form_requiredFields.get($fieldCount))
+									#set($fieldLabel = $!form_requiredFields.get($fieldCount).labelKey)
+										<th id="$!fieldLabel">	
+											<span class ="reqStarInline">* </span>$fieldLabel
+										</th>
+							#end
+						</tr>
+						#set ($count = 1)
+						#set ($rowcount = 1)
+						#foreach ($k in [0..$listSize])
+							#set($courseFieldValues = $!fieldValues.get($k))
+							<tr>
+								<td headers="rownNum">$rowcount</td>
+								#foreach ($fieldCount in [0..$!bound])
+									#set($field = $!form_requiredFields.get($fieldCount))
+									#set($fieldLabel = $!form_requiredFields.get($fieldCount).labelKey)
+									#set($fieldSize = 8)
+									#set($fieldSize = $!form_requiredFields.get($fieldCount).getMaxSize())
+									<td headers="$fieldLabel" class="shorttext">
+										<label  for="id-$fieldLabel$rowcount" class="skip">$fieldLabel</label>
+										<input type="text" name="$fieldLabel$k"  tabindex="$count" size="$!fieldSize" maxlength="$!fieldSize" value="$!courseFieldValues.get($fieldCount).getValue()"  id="id-$fieldLabel$rowcount" /> 
+										#set ($count = $count + 1)
+
+									</td>
+								#end
+							</tr>
+											#set ($rowcount = $rowcount + 1)
+							#end
+						<tr>
+							<td></td>
+							<td colspan="3">
+							<label for="number" class="skip">$tlang.getString("man.addmore.label")</label>
+								<select name="number" id="number" onchange="SPNR.insertSpinnerInPreallocated( this, null, 'moreToolsSpinner' );document.requestCourseForm.option.value='change';document.requestCourseForm.submit();" tabindex = "$count">
+									<option selected="selected">$tlang.getString("man.addmore")</option>
+									#foreach ($j in [1..3])
+										<option value="$j">$j $tlang.getString("multipleTools.more")</option>
+									#end
+								</select>
+								<div id="moreToolsSpinner" class="allocatedSpinPlaceholder"></div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div>
+					#if ($!isFutureTerm)
+						<h4>$tlang.getString("man.siteroster")</h4>
+						<p class="instruction">$tlang.getString("man.notverifyfuture1")$!weeksAhead $tlang.getString("man.notverifyfuture2")</p>
+					#else
+					  #if ($requireAuthorizer)
+						  <h4>$tlang.getString("man.siteauth")</h4>
+						  <p class="instruction">$tlang.getString("man.notverify")</p>
+						#end
+					#end
+				</div>
+				#if (!$!isFutureTerm)
+				  #if ($requireAuthorizer)
+					<div class="shorttext required  form-group row">
+						<label for="uniqname"  class="col-sm-3 form-control-label">
+                            <span class="reqStar">*</span>
+						   $tlang.getString("man.authoriz")
+						</label>
+						<div class="col-sm-6">
+							<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname"  aria-describedby="uniquenameins"/>
+						</div>
+					</div>
+					<p class="labelindnt">
+					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
+					</p>
+					<div class="shorttext form-group row">
+						<label for="additional" class="block col-sm-3 form-control-label">
+							$tlang.getString("man.spec")
+						</label>
+						<div class="col-sm-6">
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual" aria-describedby="additionalinst">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						</div>
+					</div>
+					<p  class="labelindnt">
+						<span class="textPanelFooter">$tlang.getString("man.please")</span>
+					</p>
+					#else 
+					  <input type="hidden" name="uniqname"  value="admin" />
+					  <input type="hidden" name="additional" value="" />
+				  #end
+
+				#end
+			#set ($count = $count + 1)
+			<input type="hidden" name="back" value="$!backIndex" />
+			<input type="hidden" name="templateIndex" value="$!templateIndex" />
+			<input type="hidden" name="continue" value="4" />
+			## if site creation is based on template, this could be the final step!
+			#if ($!basedOnTemplate && !$publishTemplate) 
+				<div class="instruction" id ="nextInstructions">
+					<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+				</div>
+			#end
+			<p class="act">
+				<input type="button" name="Add" id="addButton" name="addButton"
+						#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+						class="active" 
+						accesskey="s" 
+						onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='add'; document.requestCourseForm.submit(); return false;" />
+				<input type="button" name="Back" 
+						value="$tlang.getString('gen.back')"
+						accesskey="b"
+						onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='back'; document.requestCourseForm.submit(); return false;" />
+				<input type="button" name="Cancel" 
+						value="$tlang.getString('gen.cancel')"
+						accesskey="x"
+						onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
+				#if( $!contNoRosterEnabled )
+				<input
+					type="button" 
+					accesskey="x"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('nscourse.no_rosters')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='norosters'; document.requestCourseForm.submit(); return false;"
+					/>
+				#end
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+		
+	## SAK-23255
+	#else
+		## If the filter terms feature is enabled, show the user a message indicating they don't have any sections in the selected term
+		#if( $filterTerms )
+			<h3>$tlang.getString( 'nscourse.no_sections_in_term' )</h3>
+		## Otherwise, show the user a message indicating that the manual course site pages have been disabled globally
+		#else
+			<h3>$tlang.getString( 'nscourse.manual_disabled' )</h3>
+		#end
+		
+		## Provide the back and cancel buttons
+		<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">
+			<input type="hidden" name="option" id="option" value="add" />
+			<input type="hidden" name="eventSubmit_doManual_add_course" value="x" />
+			<input type="hidden" name="back" value="$!backIndex" />
+			<input type="hidden" name="templateIndex" value="$!templateIndex" />
+			<input type="hidden" name="continue" value="4" />
+			
+			<input type="button" name="Back" value="$tlang.getString('gen.back')" accesskey="b" class="active"
+				onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='back'; document.requestCourseForm.submit(); return false;" />
+			<input type="button" name="Cancel" value="$tlang.getString('gen.cancel')" accesskey="x"
+				onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
+			#if( $!contNoRosterEnabled )
+				<input
+					type="button" 
+					accesskey="x"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('nscourse.no_rosters')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.requestCourseForm.option.value='norosters'; document.requestCourseForm.submit(); return false;"
+				/>
+			#end	
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#end
+	</div>

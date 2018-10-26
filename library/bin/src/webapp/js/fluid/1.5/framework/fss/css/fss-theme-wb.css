@@ -1,0 +1,204 @@
+/*
+   High Contrast Inverted (white on black)
+=============================================
+ * Color Scheme:
+ *     white: #ffffff
+ *     black: #000000
+ */
+ 
+/* 
+ * General Styling
+ */
+  
+.fl-theme-wb,
+.fl-theme-wb *,
+.fl-preview-theme.fl-theme-wb,
+.fl-theme-bw.fl-inverted-color,
+.fl-theme-bw .fl-inverted-color,
+.fl-theme-bw.fl-inverted-color *,
+.fl-theme-bw .fl-inverted-color *,
+.fl-preview-theme.fl-theme-bw.fl-inverted-color {color:#fff; background-color:#000; border-color:#fff;}
+
+/* Divs, inputs */
+.fl-theme-wb div, 
+.fl-theme-wb input,
+.fl-theme-bw .fl-inverted-color div,
+.fl-theme-bw .fl-inverted-color input {color:#fff; background-color:#000; border-color:#fff}
+
+/* iframes */
+.fl-theme-wb iframe,
+.fl-theme-bw .fl-inverted-color iframe {border-color:#fff;}
+
+/* Links */
+.fl-theme-wb a,
+.fl-theme-bw .fl-inverted-color a {color: #ffffff; font-weight:bold; background-color:#000000;}
+
+/* Headers */
+.fl-theme-wb h1,
+.fl-theme-wb h2,
+.fl-theme-wb h3,
+.fl-theme-wb h4,
+.fl-theme-wb h5,
+.fl-theme-wb h6,
+.fl-theme-bw .fl-inverted-color h1,
+.fl-theme-bw .fl-inverted-color h2,
+.fl-theme-bw .fl-inverted-color h3,
+.fl-theme-bw .fl-inverted-color h4,
+.fl-theme-bw .fl-inverted-color h5,
+.fl-theme-bw .fl-inverted-color h6 {color:#ffffff; background-color:#000000; border-color:#ffffff;}
+
+/* Tables */
+.fl-theme-wb th,
+.fl-theme-bw .fl-inverted-color th {border:0.1em solid #ffffff; background-color:#ffffff; color:#000000;}
+.fl-theme-wb td,
+.fl-theme-bw .fl-inverted-color td {border:0.1em solid #ffffff;}
+
+/* 
+ * FSS Elements
+ */
+ 
+/* Focus */
+.fl-theme-wb .fl-focus:focus,
+.fl-theme-wb .fl-focus :focus,
+.fl-theme-wb.fl-focus :focus,
+.fl-theme-wb .selectable,
+.fl-theme-bw .fl-inverted-color .fl-focus:focus,
+.fl-theme-bw .fl-inverted-color .fl-focus :focus,
+.fl-theme-bw.fl-inverted-color.fl-focus :focus,
+.fl-theme-bw .fl-inverted-color .selectable {outline: 0.2em solid #ffffff;}
+ 
+.fl-theme-wb .fl-knockout,
+.fl-theme-bw .fl-inverted-color .fl-knockout {background:transparent !important; color:#ffffff;} /* Deprecated: use .fl-noBackgroundImages */
+
+/* Icons */
+.fl-theme-wb .fl-icon,
+.fl-theme-bw .fl-inverted-color .fl-icon {background-color:#000000;}
+
+/* Tabs */
+.fl-theme-wb .fl-tabs,
+.fl-theme-bw .fl-inverted-color .fl-tabs {border-bottom-color:#ffffff;}
+.fl-theme-wb .fl-tabs li,
+.fl-theme-wb .fl-tabs li *,
+.fl-theme-bw .fl-inverted-color .fl-tabs li,
+.fl-theme-bw .fl-inverted-color .fl-tabs li * {border-color:#ffffff; border-bottom-color:#ffffff; }
+.fl-theme-wb .fl-tabs li,
+.fl-theme-bw .fl-inverted-color .fl-tabs li {background-color:#ffffff;}
+.fl-theme-wb .fl-tabs li *,
+.fl-theme-bw .fl-inverted-color .fl-tabs li * {color:#000000; font-weight:bold; background-color:#ffffff;text-decoration:none;}
+
+.fl-theme-wb .fl-tabs li:hover,
+.fl-theme-wb .fl-tabs li:hover *,
+.fl-theme-wb .fl-tabs li a:hover,
+.fl-theme-bw .fl-inverted-color .fl-tabs li:hover,
+.fl-theme-bw .fl-inverted-color .fl-tabs li:hover *,
+.fl-theme-bw .fl-inverted-color .fl-tabs li a:hover {color:#ffffff; background-color:#000000;}
+
+.fl-theme-wb .fl-tabs li.fl-tabs-active,
+.fl-theme-wb .fl-tabs li.fl-tabs-active a,
+.fl-theme-wb .fl-tabs li.fl-tabs-active a:hover, 
+.fl-theme-wb .fl-tabs li.fl-activeTab,
+.fl-theme-wb .fl-tabs li.fl-activeTab:hover,
+.fl-theme-wb .fl-tabs li.fl-activeTab a,
+.fl-theme-wb .fl-tabs li.fl-activeTab a:hover,
+.fl-theme-bw .fl-inverted-color .fl-tabs li.fl-tabs-active,
+.fl-theme-bw .fl-inverted-color .fl-tabs li.fl-tabs-active a,
+.fl-theme-bw .fl-inverted-color .fl-tabs li.fl-tabs-active a:hover,
+.fl-theme-bw .fl-inverted-color .fl-tabs li.fl-activeTab,
+.fl-theme-bw .fl-inverted-color .fl-tabs li.fl-activeTab a,
+.fl-theme-bw .fl-inverted-color .fl-tabs li.fl-activeTabe a:hover {background-color: #000000; border-bottom-color:#000000; color:#ffffff;}
+.fl-theme-wb .fl-tab-content,
+.fl-theme-bw .fl-inverted-color .fl-tab-content {background-color:#000000; border:1px solid #fff; border-top:none; color:#ffffff;}
+
+/* Menu */
+.fl-theme-wb .fl-listmenu, 
+.fl-theme-wb .fl-list-menu,
+.fl-theme-bw .fl-inverted-color .fl-listmenu,
+.fl-theme-bw .fl-inverted-color .fl-list-menu {border:1px solid #ffffff; border-bottom-width:2px; background-color:#000000;}
+.fl-theme-wb .fl-listmenu li, 
+.fl-theme-wb .fl-list-menu li,
+.fl-theme-wb .fl-listmenu li a, 
+.fl-theme-wb .fl-list-menu li a,
+.fl-theme-bw .fl-inverted-color .fl-listmenu li,
+.fl-theme-bw .fl-inverted-color .fl-list-menu li,
+.fl-theme-bw .fl-inverted-color .fl-listmenu li a,
+.fl-theme-bw .fl-inverted-color .fl-list-menu li a {font-weight:bold; color:#ffffff; background-color:#000000; border-color:#ffffff; text-decoration:none;}
+.fl-theme-wb .fl-listmenu a:hover, 
+.fl-theme-wb .fl-list-menu a:hover,
+.fl-theme-bw .fl-inverted-color .fl-listmenu a:hover,
+.fl-theme-bw .fl-inverted-color .fl-list-menu a:hover {background-color:#ffffff; color:#000000;}
+.fl-theme-wb .fl-listmenu .fl-activemenu a, 
+.fl-theme-wb .fl-list-menu .fl-activemenu a,
+.fl-theme-wb .fl-listmenu .fl-activemenu a:hover, 
+.fl-theme-wb .fl-list-menu .fl-activemenu a:hover,
+.fl-theme-bw .fl-inverted-color .fl-listmenu .fl-activemenu a,
+.fl-theme-bw .fl-inverted-color .fl-list-menu .fl-activemenu a,
+.fl-theme-bw .fl-inverted-color .fl-listmenu .fl-activemenu a:hover,
+.fl-theme-bw .fl-inverted-color .fl-list-menu .fl-activemenu a:hover { background-color: #ffffff; border-bottom-color:#000000; color: #000000;}
+
+/* Buttons */
+.fl-theme-wb .fl-button-left,
+.fl-theme-wb .fl-button-right,
+.fl-theme-bw .fl-inverted-color .fl-button-left,
+.fl-theme-bw .fl-inverted-color .fl-button-right {color:#ffffff; background-color:#000000;}
+.fl-theme-wb .fl-button-left,
+.fl-theme-wb .fl-button-right,
+.fl-theme-bw .fl-inverted-color .fl-button-left,
+.fl-theme-bw .fl-inverted-color .fl-button-right {background-image:url('../images/themes/wb/buttons-med-cap.png');}
+.fl-theme-wb .fl-button-inner,
+.fl-theme-bw .fl-inverted-color .fl-button-inner {background-image:url('../images/themes/wb/buttons-med-bg.png');}
+
+/* Widgets */
+.fl-theme-wb .fl-widget,
+.fl-theme-bw .fl-inverted-color .fl-widget {background-color:#ffffff; border:1px solid #000000;}
+.fl-theme-wb .fl-widget h2,
+.fl-theme-bw .fl-inverted-color .fl-widget h2 {color:#ffffff0; background-color:#00000;}
+.fl-theme-wb .fl-widget a,
+.fl-theme-bw .fl-inverted-color .fl-widget a {color:#ffffff;}
+.fl-theme-wb .fl-widget .fl-icon-more,
+.fl-theme-bw .fl-inverted-color .fl-widget .fl-icon-more {background-image:url('../images/themes/wb/icon-widget-More.png'); margin-left:0px;}
+.fl-theme-wb .fl-widget .fl-icon-close,
+.fl-theme-bw .fl-inverted-color .fl-widget .fl-icon-close {background-image:url('../images/themes/wb/icon-widget-Close.png'); margin-right:0px;}
+        
+/* Widget titlebar */
+.fl-theme-wb .fl-widget .fl-widget-titlebar,
+.fl-theme-bw .fl-inverted-color .fl-widget .fl-widget-titlebar {margin-bottom:3px;}
+.fl-theme-wb .fl-grabbable .fl-widget-titlebar,
+.fl-theme-bw .fl-inverted-color .fl-grabbable .fl-widget-titlebar {background-image:url('../images/themes/wb/icon-widget-gripper.png');}
+.fl-theme-wb .fl-grabbable .fl-widget-titlebar h2,
+.fl-theme-bw .fl-inverted-color .fl-grabbable .fl-widget-titlebar h2 {display:inline;}
+.fl-theme-wb .fl-widget-titlebar .icon,
+.fl-theme-bw .fl-inverted-color .fl-widget-titlebar .icon {background-position:center center;}
+.fl-theme-wb .fl-widget-titlebar .fl-button-right,
+.fl-theme-wb .fl-widget-titlebar .fl-button-left,
+.fl-theme-bw .fl-inverted-color .fl-widget-titlebar .fl-button-right,
+.fl-theme-bw .fl-inverted-color .fl-widget-titlebar .fl-button-left {color:#fff; background-image:url('../images/themes/wb/buttons-titlebar-cap.png'); text-decoration:none;}
+.fl-theme-wb .fl-widget-titlebar .fl-button-inner,
+.fl-theme-bw .fl-inverted-color .fl-widget-titlebar .fl-button-inner {background-image:url(../images/themes/wb/buttons-titlebar-bg.png);}
+
+/* Widget options */
+.fl-theme-wb .fl-widget .fl-widget-options,
+.fl-theme-bw .fl-inverted-color .fl-widget .fl-widget-options {padding:0px;}
+.fl-theme-wb .fl-widget .fl-widget-options li,
+.fl-theme-bw .fl-inverted-color .fl-widget .fl-widget-options li {border-left:1px solid #000000;}
+    
+/* Widget content */
+.fl-theme-wb .fl-widget .fl-widget-content,
+.fl-theme-bw .fl-inverted-color .fl-widget .fl-widget-content {background-color:#000000;}
+
+/* 
+ * Infusion Components
+ */
+
+/* Progress */
+.fl-theme-wb .fl-progress-bounds,
+.fl-theme-bw .fl-inverted-color .fl-progress-bounds {border-color:#ffffff; background-color:#000000;}
+.fl-theme-wb .fl-progress-fill,
+.fl-theme-bw .fl-inverted-color .fl-progress-fill {color:#000000; background-color:#ffffff;}
+
+/* Reorderer */
+.fl-theme-wb .fl-reorderer-dropMarker,
+.fl-theme-bw .fl-inverted-color .fl-reorderer-dropMarker {background-color:#f00;}
+
+/* Inline Edit */
+.fl-theme-wb .fl-inlineEdit-edit,
+.fl-theme-bw .fl-inverted-color .fl-inlineEdit-edit {background-color:#ffffff; color:#000000; border: 0.1em solid #000000; padding:0.1em; margin:-0.1em;}

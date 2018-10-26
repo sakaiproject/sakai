@@ -1,0 +1,20 @@
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
+
+    <form wicket:id="form">
+
+        <h2 wicket:id="createItemHeader"></h2>
+
+        <div wicket:id="subComponents" class="form-horizontal"></div>
+
+        <div class="panel-group" id="previewGradesAccordion" role="tablist" aria-multiselectable="true">
+            <wicket:container wicket:id="previewGradesPanel" />
+        </div>
+
+        <div class="act">
+            <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
+            <input type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next" class="active"/>
+            <input type="submit" wicket:id="cancelbutton" wicket:message="value:importExport.button.cancel"/>
+        </div>
+    </form>
+
+</wicket:panel>

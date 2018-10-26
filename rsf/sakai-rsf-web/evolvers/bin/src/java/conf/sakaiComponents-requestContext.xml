@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- The "request scope application context" file -->
+
+	<bean id="sakaiFCKTextEvolver" class="org.sakaiproject.rsf.evolverimpl.SakaiFCKTextEvolver">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="context" ref="sakai-Context" />
+	</bean>
+
+	<bean id="sakaiDateFieldEvolver" class="org.sakaiproject.rsf.evolverimpl.SakaiFieldDateInputEvolver">
+		<property name="requestBeanGetter" ref="ELEvaluator" />
+	</bean>
+
+	<!-- Used for converting ISO8601 dates to Dates (Java) and back. -->
+	<bean id="iso8601DateTransit" parent="beanExploder">
+		<property name="factory">
+			<bean class="org.sakaiproject.rsf.util.ISO8601FieldDateTransit" />
+		</property>
+	</bean>
+
+</beans>

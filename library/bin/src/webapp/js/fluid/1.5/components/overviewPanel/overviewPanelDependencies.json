@@ -1,0 +1,14 @@
+{
+    "overviewPanel": {
+        "name": "Overview Panel",
+        "description": "A collapsible panel for displaying supporting information on a web page.",
+        "files": [
+            "./js/OverviewPanel.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "framework",
+            "renderer"
+        ]
+    }
+}

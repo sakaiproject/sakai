@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="jobBeans">
+            <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.autoimport.ImportJob"/>
+                <constructor-arg value="Site Import Job"/>
+            </bean>
+        </property>
+    </bean>
+
+    <context:component-scan base-package="org.sakaiproject.component.app.scheduler.jobs.autoimport"/>
+
+    <bean id="org.sakaiproject.jobscheduler.hibernate.AdditionalHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.scheduler.events.hibernate.ContextMapping</value>
+                <value>org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl</value>
+                <value>org.sakaiproject.scheduler.events.hibernate.DelayedInvocation</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- This job bean factory attempts to autowire any jobs that the quartz scheduler creates, this means that
+         the job can be an ordinary Java class, rather than a special Job that looks up the spring bean in the
+         component manager. -->
+    <bean id="org.sakaiproject.component.app.scheduler.AutowiringSpringBeanJobFactory"
+          class="org.sakaiproject.component.app.scheduler.AutowiringSpringBeanJobFactory">
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
+          class="org.sakaiproject.component.app.scheduler.events.hibernate.TriggerEventManagerHibernateImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="navigableLogListener" class="org.sakaiproject.component.app.scheduler.NavigableEventLogListener"/>
+
+    <bean id="org.sakaiproject.api.app.scheduler.SchedulerManager"
+        class="org.sakaiproject.component.app.scheduler.SchedulerManagerImpl"
+        init-method="init" destroy-method="destroy">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="qrtzJobs">
+            <set>
+            </set>
+        </property>
+        <property name="migration">
+            <util:map>
+                <!-- The spring bean to class name mappings, key and value can be different -->
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"
+                    value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
+                       value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"/>
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"
+                       value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"/>
+            </util:map>
+        </property>
+
+        <property name="qrtzPropFile" value="quartz.properties"/>
+        <property name="qrtzPropFileSakai" value="sakai.quartz.properties"/>
+        <property name="globalTriggerListener">
+            <bean class="org.sakaiproject.component.app.scheduler.GlobalTriggerListener">
+                <property name="triggerEventManager">
+                    <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"/>
+                    <!--bean class="org.sakaiproject.component.app.scheduler.events.TriggerEventManagerImpl"/-->
+                </property>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+            </bean>
+        </property>
+        <property name="globalTriggerListeners">
+            <set>
+                <ref bean="navigableLogListener"/>
+            </set>
+        </property>
+        <property name="globalJobListeners">
+            <set>
+                <ref bean="navigableLogListener"/>
+            </set>
+        </property>
+        <property name="dataSource">
+          <ref bean="javax.sql.DataSource"/>    
+        </property>
+        <property name="serverId">
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+                <property name="targetMethod"><value>getString</value></property>
+                <property name="arguments">
+                    <list>
+                        <value>serverId</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <property name="autoDdl">
+          <value>${auto.ddl}</value>
+        </property>
+        <property name="jobFactory">
+            <ref bean="org.sakaiproject.component.app.scheduler.AutowiringSpringBeanJobFactory"/>
+        </property>
+    </bean>
+
+
+    <bean id="org.sakaiproject.component.app.scheduler.ContextMappingDAO"
+          class="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
+    
+    <bean id="org.sakaiproject.component.app.scheduler.DelayedInvocationDAO"
+        class="org.sakaiproject.component.app.scheduler.DelayedInvocationDAO">
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"
+        class="org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl"
+        init-method="init" destroy-method="destroy">
+        <property name="idManager">
+        	<ref bean="org.sakaiproject.id.api.IdManager"/>
+        </property>
+        <property name="schedulerFactory">
+        	<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        </property>
+        <property name="dao">
+            <ref bean="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
+        </property>
+    </bean>   
+    
+    <bean id="eventPurgeJob" class="org.sakaiproject.component.app.scheduler.jobs.eventpurge.EventLogPurgeJob">
+        <property name="triggerEventManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"/>
+        </property>
+    </bean>
+
+    <bean id="eventPurgeJobWrapper" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+       init-method="init">
+      <property name="beanId">
+         <value>eventPurgeJob</value>
+      </property>
+      <property name="jobName">
+         <value>Event Log Purge</value>
+      </property>
+      <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.eventpurge.Messages"/>
+      <property name="configurableJobProperties">
+          <set>
+              <bean id="number.days" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                   <property name="required" value="true"/>
+                   <property name="labelResourceKey" value="number.days"/>
+                   <property name="descriptionResourceKey" value="number.days.description"/>
+                   <property name="defaultValue" value="7"/>
+              </bean>
+          </set>
+      </property>
+      <property name="configurableJobPropertyValidator">
+          <bean class="org.sakaiproject.component.app.scheduler.jobs.eventpurge.EventPurgeConfigurationValidator"/>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+    </bean>
+
+   <!-- Conditions Job -->
+   		<!--  simple job that fires a Datetime event -->   
+	   <bean id="datetimeJob"
+	   		class="org.sakaiproject.conditions.job.DatetimeEventJob">
+	   	</bean>
+
+   <!-- Job to allow logging of an arbitrary message to an arbitrary logger at an arbitrary level. -->
+   <bean id="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob"
+         class="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob">
+   </bean>
+
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LogMessageJob"
+         class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+         init-method="init">
+       <property name="beanId">
+           <value>org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob</value>
+       </property>
+       <property name="jobName">
+           <value>Log a message</value>
+       </property>
+       <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.logmessage.Messages"/>
+       <property name="configurableJobProperties">
+           <set>
+               <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                   <property name="required" value="true"/>
+                   <property name="labelResourceKey" value="level"/>
+                   <property name="descriptionResourceKey" value="level.description"/>
+                   <property name="defaultValue" value="info"/>
+               </bean>
+               <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                   <property name="required" value="true"/>
+                   <property name="labelResourceKey" value="message"/>
+                   <property name="descriptionResourceKey" value="message.description"/>
+                   <property name="defaultValue" value="This is a test message"/>
+               </bean>
+               <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                   <property name="required" value="true"/>
+                   <property name="labelResourceKey" value="logger"/>
+                   <property name="descriptionResourceKey" value="logger.description"/>
+                   <property name="defaultValue" value="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob"/>
+               </bean>
+           </set>
+       </property>
+       <property name="schedulerManager">
+           <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+   </bean>
+
+    <!-- Job to check that all the file sizes on disk are the same as the DB -->
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.ContentCheckJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.ContentCheckJob">
+        <property name="chs" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    </bean>
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ContentCheckJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.component.app.scheduler.jobs.ContentCheckJob</value>
+        </property>
+        <property name="jobName">
+            <value>Check content in DB/Filesystem.</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+
+	   <!-- this is the helper that will register the above bean with the job scheduler -->
+	   <!--
+	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
+	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper" init-method="init">
+	      <property name="beanId">
+	         <value>datetimeJob</value>
+	      </property>
+	      <property name="jobName">
+	         <value>Conditional Release Datetime Job</value>
+	      </property>
+	      <property name="schedulerManager">
+	         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	      </property>
+	   </bean>
+	   -->
+	   
+	<bean id="org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob"
+		class="org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob"
+		init-method="init">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SoftSiteDeletion"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+		<property name="beanId">
+			<value>org.sakaiproject.component.app.scheduler.jobs.SoftSiteDeletionJob</value>
+		</property>
+		<property name="jobName">
+			<value>Expunge softly deleted sites</value>
+		</property>
+		<property name="schedulerManager">
+			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		</property>
+	</bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.BackFillRoleJob"
+          class="org.sakaiproject.component.app.scheduler.ConfigurableAutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"/>
+        <constructor-arg value="Backfill roles from templates"/>
+        <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="site.id"/>
+                    <property name="descriptionResourceKey" value="site.id.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="interval"/>
+                    <property name="descriptionResourceKey" value="interval.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="type"/>
+                    <property name="descriptionResourceKey" value="type.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="role"/>
+                    <property name="descriptionResourceKey" value="role.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
+    <!-- global quartz scheduler proxy bean -->
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSiteRemovalJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId"          ><value>org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSiteRemovalJob</value></property>
+        <property name="jobName"         ><value>Course Site Removal</value>                                     </property>
+        <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>      </property>
+    </bean>
+
+    <!-- quartz job bean which removes published course sites -->
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSiteRemovalJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSiteRemovalJob"
+           init-method="init">
+        <property name="courseSiteRemovalService"  ><ref bean="org.sakaiproject.coursemanagement.api.CourseSiteRemovalService"/></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"   /></property>
+        <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
+        <property name="userDirectoryService"      ><ref bean="org.sakaiproject.user.api.UserDirectoryService"              /></property>
+
+    </bean>
+
+
+
+    <!-- global quartz scheduler proxy bean -->
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSitePublishJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+           init-method="init">
+        <property name="beanId"          ><value>org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSitePublishJob</value></property>
+        <property name="jobName"         ><value>Course Site Publish</value>                                     </property>
+        <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>      </property>
+    </bean>
+
+    <!-- quartz job bean which publishes course sites -->
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSitePublishJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.coursepublish.CourseSitePublishJob"
+           init-method="init">
+        <property name="courseSitePublishService"  ><ref bean="org.sakaiproject.coursemanagement.api.CourseSitePublishService"/></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"   /></property>
+        <property name="sessionManager"            ><ref bean="org.sakaiproject.tool.api.SessionManager"                    /></property>
+        <property name="userDirectoryService"      ><ref bean="org.sakaiproject.user.api.UserDirectoryService"              /></property>
+    </bean>
+
+    <!-- Hide LB-CSS folder from access user-->
+    <bean id = "org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob">
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LBCSSFolderHideJob"
+        class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+        init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob</value>
+        </property>
+        <property name="jobName">
+            <value>Hide LB-CSS folder in Resources.</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        </property>
+
+        <property name="jobBeans">
+            <list>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg
+                            value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
+                    <constructor-arg value="Scheduled Invocation Validation"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg
+                            value="org.sakaiproject.component.app.scheduler.jobs.SchedulerMigrationJob"/>
+                    <constructor-arg value="Scheduler: Migrate pre 12 scheduler_delayed_invocation jobs to 12 format (Run once)"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
+                    <constructor-arg value="Sync the provided groups in authz"/>
+                </bean>
+                <ref bean="org.sakaiproject.api.app.scheduler.BackFillRoleJob"/>
+                <ref bean="org.sakaiproject.api.app.scheduler.BackFillToolJob"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- This is to automatically import some sites on startup. -->
+    <bean class="org.sakaiproject.component.app.scheduler.AutoRun" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="startup">
+            <list>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"
+            class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"/>
+        <constructor-arg value="Get Archives"/>
+    </bean>
+
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="jobBeans">
+            <list>
+            <ref bean="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"/>
+            </list>
+        </property>
+    </bean>
+
+
+    <!-- Automatically create event purge job -->
+    <bean class="org.sakaiproject.scheduler.util.AutoProvisionJobs" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="files">
+            <list>
+                <value>/event-log-purge.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <import resource="backfill-tool.xml"/>
+    <import resource="cm-components.xml"/>
+</beans>

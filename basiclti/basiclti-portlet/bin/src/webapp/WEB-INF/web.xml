@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+  <display-name>IMS BLTI Portlet</display-name>
+
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <servlet-name>ProviderServlet</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
+
+  <servlet>
+    <servlet-name>IMSBLTIPortlet</servlet-name>
+    <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+    <init-param>
+    <param-name>portlet-name</param-name>
+    <param-value>IMSBLTIPortlet</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ProviderServlet</servlet-name>
+    <servlet-class>org.sakaiproject.blti.ProviderServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+      <servlet-name>IMSBLTIPortlet</servlet-name>
+      <url-pattern>/PlutoInvoker/IMSBLTIPortlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ProviderServlet</servlet-name>
+    <url-pattern>/provider/*</url-pattern>
+  </servlet-mapping>
+  
+  <listener>
+		<listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+	</listener>
+
+</web-app>

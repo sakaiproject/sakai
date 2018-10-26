@@ -1,0 +1,6 @@
+<br />
+<div class="alertMessage">
+  $tlang.getString("gen.alert")
+  $xilator.escapeHtml($alertMessages)
+</div>
+<div class="clear"></div>

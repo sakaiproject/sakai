@@ -1,0 +1,13 @@
+{
+    "enhancement": {
+        "name": "Progressive Enhancement",
+        "description": "Provides support for progressively enhancing components based on the capabilities of the browser.",
+        "files": [
+            "./js/ProgressiveEnhancement.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "framework"
+        ]
+    }
+}

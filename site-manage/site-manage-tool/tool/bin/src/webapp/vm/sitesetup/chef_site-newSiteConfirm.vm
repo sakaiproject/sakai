@@ -1,0 +1,380 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteConfirm.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+		#if ($!isProjectSite)
+			<h3>
+				$tlang.getString("newsc.project.confirm")
+			</h3>
+		#elseif ($!isCourseSite)
+			<h3>
+				$tlang.getString("newsc.course.confirm")
+			</h3>
+		#else
+			<h3>
+				$tlang.getString("newsc.other.confirm")
+			</h3>
+		#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	<p class="step">
+		$tlang.getString("newsc.selection")
+	</p>
+	<p class="instruction">
+		$tlang.getString("newsc.please")
+		#if ($!isCourseSite && $!manualAddNumber)
+			$tlang.getString("newsc.ifthis") 
+		#else
+			$tlang.getString("newsc.ifthis2") 
+		#end
+		$tlang.getString("newsc.ifyou")
+	</p>
+	#if ($isCourseSite)
+		<p>$tlang.getString("newsc.youare")</p>
+		<ul class="indnt2 attachList">
+			#foreach ($item in $!selectedProviderCourseTitles.keySet())
+				<li>
+					$!selectedProviderCourseTitles.get($item)
+				</li>
+			#end
+		#if ($!manualAddNumber)
+				##for manually entered requested sites
+				#foreach ($k in [0..$manualAddNumber])
+						#set($courseFieldValues = $!fieldValues.get($k))
+						#set($bound = $!form_requiredFields.size())
+						#set($bound = $bound - 1)
+						<li>
+							#foreach ($fieldCount in [0..$!bound])
+								$!courseFieldValues.get($fieldCount).getValue() 
+							#end
+							$tlang.getString("man.requested")
+						</li>
+				#end
+		#end
+			#foreach ($sect in $!selectedRequestedCourse)
+				<li>
+					$sect.title $tlang.getString("man.requested")
+				</li>
+				#end
+			#foreach ($item in $!selectedAuthorizerCourse)
+			<li>$item.title </li>
+			#end
+		</ul>
+	#end
+	<form name="addSiteForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="eventSubmit_doAdd_site_option" value="x" />
+		<input type="hidden" name="option" value="cancel" />
+		<div class="table-responsive">
+		<table class ="itemSummary" cellspacing="0" summary="$tlang.getString("newsc.list.summary")" border="0">
+			<tr>
+				<th>
+					$tlang.getString("newsc.site")
+				</th>
+				<td>
+					$validator.escapeHtml($title)
+				</td>
+			</tr>
+			#if ( $!siteUrls.Empty )
+			<tr>
+ 				<th>
+					$tlang.getString("newsc.url")
+				</th>
+				<td>
+					<span>$tlang.getString("newsc.url.none")</span>
+				</td>
+			</tr>
+			#else
+			#set ( $siteUrlIdx  = 0 )
+			#foreach ( $siteUrl in $siteUrls )
+			<tr>
+				<th>
+					#if ( $siteUrlIdx == 0 )
+						$tlang.getString("newsc.url")
+					#else
+						&nbsp;
+					#end
+				</th>
+				<td>
+					$validator.escapeHtml($!siteUrl)
+				</td>
+			</tr>
+			#set ( $siteUrlIdx = $siteUrlIdx + 1 )
+			#end
+			#end
+			<tr>
+				<th>
+				$tlang.getString("newsc.tools")
+				</th>
+				<td>
+						#if ($check_home)
+						$tlang.getString("java.home")<br/>
+						#end
+					#foreach ($newTool in $selectedTools)
+					 	## SAK-16600 to exclude the home tool here
+						#if (!$homeToolId.equals($newTool))
+							#set($newToolTitle = "")
+							#foreach($t in $toolRegistrationList)
+								#if ($t.getId() == $newTool)
+									#set($newToolTitle = $validator.escapeHtml($t.getTitle()))
+								#end
+							#end
+							#if ($newTool == "sakai.mailbox")
+								$!newToolTitle 
+								#if ($!allowPageOrderHelper)
+									($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+								#end
+								: $!emailId@$serverName
+							#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
+								## show tool title
+								$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+								#if ($!allowPageOrderHelper)
+									($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+								#end
+								## show tool configuration
+								#if ($!multipleToolIdTitleMap.containsKey($toolId))
+									#set($properties = $!multipleToolConfiguration.get($toolId))
+									#if (!$properties.isEmpty())
+										##show configurations
+										(	
+											#foreach ($property in $!properties.keySet())
+												$property : $validator.escapeHtml($properties.get($property))
+											#end
+										)
+									#end
+						   		#end
+											## get tool configuration
+											#set($attributeHashtable=false)
+								#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
+								#if (!$!attributeHashtable.isEmpty())
+									## show attributes
+												(#foreach ($attribute in $!attributeHashtable.keySet())
+										$validator.escapeHtml($!attributeHashtable.get($attribute))
+												#end)
+											#end
+										#else
+								$!newToolTitle
+											#foreach ($tId in $!importSiteTools.keys())
+									#if ($tId == $newTool)
+													(
+														#set($importSiteIds = $importSiteTools.get($tId))
+														#foreach($importSiteId in $importSiteIds)
+															#set($importSite = $siteService.getSite($importSiteId))
+															$validator.escapeHtml($importSite.getTitle()),
+														#end
+													)
+												#end
+											#end
+										#end
+							<br />
+								#end
+						#end
+					## for LTI tools
+					#if (!$!ltiTools.isEmpty())
+						#foreach($ltiTool in $ltiTools.entrySet())
+							#set($ltiToolId=$ltiTool.getKey())
+							#set($ltiToolValues=$ltiTool.getValue())
+							#set($ltiToolTitle=$ltiToolValues.get("title"))
+							$ltiToolTitle ($ltiToolValues.get("title"))
+							<br/>
+						#end
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("newsc.avail")
+				</th>
+				<td>
+					#if ($!published)
+					 	#if ($additionalAccess.size() > 0)
+							<ul class="attachList" style="margin:0">
+								<li>$tlang.getString("newsc.sitepart")</li>
+							#foreach($role in $additionalAccess)
+								<li>$role</li>
+							#end
+							</ul>
+						#else
+							$tlang.getString("newsc.sitepart")
+						#end
+					
+					#else
+						## unpublished site
+						$tlang.getString("newsc.siteown")
+					#end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("newsc.joinable")
+				</th>
+				<td>
+					#if ($!published && $!joinable)
+						$tlang.getString("newsc.yes")
+					#else
+						$tlang.getString("newsc.no")
+					#end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.iclu")
+				</th>
+				<td>
+					#if ($!published && $!include)
+						$tlang.getString("newsc.yes")
+					#else
+						$tlang.getString("newsc.no")
+					#end
+				</td>
+			</tr>
+			#if ($!isCourseSite && !$!disableCourseSelection && $!skins.size() > 0)
+				<tr>
+					<th>
+						$tlang.getString("newsc.appear")
+					</th>
+					<td>
+						#set($selectedUrl="")
+						#set($selectedUrl=$!selectedIcon)
+						#foreach($skin in $!skins)
+							#set($skinUrl="")
+							#set($skinUrl=$!skin.Url)
+							#if($selectedUrl == $skinUrl)
+								$skin.Name
+							#end
+						#end
+					</td>
+				</tr>
+			#else
+				<tr>
+					<th>
+						$tlang.getString("newsc.icon")
+					</th>
+					<td>
+					#if (!$!iconUrl)
+					<span>$tlang.getString("newsc.icon.none")</span>
+				#else
+					$!validator.escapeHtml($!iconUrl)
+				#end
+					</td>
+				</tr>
+			#end
+			<tr>
+				<th>
+					$tlang.getString("newsc.sitecont")
+				</th>
+				<td>
+					$validator.escapeHtml($!siteContactName)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("newsc.sitecont2")
+				</th>
+				<td>
+				#if ($!siteContactEmail=="")
+					<span>$tlang.getString("newsc.sitecont2.none")</span>
+				#else
+					$validator.escapeHtml($!siteContactEmail)
+				#end
+					
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("newsc.short")
+				</th>
+				<td>
+				#if ($short_description =="")
+					<span>$tlang.getString("newsc.short.none")</span>
+				#else
+					$validator.escapeHtml($short_description)
+				#end	
+
+				</td>
+			</tr>
+ 			<tr>
+			
+			
+			<tr>
+				<th>
+					$tlang.getString("sitediconf.language")
+				</th>
+				<td>					
+					#if ($locale_string_selected == "")
+						<span>$tlang.getString("newsc.language.none")</span>
+					#else
+						$validator.escapeHtml($locale_string_selected.getDisplayName())
+					#end						
+				</td>
+			</tr>
+			
+			
+			<tr>
+					<th colspan="2">
+						<h4>
+							$tlang.getString("newsc.descr")
+						</h4>
+					</th>
+			</tr>	
+			<tr>
+					<td colspan="2">
+						#if ($description =="")
+							<span>$tlang.getString("newsc.descr.none")</span>
+						#else	
+							$description
+						#end						
+					</td>
+			</tr>
+			#if ($fromArchive)
+				<tr>
+					<th>
+						$tlang.getString("archive.createsite.confirm")
+					</th>
+					<td>					
+						#if ($fromArchive =="")
+							<span>$tlang.getString("archive.createsite.confirm.none")</span>
+						#else	
+							$fromArchive
+						#end						
+					</td>
+				</tr>
+			#end
+		</table></div>
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="0" />
+		<div class="act">
+			<input
+				type="submit"
+				class="active"
+				#if (($!isCourseSite && $!manualAddNumber) || $!selectedRequestedCourse )
+					#set($name = "$tlang.getString('newsc.reqsite')")
+				#else
+					#set($name="$tlang.getString('newsc.crsite')")
+				#end
+				name="addSite"
+				id="addSite" 
+				accesskey="s"
+				value="$!name"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='finish'; document.addSiteForm.submit(); return false;"
+			/>
+			<input
+				class="disableme" 
+				type="submit" 
+				name="back" 
+				id="back" 
+				accesskey="b"
+				value="$tlang.getString('gen.back')"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='back'; document.addSiteForm.submit(); return false;"
+			/>
+			<input
+				class="disableme" 
+				type="submit" 
+				name="cancel" 
+				id="cancel" 
+				accesskey="x"
+				value="$tlang.getString('gen.cancel')"
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addSiteForm.option.value='cancel'; document.addSiteForm.submit(); return false;"
+			/>
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

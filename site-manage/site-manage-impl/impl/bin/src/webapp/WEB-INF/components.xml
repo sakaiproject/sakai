@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.sitemanage.api.SiteManageService"
+		  class="org.sakaiproject.sitemanage.impl.SiteManageServiceImpl"
+		  init-method="init"
+		  destroy-method="destroy">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService"/>
+		<property name="siteImportThreadCount" value="10"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="transactionTemplate">
+			<bean class="org.springframework.transaction.support.TransactionTemplate">
+				<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+			</bean>
+		</property>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userNotificationProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider"/>
+	</bean>
+
+	<bean id="org.sakaiproject.sitemanage.api.SiteTypeProvider"
+			class="org.sakaiproject.sitemanage.impl.SiteTypeProviderImpl"
+			init-method="init"
+			destroy-method="destroy">
+	</bean>
+	
+	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
+			class="org.sakaiproject.sitemanage.impl.SectionFieldProviderImpl"
+			init-method="init"
+			destroy-method="destroy">
+	      <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+	
+	<bean id="org.sakaiproject.sitemanage.api.AffiliatedSectionProvider"
+			class="org.sakaiproject.sitemanage.impl.AffiliatedSectionProviderImpl"
+			init-method="init"
+			destroy-method="destroy">
+	</bean>
+	 
+	<!--<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
+		class="org.sakaiproject.sitemanage.impl.UserNotificationProviderImpl"
+		init-method="init">
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+	</bean>-->
+
+	<!-- Uncomment to use the EmailTemplateService notification provider -->
+	<bean id="org.sakaiproject.sitemanage.api.UserNotificationProvider" 
+		class="org.sakaiproject.sitemanage.impl.ETSUserNotificationProviderImpl"
+		init-method="init">
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+	</bean>
+	
+	<!--  Hibernate persistence -->
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.siteSetupQuestion"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/sitemanage/impl/SiteSetupQuestion.hbm.xml</value>
+				<value>org/sakaiproject/sitemanage/impl/SiteSetupQuestionAnswer.hbm.xml</value>
+				<value>org/sakaiproject/sitemanage/impl/SiteSetupUserAnswer.hbm.xml</value>
+				<value>org/sakaiproject/sitemanage/impl/SiteTypeQuestions.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+        </property>
+        <property name="target">
+            <ref bean="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl" />
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
+    	class="org.sakaiproject.sitemanage.impl.SiteSetupQuestionServiceImpl"
+    	init-method="init" destroy-method="destroy">
+    	<property name="sessionFactory">
+    		<ref
+    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    	</property>
+    </bean>
+    
+    <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"
+    	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+    	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+    	init-method="init">
+    	<property name="bundleLocation"><value>UserAuditService</value></property>
+    	<property name="databaseSourceKey"><value>M</value></property>
+    	<property name="hasParameters"><value>true</value></property>
+    </bean>
+    
+    <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.membership"
+    	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+    	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+    	init-method="init">
+    	<property name="bundleLocation"><value>UserAuditService</value></property>
+    	<property name="databaseSourceKey"><value>S</value></property>
+    </bean>
+
+	<bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.direct"
+		  parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+		  class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+		  init-method="init">
+		<property name="bundleLocation"><value>UserAuditService</value></property>
+		<property name="databaseSourceKey"><value>D</value></property>
+		<property name="hasParameters"><value>true</value></property>
+	</bean>
+
+    <bean id="org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob"
+        class="org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob"
+        init-method="init">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"
+        class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+        init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob</value>
+        </property>
+        <property name="jobName">
+            <value>Create sites, users and content for testing.</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+	<!-- This is mainly used for demo so that some content is created automatically -->
+	<bean class="org.sakaiproject.component.app.scheduler.AutoRun" init-method="init">
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="startup">
+			<list>
+				<ref bean="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"/>
+			</list>
+		</property>
+		<property name="config">
+			<value>quartz.seedsites.autorun</value>
+		</property>
+	</bean>
+</beans>

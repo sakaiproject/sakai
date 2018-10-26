@@ -1,0 +1,19 @@
+#javascript("/sakai-assignment-tool/js/scoringAgent.js")
+
+<span style="margin-left:10px;" id="scoringAgent-area">
+    <a href="javascript:void(0)" id="scoringAgent-link" onclick="ASN_SCRAGNT.openScoringAgent('$scoreUrl'); ASN_SCRAGNT.displayRefreshReminder();">
+        <img src="$scoringAgentImage" title="$scoreText" alt="$scoreText" />
+    </a>
+
+    <!--if grading then show link to refresh grade -->
+    #if($refreshScoreUrl)
+        <a href="javascript:void(0)" id="scoringAgent-refresh" onclick="ASN_SCRAGNT.refreshScore('$refreshScoreUrl');">
+           <img src="/../library/image/silk/arrow_refresh-blue.png" 
+               alt="$tlang.getFormattedMessage("scoringAgent.refresh", $scoringAgentName)" 
+               title="$tlang.getFormattedMessage("scoringAgent.refresh", $scoringAgentName)" 
+               style="margin-left: 10px;"/>
+
+           <span style="display:none" id="scoringAgent-refresh-reminder">$tlang.getString('scoringAgent.refreshReminder')</span>
+        </a>
+    #end
+</span>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<registration>
+
+        <tool
+                        id="sakai.web.168"
+                        title="Web Portlet"
+                        description="For accessing an external website within the site.">
+
+                <configuration name="source" value="" />
+                <configuration name="height" value="600px" />
+
+
+		<!-- This is hidden for now as it is used by External Tools Admin
+                   to place links to LTI Tool Configurations in the left nav. -->
+
+                <category name="stealth" />
+
+                <!-- Allow this to be set -->
+                <configuration name="functions.require" />
+        </tool>
+
+</registration>

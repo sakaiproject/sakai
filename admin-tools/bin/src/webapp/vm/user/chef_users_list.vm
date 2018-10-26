@@ -1,0 +1,114 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $
+#javascript("/library/js/spinner.js")
+<script type="text/javascript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>
+		$tlang.getString("uselis.users")
+	</h3>
+
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($successMessage)<div class="success">$validator.escapeHtml($successMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("uselis.theare")
+		</div>
+		
+		##paging widget
+		<div class="listNav">
+						#if($totalNumber>0)
+						<div class="instruction" id="pagingHeader">
+						$tlang.getFormattedMessage("uselis.list.youare_of_results", $params)
+						</div>
+						#end
+						#if ($pagesize != 0)
+							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<fieldset><legend>$tlang.getString("uselis.first")</legend>
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("uselis.first")" 
+										#if ($goFPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<fieldset><legend>$tlang.getString('uselis.previous') $pagesize</legend>
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('uselis.previous') $pagesize" accesskey="p"
+									#if ($goPPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#end
+						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+							<span class="skip">$tlang.getString("sitedipag.listnavselect")</span>
+							<select name="selectPageSize" onchange="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); document.pagesizeForm.submit();">
+
+							#foreach ($value in $list)
+								## $value is an Integer array of length one
+								#foreach($intValue in $value)
+									## this is to get the first and only Integer element and its int value
+									#set($ivalue=$intValue.intValue())
+								#end
+								<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("uselis.show", $value)</option>
+							#end
+							</select>
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						</form>
+						#if ($pagesize != 0)
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<fieldset><legend>$tlang.getString('uselis.next') $pagesize</legend>
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('uselis.next') $pagesize" accesskey="n"
+									#if ($goNPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<fieldset><legend>$tlang.getString('uselis.last')</legend>
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('uselis.last')"
+									#if ($goLPButton != "true") disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+								</fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#end
+		</div> ##end navPanel
+				
+
+#if ($users.size() > 0)
+			<table class="table table-hover table-striped table-bordered" summary ="$tlang.getString("uselis.lisof")">
+				<tr>
+					<th id="Eid">$tlang.getString("useconrem.useid")</th>
+					<th id="Name">$tlang.getString("useconrem.nam")</th>
+					<th id="Email">$tlang.getString("useconrem.ema")</th>
+					<th id="Type" class="hidden-xs">$tlang.getString("usecre.typ")</th>
+					<th id="Status" class="hidden-xs">$tlang.getString("usecre.status")</th>
+					<th id="Id" class="hidden-xs">$tlang.getString("useconrem.useuid")</th>
+				</tr>
+	#foreach ($user in $users)
+				<tr>
+					<td headers="Eid">
+		#if ($service.allowUpdateUser($user.Id))
+						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($user.Id)")">
+							$validator.escapeHtml($user.Eid)
+						</a>
+		#else
+						$validator.escapeHtml($user.Eid)
+		#end
+					</td>
+					<td headers="Name">$validator.escapeHtml($user.SortName)</td>
+					<td headers="Email">$validator.escapeHtml($user.Email)</td>
+					<td headers="Type" class="hidden-xs">$validator.escapeHtml($user.Type)</td>
+					<td headers="Status" class="hidden-xs">#if($!user.Properties.getProperty("disabled")) $tlang.getString("disabled") #else $tlang.getString("enabled") #end</td>
+					<td headers="Id" class="hidden-xs">$validator.escapeHtml($user.Id)
+					</td>
+				</tr>
+	#end
+			</table>
+#else
+		<div class="instruction">
+			$tlang.getString("uselis.nouse")
+		</div>
+#end
+	</div>
+

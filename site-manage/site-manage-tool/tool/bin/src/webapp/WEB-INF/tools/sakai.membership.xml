@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.membership"
+			title="Membership"
+			description="View and modify your membership in sites you may join.">
+
+		<category name="myworkspace" />
+
+		<configuration name="reset.button" value="false" type="final" />
+	</tool>
+
+</registration>

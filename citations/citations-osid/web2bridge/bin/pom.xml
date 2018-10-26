@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>citations-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>19-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-citations-web2bridge</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-citations-web2bridge</artifactId>
+  <organization>
+    <name>Indiana University Library Information Technology</name>
+    <url>http://libraries.iub.edu/</url>
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+  <packaging>jar</packaging>
+<!--
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+-->
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>OKI</groupId>
+      <artifactId>OkiOSID</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>zing</groupId>
+      <artifactId>cql-java</artifactId>
+      <version>0.7</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+<!-- java source -->
+    <sourceDirectory>src/java</sourceDirectory>
+<!-- xml configuration -->
+<!-- other resources for the jar -->
+  </build>
+</project>

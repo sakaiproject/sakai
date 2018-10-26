@@ -1,0 +1,94 @@
+<div id="dialog">
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+		sakai.setupMessageListener("messageHolder", "messageInformation");
+	});
+</script>
+
+<div class="portletBody specialLink container-fluid">
+	#if($menu)#toolbar($menu)#end
+
+	<div class="membershipContent">
+
+		## join/unjoin action info is the only value of "alertMessage", so style it as information rather than error
+		#if ($alertMessage)
+			<div class="messageInformation" id="messageHolder">$validator.escapeHtml($alertMessage)</div>
+		#end
+
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
+				#if (!$openSites.isEmpty() || !$search.isEmpty())
+					#searchFilterPanel("searchFilter1", $search, "doSearch", "doSearch_clear")
+				#end
+			</div>
+
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
+			</div>
+		</div>
+
+		<form action="#toolForm("$action")" method="post">
+			<div class="table-responsive">
+				<table id="joinableSites" class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString("mb.list.joinable.summary")">
+					<thead>
+						<tr>
+							<th id="worksite" class="attach">
+								<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')">
+									$tlang.getString("gen.worksite")
+									#if ($currentSortAsc)
+										<img src="#imageLink("sakai/sortascending.gif")" border="0" title="$tlang.getString('list.stasc')" alt="$tlang.getString('list.stasc')" />
+									#else
+										<img src="#imageLink("sakai/sortdescending.gif")" border="0" title="$tlang.getString('list.stdesc')" alt="$tlang.getString('list.stdesc')" />
+									#end
+								</a>
+							</th>
+							<th id="action">$tlang.getString("mb.join.action")</th>
+							<th id="description">$tlang.getString("gen.description")</th>
+						</tr>
+					</thead>
+					<tbody>
+						#foreach ($site in $openSites)
+							<tr>
+								<td headers="worksite" class="attach noWrap">
+									$validator.escapeHtml($site.Title)
+								</td>
+								<td headers="action">
+									<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")"
+											title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">
+										$tlang.getString('mb.join')
+									</a>
+								</td>
+								<td headers="description" class="specialLink">
+									#if ($validator.escapeHtml($site.Description) != '')
+										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
+									#end
+								</td>
+							</tr>
+						#end
+					</tbody>
+				</table>
+
+				#if (!$search.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosearchjoinablesites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</div>
+				#elseif ($openSites.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosites')</div>
+				#end
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+
+		#if ($openSites.size() > 10 && $pagesizeInt > 10)
+			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+				<div class="sakai-table-filterContainer">
+					#searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
+				</div>
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager2")
+				</div>
+			</div>
+		#end
+	</div>
+</div>

@@ -1,0 +1,388 @@
+@import "base/compass";
+
+.sitesNav__drop{
+	cursor: pointer;
+	display: inline-block;
+	height:  12px;
+	width:   16px;
+}
+
+.blurry{
+	@include filter( blur(0.1em) );
+}
+
+.mobile_blocked{
+	@media #{$phone}{
+		display: inline;
+		td{
+			display: block;
+		}
+	}
+}
+
+.space_mobile{
+	@media #{$phone}{
+		background: darken( $background-color, 2% );
+		border-top:    1px solid darken( $background-color, 10% );
+		border-bottom: 1px solid darken( $background-color, 10% );
+		margin: 0.5em -1.02em;
+		padding: 1em 0.95em;
+		box-shadow: inset 0px 0px 7px 0px rgba(0,0,0,0.25);
+	}
+}
+
+@mixin bs-callout($color, $bgcolor) {
+  display: block;
+  margin: 20px 0;
+  padding: 15px 30px 15px 15px;
+  border: 1px solid;
+  border-left-width: 5px;
+  border-color: lighten($color, 25%);
+  border-left-color: $color;
+  color: darken($color, 30%);
+  background-color: $bgcolor;
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    color: $color;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+  code, .highlight {
+    background-color: #fff;
+  }
+}
+
+.bs-callout-primary, .bs-callout-info, .messageInformation, .messageInstruction, .messageProgress {
+  @include bs-callout($info-color, $info-background-color);
+}
+
+.bs-callout-success, .messageValidation, .messageSuccess {
+  @include bs-callout($ok-color, $ok-background-color);
+}
+.bs-callout-warn, .bs-callout-alert, .messageWarning, .messageConfirmation {
+  @include bs-callout($warn-color, $warn-background-color);
+}
+.bs-callout-danger, .bs-callout-error, .messageError {
+  @include bs-callout($error-color, $error-background-color);
+}
+
+@mixin icon( $width : $icon-size, $height : $icon-size ){
+	border: 0px none;
+	display: inline-block;
+	height:  $height;
+	width:   $width;
+	&:hover{
+		opacity: 0.5;
+	}
+}
+
+@mixin toolicon( $width : $icon-size, $height : $icon-size ){
+	
+	@if $skin-with-icons {
+		border:  0px none;
+		display: inline-block;
+		height:  $height;
+		width:   $width;
+		margin:  0 0.25em 0.15em 0;
+	}
+
+}
+
+.select{
+	background-color: $background-color;
+	background-image: url("images/icon-arrow-down.png");
+	background-position: right 50%;
+	background-repeat: no-repeat;
+	border: 1px solid $button-border-color;
+	color: $text-color;
+	font-family: $font-family;
+	font-size: #{$default-font-size - 1};
+	padding: 0.3em 2.2em 0.3em 0.5em;
+	text-align: left;
+	max-width: 100%;
+	@include appearance(none);
+	@include border-radius(3px);
+	&::-ms-expand {
+	    display: none;
+	}
+	
+	&[multiple], &[size]:not([size='1']) {
+		background-image: none;
+	}
+	
+	&[disabled="disabled"],&[disabled],&[disabled="true"] {
+		opacity: 0.7;
+		background-color: #f3f3f3;
+		cursor: not-allowed;
+	}
+}
+
+.nav.nav-tabs, .sakai_tabs{
+	margin: 0 0.4em 0 0;
+	> li{
+		&.active, &.selected, &.activeTab{
+			> a{
+				background: $tool-tab-active-background-color;
+				border-top: 1px solid #ddd;
+				border-left: 1px solid #ddd;
+				border-right: 1px solid #ddd;
+				border-bottom: 1px solid $tool-tab-active-background-color !important;
+				color: $primary-color;
+				&:hover{
+					background: $tool-tab-active-background-color;
+					color: $primary-color;
+				}
+			}
+		}
+		> a{
+			background: $tool-tab-background-color;
+			border: 1px solid #ddd !important;
+			color: $text-color;
+			cursor: pointer;
+			margin: 0 0em 0 0.5em;
+			text-decoration: none;
+		}
+	}
+}
+
+@mixin sakai_button(	$button-text-color,
+											$button-icon-color,
+											$button-background-color,
+											$button-border-color,
+											$button-hover-text-color,
+											$button-hover-icon-color,
+											$button-hover-background-color,
+											$button-hover-border-color) {
+	background: $button-background-color;
+	border: 1px solid $button-border-color;
+	color: $button-text-color !important;
+	cursor: pointer;
+	display: inline-block;
+	font-family: $font-family;
+	font-size: #{ $default-font-size - 2 };
+	line-height: 18px;
+	margin: 0.5em 0.8em 0.5em 0;
+	padding: 0.4em 0.8em 0.45em 0.8em;
+	text-decoration: none !important;
+	@include appearance(none);
+	@include border-radius($button-radius);
+
+	&:before { // icon
+		color: $button-icon-color;
+	}
+
+	&:focus {
+		outline: 5px groove $focus-outline-color !important;
+		outline-offset: 2px !important;
+	}
+
+	&:hover{
+		color: $button-hover-text-color !important;
+		text-decoration: none;
+		background: $button-hover-background-color;
+		border-color: $button-hover-border-color;
+
+		&:before { // icon
+			color: $button-hover-icon-color;
+		}
+	}
+
+	&:active{
+		outline: 0;
+		color: $button-hover-text-color !important;
+		text-decoration: none;
+		background: $button-hover-background-color;
+		border-color: $button-hover-border-color;
+	}
+
+	&[disabled="disabled"],&[disabled],&[disabled="true"]{
+		background: $button-background-color;
+		color: lighten( $button-text-color, 5% );
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+}
+
+
+@mixin sakai_primary_button() {
+	@include sakai_button(	$button-primary-text-color,
+													$button-primary-text-color,
+													$button-primary-background-color,
+													$button-primary-border-color,
+													$button-primary-hover-text-color,
+													$button-primary-hover-text-color,
+													$button-primary-hover-background-color,
+													$button-primary-hover-border-color);
+}
+
+@mixin sakai_secondary_button() {
+	@include sakai_button(	$button-secondary-text-color,
+													$button-secondary-icon-color,
+													$button-secondary-background-color,
+													$button-secondary-border-color,
+													$button-secondary-hover-text-color,
+													$button-secondary-hover-icon-color,
+													$button-secondary-hover-background-color,
+													$button-secondary-hover-border-color);
+}
+
+
+@mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
+	@include sakai_primary_button();
+}
+
+.button_color, button, button.btn-primary {
+	@include sakai_primary_button();
+}
+
+.button, button.ui-state-default, .btn.btn-default {
+	@include sakai_secondary_button();
+}
+
+.button.link, a.btn-link, button.btn-link {
+	@include sakai_secondary_button();
+}
+
+.btn-group .btn {
+  margin: 0;
+}
+
+.input-group-btn .btn {
+  margin: 0 0 0 -1px;
+}
+
+a.noPointers, input.noPointers {
+	pointer-events: none;
+}
+
+.act {
+	padding: 1em 0;
+}
+
+/*** Begin button spinner overlay ***/
+@-moz-keyframes rotate {
+	from {-moz-transform: rotate(0deg);}
+	to {-moz-transform: rotate(360deg);}
+}
+
+@-webkit-keyframes rotate {
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+
+@keyframes rotate {
+	from {transform: rotate(0deg);}
+	to {transform: rotate(360deg);}
+}
+
+.spinButton, .spinSelect {
+	position: relative;
+}
+
+.spinButton:after, .spinPlaceholder:after, .spinSelect:after {
+	content: "";
+	background: url("images/ring58.png") center center no-repeat;
+	-moz-animation-name: rotate;
+	-moz-animation-duration: 1.6s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	-webkit-animation-name: rotate;
+	-webkit-animation-duration: 1.6s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	animation-name: rotate;
+	animation-duration: 1.6s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	display: inline;
+	vertical-align: middle;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.spinSelect:after {
+	left: initial;
+	right: 4px;
+	width: 16px;
+}
+
+.spinPlaceholder, .allocatedSpinPlaceholder {
+	position: relative;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-left: 5px;
+}
+
+.spinnerBesideContainer { 
+	@include display-flex;
+	@include align-items( center );
+	label {
+		margin: 0 4px 0 0;
+	}
+	select {
+		margin-bottom: 0px;
+	}
+}
+
+/*** End button spinner overlay ***/
+.ui-dialog.ui-widget {
+	@media #{$phone}{
+		width: 95% !important; 
+		left: 2.5% !important;
+	}
+}
+
+.ui-dialog .ui-dialog-buttonpane button{
+	@include sakai_primary_button();
+}
+
+label.panelGridLabel{
+	margin-right: 0.5em;
+}
+
+.inputColorContainer{
+	input{
+		@media #{$phone}{
+			display: inline-block;
+			max-width: calc( 100% - 20px);
+		}
+	}
+	td{
+		vertical-align: baseline;
+	}
+}
+
+/*** Drop files bar for Resources & Dropbox ***/
+.dropzone {
+	overflow: visible;
+	border: 2px dashed $tool-menu-color !important;
+	border-radius: 5px;
+	background-color: $tool-menu-background-color !important;
+	&:hover {
+		border-color: lighten( $tool-menu-color, 5% ) !important;
+		background-color: lighten( $tool-menu-background-color, 5% ) !important;
+	}
+	
+	.dz-progress{
+		top: 70% !important;
+	}
+}
+
+.dropzone .dz-message .note {
+	font-size: 0.8em;
+	font-weight: 200;
+	display: block;
+	margin-top: 1.4rem;
+}
+
+@mixin flex-wrap($p: nowrap)
+{
+	-moz-flex-wrap: $p;
+	-webkit-flex-wrap: $p;
+	flex-wrap: $p;
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="org.sakaiproject.content.metadata.logic.MetadataService"
+        class="org.sakaiproject.content.metadata.logic.MetadataServiceAggregator">
+
+    <constructor-arg>
+      <list>
+        <bean class="org.sakaiproject.content.metadata.logic.MetadataServiceFromContent">
+          <constructor-arg ref="org.sakaiproject.content.api.ContentHostingService"/>
+          <constructor-arg ref="org.sakaiproject.authz.api.SecurityService"/>
+          <constructor-arg ref="org.sakaiproject.tool.api.ToolManager"/>
+          <constructor-arg>
+            <bean class="org.sakaiproject.content.metadata.logic.JsonMetadataParser"/> 
+          </constructor-arg>
+        </bean>
+        <!-- Hard import DublinCore for compatibility with old systems -->
+        <bean class="org.sakaiproject.content.metadata.logic.MetadataServiceDublinCore"/>
+        <bean class="org.sakaiproject.content.metadata.logic.MetadataServiceLOM"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+
+  <bean id="org.sakaiproject.content.metadata.model.UserMetadataType"
+        class="org.sakaiproject.content.metadata.model.UserMetadataType">
+    <constructor-arg ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    <constructor-arg ref="org.sakaiproject.site.api.SiteService"/>
+  </bean>
+</beans>

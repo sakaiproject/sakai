@@ -1,0 +1,563 @@
+<!DOCTYPE HTML PUBLIC "-///W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * NOTE: This file has been modified for use within Sakai as of September 2010,
+ *       to allow both FCKeditor and CKEditor to use the plugin.
+-->
+<html>
+<head>
+        <!-- force IE to use IE9 rendering engine -->
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+
+	<title>Server Browser</title>
+	<link href="browser.css" type="text/css" rel="stylesheet" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script type="text/javascript" src="js/common.js"></script>
+	<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+	<script type="text/javascript">
+
+var oListManager = new Object() ;
+
+oListManager.Clear = function()
+{
+	document.body.innerHTML = '' ;
+}
+
+function ProtectPath(path)
+{
+	path = path.replace( /\\/g, '\\\\') ;
+	path = path.replace( /'/g, '\\\'') ;
+	return path ;
+}
+
+function getGUID()
+{
+        return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                return v.toString(16);
+                });
+}
+
+function getToggle( guid, isEmpty, isOpen, toggleMethod,folderPath )
+{
+	return (isEmpty ? 
+		'<img src="images/spacer.gif" width="19" height="20" \/>' :
+		'<img src="' + (isOpen ? 'images/collapse.gif' : 'images/expand.gif') + 
+		'" width="19" height="20" id="img' +
+		guid + '" onclick="' + toggleMethod + '(\'' + guid + '\',\'' + folderPath + '\')" \/>'
+	       );
+}
+
+function getFldOpts( guid, folderPath, showByDefault )
+{
+	showByDefault = (showByDefault == null) ? false : showByDefault;
+
+	// always show by default for touch-capable devices
+	try {
+		if (
+		    (window.navigator && window.navigator.msMaxTouchPoints) ||
+		    ('ontouchstart' in document.documentElement) ||
+		    ('ontouchstart' in window) ||
+		    (NW && NW.Event && NW.Event.isSupported('touchstart'))
+		) {
+			showByDefault = true;
+		}
+	} catch (e) { }
+
+        return  '&nbsp;&nbsp;&nbsp;<span id="fldOpt' + guid + '" class="' + ( showByDefault ? 'optShow' : 'optHide' ) + '">' +
+                '<a href="#" onclick="CreateFolder(\'' + ProtectPath( folderPath ) + '\', \'' + guid + '\');' +
+                'showFldOpt(\'' + guid + '\', ' + showByDefault + ');return false;">' +
+                '<img alt="" title="New Folder" alt="New Folder" src="images/FolderNew.gif" width="16" height="16" border="0"><\/a>' +
+                '&nbsp;' + '<a href="#" onclick="UploadFile(\'' + ProtectPath( folderPath ) + '\', \'' + guid + '\');' +
+                'showFldOpt(\'' + guid + '\', ' + showByDefault + ');return false;">' +
+                '<img alt="" title="Upload File" alt="Upload File" src="images/UploadFile.gif" width="16" height="16" border="0"><\/a>' +
+                '<\/span>';
+}
+
+oListManager.GetFolderRowHtml = function( folderName, folderUrl, folderPath, guid, isEmpty )
+{
+	// Build the link to view the folder.
+	var sLink = '<a href="#" onclick="LinkItem(\'' + ProtectPath( folderUrl ) + '\', false);return false;">' ;
+
+	var toggleExp = '<span id="tgl' + guid + '">' + getToggle(guid, isEmpty, false, 'toggleFld',folderPath) + '<\/span>';
+
+	return toggleExp + '&nbsp;' +
+		'<span id="fldRow' + guid + '" onmouseover="showFldOpt(\'' + guid +
+		'\', 1);" onmouseout="showFldOpt(\'' + guid + '\', 0);">' +
+				(oConnector.ShowAllTypes ? sLink : '') +
+				'<img alt="" src="images/Folder.gif" id="fld' + guid + '" width="16" height="16" border="0">' +
+				(oConnector.ShowAllTypes ? '<\/a>' : '') + '&nbsp;' +
+				(oConnector.ShowAllTypes ? sLink : '') + $('<p></p>').text(folderName).html() +
+		(oConnector.ShowAllTypes ? '<\/a>' : '') + 
+		getFldOpts(guid, folderPath) + '<\/span><br\/>' ;
+}
+
+oListManager.GetFileRowHtml = function( fileName, fileUrl, fileSize )
+{
+	// Build the link to view the file.
+	var sLink = '<a href="#" onclick="LinkItem(\'' + ProtectPath( fileUrl ) + '\', false);return false;">' ;
+
+	// Get the file icon.
+	var sIcon = oIcons.GetIcon( fileName ) ;
+
+	return '<img src="images/spacer.gif" width="19" height="20" \/>&nbsp;' + sLink +
+				'<img alt="" src="images/icons/' + sIcon + '.gif" width="16" height="16" border="0"><\/a>&nbsp;' +
+				sLink + $('<p></p>').text(fileName).html() +
+				'<\/a>' +
+			'&nbsp;(' +
+				fileSize +
+		')<br\/>' ;
+}
+
+oListManager.GetItemRowHtml = function( itemName, itemUrl, pequals1, indentLevel, lineBreak)
+{
+        // Build the link to view the item.
+	if (pequals1)
+		var sLink = '<a href="#" onclick="LinkItem(\'' + ProtectPath( itemUrl ) + '\', true);return false;">' ;
+	else
+		var sLink = '<a href="#" onclick="LinkItem(\'' + ProtectPath( itemUrl ) + '\', false);return false;">' ;
+
+        if (indentLevel === undefined)
+                indentLevel = 0;
+
+        if (lineBreak === undefined)
+                lineBreak = false;
+
+        var ind = "";
+        for (var i = 0 ; i < indentLevel ; i++)
+                ind = ind + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+        var lb = "";
+        if (lineBreak)
+                lb = lb + "<br/>";
+
+        return '<tr>' +
+                        '<td><\/td><td width="16">' +
+                        '&nbsp;' +
+                        '<\/td><td nowrap colspan="2">&nbsp;' + lb + ind +
+                                sLink + $('<p></p>').text(itemName).html() + '<\/a>' +
+                '<\/td><\/tr>' ;
+}
+
+function GetUrlParam( paramName )
+{
+    var oRegex = new RegExp( '[\?&]' + paramName + '=([^&]+)', 'i' ) ;
+    var oMatch = oRegex.exec( window.top.location.search ) ;
+ 
+    if ( oMatch && oMatch.length > 1 )
+        return decodeURIComponent( oMatch[1] ) ;
+    else
+        return '' ;
+}
+
+function LinkItem( fileUrl, pequals1 )
+{
+    if (pequals1) fileUrl = (fileUrl.indexOf('?') == -1) ? (fileUrl + '?p=1') : (fileUrl + '&p=1');
+    funcNum = GetUrlParam('CKEditorFuncNum') ;
+    if (funcNum != '') {
+        window.top.opener.CKEDITOR.tools.callFunction( funcNum, fileUrl.replace( '#', '%23' ));
+    }
+    else {
+        window.top.opener.SetUrl( fileUrl ) ;
+    }
+	window.top.close() ;
+	window.top.opener.focus() ;
+}
+
+function getDialog ( id, width, height, content, fontEm )
+{
+	padding = 20;
+	fontsize = typeof fontEm !== 'undefined' ? fontEm : 1;
+
+	dialogCode = '<div id="' + id + '" style="position: absolute; left: 0px; top: 0px; ' +
+		'width: 100%; height: 100%; z-index: 1000; background: rgba(0, 0, 0, 0.4);">' +
+		'<div id="' + id + '_innerDiv" style="position:fixed; top: 50%; left: 50%; ' +
+		'width:' + width + 'px; height:' + height + 'px; ' +
+		'margin-top: -' + ( (width + padding * 2) / 2) + 'px; ' + 
+		'margin-left: -' + ( (width + padding * 2) / 2) + 'px; ' +
+		'border: 1px solid #ccc; background-color: #f3f3f3; padding:' + padding + 'px; ' +
+		'text-align:center; font-size:' + fontsize + 'em;">' +
+		content + '<\/div><\/div>';
+
+	return dialogCode;
+}
+
+function LoadResources( folderPath )
+{
+	oListManager.Clear() ;
+	oConnector.CurrentFolder = folderPath ;
+	dialogText = '<b>Please wait, loading ...<\/b><br/><br/><img border="0" src="images/loadingbar.gif" />';
+	document.body.innerHTML = getDialog('loadingDiv', 200, 50, dialogText, 1.3);
+	oConnector.SendCommand( 'GetResourcesAssignsTestsTopics', null, GetResourcesAssignsTestsTopicsCallBack ) ;
+}
+
+oListManager.resourcesOpFldGuid = '';
+
+function CreateFolder( folderPath, fldGuid )
+{
+	dialogText = 'Please type a name for the new folder:<br/><br/>' +
+		'<form id="createFolderForm" action="" onsubmit="' +
+		'createFolderWorker(document.getElementById(\'folderNameInput\').value, ' +
+			'\'' + folderPath + '\', \'' + fldGuid + '\'); return false;"' +
+		'><input type="text" size="30" id="folderNameInput" /><br/><br/>' +
+		'<input type="submit" value="Submit" />&nbsp;&nbsp;' +
+		'<input type="button" value="Cancel" onclick="document.body.removeChild(' +
+		'document.getElementById(\'createFolderDialog\'));" /><\/form>';
+
+	document.body.innerHTML += getDialog('createFolderDialog', 270, 90, dialogText, 1.1);
+	document.getElementById('folderNameInput').focus();
+}
+
+function createFolderWorker( folderName, folderPath, fldGuid )
+{
+	document.body.removeChild(document.getElementById('createFolderDialog'));
+
+	if ( !( (folderName == null) || (folderName.length == 0) ) ) {
+		oListManager.resourcesOpFldGuid = fldGuid;
+
+		var origFolderPath = oConnector.CurrentFolder ;
+		oConnector.CurrentFolder = folderPath ;
+		oConnector.SendCommand( 'CreateFolder', 'NewFolderName=' + encodeURIComponent( folderName) , CreateFolderCallBack ) ;
+		oConnector.CurrentFolder = origFolderPath ;
+	}
+}
+
+function CreateFolderCallBack( fckXml )
+{
+	if ( oConnector.CheckError( fckXml ) == 0 ) {
+		oConnector.CurrentFolder = fckXml.SelectSingleNode( 'Connector/CurrentFolder' ).attributes.getNamedItem('path').value;
+		oConnector.SendCommand( 'GetResources', null, GetResourcesCallBack ) ;
+	}
+}
+
+function UploadFile( folderPath, fldGuid )
+{
+        dialogText = '<span id="fileStatusText">Please select a file to upload:<\/span><br/>' +
+		'<iframe id="uploadFileFrame" name="uploadFileFrame" width="0" height="0" frameborder="0"><\/iframe>' +
+                '<form id="uploadFileForm" action="' + oConnector.ConnectorUrl + 'Command=FileUpload&Type=' +
+		oConnector.ResourceType + '&CurrentFolder=' + encodeURIComponent(folderPath) + '" target="' +
+		'uploadFileFrame" method="post" enctype="multipart/form-data" onsubmit="return uploadFileSubmit(\'' +
+		fldGuid + '\');"><input type="file" id="NewFile" name="NewFile" /><br/><br/>' +
+                '<input type="submit" id="fileSubmit" value="Upload" />&nbsp;&nbsp;' +
+                '<input type="button" id="fileCancel" value="Cancel" onclick="document.body.removeChild(' +
+		'document.getElementById(\'uploadFileDialog\'));" /><input type="hidden" id="fileFolderPath" ' +
+		' value="' + folderPath + '" /><\/form>';
+
+        document.body.innerHTML += getDialog('uploadFileDialog', 270, 90, dialogText, 1.1);
+}
+
+function uploadFileSubmit( fldGuid )
+{
+	if ( document.getElementById('NewFile').value.length == 0 )
+	{
+		alert( 'Please select a file to upload.' ) ;
+		return false ;
+	}
+
+	oListManager.resourcesOpFldGuid = fldGuid;
+
+	document.getElementById('fileSubmit').disabled = true;
+	document.getElementById('fileCancel').disabled = true;
+	document.getElementById('fileStatusText').innerHTML = '<img src="images/spinner.gif" width="16" ' +
+				'height="16" border="0" />&nbsp;&nbsp;Please wait while the file is uploaded...';
+
+	return true;
+}
+
+function OnUploadCompleted( errorNumber, fileUrl, fileName, customMsg )
+{
+	var folderPath = document.getElementById('fileFolderPath').value;
+	document.body.removeChild(document.getElementById('uploadFileDialog'));
+
+	switch ( errorNumber )
+	{
+                case 201 :
+                        alert( 'A file with the same name already exists.\nThe uploaded file has been renamed to "' + fileName + '".' ) ;
+		case 0 :
+			if ( (folderPath != null) && (folderPath.length !== 0) ) {
+				oConnector.CurrentFolder = folderPath;
+				oConnector.SendCommand( 'GetResources', null, GetResourcesCallBack );
+			}
+			break ;
+		case 1 :   // Custom error
+			alert( customMsg ) ;
+			break ;
+		case 202 :
+			alert( 'Invalid file' ) ;
+			break ;
+		default :
+			alert( 'Error on file upload. Error number: ' + errorNumber ) ;
+			break ;
+	}
+}
+
+function GetResourcesCallBack( fckXml )
+{
+        if ( oConnector.CheckError( fckXml ) != 0 )
+                return ;
+
+        var oFolderNode = fckXml.SelectSingleNode( 'Connector/CurrentFolder' ) ;
+        if ( oFolderNode == null )
+        {
+                alert( 'The server didn\'t reply with a proper XML data. Please check your configuration.' ) ;
+                return ;
+        }
+	var oHtml = new StringBuilder() ;
+	var fldGuid = oListManager.resourcesOpFldGuid;
+	var sCurrentFolderUrl   = oFolderNode.attributes.getNamedItem('url').value ;
+        var folderInitNodes = fckXml.SelectNodes( 'Connector/Folders/Folder' );
+        var fileInitNodes = fckXml.SelectNodes( 'Connector/Files/File' );
+	var noChildren = ((folderInitNodes.length + fileInitNodes.length) == 0);
+
+	AddResourceRows( oHtml, fckXml, folderInitNodes, fileInitNodes, 'Connector/Folders/Folder', sCurrentFolderUrl );
+
+	var fldGrp = document.getElementById('grp' + fldGuid);
+	fldGrp.innerHTML = oHtml.ToString();
+	var fldOpen = (fldGrp.className == 'grpExpanded');
+	document.getElementById('tgl' + fldGuid).innerHTML = getToggle(fldGuid, noChildren, fldOpen, (fldGuid.length >= 32) ? 'toggleFld' : 'toggleGrp',oFolderNode.attributes.getNamedItem('path').value);
+	oListManager.resourcesOpFldGuid = '';
+}
+
+function toggleGrp( item,folderPath )
+{
+
+        var tGrp = document.getElementById('grp' + item);
+        var tImg = document.getElementById('img' + item);
+        var currState = (tGrp.className == 'grpCollapsed');
+        // get the resources inside current folder
+        if(currState && folderPath && 0 !== folderPath.length){
+        	oConnector.CurrentFolder = folderPath;
+        	oListManager.resourcesOpFldGuid = item;
+        	var origFolderPath = oConnector.CurrentFolder ;
+        	
+            dialogText = '<b>Please wait, loading ...<\/b><br/><br/><img border="0" src="images/loadingbar.gif" />';
+            document.getElementById('tgl' + item).innerHTML = getDialog('loadingDiv', 200, 50, dialogText, 1.3);
+
+            oConnector.SendCommand( 'GetResources', null, GetResourcesCallBack );
+        	oConnector.CurrentFolder = origFolderPath;
+        }
+        
+        tGrp.className = currState ? 'grpExpanded' : 'grpCollapsed';
+        tImg.src = currState ? 'images/collapse.gif' : 'images/expand.gif';
+        return currState;
+}
+
+function toggleFld( item,folderPath )
+{
+        var tGrp = document.getElementById('grp' + item);
+        var tImg = document.getElementById('img' + item);
+        var tFld = document.getElementById('fld' + item);
+        var currState = toggleGrp(item,folderPath );
+        tImg.src = currState ? 'images/collapse.gif' : 'images/expand.gif';
+        tFld.src = currState ? 'images/FolderOpened.gif' : 'images/Folder.gif';
+}
+
+function showFldOpt( item, visible )
+{
+   var tOptRow = document.getElementById('fldOpt' + item);
+   tOptRow.className = visible ? 'optShow' : 'optHide';
+}
+
+function AddResourceRows( oHtml, fckXml, oNodesFolders, oNodesFiles, sXmlPrefix, sCurrentFolderUrl )
+{
+	var oNodes; 
+
+        // Add the Folders.
+	oNodes = oNodesFolders;
+        for ( var i = 0 ; i < oNodes.length ; i++ )
+        {
+		var folderChildren = fckXml.SelectNodesContext('Folders/Folder', oNodes[i], sXmlPrefix + '[' + i + ']/Folders/Folder' );
+		var fileChildren = fckXml.SelectNodesContext('Files/File', oNodes[i], sXmlPrefix + '[' + i + ']/Files/File' );
+		var childrenCount = oNodes[i].attributes.getNamedItem('childrenCount').value;
+		//get children count from server response
+		var noChildren = (childrenCount == 0);
+                var sFolderName = oNodes[i].attributes.getNamedItem('name').value ;
+		var sFolderUrl = oNodes[i].attributes.getNamedItem('url').value;
+		var sFolderPath = oNodes[i].attributes.getNamedItem('path').value;
+		var fldGuid = getGUID();
+                oHtml.Append( oListManager.GetFolderRowHtml( sFolderName, sFolderUrl, sFolderPath, fldGuid, noChildren) ) ;
+
+			oHtml.Append( '<div id="grp' + fldGuid + '" class="grpCollapsed" style="margin-left:20px">' );
+		if (!noChildren)
+			AddResourceRows(oHtml, fckXml, folderChildren, fileChildren, sXmlPrefix + '[' + i + ']/Folders/Folder', sFolderUrl);
+			oHtml.Append( '<\/div>' );
+		}
+
+        // Add the Files.
+	oNodes = oNodesFiles;
+        for ( var j = 0 ; j < oNodes.length ; j++ )
+        {
+                var oNode = oNodes[j] ;
+                var sFileName = oNode.attributes.getNamedItem('name').value ;
+                var sFileSize = oNode.attributes.getNamedItem('size').value ;
+
+                // Get the optional "url" attribute. If not available, build the url.
+                var oFileUrlAtt = oNodes[j].attributes.getNamedItem('url') ;
+                var sFileUrl = oFileUrlAtt != null ? oFileUrlAtt.value : sCurrentFolderUrl + sFileName ;
+
+                oHtml.Append( oListManager.GetFileRowHtml( sFileName, sFileUrl, sFileSize ) ) ;
+        }
+}
+
+function GetResourcesAssignsTestsTopicsCallBack( fckXml )
+{
+	if ( oConnector.CheckError( fckXml ) != 0 )
+		return ;
+
+	// Get the current folder path.
+	var oFolderNode = fckXml.SelectSingleNode( 'Connector/CurrentFolder' ) ;
+	if ( oFolderNode == null )
+	{
+		alert( 'The server didn\'t reply with a proper XML data. Please check your configuration.' ) ;
+		return ;
+	}
+	var sCurrentFolderPath	= oFolderNode.attributes.getNamedItem('path').value ;
+	var sCurrentFolderUrl	= oFolderNode.attributes.getNamedItem('url').value ;
+
+	var oHtml = new StringBuilder( '<table id="tableFiles" cellspacing="1" cellpadding="0" width="100%" border="0">' ) ;
+	var oNodes;
+
+	if (oConnector.ShowAllTypes) {
+
+	        // Add the Assignments.
+	        oNodes = fckXml.SelectNodes( 'Connector/Assignments/Assignment' ) ;
+	        oHtml.Append( '<tr><td width="20px">');
+
+	        if (oNodes.length > 0) {
+	                oHtml.Append('<img src="images/expand.gif" id="imgAssignments" onclick="toggleGrp(\'Assignments\')" \/>');
+	        }
+	        oHtml.Append('<\/td><td colspan="3" class="ListHeading">Assignments<\/td><\/tr><tbody id="grpAssignments" class="grpCollapsed">' ) ;
+	        for ( var i = 0 ; i < oNodes.length ; i++ )
+	        {
+	                var sItemName = oNodes[i].attributes.getNamedItem('name').value ;
+	                var sItemUrl = oNodes[i].attributes.getNamedItem('url').value ;
+	                oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true ) ) ;
+	        }
+	        oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+
+	        // Add the Topics.
+	        oNodes = fckXml.SelectNodes( 'Connector/Topics/Topic' ) ;
+	        oHtml.Append( '<tr><td width="20px">');
+	        if (oNodes.length > 0) {
+	                oHtml.Append( '<img src="images/expand.gif" id="imgTopics" onclick="toggleGrp(\'Topics\')"      \/>' ) ;
+	        }
+	        oHtml.Append( '<\/td>');	        
+//	        oHtml.Append( '<\/td><td colspan="3" class="ListHeading">Discussions<\/td><\/tr><tbody id="grpTopics" class="grpCollapsed">' ) ;
+//	        for ( var i = 0 ; i < oNodes.length ; i++ )
+//	        {
+//	                var sItemName = oNodes[i].attributes.getNamedItem('name').value ;
+//	                var sItemUrl = oNodes[i].attributes.getNamedItem('url').value ;
+//	                oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, false ) ) ;
+//	        }
+//	        oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+
+	        // Add the Forums.
+	        oNodes = fckXml.SelectNodes( 'Connector/MsgForums/mForum' ) ;
+	        oHtml.Append( '<tr><td width="20px">');
+	        if (oNodes.length > 0) {
+	                oHtml.Append('<img src="images/expand.gif" id="imgForums" onclick="toggleGrp(\'Forums\')" \/>');
+	        }
+	        oHtml.Append('<\/td><td colspan="3" class="ListHeading">Forums<\/td><\/tr><tbody id="grpForums" class="grpCollapsed">' ) ;
+	        for ( var i = 0 ; i < oNodes.length ; i++ )
+	        {
+	                var sItemName = oNodes[i].attributes.getNamedItem('name').value ;
+	                var sItemUrl = oNodes[i].attributes.getNamedItem('url').value ;
+	                oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true, 0, true) ) ;
+	
+	                var sItemTopics = fckXml.SelectNodesContext('mTopic', oNodes[i], 'Connector/MsgForums/mForum[' + i + ']/mTopic' );
+	                for (var j = 0 ; j < sItemTopics.length ; j++ )
+	                {
+	                        var sItemName = sItemTopics[j].attributes.getNamedItem('name').value ;
+	                        var sItemUrl = sItemTopics[j].attributes.getNamedItem('url').value ;
+	                        oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true, 1 ) ) ;
+	                }
+	        }
+	        oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+	}
+
+	// Add the Resources
+        oHtml.Append( '<tr><td width="20px">' ) ;
+	var folderInitNodes = fckXml.SelectNodes( 'Connector/Folders/Folder' );
+	var fileInitNodes = fckXml.SelectNodes( 'Connector/Files/File' );
+	oHtml.Append( '<span id="tglResources">' );
+        oHtml.Append( getToggle('Resources', !((folderInitNodes.length + fileInitNodes.length) > 0), !oConnector.ShowAllTypes, 'toggleGrp','') ) ;
+	oHtml.Append( '<\/span>' );
+        oHtml.Append( '<\/td><td colspan="3" class="ListHeading">Resources' );
+	oHtml.Append( getFldOpts('Resources', sCurrentFolderPath, true) + '<img src="images/spacer.gif" width="1" height="16" /><\/td><\/tr>' ) ;
+        oHtml.Append( '<tr><td width="20px"><\/td><td colspan="3"><div id="grpResources" class="' + (oConnector.ShowAllTypes ? 'grpCollapsed' : 'grpExpanded') + '">' ) ;
+        AddResourceRows(oHtml, fckXml, folderInitNodes, fileInitNodes, 'Connector/Folders/Folder', sCurrentFolderUrl) ;
+        oHtml.Append( '<\/div><\/td><\/tr><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+
+	if (oConnector.ShowAllTypes) {
+
+	        // Add the Assessments.
+	        oNodes = fckXml.SelectNodes( 'Connector/Assessments/Assessment' ) ;
+	        oHtml.Append( '<tr><td width="20px">');
+	        if (oNodes.length > 0) {
+	                oHtml.Append('<img src="images/expand.gif" id="imgAssessments" onclick="toggleGrp(\'Assessments\')" \/>');
+	        }
+	        oHtml.Append('<\/td><td colspan="3" class="ListHeading">Tests & Quizzes<\/td><\/tr><tbody id="grpAssessments" class="grpCollapsed">' ) ;
+	        for ( var i = 0 ; i < oNodes.length ; i++ )
+	        {
+	                var sItemName = oNodes[i].attributes.getNamedItem('name').value ;
+	                var sItemUrl = oNodes[i].attributes.getNamedItem('url').value ;
+	                oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true ) ) ;
+	        }
+	        oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+	}
+
+    if (oConnector.ShowAllTypes) {
+
+	        // Add the Other Entities.
+	        iNodes = fckXml.SelectNodes( 'Connector/OtherEntities/EntityProvider' ) ;
+            for ( var i = 0 ; i < iNodes.length ; i++ ) {
+                var jNodes = fckXml.SelectNodesContext('EntityItem', iNodes[i], 'Connector/OtherEntities/EntityProvider[' + i + ']/EntityItem' );
+                var nodeName = iNodes[i].attributes.getNamedItem('name').value ;
+                var provider = iNodes[i].attributes.getNamedItem('provider').value ;
+                oHtml.Append('<tr><td width="20px">');
+                if (jNodes.length > 0) {
+                  oHtml.Append('<img src="images/expand.gif" id="imgOther" onclick="toggleGrp(\''+provider+'\')" \/>');
+                }
+                oHtml.Append('<\/td><td colspan="3" class="ListHeading">'+nodeName+'<\/td><\/tr><tbody id="grp'+provider+'" class="grpCollapsed">' ) ;
+
+                for (var j = 0 ; j < jNodes.length ; j++) {
+                    var sItemName = jNodes[j].attributes.getNamedItem('name').value ;
+                    var sItemUrl = jNodes[j].attributes.getNamedItem('url').value ;
+                    oHtml.Append( oListManager.GetItemRowHtml( sItemName, sItemUrl, true ) ) ;
+                }
+	            oHtml.Append( '<\/tbody><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
+            }
+	}
+
+
+
+	oHtml.Append( '<\/table>' ) ;
+
+	document.body.innerHTML = oHtml.ToString() ;
+
+}
+
+window.onload = function()
+{
+	window.top.IsLoadedResourcesList = true ;
+}
+	</script>
+</head>
+<body class="FileArea">
+</body>
+</html>

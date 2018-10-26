@@ -1,0 +1,275 @@
+.headerAlignment {
+	text-align: center ! important;
+}
+ul.not_sortabl
+{
+	width: 300px;
+	list-style: none;
+	margin: 4px;
+	padding: 6px;	
+}
+ul.sortable
+{
+	width: 300px;
+	list-style: none;
+	margin: 4px;
+	padding: 6px;
+}
+ul.sortable a
+{
+	text-decoration: none !important;
+} 
+li.sortable_item
+{
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+}
+li.editable_item
+{
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 3px solid #66F;
+}
+li.sortable_active
+{
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	background-color: #ddd;
+}
+li.sortable_hover
+{
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	opacity: .2;
+	filter: alpha(opacity=20);
+}
+.sort_helper
+{
+	list-style: none;
+	border: 1px dotted #ccc;
+}
+.item_control_box
+{	
+	display: inline;
+	position: absolute;
+	left: 260px;
+	width: 65px;
+}
+.item_label_box
+{
+	display: inline;
+	width: 245px;
+}
+a.item_control, a.tool_add_url
+{
+	cursor: pointer;
+}
+.hidden
+{
+	display: none;
+}
+.tool_list
+{
+	padding: 10px;
+}
+.option_list
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+#list-label
+{
+	padding: 10px;
+	display: none;
+	border: 1px solid #ccc;
+	background-color: #9F9;
+}
+#option-label
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+	background-color: #99F;
+}
+#group-list td
+{
+	width: 360px;
+	padding: 5px;
+	vertical-align: top;	
+}
+.actionButtonBar{ margin: .5em 0; padding: 0}
+
+.fieldsetVis{
+	border:1px solid #ccc;
+	padding:1em;
+    width:100%;
+}
+.fieldsetVis legend{
+	border:1px solid #ccc;
+	color:gray;
+	padding:.3em	
+}
+
+.optGroupSelect{
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 #EEEEEE;
+    padding: 0.5em;
+}
+
+.optGroupSelectSelected{
+     background: none repeat scroll 0 0 #ccc;
+}
+span.validFMess{
+    display:none
+}
+.validationFail label{
+    color:red;
+}
+.validationFail input{
+    border:1px solid red;
+}
+.validationFail span.validFMess{
+    display:inline;
+    color:red
+}
+
+.spinner {
+	display: inline;
+	vertical-align: middle;
+	visibility: hidden;
+}
+
+div.act .spinner {
+	padding-top: 5px;
+}
+
+fieldset#rosterOptionsFieldset {
+	margin-bottom: 2em;
+}
+
+/* SAK-29650 */
+div#groupFields {
+	margin-top: 1em;
+}
+
+div#setName p {
+	display: inline;
+	margin: 0 !important;
+}
+
+div#userPanel div.edit.collapsed h4, div#userPanel div.edit.expanded h4 {
+	font-weight: normal;
+}
+
+div#genPanel div.edit.collapsed, div#genPanel div.edit.expanded,
+div#userPanel div.edit.collapsed, div#userPanel div.edit.expanded {
+	display: block !important;
+}
+
+div#genPanel div.collapsed h4, div#genPanel div.expanded h4,
+div#userPanel div.collapsed h4, div#userPanel div.expanded h4{
+	display: inline-block;
+	color: #000;
+	cursor: pointer;
+}
+
+div#genPanel div.collapsed h4, div#userPanel div.collapsed h4 {
+	background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+}
+
+div#genPanel div.expanded h4, div#userPanel div.expanded h4 {
+	background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
+}
+
+div#genPanel div.edit, div#userPanel div.edit {
+	display: none;	
+}
+
+div#genPanel div.edit p, div#genPanel div.edit h4, div#userPanel div.edit h4 {
+	margin: 0;
+	border: 0;
+	padding: 1em 1em;
+}
+
+div#userPanel {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 1em;
+}
+
+div#userPanel div.edit div {
+	padding: 0 1em 0 1em;
+}
+
+
+div#genPanel div.edit img#generateAdditionalSpinner {
+	margin: 0 0 1em 0.5em !important;
+}
+
+div#allowunjoinEdit-row\:\: {
+	margin: 1em 0 1em 0;
+}
+
+div.left, div.right{
+	display: inline-block;
+}
+
+div.right {
+	float: right;
+}
+
+div.act img#editJoinableGroupSpinner {
+	padding: 0;
+}
+/* SAK-29650 - end */
+
+div.autoGroupsRoleContainer {
+	margin-top: 2em;
+}
+
+.membership{
+	text-align:center;
+}
+.rotate{
+	-ms-transform: rotate(90deg); /* IE 9 */
+	-webkit-transform: rotate(90deg); /* Chrome, Safari, Opera */
+	transform: rotate(90deg);
+}
+
+input[type="radio"] + label{
+	max-width: calc(100% - 50px);	
+}
+
+input[type="radio"]{
+	vertical-align: top !important;
+}
+
+input[type="checkbox"] ~ label{
+	max-width: calc(100% - 50px);	
+}
+
+input[type="checkbox"]{
+	vertical-align: top !important;
+}
+
+th.check, td.check{
+	width: 5%;
+}
+
+.input-group-btn button.multiselect-clear-filter{
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	background-color: #eee;
+}

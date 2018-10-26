@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- The "request scope application context" file -->
+
+    <bean id="localeSetter" class="uk.org.ponder.springutil.BeanReferenceFactoryBean">
+            <property name="targetBeanName" value="sakai-LocaleSetter" />
+    </bean>
+    <!-- Restore original Sakai definition of requestLocale which was obscured by base webapp -->
+    <bean name="requestLocale" class="uk.org.ponder.springutil.BeanReferenceFactoryBean">
+            <property name="targetBeanName" value="sakai-Locale" />
+    </bean>
+</beans>

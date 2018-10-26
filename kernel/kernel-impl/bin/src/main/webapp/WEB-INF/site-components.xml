@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlDefault"   class="org.sakaiproject.site.impl.SiteServiceSqlDefault"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlHSql"      class="org.sakaiproject.site.impl.SiteServiceSqlHSql"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlMySql"     class="org.sakaiproject.site.impl.SiteServiceSqlMySql"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlOracle"    class="org.sakaiproject.site.impl.SiteServiceSqlOracle"/>
+
+	<bean id="org.sakaiproject.site.api.SiteService"
+			class="org.sakaiproject.site.impl.DbSiteService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
+		<lookup-method name="activeToolManager" bean="org.sakaiproject.tool.api.ActiveToolManager" />
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		<lookup-method name="notificationService" bean="org.sakaiproject.event.api.NotificationService" />
+
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="default"><ref bean="org.sakaiproject.site.impl.SiteServiceSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlHSql"   /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlOracle" /></entry>
+           </map>
+        </property>
+ 		<property name="cacheMinutes"><value>5</value></property>
+ 		<property name="cacheCleanerMinutes"><value>15</value></property>
+	</bean>
+	
+	<!-- Init method registers this bean with the injected NotificationService -->
+	<bean id="org.sakaiproject.site.api.SiteAliasCleanupNotificationAction"
+		class="org.sakaiproject.site.impl.SiteAliasCleanupNotificationAction"
+		init-method="init">
+		<property name="aliasService" ref="org.sakaiproject.alias.api.AliasService" />
+		<property name="notificationService" ref="org.sakaiproject.event.api.NotificationService" />
+		<!-- Optional properties -->
+		<!-- property name="enabled" value="true" / -->
+		<!-- property name="propagateExceptions" value="false" / -->
+	</bean>
+
+</beans>

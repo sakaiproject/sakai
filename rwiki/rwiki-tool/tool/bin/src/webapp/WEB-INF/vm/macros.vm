@@ -1,0 +1,607 @@
+#macro( header $title $viewBean $extraonload )
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	lang="${rlb.jsp_lang}" 
+	xml:lang="${rlb.jsp_xml_lang}" >
+    <head>
+      <title>${title}</title>
+      ${request.getAttribute("sakai.html.head")}
+      #if ( $viewBean ) 
+	<link rel="alternate" title="Sakai Wiki RSS" 
+ 			href="${util.escapeHtml(${viewBean.rssAccessUrl})}" type="application/rss+xml" />
+ 			  #end
+    </head>
+    <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); ${extraonload} callAllLoaders(); "  >
+
+
+  	#if (${request.getAttribute("headerScriptSource")}) 
+  		<script  type="text/javascript" src="${request.getAttribute("headerScriptSource")}"> <!-- don't reduce this! --></script>
+  	#end
+<script type="text/javascript" >
+var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toString().replace('-','x')}";
+</script>  
+#end
+
+#macro( footer ) 
+##
+##  If you increase the width to 500x300 there and set debug = "true"
+##  debug output will appear on the screnn
+##
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
+ codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" 
+ WIDTH="1" HEIGHT="1" id="localstore" ALIGN="" >
+ <PARAM NAME="movie" VALUE="/sakai-rwiki-tool/scripts/localstore.swf" /> 
+ <PARAM NAME="quality" VALUE="high" /> 
+ <PARAM NAME="play" VALUE="false" /> 
+ <PARAM NAME="loop" VALUE="false" /> 
+ <PARAM NAME="bgcolor" VALUE="#FFFFFF" /> 
+ <EMBED src="/sakai-rwiki-tool/scripts/localstore.swf" 
+ quality="high" bgcolor="#FFFFFF"  
+ WIDTH="1" 
+ HEIGHT="1" 
+ STYLE="visibility:hidden" 
+ NAME="localstore" 
+ play="false"
+ loop="false"
+ swLiveConnect="true"
+ ALIGN=""
+ TYPE="application/x-shockwave-flash" 
+ PLUGINSPAGE="https://www.macromedia.com/go/getflashplayer">
+ </EMBED>
+</OBJECT>
+
+<SCRIPT LANGUAGE="VBScript" >
+	on error resume next
+	Sub localstore_FSCommand(ByVal command, ByVal args)
+	  call localstore_DoFSCommand(command, args)
+	end sub
+</SCRIPT> 
+	
+<script type="text/javascript" >
+<!--
+function localstore_DoFSCommand(command,args) {
+ try {
+	log("Callback for "+command);
+	var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+	var flashObj = InternetExplorer ? localstore : document.localstore;
+ var flashid = "localstore";
+	if ( command == "setdom" ) {
+		var argsA = args.split(";");
+		for(i = 0; i < argsA.length; i+=2){
+			var v =  flashObj.GetVariable(argsA[i+1]);
+	  log("Setting "+argsA[i]+"["+v+"]");
+	  try {
+	    var obj = document.getElementById(argsA[i]);
+			  obj.value = v;
+			} catch (e) {
+			  log("Failed to set "+argsA[i]+"["+v+"]");
+			} 
+		}
+	} else {
+         flashBridgeObj[flashid].doUpdate(command,args);
+	}
+	} catch (e) {
+		log("DoFSCommand Failed "+e);
+	}
+}
+// -->
+</script>
+
+
+<!--
+<div id="logdiv" >
+LOG-LOG-LOG-LOG-LOG
+</div>
+-->
+
+
+
+    <div id="guillotineFixer">&nbsp;</div>
+    #if ( $request.getAttribute("footerScript") ) 
+    <script type="text/javascript" >${request.getAttribute("footerScript")}</script>
+    #end
+    #if ( ${requestScope.removeAutoSave} )
+        #set ($curPageName = ${util.escapeHtml($requestScope.currentPageName)})
+			<script type="text/javascript" >
+				WikiAutoSave_autoSaveClear('${requestScope.currentDefaultRealm}','$curPageName');
+			</script>
+	  #end
+    </body>
+</html>
+#end
+
+
+#macro( commandlinks $useHomeLink $usePrinterLink $useViewLink $viewLinkName $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification $homeBean $viewBean $resourceLoaderBean )
+## <span class="rwiki_pageLinks">
+
+#if ( !$viewLinkName )
+#set( $viewLinkName = $resourceLoaderBean.getString("jsp_view"));
+#end
+
+#if ($useHomeLink)
+<li  class="firstToolBarItem"><span>
+<a href="${util.escapeHtml($homeBean.getHomeLinkUrl())}"
+	id="homeLink"  
+	title="${resourceLoaderBean.getString("jsp_wiki_home_title")}" >${resourceLoaderBean.getString("jsp_wiki_home")}<span class="skip"> ${resourceLoaderBean.getString("jsp_wiki_home_sc")}</span></a> 
+</span></li>
+#end
+#if ($useViewLink)
+<li><span>
+<a href="${util.escapeHtml($viewBean.getViewUrl())}"
+	id="viewLink"  
+	title="${resourceLoaderBean.getString("jsp_view")}" >${resourceLoaderBean.getString("jsp_view")}</a>
+</span></li>	
+#end
+#if ($useEditLink)
+#set( $permissionsCheckBean = ${requestScope.permissionsBean} )
+#if (${permissionsCheckBean.updateAllowed} )
+<li><span>
+<a href="${util.escapeHtml($viewBean.getEditUrl())}"
+	id="editLink"  
+	title="${resourceLoaderBean.getString("jsp_edit")}" >${resourceLoaderBean.getString("jsp_edit")}</a> 
+</span></li>
+#end
+#end	
+#if ($useInfoLink) 
+<li><span>
+<a href="${util.escapeHtml($viewBean.getInfoUrl())}"
+	id="infoLink"  
+	title="${resourceLoaderBean.getString("jsp_info")}" >${resourceLoaderBean.getString("jsp_info")}</a> 
+</span></li>	
+#end
+#if ($useHistoryLink) 
+<li><span>
+<a href="${util.escapeHtml($viewBean.getHistoryUrl())}"
+	id="historyLink"  
+	title="${resourceLoaderBean.getString("jsp_history")}" >${resourceLoaderBean.getString("jsp_history")}</a> 
+</span></li>	
+#end
+#if ($useWatchLink)
+	   #if ( $withNotification)
+<li><span>
+<a href="${util.escapeHtml($viewBean.getPreferencesUrl())}"
+	id="watchLink"  
+	title="${resourceLoaderBean.getString("jsp_watch_for_changes")}" >${resourceLoaderBean.getString("jsp_watch")}</a> 
+</span></li>	
+	   #end
+#end
+## </span>
+#end
+
+
+#macro( formatDisplayName $name )
+${util.formatDisplayName($name)}
+#end
+
+#macro( formatDateTime $date )
+${util.formatDateTime($date,$request)}
+#end
+
+
+#macro( infoPageGranted $granted $span )
+#if ($span) 
+   #if ($granted) 
+	<span class="rwiki_info_page_granted" >${resourceLoaderBean.getString("jsp_yes")}</span>
+   #else
+	<span class="rwiki_info_page_denied" >${resourceLoaderBean.getString("jsp_no")}</span>
+   #end
+#else
+   #if ($granted) 
+	  ${resourceLoaderBean.getString("jsp_yes")}
+   #else
+	  ${resourceLoaderBean.getString("jsp_no")}
+   #end
+#end
+#end
+
+#macro( sidebar )
+#set( $permissionsBeanRight = ${requestScope.PermissionsBean} )
+#set( $permissionsBeanObject = ${permissionsBeanRight.RwikiObject} )
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+  #if (${rightRenderBean.hasContent})
+  <div style="display: block;" id="rwiki_sidebar">
+    <div class="rwiki_renderedContent">
+      ${rightRenderBean.renderedPage}
+    </div>
+    #set( ${permissionsBeanRight.rwikiObject} = ${rightRenderBean.rwikiObject} )
+  	#if (${permissionsBeanRight.updateAllowed})
+      <span class="instruction" >
+    	<a href="${util.escapeHtml(${rightRenderBean.editUrl})}" >
+    		${rlb.jsp_edit}: ${util.escapeHtml($rightRenderBean.localisedPageName)}
+    	</a>
+      </span> 
+    #end
+    #set ( ${permissionsBeanRight.rwikiObject} = ${permissionsBeanObject} )
+  </div>
+  #end
+#end
+
+
+#macro( sidebar_switcher ) 
+  #if (${rightRenderBean.hasContent}) 
+     <div id="rwiki_sidebar_switcher" class="specialLink">
+        <a id="sidebar_switch_on" 
+        	href="#" 
+        	onclick="showSidebar('none')" >${rlb.jsp_show_hints}</a>
+        <a id="sidebar_switch_off" 
+        	href="#" 
+        	onclick="hideSidebar('none')" >${rlb.jsp_hide_hints}</a>
+	 </div>
+  #end
+#end
+
+
+#macro( breadcrumbs )
+#if ( ${requestScope.withBreadcrumbs} ) 
+#set ($recentlyVisitedBean = ${requestScope.RecentlyVisitedBean})
+#set ( $links = ${recentlyVisitedBean.breadcrumbLinks} )
+#set ( $first = ( true ) )
+
+#foreach ( $link in $links )
+#if ( $first )
+<li class="first">${link}</li>
+#set ($first = ( false ))
+#else
+<li>${link}</li>
+#end
+#end
+#end
+
+#end
+
+#macro( publicbreadcrumbs )
+#if ( ${requestScope.withBreadcrumbs} ) 
+#set ($recentlyVisitedBean = ${requestScope.RecentlyVisitedBean})
+#set ( $links = ${recentlyVisitedBean.publicBreadcrumbLinks} )
+<h3 class="breadcrumb specialLink" >
+ #set ( $first = ( true ) );
+	#foreach ( $link in $links )
+	 #if ( $first )  	
+			<li class="first">${link} </li>
+			#set ($first = ( false ))
+		#else
+		  <li>${link}</li>
+		#end
+	#end
+</h3>
+#end
+#end
+
+
+#macro( comments )
+	##start comments macro
+	#if (${requestScope.Withcomments})
+	
+		<a name="tocomments"></a>
+		<ul class="rwiki_comments specialLink">
+			<li class="commentsHeader">
+				<h5 class="commentsTitle specialLink" >
+					<a href="#" id="commentsToggle" class="toggleOpen">${rlb.jsp_hide_comments}</a>
+					<span id="totalComments" class="textPanelFooter"></span>
+					#if (${renderBean.canEdit} || ${renderBean.canCreate})
+						<span class="commentsToolBar">
+							<a href="#" id="createCommentLink" onclick="ajaxRefPopup(this,'${util.escapeHtml(${renderBean.newCommentURL})}',0); return false;" >${rlb.jsp_addcomment}</a>
+						</span>
+					#end
+				</h5>
+			</li>
+		</ul>	
+		<ul class="rwiki_comments specialLink" id ="commentsList">	
+			#set ($commentCount =0)
+			#foreach( $comment in ${renderBean.comments} )
+			#set ($commentCount =$commentCount + 1)
+			  #if (${comment.canRead})
+				<li class="rwikicommentbody_${comment.commentLevel} commentList">
+					<div class="commentHeader"><span class="commentAuthor">#formatDisplayName(${comment.rwikiObject.user})</span><span class="textPanelFooter">(${comment.rwikiObject.version})</span>
+							<ul class="actionItem itemAction">
+								#if (${renderBean.canEdit} || ${renderBean.canCreate})
+									<li><span>
+										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.newCommentURL})}',0); return false;" >${rlb.jsp_comment}</a>
+									</span></li>
+								#end
+								#if (${comment.canEdit} && (${renderBean.canEdit} || ${renderBean.canCreate}) )
+									<li><span>
+										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.editCommentURL})}',0); return false;" >${rlb.jsp_edit}</a>
+									</span></li>
+								#end
+							</ul>
+					</div>
+					
+					<div class="rwikicommentarrow"></div>
+					<div class="rwikicommenttop"></div>
+					<div class="rwikicomenttext" style="padding-right:12%">
+						${comment.renderedPage} 
+					</div>
+				</li>
+				 #else
+				<li class="rwikicommentbody_${comment.commentLevel} commentList hidden">
+					<div class="commentHeader"><span class="commentAuthor">${rlb.jsp_hidden_comment_info}</span>
+					</div>
+					<div class="rwikicommentarrow"></div>
+					<div class="rwikicommenttop"></div>
+					<div class="rwikicomenttext" style="padding-right:12%">
+						${rlb.jsp_hidden_comment}
+					</div>
+				</li>				 
+			 
+    	 	     #end
+				#set ($prevLevel = ${comment.commentLevel})				
+				#set ($prevLevel = $prevLevel  * 1)				
+			#end
+		</ul> 
+		</div>
+		<script type="text/javascript">
+		if ($commentCount !== 0) {
+			jQuery('#totalComments').text('($commentCount)')
+			jQuery('#toCommentsLink span').text('($commentCount)')
+			jQuery('#toCommentsLink').show()
+		}
+		else{
+			jQuery('#commentsToggle').hide();
+			jQuery('.commentsToolBar').css('padding-left','0');
+			jQuery('#createCommentLink').text('${rlb.jsp_add_first_comment}') 
+		}
+		</script>
+			<script type="text/javascript">
+##			$(document).ready(function(){
+				$('#commentsToggle').click(function(e){
+					$('#commentsList').fadeToggle('slow');
+					if ($(this).attr('class')=='toggleClosed'){
+						$(this).attr('class','toggleOpen');
+						$('#commentsToggle').text('${rlb.jsp_hide_comments}')
+					}
+					else{
+						$(this).attr('class','toggleClosed')
+						$('#commentsToggle').text('${rlb.jsp_show_comments}')
+					}
+					e.preventDefault();
+					utils.resizeFrame();
+				});		
+##			});		
+	</script>
+	#end
+	##end comments macro	
+
+	
+
+		
+#end
+#*
+<!-- To Turn AJAX Comments on, uncomment this and change the commandComponents.xml to use EditSaveAction 
+	    <script type="text/javascript" >
+var commentsShowing = false;
+var lastCommentControl = null;
+function toggleComments(target) {
+	if ( target == null ) 
+		target = lastCommentControl;
+	lastCommentControl = target;
+	if ( commentsShowing ) {
+		target.innerHTML = "<c:out value="${rlb.jsp_show_comments}" />";
+	    popupClose(0);
+	    commentsShowing = false;
+	} else {
+		popupClose(0);
+		ajaxRefPopup(target,'<c:out value="${renderBean.listCommentsURL}" escapeXml="false" />',0);
+		target.innerHTML = "<c:out value="${rlb.jsp_hide_comments}" />";
+		commentsShowing = true;
+	}
+}
+var presenceShowing = false;
+var lastPresenceControl = null;
+function togglePresence(target) {
+	if ( target == null ) 
+		target = lastPresenceControl;
+	lastPresenceControl = target;
+	if ( presenceShowing ) {
+		target.innerHTML = "<c:out value="${rlb.jsp_show_who}" />";
+	    popupClose(0);
+	    presenceShowing = false;
+	} else {
+		popupClose(0);
+		ajaxRefPopup(target,'<c:out value="${renderBean.listPresenceURL}" escapeXml="false" />',0);
+		target.innerHTML = "<c:out value="${rlb.jsp_hide_who}" />";
+		presenceShowing = true;
+	}
+}
+</script>
+<div id="rwiki_comments_sidebar" >
+<a href="#" onclick="toggleComments(this); return false;" ><c:out value="${rlb.jsp_show_comments}" /></a>
+<a href="#" onclick="togglePresence(this); return false;" ><c:out value="${rlb.jsp_show_who}" /></a>
+</div>
+-->
+*#
+
+
+
+#macro( helppopup $id $pop_head $pop_body )   		
+    	<div id="${id}" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
+    		class="rwiki_help_popup pop1" >
+    		<h3>${pop_head}</h3>
+    		 <div class="pop_body">${pop_body}</div>
+    	</div>
+#end
+#macro( helppopup2 $id $pop_head $pop_body1 $pop_body2 )   		
+    	<div id="${id}" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
+    		class="rwiki_help_popup pop2" >
+    		<h3>${pop_head}</h3>
+    		<div class="pop_body">${pop_body1} </div>
+    		<div class="pop_body">${pop_body2}</div>
+    	</div>
+#end
+#macro( helppopup1 $id $pop_body)   		
+    	<div id="${id}" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
+    		class="rwiki_help_popup pop3" >
+    		<pre>${pop_body}</pre>
+    	</div>
+#end
+
+
+#macro( granted $granted $span )
+#if ($span) 
+#if ($granted)
+	<span class="rwiki_info_page_granted" >${rlb.jsp_yes}</span>
+#else
+	<span class="rwiki_info_page_denied" >${rlb.jsp_no}</span>
+#end
+#else
+#if ($granted)
+		${rlb.jsp_yes}
+#else
+		${rlb.jsp_no}
+#end
+#end
+#end
+
+
+#macro( edittoolbar ) 
+<div class="editToolBarContainer" >
+<a class="editToolBar" 
+			href="#" 
+			id="toolbarButtonSave" 
+			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.command_save.value = saveButton.value; form.submit();" >
+			<img src="/library/image/transparent.gif" 
+								border="0"   
+								title="${rlb.jsp_toolb_save}" 
+								alt="${rlb.jsp_toolb_save}" /></a>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonBold" 
+   onclick="addMarkup('wiki-textarea-content','bold','__','__'); return false;" >
+   <img src="/library/image/transparent.gif" 
+        border="0"   
+        title="${rlb.jsp_toolb_bold}" 
+        alt="${rlb.jsp_toolb_bold}" /></a>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonItalic" 
+   onclick="addMarkup('wiki-textarea-content','italic','~~','~~'); return false;" >
+   <img src="/library/image/transparent.gif" 
+        border="0"  
+        title="${rlb.jsp_toolb_italic}" 
+        alt="${rlb.jsp_toolb_italic}" /></a>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonSuper" 
+   onclick="addMarkup('wiki-textarea-content','super','^^','^^'); return false;"  >
+   <img src="/library/image/transparent.gif" 
+        border="0" 
+        title="${rlb.jsp_toolb_superscript}" 
+        alt="${rlb.jsp_toolb_superscript}" /></a>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonSub" 
+   onclick="addMarkup('wiki-textarea-content','sub','%%','%%'); return false;"  >
+   <img src="/library/image/transparent.gif" 
+        border="0" 
+        title="${rlb.jsp_toolb_subscript}" 
+        alt="${rlb.jsp_toolb_subscript}" /></a>
+<select name="toolbarButtonHeading" 
+        id="toobarButtonHeading" 
+        onChange="if ( this.value != 'none' ) { addMarkup('wiki-textarea-content','Heading 1','\n'+this.value+' ','\n'); this.value = 'none'; } return false;" >
+	   <option value="none" >${rlb.jsp_toolb_headings}</option>
+	   <option value="h1">${rlb.jsp_toolb_heading} 1</option>
+	   <option value="h2">${rlb.jsp_toolb_heading} 2</option>
+	   <option value="h3">${rlb.jsp_toolb_heading} 3</option>
+	   <option value="h4">${rlb.jsp_toolb_heading} 4</option>
+	   <option value="h5">${rlb.jsp_toolb_heading} 5</option>
+	   <option value="h6">${rlb.jsp_toolb_heading} 6</option>
+</select>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonTable" 
+   onclick="addMarkup('wiki-textarea-content','${rlb.jsp_table_macro_markup}','{table}\n','\n{table}'); return false;" >
+   <img src="/library/image/transparent.gif" 
+        border="0" 
+        title="${rlb.jsp_toolb_table}" 
+        alt="${rlb.jsp_toolb_table}" /></a>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonLink" 
+   onclick="addAttachment('wiki-textarea-content','editForm','editControl', 'link'); return false;"   >
+   <img src="/library/image/transparent.gif" 
+        border="0" 
+        title="${rlb.jsp_toolb_link}" 
+        alt="${rlb.jsp_toolb_link}" /></a>
+<a class="editToolBar" 
+   href="#" 
+   id="toolbarButtonImage" 
+   onclick="addAttachment('wiki-textarea-content','editForm', 'editControl', 'embed'); return false;"   >
+   <img src="/library/image/transparent.gif" 
+        border="0" 
+        title="${rlb.jsp_toolb_image}" 
+        alt="${rlb.jsp_toolb_image}" /></a> 
+</div>
+#end
+
+#macro( previewtoolbar ) 
+<div class="previewToolBarContainer" >
+<a class="previewToolBar" 
+			href="#" 
+			id="toolbarButtonSave" 
+			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.command_save.value = saveButton.value; form.submit();" >
+			<img src="/library/image/transparent.gif" 
+								border="0"   
+								title="${rlb.jsp_toolb_save}" 
+								alt="${rlb.jsp_toolb_save}" /></a>
+	</div>
+#end
+
+#macro( autosavetoolbar ) 
+<div class="autosaveToolBarContainer" >
+<nobr>
+<a class="autosaveToolBar" 
+			href="#" 
+			id="toolbarButtonRecover" 
+		    			    onClick="WikiAutoSave_restoreSavedContent('pageVersion', 'wiki-textarea-content', 'restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass' ); selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"
+		    			    >
+			<img src="/library/image/transparent.gif" 
+								border="0"   
+				    title="${rlb.jsp_button_restore_saved_edit}"
+			     alt="${rlb.jsp_button_restore_saved_edit}"
+								/></a>
+		 <label for="restoreVersion" >${rlb.jsp_auto_save_version}</label>
+		 <input type="text" id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" readonly="readonly" />
+		 <label for="restoreDate" >${rlb.jsp_auto_save_date}</label>
+		 <input type="text" id="restoreDate" name="restoreDate" value="${rlb.jsp_none}"  readonly="readonly" />
+		 <input type="hidden" id="restoreTimestamp" name="restoreTimestamp" value="${rlb.jsp_none}" readonly="readonly"  />
+</nobr>
+</div>
+
+#end
+
+
+#* ------------------------------------------------------------------
+# The standard way to instantiate a WYSIWYG formatted text editing widget
+# $textarea_id - The HTML id of the textarea form element already in the HTML document
+*# ------------------------------------------------------------------
+
+#macro (chef_setupformattedtextarea $textarea_id)
+<script type="text/javascript">
+	function chef_setupformattedtextarea(textarea_id)
+	{
+        		var oFCKeditor = new FCKeditor(textarea_id);
+				oFCKeditor.BasePath = "#libraryLink("editor/FCKeditor/")";
+
+                var courseId = "$collectionId";
+
+                oFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Image&CurrentFolder=" + courseId;
+                oFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Link&CurrentFolder=" + courseId;
+                oFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Flash&CurrentFolder=" + courseId;
+                oFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=" + courseId;
+                oFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=" + courseId;
+                oFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=" + courseId;
+				oFCKeditor.Width  = "700" ;
+				oFCKeditor.Height = "500" ;
+				oFCKeditor.Config['CustomConfigurationsPath'] = "#configLink("fckrwikiconfig.js")";
+    		    oFCKeditor.ReplaceTextarea() ;
+	}
+
+
+
+</script>
+<script type="text/javascript" defer="1">chef_setupformattedtextarea('$textarea_id');</script>
+
+#end
+
+#macro (libraryLink $path) ${fckLibraryPath}${path}#end
+#macro (configLink $path) ${fckConfigPath}${path}#end

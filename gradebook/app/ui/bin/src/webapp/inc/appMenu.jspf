@@ -1,0 +1,55 @@
+<%/*
+	Common application navigation links.
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+*/%>
+<sakai:tool_bar separator="|">
+	<%-- Gradebook Items menu --%>
+	<h:commandLink action="#{bean.navigateToOverview}" immediate="true" rendered="#{bean.pageName ne 'overview' && bean.breadcrumbPage ne 'overview'}">
+		<h:outputText value="#{msgs.appmenu_overview}"/>
+		<f:param name="pageName" value="overview" />
+	</h:commandLink>
+	<sakai:tool_bar_item value="#{msgs.appmenu_overview}" immediate="true" rendered="#{bean.pageName eq 'overview' || bean.breadcrumbPage eq 'overview'}" disabled="true" current="true" />
+
+	<%-- Roster menu --%>
+	<h:commandLink action="#{bean.navigateToRoster}" immediate="true" rendered="#{bean.pageName ne 'roster' && bean.breadcrumbPage ne 'roster'}">
+		<h:outputText value="#{msgs.appmenu_roster}"/>
+		<f:param name="pageName" value="roster" />
+	</h:commandLink>
+  <sakai:tool_bar_item  value="#{msgs.appmenu_roster}"  rendered="#{bean.pageName eq 'roster' || bean.breadcrumbPage eq 'roster'}" disabled="true" current="true" />
+  
+  	<%-- Course Grades menu --%>
+	<h:commandLink action="#{bean.navigateToCourseGrades}" immediate="true" rendered="#{bean.pageName ne 'courseGradeDetails'}">
+		<h:outputText value="#{msgs.appmenu_course_grades}"/>
+		<f:param name="pageName" value="courseGradeDetails" />
+	</h:commandLink>
+	<sakai:tool_bar_item   value="#{msgs.appmenu_course_grades}" rendered="#{bean.pageName eq 'courseGradeDetails'}" disabled="true" current="true" />
+	  
+	 <%-- Gradebook Setup menu --%>
+     <h:commandLink action="#{bean.navigateToGradebookSetup}" immediate="true" rendered="#{bean.pageName ne 'gradebookSetup' && bean.userAbleToEditAssessments}">
+         <h:outputText value="#{msgs.appmenu_gb_setup}" />
+         <f:param name="pageName" value="gradebookSetup"/>
+     </h:commandLink>
+     <sakai:tool_bar_item  value="#{msgs.appmenu_gb_setup}" rendered="#{bean.pageName eq 'gradebookSetup' && bean.userAbleToEditAssessments}" disabled="true" current="true" />
+
+	<%-- Permission Settings --%>
+     <h:commandLink action="#{bean.navigateToPermissionSettings}" immediate="true" rendered="#{bean.pageName ne 'graderRules' && bean.userAbleToEditAssessments && bean.userWithTaFlagExistsInSite}">
+         <h:outputText value="#{msgs.appmenu_perm_settings}" />
+         <f:param name="pageName" value="graderRules"/>
+     </h:commandLink>
+    <sakai:tool_bar_item value="#{msgs.appmenu_perm_settings}" rendered="#{bean.pageName eq 'graderRules' && bean.userAbleToEditAssessments && bean.userWithTaFlagExistsInSite}" disabled="true" current="true" />
+
+	<%-- Course Grade Options menu --%>
+     <h:commandLink action="#{bean.navigateToFeedbackOptions}" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions' && bean.userAbleToEditAssessments}">
+         <h:outputText value="#{msgs.appmenu_feedback_options}"/>
+         <f:param name="pageName" value="feedbackOptions" />
+     </h:commandLink>
+     <sakai:tool_bar_item value="#{msgs.appmenu_feedback_options}" rendered="#{bean.pageName eq 'feedbackOptions' && bean.userAbleToEditAssessments}" disabled="true" current="true" />
+
+	<%-- Import Grades menu --%>
+      <h:commandLink action="#{bean.navigateToImportGrades}" immediate="true" rendered="#{bean.pageName ne 'spreadsheetAll' && bean.userAbleToEditAssessments}" styleClass="currentView">
+          <h:outputText value="#{msgs.appmenu_import_all}"  />
+          <f:param name="pageName" value="spreadsheetAll" />
+      </h:commandLink>
+      <sakai:tool_bar_item  value="#{msgs.appmenu_import_all}" rendered="#{bean.pageName eq 'spreadsheetAll'}" disabled="true" current="true" />
+
+</sakai:tool_bar>

@@ -1,0 +1,250 @@
+##{$namespace}sakai-commons {
+    #commons-toolbar {
+        margin-top: 0px !important;
+        margin-bottom: 10px !important;
+    }
+        .commons-photo-text-wrapper {
+            border: solid #E0E0E0 1px;
+            padding: 8px;
+        }
+        #commons-editor-toolbar {
+            width: 100%;
+        }
+            #commons-editor-toolbar button {
+                border-radius: 0px;
+                font-weight: bold;
+                margin-right: 5px;
+            }
+        .commons-image {
+            min-width: 20px;
+            max-width: 100%;
+        }
+
+    #commons-link-dialog {
+        display: none;
+    }
+    #commons-image-dialog {
+        display: none;
+    }
+    .commons-dialog-container {
+    }
+            #commons-link-dialog-table {
+                display: table;
+            }
+                .commons-link-dialog-row {
+                    display: table-row;
+                    padding-bottom: 5px;
+                    div {
+                        display: table-cell;
+                        white-space: nowrap;
+                        padding-right: 10px;
+                    }
+                }
+            .commons-dialog-container button {
+                border-radius: 0px;
+                font-weight: bold;
+                margin-right: 5px;
+            }
+
+    .commons-photo {
+        min-width: 32px;
+        max-width: 32px;
+        height: 32px;
+        float: left;
+        background-position: 50%;
+        background-size: auto 100%;
+        border-radius: 50%;
+    }
+
+    .commons-editor-text-wrapper {
+        padding-left: 10px;
+        overflow: auto;
+    }
+        .commons-editor-text {
+            overflow: auto;
+        }
+            #commons-post-creator-editor {
+                min-height: 32px;
+                height: auto;
+            }
+
+    .commons-post-author {
+        font-weight: bold;
+        padding-right: 10px;
+    }
+
+    #commons-posts-wrapper{
+        clear: both;
+        margin-left: 0px;
+    }
+
+    .commons-portletBody {
+        padding-top: 2px !important;
+    }
+
+    .commons-post {
+        margin-bottom: 5px;
+    }
+
+    .commons-post-outer-container {
+        border-bottom: solid #E0E0E0 1px;
+        margin-bottom: 20px;
+    }
+        .commons-post-inner-container{
+            margin: 5px;
+            overflow: auto;
+        }
+            .commons-post-body {
+                clear: top;
+                margin-bottom: 5px;
+            }
+                .commons-post-author-name {
+                    font-weight: bold;
+                    padding-right: 5px;
+                    text-decoration: none !important;
+                    white-space: nowrap;
+                }
+                .commons-post-text-container {
+                    padding-left: 10px;
+                    margin-left: 33px;
+                }
+                .commons-post-options {
+                    font-size: smaller;
+                    margin-top: 8px;
+                }
+                    .commons-post-options a {
+                        text-decoration: none !important;
+                    }
+                .commons-post-edit-buttons {
+                    display: none;
+                }
+            .commons-comment-expander {
+                font-size: smaller;
+            }
+
+    .commons-post-with-comments {
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 0px;
+    }
+
+    .commons-comment-author-name {
+        font-weight: bold;
+        font-size: smaller;
+        text-decoration: none !important;
+    }
+
+    .commons-comments {
+        margin-left: 47px;
+    }
+        .commons-create-comment-link {
+            font-weight: bold;
+        }
+        .commons-comment-creator {
+            display: none;
+            padding: 10px 10px 0px 0px;
+        }
+        .commons-comment {
+            padding: 10px 0px 10px 0px;
+            overflow: auto;
+            white-space: nowrap;
+        }
+            .commons-comment-photo {
+                min-width: 26px;
+                max-width: 26px;
+                height: 26px;
+                background-position: 50%;
+                background-size: auto 100%;
+                border-radius: 50%;
+                display: inline-block;
+                vertical-align: top;
+            }
+            .commons-comment-body {
+                display: inline-block;
+                padding-left: 10px;
+                padding-right: 10px;
+                width: calc(100% - 36px);
+            }
+                .commons-comment-content {
+                    white-space: normal;
+                    font-size: smaller;
+                }
+                .commons-comment-options {
+                    font-size: smaller;
+                }
+
+    .commons-comment-editor {
+        border-top: solid #E0E0E0 1px;
+        padding: 3px;
+    }
+        .commons-comment-editor-text {
+            border: 1px #E0E0E0 solid;
+            background-color: #FFFFFF;
+            border-radius: 3px;
+        }
+            .commons-comment-textarea {
+                font-size: smaller;
+                border: 0px;
+                width: 100%;
+                height: 32px;
+                resize: none;
+            }
+
+    .commons-permissions-table th {
+        padding-right: 5px;
+    }
+
+    #commons-permissions-not-set-message {
+        background-color: #EFEFEF;
+        color: #000000;
+        border: solid #000000 1px;
+        border-radius: 3px;
+        padding: 5px;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .commons-og-fragment {
+        border: solid #E0E0E0 1px;
+        padding: 5px;
+        width: 400px;
+    }
+        .commons-og-image {
+            width: 300px;
+        }
+        .commons-og-title {
+            font-weight: bold;
+        }
+        .commons-og-description {
+            font-size: smaller;
+        }
+        .commons-og-sitename {
+            margin-top: 5px;
+            font-size: smaller;
+        }
+
+    .qtip.commons-qtip {
+        border: 1px #E0E0E0 solid !important;
+        background-color: #F8F8F8 !important;
+        max-width: 310px;
+    }
+
+    #commons-single-post-title {
+        font-size: larger;
+        padding-top: 10px;
+        font-weight: bold;
+    }
+
+    #commons-view-commons-link {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+}
+
+#commons-imagefile-instruction {
+    font-weight: bold;
+    font-size: larger;
+    margin-bottom: 5px;
+}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.calendar.api.CalendarService"
+			class="org.sakaiproject.calendar.impl.DbCalendarService"
+			init-method="init"
+			destroy-method="destroy">
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+ 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+		<property name="externalCalendarSubscriptionService"><ref bean="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/> </property>
+		<property name="opaqueUrlDao"><ref bean="org.sakaiproject.calendar.api.OpaqueUrlDao"/></property>
+ 		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
+ 		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
+ 		<property name="caching"><value>false</value></property>
+ 		<property name="locksInDb"><value>false</value></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.calendar.api.CalendarImporterService"
+		class="org.sakaiproject.calendar.impl.GenericCalendarImporter"
+		init-method="init"
+		destroy-method="destroy">
+		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+	</bean>
+
+    <!-- Just handles preloading of the institional calendars -->
+	<bean class="org.sakaiproject.calendar.impl.Preloader" init-method="init">
+		<constructor-arg ref="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/>
+	</bean>
+	
+	<bean id="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"
+		class="org.sakaiproject.calendar.impl.BaseExternalCalendarSubscriptionService"
+		init-method="init" destroy-method="destroy">
+		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
+ 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="calendarImporterService"><ref bean="org.sakaiproject.calendar.api.CalendarImporterService"/></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<property name="clock">
+			<bean class="java.time.Clock" factory-method="systemUTC"/>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.calendar.api.OpaqueUrlDao" 
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.calendar.impl.OpaqueUrlDaoHbm">
+				<property name="sessionFactory"
+					ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<import resource="hibernate-hbms.xml"/>
+
+</beans>

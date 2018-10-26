@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool
+			id="sakai.iframe"
+			title="Web Content"
+			description="For accessing internal resources or an external website within the site.">
+
+		<configuration name="source" value="" />
+		<configuration name="height" value="600px" />
+
+		<configuration name="reset.button" value="true"/>
+
+		<category name="course" />
+		<category name="project" />
+        <category name="portfolio" />
+		<category name="myworkspace" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+		
+		<!-- Allow multiple instances of this tool within one site -->
+		<configuration name="allowMultipleInstances" value="true" /> 
+
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.revise" />
+
+		
+	</tool>
+
+
+	<tool
+			id="sakai.iframe.service"
+			title="Service Information Display"
+			description="For displaying information about this Service.">
+
+		<configuration name="height" value="600px" />
+
+		<configuration name="special" value="site" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.service.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.service.revise" />
+
+	</tool>
+
+	<tool
+			id="sakai.iframe.myworkspace"
+			title="Home Information Display"
+			description="For displaying information about a user's Home.">
+
+		<configuration name="height" value="600px" />
+
+		<configuration name="special" value="workspace" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.myworkspace.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.myworkspace.revise" />
+
+
+	</tool>
+
+    <tool
+            id="sakai.iframe.site"
+            title="Welcome"
+            description="For displaying Site information.">
+
+        <configuration name="height" value="600px" />
+
+        <configuration name="special" value="worksite" type="final" />
+        <configuration name="reset.button" value="false" type="final" />
+
+        <!-- Allow this to be set -->
+        <configuration name="functions.require" />
+
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.site.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.site.revise" />
+
+		<category name="widget" />
+		
+    </tool>
+
+</registration>

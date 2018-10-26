@@ -1,0 +1,26 @@
+body > .portletBody {
+	margin: 0;
+
+	> .navIntraTool {
+		margin: 0;
+	}
+}
+
+.#{$namespace}sakai-synoptic-announcement, .#{$namespace}sakai-summary-calendar, .#{$namespace}sakai-synoptic-messagecenter, .#{$namespace}sakai-synoptic-chat{
+	iframe{
+		z-index: 0;
+	}
+}
+.#{$namespace}sakai-iframe-site{
+	.siteDescription{
+		overflow: auto;
+	}
+}
+
+body > .portletBody > #calendarForm{
+	overflow: hidden;
+
+	.navIntraTool {
+		margin: 0;
+	}
+}

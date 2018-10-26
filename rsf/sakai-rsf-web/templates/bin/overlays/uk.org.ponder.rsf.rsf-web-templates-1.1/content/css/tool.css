@@ -1,0 +1,1037 @@
+/*NOTE:This file is linked to after the tool_base.css file inside of tools. It provides for skinning.*/
+/*many of the definitions below exist also in tool_base.css - the duplication allows for one instalation with many different looks sharing some common elements
+*/
+
+/*SECTION 1 GENERIC SELECTORS*/
+body{
+	font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+	font-size: 80%;
+}	
+
+/*stub in tool_base.css - skinned here */
+
+hr.itemSeparator{
+	height: 1px;
+	border-color: #27d;
+		border-color: #27d;
+	border-style: solid;
+	border-width: 1px 0 0 0;
+}
+
+/*SECTION 2 LINKS*/
+a:link{
+	color: #35b;
+	text-decoration: none;
+}
+
+a:visited{
+	color: #88F !important;
+	text-decoration: none;
+}
+
+a:hover,a:active{
+	color: #33f;
+	text-decoration: underline !important;
+}
+
+a:focus{
+	color: #33f;
+	text-decoration: underline !important;
+}
+
+/*links inside the calendar tool tables*/
+table.calendar td a:hover{
+	text-decoration: underline;
+}
+/*links inside the <th>  of the standard list table*/
+.tableHierarchical th a:link,.tableHierarchical th a:visited,
+ .tableAction th a:link,.tableAction th a:visited,
+ .tableFlat th a:link, .tableFlat th a:visited
+ {
+	color: #35b;
+	text-decoration: underline;
+	border: none;
+}
+
+.tableHierarchical th a:hover, .tableAction th a:hover, .tableFlat th a:hover{
+	color: #33f;
+	text-decoration: underline;
+}
+
+/*some links are jscripted so the href is the same - cannot provide visited functionality - so make both the same*/
+/*see: list of assignments - the cells are classed with "specialLink" */ 
+.specialLink a:link,.specialLink a:visited{
+	color: #35b !important;
+	text-decoration: none;
+}
+
+.specialLink a:hover{
+	color: #33f;
+	text-decoration: underline;
+}
+/*links in resources - selected for move*/
+tr.selectedMove a:link,tr.selectedMove a:visited{
+	color: silver;
+}
+
+/*links associated with an item in alist*/
+/*see links below announcement title in ann list*/
+.actionItem  a,.actionItem  a:link{
+	color: #27d;
+	white-space: nowrap;
+	border-bottom: none;
+	padding:0;
+	margin:0;
+}
+
+.actionItem  a:visited{
+	color: #27d;
+	text-decoration: none;
+	border-bottom: 1px solid #fff;
+}
+
+.actionItem  a:hover{
+	color: #27d; /*for ie*/
+	text-decoration: underline !important; 
+}
+
+html>body .actionItem  a:hover{
+	color: #27d;
+	text-decoration: none !important; /*for other browsers*/
+	border-bottom: 1px solid #27d;
+}
+
+/*certain links are highlighted in resources after a selection*/
+/*see "Paste copied here" after ccopying a selection in resources*/
+.actionItem a.highlightlink{
+	font-weight: bold;
+}
+/*links in resources - selected for move "deaden" the link*/
+tr.selectedMove .actionItem a:link,tr.selectedMove .actionItem a:visited{
+	color: silver;
+	text-decoration: none;
+	border-bottom: none;
+}
+
+/*links for the generic toolbar  - inline-block is there to make IE behave
+see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
+.navIntraTool a, .navIntraTool a:link,
+.navViewGlobal a, .navViewGlobal a:link, .actionToolBar a, .actionToolBar a:link, .navToolBar a, .navToolBar a:link, .navLinkList a, .navLinkList a:link{
+	margin: 0;
+	text-decoration: underline;
+	white-space: nowrap;
+
+	padding:0;
+
+}
+.actionToolBar a, .actionToolBar a:link, .navToolBar a, .navToolBar a:link, .navLinkList a:link{
+	margin:0;
+		padding:0;
+}
+
+
+* html body .navIntraTool a, * html body .navIntraTool a:link{
+/*	display:inline-block;*/
+}
+
+.navIntraTool a:visited,
+.navToolBar a:visited
+.actionToolBar  a:visited
+.navLinkList  a:visited{
+
+	color: #35b;
+	text-decoration: underline;
+}
+
+.navIntraTool a:hover,
+.navToolBar a:hover,
+.actionToolBar a:hover
+.navLinkList a:hover{
+	color: #33f;
+	text-decoration: underline;
+}
+
+.navIntraTool a:active{
+	color: #33f;
+	text-decoration: none;
+}
+
+/*where one is at in hierarchy - can be static or active links*/
+ul.navBreadCrumb {
+	font-weight:bold;
+	list-style:none;
+	padding-left: 0
+}
+ul.navBreadCrumb li {
+	display:inline;
+	}
+/*for accessib. some breadcrumbs have h3 children - format like normal text*/
+.breadCrumb h3,.breadCrumb h4,.breadCrumb h5, .breadCrumb h6{
+	font-size:85%
+}
+
+.breadCrumb a:link,.breadCrumb a:visited{
+	color: #35b;
+	text-decoration: none;
+}
+
+.breadCrumb a:hover{
+	color: #33f;
+	text-decoration: underline;
+}
+
+
+/*SECTION 3 CALENDAR SELECTORS*/
+/*recommend - decide your palette first - then substitute colors here*/
+table.calendar{
+	background-color: #ffc;
+}
+
+table.calendar th{
+	background-color: #ffc;
+	font-weight: normal;
+	text-align: center;
+	border-collapse: collapse;
+}
+
+.bgActivity{
+	background-color: #ffc;
+	border: 1px solid #27d;
+	text-align: right;
+}
+
+.bgWithoutActivity{
+	background-color: #fff;
+	border: 1px solid #bbb;
+	text-align: right;
+}
+
+.borderGrayYear{
+	background-color: #eee;
+	border: 1px solid #bbb;
+	text-align: right;
+}
+
+.borderGrayDayWeek{
+	border-bottom: none;
+	border-collapse: collapse;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayBackground{
+	background-color: #ffc;
+	border-bottom: none;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayBgCenter{
+	background-color: #ffc;
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayEmptyMiddleBottom{
+	background-color: white;
+	border: 1px solid #bbb;
+}
+
+.borderGrayTodayEmptyMiddleCenter{
+	background-color: white;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayLeftBottom{
+	border-bottom: 1px solid #bbb;
+	border-left: 1px solid #000;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayLeftCenter{
+	border-left: 1px solid #000;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayMiddleCenter{
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayRightBottom{
+	border-bottom: 1px solid #bbb;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayRightCenter{
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+.borderOnlyLeftDay{
+	background-color: #ffc;
+	border-left: 1px solid #bbb;
+}
+
+.borderOnlyLeft{
+	border-left: 1px solid #bbb;
+}
+
+.borderToday{
+	border: 1px solid #000;
+}
+
+.borderTodayCenter{
+	border-bottom: 1px solid #bbb;
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+.borderTodayTop{
+	border-bottom: 1px solid #bbb;
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-top: 1px solid #000;
+}
+
+.borderTodayWithActivity{
+	background-color: #ffc;
+	border: 1px solid #000;
+	text-align: right;
+}
+
+.borderTodayWithoutActivity{
+	background-color: #FFF;
+	border: 1px solid #000;
+	text-align: right;
+}
+
+.borderTopLeft{
+	background-color: #ffc;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid  #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderTopLeftWhite{
+	border-left: 1px solid #bbb;
+	border-right: 1px solid  #bbb;
+	border-top: 1px solid #bbb;
+}
+
+.borderWhiteYear{
+	background-color: #ffc;
+	border: 1px solid #fff;
+	text-align: center;
+}
+
+.borderWhite{
+	border-bottom: none;
+	border-left: 1px solid #fff;
+	border-right: 1px solid #fff;
+	border-top: 1px solid #fff;
+}
+
+.borderGrayTodayCenter,.borderOnlyLeftTodayCenter{
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayEmptyRightBottom,.borderGrayTodayEmptyRightCenter{
+	background-color: white;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+.borderGrayTodayMiddleBottom,.borderFullGray,.borderGrayMonth{
+	border: 1px solid #bbb;
+}
+
+.borderTodayBottom,.borderGrayTodayBottom,.borderOnlyLeftTodayBottom{
+	border-bottom: 1px solid #000;
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-top: 1px solid #bbb;
+}
+
+table.calendar .event{
+	background-color: #ffc;
+}
+
+.timeCells{
+	background:#eee
+}
+
+/*SECTION 4 TABULAR DATA*/
+
+/*skinned header of standard tab. data table*/
+.tableHierarchical th, .tableAction th, .tableFlat th {
+	background-color: #ddd;
+}
+/*skinned cell of standard tab. data table*/
+.tableHierarchical td, .tableAction td{
+	vertical-align: top;padding: .4em;
+}
+
+/*lines - provides rules and hover effects on some tables*/
+table.lines{
+	border-collapse: collapse;
+}
+
+table.lines tr:hover, table.tableFlat tr:hover, table.tableAction tr:hover{
+	background-color: #ffc;
+}
+
+table.lines td{
+	border-bottom: 1px solid #bbb;
+	border-top: 1px solid #eee;
+}
+	
+/*some rows needed to be excluded from the rule and hover - see resources see other sites toggle*/
+table.lines tr.exclude:hover{
+	background: transparent;
+}
+
+/*substracts the rules from the lines class- mantain the hover*/
+table.nolines td{
+	border-bottom: 0px solid #bbb;
+	border-top: 0px solid #eee;
+}
+/*when an item has been copied - signal this*/
+/*see resources*/
+tr.selectedCopy{
+	background: #ffd;
+}
+
+tr.selectedCopy td{
+	border-top: 2px solid #bbb;
+	border-bottom: 2px solid #bbb;
+}
+/*when an item has been cut - signal this*/
+tr.selectedMove{
+	color: silver;
+	background: #eee;
+}
+
+tr.selectedMove td{
+	border-top: 2px dotted #bbb;
+	border-bottom: 2px dotted #bbb;
+}
+/*some rows need highlighting*/
+/*see announcement 3rd view option*/
+tr.highLightRow{
+	background:#ddd;
+}
+
+tr.highLightRow:hover{
+	background:#ddd !important;
+}
+tr.lightHighLightRow{
+	background:#ffd;
+}	
+/*remove the arrow indicating rows (in resources after a selection, in discussion, etc)*/
+.lines td.selected img{
+	display: none;
+}
+
+/*when a row contained a searched for item has been found*/
+/*see: discussion*/
+tr.selectedFound{
+	background: #cff;
+}
+/*skinned info for disclosure toggle*/
+/*see: assignment*/
+.discTria{
+	background-color: #ddd;
+	font-family: Arial,Helvetica,sans-serif;
+}
+
+/*SECTION 6 HIERARCHY*/
+
+/*headers are used in many places for structuring things semantically - these are the plain headers - below there are others contextually defined*/
+h2,h3,h4,h5,h6{
+	color: #555;
+	padding: 0;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	margin: 1em 0 ;
+	background-color: transparent !important;
+}
+
+h2{
+	font-size: 130%;
+}
+
+h3{
+	font-size: 110%;
+}
+
+h4,h5,h6 {
+	font-size: 100%;
+}
+/*headers when they occur in a table*/
+/*want to make them look like normal text - but structure the content*/
+/*see: resources, any legacy list*/
+.listHier th h3,.listHier th h4,.listHier th h5,.listHier th h6,.listHier td h3,.listHier td h4,.listHier td h5,.listHier td h6{
+	margin: 0;
+	padding: 0;
+	color:#000;
+	font-size: 1em;
+	background: none;
+	font-weight: normal;
+	font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif !important;
+}
+
+/*SECTION 7 INPUTS*/
+/*see: create any item*/
+label{
+	color: #000;
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	margin-top: .3em;
+}
+
+/*a required marker for a shorttext label/input pair*/
+.shorttext .reqGlyph{
+	color: #b11;
+	width: auto;
+	margin: 0 0 0 -1em;
+	font-weight: bold;
+	font-size: 1em;
+	padding: 0;
+}
+
+
+/*for alignment when an element need the same left-margin as the input of a shorttext label/input pair*/
+.labelindnt{
+	font-size: 1em;
+	margin: 0 0 0 17em !important;
+}
+
+.shorttext input{
+}
+
+.shorttext input:focus{
+	border: 1px solid #000;
+}
+
+textarea{
+	padding: .1em .3em;
+	border: 1px solid #bbb;
+	font-family: Verdana,Arial,Helvetica,sans-serif;
+	font-size: 100%;
+}
+
+textarea:focus{
+	border: 1px solid #000;
+}
+
+
+/*SECTION 8 TOOLBAR*/
+/*see: any tool*/
+.navIntraTool, .navToolBar, .actionToolBar{
+	padding:.3em;
+	margin: 0;
+	line-height: 1.5em;
+	border-bottom:1px solid #bbb;
+	text-align: left;
+	font-size: .9em;
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
+}
+.actionToolBar, .navToolBar{
+	
+	list-style: none;
+	padding:.3em;
+	margin: 0;
+	line-height: 1.5em;
+	border-bottom:1px solid #bbb;
+	text-align: left;
+	font-size: .9em;
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
+}
+.navToolBar{
+	background:#f60;
+	border-bottom:1px solid #bbb;
+	border-top:1px solid #bbb;
+}
+.navToolBar a:link, .navToolBar a:visited{
+	color:#fff !important
+}
+.navLinkList{
+	list-style:none;
+	width: 15%;
+	padding: 0;
+
+}
+.navLinkList li{
+	padding: .5em;	
+	width: auto;
+	border: 1px solid #333;
+	margin-top: -1px
+}
+.navLinkList li:hover{
+	background:#ffc;
+	cursor:pointer;
+}
+.navLinkList li.disabled:hover{
+	background:#fff;
+	cursor:default;
+}
+
+.actionToolBar li, .navToolBar li, .actionItem li, .filterToggle li{
+	display:inline;
+	padding:0 .2em 0 .5em;
+	margin:0;
+	border-left:1px solid #aaa;
+}
+.navToolBar li{
+	border-left:none
+}
+.actionToolBar > li:first-child, .navToolBar > li:first-child, .actionItem > li:first-child, .filterToggle > li:first-child{
+	border-left:none;
+	padding-left:0
+}
+.actionToolBar li.current{
+	
+}
+.navToolBar li.current{
+	margin-bottom:-1px;
+	background:#fff url(../images/navToolBar-current-bk.gif) top left repeat-x;
+	padding:.5em;
+	padding-top:.7em;
+	border-bottom:1px solid #fff;
+	border-left:1px solid #bbb;
+	border-right:1px solid #bbb; 
+}
+
+.actionToolBar li.disabled, .navToolBar li.disabled, .navLinkList li.disabled{
+	color:silver;
+}
+.navLinkList li.current {
+	background:#f60 !important;
+	color:#fff;
+	cursor:default
+}
+/*ie does not understand font sizing well - so fix here with the star hack*/
+* html .navIntraTool{
+	font-size:.85em;
+}
+.navIntraTool:hover, .navViewGlobal:hover,.actionToolBar:hover{
+	border-bottom:1px solid #fc0;
+}
+.navIntraTool .searchField{
+	border:1px solid silver;
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
+	font-size: 1em;
+	padding:.2em;
+}
+.navIntraTool .searchField:focus{border-color:#000}
+/*some toolbars will have input buttons*/	
+/*see: resources as instructor*/
+.navIntraToolLink input{
+	padding: 0;
+	border: none;
+	background: transparent;
+}
+
+.navIntraToolLink input.disabled{
+	padding-bottom: 1px;
+	border-bottom: none;
+	background: transparent;
+}
+
+.navIntraToolLink input.enabled{
+	color: #35b;
+	border-bottom: 1px solid #35b;
+	background: transparent;
+}
+
+
+
+/*SECTION 9 MESSAGES*/
+/*see: create any item*/
+.messageInstruction{
+	color: #555;
+}
+/*see: create a site*/
+.step{
+	font-size: 90%;
+	height: auto;
+}
+
+/*the generic required marker*/
+/*see: create any item*/
+.reqGlyph{
+	color: #b11;
+	width: auto;
+	margin-left: -1em;
+	font-weight: bold;
+	font-size: 1em;
+	padding: 0;
+	float: left;
+	border-top: 3px solid #fff;
+}
+* html legend .reqGlyph{
+margin-left:0
+}
+/*the required marker for a longtext label/input pair*/
+/*see: create any item with a textarea*/
+.longtext .reqStar{
+	color: #b11;
+	font-size: 1.2em;
+	font-weight: normal;
+	padding: 0 0 0 .1em;
+	float: left;
+}
+/*when need to display the required marker inline as a part of a text*/
+/*see: create any item - instruction message about requireed fields*/
+.reqStarInline{
+	color: #b11;
+	font-size: 1.2em;
+	vertical-align: middle;
+	width: 1em;
+}
+
+/*inline blob used to indicate progress (see: upload a resource say)
+visibility gets toggled*/
+#submitnotif{
+	background: #fff url(../images/warn.gif) .3em .3em no-repeat;
+	border: 1px solid #b11;
+	font-family: Verdana,Arial,Helvetica,sans-serif;
+	clear: none;
+	color: #b11;
+	font-size: small;
+	text-decoration: blink;
+	vertical-align: text-top;
+	margin: 0;
+	padding: 5px 5px 5px 25px;
+}
+/*SECTION 10 NAV  PANELS*/
+/*positioning etc., are defined in base - here just the skin info*/
+/*see any list with more than 20 items - announcements - for example*/
+.layoutNavPanel, .navPanel{
+	background-color:#fff
+}
+/*the default action in this control - keep in mind that anything you do to it (except to the font) will make 
+you loose the native buttonishness affordance of the os/browser */
+/*create any item - like an announcement*/
+.act .active {
+	color:#27d
+}
+
+/*SECTION 10 DATA PANELS*/
+.highlightPanel
+{
+	border:1px solid #eee;
+}
+
+.infoPanel{
+	border: 1px solid #27d;
+}
+
+.infoPanelHead{
+	border: 1px solid #27d;
+	background: #27d;
+	color: #ffd;
+}
+/*see: topic content in discussion*/
+.hierItemBlock{
+	padding: 0 .5em .5em .5em;
+	border: 1px solid silver;
+	margin-top: .5em;
+}
+
+.hierItemBlock h4.textPanelHeader, .hierItemBlock h5.textPanelHeader, .hierItemBlock h6.textPanelHeader{
+	border-bottom: 1px solid silver;
+	margin: 0 -.4em;
+	padding:.5em;
+	background: #ffd !important;
+}
+
+/*SECTION 11 LAYOUT REQUIRED IN SPECIFIC TOOLS*/
+.chatListHeadWrapper{
+	padding:.2em;
+	margin-bottom: .5em;
+	border-bottom: 1px dotted silver;
+}
+
+#chatPresenceHeadWrapper{
+	margin-bottom: .5em;
+	padding: 0 0  .2em .2em;
+	border-bottom: 1px dotted silver;
+}
+
+#chatListWrapper{
+	width: 83%;
+	padding-bottom: .5em;
+	float: left;
+}
+
+#chatPresenceWrapper{
+	width: 16%;
+	float: left;
+	border-left: 1px dotted silver;
+}
+
+#chatList{
+	margin: 0;
+	padding-left: 1.2em;
+	list-style: none;
+	width: 96%;
+}
+
+#chatList li {
+	margin: .2em 0 0 2em;
+	padding: .2em 0;
+	text-indent: -3em;
+	line-height: 1.2em;
+}
+
+#chatList li .chatDate{
+	font-size: .8em;
+}
+
+.discussionToolBarIframe{
+	height: 5em;
+	width: 100%;
+}
+
+#discussionLayoutTop-Bottom{
+	border-width: 1px 0 0 0;
+	border-style: solid;
+	border-color: silver;
+	clear: both;
+	width: 100%;
+}
+
+#discussionLayoutTop-Bottom .discussionListWrapper{
+	padding: 0;
+	vertical-align: top;
+}
+
+#discussionLayoutTop-Bottom .discussionItemWrapper{
+	padding: 0;
+	border-width: 1px 0 0 0;
+	border-style: solid;
+	border-color: silver;
+	vertical-align: top;
+}
+
+#discussionLayoutLeft-Right{
+	border-top: 1px solid silver;
+	clear: both;
+}
+
+#discussionLayoutLeft-Right .discussionListWrapper{
+	padding: 0;
+	width: 50%;
+	vertical-align: top;
+}
+
+#discussionLayoutLeft-Right .discussionItemWrapper{
+	padding: 0;
+	width: 50%;
+	vertical-align: top;
+/*	border-left: 1px solid orange;*/
+	padding-left:.2em
+}
+
+tr.selectedFound td{
+
+}
+
+
+.rosterImage{
+	border:1px solid #bbb;
+	height: 75px;
+	width:75px
+}
+
+.profileTable
+{
+	width:100%;
+
+	
+}
+.rosterImageCol{
+	width:80px;
+	vertical-align:top
+}
+
+.profileData
+{
+	padding-left:2em;
+	vertical-align:top
+}
+.profileData span{
+	display:block
+}
+.profileSearch
+{
+	width:40%;
+	text-align: right;
+	vertical-align:top;
+
+}
+.profileSearch table
+{
+	border:1px solid #fff
+}
+.profileSearch span
+{
+	text-align:left
+}
+.profileSearchResultsNav
+{
+float:right
+}
+.profileSearchResultsList
+{
+float:right;
+clear:both;
+text-align:right;
+margin-right:0;
+width:auto !important
+}
+.profileSearchResultsListSingle
+{
+	text-align:left
+}
+
+
+
+/*SECTION 12 TOOL TITLE SELECTORS and other PORTAL THINGS*/
+.portletTitle{
+	background:#00338C;
+	width: 80%;
+}
+
+.portletTitle .title img{
+	margin:0;
+	vertical-align:text-bottom;
+	width:16px !important
+}
+
+.portletTitle .title{
+	padding:2px 4px 6px 4px;
+	height:1em;
+	font-size: 120%;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	vertical-align: middle;
+	color: #fff;
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: .8em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+	background: url(images/blue_tabcap_r.gif) top right no-repeat;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
+
+/*below for "presence in chat" functionality*/
+.presenceList{
+	font-size: .8em;
+	list-style: none;
+	margin: 0;
+	padding-left: .1em;
+}
+
+.presenceList li {
+	padding: 0 0 0 .7em;
+	margin-bottom: .2em;
+}
+
+/*see presense list when one member is in chat room*/
+.presenceList li.inChat {
+	background: url(images/chatpresicon.gif) -.1em center no-repeat;
+}
+
+/*some definitions overriding tool_base.css for the external xlogin screen*/
+table.login{
+	border:none;
+	border-top: 1px solid #00338C
+}
+table.login th{
+		background: #00338C url(images/xlogin-blue_tab.gif) top right no-repeat;
+		height:24px;
+		padding:0;
+		color:#fff;
+		border:none;
+}
+table.login td{
+}
+.loginform label{
+	color: #000;
+}
+.login td.logo{
+	width: 14em;
+	background:#fff url(images/xlogin-logo.jpg) 1em 1em no-repeat
+}
+
+/*debug debug debug*/
+.navToolBar li{
+	margin:0 .5em
+}
+.navToolBar li.current{
+	border-top:1px solid #bbb;
+}
+.filterToggle, .actionItem{
+	color:#999;
+	margin-left:0;
+	padding-left:0;
+}
+
+/*cruft used by pages*/
+/*.markupExample
+{
+	border:1px solid blue;
+}
+.markupExample p{
+	border:1px solid red;
+}*/

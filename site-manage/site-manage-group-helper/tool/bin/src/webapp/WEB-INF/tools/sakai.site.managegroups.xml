@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai-site-manage-group-helper"
+			title="Site Manage Groups"
+			description="Site Manage Groups Helper">
+			<category name="sakai.helper" />
+			<configuration name="functions.require" value="site.upd" />
+	</tool>
+
+</registration>

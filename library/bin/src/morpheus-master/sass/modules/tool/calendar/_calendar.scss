@@ -1,0 +1,310 @@
+@import "_calendar_variables";
+
+
+.#{$namespace}sakai-schedule {
+
+	input, textarea{
+		max-width: 100%;
+	}
+
+	.shorttext label {
+		vertical-align: top;
+		min-width: 10em;
+		@media #{$phone}{
+			min-width: 96%;
+		}
+	}
+
+	.shorttext a{
+		overflow-wrap: break-word;
+	}
+
+	.shorttext .reqStar + label {
+		min-width: 9.4em;
+		@media #{$phone}{
+			min-width: 96%;
+		}
+	}
+
+	.itemSummary {
+		textarea {
+			width: 100%;
+		}
+		@media #{$phone}{
+			th, td.header{
+				white-space: initial;
+			}
+			input[type="text"], textarea {
+				width: 100%;
+			}
+		}
+	}
+
+	table.calendar{
+		font-size: 0.8em;
+		background-color: lighten($calendar-event-background-color,40%);
+
+		tr{
+			td, th{
+				text-align: center;
+				border-collapse: collapse;
+			}
+		}
+
+		.event{
+			background-color: lighten($calendar-event-background-color,10%);
+			border:  #bbb;
+
+			a {
+				color: $calendar-event-text-color;
+			}
+		}
+
+		.bgActivity {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border: 1px solid #0064cd;
+		    text-align: right;
+		    a {
+				color: $calendar-event-text-color;
+			}
+		}
+
+		.bgWithoutActivity {
+		    background-color: #fff;
+		    border: 1px solid #bbb;
+		    text-align: right;
+		}
+
+		.borderGrayYear {
+		    background-color: #eee;
+		    border: 1px solid #bbb;
+		    text-align: right;
+		}
+
+		.borderGrayDayWeek {
+		    border-bottom: none;
+		    border-collapse: collapse;
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayBackground {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border-bottom: #bbb;
+		    border-left: #bbb;
+		    border-right: #bbb;
+		    border-top: #bbb;
+		    a {
+				color: $calendar-event-text-color;
+			}
+		}
+
+		.borderGrayTodayBgCenter {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: #bbb;
+		}
+
+		.borderGrayTodayEmptyMiddleBottom {
+		    background-color: white;
+		    border: 1px solid #bbb;
+		}
+
+		.borderGrayTodayEmptyMiddleCenter {
+		    background-color: white;
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayLeftBottom {
+		    border-bottom: 1px solid #bbb;
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayLeftCenter {
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayMiddleCenter {
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayRightBottom {
+		    border-bottom: 1px solid #bbb;
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayRightCenter {
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderOnlyLeftDay {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border-left: #bbb;
+		}
+
+		.borderOnlyLeft {
+		    border-left: 1px solid #bbb
+		}
+
+		.borderToday {
+			border: 2px solid $calendar-event-background-color;
+		}
+
+		.borderTodayCenter {
+			border: 1px solid #bbb;
+			background-color: lighten($calendar-event-background-color,45%);
+		}
+
+		.borderTodayTop {
+		    border-left: 1px solid #fff;
+		    border-right: 1px solid #fff;
+		    border-top: 1px solid #fff;
+		    background-color: lighten($calendar-event-background-color,35%);
+		}
+
+		.borderTodayWithActivity {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border: 2px solid $calendar-event-background-color;
+		    text-align: right;
+		    a {
+				color: $calendar-event-text-color;
+			}
+		}
+
+		.borderTodayWithoutActivity {
+		    background-color: #777;
+		    border: 1px solid #bbb;
+		    text-align: right;
+		}
+
+		.borderTodayWithoutActivity a {
+		    color: #fff
+		}
+
+		.borderTopLeft {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border-left: #bbb;
+		    border-right: #bbb;
+		    border-top: #bbb;
+		    a {
+				color: $calendar-event-text-color;
+			}
+		}
+
+		.borderTopLeftWhite {
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderWhiteYear {
+		    background-color: lighten($calendar-event-background-color,10%);
+		    border: 1px solid #fff;
+		    text-align: center;
+		}
+
+		.borderWhite {
+		    border-bottom: none;
+		    border-left: 1px solid #fff;
+		    border-right: 1px solid #fff;
+		    border-top: 1px solid #fff;
+		}
+
+		.borderGrayTodayCenter, .borderOnlyLeftTodayCenter {
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayEmptyRightBottom, .borderGrayTodayEmptyRightCenter {
+		    background-color: white;
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #000;
+		    border-top: 1px solid #bbb;
+		}
+
+		.borderGrayTodayMiddleBottom, .borderFullGray, .borderGrayMonth {
+		    border: 1px solid #bbb;
+		}
+
+		.borderTodayBottom, .borderGrayTodayBottom, .borderOnlyLeftTodayBottom {
+		    border-left: 1px solid #bbb;
+		    border-right: 1px solid #bbb;
+		    border-bottom: 1px solid #bbb;
+			background-color: lighten($calendar-event-background-color,45%);
+		}
+
+		.timeCells {
+		    background: #eee
+		}
+	}
+
+	table.fieldsTable {
+		@media #{$phone}{
+			display: inline-table;
+			width:100% !important;
+		}
+	}
+
+	.viewLinkControl{
+		@extend .button;
+	}
+
+	.calendarLegend{
+		font-size: 0.8em;
+		margin: 0 0 1.5em 0;
+	}
+
+	#calendarForm{
+		.sectionContainerNav{
+			width: 93% !important;
+		}
+	}
+
+	.calendarYearItem {
+		max-width: 20em;
+		min-width: 17em;
+		display: inline-block;
+		padding: 4px;
+	}
+}
+
+// Icons used in more than one tool so not restricted by a specific namespace.
+.icon{
+	@extend .fa;
+	&.icon-calendar-academic-calendar				{	@extend .fa-graduation-cap}
+	&.icon-calendar-activity						{	@extend .fa-rocket}
+	&.icon-calendar-cancellation					{	@extend .fa-calendar-times-o}
+	&.icon-calendar-class-section-discussion		{	@extend .fa-comments}
+	&.icon-calendar-class-section-lab				{	@extend .fa-flask}
+	&.icon-calendar-class-section-lecture			{	@extend .fa-book}
+	&.icon-calendar-class-section-small-group		{	@extend .fa-users}
+	&.icon-calendar-class-session					{	@extend .fa-bell}
+	&.icon-calendar-computer-session				{	@extend .fa-desktop}
+	&.icon-calendar-deadline						{	@extend .fa-hourglass-end}
+	&.icon-calendar-exam							{	@extend .fa-check-square-o}
+	&.icon-calendar-meeting							{	@extend .fa-clock-o}
+	&.icon-calendar-multidisciplinary-conference	{	@extend .fa-cubes}
+	&.icon-calendar-quiz							{	@extend .fa-star}
+	&.icon-calendar-special-event					{	@extend .fa-certificate}
+	&.icon-calendar-web-assignment					{	@extend .fa-code}
+	&.icon-calendar-formative-assessment			{	@extend .fa-pencil-square-o}
+	&.icon-calendar-submission-date					{	@extend .fa-hourglass-end}
+	&.icon-calendar-tutorial						{	@extend .fa-graduation-cap}
+	&.icon-calendar-workshop						{	@extend .fa-group}
+	&.icon-calendar-attachment						{	@extend .fa-paperclip}
+}

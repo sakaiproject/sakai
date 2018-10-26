@@ -1,0 +1,7 @@
+{
+    "fss": {
+        "name": "Fluid Skinning System",
+        "description": "A modular, pure CSS framework for rapid styling. This package includes all FSS modules, including Reset, Layout, Text, and Themes.",
+        "cssFiles": ["fss-theme-by.css", "fss-theme-yb.css", "fss-theme-coal.css", "fss-theme-debug.css", "fss-theme-bw.css", "fss-theme-wb.css", "fss-theme-mist.css", "fss-theme-rust.css", "fss-theme-slate.css", "fss-layout.css", "fss-reset-global.css", "fss-reset-context.css", "fss-base-global.css", "fss-base-context.css", "fss-text.css"]
+    }
+}

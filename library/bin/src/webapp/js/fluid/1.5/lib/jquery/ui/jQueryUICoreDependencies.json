@@ -1,0 +1,15 @@
+{
+    "jQueryUICore": {
+        "name": "jQuery UI Core",
+        "description": "The core of jQuery UI, required for all jQuery UI interactions and widgets.",
+        "files": [
+            "./js/jquery.ui.core.js",
+            "./js/jquery.ui.widget.js",
+            "./js/jquery.ui.mouse.js",
+            "./js/jquery.ui.position.js"
+        ],
+        "dependencies": [
+            "jQuery"
+        ]
+    }
+}

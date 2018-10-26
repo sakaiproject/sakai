@@ -1,0 +1,539 @@
+body {
+    margin:0;
+    padding:0;
+    font:normal 17px Helvetica, sans-serif; /* Base font rules */
+	-webkit-user-select: none; /* prevents child elements content from being selected - desired? */
+    -webkit-text-size-adjust:none; /* http://website-engineering.blogspot.com/2009/07/stop-adjusting-text-size-in-iphone-when.html */
+}
+h1, h2, h3, h4, h5, h6 {margin:0.25em;}
+h1 {font-size:1.5em;}
+h2 {font-size:1.1em;}
+h3 {font-size:1em;}
+h4 {}
+h5 {}
+h6 {}
+img {border:none;}
+
+
+/***************************************/
+/**
+ * Basic overrides for fss layout
+ */
+
+.fl-icon {
+    width:30px;
+    height:30px;
+    margin-top:-5px;
+    margin-right:5px;
+    -webkit-border-radius: 5px;
+}
+.fl-label {
+    width:25%;
+}
+
+/***************************************/
+/* iPhone general purpose gel buttons */
+/* effect is applied anywhere but the navbar, which has its own button look */
+
+.fl-button {
+    border-width: 10px;
+    text-align:center;
+    -webkit-border-radius:10px;
+    -webkit-background-origin: border;
+    -webkit-background-clip: border;
+}
+
+/*************************************************/
+/* Navigation Bar
+ */
+.fl-navbar {
+    width:100%;
+    text-align:center;
+	border-style:solid;
+	border-width:1px 0;
+}
+.fl-navbar .fl-table-row:first-child {
+	height:45px;
+}
+.fl-navbar .fl-table-cell:not(h1) {
+    width:1px;
+    white-space:nowrap;
+}
+
+.fl-navbar .fl-table-cell:first-child {
+    padding-left:5px;
+}
+.fl-navbar .fl-table-cell:last-child {
+    padding-right:5px;
+}
+.fl-navbar h1 {
+    padding:0;
+    text-align:center;
+    font-size:1.17em;
+    font-weight: bold;
+}
+.fl-navbar a {
+	text-decoration:none;
+	font-size: 0.7em;
+    font-weight:bold;
+}
+
+.fl-navbar [class*=fl-button] {
+    -webkit-border-radius:5px;
+    padding:0;
+    display:block;
+}
+
+.fl-navbar .fl-backButton {
+    /*
+     * To create the oddly shaped back button with fully customizable CSS colors, there are 2 main things:
+     * 1) The stencil for the shadow and hilights along the angled edge
+     * 2) The mask to crop the background along the angled edge
+     */
+    /* Angled effect is just a single border with a transaprent stencil image for the bevel */
+    border-width:0 0 0 15px;
+    -webkit-border-top-right-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-background-origin: border;
+    -webkit-background-clip: border;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-origin: border;
+    -webkit-mask-clip: border;
+}
+
+.fl-navbar .fl-backButton .fl-button-inner {
+    margin-left:-3px; /* close tiny gap between angled border + button-inner on Mobile Safari */
+    border-left-width:0;
+}
+.fl-navbar .fl-button-inner {
+    float:none;
+    padding:5px;
+    border-width:5px;
+    -webkit-background-origin: border;
+    -webkit-background-clip: border;
+}
+
+.fl-navbar img.fl-button-inner {
+    height:24px;
+    vertical-align:middle;
+    padding:0;    
+}
+
+/*************************************************/
+/* iPhone tabs: general purpose dividers, or fixed to the bottom of the screen
+ */
+/*************************************************/
+.fl-tabs {
+    margin:0;
+    padding:0;
+    border:none;
+    text-align:center;
+}
+.fl-tabs li {
+    display:inline-block;
+    margin-right:-5px;
+    border-width:5px 0;
+    text-align:center;
+}
+.fl-tabs li:first-child {
+    border-left-width:5px;
+    -webkit-border-top-left-radius:5px;
+    -webkit-border-bottom-left-radius:5px;
+}
+.fl-tabs li:last-child {
+    margin-right:0;
+    border-right-width:5px;
+    -webkit-border-top-right-radius:5px;
+    -webkit-border-bottom-right-radius:5px;
+}
+.fl-tabs li.fl-tabs-active a,
+.fl-tabs li a {
+    display:block;
+    margin:-4px 0;
+    text-decoration:none;
+    padding:0.35em 0.5em;
+    font-weight:bold;
+    background:none;
+    border-width:0 1px;
+    border-style:solid;
+}
+
+.fl-tabs li:last-child a {
+    border-right:none;
+}
+.fl-tabs li:first-child a {
+    border-left:none;
+}
+
+/*************************************************/
+/* iPhone list menu styles: Ordered lists, Unordererd lists, Thumbnail lists, Icon lists, Definition lists
+ * By default, all list formats fit to width
+ * When nested within a fl-container element, they are indented and therefore contain rounded corners
+ */
+/*************************************************/
+/* Default list system setup */
+[class*=fl-list] {
+    border: none;
+    list-style:none;
+    margin:0 0 10px;
+    padding:0;
+}
+[class*=fl-list] > li {
+	display:block;
+	padding: 12px 0px 12px 12px;
+	text-decoration: none;
+	font-weight: bold;
+	outline: none;
+	border-style:solid;
+	border-width:1px 0px 0 0px;
+    overflow:auto; /* to encapsulate floating elements within */
+}
+[class*=fl-list] > li:last-child {
+	border-bottom-width:1px;
+}
+[class*=fl-list] .fl-link-loading .fl-link-secondary {
+    display:none;
+}
+/* secondary link info behaviour */
+[class*=fl-list] > li .fl-link-secondary {
+    float:right;
+    margin-right:25px;
+    font-weight:normal;
+    font-size:.9em;
+}
+ /* summary link info ehaviour */
+[class*=fl-list] > li .fl-link-summary {
+    display:block;
+    clear:right;
+    margin:0 25px 0 0px;
+    font-weight:normal;
+    font-size:0.8em;
+}
+[class*=fl-list] li .fl-icon ~ .fl-link-summary {
+    margin-left:30px; /* default size of fl-icon */
+}
+/* icon behaviour */
+[class*=fl-list] li .fl-icon {
+    float:left;
+    margin-left:-6px;
+}
+
+/*************************************************/
+/**
+ * fl-listmenu is now the way to create a link list
+ * The links create a hotspot over the entire list item, just like how it was by default
+ */
+.fl-list-menu {
+}
+.fl-list-menu li {
+	padding:0;
+}
+.fl-list-menu li a {
+    display:block;
+    padding: 12px 0px 12px 12px;
+    text-decoration: none;
+    font-weight: bold;
+    outline: none;
+}
+
+
+/*************************************************/
+/* Thumbnail and Expanded Thumbnails list features */
+
+.fl-list-thumbnails > li {
+    margin-bottom:5px;
+    border-bottom-width:1px;
+}
+.fl-list-thumbnails > li a {
+    padding-top:6px;
+    overflow:auto;
+}
+/* summary behaviour */
+.fl-list-thumbnails > li a  .fl-icon ~ .fl-link-summary {
+	margin:0 25px -12px 42px;
+}
+.fl-list-thumbnails:not(.fl-thumbnails-expanded):not(.fl-list-brief) > li a > .fl-icon ~ .fl-link-summary {
+    padding-bottom:10px;
+}
+/* icon behaviour */
+.fl-list-thumbnails > li a  .fl-icon {
+    width:44px;
+    height:44px;
+    margin:-6px 10px -12px -12px;
+    -webkit-border-radius:0;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded li {
+    margin:0;
+    border-bottom-width:0;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded > li:last-child {
+    border-bottom-width:1px;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded > li a {
+    -webkit-border-radius:0;
+    padding: 10px 0px 10px 10px;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded > li a  .fl-icon {
+    width:60px;
+    height:60px;
+    margin:-5px 5px -5px -5px;
+    -webkit-border-radius:0;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded > li a  .fl-icon ~ .fl-link-summary {
+    margin: 0px 0px -5px 60px;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded > li a  .fl-link-secondary {
+    padding-top:0;
+}
+
+/*************************************************/
+/* Brief lists auto trim summary content + add ellipsis if necessary */
+
+.fl-list-brief > li a  {
+    padding-bottom:6px;
+}
+.fl-list-brief > li a > .fl-link-summary {
+    height:1.3em;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.fl-list-brief > li a > .fl-icon ~ .fl-link-summary {
+    margin-left:0;
+}
+.fl-list-brief.fl-list-thumbnails:not(.fl-thumbnails-expanded) > li a > .fl-icon {
+    margin:-6px 10px -6px -12px;
+}
+.fl-list-brief.fl-list-thumbnails:not(.fl-thumbnails-expanded) > li a > .fl-link-secondary {
+    padding-top:0px;
+}
+
+/*************************************************/
+/* Thumbnails in Grid layout, changes the entire layout of the list item and contents */
+.fl-list-thumbnails.fl-grid {
+	overflow:auto;
+}
+.fl-list-thumbnails.fl-grid li {
+	display:inline-block;
+    float:none;
+    vertical-align:top;
+	width:auto;
+	height:auto;
+	margin:4px;
+}
+.fl-list-thumbnails.fl-grid li a {
+	padding:0;
+	margin:0;
+	text-indent:-5000px;
+	overflow:hidden;
+	width:44px;
+	height:44px;
+}
+.fl-list-thumbnails.fl-grid li a .fl-caption {
+}
+.fl-list-thumbnails.fl-grid li a .fl-icon {
+	display:block;
+	float:none;
+	margin:0 auto;
+	padding:0;
+	width:auto;
+	height:auto;
+	max-height:44px;
+	max-width:44px;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded.fl-grid li {
+	margin:0px;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded.fl-grid li a {
+	height:64px;
+	width:64px;
+}
+.fl-list-thumbnails.fl-thumbnails-expanded.fl-grid > li a .fl-icon {
+	max-height:64px;
+	max-width:64px;
+}
+/* Reiterate the properties of fl-table-cell for specificities sake */
+.fl-list-thumbnails.fl-grid li .fl-table {
+}
+.fl-list-thumbnails.fl-grid li .fl-table .fl-table-cell {
+    display:table-cell;
+    vertical-align:middle;
+}
+.fl-list-thumbnails.fl-grid .fl-grid-caption {
+    position:relative;
+    height:auto;
+    text-align:center;
+    font-size:12px;
+}
+.fl-thumbnails-expanded.fl-grid .fl-grid-caption {
+    width:64px;
+}
+/*************************************************/
+/* Glossy icons (and thumbnails?) */
+
+/* Glossiness for 30x30 icons */
+.fl-list-glossy > li a::before {
+    position:absolute;
+    content:" ";
+    float:left;
+    width:28px;
+    height:28px;
+    margin:-4px 0 0 -5px;
+    -webkit-border-radius:3px;
+    -webkit-background-size: 30px 60px;
+    background-repeat:no-repeat;
+}
+/* Glossiness for 44x44 thumbnails */
+.fl-list-thumbnails.fl-list-glossy > li a::before {
+    width:42px;
+    height:42px;
+    margin:-11px;
+    -webkit-border-radius:0px;
+    -webkit-background-size: 44px 50px;
+}
+/* Glossiness for 60x60 thumbnails */
+.fl-list-thumbnails.fl-thumbnails-expanded.fl-list-glossy > li a::before {
+    width:58px;
+    height:58px;
+    margin:-4px;
+    -webkit-border-radius:0px;
+    -webkit-background-size: 60px 40px;
+}
+
+
+/*************************************************/
+/* Content Panels */
+/*************************************************/
+
+[class*=fl-container]:not(.fl-navbar) {
+	margin:10px;
+    width:auto;
+}
+
+/* Panel influence for list corners */
+[class*=fl-container] [class*=fl-list] > li {
+    border-right-width: 1px;
+    border-left-width: 1px;
+}
+[class*=fl-container] [class*=fl-list] > li:first-child,
+[class*=fl-container] [class*=fl-list] > li:first-child a {
+    -webkit-border-top-left-radius: 8px;
+    -webkit-border-top-right-radius: 8px;
+}
+
+[class*=fl-container] [class*=fl-list] > li:last-child,
+[class*=fl-container] [class*=fl-list] > li:last-child a {
+    -webkit-border-bottom-left-radius: 8px;
+    -webkit-border-bottom-right-radius: 8px;
+}
+
+[class*=fl-container] [class*=fl-list]:not(.fl-thumbnails-expanded) > li a .fl-icon {
+    -webkit-border-bottom-left-radius: 8px;
+    -webkit-border-top-left-radius: 8px;
+}
+
+[class*=fl-container] .fl-list-thumbnails:not(.fl-thumbnails-expanded) > li,
+[class*=fl-container] .fl-list-thumbnails:not(.fl-thumbnails-expanded) > li a {
+    -webkit-border-radius: 8px;
+}
+/* Panel Auto Headings */
+/* The first element found becomes the "heading" */
+.fl-container-autoHeading > *:first-child {
+	padding:10px;
+	margin:0;
+	-webkit-border-top-left-radius: 8px;
+	-webkit-border-top-right-radius: 8px;
+}
+/* The last element found becomes the "content" - list or otherwise */
+.fl-container-autoHeading > *:last-child {
+	margin:0;
+	-webkit-border-radius:0;
+	-webkit-border-bottom-left-radius:8px;
+	-webkit-border-bottom-right-radius:8px;
+}
+
+.fl-container-autoHeading [class*=fl-list] > li {
+	margin:0;
+}
+.fl-container-autoHeading [class*=fl-list] > li:first-child,
+.fl-container-autoHeading [class*=fl-list] > li:first-child a {
+	-webkit-border-radius:0;
+}
+.fl-container-autoHeading [class*=fl-list] > li:first-child:last-child,
+.fl-container-autoHeading [class*=fl-list] > li:first-child:last-child a {
+	-webkit-border-bottom-left-radius:8px;
+	-webkit-border-bottom-right-radius:8px;
+}
+
+/* Collapsing and expanding panels */
+.fl-container-collapsable {
+	max-height:900px;
+	overflow:hidden;
+	-webkit-border-radius:8px;
+}
+
+/***************************/
+.fl-table {
+    display:table;
+    border-collapse:collapse;
+}
+.fl-table-row {
+    display:table-row;
+}
+.fl-table-cell {
+    display:table-cell;
+    vertical-align:middle;
+}
+
+
+/************************************************************************************************/
+/*
+    Theme/Device specific layout adjustments
+    The base CSS is modelled off the iPhone WebKit environment, which is a good UI to emulate
+    The following CSS modifies the base slightly to be a little more device-friendly and native-ish for other Webkit environments
+*/
+
+.fl-theme-android {
+    font:normal 17px "Droid Sans", sans-serif;
+}
+.fl-theme-android [class*=fl-list] > li {
+    border-width:0px;
+}
+.fl-theme-android h1,
+.fl-theme-android h2,
+.fl-theme-android h3 {
+    padding:5px;
+    margin:0;
+}
+.fl-theme-android [class*=fl-container] h1,
+.fl-theme-android [class*=fl-container] h2,
+.fl-theme-android [class*=fl-container] h3 {
+    margin:0 -10px;
+}
+.fl-theme-android .fl-list-menu a {
+    font-weight:normal;
+}
+.fl-theme-android .fl-tabs li:not(:last-child) {
+    margin-right:-4px; /* for some reason, the use of Droid Sans font make the right border dissappear (on Chrome+XP). This 1px change fixes it */
+}
+/* Panel influence for list corners */
+.fl-theme-android [class*=fl-container] [class*=fl-list] > li:first-child,
+.fl-theme-android [class*=fl-container] [class*=fl-list] > li:first-child a {
+    -webkit-border-top-left-radius: 0px;
+    -webkit-border-top-right-radius: 0px;
+}
+.fl-theme-android [class*=fl-container]:not(.fl-container-autoHeading) [class*=fl-list] > li:last-child,
+.fl-theme-android [class*=fl-container]:not(.fl-container-autoHeading) [class*=fl-list] > li:last-child a {
+    -webkit-border-bottom-left-radius: 0px;
+    -webkit-border-bottom-right-radius: 0px;
+}
+.fl-theme-android .fl-list-thumbnails.fl-thumbnails-expanded > li:last-child {
+	border:0;	
+}
+.fl-theme-android .fl-container-autoHeading > :first-child {
+	margin-left:0;
+	margin-right:0;
+}
+.fl-theme-android .fl-container-autoHeading > :last-child {
+	border-width:0 1px 1px;
+}

@@ -1,0 +1,109 @@
+#set( $viewBean = ${requestScope.ViewBean} )  
+#set( $renderBean = ${requestScope.RenderBean} )
+#set( $rightRenderBean = ${requestScope.ViewRightRenderBean} )
+#set( $permissionsBean = ${requestScope.PermissionsBean} )
+#set( $homeBean = ${requestScope.HomeBean} )
+#set( $recentlyVisitedBean = ${requestScope.RecentlyVisitedBean} )
+#set( $currentRWikiObject = ${requestScope.CurrentRWikiObject} )
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+#set( $nameHelperBean = ${requestScope.nameHelperBean})
+#set( $errorBean = ${requestScope.errorBean})
+#set( $editBean = ${requestScope.editBean})
+#set( $realmBean = ${requestScope.realmBean})
+#set(${recentlyVisitedBean.ViewPage}=${viewBean})  
+#set( $title = "${rlb.jsp_preview_changes_to}: ${util.escapeHtml($viewBean.localName)}" )
+#header(${title} false "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+		<ul class="navIntraTool actionToolBar">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true ${rlb.jsp_view}	false  true false false ${requestScope.Withnotification}	${homeBean} ${realmBean} ${rlb} ) 
+	    <li class="rwiki_searchBox">
+		  <label for="searchField">${rlb.jsp_search}:</label>
+	      ${rlb.jsp_search}:	
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" id="searchField"  name="search" />
+	    </li>
+		</ul>
+	  </form>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+	<h3 class="breadcrumb specialLink">
+		#breadcrumbs()
+	</h3>
+
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->		    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+  <h3 title="Preview Changes: ${util.escapeHtml($viewBean.pageName)} ${rlb.jsp_preview_changes}: ${util.escapeHtml($viewBean.localName)}</h3>
+  	<div class="rwikiRenderBody">
+	   <div class="rwikiRenderedContent"> 
+		    #set( $currentContent = ${currentRWikiObject.content})
+		    #set( ${currentRWikiObject.content} = ${nameHelperBean.content})	    
+		    ${renderBean.previewPage}<br/>
+  		  #set( ${currentRWikiObject.content} = ${currentContent})	    
+	   </div>
+	  </div>
+	  <form action="?#" method="post" >
+	     <input type="hidden" name="pageName" value="${util.escapeHtml($viewBean.pageName)}" />
+	     <input type="hidden" name="panel" value="Main"/>
+	     <input type="hidden" name="content" value="${util.escapeHtml($nameHelperBean.content)}" />
+  	   <input type="hidden" name="command_preview" value="preview"/>
+
+  	   <p class="act">
+	  	    <input type="hidden" name="action" value="edit" />
+		      <input type="submit" name="preview" value="${rlb.jsp_button_back_to_edit}"/>
+  	   </p>
+
+  	   <div class="rwiki_docdetails">
+	  			  <h3 onClick="expandcontent(this, 'pagedetails')" class="expandable" id="pagedetailsh3">
+		         <span class="showstate">&nbsp;</span>${rlb.jsp_document_properties}
+  		    </h3>
+		      <div id="pagedetails" class="expandablecontent">
+		       <table cellspacing="0">
+		        <tbody>
+		          <tr>
+			           <th>${rlb.jsp_global_page_name}</th>
+			           <td>${util.escapeHtml($viewBean.pageName)}</td>
+  		        </tr>
+		          <tr>
+			           <th>${rlb.jsp_page_realm}</th>
+			           <td>${util.escapeHtml($currentRWikiObject.realm)}</td>
+		          </tr>
+  		        <tr>
+		  	         <th>${rlb.jsp_id}</th>
+			           <td>${util.escapeHtml($currentRWikiObject.id)}</td>
+		          </tr>
+		          <tr>
+			           <th>${rlb.jsp_last_edited}</th>
+			           <td>${util.escapeHtml($currentRWikiObject.version)}</td>
+  		        </tr>
+		        </tbody>
+		       </table>
+		      </div>
+  		    <script type="text/javascript">
+		      <!--
+		      hidecontent('pagedetailsh3','pagedetails');
+		      -->
+  		    </script>
+	     </div>
+	    </form>
+  </div>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()
+
+
+  

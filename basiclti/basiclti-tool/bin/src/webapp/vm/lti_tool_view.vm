@@ -1,0 +1,44 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("tool.view")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		$formStatus
+		$formOutput
+<p class="row" id="lti13_keyset_url">
+<b>$tlang.getString('lti13_keyset_url')</b><br/>$keySetUrl</p>
+<p class="row" id="lti13_token_url">
+<b>$tlang.getString('lti13_token_url')</b><br/>$tokenUrl</p>
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<p class="act">
+			<input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;">
+			<input type="submit" accesskey ="v" name="doShow" value="$tlang.getString('gen.toggle.priv')"
+                onclick="$('#lti13_tool_private').toggle();return false;">
+		</p>
+	</form>
+#if ( ! $isAdmin )
+<script>includeLatestJQuery('lti_tool_view.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+        $('#lti13_tool_private').hide();
+
+        $('#lti13_tool_public').css('font-family', '"Courier New", monospace');
+        $('#lti13_tool_public').css('white-space', 'pre');
+
+        $('#lti13_tool_private').css('font-family', '"Courier New", monospace');
+        $('#lti13_tool_private').css('white-space', 'pre');
+
+        $('#lti13_platform_public').css('font-family', '"Courier New", monospace');
+        $('#lti13_platform_public').css('white-space', 'pre');
+});
+</script>
+#end
+</div>

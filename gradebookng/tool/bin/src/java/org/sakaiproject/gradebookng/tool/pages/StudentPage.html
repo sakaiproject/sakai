@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:extend>
+  
+	<div class="row">
+		<div class="col-sm-12">
+			<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
+			<button type="button" class="btn btn-info btn-xs gb-summary-print pull-right"><wicket:message key="button.print" /></button>
+		</div>
+	</div>
+
+	<div wicket:id="summary" id="studentGradeSummary"></div>
+
+	<input wicket:id="rubricsTokenHiddenField" type="hidden" />
+
+	<script>
+		var tokenAttr = $("[name$='rubricsTokenHiddenField']").val();
+		var imports = [
+			'/rubrics-service/imports/sakai-rubric-student.html'
+		];
+		var Polymerdom = 'shady';
+		var rbcstoken = tokenAttr;
+	</script>
+
+	<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			new GradebookGradeSummary($("#studentGradeSummary"));
+		});
+	</script>
+
+</wicket:extend>
+</body>
+</html>

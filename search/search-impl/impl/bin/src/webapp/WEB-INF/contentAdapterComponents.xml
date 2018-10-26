@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer"
+     class="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" 
+     init-method="init" 
+     >
+     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
+	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+	 <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+     
+     <property name="defaultDigester"><ref bean="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester"/></property>
+  </bean>
+  
+   <bean id="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester" 
+      class="org.sakaiproject.search.component.adapter.contenthosting.DefaultContentDigester"
+      init-method="init" 
+      >
+   </bean> 
+   <bean id="org.sakaiproject.search.component.adapter.contenthosting.PDFContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.PDFContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+     <property name="mimeTypes">
+        <map>
+           <entry key="application/pdf"><value>application/pdf</value></entry>
+           <entry key="application/x-pdf"><value>application/x-pdf</value></entry>
+        </map>
+     </property>
+  </bean> 
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.HtmlContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.HtmlContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+     <property name="mimeTypes">
+        <map>
+           <entry key="application/xhtml+xml"><value>application/xhtml+xml</value></entry>
+           <entry key="application/xml"><value>application/xml</value></entry>
+           <entry key="text/html"><value>text/html</value></entry>
+           <entry key="text/xhtml"><value>text/xhtml</value></entry>
+        </map>
+     </property>
+  </bean> 
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.PPTContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.PPTContentDigester"
+     init-method="init" 
+     destroy-method="destroy" >
+     <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+     <property name="mimeTypes">
+        <map>
+           <entry key="application/ms-powerpoint" ><value>application/ms-powerpoint</value></entry>
+           <entry key="application/mspowerpoint" ><value>application/mspowerpoint</value></entry>
+           <entry key="application/x-mspowerpoint" ><value>application/x-mspowerpoint</value></entry>
+           <entry key="application/msppt" ><value>application/msppt</value></entry>
+           <entry key="application/vnd.ms-powerpoint" ><value>application/vnd.ms-powerpoint</value></entry>
+           <entry key="application/x-powerpoint" ><value>application/x-powerpoint</value></entry>
+           <entry key="application/powerpoint" ><value>application/powerpoint</value></entry>
+           <entry key="application/vnd.ms-powerpoint" ><value>application/vnd.ms-powerpoint</value></entry>
+        </map>
+     </property>
+  </bean> 
+
+    <bean id="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.XLContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+       <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+       <property name="mimeTypes">
+          <map>
+             <entry key="application/msexcel"><value>application/msexcel</value></entry>
+             <entry key="application/ms-excel"><value>application/ms-excel</value></entry>
+             <entry key="application/vnd.ms-excel"><value>application/vnd.ms-excel</value></entry>
+             <entry key="application/x-msexcel"><value>application/x-msexcel</value></entry>       
+             <entry key="application/x-ms-excel"><value>application/x-ms-excel</value></entry>       
+          </map>
+       </property>
+    </bean> 
+    
+    <bean id="org.sakaiproject.search.component.adapter.contenthosting.PoiContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.PoiContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+       <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+       <property name="mimeTypes">
+          <map>
+             <entry key="application/vnd.openxmlformats"><value>application/vnd.openxmlformats</value></entry>
+             <entry key="application/vnd.ms-word.document.macroEnabled.12"><value>application/vnd.ms-word.document.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document"><value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value></entry>
+             <entry key="application/vnd.ms-word.template.macroEnabled.12"><value>application/vnd.ms-word.template.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.template"><value>application/vnd.openxmlformats-officedocument.wordprocessingml.template</value></entry>
+             <entry key="application/vnd.ms-powerpoint.slideshow.macroEnabled.12"><value>application/vnd.ms-powerpoint.slideshow.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.presentationml.slideshow"><value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value></entry>
+             <entry key="application/vnd.ms-powerpoint.presentation.macroEnabled.12"><value>application/vnd.ms-powerpoint.presentation.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation"><value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value></entry>
+             <entry key="application/vnd.ms-excel.sheet.binary.macroEnabled.12"><value>application/vnd.ms-excel.sheet.binary.macroEnabled.12</value></entry>
+             <entry key="application/vnd.ms-excel.sheet.macroEnabled.12"><value>application/vnd.ms-excel.sheet.macroEnabled.12</value></entry>
+             <entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value></entry>
+             <entry key="application/vnd.ms-xpsdocument"><value>application/vnd.ms-xpsdocument</value></entry>
+             <entry key="application/msword"><value>application/msword</value></entry>
+             <entry key="application/vnd.ms-word"><value>application/vnd.ms-word</value></entry>
+             <entry key="application/ms-word"><value>application/ms-word</value></entry>
+             <entry key="application/x-msword"><value>application/x-msword</value></entry>
+             <entry key="application/x-ms-word"><value>application/x-ms-word</value></entry>
+          </map>
+       </property>
+    </bean> 
+    
+ <bean id="org.sakaiproject.search.component.adapter.contenthosting.TikaContentDigester" 
+     class="org.sakaiproject.search.component.adapter.contenthosting.TikaContentDigester"
+     init-method="init" 
+     destroy-method="destroy"
+     >
+       <property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+       <property name="mimeTypes">
+          <map>
+           <entry key="application/rtf"><value>application/rtf</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text"><value>application/vnd.oasis.opendocument.text</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text-template"><value>application/vnd.oasis.opendocument.text-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text-web"><value>application/vnd.oasis.opendocument.text-web</value></entry>
+           <entry key="application/vnd.oasis.opendocument.text-master"><value>application/vnd.oasis.opendocument.text-master</value></entry>
+           <entry key="application/vnd.oasis.opendocument.graphics"><value>application/vnd.oasis.opendocument.graphics</value></entry>
+           <entry key="application/vnd.oasis.opendocument.graphics-template"><value>application/vnd.oasis.opendocument.graphics-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.presentation"><value>application/vnd.oasis.opendocument.presentation</value></entry>
+           <entry key="application/vnd.oasis.opendocument.presentation-template"><value>application/vnd.oasis.opendocument.presentation-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.spreadsheet"><value>application/vnd.oasis.opendocument.spreadsheet</value></entry>
+           <entry key="application/vnd.oasis.opendocument.spreadsheet-template"><value>application/vnd.oasis.opendocument.spreadsheet-template</value></entry>
+           <entry key="application/vnd.oasis.opendocument.chart"><value>application/vnd.oasis.opendocument.chart</value></entry>
+           <entry key="application/vnd.oasis.opendocument.formula"><value>application/vnd.oasis.opendocument.formula</value></entry>
+           <entry key="application/vnd.oasis.opendocument.database"><value>application/vnd.oasis.opendocument.database</value></entry>
+           <entry key="application/vnd.oasis.opendocument.image"><value>application/vnd.oasis.opendocument.image</value></entry>
+           <entry key="application/vnd.openofficeorg.extension"><value>application/vnd.openofficeorg.extension</value></entry>
+           <entry key="audio/mpeg"><value>audio/mpeg</value> </entry>
+           <entry key="audio/midi"><value>audio/midi</value> </entry>
+          </map>
+       </property>
+    </bean> 
+  
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester" 
+  	class="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester"
+  	init-method="init" 
+     destroy-method="destroy"
+     >
+  	<property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+  	<property name="mimeTypes">
+  		<map>
+	  		<entry key="image/jpeg"><value>images/jpeg</value> </entry>
+  			<entry key="image/jpg"><value>images/jpg</value> </entry>
+  		</map>
+  	</property>
+  	</bean>
+</beans>

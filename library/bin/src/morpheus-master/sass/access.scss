@@ -1,0 +1,241 @@
+/* access.scss : Styles for access servlet (/access/) directory listings */
+@import "defaults";
+
+@import "base/extendables";
+@import "base/defaults";
+
+@import "font-awesome";
+
+.directoryIndex {
+    margin-top: 2em;
+    padding: 1em;
+
+    a {
+	    text-decoration: none !important;
+    }
+
+    .textPanel {
+        font-size: .95em;
+        line-height: 150%;
+        padding: 5px 5px  5px  21px;
+    }
+
+    ul {
+        list-style: none;
+        margin: .5em 0 0 0;
+        padding: 0;
+
+        li {
+            list-style: none;
+            vertical-align: middle;
+            padding: .3em 0;
+            margin: 0;
+
+            img {
+                margin: 0 5px 0  0;
+                vertical-align: top;
+                border: none;
+            }
+
+            a {
+	            font-weight: bold;
+                &.inactive {
+                    color: Gray;
+                    opacity: 0.5;
+                }
+            }
+
+            &.folder {
+                padding: 3px;
+
+                a {
+                    .faicon {
+                      @extend .fa, .fa-folder-o;
+                    }
+                    &:hover {
+                      .faicon {
+                        @extend .fa, .fa-folder-open-o;
+                      }
+                    }
+                }
+            }
+
+            &.upfolder{
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                margin-bottom: 2em;
+
+                a {
+                    border: 1px solid #ccc;
+                    padding: 3px;
+                    display: inline-block;
+                    .faicon {
+                      @extend .fa, .fa-level-up;
+                    }
+                    &:hover {
+                        border: 1px solid #aaa;
+                        background: #ffe;
+                    }
+                }
+            }
+
+            &.file {
+                padding: 3px;
+
+                a {
+                    .faicon {
+                      @extend .fa, .fa-file-o;
+                    }
+                    
+                    &.doc, &.rtf, &.docx, &.docm, &.dotx, &.dotm {
+                      .faicon {
+                        @extend .fa-file-word-o;
+                      }
+                    }
+                    &.ppt, &.pps, &.pptx, &.pptm, &.ppsx, &.potx, &.potm, &.ppam {
+                      .faicon {
+                        @extend .fa-file-powerpoint-o;
+                      }
+                    }
+                    &.xls, &.xlsx, &.csv, &.xlsx, &.xlsm, &.xltx, &.xltm, &.xlsb, &.xlam {
+                      .faicon {
+                        @extend .fa-file-excel-o;
+                      }
+                    }
+                    &.mdb {
+                      .faicon {}
+                    }
+                    &.gif, &.jpg, &.jpeg, &.png {
+                      .faicon {
+                        @extend .fa-file-image-o;
+                      }
+                    }
+                    &.html, &.htm {
+                      .faicon {
+                        @extend .fa-file-code-o;
+                      }
+                    }
+                    &.txt, &.java {
+                      .faicon {
+                        @extend .fa-file-text-o;
+                      }
+                    }
+                    &.zip, &.tar, &.sit, &.hqx {
+                      .faicon {
+                        @extend .fa-file-archive-o;
+                      }
+                    }
+                    &.mov, &.mpeg, &.avi {
+                      .faicon {
+                        @extend .fa-file-video-o;
+                      }
+                    }
+                    &.mp3, &.wav, &.aiff {
+                      .faicon {
+                        @extend .fa-file-audio-o;
+                      }
+                    }
+                    &.pdf {
+                      .faicon {
+                        @extend .fa-file-pdf-o;
+                      }
+                    }
+                    &.ai, &.ps, &.psd {
+                      .faicon {}
+                    }
+                    &.ram, &.rm {
+                      .faicon {}
+                    }
+                    &.swf {
+                      .faicon {}
+                    }
+                }
+            }
+        }
+    }
+}
+
+p#toggle {
+    text-align: right;
+    margin: 0 0 1em 0;
+    font-weight: bold;
+}
+
+$background-pos: center left no-repeat !important;
+
+/* just in case the file is not inside a link (CARE : in this way there is no default icon)*/
+.doc, .rtf, .docx, .docm, .dotx, .dotm {
+  .faicon {
+    @extend .fa, .fa-file-word-o;
+  }
+}
+.ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
+  .faicon {
+    @extend .fa, .fa-file-powerpoint-o;
+  }
+}
+.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam {
+  .faicon {
+    @extend .fa, .fa-file-excel-o;
+  }
+}
+.mdb {
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
+}
+.gif, .jpg, .jpeg, .png {
+  .faicon {
+    @extend .fa, .fa-file-image-o;
+  }
+}
+.html, .htm {
+  .faicon {
+    @extend .fa, .fa-file-code-o;
+  }
+}
+.txt, .java {
+  .faicon {
+    @extend .fa, .fa-file-text-o;
+  }
+}
+.zip, .tar, .sit, .hqx {
+  .faicon {
+    @extend .fa, .fa-file-archive-o;
+  }
+}
+.mov, .mpeg, .avi {
+  .faicon {
+    @extend .fa, .fa-file-video-o;
+  }
+}
+.mp3, .wav, .aiff {
+  .faicon {
+    @extend .fa, .fa-file-audio-o;
+  }
+}
+.pdf {
+  .faicon {
+    @extend .fa, .fa-file-pdf-o;
+  }
+}
+.ai, .ps, .psd {
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
+}
+.ram, .rm {
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
+}
+.swf {
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
+}
+
+.fa:before{
+  padding-right: 5px;
+}

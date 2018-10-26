@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<!--
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+<web-app id="RWikiTool" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-rwiki</display-name>
+	<description>Sakai Radeox Wiki</description>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/components.xml</param-value>
+	</context-param>
+
+	<!-- 
+	Tool registration, 
+	requires that the tool definition in in tool
+	-->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+	</listener>
+	
+	<!--
+	The Sakai Request Hander 
+	-->
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	</filter>
+	
+	<!--
+	Mapped onto the RWiki Handler
+	-->
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.rwiki</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+	
+	<!--
+	The RWiki Controller 
+	-->
+	<servlet>
+		<servlet-name>sakai.rwiki</servlet-name>
+		<servlet-class>
+			uk.ac.cam.caret.sakai.rwiki.tool.RWikiServlet</servlet-class>
+		<init-param>
+			<param-name>headerPreContent</param-name>
+			<param-value>
+				<![CDATA[
+				<script  type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"> <!-- don't reduce this! --></script>
+				<link href="/sakai-rwiki-tool/styles/wikiStyle.css" type="text/css" rel="stylesheet" media="all" />
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js"> </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/autosave.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/flashbridge.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/utils.js" > </script>
+				<!--[if IE 6]>
+				<link href="/sakai-rwiki-tool/styles/wikiStyleIE6.css" type="text/css" rel="stylesheet" media="all" > </link>
+				<![endif]-->
+				<!--[if IE 7]>
+				<link href="/sakai-rwiki-tool/styles/wikiStyleIE7.css" type="text/css" rel="stylesheet" media="all" > </link>
+				<![endif]-->
+				
+				]]>
+				
+				
+			</param-value>
+			
+		</init-param>
+		<init-param>
+			<!-- this turns on page timer at info -->
+			<param-name>log-response</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<!-- this turns on detail timing at the info level of logger -->
+			<param-name>log-full-response</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>headerScriptSource</param-name>
+			<param-value></param-value>
+			<!-- 
+			-->
+			<!-- Uncomment this if you want jsmath
+			<param-value>/library/jsMath/jsMath.js</param-value>
+			-->
+		</init-param>
+		<init-param>
+			
+			<param-name>footerScript</param-name>
+			<!--
+			-->
+			<param-value> </param-value>
+			<!-- Uncomment this if you want jsmath
+			<param-value>if (typeof(jsMath) == "undefined" ) { alert("Maths support has been enabled, \nbut I cant find the jsMath javascript library.\n Please check web.xml "); } else { if  (jsMath.Process) { jsMath.Process(); }}</param-value>
+			-->
+			
+		</init-param>
+	
+		<load-on-startup>100</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>sakai.rwiki</servlet-name>
+		<url-pattern>/rwiki/*</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	
+</web-app>

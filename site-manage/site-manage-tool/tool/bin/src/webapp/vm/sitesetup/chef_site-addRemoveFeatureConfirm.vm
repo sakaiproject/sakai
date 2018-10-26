@@ -1,0 +1,241 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-addRemoveFeatureConfirm.vm,v 1.2 2005/05/26 13:34:15 zqian.umich.edu Exp $ -->
+## Adding/removing features
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+		$tlang.getString("addrc.confirming") <span class="highlight">$validator.escapeHtml($title)</span>
+	</h3>
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+			<div class="clear"></div>
+		#end
+## (gsilver) should check what has happened - if tools have been removed output the following block, if not not. Same with added tools (and change the language to suit)	
+##  (gsilver) the removed tools do not show up consistently in the removed tools list - also - if you remove an email archive tool it reads "Email Archive: @localhost"
+	<p class="instruction" id="removedInstruction" style="display:none">
+		$tlang.getString("addrc.youhave")
+	</p>
+	<p class="indnt3">
+		#if (($oldSelectedHome) && (!$check_home))
+			$tlang.getString("java.home")
+			#if ($!allowPageOrderHelper)
+				($validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
+			#end
+			<br />
+			<script type="text/javascript">
+				document.getElementById('removedInstruction').style.display='block'
+			</script>
+		#end
+		## 
+		##
+		#foreach ($oldTool in $oldSelectedTools)
+			#set($oldToolTitle="")
+			## exclude lti tools
+			#if(!$oldTool.startsWith($ltitool_id_prefix))
+				#foreach($t in $toolRegistrationList)
+					#if ($t.getId() == $oldTool)
+						#set($oldToolTitle=$validator.escapeHtml($t.getTitle()))
+					#end
+				#end
+				#set($found=false)
+				#foreach ($newTool in $selectedTools)
+					#if ($newTool.equals($oldTool))
+						#set($found=true)
+					#end
+				#end
+				#if(!$found && $!extraSelectedToolList.contains($newTool))
+					#set($found=true)
+				#end
+				## if no added tools found then 
+				#if (!$found)
+					<script type="text/javascript">
+						document.getElementById('removedInstruction').style.display='block'
+					</script>
+	
+					#if ($oldTool == "sakai.mailbox")
+						$!oldToolTitle: $!emailId@$serverName
+					#elseif ($!multipleToolIdTitleMap.containsKey($oldTool))
+						$validator.escapeHtml($!multipleToolIdTitleMap.get($oldTool))
+						## get tool configuration
+						#set($attributeHashtable=false)
+						#set($attributeHashtable=$!multipleToolConfiguration.get($oldTool))
+						#if (!$!attributeHashtable.isEmpty())
+							## show the attributes
+							(#foreach ($attribute in $!attributeHashtable.keySet())
+								$attribute = $validator.escapeHtml($!attributeHashtable.get($attribute))
+							#end) 
+						#end
+					#else
+						$!oldToolTitle
+					#end
+					#if ($!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!oldTool)))
+					#end
+					<br />
+				#end
+			#end
+		#end
+		
+		## check for the external/lti tools
+		#foreach($oldLtiToolKey in $oldLtiTools.keySet())
+			#if(!$ltiTools.containsKey($oldLtiToolKey))
+				## the old selected external/lti tool has been removed
+				<script type="text/javascript">
+					document.getElementById('removedInstruction').style.display='block'
+				</script>
+				#set($oldLtiToolValues=$oldLtiTools.get($oldLtiToolKey))
+				$oldLtiToolValues.get("toolTitle") ($oldLtiToolValues.get("title"))
+			#end
+		#end
+	</p>
+	<p class="instruction">
+		$tlang.getString("addrc.selected")
+	</p>
+	<p class="indnt3">
+		#if ($check_home)
+			#if (!$oldSelectedHome)
+				<span class="highlight">
+			#end
+			$tlang.getString("java.home")
+			#if ($!allowPageOrderHelper)
+				($validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
+			#end
+			#if (!$oldSelectedHome)
+				</span>
+			#end
+			<br/>
+		#end
+		#foreach ($newTool in $selectedTools)
+		 	## SAK-16600 to exclude the home tool here
+			#if (!$homeToolId.equals($newTool))
+				#set($newToolTitle = "")
+				#foreach($t in $toolRegistrationList)
+					#if ($t.getId() == $newTool)
+						#set($newToolTitle = $validator.escapeHtml($t.getTitle()))
+					#end
+				#end
+				#set($found=false)
+				#foreach ($oldTool in $oldSelectedTools)
+					#if ($oldTool.equals($newTool))
+						#set($found=true)
+					#end
+				#end
+				#if(!$found && $!extraSelectedToolList.contains($newTool))
+					#set($found=true)
+				#end
+				#if (!$found)
+					<span class="highlight">
+				#end
+				#if ($newTool == "sakai.mailbox")
+					$!newToolTitle 
+					#if ($!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+					#end
+					: $!emailId@$serverName
+				#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
+					## show tool title
+					$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+					#if ($!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+					#end
+					## show tool configuration
+					#if ($!multipleToolIdTitleMap.containsKey($toolId))
+						#set($properties = $!multipleToolConfiguration.get($toolId))
+						#if (!$properties.isEmpty())
+							##show configurations
+							(	
+								#foreach ($property in $!properties.keySet())
+									$property : $validator.escapeHtml($properties.get($property))
+								#end
+							)
+						#end
+			   #end
+						## get tool configuration
+						#set($attributeHashtable=false)
+						#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
+						#if (!$!attributeHashtable.isEmpty())
+							## show attributes
+							(#foreach ($attribute in $!attributeHashtable.keySet())
+								$validator.escapeHtml($!attributeHashtable.get($attribute))
+							#end)
+						#end
+				#else
+					$!newToolTitle
+					## exclude Home tool 
+					#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
+						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+					#end
+				#end
+				#if (!$found)
+					</span>
+				#end
+				<br />
+			#end
+		#end
+		## for LTI tools
+		#if (!$!ltiTools.isEmpty())
+			#foreach($ltiTool in $ltiTools.entrySet())
+				#set($ltiToolId=$ltiTool.getKey())
+				#set($ltiToolValues=$ltiTool.getValue())
+				#set($ltiToolTitle=$ltiToolValues.get("title"))
+				#set($ltiToolReqProps=$ltiToolValues.get("reqProperties"))
+				#if ($ltiToolReqProps && $ltiToolReqProps.containsKey("pagetitle"))
+					#set($ltiToolTitle=$ltiToolReqProps.get("pagetitle"))
+				#end
+				#if ($ltiToolReqProps && $ltiToolReqProps.containsKey("title"))
+					#set($ltiToolTitle=$ltiToolReqProps.get("title"))
+				#end
+				#if (!$!oldLtiTools.containsKey($ltiToolId))
+					## highlight for newly selected lti tools
+					<span class="highlight">
+						$ltiToolTitle ($ltiToolValues.get("title"))
+					</span>
+				#else
+					## existing lti tools
+					#set($oldLtiToolValues=$oldLtiTools.get($ltiToolId))
+					$ltiToolTitle ($oldLtiToolValues.get("title"))
+				#end
+				<br/>
+			#end
+		#end
+	</p>
+
+    ## SAK-22384
+    #if($!isMathJaxInstalled && $!doEnableMathJax)
+    <p class="instruction">
+        $tlang.getString("sinfo.mathjax.confirmEnabled")   
+    </p>
+    #end
+
+    #if($!isLessonsSubNavEnabledForSite)
+    <p class="instruction">
+        $tlang.getString("sinfo.lessonbuildersubnav.confirmEnabled")
+    </p>
+    #end
+
+    #if(!$!isPortalNeochatEnabledForSite && ($neoChat == 'true' || $neoChat == 'false'))
+    <p class="instruction">
+        $tlang.getString("sinfo.portalneochat.confirmDisabled")   
+    </p>
+    #end
+	
+	<form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="cancelIndex" value="$continueIndex" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="$continueIndex" />
+		<input type="hidden" name="eventSubmit_doAddRemoveFeatureConfirm_option" value="x" />
+		<input type="hidden" name="option" value="cancel" />
+		<p class="act">
+			<input type="submit" id="revise" name="review" accesskey="s" class="active" value="$tlang.getString('gen.finish')" 
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addRemoveFeaturnConfirmForm.option.value='revise'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
+			/>
+			<input type="submit" id="back" name="back" accesskey="b" value="$tlang.getString('gen.back')" 
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addRemoveFeaturnConfirmForm.option.value='back'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
+			/>
+			<input type="submit" id="cancel" name="cancel" accesskey="x" value="$tlang.getString('gen.cancel')" 
+				onclick="SPNR.disableControlsAndSpin( this, null ); document.addRemoveFeaturnConfirmForm.option.value='cancel'; document.addRemoveFeaturnConfirmForm.submit(); return false;"
+			/>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

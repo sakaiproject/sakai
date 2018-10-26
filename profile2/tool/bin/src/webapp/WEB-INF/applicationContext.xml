@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- ENTITY PROVIDERS START -->
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileEntityProvider">
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+		<property name="messagingLogic" ref="org.sakaiproject.profile2.logic.ProfileMessagingLogic" />
+	</bean>
+	
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileEventsEntityProvider" />
+		
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileLinkEntityProvider">
+		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+	</bean>
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileStatusEntityProvider">
+		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileMessagingEntityProvider">
+		<property name="messagingLogic" ref="org.sakaiproject.profile2.logic.ProfileMessagingLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.RosterEntityProvider">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+        <property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+	</bean>
+
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileImageEntityProvider">
+		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+	
+	<!-- ENTITY PROVIDERS END -->
+       
+</beans>

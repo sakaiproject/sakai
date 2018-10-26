@@ -1,0 +1,47 @@
+<style>
+	#citations-sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+	#citations-sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; }
+	#citations-sortable li span { position: absolute; margin-left: -1.3em; }
+</style>
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" media="all" />
+<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+<div class="portletBody specialLink">
+<h3>$tlang.getString("reorder.title") '${collectionTitle}'</h3>
+<div class="instruction">
+$tlang.getString("reorder.instruction")
+</div>
+<ul id="citations-sortable">
+	#foreach($citation in $citations)
+	<li id="$citation.getId()" class="ui-state-default"><span></span>
+		<div>
+		${citation.getDisplayName()} ($!{xilator.escapeHtml( $!{citation.creator} )})
+		</div>
+	</li>
+	#end
+</ul>
+<br />
+<input id="save" class="active" type="button" onclick="submitOrder();" value="$tlang.getString("submit.edit")"/>
+<input id="cancel" type="button" onclick="cancelReorder();" value="$tlang.getString("cancel.edit")"/>
+<script>
+	var order = "";
+	$(function() {
+		$( "#citations-sortable" ).sortable(
+			{
+				stop: function(event, ui) {
+					order = $('#citations-sortable').sortable('toArray');
+				}
+			}).disableSelection();
+	});
+	
+	function submitOrder() {
+    	reorderCitations( "#contentLink("Main")&sakai_action=doReorderCitations&collectionId=$collectionId", order);
+	}
+	
+	function cancelReorder() {
+    	window.location.assign('#contentLink("Main")&sakai_action=doList');
+	}
+</script>
+</div>

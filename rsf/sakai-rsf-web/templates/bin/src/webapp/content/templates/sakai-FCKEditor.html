@@ -1,0 +1,29 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<title>WYSIWYG Author</title>
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="/library/editor/FCKeditor/fckeditor.js" rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" language="JavaScript" src="../js/SakaiRSFWidgets.js" rsf:id="scr=contribute-script"></script>
+</head>
+<body>
+	<div class="portletBody">
+
+		<h1>WYSIWYG Author</h1>
+
+		<form>
+			<div rsf:id="sakai-FCKEditor:">
+				<textarea id="textarea_id" class="block" rsf:id="input" cols="65" rows="20" wrap="virtual"></textarea>
+				<script rsf:id="textarea-js" defer="1">
+					SakaiProject.fckeditor.initializeEditor('textarea_id',
+							'/group/9dd219e5-d840-42c9-803e-2c02b4ce69a4/');
+				</script>
+			</div>
+			<input type="submit" rsf:id="submitbutton" value="Submit" />
+		</form>
+
+	</div>
+</body>
+</html>

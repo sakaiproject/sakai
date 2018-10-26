@@ -1,0 +1,60 @@
+ <item title="Multiple Choice Survey" ident="">
+	<duration></duration>
+	<itemmetadata>
+		<qtimetadata>
+			<qtimetadatafield>
+				<fieldlabel>qmd_itemtype</fieldlabel>
+				<fieldentry>Multiple Choice Survey</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>TEXT_FORMAT</fieldlabel>
+				<fieldentry>HTML</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>PREDEFINED_SCALE</fieldlabel>
+				<fieldentry>YES</fieldentry>
+<!-- possible entries YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, ECXELLENT, 5, 10 -->
+			</qtimetadatafield>
+			<qtimetadatafield>
+        <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_KEYWORD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_RUBRIC</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+	 <qtimetadatafield>
+		<fieldlabel>ITEM_TAGS</fieldlabel>
+		<fieldentry/>
+	  </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+	</qtimetadata>
+	</itemmetadata>
+	<rubric>
+      <material>
+        <mattext/>
+      </material>
+    </rubric>
+	<resprocessing>
+		<outcomes>
+			<decvar varname="SCORE" minvalue="0" defaultval="0" maxvalue="0" />
+		</outcomes>
+		<respcondition continue="No">
+			 <conditionvar><other/></conditionvar>
+		</respcondition>
+	</resprocessing>
+ 	<itemfeedback ident="InCorrect" view="All">
+		<flow_mat>
+			<material>
+				<mattext></mattext>
+			</material>			 
+		</flow_mat>
+	</itemfeedback>
+</item>

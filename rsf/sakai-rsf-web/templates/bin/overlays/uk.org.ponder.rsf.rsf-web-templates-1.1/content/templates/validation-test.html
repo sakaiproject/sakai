@@ -1,0 +1,34 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<script type="text/javascript" src="../js/rsf.js" rsf:id="scr=contribute-script">
+</script>
+<link type="text/css" rel="stylesheet"  href="../css/rsf-validation.css" rsf:id="scr=contribute-style"/>
+<title>Form Validation Test</title>
+</head>
+<body>
+
+<h1>Form validation test</h1>
+  <form id="submission-form">
+    <div style="display:none" id="validation-package-base:">
+      <div id="validation-package-base::rsf-messages:" style="color: red; font-weight: bold; display:inline" >
+        <ul style="margin:0px; display:inline">  
+          <li id="validation-package-base::rsf-messages::message:" style="display:inline">Message for user here</li>
+        </ul>
+      </div>
+      <div id="validation-package-base::message-text:required">A value is required</div>
+    </div>
+  <label for="field1">Required field: </label><input type="text" rsf:id="field1" rsf:valid="required" id="field1"> </input> 
+    <div style="display:inline" id="message-for-field1">Validation message here </div>
+  <br/>
+  <label for="field2">Nonrequired field: </label><input type="text" rsf:id="field2" id="field2"></input>
+
+  <br/>
+  <input type="submit" value="Submit"> </input>
+  <script rsf:id="scr=ignore">
+    RSF.initValidation('submission-form', 'required-css-class', 'invalid-css-class', 'validation-package-base:');
+  </script>
+  </form>
+</body>
+</html>

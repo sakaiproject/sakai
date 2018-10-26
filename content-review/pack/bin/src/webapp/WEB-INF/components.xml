@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="hibernate-hbms.xml" />
+	<import resource="spring-hibernate.xml" />
+	<import resource="turnitin.xml" />
+  	<import resource="turnitin-oc.xml" />
+	<import resource="vericite.xml" />
+	<import resource="compilatio.xml" />
+	<import resource="urkund.xml" />
+
+	<bean id="org.sakaiproject.contentreview.service.ContentReviewQueueService" class="org.sakaiproject.contentreview.service.ContentReviewQueueServiceImpl">
+	   <property name="itemDao" ref="org.sakaiproject.contentreview.dao.ContentReviewItemDao" />
+	</bean>
+
+	<bean id="org.sakaiproject.contentreview.service.BaseContentReviewService"
+			class="org.sakaiproject.contentreview.service.BaseContentReviewService"
+			abstract="true">
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+
+	<bean id="org.sakaiproject.contentreview.service.ContentReviewService" class="org.sakaiproject.contentreview.service.ContentReviewFederatedServiceImpl"
+			parent="org.sakaiproject.contentreview.service.BaseContentReviewService" init-method="init">
+		<property name="providers">
+			<list>
+				<ref bean="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite" />
+				<ref bean="org.sakaiproject.contentreview.turnitin.ContentReviewServiceTurnitin" />
+				<ref bean="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" />
+				<ref bean="org.sakaiproject.contentreview.urkund.ContentReviewServiceUrkund" />
+        			<ref bean="org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC" />
+			</list>
+		</property>
+
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+	</bean>
+
+	<bean id="ContentReviewQueue" class="org.sakaiproject.contentreview.service.jobs.ContentReviewQueue">
+		<property name="contentReviewService">
+			<ref bean="org.sakaiproject.contentreview.service.ContentReviewService" />
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerContentReviewQueue" class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper" init-method="init">
+		<property name="beanId">
+			<value>ContentReviewQueue</value>
+		</property>
+		<property name="jobName">
+			<value>Process Content Review Queue</value>
+		</property>
+		<property name="schedulerManager">
+			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		</property>
+	</bean>
+
+	<bean id="ContentReviewReports" class="org.sakaiproject.contentreview.service.jobs.ContentReviewReports">
+		<property name="contentReviewService">
+			<ref bean="org.sakaiproject.contentreview.service.ContentReviewService" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerContentReviewReports" class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper" init-method="init">
+		<property name="beanId">
+			<value>ContentReviewReports</value>
+		</property>
+		<property name="jobName">
+			<value>Process Content Review Reports</value>
+		</property>
+		<property name="schedulerManager">
+			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,228 @@
+.fl-font-prefsEditor-size-70, .fl-font-prefsEditor-size-70 body, .fl-font-prefsEditor-size-70 input, .fl-font-prefsEditor-size-70 select, .fl-font-prefsEditor-size-70 textarea {
+  font-size: 0.7em !important;
+  line-height: 1em !important;
+}
+.fl-font-prefsEditor-size-80, .fl-font-prefsEditor-size-80 body, .fl-font-prefsEditor-size-80 input, .fl-font-prefsEditor-size-80 select, .fl-font-prefsEditor-size-80 textarea {
+  font-size: 0.8em !important;
+  line-height: 1.1em !important;
+}
+.fl-font-prefsEditor-size-90, .fl-font-prefsEditor-size-90 body, .fl-font-prefsEditor-size-90 input, .fl-font-prefsEditor-size-90 select, .fl-font-prefsEditor-size-90 textarea {
+  font-size: 0.9em !important;
+  line-height: 1.2em !important;
+}
+.fl-font-prefsEditor-size-100, .fl-font-prefsEditor-size-100 body, .fl-font-prefsEditor-size-100 input, .fl-font-prefsEditor-size-100 select, .fl-font-prefsEditor-size-100 textarea {
+  font-size: 1em !important;
+  line-height: 1.3em !important;
+}
+.fl-font-prefsEditor-size-110, .fl-font-prefsEditor-size-110 body, .fl-font-prefsEditor-size-110 input, .fl-font-prefsEditor-size-110 select, .fl-font-prefsEditor-size-110 textarea {
+  font-size: 1.1em !important;
+  line-height: 1.4em !important;
+}
+.fl-font-prefsEditor-size-120, .fl-font-prefsEditor-size-120 body, .fl-font-prefsEditor-size-120 input, .fl-font-prefsEditor-size-120 select, .fl-font-prefsEditor-size-120 textarea {
+  font-size: 1.2em !important;
+  line-height: 1.5em !important;
+}
+.fl-font-prefsEditor-size-130, .fl-font-prefsEditor-size-130 body, .fl-font-prefsEditor-size-130 input, .fl-font-prefsEditor-size-130 select, .fl-font-prefsEditor-size-130 textarea {
+  font-size: 1.3em !important;
+  line-height: 1.6em !important;
+}
+.fl-font-prefsEditor-size-140, .fl-font-prefsEditor-size-140 body, .fl-font-prefsEditor-size-140 input, .fl-font-prefsEditor-size-140 select, .fl-font-prefsEditor-size-140 textarea {
+  font-size: 1.4em !important;
+  line-height: 1.7em !important;
+}
+.fl-font-prefsEditor-size-150, .fl-font-prefsEditor-size-150 body, .fl-font-prefsEditor-size-150 input, .fl-font-prefsEditor-size-150 select, .fl-font-prefsEditor-size-150 textarea {
+  font-size: 1.5em !important;
+  line-height: 1.8em !important;
+}
+/* fix for Safari 3 ignoring input font size */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    
+    [class~='fl-font-size-70'] input[type=submit],
+    [class~='fl-font-size-70'] input[type=button] {padding:0 1em}
+
+    [class~='fl-font-size-80'] input[type=submit],
+    [class~='fl-font-size-80'] input[type=button] {font-size:0.8em; padding:0 1em}
+
+    [class~='fl-font-size-90'] input[type=submit],
+    [class~='fl-font-size-90'] input[type=button] {font-size:0.9em; padding:0 1em}
+
+    [class~='fl-font-size-100'] input[type=submit],
+    [class~='fl-font-size-100'] input[type=button] {font-size:1em; padding:0 1em}
+
+    [class~='fl-font-size-110'] input[type=submit],
+    input[type=submit][class~='fl-font-size-110'],
+    [class~='fl-font-size-110'] input[type=button] {background-color:#fff; font-size:1.1em; padding:0 1em}
+
+    [class~='fl-font-size-120'] input[type=submit],
+    input[type=submit][class~='fl-font-size-120'],
+    [class~='fl-font-size-120'] input[type=button] {background-color:#fff; font-size:1.2em; padding:0 1em}
+
+    [class~='fl-font-size-130'] input[type=submit],
+    input[type=submit][class~='fl-font-size-130'],
+    [class~='fl-font-size-130'] input[type=button] {background-color:#fff; font-size:1.3em; padding:0 1em}
+
+    [class~='fl-font-size-140'] input[type=submit],
+    input[type=submit][class~='fl-font-size-140'],
+    [class~='fl-font-size-140'] input[type=button] {background-color:#fff; font-size:1.4em; padding:0 1em}
+
+    [class~='fl-font-size-150'] input[type=submit],
+    input[type=submit][class~='fl-font-size-150'],
+    [class~='fl-font-size-150'] input[type=button] {background-color:#fff; font-size:1.5em; padding:0 1em}
+    
+    [class~='fl-font-serif'] input[type=submit],
+    [class~='fl-font-sans'] input[type=submit],
+    [class~='fl-font-monospace'] input[type=submit],
+    [class~='fl-font-arial'] input[type=submit],
+    [class~='fl-font-verdana'] input[type=submit],
+    [class~='fl-font-times'] input[type=submit],
+    [class~='fl-font-courier'] input[type=submit] {background-color:#fff; padding:0 1em}
+}
+.fl-font-prefsEditor-serif, .fl-font-prefsEditor-serif * {
+  font-family: Georgia, Times, "Times New Roman", "Book Antiqua", serif !important;
+}
+.fl-font-prefsEditor-sans, .fl-font-prefsEditor-sans * {
+  font-family: Tahoma, Verdana, Helvetica, sans-serif !important;
+}
+.fl-font-prefsEditor-monospace, .fl-font-prefsEditor-monospace * {
+  font-family: "Courier New, Courier", monospace !important;
+}
+.fl-font-prefsEditor-arial, .fl-font-prefsEditor-arial * {
+  font-family: "Arial" !important;
+}
+.fl-font-prefsEditor-verdana, .fl-font-prefsEditor-verdana * {
+  font-family: "Verdana" !important;
+}
+.fl-font-prefsEditor-times, .fl-font-prefsEditor-times * {
+  font-family: Georgia, Times, "Times New Roman", serif !important;
+}
+.fl-font-prefsEditor-courier, .fl-font-prefsEditor-courier * {
+  font-family: "Courier New", Courier, monospace !important;
+}
+.fl-font-prefsEditor-comic-sans, .fl-font-prefsEditor-comic-sans * {
+  font-family: "Comic Sans MS", sans-serif !important;
+}
+.fl-text-align-left {
+  text-align: left;
+}
+.fl-text-align-right {
+  text-align: right;
+}
+.fl-text-align-center {
+  text-align: center;
+}
+.fl-text-align-justify {
+  text-align: justify;
+}
+.fl-font-prefsEditor-spacing-0, .fl-font-prefsEditor-spacing-0 body, .fl-font-prefsEditor-spacing-0 input, .fl-font-prefsEditor-spacing-0 select, .fl-font-prefsEditor-spacing-0 textarea {
+  letter-spacing: 0em;
+}
+.fl-font-prefsEditor-spacing-1, .fl-font-prefsEditor-spacing-1 body, .fl-font-prefsEditor-spacing-1 input, .fl-font-prefsEditor-spacing-1 select, .fl-font-prefsEditor-spacing-1 textarea {
+  letter-spacing: 0.1em;
+}
+.fl-font-prefsEditor-spacing-2, .fl-font-prefsEditor-spacing-2 body, .fl-font-prefsEditor-spacing-2 input, .fl-font-prefsEditor-spacing-2 select, .fl-font-prefsEditor-spacing-2 textarea {
+  letter-spacing: 0.2em;
+}
+.fl-font-prefsEditor-spacing-3, .fl-font-prefsEditor-spacing-3 body, .fl-font-prefsEditor-spacing-3 input, .fl-font-prefsEditor-spacing-3 select, .fl-font-prefsEditor-spacing-3 textarea {
+  letter-spacing: 0.3em;
+}
+.fl-font-prefsEditor-spacing-4, .fl-font-prefsEditor-spacing-4 body, .fl-font-prefsEditor-spacing-4 input, .fl-font-prefsEditor-spacing-4 select, .fl-font-prefsEditor-spacing-4 textarea {
+  letter-spacing: 0.4em;
+}
+.fl-font-prefsEditor-spacing-5, .fl-font-prefsEditor-spacing-5 body, .fl-font-prefsEditor-spacing-5 input, .fl-font-prefsEditor-spacing-5 select, .fl-font-prefsEditor-spacing-5 textarea {
+  letter-spacing: 0.5em;
+}
+.fl-font-prefsEditor-spacing-6, .fl-font-prefsEditor-spacing-6 body, .fl-font-prefsEditor-spacing-6 input, .fl-font-prefsEditor-spacing-6 select, .fl-font-prefsEditor-spacing-6 textarea {
+  letter-spacing: 0.6em;
+}
+/* UI Enhancer "Esier to Find" link options */
+/* First pass strategy: apply classnames directky on the elements of interest, usually via JS */
+.fl-text-aqua {
+  color: aqua !important;
+}
+.fl-text-black {
+  color: black !important;
+}
+.fl-text-blue {
+  color: blue !important;
+}
+.fl-text-fuchsia {
+  color: fuchsia !important;
+}
+.fl-text-gray {
+  color: gray !important;
+}
+.fl-text-green {
+  color: green !important;
+}
+.fl-text-lime {
+  color: lime !important;
+}
+.fl-text-maroon {
+  color: maroon !important;
+}
+.fl-text-navy {
+  color: navy !important;
+}
+.fl-text-olive {
+  color: olive !important;
+}
+.fl-text-purple {
+  color: purple !important;
+}
+.fl-text-red {
+  color: red !important;
+}
+.fl-text-silver {
+  color: silver !important;
+}
+.fl-text-teal {
+  color: teal !important;
+}
+.fl-text-white {
+  color: white !important;
+}
+.fl-text-yellow {
+  color: yellow !important;
+}
+.fl-text-underline {
+  text-decoration: underline !important;
+}
+.fl-text-bold {
+  font-weight: bold !important;
+}
+.fl-text-larger {
+  font-size: 125% !important;
+}
+.fl-input-outline {
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: -moz-initial !important;
+  border-right-width: 2px;
+  border-right-style: solid;
+  border-right-color: -moz-initial !important;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: -moz-initial !important;
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-left-color: -moz-initial !important;
+}
+/* leave out color? */
+.fl-highlight-yellow, .fl-highlight-hover-yellow:hover, .fl-highlight-focus-yellow:focus {
+  background-color: #FF0 !important;
+  background-image: none !important;
+}
+.fl-highlight-green, .fl-highlight-hover-green:hover, .fl-highlight-focus-green:focus {
+  background-color: #0F0 !important;
+  background-image: none !important;
+}
+.fl-highlight-blue, .fl-highlight-hover-blue:hover, .fl-highlight-focus-blue:focus {
+  background-color: #00F !important;
+  background-image: none !important;
+}
+/* UI Enhancer 'enhanced links' styling */
+.fl-link-enhanced {
+  font-size: 125% !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
+}

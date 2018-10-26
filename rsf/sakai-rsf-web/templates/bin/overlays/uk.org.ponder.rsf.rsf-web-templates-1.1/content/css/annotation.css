@@ -1,0 +1,32 @@
+.annotation-target {
+  position:relative; /*this is the key*/
+  z-index:24;
+}
+
+.annotation-incomplete {
+  border:1px solid #f00;
+  background-color:#fcc; 
+  }
+
+.annotation-complete {
+  border:1px solid #0f0;
+  background-color:#cfc; 
+  }
+
+.annotation-inactive {
+  display: none;
+  }
+
+.annotation-active {
+  display:block;
+  position:absolute;
+  top: -1.7em;
+  left: 1em;
+  color:#000;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.annotation-front {
+  z-index:50;
+}

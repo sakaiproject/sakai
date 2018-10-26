@@ -1,0 +1,129 @@
+<dom-module id="sakai-rubric-delete">
+  <template>
+    <!-- Styling -->
+    <style include="polymer-bootstrap"></style>
+    <style include="sakai-rubrics-styles"></style>
+
+  
+    <iron-icon on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_rubric_[[rubric.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[item.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>
+
+    <div id="delete_rubric_[[rubric.id]]" class="popover rubric-delete-popover left">
+      <div class="arrow"></div>
+      <div class="popover-title" tabindex="0">
+        <sr-lang key="confirm_remove">Are you sure you want to remove</sr-lang> [[item.title]]?
+      </div>
+      <div class="popover-content">
+        <div class="buttons text-right"> 
+          <button title="[[lang('confirm_remove','Are you sure you want to remove')]]" class="btn btn-danger btn-xs save" on-tap="saveDelete">
+            <sr-lang key="remove">Remove</sr-lang>
+          </button>
+          <button class="btn btn-link btn-xs cancel" on-tap="cancelDelete">
+            <sr-lang key="cancel">Cancel</sr-lang>
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <iron-a11y-keys id="a11y" target="[[getNode('.popover')]]" keys="enter" on-keys-pressed="saveDelete"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[getNode('.popover')]]" keys="esc" on-keys-pressed="cancelDelete"></iron-a11y-keys>
+
+    <iron-ajax
+         id="deleteItem"
+         url="/rubrics-service/rest/"
+         headers$='{"authorization": "[[token]]"}'
+         method="DELETE"
+         handle-as="json"
+         content-type="application/json"
+         on-response="updateUi"
+         debounce-duration="300">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubric-delete",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        rubric: {
+          type: Object,
+          notify: true
+        },
+        criterion: {
+          type: Object,
+          notify: true
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        'tap': 'hostEventCatch',
+        'hideToolTip': 'hideToolTip'
+      },
+      hostEventCatch: function(e) {
+        e.stopPropagation();
+        console.log('event stopped at host');
+      },
+      activate: function() {
+        this.fire('activate');
+      },
+      deleteItem: function(e) {
+        e.stopPropagation();
+
+        if (!hasClass(this.tt, 'show-tooltip')) {
+          this.popoverOpen = "true";
+          var triggerPosition = altOffset(e.target);
+
+          addClass(this.tt, 'show-tooltip');
+
+          css(this.tt, {
+            'left': e.target.offsetLeft - 270 + "px",
+            'top': (e.target.offsetTop + e.target.offsetHeight/2 - this.tt.offsetHeight/2) + "px",
+          });
+
+          this.$$('.btn-danger').focus();
+
+        } else {
+          this.popoverOpen = "false";
+          this.hideToolTip();
+        }
+      },
+      hideToolTip: function(){
+        removeClass(this.tt, 'show-tooltip');
+      },
+      cancelDelete: function(e){
+        e.stopPropagation();
+        this.hideToolTip();
+      },
+      saveDelete: function(e){
+        e.stopPropagation();
+        this.$.deleteItem.generateRequest();
+      },
+      updateUi: function(request){
+        if (request.detail.status === 204) {
+          this.fire('delete-item', this.item);
+          this.hideToolTip();
+        }
+      },
+      ready: function(e) {
+        if (!this.criterion) {
+          this.item = this.rubric;
+          this.type = "rubric";
+          this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id;
+        } else {
+          this.item = this.criterion;
+          this.type = "criterion";
+          this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id + '/criterions/' + this.criterion.id;
+        }
+        this.tt = this.$$('.popover');
+
+        // console.log(this.rubric);
+        // console.log(this.criterion);
+        // setTimeout(function() {
+        //   this.$$('.delete').click();
+        // }.bind(this));
+      }
+    });
+  </script>
+</dom-module>

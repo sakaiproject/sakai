@@ -1,0 +1,92 @@
+<html>
+ <head>
+  <title>After the Deadline CKEditor Plugin</title>
+ </head>
+ <body>
+   <h1>After the Deadline for CKEditor - README</h1>
+
+   <p><a href="http://www.afterthedeadline.com">After the Deadline</a> is an <a href="http://open.afterthedeadline.com">open source</a> software service that checks 
+   <a href="http://www.afterthedeadline.com/features.slp">spelling, style, and grammar.</a> This package contains an AtD CKEditor Plugin and instructions on how to
+   use AtD with <a href="http://ckeditor.com/">CKEditor</a>.</p>
+
+   <h3>Installation</h3>
+
+   <ol>
+     <lI>Extract this archive into your ckeditor/plugins directory.</li>
+     <li>You'll need an API key from <a href="http://www.afterthedeadline.com">www.afterthedeadline.com</a>.  Registering is quick and painless (email address and password).</li>
+     <li>Modify contents.css in your ckeditor/ directory and add the styles from atd.css to it.</li>
+     <li>Modify config.js in your ckeditor/ directory (or where ever you're calling CKEditor from) to load the AtD plugin:
+     <ul>
+<pre>CKEDITOR.editorConfig = function( config )
+{
+        <b>config.extraPlugins = "atd-ckeditor";</b>
+        config.toolbar = 'MyToolbarSet';
+
+        /* you can omit config.atd_rpc and it will default to the proxy.php in the same dir as the plugin */
+        <b>config.atd_rpc = '/path/to/proxy.php?url='; 
+        config.atd_api_key = '1234567';</b>
+
+        config.toolbar_MyToolbarSet =
+        [
+            ['Bold','Italic','StrikeThrough','-','Subscript','Superscript'],
+            [<b>'atd-ckeditor'</b>],
+            ['NumberedList','BulletedList','Outdent','Indent','Blockquote','RemoveFormat','Source'],
+            ['Link','Unlink'],
+            '/',
+            ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+            ['Format','FontSize'],
+            ['FitWindow','ShowBlocks']
+        ]
+};</pre></ul></li>
+      <li>As a final note, make sure your webpage is encoded in UTF-8 format. AJAX requests use the encoding of the parent website and AtD expects UTF-8. This is important as AtD supports accented characters and we're working to support more languages.</li>
+  </ol>
+
+<h3>Using your own AtD Server</h3>
+
+<p>You can download the After the Deadline server from <a href="http://open.afterthedeadline.com">open.afterthedeadline.com</a> and serve your own requests. If
+you go this route, modify <em>server/proxy.php</em> to connect to your AtD host. All the other steps are the same.</p>
+
+<h3>Development Status</h3>
+
+<p>This plugin was developed as a proof-of-concept for the <a href="http://www.afterthedeadline.com/download.slp?platform=Core">AtD core UI module</a>. It lacks the polish of the other AtD plugins and needs a maintainer. Patches are very welcome.</p>
+
+<p>Here is a list of things that need to be done:</p>
+
+<ul>
+ <lI>Test and fix bugs with Internet Explorer (there may not be any for all I know)</li>
+ <li>Need to use something other than CKEditor Context Menu plugin for errors or fix CKEditor Context Menu. Here are the issues:
+   <ul>
+    <lI>Context menu is fixed width and doesn't resize for longer errors</li>
+    <li>Context menu doesn't honor Ctrl+Click for single button mice</li>
+    <li>Context menu uses cursor placement to determine which element the context menu was clicked on--makes using the menu awkward, user has to click the spelling error and then right click to bring up the context menu.</li>
+   </ul>
+ </li>
+ <li>Need to find a way to get CKEditor to load AtD CSS on its own. I tried a few different ways, you may do better than I did.</li>
+ <li>Need to add "explain" menu for errors that have explanations</li>
+ <li>Should update plugin to use editor.config.atd_show_types and editor.config.atd_ignore_strings values to set preferences in Core UI Module</li>
+</ul>
+
+<h3>Demo</h3>
+
+<p>A demo this extension is at: <a href="http://www.polishmywriting.com/ckeditor/">http://www.polishmywriting.com/ckeditor/</a></p>
+
+<h3>Get Involved</h3>
+
+<ul>
+ <li><a href="http://openatd.svn.wordpress.org/atd_ckeditor">Subversion repository</a></li>
+ <li><a href="http://openatd.trac.wordpress.org/report/13">Open Tickets (TRAC)</a></li>
+ <li><a href="http://groups.google.com/group/atd-developers">Mailing List</a></li>
+</ul>
+
+<h3>License</h3>
+
+<p>LGPL</p>
+
+<h3>Contact</h3>
+
+<p><a href="http://www.afterthedeadline.com/contact.slp">Raphael Mudge</a></p>
+
+<p>Get support from the <a href="http://groups.google.com/group/atd-developers">atd-developers</a> mailing list.</p>
+
+</body>
+</html>

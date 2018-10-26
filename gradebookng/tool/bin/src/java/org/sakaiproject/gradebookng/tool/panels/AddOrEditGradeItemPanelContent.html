@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+    <body>
+        <wicket:panel>
+
+			<div class="form-group form-group-sm">
+				<label wicket:for="title" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.title" />
+				</label>
+				<div class="col-xs-7">
+     				<input wicket:id="title" type="text" class="form-control" />
+   	 			</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<label wicket:for="points" class="col-xs-3 control-label">
+					<wicket:container wicket:id="pointsLabel" />
+				</label>
+				<div class="col-xs-2">
+					<input wicket:id="points" type="text" class="form-control" />
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-6">
+					<div class="checkbox">
+						<label>
+							<input wicket:id="extraCredit" type="checkbox" />
+							<span><wicket:message key="label.addgradeitem.extracredit" /></span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-9">
+					<sakai-rubric-association wicket:id="sakai-rubric-association"></sakai-rubric-association>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<label wicket:for="duedate" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.due" />
+				</label>
+				<div class="col-xs-4">
+                    <div class="input-group">
+                        <input wicket:id="duedate" type="text" class="form-control gb-datepicker" aria-describedby="duedate-help"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-sm btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+                            <button class="btn btn-sm btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                        </span>
+                    </div>
+                    <script>
+                        var initDatePickers = function () {
+                            $('.gb-datepicker').each(function() {
+                                var $datepicker = $(this);
+
+                                localDatePicker({
+                                    input: '#' + $datepicker.attr('id'),
+                                    useTime: 0,
+                                    icon: 0,
+                                    allowEmptyDate: true,
+                                    parseFormat: 'YYYY-MM-DD',
+                                    val: $datepicker.val(),
+                                    ashidden: { iso8601: 'duedate_iso8601' }
+                                })
+    
+                                // setup input button to trigger date-time picker
+                                $datepicker.siblings().find(".invoke-datepicker-btn").click(function() {
+                                    $datepicker.focus();
+                                });
+    
+                                // add clear action if present
+                                $datepicker.siblings().find(".clear-datepicker-btn").click(function() {
+                                    $datepicker.val("");
+                                });
+                            });
+                        };
+                        initDatePickers();
+                    </script>
+				</div>
+			</div>
+			<div class="form-group form-group-sm" wicket:id="categoryWrap">
+				<label wicket:for="category" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.category" />
+				</label>
+				<div class="col-xs-7">
+					<select wicket:id="category" class="select">
+						<option>test</option>
+					</select>
+					<span wicket:id="noCategoriesMessage" class="help-block"><wicket:message key="label.addgradeitem.nocategories"></wicket:message></span>
+					<div class="instruction"><wicket:message key="label.addgradeitem.nocategoryassigned"></wicket:message></div>
+				</div>
+				
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-6">
+					<div class="checkbox">
+						<label>
+							<input wicket:id="released" type="checkbox" />
+							<span><wicket:message key="label.addgradeitem.release" /></span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-6">
+					<div class="checkbox">
+						<label>
+							<input wicket:id="counted" type="checkbox" />
+							<span><wicket:message key="label.addgradeitem.include" /></span>
+						</label>
+					</div>
+				</div>
+			</div>
+
+        </wicket:panel>
+    </body>
+</html>

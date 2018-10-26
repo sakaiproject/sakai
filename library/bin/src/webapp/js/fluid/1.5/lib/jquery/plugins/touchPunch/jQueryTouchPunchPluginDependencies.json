@@ -1,0 +1,13 @@
+{
+    "jQueryTouchPunchPlugin": {
+        "name": "jQuery Touch Punch Plugin",
+        "description": "Provides touch event support for jQuery UI.",
+        "files": [
+            "./js/jquery.ui.touch-punch.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "jQueryUICore"
+        ]
+    }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!-- Change the list of local properties files. (The default sakai.properties will still be read.) -->
+	<bean id="org.sakaiproject.component.SakaiProperties" parent="org.sakaiproject.component.DefaultSakaiProperties">
+		<property name="locations">
+			<list merge="true">
+				<value>file:${sakai.home}sakai.properties</value>
+				<value>file:${sakai.home}some-peculiar.properties</value>
+				<value>file:${sakai.test}test.properties</value>
+				<!--  Wildcards work as well.... -->
+<!--
+				<value>file:${sakai.home}*.properties</value>
+-->
+			</list>
+		</property>
+	</bean>
+
+	<!-- We can override constructor arguments now. -->
+	<bean id="org.sakaiproject.component.test.String" class="java.lang.String">
+		<constructor-arg>
+			<value>local</value>
+		</constructor-arg>
+	</bean>
+	
+	<!--  We can override default service implementations via an alias. -->
+	<alias name="org.sakaiproject.component.test.TestProvider2" alias="org.sakaiproject.component.test.ITestProvider"/>
+
+	<!--  We can configure more complex object types. -->
+	<util:map id="defaultMap">
+		<entry key="key1" value="nondefault1"/>
+		<entry key="key2" value="nondefault2"/>
+		<entry key="key3" value="nondefault3"/>
+	</util:map>
+
+</beans>

@@ -1,0 +1,67 @@
+<div class="portletBody">
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('lti_content_insert.vm');</script>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+	<h3>
+		$tlang.getString("add.tool.to.site")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+#if ( $tool_id && $tool_visible == 1 ) 
+   <input type="hidden" id="tool_id" name="tool_id" value="$tool_id" />
+#else
+#if ($tools && $tools.size() > 0)
+        <p style="clear:all;">
+            <label for="tool_id" style="display:block;float:none;">
+                <span style="color:#903;font-weight:bold" title="Tool Title">*</span>
+		$tlang.getString("content.select.tool")
+            </label>
+   <select id="tool_id" name="tool_id" onchange="customizeForm.submit();">
+      <option value="--none--">$tlang.getString("content.select.one")</option>
+	#foreach ($tool in $tools)
+		#set( $selected = "" )
+		#if ( $tool_id && $tool_id.toString().equals($tool.get("id").toString())) 
+			#set( $selected = "selected" )
+		#end
+               <option value="$tool.get("id")" $selected > $tool.get("title")</option>
+	#end
+   </select>
+</p>
+   #if ( $tool_description ) 
+   <p>$validator.escapeHtml($tool_description)</p>
+   #end
+#else
+<p>$tlang.getString("content.no.tools")</p>
+#end
+#end
+#if ( $formInput ) 
+		$formInput
+#end
+<input #if($placement) disabled="disabled" checked="checked" #end type="checkbox" name="add_site_link"/> $tlang.getString("bl_addlink")
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doAction" 
+				value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;">
+		</p>
+	</form>
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
+#if ( $isAdmin ) 
+$tlang.getString("content.admin.note")
+#end
+#if ( ! $isAdmin )
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+</div>

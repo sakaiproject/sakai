@@ -1,0 +1,113 @@
+ <item title="True - False" ident="">
+	<qticomment>
+		This is a simple True/False multiple-choice example using V1.2.
+		The rendering is a standard radio button style.
+		Response processing is incorporated.
+	</qticomment>
+	<duration></duration>
+	<itemmetadata>
+		<qtimetadata>
+			<qtimetadatafield>
+				<fieldlabel>qmd_itemtype</fieldlabel>
+				<fieldentry>True False</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>TEXT_FORMAT</fieldlabel>
+				<fieldentry>HTML</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+        <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_KEYWORD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_RUBRIC</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+	  <qtimetadatafield>
+		<fieldlabel>ITEM_TAGS</fieldlabel>
+		<fieldentry/>
+	  </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+         <!--rshastri SAK 1824  -->
+      <qtimetadatafield>
+        <fieldlabel>hasRationale</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+		</qtimetadata>
+	</itemmetadata>
+	<rubric>
+      <material>
+        <mattext/>
+      </material>
+    </rubric>
+	<presentation label="Resp001">
+		<flow>
+			<material>
+				<mattext></mattext>
+			</material>
+			<material>
+				<matimage imagtype="text/html" uri=""></matimage>
+			</material>
+			<response_lid ident="TF02" rcardinality="Single">
+				<render_choice shuffle="No">
+					<response_label ident="A">
+						<material>
+							<mattext>True</mattext>
+						</material>
+					</response_label>
+					<response_label ident="B">
+						<material>
+							<mattext>False</mattext>
+						</material>
+					</response_label>
+				</render_choice>
+			</response_lid>
+		</flow>
+	</presentation>
+	<resprocessing>
+		<outcomes>
+			<decvar varname="SCORE" minvalue="0" defaultval="0" maxvalue="0" />
+		</outcomes>
+		<respcondition continue="No" title="Correct">
+			<conditionvar>
+				<varequal case="Yes" respident="TF02">A</varequal>
+			</conditionvar>
+			<setvar varname="SCORE" action="Add">0</setvar>
+			<displayfeedback feedbacktype="Response" linkrefid="Correct" />
+		</respcondition>
+		<respcondition continue="No" title="InCorrect">
+			<conditionvar>
+				<varequal case="Yes" respident="TF02">B</varequal>
+			</conditionvar>
+			<setvar varname="SCORE" action="Add">0</setvar>
+			<displayfeedback feedbacktype="Response" linkrefid="InCorrect" />
+		</respcondition>
+	</resprocessing>
+	<itemfeedback ident="Correct" view="All">
+		<flow_mat>
+			<material>
+				<mattext></mattext>
+			</material>
+			<material>
+                <matimage imagtype="text/html" uri=""/>
+            </material>
+		</flow_mat>
+	</itemfeedback>
+	<itemfeedback ident="InCorrect" view="All">
+		<flow_mat>
+			<material>
+				<mattext></mattext>
+			</material>
+			<material>
+                <matimage imagtype="text/html" uri=""/>
+            </material>
+		</flow_mat>
+	</itemfeedback>
+</item>

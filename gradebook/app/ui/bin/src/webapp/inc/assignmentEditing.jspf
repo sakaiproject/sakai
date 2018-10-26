@@ -1,0 +1,111 @@
+<%/*
+	A single Assignment creation and editing.
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+	
+	NOTE: 10/20/07 Any changes to this display needs to be duplicated in bulkNewItems.jspf
+*/%>
+
+
+<div class="instruction gbSection">
+	<h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:outputFormat value="#{msgs.edit_assignment_external_items}" rendered="#{bean.assignment.externallyMaintained}">
+		<f:param value="#{bean.assignment.externalAppName}"/>
+	</h:outputFormat>
+</div>
+
+<%@include file="/inc/globalMessages.jspf"%>
+
+<h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
+	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
+		<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+			<f:validateLength minimum="1" maximum="255"/>
+		</h:inputText>
+		<h:message for="title" styleClass="alertMessageInline"/>
+	</h:panelGroup>
+	<h:outputText value="#{msgs.add_assignment_title}" rendered="#{bean.assignment.externallyMaintained}" />
+	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.assignment.externallyMaintained}" />
+
+	<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
+	<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
+		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" rendered="#{!bean.selectedCategoryDropsScores || (bean.selectedCategoryDropsScores && bean.assignment.selectedGradeEntryValue == 'Adjustment') || (bean.selectedCategoryDropsScores && (empty bean.selectedCategory.assignmentList || bean.selectedAssignmentIsOnlyOne))}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+			<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+			<f:validateDoubleRange minimum="0.01" />
+			<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+		</h:inputText>
+		<h:message for="points" styleClass="alertMessageInline" />
+		<h:panelGroup rendered="#{bean.selectedCategoryDropsScores && !bean.assignment.externallyMaintained && bean.assignment.selectedGradeEntryValue != 'Adjustment' && !bean.selectedAssignmentIsOnlyOne}">
+			<h:outputText id="pointsDropScores1" value="#{bean.selectedCategory.itemValue}" rendered="#{bean.selectedCategory.itemValue == bean.assignment.pointsPossible}" />
+			<h:outputText style="color: #BB1111" id="pointsDropScores2" value="#{bean.selectedCategory.itemValue}" rendered="#{bean.selectedCategory.itemValue != bean.assignment.pointsPossible}" />
+			<h:outputText styleClass="validation" value="#{msgs.cat_external_value_warning}" rendered="#{bean.selectedCategory.itemValue != bean.assignment.pointsPossible}"/>
+		</h:panelGroup>
+        
+	</h:panelGroup>
+
+	<h:outputText value="#{msgs.add_assignment_points}" rendered="#{bean.assignment.externallyMaintained}" />
+	<h:outputText value="#{bean.assignment.pointsPossible}" rendered="#{bean.assignment.externallyMaintained && (!bean.selectedCategoryDropsScores || bean.selectedAssignmentIsOnlyOne)}" />
+	<h:panelGroup rendered="#{bean.assignment.externallyMaintained && bean.selectedCategoryDropsScores && !bean.selectedAssignmentIsOnlyOne}">
+		<h:outputText value="#{bean.selectedCategory.itemValue}" rendered="#{bean.assignment.pointsPossible == bean.selectedCategory.itemValue}"/>
+		<h:outputText style="color: #BB1111" value="#{bean.selectedCategory.itemValue}" rendered="#{bean.assignment.pointsPossible != bean.selectedCategory.itemValue}"/>
+		<h:outputText styleClass="validation" value="#{msgs.cat_external_value_warning}" rendered="#{bean.assignment.pointsPossible != bean.selectedCategory.itemValue}"/>
+	</h:panelGroup>
+	<h:outputText value=""/>
+	<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+		<h:selectBooleanCheckbox id="extraCredit" value="#{bean.assignment.isExtraCredit}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+		<h:outputLabel for="extraCredit" value="#{msgs.extra_credit}" />
+	</h:panelGrid>
+
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
+		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.due_date}"/>
+		<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
+	</h:panelGroup>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
+    <t:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" popupDateFormat="#{msgs.date_entry_format}" popupGotoString="#{msgs.date_entry_goto}" />
+		<h:message for="dueDate" styleClass="alertMessageInline" />
+	</h:panelGroup>
+	
+	<h:outputText value="#{msgs.edit_assignment_due_date_external}" rendered="#{bean.assignment.externallyMaintained}" />
+	<h:outputText value="#{bean.assignment.dueDate}" rendered="#{bean.assignment.externallyMaintained}">
+   	<gbx:convertDateTime/>
+  </h:outputText>
+	
+	<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
+	<h:panelGroup rendered="#{bean.categoriesEnabled}">
+        <h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}"
+		    valueChangeListener="#{bean.processCategoryChangeInEditAssignment}" onchange="this.form.submit();">
+			<f:selectItems value="#{bean.categoriesSelectList}" />
+		</h:selectOneMenu>        
+		<f:verbatim><div class="instruction"></f:verbatim>
+			<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{bean.weightingEnabled}"/>
+		<f:verbatim></div></f:verbatim>			
+	</h:panelGroup>
+	
+</h:panelGrid>
+
+<%/*
+	This would be positioned directly under the Point Value entry if
+	only JSF supported "colspan"....
+*/%>
+<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+    <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}" onclick="assignmentReleased(this.form.name, true);"
+		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+	<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
+	
+	<h:outputText escape="false" value="&nbsp;" rendered="#{!bean.localGradebook.assignmentsDisplayed}" />
+	<h:outputText styleClass="instruction" value="#{msgs.add_assignment_released_conditional}" rendered="#{!bean.localGradebook.assignmentsDisplayed}" />
+
+	<h:outputText escape="false" value="&nbsp;" />
+	
+	<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+		<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
+			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+		<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+	</h:panelGrid>
+</h:panelGrid>
+<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+
+<script type="text/javascript">
+	assignmentReleased('gbForm', false);
+	categorySelected('gbForm', '<h:outputText value="#{bean.extraCreditCategories}"/>');
+</script>

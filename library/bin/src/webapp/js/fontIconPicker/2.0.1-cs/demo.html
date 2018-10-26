@@ -1,0 +1,45 @@
+<html>
+<head>
+<script type="text/javascript" src="../../jquery/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="../../jquery/1.4.0/jquery-migrate.min.js"></script>
+<script type="text/javascript" src="../...jquery/ui/1.12.1/jquery-ui.min.js?version="></script>
+<script type="text/javascript" src="../../headscripts.js"></script>
+
+<!-- fontIconPicker JS -->
+<script type="text/javascript" src="jquery.fonticonpicker.min.js"></script>
+
+<!-- fontIconPicker core CSS -->
+<link rel="stylesheet" type="text/css" href="css/jquery.fonticonpicker.css" />
+
+<!-- required default theme -->
+<link rel="stylesheet" type="text/css" href="themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+
+<!-- Morpheus (includes font awesome) -->
+<link rel="stylesheet" type="text/css" href="../../../skin/morpheus-default/tool.css" />
+<body>
+
+<h1>Please select an icon</h1>
+
+<input type="text" id="icon_input" name="icon_input" />
+
+<span id="selected_icon"></span>
+<hr/>
+<i class="fa fa-5x" id="sample"></i>
+
+<!-- JavaScript -->
+<script type="text/javascript">
+
+var last_class = false;
+
+$(document).ready( function() {
+	fontawesome_icon_picker('#icon_input');
+	$('#icon_input').change(function () {
+		if ( last_class ) $('#sample').removeClass(last_class);
+		last_class = $('#icon_input').val();
+		$('#selected_icon').text(last_class);
+		$('#sample').addClass(last_class);
+	});
+});
+
+</script>
+</body>

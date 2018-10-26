@@ -1,0 +1,38 @@
+.#{$namespace}sakai-message-bundle-manager {
+
+    .portletBody {
+        h3 {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+    }
+
+    .dataTables_wrapper {
+        margin-top: 20px;
+        table {
+            a[role="button"] {
+                @extend .button;
+                margin: 0;
+                padding: 0.1em 0.4em 0em 0.4em;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    }
+    
+    .dataTables_export {
+	   a {
+	       @extend .button;
+	       margin: 0;
+	       padding: 0.3em 0.8em 0.3em 0.8em;
+       }
+    }
+
+    .alert {
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 0;
+    }
+}

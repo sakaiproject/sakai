@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.component.api.ServerConfigurationService"
+			class="org.sakaiproject.component.impl.BasicConfigurationService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+
+		<property name="toolOrderFile" value="${sakai.home}toolOrder.xml"/>
+		<property name="defaultToolOrderResource" value="classpath:/org/sakaiproject/config/toolOrder.xml"/>
+
+		<property name="sakaiProperties" ref="org.sakaiproject.component.SakaiProperties"/>
+	</bean>
+
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="beans">
+			<map>
+				<entry key="bean:name=org.sakaiproject.config.impl.ConfigurationMBean"
+                    value-ref="org.sakaiproject.config.impl.ConfigurationMBean"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.config.impl.ConfigurationMBean"
+		  class="org.sakaiproject.config.impl.ConfigurationMBean">
+		<property name="serverConfigurationService"
+				  ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+	<beans profile="jmx">
+		<bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean">
+			<!-- Pass jmx.service.url=service:jmx:jmxmp://localhost:9999 to change port listeneing on -->
+			<property name="serviceUrl">
+				<bean class="java.lang.System" factory-method="getProperty">
+					<constructor-arg value="jmx.service.url"/>
+					<constructor-arg value="service:jmx:jmxmp://localhost:9875"/>
+				</bean>
+			</property>
+			<property name="environment">
+				<!-- If you pass in jmx.remote.server.address.wildcard=false then it will only listen on localhost -->
+				<bean class="java.lang.System" factory-method="getProperties"/>
+			</property>
+		</bean>
+	</beans>
+</beans>

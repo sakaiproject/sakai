@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<registration>
+
+	<!-- This it to check that we don't fall over when extra tags are introduced. -->
+	
+	<before>
+	</before>
+	
+	<tool
+			id="simple"
+			title="Simple"
+			description="Simple Example of a Tool Registration File">
+			
+			<tag attribue="value">
+				<child/>
+			</tag>
+			
+	</tool>
+	
+	<after>
+	</after>
+
+</registration>

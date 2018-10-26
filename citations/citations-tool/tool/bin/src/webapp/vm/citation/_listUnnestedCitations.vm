@@ -1,0 +1,17 @@
+#if($collectionSize && $collectionSize > 0)
+<li>
+	<ol id="$addSubsectionId" class="h4NestedLevel unnestedList holdCitations" style="padding: 5px; display: block;">
+	#foreach($citation in $citations)
+		#if ($unnestedCitationCollection.contains($citation))
+	        #set( $num = $num + $citation.getPosition() + 1)
+	        <li id='linkId$num' data-citationId='$citation.getId()' data-location='$num' data-sectiontype='CITATION'>
+				#set ($location = 0)
+				#parse( "vm/citation/_nestableCitation.vm" )
+	        </li>
+		#end
+	#end
+	</ol>
+</li>
+#else
+	<ol></ol>
+#end

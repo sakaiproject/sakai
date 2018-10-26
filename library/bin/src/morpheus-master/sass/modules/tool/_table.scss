@@ -1,0 +1,294 @@
+table{
+	h4{
+		margin: 0.2em 0 0.5em 0;
+	}
+	&.listHier{
+		font-size: $default-font-size;
+		border: 1px solid darken($tool-background-color, 10%);
+		background-color: $tool-background-color;
+    	margin: 1em 0;
+		@media #{$phone}{
+			display: block;
+    		margin: 3em 0;
+    		overflow: auto;
+		}
+		tr{
+			td {
+				border-right: 1px solid darken($tool-background-color, 10%);
+				padding: 0.25em;
+				font-family: $font-family;
+				font-size:   $default-font-size;
+				> * {
+					font-family: $font-family;
+					font-size:   $default-font-size;
+					font-weight: 400;
+					@media #{$phone}{
+						display: block;
+					}
+				}
+			}
+			&:nth-child(odd){
+				background: darken($tool-background-color, 5%);
+				td{
+					border-right: 1px solid darken($tool-background-color, 15%);
+				}
+			}
+		}
+	}
+}
+
+.sakai-table-noResultsMessage {
+	border: 1px solid #ddd;
+	border-top: 0 none;
+	padding: $standard-spacing;
+	color: #414141;
+	line-height: 3;
+}
+
+.sakai-table-toolBar
+{
+	@include display-flex();
+	@include align-items(flex-end);
+	margin: 0;
+
+	&+table
+	{
+		margin-top: 0;
+		padding-top: 0;
+	}
+
+	.sakai-table-filterContainer
+	{
+		@include display-flex();
+		@include flex-direction(column);
+		margin: 0 auto 10px 0;
+		padding-right: 10px;
+
+		label
+		{
+			margin: 0 4px 0 0;
+		}
+	}
+	.sakai-table-viewFilter, .sakai-table-searchFilter
+	{
+		@include display-flex();
+		@include align-items(center);
+	}
+	.sakai-table-viewFilter ~ .sakai-table-searchFilter
+	{
+		margin-top: 10px;
+	}
+	.sakai-table-searchFilter
+	{
+		@include flex-grow(1);
+
+		.sakai-table-searchFilter-searchField
+		{
+			margin-right: 4px;
+			width: 200px;
+			@include flex-grow(1);
+		}
+
+		input[type=button], input[type=submit],
+		input[type=button]:disabled, input[type=submit]:disabled,
+		button, button:disabled
+		{
+			margin: 0 4px 0 0;
+		}
+	}
+
+	.sakai-table-pagerContainer
+	{
+		margin-bottom: 10px;
+		text-align: center;
+		margin-left: auto;
+		padding-left: 10px;
+	}
+	.sakai-table-pagerLabel
+	{
+		padding: 0 5px 3px 5px;
+		font-size: 12px;
+		color: #505050;
+		text-align: center;
+	}
+	.sakai-table-pagerControls
+	{
+		@include display-flex();
+		@include justify-content(center);
+		padding: 0;
+
+		label
+		{
+			display: none;
+		}
+
+		input, button
+		{
+			font-size: 12px;
+			line-height: 1;
+
+			&:first-of-type
+			{
+				margin-left: 0;
+			}
+		}
+
+		input, select, button
+		{
+			margin: 0 0 0 10px;
+		}
+
+	}
+
+	.sakai-table-toolBar-centre
+	{
+		margin-bottom: 10px;
+	}
+
+	.sakai-table-viewFilter select
+	{
+		width: 100%;
+	}
+
+	.sakai-table-viewFilter input[type=radio], .sakai-table-viewFilter input[type=checkbox]
+	{
+		margin: 0;
+	}
+
+	.sakai-table-viewFilter
+	{
+		input[type=radio] ~ label, input[type=checkbox] ~ label
+		{
+			margin-right: calc(#{$standard-spacing} / 2);
+		}
+	}
+
+	.sakai-table-searchFilterControls
+	{
+		@include display-flex();
+		width: 100%;
+
+		input:last-of-type, button:last-of-type
+		{
+			margin-right: 0;
+		}
+	}
+
+	.sakai-table-buttonContainer {
+		@include display-flex();
+		@include flex-wrap(wrap);
+		@include justify-content(center);
+		input:last-of-type, button:last-of-type
+		{
+			margin-right: 0;
+		}
+
+		input[type=button], input[type=submit], button {
+			margin: 0 calc(#{$standard-spacing} / 2) $standard-spacing 0 !important;
+		}
+	}
+
+	@media #{$tablet}
+	{
+		@include flex-direction(column);
+		@include justify-content(flex-start);
+		@include align-items(center);
+
+		.sakai-table-filterContainer, .sakai-table-viewFilter
+		{
+			margin-right: 0;
+			padding-right: 0;
+		}
+
+		.sakai-table-pagerContainer
+		{
+			margin-left: 0;
+			padding-left: 0;
+		}
+
+		.sakai-table-searchFilter .sakai-table-searchFilter-searchField
+		{
+			width: 150px;
+		}
+	}
+
+	/* specific breakpoint based on width of pager controls, allows them to stack when there isn't enough room */
+	@media all and (max-width: 400px)
+	{
+		.sakai-table-pagerControls
+		{
+			@include flex-wrap(wrap);
+			@include justify-content(center);
+
+			.sakai-table-pagerPageSize
+			{
+				order: -1;
+				width: 100%;
+				margin-bottom: 10px;
+			}
+
+			button, input
+			{
+				line-height: 1.5;
+			}
+
+			select
+			{
+				margin-left: 0;
+			}
+		}
+
+		.sakai-table-searchFilter, .sakai-table-viewFilter
+		{
+			@include flex-direction(column);
+			@include align-items(flex-start);
+		}
+
+		.sakai-table-searchFilter .sakai-table-searchFilter-searchField
+		{
+			width: 100px;
+		}
+	}
+}
+
+.sakai-table-toolBar.sakai-table-toolBar-bottom
+{
+	@include align-items(flex-start);
+
+	.sakai-table-filterContainer
+	{
+		margin: $standard-spacing auto 0 0;
+	}
+
+	.sakai-table-buttonContainer
+	{
+		margin-top: $standard-spacing;
+	}
+
+	.sakai-table-pagerContainer
+	{
+		@include display-flex();
+		@include flex-direction(column-reverse);
+		margin: $standard-spacing 0 0 auto;
+
+		.sakai-table-pagerLabel
+		{
+			padding: 3px calc(#{$standard-spacing} / 2) 0 calc(#{$standard-spacing} / 2);
+		}
+	}
+
+	@media #{$tablet}
+	{
+		@include align-items(center);
+
+		.sakai-table-filterContainer
+		{
+			margin-right: 0;
+		}
+
+		.sakai-table-pagerContainer
+		{
+			margin-left: 0;
+		}
+	}
+}

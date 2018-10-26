@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>複数リソースのアップロード・ダウンロード</title>
+		<script language="JavaScript" type="text/JavaScript">
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		</script>
+	</head>
+	<body style="width:97%;padding:1em">
+		<div>
+			<h3>複数リソースのアップロード・ダウンロード</h3>
+			<ul class="attachList">
+				<li><a href="#desc">説明</a></li>
+				<li><a href="#site">自分のサイト ID</a></li>
+				<li><a href="#win">Windows 用の WebDAV 設定</a></li>
+				<li><a href="#osx">Mac 用の WebDAV 設定 (OS 10.0 - 10.3)</a></li>
+				<li><a href="#osxx">Mac 用の WebDAV 設定 (OS 10.4)</a></li>
+			</ul>
+		
+			<a name="desc"></a>
+			<h4>説明</h4>
+			<p>
+				Sakai では，リソースツールの「追加」ボタンを使用することにより，自分のローカルシステムからマイワークスペースあるいはクラスリソースにファイルをコピーすることができます．
+				複数のファイルやフォルダごと一度にコピーしたい場合は，WebDAV と呼ばれるソフトウェアを使用して，ファイルやフォルダを自分のローカルコンピュータと Sakai 内の「リソース」フォルダの間でやり取りすることができます．</p>
+			<p>
+				自分のコンピュータを Sakai に認識させ，自分のコンピュータ上のフォルダを「Sakai リソース」フォルダとして扱わさせるためには，いくつかのセットアップステップが必要になります．
+				Web DAV を使ってある特定の Sakai クラスリソースフォルダまたはグループリソースフォルダをセットアップすると，クラスリソースエリアまたはグループリソースエリアと自分のローカルコンピュータとの間でファイルやフォルダをドラッグアンドドロップでやり取りすることができるようになります．
+				ただし，これらの接続は使用しているコンピュータに特有のもので，使用するコンピュータを変更した場合は再度接続をセットアップする必要があることには注意してください．
+			</p>
+		
+			
+			<a name="site"></a>
+			<h4>自分のサイト ID</h4>
+			<p>
+				Sakai サイトはそれぞれ固有のサイト ID をもっています．このサイトのサイト ID は上に一覧表示されています．サイト ID は WebDAV を通じて接続するために必要となるアドレスの一部になるため，サイト ID を知っておく必要があります．各サイトは，異なる WebDAV 接続としてセットアップされますので，サイトに初めて接続する時にサイトごとに，以下の手順に従う必要があります．
+			</p>
+			
+			<a name="win"></a>
+		
+			<h4>Windows 用の WebDAV 設定</h4>
+			<p>
+				これは，サイトとの間でファイルを転送するために WebDAV を使用する前に，Sakai の各サイトごとに一度ずつ行う必要があります．
+			</p>
+			<ol>
+				<li>自分の PC デスクトップ上の「マイネットワークプレース」アイコンをクリックし「ネットワークプレース」フォルダを開きます．</li>
+				<li>「ネットワークプレースを追加」アイコンをクリックします．</li>
+				<li>「次」をクリックします．</li>
+		
+				<li>一番下の「他のネットワークを選ぶ」をクリックします．</li>
+				<li>「次」をクリックします．</li>
+				<li>
+					「ネットワークプレースの場所」フィールドに，上で示されたこのサイトの URL をタイプします．<br />
+					<img src="netwkplace.jpg" width="423" height="345" style="clear:both;display:block;margin:1em 0 " alt="" />
+				</li>
+				<li>
+					次をクリックします．<br />
+					注意: 「入力したフォルダは有効なものではないようです」のような警告が表示される場合は，まだサイトにリソースがない可能性があります．サイトへ行って，「リソース」フォルダを初期化するためにファイルを一つ追加し，その後，ステップ1に戻ります．
+				</li>
+				<li>ユーザ名とパスワードを訊かれたら，Sakai のユーザ名とパスワードを入力します．</li>
+				<li>
+					追加しようとしているプロジェクトリソースあるいはクラスリソースの名前を入力します．この名前は，プロジェクトリソースフォルダあるいはクラスリソースフォルダを参照する際に自分のコンピュータ上で使用されます．
+				</li>
+				<li>「終了」をクリックしセットアップを完了します．</li>
+				<li>
+					セットアップが完了すると，暮らすリソースフォルダあるいはプロジェクトリソースフォルダが「マイワークプレース」にフォルダとして表示されます．
+					Windows Explorer の「マイネットワークプレース」の下にも表示され，他のフォルダと同じように扱うことができます．
+					<img src="name.jpg" width="423" height="345" alt="" style="clear:both;display:block;margin:1em 0" />
+				</li>
+				<li>これで，自分のコンピュータと Sakai リソースフォルダとの間でファイルやフォルダをドラッグアンドドロップすることができます．</li>
+				<li>
+					追加しようとしているグループリソースまたはクラスリソースの名前を入力します．この名前は，クラスリソースフォルダあるいはグループリソースフォルダを参照する際に自分のシステムで使用されます．
+				</li>
+				<li>ボタンをクリックしてセットアップを完了します．</li>
+			</ol>
+		
+			<a name="osx"></a>
+			<h4>Mac 用の WebDAV 設定 (OS 10.0 - 10.3)</h4>
+			<p>
+				注意 : この説明には，Goliath という名前のプログラムのダウンロードが含まれています．Goliath を Sakai で使用すると，「新規フォルダを作成できない」「自分のローカルコンピュータにフォルダをダウンロードできない」というエラーがユーザから報告されています．
+			</p>
+			<p>
+				これは，サイトとの間でファイルを転送するために WebDAV を使用する前に，Sakai の各サイトごとに一度ずつ行う必要があります．
+			</p>
+		
+			<ol>
+				<li>
+					次のサイトから Goliath WebDAV クライアントをダウンロードします:<br />
+					<a href="http://www.webdav.org/goliath/#download" target="_blank">
+						<code>http://www.webdav.org/goliath/#download</code>
+					</a>
+				</li>
+				<li>
+					ファイルを解凍し，.dmg ファイルをダブルクリックします(Stuffit のバージョンや設定によっては，ディスクイメージが自動的にマウントされる場合があります)．
+				</li>
+				<li>
+					"Goliath 1.0" という名前のディスクイメージが利用可能になるはずです．ディスクイメージ内の Goliath フォルダをハードディスクにドラッグアンドドロップします．
+					<img src="goliath.jpg" width="241" height="311" alt="" style="clear:both;display:block;margin:1em 0" />
+				</li>
+				  
+				<li>Goliath アプリケーションを開きます．通常，アプリケーションフォルダにあります．</li>
+				<li>WebDAV 接続ダイアログボックスにおいて，上で示されたようにパスを入力します．</li>
+				<li>ユーザ名とパスワードを入力します．</li>
+				<li>「詳細設定」タブをクリックし，「マッキントッシュリソースのエンコーディングを無効にする」の横のボッックスをチェックします．</li>
+				<li>「OK」をクリックします．</li>
+				<li>
+					Sakai サイト内にリソースがあることを表すウィンドウが Mac 画面に表示されます．これで，ファイルをこのウィンドウにドラッグアンドドロップするか，ファイルをアップロードしたりダウンロードしたりするために「ウェブ」メニューを使用します．
+				</li>
+			</ol>
+		
+			<a name="osxx"></a>
+			<h4>Mac 用の WebDAV 設定 (OS 10.4)</h4>
+			<p>
+				これは，サイトとの間でファイルを転送するために WebDAV を使用する前に，Sakai の各サイトごとに一度ずつ行う必要があります．
+			</p>
+			<ol>
+		
+				<li>ファインダから，メニューバーの「移動」を選択し，「サーバへ接続...」を選択します．</li>
+				<li>表示されたダイアログボックスに，上で示されたようにパスを入力します．</li>
+				<li>「+」ボタンをクリックし次回利用するためにこのパスを保存します．</li>
+				<li>「接続」をクリックします．</li>
+		
+				<li>ユーゼ名とパスワードを入力し，「OK」をクリックします．</li>
+				<li>
+					CTools サイトにリソースを表すウィンドウがマッキントッシュ画面に表示されます．ファイルをこのウィンドウにドラッグアンドドロップしたり，「ゴミ箱」にドラッグすることによりファイルを削除したりすることができます．
+				</li>
+			</ol>
+		
+			
+		</div>
+		
+	</body>
+</html>

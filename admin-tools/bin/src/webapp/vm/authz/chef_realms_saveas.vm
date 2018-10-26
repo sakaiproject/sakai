@@ -1,0 +1,32 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_saveas.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" src="/library/js/spinner.js"></script>
+<script type="text/javascript">
+  focus_path = ["id"];
+</script>
+<div class="portletBody">
+	<h3>
+		$tlang.getString("reasav.savas")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("reasav.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="instruction">
+		$tlang.getString("reasav.entnew")
+	</div>
+	<form action="#toolForm("$action")" method="post">
+		<h4>
+			$tlang.getString("reasav.realm")
+		</h4>	
+		<p class="shorttext required">
+			<span class="reqStar">*</span>
+			<label for="id">
+				 $tlang.getString("reasav.reaid")
+			</label>
+			<input type="text" name="id" id="id" />
+		</p>	
+		<div class="act">
+			<input type="submit" name="eventSubmit_doSaveas" value="$tlang.getString("reasav.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_saveas" value="$tlang.getString("reasav.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

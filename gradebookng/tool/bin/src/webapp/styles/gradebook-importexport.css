@@ -1,0 +1,99 @@
+ /* *************************************************************** *
+ *                  Gradebook Import/Export styles                  *
+ * **************************************************************** */
+ 
+ /* Fonts */
+@font-face {
+    font-family:"gradebook-icons";
+    src:url(../fonts/gradebook-icons.eot);
+    src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
+    font-weight:400;
+    font-style:normal
+}
+
+#gradebookImportExport ul.exportToolbar {
+  padding: 0;
+  list-style: none;
+}
+
+#gradebookImportExport ul.exportToolbar li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+#gradebookImportExport .select-toggle label {
+  display: none;
+}
+
+#gradebookImportExport .gb-import-export-section h2 {
+  margin: 1.5em 0 0;
+}
+#gradebookImportExport .gb-import-export-section p,
+#gradebookImportExport .gb-import-export-section form {
+  margin: 1em 0 0;
+}
+
+#hideNoChanges:before {
+  font-family: 'gradebook-icons';
+  content: '\f096';
+  font-size: 0.9em;
+  margin-right: 6px;
+}
+#hideNoChanges.on:before {
+  content: '\f046';
+}
+
+/* for paired zebra striping */
+#grade_import_selection tbody tr:nth-child(4n-1), #grade_import_selection tbody tr:nth-child(4n)  {
+  background-color: #F9F9F9;
+}
+
+#grade_import_selection tr.gb_item td {
+ border-bottom: 0;
+}
+
+#grade_import_selection tr.comment td {
+ border-top: 0;
+}
+/* end paired zebra striping */
+
+
+#grade_import_selection tr.comment td.item_title {
+  font-style: italic;
+  text-indent: 15px;
+}
+
+#grade_import_selection tr.no_changes {
+  color: grey;
+} 
+
+#grade_import_selection tr.external {
+  background-color: lightgray !important;
+  color: grey;
+}
+
+#grade_import_selection tr.external td.item_status {
+  font-style: italic;
+}
+
+#grade_import_selection tr.selected {
+  background-color: #d9eef7 !important;
+}
+
+
+#customExportModal #filterByGroup {
+  width: 100%;
+}
+
+div.previewGradesContainer, #missingUsersContent, #unknownUsersContent {
+  max-height: 20em;
+  overflow-y: scroll;
+}
+
+div.previewGradesContainer table {
+  width: 100%;
+ }
+
+div.modal-footer.act {
+	padding: 15px;
+}

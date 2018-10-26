@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject.rsf</groupId>
+    <artifactId>sakai-rsf-web</artifactId>
+    <version>19-SNAPSHOT</version>
+  </parent>
+  <artifactId>sakai-rsf-web-templates</artifactId>
+  <properties>
+    <deploy.appserver.home>${sakai.appserver.home}</deploy.appserver.home>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- This has a webapp but is needed by some projects, so deploy it -->
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
+  </properties>
+  <packaging>war</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>uk.org.ponder.rsf</groupId>
+      <artifactId>rsf-web-templates</artifactId>
+      <type>war</type>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sakaiproject.maven.plugins</groupId>
+        <artifactId>sakai</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>src/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,49 @@
+<script type="text/javascript">
+  focus_path = ["archive-id"];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	<h3>
+		$tlang.getString("archive.vm.archive.single")
+	</h3>
+	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<form action="#toolForm("$action")" method="post">
+		
+		<h4>$tlang.getString("archive.vm.export")</h4>
+		<p class="shorttext">
+			<label for="archive-id">
+				$tlang.getString("archive.vm.from")
+			</label>	
+			<input type="text" size="80" name="archive-id" id="archive-id" />
+
+		</p>
+		<p class="shorttext">
+		    <label for="zip-id">
+		        $tlang.getString("archive.vm.zip")
+		    </label>
+			<input type="checkbox" name="zip-id" value="true" id="zip-id" />
+		</p>
+		<p class="act"><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>		
+		
+		<hr class="itemSeparator" />
+		
+		<h4>$tlang.getString("archive.vm.import")</h4>
+			<p class="shorttext">
+				<label for="import-file">
+					$tlang.getString("archive.vm.file")
+				</label>	
+				<input type="text" size="80" name="import-file" id="import-file" />
+			</p>	
+			<p class="shorttext">
+				<label for="import-id">
+					$tlang.getString("archive.vm.site")
+				</label>	
+				<input type="text" size="80" name="import-id" id="import-id" />
+			</p>
+			<p class="act"><input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")" class="indnt1" /></p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

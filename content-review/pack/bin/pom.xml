@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Content Review Pack</name>
+	<artifactId>content-review-pack</artifactId>
+	<packaging>sakai-component</packaging>
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
+
+	<parent>
+		<artifactId>content-review</artifactId>
+		<groupId>org.sakaiproject.contentreview</groupId>
+		<version>19-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.service</groupId>
+			<artifactId>content-review-service-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.dao</groupId>
+			<artifactId>content-review-dao-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.turnitin</groupId>
+			<artifactId>content-review-turnitin-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.vericite</groupId>
+			<artifactId>content-review-vericite-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.turnitin.oc</groupId>
+			<artifactId>content-review-turnitin-oc-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.compilatio</groupId>
+			<artifactId>content-review-compilatio-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview.urkund</groupId>
+			<artifactId>content-review-urkund-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+		</dependency>
+	</dependencies>
+</project>

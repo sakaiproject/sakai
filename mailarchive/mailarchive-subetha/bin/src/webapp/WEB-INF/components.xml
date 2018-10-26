@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="org.sakaiproject.mailarchive.SakaiMessageHandlerFactory" init-method="init" destroy-method="destroy">
+        <property name="internationalizedMessages">
+            <bean class="org.sakaiproject.util.ResourceLoader">
+                <constructor-arg index="0" value="sakaimailet"/>
+            </bean>
+        </property>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="aliasService" ref="org.sakaiproject.alias.api.AliasService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService"/>
+    </bean>
+
+</beans>

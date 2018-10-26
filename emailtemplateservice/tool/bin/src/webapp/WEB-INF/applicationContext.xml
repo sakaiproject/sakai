@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
+	<bean id="messageSource"
+		class="org.sakaiproject.util.ResourceLoaderMessageSource"
+		depends-on="TLABPostProcessorLoader">
+    <property name="basename"
+			value="classpath:org/sakaiproject/emailtemplateservice/tool/bundle/messages" />
+    <property name="cacheSeconds" value="10" />
+  </bean>
+
+	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
+		<property name="baseDirectory" value="templates/" />
+	</bean>
+
+	<!-- Override this definition from RSF-evolvers, to reflect the fact we are
+		serving the RSF components templates from our own webapp (as provided using
+		the "partial WAR" build strategy -->
+	<bean id="componentsTemplateResourceBase"
+		class="java.lang.String">
+		<constructor-arg value="/" />
+	</bean>
+	
+	<!-- the beans listed here are allowed access to values (security) -->
+	<bean parent="requestAddressibleParent">
+		<property name="value" value="EmailTemplateLocator, emailTemplateBean, modifyEmailHandler" />
+	</bean>
+	
+	<bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+	    <property name="value" value="true" />
+	</bean>
+	
+	<bean id = "resultScope" parent="beanScopeParent">
+		<property name="copyPreservingBeans" value="modifyEmailHandler" />
+		<property name="exclusive" value="true" />
+	</bean>
+</beans>

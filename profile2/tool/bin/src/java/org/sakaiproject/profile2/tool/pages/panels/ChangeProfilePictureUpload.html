@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+        
+<body>
+
+<wicket:panel>
+	<form wicket:id="form" class="profileForm">
+	
+		<div wicket:id="closeButton">X</div>
+			
+		<p wicket:id="textSelectImage" class="small">Select an image</p>
+	
+		<div class="wicket-feedbackpanel-nolist" wicket:id="feedback">[feedback]</div>
+		
+		<label for="pictureupload" class="accessibility-label"><wicket:message key="accessibility.image.upload">Profile image file selector</wicket:message></label>
+		<p><input type="file" wicket:id="picture" size="15"/></p>
+			
+		<div wicket:id="editWarning" class="edit-other-warning">[You are editing {other person}'s image]</div>
+		
+		<p class="profile_instruction"><wicket:message key="text.image.refresh">Note: If the new image doesn't appear immediately, try refreshing your browser.</wicket:message></p>		
+		
+		<p>
+		<input type="submit" wicket:id="submit" value="Upload" />
+		
+		&nbsp;
+		<span wicket:id="orRemove">
+		<wicket:message key="text.or"> or </wicket:message>&nbsp;
+		<a href="" wicket:id="remove"><wicket:message key="link.image.current.remove">Remove</wicket:message></a>
+		</span>
+		</p>		
+		
+		
+	</form>
+</wicket:panel>
+
+
+
+	
+</body>
+</html>
+

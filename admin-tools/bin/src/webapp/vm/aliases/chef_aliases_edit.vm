@@ -1,0 +1,56 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_aliases_edit.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+<script type="text/javascript">
+  focus_path = [#if(!$alias)"id"#else"target"#end];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h3>
+				$tlang.getString("alias.alias")
+			</h3>	
+		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("alias.alert.message", $validator.escapeHtml($alertMessage))</div>#end
+			<div class="instruction">
+				$tlang.getString("alias.edit.review")
+			</div>
+			<p class="shorttext required">
+				#if(!$alias)<span class="reqStar">*</span>#end 
+				<label #if(!$alias) for="id" #end>
+					$tlang.getFormattedMessage("alias.alias.label", $max_alias_id_length)
+				</label>
+				#if(!$alias)<input type="text" name="id" id="id" maxlength="$max_alias_id_length" />#else$validator.escapeHtml($alias.Id)#end
+			</p>	
+			<p class="shorttext">
+				<label for="target">
+					$tlang.getFormattedMessage("alias.edit.target.label", $max_alias_target_length)
+				</label>
+				<input type="text" name="target" id="target" #if($alias)value="$validator.escapeHtml($alias.Target)"#end maxlength="$max_alias_target_length" />
+			</p>	
+#if ($alias)
+					<p class="shorttext">
+						<label>$tlang.getString("alias.edit.createdby")</label>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreator))&nbsp;
+					</p>
+					
+					<p class="shorttext">
+						<label>$tlang.getString("alias.edit.created")</label>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreationDate))&nbsp;
+					</p>	
+					<p class="shorttext">
+						<label>$tlang.getString("alias.edit.modby")</label>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedBy))&nbsp;
+					</p>
+					<p class="shorttext">
+						<label>$tlang.getString("alias.edit.mod")</label>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedDate))&nbsp;
+					</p>	
+#end
+			<div class="act">
+				<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("alias.edit.save")" accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("alias.cancel")" accesskey="x" />
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<registration>
+
+	<tool
+			id="simple"
+			title="Simple"
+			description="Simple Example of a Tool Registration File">
+	</tool>
+
+</registration>

@@ -1,0 +1,143 @@
+<dom-module id="sakai-rubric-criterion-readonly">
+  <template>
+
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+    <div class="criterion">
+      <div id="sort-criterion">
+        <template is="dom-repeat" id="criterion" items="{{criterions}}" as="criterionitem">
+          <div id="criterion_row_[[criterionitem.id]]" class="criterion-row">
+            <div tabindex="0" class="criterion-detail">
+              <h4 class="criterion-title">
+                {{criterionitem.title}}
+              </h4>
+              <p>
+                {{criterionitem.description}}
+              </p>
+            </div>
+            <div class="criterion-ratings">
+              <div class="cr-table">
+                <div class="cr-table-row">
+                  <template is="dom-repeat" id="ratingitems_[[criterionitem.id]]" items="{{criterionitem.ratings}}" as="ratingitem" index-as="rikey">
+                    <div tabindex="0" title$="Rating Title: [[ratingitem.title]]. Rating Description: [[ratingitem.description]]. Point Value: [[ratingitem.points]]." class="rating-item" id="rating_item_{{ratingitem.id}}" on-save-ratings="saveRatings" on-delete-rating="deleteCriterionRating">
+                      <h5 class="criterion-item-title">
+                        {{ratingitem.title}}
+                      </h5>
+                      <p>
+                        {{ratingitem.description}}
+                      </p>
+                      <span class="points">
+                        {{ratingitem.points}} Points
+                      </span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+            <div class="criterion-actions">
+
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <iron-ajax
+         id="createCriterion"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"Content-Type": "application/json", "x-copy-source": "default", "authorization": "[[token]]"}'
+         method="POST"
+         body="{}"
+         handle-as="json"
+         on-response="createCriterionResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="cloneCriterion"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"authorization": "[[token]]"}'
+         method="POST"
+         contentType=""
+         handle-as="json"
+         on-response="createCriterionResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="updateCriterion"
+         url="/rubrics-service/rest/rubrics/[[rubric.id]]/criterions"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="text"
+         content-type="text/uri-list"
+         method="PUT"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="addCriterionToRubric"
+         url="/rubrics-service/rest/rubrics/[[rubric.id]]/criterions"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="text"
+         content-type="text/uri-list"
+         method="POST"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="updateRatings"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="text/uri-list"
+         method="PUT"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="updateRating"
+         url="/rubrics-service/rest/rating/"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="application/json"
+         method="PATCH"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="addRating"
+         url="/rubrics-service/rest/ratings"
+         headers$='{"authorization": "[[token]]"}'
+         on-response="addRatingResponse"
+         handle-as="json"
+         content-type="application/json"
+         method="POST"
+         debounce-duration="300">
+    </iron-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric-criterion-readonly",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        rubric: {
+          type: Object,
+          observer: 'rubricChanged'
+        }
+      },
+      rubricChanged: function() {
+        this.set('criterions', this.rubric.criterions);
+      },
+      ready: function() {
+        this.criterions = this.rubric.criterions;
+      }
+    });
+  </script>
+</dom-module>

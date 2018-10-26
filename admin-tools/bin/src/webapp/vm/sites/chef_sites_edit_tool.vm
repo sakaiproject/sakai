@@ -1,0 +1,131 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_edit_tool.vm,v 1.3 2005/05/19 19:53:01 gsilver.umich.edu Exp $ -->
+#if($tool && $tool.Tool && $tool.Tool.Id)
+<script type="text/javascript">
+##  focus_path = [ "title" ]; no focus - title field is at bottom
+</script>
+#end
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>
+		$tlang.getString("siteditoo.edisit")  $!site.Id / $tlang.getString("siteditoo.pag") $!page.Id / $tlang.getString("siteditoo.too") $!tool.Id
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("siteditoo.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="instruction">
+		$tlang.getString("siteditoo.revandmod")
+	</div>
+
+	<form name="thisOne" id="thisOne" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="eventSubmit_doDone_feature" value="x" />
+		<h4>
+				$tlang.getString("siteditoo.toofea")
+		</h4>		
+			<table class="itemSummary" summary="$tlang.getString("siteditoo.revandmod")">
+				<tr>
+					<th>$tlang.getString("siteditoo.tooid")</th>
+					<td>
+						$validator.escapeHtml($tool.Tool.Id)
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("siteditoo.fea")
+					</th>
+					<td>
+						#foreach ($reg in $features)
+							<p class="checkbox">
+							<input type="radio" name="feature" id="feature$velocityCount" value="$reg.Id" #if($reg.Id==$tool.Tool.Id)checked="checked"#end
+									onclick="document.getElementById('thisOne').submit();" />
+							<label for="feature$velocityCount">$reg.Title ($reg.Id)</label>
+							</p>
+						#end							
+					</td>
+				</tr>
+			</table>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	<form name="$form-name" action="#toolForm("$action")" method="post">
+		<h4>
+			$tlang.getString("siteditoo.toocon")
+		</h4>
+		<p class="shorttext">
+			<label for="title">
+				$tlang.getString("siteditoo.tit")
+			</label>
+			<input type="text" name="title" id="title" #if($tool) value="$!validator.escapeHtml($tool.Title)"#end />
+		</p>
+		<div class="shorttext">
+			<label for="layoutHints">
+				$tlang.getString("siteditoo.lay")
+			</label>
+			<input type="text" name="layoutHints" id="layoutHints" #if($tool && $tool.LayoutHints) value="$!validator.escapeHtml($tool.LayoutHints)"#end />
+		</div>
+		<p class="instruction labelindnt">$tlang.getString("siteditoo.rowcol")</p>
+			#if ($toolReg)
+				<h4>
+					$tlang.getString("siteditoo.con") 
+				</h4>
+						#set ($regParams = $toolReg.MutableConfig)
+						#set ($paramNames = $regParams.propertyNames())
+						#set ($toolParams = $tool.Config)
+						#foreach ($paramName in $paramNames)
+							#set ($paramValue = $toolParams.getProperty($paramName))
+								<p class="shorttext">
+									<label for="param_$paramName">
+										$validator.escapeHtml($paramName):
+									</label>
+									<input type="text" name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+								</p>	
+						#end
+
+			#end
+			#if ($tool)
+				<h4>
+					$tlang.getString("sitedi.pro")
+				</h4>
+				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+					<tr><td></td><td></td></tr>
+					#set ($toolParams = $tool.PlacementConfig)
+					#set ($paramNames = $toolParams.propertyNames())
+					
+					#foreach ($paramName in $paramNames)
+						#set ($paramValue = $toolParams.getProperty($paramName))
+						<tr>
+							<th>
+								<label for="param_$paramName">
+									$validator.escapeHtml($paramName):
+								</label>
+							</th>
+							<td>
+								<input type="text"  disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+							</td>
+						</tr>
+					#end
+					
+				</table>
+			#end	
+			<p class="instruction">$tlang.getString("sitedi.addeditprops")</p>
+			<div class="act">
+				<input type="submit" name="eventSubmit_doToolProperties" value="$tlang.getString("sitedi.props")" />
+			</div>
+		
+				<h4>
+					$tlang.getString("siteditoo.conedi")
+				</h4>	
+
+				<div class="act">
+					<input type="submit" name="eventSubmit_doDone_tool" value="$tlang.getString("siteditoo.don")" />
+				</div>
+			<h4>	
+				$tlang.getString("siteditoo.comthesit")
+			</h4>		
+
+				<div class="act">
+					<input type="submit" class="active" name="eventSubmit_doSave_tool" value="$tlang.getString("siteditoo.sav")"  accesskey="s" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("siteditoo.can")"  accesskey="x" />
+				</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

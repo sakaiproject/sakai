@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+
+<wicket:extend>
+  <form wicket:id="form" id="gradebookSpreadsheet">
+    <div id="gbConnectionTimeoutFeedback" class="messageWarning" style="display:none;">
+        <wicket:message key="feedback.connectiontimeout" />
+    </div>
+    <div id="gbReorderColumnsFailed" class="messageWarning" style="display:none;">
+        <wicket:message key="feedback.reordercolumnsfailed" />
+    </div>
+
+    <div wicket:id="addOrEditGradeItemWindow" />
+    <div wicket:id="studentGradeSummaryWindow" />
+    <div wicket:id="updateUngradedItemsWindow" />
+    <div wicket:id="gradeLogWindow" />
+    <div wicket:id="gradeCommentWindow" />
+    <div wicket:id="deleteItemWindow" />
+    <div wicket:id="gradeStatisticsWindow" />
+    <div wicket:id="updateCourseGradeDisplayWindow" />
+    <div wicket:id="sortGradeItemsWindow" />
+    <div wicket:id="courseGradeStatisticsWindow" />
+    <div wicket:id="rubricGradeWindow" />
+    <input wicket:id="rubricsTokenHiddenField" type="hidden" />
+    <script>
+        var tokenAttr = $("[name$='rubricsTokenHiddenField']").val();
+        var imports = [
+            '/rubrics-service/imports/sakai-rubric-association.html',
+            '/rubrics-service/imports/sakai-rubric-grading.html',
+            '/rubrics-service/imports/sakai-rubric-student.html'
+        ];
+        var Polymerdom = 'shady';
+        var rbcstoken = tokenAttr;
+
+        rubricGradingPoints = 0;
+        $('body').on('rubrics-event', function(e, payload){
+            rubricGradingPoints = payload.value;
+        });
+    </script>
+    <script src="/rubrics-service/js/sakai-rubrics.js"></script>
+
+    <div wicket:id="gradeTableArea">
+        <div wicket:id="noAssignments" class="gb-noGbItems">
+            <i class="fa fa-fw fa-table" aria-hidden="true"></i>
+            <wicket:message key="no-assignments.label" />
+            <div class="act">
+                <button wicket:id="addGradeItem2" class="active gb-add-gradebook-item-button">
+                    <wicket:message key="button.addgradeitem" />
+                </button>
+            </div>
+        </div>
+
+        <div class="row gradesToolbar1">
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
+                        <wicket:message key="button.addgradeitem" />
+                    </button>
+                    <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <wicket:enclosure>
+                        <label for="filterByGroup" class="sr-only"><wicket:message key="filter.groups" /></label>
+                        <select id="filterByGroup" wicket:id="groupFilter">
+                            <option value="1">Section 1</option>
+                            <option value="2">Section 2</option>
+                        </select>
+                    </wicket:enclosure>
+                    <a wicket:id="captionToggle" href="javascript:void(0);" id="captionToggle" aria-popup="true" aria-controls="gradeTableCaption">
+                        <span class="sr-only">
+                            <wicket:message key="label.toolbar.togglehelp"/>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div wicket:id="toolbar" id="gradebookGradesToolbar" class="btn-toolbar gradesToolbar2">
+            <ul class="gb-toolbar-left">
+                <wicket:enclosure>
+                <li>
+                    <div class="gb-student-filter">
+                        <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
+                        <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:id="studentFilter" wicket:message="placeholder:filter.students" accesskey="f">
+                        <a class="gb-student-filter-clear-button" wicket:message="title:filter.studentsclear" href="javascript:void(0)">
+                            <i class="fa fa-times-circle" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </li>
+                </wicket:enclosure>
+                <wicket:enclosure>
+                <li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
+                </wicket:enclosure>
+                <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
+            </ul>
+            <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right">
+                <li class="gb-grade-item-summary"><!-- Populated by JavaScript --></li>
+                <li>
+                    <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
+                </li>
+                <li>
+                    <button wicket:id="sortGradeItemsToolbarItem" id="sortGradeItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.sortgradeitems"/></button>
+                </li>
+                <wicket:enclosure>
+                <li>
+                    <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
+                </li>
+                </wicket:enclosure>
+            </ul>
+        </div>
+
+        <div class="gradeTableOuterWrapper">
+            <div wicket:id="gradeTable" />
+            <div wicket:id="noStudents" class="gb-noStudents"><wicket:message key="no-students.label" /></div>
+        </div>
+    </div>
+
+  </form>
+
+  <div wicket:id="gradeItemsTogglePanel" id="gradeItemsTogglePanel" style="display: none;"/>
+</wicket:extend>
+
+</body>
+</html>

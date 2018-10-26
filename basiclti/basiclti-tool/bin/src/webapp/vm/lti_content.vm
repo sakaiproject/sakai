@@ -1,0 +1,64 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("content.title")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		<p class="act">
+			<input type="submit" accesskey ="i" value="$tlang.getString('content.add')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;">
+			<input type="submit" accesskey ="x" value="$tlang.getString('content.tools')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+		</p>
+#if ($contents && $contents.size() > 0)
+	<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("content.table")">
+		<tr>
+			<th id="title">$tlang.getString("bl_title")</th>
+			#if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
+			<th id="action" width="25%">$tlang.getString("bl_action")</th>
+	                <th id="page">$tlang.getString("bl_page")</th>
+		</tr>
+		#foreach ($content in $contents)
+		<tr>
+		<td headers="matchpattern">$content.get("title")</td>
+		#if ($isAdmin) <td headers="site">$!content.get("SITE_ID")</a></td> #end
+		<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
+		<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
+		#if ( $content.get("launch_url") )
+		/ <a href="$content.get("launch_url")" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
+		#end
+		</td>
+                <td headers="page">
+                #if ($getContext == $content.get("SITE_ID") ) 
+                #if ( $content.get("placement") ) 
+			<a href="$sakai_ActionURL.setPanel("LinkRemove")&id=$content.get("id")">$tlang.getString("bl_removelink")</a>
+		#else 
+			<a href="$sakai_ActionURL.setPanel("LinkAdd")&id=$content.get("id")">$tlang.getString("bl_addlink")</a>
+		#end
+		#end
+		</td>
+		<tr>
+		#end
+	</table>
+#else
+<p>$tlang.getString("content.none")</p>
+#end
+	</form>
+$tlang.getString("content.note")
+#if ( $isAdmin ) 
+$tlang.getString("content.admin.note")
+#end
+#if ( ! $isAdmin )
+<script>includeLatestJQuery('lti_content.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+</div>

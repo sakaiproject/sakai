@@ -1,0 +1,21 @@
+//////////////////////////////
+// VARIABLES: For Modules specific styles 
+//////////////////////////////
+
+
+$footerApp__chat__border--color: 		$primary-color;
+$footerApp__chat__color: 		 		$text-color;
+$footerApp__chat__color-lighter: 		 		lighten( $text-color, 30%);
+$footerApp__chat__background: 	 		$tool-background-color;
+
+$footerApp__chat__a__color: 	 		$primary-color;
+$footerApp__chat__a--hover__color: 		lighten( $primary-color, 10%);
+
+$footerApp__chat__header__color: 	  	$background-color !default;
+$footerApp__chat__header__background: 	$text-color !default;
+
+$footerApp__chat__message__left__background: 	#C9EADD;
+$footerApp__chat__message__left__border: 		darken( $footerApp__chat__message__left__background, 10%); 
+
+$footerApp__chat__message__right__background: 	#CDE3ED;
+$footerApp__chat__message__right__border: 		darken( $footerApp__chat__message__right__background, 10%);

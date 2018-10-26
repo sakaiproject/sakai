@@ -1,0 +1,70 @@
+<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+	<f:verbatim><li class="firstToolBarItem"></f:verbatim>
+		<h:panelGroup rendered="#{viewName ne 'overview'}">
+			<f:verbatim><span></f:verbatim>
+    			<h:commandLink action="overview" immediate="true" >
+        			<h:outputText value="#{msgs.nav_overview}" />
+    			</h:commandLink>
+    		<f:verbatim></span></f:verbatim>
+    	</h:panelGroup>
+    	<h:panelGroup styleClass="current" rendered="#{viewName eq 'overview'}">
+			<h:outputText value="#{msgs.nav_overview}"  />
+		</h:panelGroup>
+	<f:verbatim></li></f:verbatim>
+
+    <h:panelGroup rendered="#{navMenuBean.sectionManagementEnabled}">
+  		<f:verbatim><li></f:verbatim>
+  			<h:panelGroup rendered="#{viewName ne 'addSections'}">
+  				<f:verbatim><span></f:verbatim>
+        			<h:commandLink action="addSections" immediate="true" >
+            			<h:outputText value="#{msgs.add_sections}"/>
+        			</h:commandLink>
+        		<f:verbatim></span></f:verbatim>
+        	</h:panelGroup>
+
+        	<h:panelGroup styleClass="current" rendered="#{viewName eq 'addSections'}" >
+				<h:outputText value="#{msgs.add_sections}" />
+			</h:panelGroup>
+  		<f:verbatim></li></f:verbatim>
+    </h:panelGroup>
+
+	<f:verbatim><li></f:verbatim>
+		<h:panelGroup rendered="#{viewName ne 'roster' and viewName ne 'editSection'}">
+			<f:verbatim><span></f:verbatim>
+    			<h:commandLink action="roster" immediate="true" >
+        			<h:outputText value="#{msgs.student_member}"/>
+    			</h:commandLink>
+    		<f:verbatim></span></f:verbatim>
+    	</h:panelGroup>
+
+    	<h:panelGroup styleClass="current" rendered="#{viewName eq 'roster' or viewName eq 'editSection'}">
+    		<h:outputText value="#{msgs.nav_roster}" />
+    	</h:panelGroup>
+ 	<f:verbatim></li></f:verbatim>
+
+
+    <h:panelGroup rendered="#{navMenuBean.sectionOptionsManagementEnabled}">
+  		<f:verbatim><li></f:verbatim>
+  		<h:panelGroup  rendered="#{viewName ne 'options'}">
+  			<f:verbatim><span></f:verbatim>
+	    		<h:commandLink action="options" immediate="true">
+	        			<h:outputText value="#{msgs.nav_options}" />
+	    		</h:commandLink>
+	    	<f:verbatim></span></f:verbatim>
+	    </h:panelGroup>
+	    <h:panelGroup styleClass="current" rendered="#{viewName eq 'options'}" >
+	    	<h:outputText value="#{msgs.nav_options}" />
+	    </h:panelGroup>
+		<f:verbatim></li></f:verbatim>
+	</h:panelGroup>	
+<f:verbatim></ul></f:verbatim>
+
+<h:panelGrid columns="2" styleClass="rosterPageHeader" columnClasses="rosterPageHeaderLeft,rosterPageHeaderRight">
+    <h:panelGroup/>
+	<h:panelGroup>
+		<h:commandButton actionListener="#{rosterBean.export}" value="#{msgs.nav_download}" rendered="#{viewName eq 'roster'}" title="#{msgs.nav_download}"/>
+		<h:commandButton onclick="javascript:window.print();return false;" value="#{msgs.nav_print}"  rendered="#{viewName eq 'roster'}" title="#{msgs.nav_print}"/>
+	</h:panelGroup>
+</h:panelGrid>
+
+

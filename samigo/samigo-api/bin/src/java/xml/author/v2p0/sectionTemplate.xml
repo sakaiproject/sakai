@@ -1,0 +1,35 @@
+<section ident="" title="">
+  <qtimetadata>
+    <!--metadata for Section new UI -->
+     
+    <qtimetadatafield>
+      <fieldlabel>SECTION_OBJECTIVE</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>SECTION_KEYWORD</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
+      <fieldlabel>SECTION_RUBRIC</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+  </qtimetadata>
+  <presentation_material>
+    <flow_mat>
+    <material>
+      <mattext/>
+    </material>
+    <material>
+      <matimage imagtype="text/html" uri=""/>
+    </material>
+    </flow_mat>
+  </presentation_material>
+  <selection_ordering sequence_type="Normal">
+       <selection>
+        <sourcebank_ref></sourcebank_ref>
+        <selection_number></selection_number>
+      </selection>
+     <order order_type="Sequential"/>
+  </selection_ordering>
+</section>

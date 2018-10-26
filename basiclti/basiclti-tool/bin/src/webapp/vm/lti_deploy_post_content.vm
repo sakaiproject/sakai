@@ -1,0 +1,7 @@
+<div class="portletBody">
+#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+<p>
+Welcome back from the content item.   There is much work to do 
+to handle the incoming post data..   But this is a start. 
+</p>

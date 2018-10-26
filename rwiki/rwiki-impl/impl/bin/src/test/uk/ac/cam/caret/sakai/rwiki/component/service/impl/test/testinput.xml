@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:html="http://www.w3.org/1999/xhtml"
+    writing-mode="lr-tb" hyphenate="false" text-align="start" role="content">
+    <fo:layout-master-set>
+        <fo:simple-page-master page-width="auto" page-height="auto" master-name="all-pages">
+            <fo:region-body column-gap="12pt" column-count="1" margin-left="1in" margin-bottom="1in"
+                margin-right="1in" margin-top="1in"/>
+            <fo:region-before display-align="before" extent="1in" region-name="page-header"/>
+            <fo:region-after display-align="after" extent="1in" region-name="page-footer"/>
+            <fo:region-start extent="1in"/>
+            <fo:region-end extent="1in"/>
+        </fo:simple-page-master>
+    </fo:layout-master-set>
+    <fo:page-sequence line-height="1" master-reference="all-pages">
+        <fo:static-content flow-name="page-header">
+            <fo:block font-size="small" text-align="center" space-before="0.5in"
+                space-before.conditionality="retain"> Page: Home</fo:block>
+        </fo:static-content>
+        <fo:static-content flow-name="page-footer">
+            <fo:block font-size="small" text-align="center" space-after="0.5in"
+                space-after.conditionality="retain">- <fo:page-number/> -</fo:block>
+        </fo:static-content>
+        <fo:flow flow-name="xsl-region-body">
+            <fo:block role="rendered">MINOR CHANGE, NO PREFERENCE<fo:block space-before="1em"
+                    space-after="1em" role="p"/><fo:basic-link text-decoration="underline"
+                    color="blue" role="a"
+                    external-destination="url('http://localhost:8080/wiki/site/669db422-0b8c-4b29-00ff-911684482725/subspace1/home.html')"
+                    >subspace1/</fo:basic-link><fo:block space-before="1em" space-after="1em"
+                    role="p"/><fo:external-graphic
+                    src="url('http://localhost:8080/access/content/group/669db422-0b8c-4b29-00ff-911684482725/Picture_8_.jpg')"
+                    role="img" border="0px solid"/>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="SakaiFrameworkwhatsgoodandbadaboutit"/>Sakai
+                    Framework - whats good and bad about it.</fo:block><fo:block space-before="1em"
+                    space-after="1em" role="p"/>[ <fo:inline font-weight="bolder" role="b"
+                >Index</fo:inline> | <fo:inline font-weight="bolder" role="b">
+                    <fo:basic-link text-decoration="underline" color="blue" role="a"
+                        external-destination="url('http://localhost:8080/wiki/site/669db422-0b8c-4b29-00ff-911684482725/recent
+                        changes.html')">Recent Changes</fo:basic-link>
+                </fo:inline> | <fo:inline font-weight="bolder" role="b">Operational
+                Issues</fo:inline>] | <fo:inline font-weight="bolder" role="b">FlowTalk</fo:inline>
+                    |<fo:block space-before="1em" space-after="1em" role="p"/>Using CamTools / Sakai
+                - some thoughts<fo:block space-before="1em" space-after="1em" role="p"/>Terms and
+                Conditions of Use <fo:block font-size="1.17em" font-weight="bold" space-before="1em"
+                    space-after="1em" keep-with-next.within-column="always"
+                    keep-together.within-column="always" role="h3"><fo:inline role="a" id="Meetings"
+                    />Meetings</fo:block> We intend to have 6 1 hour meetings over the next 2 weeks
+                ( 21/11/2005 - 5/12/2005) to develop the thought process and messages. You are
+                encouraged to contribute and think about the issues we uncover.<fo:block
+                    space-before="1em" space-after="1em" role="p"/>
+                    
+                    <fo:list-block space-before="1em"
+                    space-after="1em" role="ul">
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block> MondayMeeting20051121-1400</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>TuesdayMeeting20051122-1600</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>ThursdayMeeting20051124-1400</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                </fo:list-block>
+                <fo:block space-before="1em" space-after="1em" role="p"/><fo:block
+                    border="1px inset" space-before="0.67em" space-after="0.67em" role="hr"/>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="ForMonday28Nov"/>For Monday 28 Nov</fo:block>
+                Compelling arguments for each of<fo:block space-before="1em" space-after="1em"
+                    role="p"/>
+                    <fo:list-block space-before="1em" space-after="1em" role="ul">
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block> UCSCIO</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>UCS Developers/Implementors</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>UCS Support Staff</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>Departmental COs</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>Research Communities in the University</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>Teaching Communities in the University</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block>Caret</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                </fo:list-block>
+                <fo:block space-before="1em" space-after="1em" role="p"
+                    /><fo:list-block space-before="1em" space-after="1em" role="ul">
+                    <fo:list-item relative-align="baseline" role="li">
+                        <fo:list-item-label wrap-option="no-wrap" text-align="end"
+                            end-indent="label-end()">
+                            <fo:block>
+                                <fo:inline font="1em serif">•</fo:inline>
+                            </fo:block>
+                        </fo:list-item-label>
+                        <fo:list-item-body start-indent="body-start()">
+                            <fo:block> Intro to Sakai - overview of sakai from the perspective of a
+                                reasonable technical person in educational IT. Mainly because of Ian
+                                Lewis' visit tomorrow. In the (rough) form of a presentation, though
+                                not intended to be delivered as such!</fo:block>
+                        </fo:list-item-body>
+                    </fo:list-item>
+                </fo:list-block>
+                
+                
+                <fo:block space-before="1em" space-after="1em" role="p"/><fo:block
+                    border="1px inset" space-before="0.67em" space-after="0.67em" role="hr"/>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="WhySakai"/>Why Sakai</fo:block>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="WhySpring"/>Why Spring</fo:block>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="WhyHibernate"/>Why Hibernate</fo:block>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="WhySOA"/>Why SOA</fo:block><fo:block
+                    space-before="1em" space-after="1em" role="p"/><fo:block border="1px inset"
+                    space-before="0.67em" space-after="0.67em" role="hr"/>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="OtherNotes"/>Other Notes</fo:block> What early
+                adopters say about CamTools<fo:block space-before="1em" space-after="1em" role="p"
+                />Carol Dippel's thoughts re Sakai QA<fo:block space-before="1em" space-after="1em"
+                    role="p"/><fo:block border="1px inset" space-before="0.67em"
+                    space-after="0.67em" role="hr"/>
+                <fo:block font-size="1.17em" font-weight="bold" space-before="1em" space-after="1em"
+                    keep-with-next.within-column="always" keep-together.within-column="always"
+                    role="h3"><fo:inline role="a" id="Tasks"/>Tasks</fo:block><fo:block
+                    space-before="1em" space-after="1em" role="p"/>We need to address the 'free' cam
+                access issue - yes, students can attend any lecture, but does this translate to
+                allowing everyone to see everything (including other student's discussions or first
+                draft Wiki)? This should be agreed at a University level, and not be agreed by
+                default by the University Computing Services, CARET or whoever has technical
+                permissions. Oxford's <fo:inline role="span">
+                    <fo:external-graphic src="url('http://localhost:8080/sakai-rwiki/images/icklearrow.gif')" role="img"/>
+                    <fo:basic-link text-decoration="underline" color="blue" role="a"
+                        external-destination="url('http://localhost:8080/access/content/group/c50c4b08-d361-4ccc-00e1-986782b05aef/OpensourceVLE.pdf')"
+                        >report</fo:basic-link>
+                </fo:inline> on why they chose Bodington gave 'open access by default' and the
+                ability 'to edit permissions by individual' (i.e. not 'pigeonhole' people in roles),
+                as major reasons for choosing Bodington over commercial VLEs.<fo:block
+                    space-before="1em" space-after="1em" role="p"/><fo:inline font-style="italic"
+                    role="i"> How does this fit with Phytopedia's request for release dates on Wiki
+                    pages? </fo:inline><fo:block space-before="1em" space-after="1em" role="p"
+                    /><fo:inline font-weight="bolder" role="b">
+                    <fo:inline font-style="italic" role="i">HT</fo:inline>
+                </fo:inline> Having said all this, I (an ex-Eng Lit student) have just spent a happy
+                half-hour on the Phytopedia site finding out how plants survive in deserts. If
+                things go the way of Phytopedia, I wonder if we will eventually end up with a
+                wonderful academic resource which <fo:inline font-style="italic" role="i"
+                >should</fo:inline> be available to university members in the spirit of academic
+                enquiry. I agree that students discussions or first drafts aren't in this category,
+                but I think that perhaps lecture notes should be.<fo:block space-before="1em"
+                    space-after="1em" role="p"/><fo:inline font-weight="bolder" role="b"
+                >RW</fo:inline> but teaching staff, esp hourly-paid ones, may assert rights over
+                their material. Also, breaches of copyright would become much more visible. This is
+                a bigger battle....<fo:block space-before="1em" space-after="1em" role="p"
+                    /><fo:inline font-weight="bolder" role="b">HT</fo:inline> very true, Rhiannon,
+                and I think we need to contemplate both of these. I wonder whether the Wiki needs
+                some sort of 'copyright' note on it?<fo:block space-before="1em" space-after="1em"
+                    role="p"/>Have we come to a decision on this? We do need to!<fo:block
+                    space-before="1em" space-after="1em" role="p"/>Current problem: on following a
+                link to a specific page (not main login page) eg wiki page, user is directed
+                straight to Raven without any way of logging in as Friend. IB thinks it might be
+                possible to direct user by cancel mechanism from raven to friends login.<fo:block
+                    space-before="1em" space-after="1em" role="p"/><fo:block border="1px inset"
+                    space-before="0.67em" space-after="0.67em" role="hr"/><fo:block
+                    space-before="1em" space-after="1em" role="p"/>Wiki Home page for the new rwiki
+                development site<fo:block space-before="1em" space-after="1em" role="p"
+                    />/site/a94b86ea-436e-4461-0073-34940a213253/home<fo:block space-before="1em"
+                    space-after="1em" role="p"/></fo:block>
+        </fo:flow>
+    </fo:page-sequence>
+</fo:root>

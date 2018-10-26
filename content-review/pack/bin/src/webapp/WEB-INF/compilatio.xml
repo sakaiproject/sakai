@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Compilatio Content Review Service -->
+	<bean id="org.sakaiproject.contentreview.compilatio.CompilatioContentValidator" class="org.sakaiproject.contentreview.compilatio.CompilatioContentValidator" init-method="init" lazy-init="true">
+    <property name="contentReviewService" ref="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" />
+	</bean>
+
+	<bean id="org.sakaiproject.contentreview.compilatio.CompilatioAccountConnection" class="org.sakaiproject.contentreview.compilatio.CompilatioAccountConnection" init-method="init" lazy-init="true">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+	
+	<bean id="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" class="org.sakaiproject.contentreview.compilatio.CompilatioReviewServiceImpl" 
+		parent="org.sakaiproject.contentreview.service.BaseContentReviewService" init-method="init" lazy-init="true">
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="compilatioContentValidator" ref="org.sakaiproject.contentreview.compilatio.CompilatioContentValidator" />
+		<property name="compilatioConn" ref="org.sakaiproject.contentreview.compilatio.CompilatioAccountConnection" />
+		<property name="siteAdvisor" ref="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" />
+		<property name="crqs" ref="org.sakaiproject.contentreview.service.ContentReviewQueueService" />
+	</bean>
+
+	<!-- Default to allow all sites to use Compilatio regardless of site type or property -->
+	<!--bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" class="org.sakaiproject.contentreview.service.advisors.DefaultSiteAdvisor" lazy-init="true"/-->
+	<!-- Uncomment this to use a site property to define which sites use c-r -->
+	<!-- 
+	<bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" class="org.sakaiproject.contentreview.impl.adivisors.SitePropertyAdvisor">
+	   <property name="siteProperty"><value>useContentReviewService</value></property> 
+	</bean>
+	-->
+	<!-- uncomment this bean to make cr available to only sites of the type course -->
+	<!-- <bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor" class="org.sakaiproject.contentreview.impl.adivisors.SiteCourseTypeAdvisor"/> -->
+</beans>

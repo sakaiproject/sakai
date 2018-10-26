@@ -1,0 +1,149 @@
+		<h:inputHidden id="elementToFocus" value="#{bean.elementToFocus}"/>
+	
+		<t:div rendered="#{not empty bean.sections}" styleClass="verticalPadding">
+			<%/* Add space if the table isn't rendered */%>
+		</t:div>
+
+		<t:dataTable
+			id="sectionTable"
+			value="#{bean.sections}"
+			var="section"
+			rowIndexVar="sectionIndex"
+			rowClasses="#{bean.rowStyleClasses}">
+			<h:column>
+				<h:panelGrid columns="2" rowClasses="paddedSectionRow">
+
+					<% // Title %>
+
+					<h:outputLabel for="titleInput" value="#{msgs.section_title} *" styleClass="formLabel"/>
+					<h:panelGroup>
+						<h:message for="titleInput" styleClass="validationEmbedded"/>
+						<h:inputText
+							id="titleInput"
+							required="true"
+							maxlength="99"
+							value="#{section.title}"/>
+					</h:panelGroup>
+
+					<% // Max Size %>
+
+					<h:outputLabel for="maxEnrollmentInput" value="#{msgs.section_max_size}" styleClass="formLabel"/>
+					<h:panelGroup>
+						<t:selectOneRadio id="limit" layout="spread" value="#{section.limitSize}" onclick="updateLimit(this)">
+							<f:selectItem itemValue="false" itemLabel="#{msgs.sections_unlimited}"/>
+							<f:selectItem itemValue="true" itemLabel="#{msgs.sections_limited}"/>
+						</t:selectOneRadio>
+						<t:div>
+							<t:radio for="limit" index="0" />
+						</t:div>
+						<t:div>
+							<h:message for="maxEnrollmentInput" styleClass="validationEmbedded"/>
+							<t:radio for="limit" index="1" />
+							<h:outputText value=" &nbsp; " escape="false"/>
+							<h:inputText id="maxEnrollmentInput" value="#{section.maxEnrollments}"/>
+						</t:div>
+					</h:panelGroup>
+
+					<% // Logistics %>
+					
+					<h:outputLabel for="meetingsTable" value="#{msgs.section_logistics}" styleClass="formLabel"/>
+					<h:panelGroup>
+						<h:dataTable id="meetingsTable" value="#{section.meetings}" var="meeting">					
+							<% // One column per meeting.  Use a div to add a line break in the form controls %>
+							<h:column>
+								<t:div>
+									<h:outputLabel value="#{msgs.student_view_header_day}"/>
+								</t:div>
+								<t:div styleClass="meetingFirstCol">
+									<h:outputLabel value="#{msgs.section_start_time}"/>
+								</t:div>
+								<t:div styleClass="meetingFirstCol">
+									<h:outputLabel value="#{msgs.section_end_time}"/>
+								</t:div>
+								<t:div styleClass="meetingFirstCol">
+									<h:outputLabel value="#{msgs.student_view_header_location}"/>
+								</t:div>
+							</h:column>
+							<h:column>
+								<h:panelGroup>
+									<t:div styleClass="paddedMeetingRow">
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="monday" value="#{meeting.monday}"/>
+											<h:outputLabel for="monday" value="#{bean.monday}"/>
+										</h:panelGroup>
+							
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="tuesday" value="#{meeting.tuesday}"/>
+											<h:outputLabel for="tuesday" value="#{bean.tuesday}"/>
+										</h:panelGroup>
+							
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="wednesday" value="#{meeting.wednesday}"/>
+											<h:outputLabel for="wednesday" value="#{bean.wednesday}"/>
+										</h:panelGroup>
+							
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="thursday" value="#{meeting.thursday}"/>
+											<h:outputLabel for="thursday" value="#{bean.thursday}"/>
+										</h:panelGroup>
+							
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="friday" value="#{meeting.friday}"/>
+											<h:outputLabel for="friday" value="#{bean.friday}"/>
+										</h:panelGroup>
+							
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="saturday" value="#{meeting.saturday}"/>
+											<h:outputLabel for="saturday" value="#{bean.saturday}"/>
+										</h:panelGroup>
+							
+										<h:panelGroup styleClass="meetingDay">
+											<h:selectBooleanCheckbox id="sunday" value="#{meeting.sunday}"/>
+											<h:outputLabel for="sunday" value="#{bean.sunday}"/>
+										</h:panelGroup>
+									</t:div>
+		
+									<t:div styleClass="indent">
+										<h:inputText id="startTime" value="#{meeting.startTimeString}" size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_start_time_default}')" />
+										<t:selectOneRadio id="startTimeAm" layout="spread" value="#{meeting.startTimeAmString}">
+											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
+											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
+										</t:selectOneRadio>
+										<t:radio for="startTimeAm" index="0" />
+										<t:radio for="startTimeAm" index="1" />
+										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
+									</t:div>
+										
+									<t:div styleClass="indent meetingSecondCol" >
+										<h:inputText  id="endTime" value="#{meeting.endTimeString}"  size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_end_time_default}')" />
+										<t:selectOneRadio id="endTimeAm" layout="spread" value="#{meeting.endTimeAmString}">
+											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
+											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
+										</t:selectOneRadio>
+										<t:radio for="endTimeAm" index="0" />
+										<t:radio for="endTimeAm" index="1" />
+										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
+									</t:div>
+			
+									<t:div styleClass="indent meetingSecondCol">
+										<h:inputText id="location" value="#{meeting.location}" maxlength="80" size="40" />
+                                        <h:message for="startTime" styleClass="validationEmbedded"/>
+                                        <h:message for="endTime" styleClass="validationEmbedded"/>
+									</t:div>
+								</h:panelGroup>
+							</h:column>
+						</h:dataTable>
+						
+						<h:commandLink actionListener="#{bean.processAddMeeting}" id="addMeeting">
+							<h:outputText value="#{msgs.add_section_add_meeting}"/>
+							<f:param name="sectionIndex" value="#{sectionIndex}"/>
+						</h:commandLink>
+					</h:panelGroup>
+
+				</h:panelGrid>
+			</h:column>
+		</t:dataTable>
+	
+		<t:div rendered="#{empty bean.sections}" styleClass="verticalPadding">
+			<%/* Add space if the table isn't rendered */%>
+		</t:div>

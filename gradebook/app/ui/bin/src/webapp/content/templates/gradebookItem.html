@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+   <title rsf:id="msg=gradebook.add-gradebook-item.title">Gradebook</title>
+
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script>includeLatestJQuery('gradebookItem.html');</script>
+	<!-- vm/editor/FCKeditor/sakai_header.vm -->
+	<script type="text/javascript" src="/library/editor/FCKeditor/fckeditor.js"></script> 
+
+    <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+    <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+    <script type="text/javascript" language="JavaScript" src="/sakai-gradebook-tool/content/js/add-gradebook-item.js"></script>
+	<link href="/sakai-gradebook-tool/content/css/gradebook.css" type="text/css" rel="stylesheet" media="all" />
+
+</head>
+
+<body>
+
+<div class="portletBody">
+
+	<div rsf:id="message-for:*" class="error">
+		<ul style="margin:0px;">
+			<li>Message for user here</li>
+		</ul>
+	</div>
+
+	<h3 rsf:id="heading">Add Gradebook Item</h3>
+	<p rsf:id="instructions" class="instruction"><span class="reqStar">*</span> Indicates required information.</p>
+
+	<form rsf:id="form">
+	<fieldset>
+		<legend rsf:id="msg=gradebook.add-gradebook-item.gradebook_item_legend">Gradebook Item Details</legend>
+		<ol>
+			<li>
+				<label rsf:id="title_label" for="title"><span class="reqStar">*</span> Title</label> <input rsf:id="title" id="title" type="text" size="30" maxlength="100"/>
+			</li>
+			<li>
+				<label rsf:id="point_label" for="point"><span class="reqStar">*</span> Gradebook Item Point Value</label> <input id="point" rsf:id="point" type="text" size="30" maxlength="100"/>
+			</li>
+			<li>
+				<input rsf:id="extraCredit" type="checkbox" id="extraCredit"/>
+            	<label rsf:id="extraCredit_label" for="extraCredit">Extra Credit?</label>
+			</li>
+			<li>
+    			<fieldset>
+    			    <div class="due_date_label">
+        			    <input rsf:id="require_due_date" type="checkbox" id="require_due_date"/>
+            			<label rsf:id="require_due_date_label" for="require_due_date">Require Due Date?</label>
+        			</div>
+        			<span rsf:id="require_due_date_container" id="require_due_date_container"><input rsf:id="due_date:" value="12/31/2007"/></span>
+    			</fieldset>
+    		</li>
+			<li rsf:id="category_li">
+				<label rsf:id="msg=gradebook.add-gradebook-item.category_label" for="categorySelect">Category</label>
+				<select rsf:id="category" size="1" id="categorySelect">
+					<option value="unassigned">Unassigned</option>
+					<option value="">Homework</option>
+					<option value="">Quizzes</option>
+					<option value="">Exams</option>
+				</select>
+				<div rsf:id="category_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation.</div>
+			</li>
+			<li>
+				<fieldset>
+					<ol>
+						<li><input rsf:id="release" type="checkbox" id="release"/> <label rsf:id="msg=gradebook.add-gradebook-item.release_label" for="release">Release this item to Students</label></li>
+						<li class="indent"><input rsf:id="course_grade" type="checkbox" id="course_grade"/> <label for="course_grade" rsf:id="msg=gradebook.add-gradebook-item.course_grade_label">Include this item in course grade calculations</label></li>
+					</ol>
+				</fieldset>
+			</li>
+		</ol>
+	</fieldset>
+	<fieldset class="submit">
+		<input rsf:id="add_item" accesskey="s" type="submit" class="active" value="Add Item"/>
+		<input rsf:id="cancel" accesskey="x" type="submit" name="cancel" value="Cancel"/>
+	</fieldset>													
+	</form>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function show_due_date(){
+	el = jQuery("input:checkbox[@name='require_due_date']").get(0);
+	if (el) {
+		if (el.checked) {
+		    jQuery("#require_due_date_container").show();
+		} else {
+		    jQuery("#require_due_date_container").hide();
+		}
+	}
+}
+jQuery(document).ready(function(){
+	//Init require due date checkboxes
+	jQuery("input[@name='require_due_date']").each(function(){
+		this.onclick = show_due_date;
+	});
+	show_due_date();
+});
+//]]>
+</script>
+</body>
+</html>

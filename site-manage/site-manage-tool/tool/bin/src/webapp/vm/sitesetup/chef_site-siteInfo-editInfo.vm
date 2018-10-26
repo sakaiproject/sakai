@@ -1,0 +1,289 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfo.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
+## Edit Site Information
+<div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
+	## definie form
+	<form name="classInformationForm" id="classInformationForm" method="post" action="#toolForm("SiteAction")">
+	#if(!$existingSite)
+		## adding new site
+		<h3>
+			$tlang.getString("sinfo.other")
+		</h3>
+	#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
+	## adding a new course site
+	#if ($isCourseSite)
+	<table class="listHier lines nolines indnt1" style="width:auto" summary="$tlang.getString("sinfo.rosterlist.summary")" border="0">
+		#if ($!selectedProviderCourse)
+			<tr class="exclude" id="selectedProviderCourse-head"><td colspan="2" style="padding:.4em 0">
+				<h4><span >$tlang.getString("sinfo.youare")</span></h4>
+			</td></tr>
+			#set ($selectedProviderCourse-num=0)
+			#foreach ($item in $!selectedProviderCourseTitles.keySet())
+				<tr>
+					<td style="padding-left:1em">
+					#set ($selectedProviderCourse-num=1)
+					$!selectedProviderCourseTitles.get($item)
+					</td>
+				</tr>
+			#end
+			<tr>
+				<td style="height:0;display:none">
+				## do it this way
+					#if ($selectedProviderCourse-num ==0)
+						<script type="text/javascript">document.getElementById('selectedProviderCourse-head').style.display='none'</script>
+				</td>
+			</tr>
+			#end
+		#end
+		#foreach($id in $!providerCourseTitles.keys())
+			<tr>
+				<td style="padding-left:1em">
+					$!providerCourseTitles.get($id)
+				</td>
+			</tr>
+		#end
+		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
+			<tr class="exclude"><td colspan="2" style="padding:.4em 0">
+			<h4><span >$tlang.getString("sinfo.requestedSections")</span></h4>
+			#foreach ($sect in $!cmRequestedSections)
+				<tr>
+					<td style="padding-left:1em">
+						$sect.title $tlang.getString("man.requested")
+					</td>
+				</tr>	
+			#end
+		   #foreach ($sect in $!cmAuthorizerSections)
+		    	<tr>
+					<td style="padding-left:1em">
+						$sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
+					</td>
+				</tr>	
+			#end
+			#if($existingSite)
+				#foreach($id in $!manualCourseList)
+						<tr>
+						<td style="padding-left:1em">
+							$id $tlang.getString("man.requested")
+						</td>
+						</tr>
+				#end
+			#else
+				## for new site
+				#foreach ($k in [0..$manualAddNumber])
+					#set($courseFieldValues = $!fieldValues.get($k))
+					#set($bound = $!form_requiredFields.size())
+					#set($bound = $bound - 1)
+					<tr>
+					<td style="padding-left:1em">
+						#set($courseFieldString="")
+						#foreach ($fieldCount in [0..$!bound])
+							#set($courseFieldString=$courseFieldString.concat($!courseFieldValues.get($fieldCount).getValue()).concat(" "))
+						#end
+						#set($courseFieldString=$courseFieldString.trim())
+						$courseFieldString $tlang.getString("man.requested")
+					</td>
+					</tr>
+			#end
+			#end
+		#end
+		</table>
+	#end
+	#if (!$!existingSite && $!isProjectSite)
+		## Required information warning ##
+		<p class="instruction">
+			$tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means")
+		</p>
+	#end
+		## Title ##
+		<div class="form-group row">
+			<label for="title" class="col-sm-2 form-control-label">
+				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
+					<span class="reqStar">*</span>
+				#end
+				$tlang.getString("sitediinf.sittit")
+			</label>
+			<div class="col-sm-6">
+				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
+					<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$validator.escapeHtml($!title)" />
+				#else
+					$validator.escapeHtml($!title)
+				#end
+			</div>
+		</div>
+		<input type="hidden" name="hasRosterAttached" id="hasRosterAttached" value="$hasRosterAttached" />
+		#if (!$!existingSite)
+			## creating new sites
+			#if ($displaySiteAlias && $!site_alias_assignable)
+				<div class="shorttext">
+		 			<label for="alias_0">
+						$tlang.getString("sinfo.url")
+		 			</label>
+		 				$!form_site_url_base<input type="text" name="alias_0" id="alias_0" maxlength="40" size="20" value="$validator.escapeHtml($form_site_alias)" />
+				</div>
+				<input type="hidden" name="alias_count" id="alias_count" value="1" />
+			#else
+				<input type="hidden" name="alias_count" id="alias_count" value="0" />
+			#end
+		#else
+			## editing exist site
+			#set ( $aliasIdx = 0 )
+			#foreach ($siteAlias in $site_aliases)
+				<div class="form-group row">
+		 			#if ( $!site_aliases_editable )
+		 				<label for="alias_$aliasIdx" class="col-sm-2 form-control-label">
+		 					$tlang.getString("sitediinf.editurl")
+		 				</label>
+		 				<div class="col-sm-6">
+		 					$!site_url_base<input type="text" name="alias_$aliasIdx" id="alias_$aliasIdx" maxlength="40" size="20" value="$validator.escapeHtml($!siteAlias)" />
+		 				</div>
+		 			#else
+		 				<label for="alias_$aliasIdx" class="col-sm-2 form-control-label">
+		 					$tlang.getString("sinfo.url")
+		 				</label>
+		 				<div class="col-sm-6">
+		 					$!site_url_base$validator.escapeHtml($!siteAlias)
+		 					<input type="hidden" name="alias_$aliasIdx" id="alias_$aliasIdx" value="$validator.escapeHtml($!siteAlias)" />
+		 				</div>
+		 			#end
+		 			#set ( $aliasIdx = $aliasIdx + 1 )
+				</div>
+			#end
+			#if ( $!site_aliases_editable )
+				<p class="shorttext">
+					<label for="alias_$aliasIdx">
+	 					$tlang.getString("sitediinf.addurl")
+	 				</label>
+	 				$!site_url_base<input type="text" name="alias_$aliasIdx" id="alias_$aliasIdx" maxlength="40" size="20" value="" />
+				</p>
+				#set ( $aliasIdx = $aliasIdx + 1 )
+			#end
+			<input type="hidden" name="alias_count" id="alias_count" value="$aliasIdx" />
+		#end
+		## Term ##
+		#if ($!isCourseSite)
+			<div class="form-group row">
+				<label for="term" class="col-sm-2 form-control-label">
+					$tlang.getString("sitediinf.term")
+				</label>
+				<div class="col-sm-6">
+					$!selectedTerm
+				</div>
+			</div>	
+		#end
+		## Language ##
+		<div class="form-group row">
+			<label for="language"  class="col-sm-2 form-control-label">
+ 				$tlang.getString("sinfo.language")
+ 			</label> 
+ 			<div class="col-sm-6">
+				<select name="locales" class="indnt2" id="locales" >
+					<option value="" #if ($locale_string == "")selected="true" #end>$tlang.getString("sinfo.language.defaultUserLanguage")</option>			
+					#foreach($locale in $locales)			
+						<option value="$locale.toString()" #if ($locale.toString() == $locale_string)selected="true" #end>$validator.escapeHtml($tlang.getLocaleDisplayName($locale))</option>	
+					#end			
+				</select>
+			</div>
+		</div>
+		## Description ##
+		<div class="longtext">
+			<label for="description" class="block">
+				$tlang.getString("sitediinf.des")
+				<span class="textPanelFooter">
+					$tlang.getString("sitediinf.dis")
+				</span>
+			</label>
+			<table border="0" cellpadding="0" cellspacing="0" >
+					<tr>
+						<td>
+							<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($!description)</textarea>
+							#chef_setupformattedtextarea("description")
+						</td>
+					</tr>
+			</table>		
+		</div>
+		<br/>
+		## Short Description ##
+		<div class="form-group row ">			
+			<label for="short_description" class="block col-sm-2 form-control-label">
+				$tlang.getString("sitediinf.shodes") 
+				<span class="textPanelFooter">
+					$tlang.getString("sitediinf.dis2")
+				</span>
+			</label>
+			<div class="col-sm-6">
+				<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
+			</div>
+		</div>	
+		## Skin & Site Icon ##
+		#if($allowSkinChoice && !$!skins.isEmpty())
+			<div class ="form-group row ">
+				<label for="skin" class="col-sm-2 form-control-label">
+					$tlang.getString("sitediinf.app")
+					<span class="textPanelFooter">
+						$tlang.getString("sitediinf.sit")
+					</span>					
+				</label>
+				<div class="col-sm-6">
+				 <select name="skin" id="skin">
+				  	 #foreach ($s in $skins)
+						  #set($url="")
+						  #set($url=$!s.Url)
+						  <option value="$url" #if ($url == $selectedIcon)selected="selected"#end>$s.Name</option>
+					  #end
+				  </select>
+				</div>
+			</div>
+		#else
+			#if($allowSiteIcon)
+				<div class="form-group row">
+					<label for="iconUrl" class="col-sm-2 form-control-label">
+						$tlang.getString("sitediinf.ico")
+					</label>
+					<div class="col-sm-6">
+						<input type="text" name="iconUrl" id="iconUrl" size="40" maxlength="255" value="$!validator.escapeHtml($!iconUrl)" />
+					</div>
+				</div>
+			#end
+		#end
+		## Contact Name ##
+		<div class="form-group row ">
+			<label for="siteContactName" class="col-sm-2 form-control-label">
+                <span class="reqStar">*</span>
+				$tlang.getString("sitediinf.sitconnam")
+			</label>
+			<div class="col-sm-6">
+				<input type="text" name="siteContactName" id="siteContactName" size="20" maxlength="99" value="$!validator.escapeHtml($!form_site_contact_name)" />
+			</div>
+		</div>		
+		## Contact Email ##		
+		<div class="form-group row">
+			<label for="siteContactEmail" class="col-sm-2 form-control-label">
+				$tlang.getString("sitediinf.sitconema")
+			</label>	
+			<div class="col-sm-6">			
+				<input type="text" name="siteContactEmail" id="siteContactEmail" size="20" maxlength="99" value="$!form_site_contact_email" />
+			</div>
+		</div>
+		#if ($isMathJaxInstalled)
+			#if ($isMathJaxEnabledForSite)
+				<input type="hidden" name="isMathJaxEnabledForSite" id="isMathJaxEnabledForSite" value="on"/>
+			#end
+		#end
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="$!continue" />
+		<input type="hidden" name="option" id="option" value="x" />
+		<input type="hidden" name="eventSubmit_doEdit_site_info" value="x" />
+	<div class="act">
+		<input type="submit" accesskey="s" class= "active" name="continue" value="$tlang.getString("sitediinf.con")" 
+				onclick="resetOption('continue', 'classInformationForm'); SPNR.disableControlsAndSpin( this, null );" />
+		#if(!$existingSite)
+			## have the back button for creating site wizard
+			<input type="submit" accesskey="b" name="back" value="$tlang.getString('gen.back')" onclick="resetOption('back', 'classInformationForm'); SPNR.disableControlsAndSpin( this, null );" />
+		#end
+		<input type="submit" accesskey="x" name="cancel" value="$tlang.getString('sitediinf.can')" onclick="resetOption('cancel', 'classInformationForm'); SPNR.disableControlsAndSpin( this, null );" />
+	</div>
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+</form>
+	</div>

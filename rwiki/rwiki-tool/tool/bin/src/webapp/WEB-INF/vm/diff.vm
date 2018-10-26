@@ -1,0 +1,110 @@
+#set ( $historyBean = ${requestScope.historyBean} )
+#set ( $currentRWikiObject = ${requestScope.currentRWikiObject} )
+#set ( $rightRenderBean = ${requestScope.diffRightRenderBean} )
+#set ( $diffBean = ${requestScope.diffBean} )
+#set ( $homeBean = ${requestScope.homeBean} )
+#set ( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_title_diff}: ${util.escapeHtml($historyBean.localName)}" )
+#header(${title} false "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    <ul class="navIntraTool actionToolBar">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true ${rlb.jsp_view_current}	false  false true true false	${homeBean} ${historyBean} ${rlb} ) 
+	    <li class="rwiki_searchBox">
+	      <label for="searchField">${rlb.jsp_search}:</label>
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" id="searchField" name="search" />
+	    </li>
+	    </ul>
+	  </form>
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+			<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb">
+					## note - need to put the current page name in the context (see ${util.escapeHtml($renderBean.localisedPageName)} )
+					<span id="breadPref">${rlb.jsp_page_differences}:&nbsp;</span><span id="breadCurr">(${rlb.jsp_page_version} ${diffBean.left.revision}
+				      ${rlb.jsp_page_diff_vs} ${diffBean.right.revision})</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+		})
+	</script>
+
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->
+		#sidebar_switcher()
+	</div>
+	    <div class="differences">
+	      <table class="colordiff listHier" cellpadding="0" cellspacing="0">
+		      <tr>
+		       <th class="pageleft">
+		        #set ( ${historyBean.interestedRevision} = ${diffBean.left.revision} )
+		        <h5><a href="${util.escapeHtml(${historyBean.viewRevisionUrl})}" >${rlb.jsp_page_version} ${diffBean.left.revision}</a></h5>
+				<div class="textPanelFooter">
+		        (${rlb.jsp_page_modified}: 
+		        #formatDateTime(${diffBean.left.version}) 
+		        ${rlb.jsp_by} 
+		        #formatDisplayName(${diffBean.left.user})
+				</div>
+		       </th>
+		       <th class="pageright">
+		        #set ( ${historyBean.interestedRevision} = ${diffBean.right.revision} )
+		        <h5><a href="${util.escapeHtml(${historyBean.viewRevisionUrl})}" >${rlb.jsp_page_version} ${diffBean.right.revision}</a></h5>
+				<div class="textPanelFooter">
+		        (${rlb.jsp_page_modified}: 
+		        #formatDateTime(${diffBean.right.version})
+		        ${rlb.jsp_by} 
+		        #formatDisplayName(${diffBean.right.user})
+				</div>
+		        </th>
+	    	  </tr>
+		      ${diffBean.genericDiffBean.colorDiffTable}
+	      </table>
+	    </div>
+	</div>
+	
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <table border="0" cellpadding="0" cellspacing="0" class="keytable listHier" style="width:auto">
+	      <tr>
+		       <th colspan="2" class="keytablehead">${rlb.jsp_page_diff_key}</th>
+	      </tr>
+	      <tr>
+		       <td width="50%" class="deletedLeft">${rlb.jsp_page_diff_deleted}</td>
+		       <td width="50%" class="deletedRight">&nbsp;</td>
+	      </tr>
+	      <tr>
+		       <td colspan="2" class="changedLeft"><div align="center">${rlb.jsp_page_diff_changed}</div></td>
+	      </tr>
+	      <tr>
+		       <td width="50%" class="addedLeft">&nbsp;</td>
+		       <td width="50%" class="addedRight">${rlb.jsp_page_diff_added}</td>
+	      </tr>
+	    </table>
+		
+	</div>
+	#sidebar()
+	 
+  </div>
+</div>
+#footer()
+
+
+

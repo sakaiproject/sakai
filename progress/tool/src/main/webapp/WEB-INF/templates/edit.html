@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/common :: head"/>
+<body>
+<div class="portletBody">
+    <div id="menu" th:insert="fragments/menus :: main(edit)"/>
+    <h3 th:text="#{edit.title}">Edit Widget</h3>
+    <form id="editWidgetForm" class="form-horizontal" action="#" th:action="@{/edit}" th:object="${widget}" method="post">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" th:for="id" th:text="#{input.id}">Widget Id:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="text" th:field="*{id}" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" th:for="title" th:text="#{input.title}">Widget Title:</label>
+            <div class="col-sm-10">
+                <input class="form-control" type="text" th:field="*{title}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" th:for="description" th:text="#{input.description}">Widget Description:</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" th:field="*{description}">type a description of the widget</textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" th:for="status" th:text="#{input.status}">Widget Status:</label>
+            <div class="col-sm-10">
+                <select th:field="*{status}">
+                    <option th:value="UNLOCKED" th:text="#{edit.status.option.unlocked}">UNLOCKED</option>
+                    <option th:value="LOCKED" th:text="#{edit.status.option.locked}">LOCKED</option>
+                    <option th:value="DELETED" th:text="#{edit.status.option.deleted}">DELETED</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" th:for="dateExpired" th:text="#{input.expiration}">Widget Expiration Date:</label>
+            <div class="col-sm-10">
+                <input id="widgetExpiration" class="form-control" type="datetime-local" th:field="*{dateExpired}">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input class="btn btn-default" type="submit" value="Update Widget" th:value="#{edit.form.submit}">
+                <a class="btn btn-default" href="index.html" th:href="@{/}" th:value="#{add.link.cancel}">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

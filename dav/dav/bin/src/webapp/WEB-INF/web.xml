@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="dav" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>dav</display-name>
+    <description>dav</description>
+
+	<!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	<init-param>
+              <param-name>sakai.session.auth</param-name>
+              <param-value>basic</param-value>	
+	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>dav</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>
+           dav
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.dav.DavServlet
+        </servlet-class>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>1000</param-value>
+		</init-param>
+		<init-param>
+			<param-name>listings</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<!-- Uncomment this to enable read and write access -->
+		<init-param>
+			<param-name>readonly</param-name>
+			<param-value>false</param-value>
+		</init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+       <servlet-name>
+          dav
+       </servlet-name>
+       <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>The Sakai DAV Access Point</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>tomcat</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name></realm-name>
+	</login-config>
+
+	<security-role>
+		<description>
+			An example role defined in "conf/tomcat-users.xml"
+		</description>
+		<role-name>tomcat</role-name>
+	</security-role>
+
+</web-app>

@@ -1,0 +1,272 @@
+<script>includeLatestJQuery('categoryEdit.jspf');</script>
+
+<fieldset>
+<legend><h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4></legend>
+<div class="indnt1 gbSection">
+	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting" layout="pageDirection" 
+			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="reEnableCategoryDropInputs();this.form.submit();">
+			<f:selectItem itemValue="noCategories" itemLabel="#{msgs.opt_no_categories}" />
+      <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />
+      <f:selectItem itemValue="categoriesAndWeighting" itemLabel="#{msgs.opt_categories_and_weighting}" />    
+	</h:selectOneRadio>
+	<div class="indnt2 gbSection">
+      <h:selectBooleanCheckbox id="showDropHighest" value="#{gradebookSetupBean.showDropHighestDisplayed}"
+          onclick="toggleVisibilityDropScoresFields(this.form);"
+	      rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+      <h:outputLabel for="showDropHighest" value="#{msgs.opt_show_drop_highest}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+      <h:selectBooleanCheckbox id="showDropLowest" value="#{gradebookSetupBean.showDropLowestDisplayed}"
+          onclick="toggleVisibilityDropScoresFields(this.form);"
+	      rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+      <h:outputLabel for="showDropLowest" value="#{msgs.opt_show_drop_lowest}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+      <h:selectBooleanCheckbox id="showKeepHighest" value="#{gradebookSetupBean.showKeepHighestDisplayed}"
+          onclick="toggleVisibilityDropScoresFields(this.form);"
+	      rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+      <h:outputLabel for="showKeepHighest" value="#{msgs.opt_show_keep_highest}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+	  
+	  <br/>
+	
+		<h:outputText styleClass="instruction" value="#{msgs.categories_drop_info}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+	</div>
+	<h:panelGroup rendered="#{gradebookSetupBean.displayCategories}">
+		<f:verbatim><div class="gbSection indnt2"></f:verbatim>
+			<h:outputText styleClass="instruction" value="#{msgs.categories_disclude_info}" rendered="#{gradebookSetupBean.displayWeighting}"/>
+		
+			<t:dataTable cellpadding="0" cellspacing="0"
+				id="categoriesTable"
+				value="#{gradebookSetupBean.categories}"
+				var="category"
+	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,right,specialLink"
+	      		rowClasses="#{gradebookSetupBean.rowClasses}"
+				styleClass="listHier narrowTable"
+				rowIndexVar="rowIndex">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_category}"/>
+					</f:facet>
+					<h:outputLabel for="categoryName" value="#{msgs.cat_list_category}" styleClass="skip" />
+					<h:inputText id="categoryName" value="#{category.name}" styleClass="catNameInput" maxlength="250" />
+				</h:column>
+				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
+					<f:facet name="header">
+						<h:outputText value="#{gradebookSetupBean.localizedPercentInput}" />
+					</f:facet>
+					<h:outputLabel for="weightInput" value="#{gradebookSetupBean.localizedPercentInput}"  styleClass="skip" />
+					<h:inputText value="#{category.weight}" size="5" maxlength="6" id="weightInput"
+							onchange="javascript:updateRunningTotal(this.form);"  styleClass="catWeightInput">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+						<f:validateDoubleRange minimum="0"/>
+						<f:validateDoubleRange maximum="100"/>
+						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+					</h:inputText>
+					<f:verbatim>
+					</f:verbatim>
+					<h:message for="weightInput" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.extra_credit}" />
+					</f:facet>
+					<h:outputLabel for="catExtraCredit" value="#{msgs.extra_credit}"  styleClass="skip" />
+					<h:selectBooleanCheckbox id="catExtraCredit" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_num_items}" />
+					</f:facet>
+					<h:outputText value="#{category.assignmentCount} #{msgs.cat_items}" />
+				</h:column>
+
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_drop_highest}"/>
+					</f:facet>
+					<h:outputLabel value="#{msgs.cat_drop_highest}" for="dropHighest"  styleClass="skip" />
+					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
+					    onkeyup="javascript:dropScoresAdjust(this.form);"
+					    disabled="#{!category.assignmentsEqual}">
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
+					</h:inputText>
+					<h:message for="dropHighest" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_drop_lowest}"/>
+					</f:facet>
+					<h:outputLabel value="#{msgs.cat_drop_lowest}" for="dropLowest"  styleClass="skip" />
+					<h:inputText id="dropLowest" value="#{category.dropLowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
+                        onkeyup="javascript:dropScoresAdjust(this.form);" 
+                        disabled="#{!category.assignmentsEqual}" >
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
+                    </h:inputText>
+					<h:message for="dropLowest" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_keep_highest}"/>
+					</f:facet>
+					<h:outputLabel value="#{msgs.cat_keep_highest}" for="keepHighest"  styleClass="skip" />
+					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
+                        onkeyup="javascript:dropScoresAdjust(this.form);" 
+                        disabled="#{!category.assignmentsEqual}" >
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
+                    </h:inputText>
+					<h:message for="keepHighest" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column rendered="#{gradebookSetupBean.isPointGrade && !gradebookSetupBean.isPointGrade}">
+					<f:facet name="header">
+						<h:panelGroup>
+							<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.isPointGrade}"/>
+							<h:outputLink value="#"
+								onclick="javascript:dhtmlPopupToggle('cat_point_value', event);return false;">
+								<h:outputText value="?" />
+							</h:outputLink>
+						</h:panelGroup>
+					</f:facet>
+					<h:outputText id="pointValueLabelAsterisk" value="* " styleClass="valueLabelAsterisk reqStarInline" rendered="#{gradebookSetupBean.isPointGrade && category.assignmentsEqual}"/>
+					<h:inputText id="pointValue" value="#{category.itemValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
+					rendered="#{gradebookSetupBean.isPointGrade}"
+					disabled="#{!category.assignmentsEqual}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />					
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
+					</h:inputText>
+					<h:message for="pointValue" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column rendered="#{gradebookSetupBean.isPercentageGrade && !gradebookSetupBean.isPercentageGrade}">
+					<f:facet name="header">
+						<h:panelGroup>
+							<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.isPercentageGrade}"/>
+							<h:outputLink value="#"
+								onclick="javascript:dhtmlPopupToggle('cat_percent_value', event);return false;">
+								<h:outputText value="?" />
+							</h:outputLink>
+						</h:panelGroup>
+					</f:facet>
+					<h:outputText id="relativeWeightLabelAsterisk" value="* " styleClass="valueLabelAsterisk reqStarInline" rendered="#{gradebookSetupBean.isPercentageGrade && category.assignmentsEqual}"/>
+					<h:inputText id="relativeWeight" value="#{category.itemValue}" size="3" title="#{msgs.cat_percent_value_tooltip}"
+					rendered="#{gradebookSetupBean.isPercentageGrade}"
+					disabled="#{!category.assignmentsEqual}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
+					</h:inputText>
+					<h:message for="relativeWeight" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_remove}" />
+					</f:facet>
+					<h:commandLink value="" title="#{msgs.cat_remove}" actionListener="#{gradebookSetupBean.processRemoveCategory}" onclick="javascript:reEnableCategoryDropInputs();" >
+						<h:outputText value="#{msgs.cat_remove}" />
+						<f:param name="rowIndex" value="#{rowIndex}"/>
+					</h:commandLink>
+				</h:column>
+			</t:dataTable> 
+
+			<h:outputLink value="#" styleClass="more_categories">
+				<h:outputText value="#{msgs.cat_list_more}" />
+			</h:outputLink>
+			
+			<h:panelGrid columns="2" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
+				<h:outputText value="#{msgs.running_total}" styleClass="courseGrade"/>
+				<h:panelGroup id="runningTotal" styleClass="courseGrade #{gradebookSetupBean.regularTotalStyle}">
+					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.regularTotal}">
+					    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+					</h:outputText>
+					<h:outputText value="#{gradebookSetupBean.localizedPercentInput}" />
+				</h:panelGroup>
+
+				<h:outputText value="#{msgs.needed_total}"/>
+				<h:panelGroup>
+					<h:outputText id="neededTotalVal" value="#{gradebookSetupBean.neededTotal}" >
+					    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+                    </h:outputText>
+					<h:outputText value="#{gradebookSetupBean.localizedPercentInput}"/>
+				</h:panelGroup>
+			</h:panelGrid>
+		
+		<f:verbatim></div></f:verbatim>
+	</h:panelGroup>
+</div>
+</fieldset>
+
+<f:verbatim>
+<div style="visibility: hidden; left: 589px; top: 386px;" class="dhtmlPopup" id="dhtmlPopup_cat_point_value">
+	<table cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td><b>
+</f:verbatim>
+					   <h:outputText value="#{msgs.cat_point_value}"/>
+<f:verbatim>
+					   </b></td>
+			</tr>
+			<tr>
+				<td>
+</f:verbatim>
+						<h:outputText value="#{msgs.cat_point_value_popup_message}"/>
+<f:verbatim>
+						<br/><br/>
+</f:verbatim>
+						<h:outputText value="#{msgs.cat_value_popup_message_note}"/>						
+<f:verbatim>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div style="visibility: hidden; left: 589px; top: 386px;" class="dhtmlPopup" id="dhtmlPopup_cat_percent_value">
+	<table cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td><b>
+</f:verbatim>
+					   <h:outputText value="#{msgs.cat_percent_value}"/>
+<f:verbatim>
+					   </b></td>
+			</tr>
+			<tr>
+				<td>
+</f:verbatim>
+						<h:outputText value="#{msgs.cat_percent_value_popup_message}"/>						
+<f:verbatim>
+						<br/><br/>
+</f:verbatim>
+						<h:outputText value="#{msgs.cat_value_popup_message_note}"/>						
+<f:verbatim>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+</f:verbatim>
+
+<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+%>
+<script type="text/javascript">
+	$("tr.hide").hide();
+	$("a.more_categories").click(function(event){
+	   $("tr.hide:first").removeClass("hide").show();
+	   mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+	   if(!$("tr.hide").size()){
+	      $(event.target).hide();
+	   }
+	});
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+
+$(window).load(function(){
+	// show/hide options based upon the selected grade entry
+	toggleVisibilityDropScoresFields();
+});
+
+//]]>
+</script>

@@ -1,0 +1,30 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMtrlMaster.vm,v 1.2 2005/06/06 20:06:02 htripath.indiana.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<p class="instruction">
+	$tlang.getString("sitedicla.choose_file")
+	</p>
+	<form name="featuresForm" id="featuresForm" action="#toolForm("SiteAction")" method="post" enctype="multipart/form-data" onsubmit="return true;">
+		<input type="hidden" name="flow" id="flow" value="" />
+		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
+			<p class="shorttext">
+				<label for="file">$tlang.getString("sitedicla.file")</label>
+				<input type="file" name="file" id="file" class="upload" />
+			</p>					
+				
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<p class="act">
+			<input type="button" name="uploadButton" id="uploadButton" accesskey="s" class="active" value="$tlang.getString('sitedicla.import')"
+				onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('featuresForm').action='#toolLink("SiteAction" "doUpload_Mtrl_Frm_File")'; submitform('featuresForm');" />
+			
+			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" value="$tlang.getString('sitedicla.can')"
+				onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('featuresForm').action='#toolLink("SiteAction" "doCancel")';submitform('featuresForm');" />
+		</p>
+					
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

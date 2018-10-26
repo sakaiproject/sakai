@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE Parts SYSTEM "http://www.imsproject.org/question/qtiv1p2p1/XMLSchemav1p2p1/xmla/ims_qtiasiv1p2p1schema/dtds/qtiasifulldtd/ims_qtiasiv1p2p1.dtd">
+<questestinterop>
+  <assessment ident="" title="">
+    <qticomment/>
+    <duration/>
+    <qtimetadata>
+      <!--****************Assessment Introduction******************* -->
+      <qtimetadatafield>
+        <fieldlabel>AUTHORS</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+     <qtimetadatafield>
+        <fieldlabel>CREATOR</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA (Instructor for now)-->
+      <qtimetadatafield>
+        <fieldlabel>SHOW_CREATOR</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>SCALENAME</fieldlabel>
+        <fieldentry>STRONGLY_AGREE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--    "YESNO", "AGREE", "UNDECIDED", "AVERAGE", "STRONGLY_AGREE",
+              "EXCELLENT", "SCALEFIVE",  "SCALETEN"  -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTHORS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_DESCRIPTION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+       <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+
+<!--chen change -->
+      <qtimetadatafield>
+        <fieldlabel>DISPLAY_TEMPLATE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- **************************** Delivery Dates  ******************************************* -->
+       <qtimetadatafield>
+        <fieldlabel>START_DATE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+
+      <qtimetadatafield>
+        <fieldlabel>END_DATE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format example 2003-12-12T09:20:00-->
+
+      <qtimetadatafield>
+        <fieldlabel>RETRACT_DATE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+      <qtimetadatafield>
+
+      <fieldlabel>CONSIDER_START_DATE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_END_DATE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_RETRACT_DATE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_END_DATE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_RETRACT_DATE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+     <!-- *********************************Assessment released to:**************************** -->
+     <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_RELEASED_TO</fieldlabel>
+        <fieldentry>Anonymous Users</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA-->
+
+     <qtimetadatafield>
+        <fieldlabel>EDIT_PUBLISH_ANONYMOUS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTHENTICATED_USERS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+     <!-- *************************** High Security******************************************** -->
+       <qtimetadatafield>
+        <fieldlabel>ALLOW_IP</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- #PCDATA-->
+
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_ALLOW_IP</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_USERID</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>PASSWORD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ALLOW_IP</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_USERID</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+
+      <qtimetadatafield>
+        <fieldlabel>REQUIRE_LOCKED_BROWSER</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      
+      <qtimetadatafield>
+        <fieldlabel>EXIT_PASSWARD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+     <!-- ********************************Timed Assessment************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_DURATION</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+
+      <qtimetadatafield>
+        <fieldlabel>AUTO_SUBMIT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_DURATION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTO_SUBMIT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- ************************* Assessment Organization ********************************** -->
+     <qtimetadatafield>
+        <fieldlabel>NAVIGATION</fieldlabel>
+        <fieldentry>RANDOM</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- RANDOM, LINEAR-->
+
+      <qtimetadatafield>
+        <fieldlabel>QUESTION_LAYOUT</fieldlabel>
+        <fieldentry>I</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- A, S, I-->
+
+      <qtimetadatafield>
+        <fieldlabel>QUESTION_NUMBERING</fieldlabel>
+        <fieldentry>CONTINUOUS</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--CONTINUOUS or RESTART -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_NAVIGATION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_QUESTION_LAYOUT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_QUESTION_NUMBERING</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+     <!-- ***************************************** Mark for Review  ****************************** -->
+     <qtimetadatafield>
+        <fieldlabel>MARK_FOR_REVIEW</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+     <!-- *****************************************Submissions  ****************************** -->
+     <qtimetadatafield>
+        <fieldlabel>LATE_HANDLING</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>MAX_ATTEMPTS</fieldlabel>
+        <fieldentry>1</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- 0 = unlimited-->
+      <!-- 0, 1,2........... -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_LATE_HANDLING</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_MAX_ATTEMPTS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+     <qtimetadatafield>
+        <fieldlabel>AUTO_SAVE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTO_SAVE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+     <!-- ******************************Submission Message ***************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ASSESSFEEDBACK</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>SUBMISSION_MESSAGE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+
+      <qtimetadatafield>
+        <fieldlabel>FINISH_URL</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_FINISH_URL</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+     <!-- *******************************Feedback**************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_DELIVERY</fieldlabel>
+        <fieldentry>NONE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- IMMEDIATE, DATED, NONE-->
+     <qtimetadatafield>
+        <fieldlabel>FEEDBACK_COMPONENT_OPTION</fieldlabel>
+        <fieldentry>NONE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- SELECT_COMPONENTS, SHOW_TOTALSCORE_ONLY-->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_AUTHORING</fieldlabel>
+        <fieldentry>BOTH</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- QUESTION, SECTION, BOTH-->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_DELIVERY_DATE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_FEEDBACK_DELIVERY</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_FEEDBACK_COMPONENTS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_CORRECT_RESPONSE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_STUDENT_SCORE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_STUDENT_QUESTIONSCORE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_ITEM_LEVEL</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_SELECTION_LEVEL</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_GRADER_COMMENT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_STATS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_QUESTION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_RESPONSE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+     <!-- ******************************Grading***************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>ANONYMOUS_GRADING</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>GRADE_SCORE</fieldlabel>
+        <fieldentry>HIGHEST</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--HIGHEST, LAST SUBMISSION-->
+
+      <qtimetadatafield>
+        <fieldlabel>GRADEBOOK_OPTIONS</fieldlabel>
+        <fieldentry>NONE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--DEFAULT, SELECTED, NONE -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_GRADEBOOK_OPTIONS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ANONYMOUS_GRADING</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_GRADE_SCORE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+     <!-- ********************************Graphics*************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>BGCOLOR</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+
+      <qtimetadatafield>
+        <fieldlabel>BGIMG</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+
+<!--chen change -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_BGCOLOR</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+
+<!--chen change -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_BGIMG</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+     <!-- ********************************Metadata*************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ASSESSMENT_METADATA</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+      <qtimetadatafield>
+        <fieldlabel>EDIT_COLLECT_SECTION_METADATA</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_COLLECT_ITEM_METADATA</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_KEYWORDS</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_OBJECTIVES</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_RUBRICS</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>COLLECT_SECTION_METADATA</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>COLLECT_ITEM_METADATA</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+    <!--*********************Modified************************************* -->
+      <qtimetadatafield>
+        <fieldlabel>LAST_MODIFIED_ON</fieldlabel>
+        <fieldentry></fieldentry>
+      </qtimetadatafield>
+       <!--Possible Values -->
+      <!-- Date mm/dd/yyyy-->
+    <qtimetadatafield>
+        <fieldlabel>LAST_MODIFIED_BY</fieldlabel>
+        <fieldentry></fieldentry>
+      </qtimetadatafield>
+     <!--Possible Values -->
+      <!--#PCDATA -->
+      <!--*******************Editable Options******************************* -->
+      <qtimetadatafield>
+        <fieldlabel>templateInfo_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>assessmentAuthor_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>assessmentCreator_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>description_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>dueDate_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>retractDate_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>anonymousRelease_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>authenticatedRelease_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>ipAccessType_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>passwordRequired_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>lockedBrowser_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>timedAssessment_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>timedAssessmentAutoSubmit_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>itemAccessType_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>displayChunking_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>displayNumbering_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>displayScores_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>      
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>submissionModel_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>lateHandling_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>instructorNotification_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>automaticSubmission_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>autoSave_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>submissionMessage_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>finalPageURL_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>feedbackType_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>feedbackComponents_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>testeeIdentity_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>toGradebook_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>recordedScore_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>bgColor_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>bgImage_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>metadataAssess_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>metadataParts_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>metadataQuestions_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>honorpledge_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+    </qtimetadata>
+    <assessmentcontrol feedbackswitch="Yes" solutionswitch="Yes"/>
+    <rubric>
+      <material>
+        <mattext/>
+      </material>
+    </rubric>
+    <presentation_material>
+      <flow_mat>
+        <material>
+          <mattext></mattext>
+        </material>
+      </flow_mat>
+    </presentation_material>
+    <assessfeedback ident="Feedback" title="Feedback">
+      <flow_mat>
+        <material>
+          <mattext/>
+        </material>
+      </flow_mat>
+    </assessfeedback>
+  </assessment>
+</questestinterop>

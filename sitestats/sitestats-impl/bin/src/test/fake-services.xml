@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- FAKE Services -->
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeToolManager" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeToolManager" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeAliasService" class="org.mockito.Mockito" factory-method="spy">
+            <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeAliasService" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeEntityManager" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeEntityManager" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" class="org.sakaiproject.memory.mock.MemoryService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" type="java.lang.Class"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService" class="org.mockito.Mockito" factory-method="spy">
+        <constructor-arg value="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService" type="java.lang.Class"/>
+    </bean>
+
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeStatsAuthz" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.sakaiproject.sitestats.api.StatsAuthz"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.sakaiproject.event.api.UsageSessionService"/>
+    </bean>
+    <bean id="org.sakaiproject.mock.service.SiteService" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.sakaiproject.site.api.SiteService" />
+    </bean>
+
+    <alias name="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService" alias="org.sakaiproject.mock.service.UserDirectoryService"/>
+</beans>

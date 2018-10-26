@@ -1,0 +1,76 @@
+<item ident="" title="Numeric Response ">
+  <duration/>
+  <itemmetadata>
+    <qtimetadata>
+      <qtimetadatafield>
+        <fieldlabel>qmd_itemtype</fieldlabel>
+        <fieldentry>Numeric Response</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>TEXT_FORMAT</fieldlabel>
+        <fieldentry>HTML</fieldentry>
+      </qtimetadatafield>
+       <qtimetadatafield>
+        <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_KEYWORD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_RUBRIC</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ITEM_TAGS</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>ATTACHMENT</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
+    </qtimetadata>
+  </itemmetadata>
+   <rubric>
+      <material>
+        <mattext/>
+      </material>
+    </rubric>
+  <presentation label="FIN">
+    <flow>
+    <!-- unused: flow/material-->
+    <!-- <material><mattext/></material> -->
+    <flow class="Block">
+      <material>
+        <mattext />
+      </material>
+    </flow>
+    </flow>
+  </presentation>
+  <resprocessing>
+    <outcomes>
+      <decvar defaultval="0" maxvalue="0" minvalue="0" varname="SCORE"/>
+    </outcomes>
+  </resprocessing>
+  <itemfeedback ident="Correct" view="All">
+    <flow_mat>
+      <material>
+        <mattext/>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+    </flow_mat>
+  </itemfeedback>
+  <itemfeedback ident="InCorrect" view="All">
+    <flow_mat>
+      <material>
+        <mattext/>
+      </material>
+      <material>
+        <matimage imagtype="text/html" uri=""/>
+      </material>
+    </flow_mat>
+  </itemfeedback>
+</item>

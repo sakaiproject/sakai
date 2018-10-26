@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- added for KNL-1063 -->
+    <bean id="sakai.config.mappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/config/api/HibernateConfigItem.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.config.api.HibernateConfigItemDao.target"
+          class="org.sakaiproject.config.impl.HibernateConfigItemDaoImpl"
+          init-method="init">
+
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="autoDdl" value="${auto.ddl}"/>
+    </bean>
+
+    <bean id="org.sakaiproject.config.api.HibernateConfigItemDao"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+          lazy-init="true">
+
+        <property name="transactionManager"
+                  ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+        <property name="target" ref="org.sakaiproject.config.api.HibernateConfigItemDao.target"/>
+
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.config.impl.StoredConfigService"
+          class="org.sakaiproject.config.impl.StoredConfigService"
+          init-method="init" destroy-method="destroy" lazy-init="false">
+
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="dao" ref="org.sakaiproject.config.api.HibernateConfigItemDao"/>
+        <property name="textEncryptor" ref="org.jasypt.encryption.pbe.PBEStringEncryptor"/>
+    </bean>
+
+    <bean id="org.jasypt.encryption.pbe.PBEStringEncryptor"
+          class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+        <property name="algorithm" value="PBEWITHSHA1ANDDESEDE"/>
+        <property name="password" value="sakai"/>
+        <property name="stringOutputType" value="base64"/>
+    </bean>
+</beans>
+

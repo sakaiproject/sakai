@@ -1,0 +1,240 @@
+<!--
+#*
+ $URL$
+ $Id$
+*#
+ **********************************************************************************
+ *
+ * Copyright (c) 2006 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************
+-->
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+
+<div class="portletBody">
+	<div class="indnt1">
+		<h3>$tlang.getString( "title.review" )</h3>
+		#if($show_citations)
+			#parse( "vm/citation/_details.vm" )
+			<p class="instruction">$tlang.getFormattedMessage( "instr.main.review", $instrMainArgs )</p>
+		#else
+			#parse( "vm/citation/_details.vm" )
+			<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
+		#end
+		#if( $alertMessage )
+			#parse( "vm/citation/_alert.vm" )
+		#end
+		
+		#if( $resourcesAddAction )
+		<p class="instruction">$tlang.getFormattedMessage( "instr.sub.review", $instrSubArgs )</p>
+		#end
+		
+		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
+			<input name="sakai_action" id="sakai_action" value="" type="hidden" />
+			<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+			<input name="citationId" id="citationId" value="" type="hidden" />
+			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
+			<input name="sort" id="sort" value="" type="hidden" />
+			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
+			<input name="pageSelector" id="pageSelector" value="" type="hidden" />
+			
+			<div class="act">
+				#if( $resourcesAddAction )
+				<input class="active" type="button" name="Finish" id="Finish"
+				  value="$tlang.getString("label.finish")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#else
+				<input class="active" type="button" name="Done" id="Done"
+				  value="$tlang.getString("label.done")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#end
+				
+				#if( $searchResults )
+				  <input type="button" name="Back" id="Back"
+				    value="$tlang.getString("label.back.results")"
+				    onclick="document.getElementById('sakai_action').value='doResults'; submitform('$FORM_NAME');"
+				  />
+				#end
+				
+				<input type="button" name="AddCitations" id="AddCitations"
+				  value="$tlang.getString("label.menu")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+
+<!--
+				<input type="button" name="SearchCitations" id="SearchCitations"
+				  value="Search for Citations"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+
+				<input type="button" name="ImportCitation" id="ImportCitation"
+				  value="$tlang.getString("import.title")"
+				  onclick="document.getElementById('sakai_action').value='doImportPage';submitform('$FORM_NAME');"
+				/>
+				
+				<input type="button" name="CreateCitation" id="CreateCitation"
+				  value="$tlang.getString("addAction.create")"
+				  onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"
+				/>
+-->
+
+				#if( $resourcesAddAction )
+				<input type="button" name="Cancel" id="Cancel"
+				  value="$tlang.getString("label.cancel")"
+				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+				/>
+				#end				
+			</div>
+			
+			#if( !$resourcesAddAction )
+        		<label for="description">
+            		<strong>$tlang.getString("label.descr")</strong>
+        		</label>
+        		<br />
+				<textarea name="description" cols="80" rows="5" wrap="virtual">$!{description}</textarea>
+			#end				
+
+			#parse( "vm/citation/_listCitations.vm" )
+			
+			<div class="act">
+				#if( $resourcesAddAction )
+				<input class="active" type="button" name="Finish" id="Finish"
+				  value="$tlang.getString("label.finish")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#else
+				<input class="active" type="button" name="Done" id="Done"
+				  value="$tlang.getString("label.done")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#end
+				
+				#if( $searchResults )
+				  <input type="button" name="Back" id="Back"
+				    value="$tlang.getString("label.back.results")"
+				    onclick="document.getElementById('sakai_action').value='doResults'; submitform('$FORM_NAME');"
+				  />
+				#end
+				
+				<input type="button" name="AddCitations" id="AddCitations"
+				  value="$tlang.getString("label.menu")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+
+<!--
+				<input type="button" name="SearchCitations" id="SearchCitations"
+				  value="Search for Citations"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+
+				<input type="button" name="ImportCitation" id="ImportCitation"
+				  value="$tlang.getString("import.title")"
+				  onclick="document.getElementById('sakai_action').value='doImportPage';submitform('$FORM_NAME');"
+				/>
+				
+				<input type="button" name="CreateCitation" id="CreateCitation"
+				  value="$tlang.getString("addAction.create")"
+				  onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"
+				/>
+-->
+
+				#if( $resourcesAddAction )
+				<input type="button" name="Cancel" id="Cancel"
+				  value="$tlang.getString("label.cancel")"
+				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+				/>
+				#end
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+</div>
+<div id="messageDiv" style="display: none;"></div>
+<script type="text/javascript">
+// set up count refresh
+top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperAction")", "$citationsHelperMode" );
+
+/*
+ * Resizes the frame to avoid double scroll bars without scrolling to the top
+ * of the page when making dynamic changes to the page.
+ * This method has not been tested with IE 5.5.
+ */
+function resizeFrame() {
+  var frame = parent.document.getElementById( window.name );
+
+  if( frame ) {
+    var clientH = document.body.clientHeight + 10;
+    $( frame ).height( clientH );
+  }
+}
+
+/*
+ * Dispatches actions on citations
+ */
+function doCitationAction( action ) {
+  // do action
+  if( action == "exportSelected" ) {
+    if( numCitationsSelected() > 0 ) {
+      exportSelectedCitations( "$exportUrlSel", "$citationCollectionId", "$resourceId" );
+    } else {
+      alert( "$tlang.getString( "select.warn.list" )" );
+    }
+  } else if( action == "exportList" ) {
+    exportAllCitations( "$exportUrlAll", "$citationCollectionId", "$resourceId" );
+  } else if( action == "removeSelected" ) {
+    if( numCitationsSelected() > 0 ) {
+      removeSelectedCitations( "#contentLink("Main")&sakai_action=doRemoveSelectedCitations&collectionId=$collectionId", "$FORM_NAME" );
+    } else {
+      alert( "$tlang.getString( "select.warn.list" )" );
+    }
+  } else if( action == "removeList" ) {
+    removeAllCitations( "$FORM_NAME" );
+  } else if( action == "reorderList" ) {
+    window.location.assign('#contentLink("Main")&sakai_action=doShowReorderCitations');
+  }
+  
+  // reset select boxes
+  $( ".citationActionSelect" ).each( function() {
+      this.selectedIndex = 0;
+    }
+  );
+}
+
+/*
+ * Dispatches Sorting Actions
+*/
+
+function doCitationSortAction( action ) 
+{
+// for debugging
+  // do action
+      sortAllCitations( "$FORM_NAME", action );
+//  else 
+//  {
+//      alert( "$tlang.getString( "select.warn.list" )" );
+//  }
+  
+  // reset select boxes
+  $( ".citationActionSelect" ).each( function() {
+      this.selectedIndex = 0;
+    }
+  );
+}
+</script>

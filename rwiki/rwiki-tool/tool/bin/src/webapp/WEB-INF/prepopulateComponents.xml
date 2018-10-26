@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- tool context -->
+
+  <!-- 
+  Pre populated pages,
+  These are loaded into each space as it starts.
+  You may add your own pages or edit the exiting pages.
+  THe files are contain Wiki format pages
+  The paths are in the classpath
+
+  -->
+
+  <!-- Page Population service -->
+  <bean id="uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService"
+    class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.PopulateServiceImpl" 
+    init-method="init" >
+
+    <property name="RWikiCurrentObjectDao"><ref bean="rwikiCurrentObjectDao"/></property>
+    <property name="seedPages">
+      <!--
+      You can add a list of seed pages here, that are loaded into each context where they
+      are not found. For performance purposes this is only done once per runtime of the 
+      web app.
+
+      The easiest way of creating new pages for seed, it to use the Rwiki tool in sakai to 
+      edit the page, and then cut and paste the markup here with the required properties, then 
+      restart the webapp. The Name should be a local name, as it will be converted to a suitable
+      global name when the page is injected into the site, and the realm or use should not be set
+      as these will be overwritten when the page is injected.
+      -->
+      <list>
+	<ref bean="rwiki.seedPage.HomePage"/>
+	<ref bean="rwiki.seedPage.HelpPage"/>
+	<ref bean="rwiki.seedPage.RecentChangesPage"/>
+	<ref bean="rwiki.seedPage.EditRightPage"/>
+	<ref bean="rwiki.seedPage.DefaultTemplate"/>
+	<ref bean="rwiki.seedPage.AboutProjectPage"/>
+	<ref bean="rwiki.seedPage.AboutCoursePage"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="rwiki.seedPage.HelpPage"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>Help Page</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_help_page</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>false</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>false</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+  </bean>
+
+  <bean id="rwiki.seedPage.HomePage"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>Home</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_home_page</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>true</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>true</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+  </bean>
+
+  <bean id="rwiki.seedPage.AboutCoursePage"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>About</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_about_course_page</value>
+    </property>
+
+    <!--
+    This says site type starts with
+    ( not course and not project ) or ( myspecialtype ) or ( coursetype3 ) 
+    If a match is found the page will get loaded into the site on site creation
+    <property name="targetSiteTypes">
+      <list>
+	<value>!course,!project</value>
+	<value>myspecialtype</value>
+	<value>coursetype3</value>
+
+      </list>
+    </property>
+
+    now for something a little simpler
+    -->
+    <property name="targetSiteTypes">
+      <list>
+	<value>course</value>
+      </list>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>true</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>false</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+  </bean>
+
+  <bean id="rwiki.seedPage.AboutProjectPage"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>About</value></property>
+
+    <property name="targetSiteTypes">
+      <list>
+	<value>!course</value>
+      </list>
+    </property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_about_project_page</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>true</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>false</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+  </bean>
+
+  <!-- Second help page -->
+  <bean id="rwiki.seedPage.HelpPagetwo"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>HelpPagetest</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_help_page</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>true</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>false</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+
+  </bean>
+  <!-- this is the default page template for new pages -->
+  <bean id="rwiki.seedPage.DefaultTemplate"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>default_template</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_default_page_template</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>true</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>true</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+
+  </bean>
+
+  <!-- Page containing recent changes macro -->
+  <bean id="rwiki.seedPage.RecentChangesPage"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>Recent Changes</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_recent_changes</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>false</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>false</value></property>
+    <property name="publicRead"><value>false</value></property>
+    <property name="publicWrite"><value>false</value></property>
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+
+  </bean>
+  <!-- Right side bar on the edit page -->
+  <bean id="rwiki.seedPage.EditRightPage"
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl">
+    <property name="name"><value>Edit_right</value></property>
+
+    <property name="source">
+      <value>bundle:/uk/ac/cam/caret/sakai/rwiki/tool/bundle/PrepopulatePages:wiki_edit_right</value>
+    </property>
+
+    <property name="ownerAdmin"><value>true</value></property>
+    <property name="ownerRead"><value>true</value></property>
+    <property name="ownerWrite"><value>true</value></property>
+    <property name="groupAdmin"><value>false</value></property>
+    <property name="groupRead"><value>true</value></property>
+    <property name="groupWrite"><value>false</value></property>
+    <property name="publicRead"><value>true</value></property>
+    <property name="publicWrite"><value>false</value></property>
+    <property name="rwikiObjectContentDao"><ref bean="rwikiCurrentObjectContentDaoImpl"/></property>
+
+  </bean>
+
+</beans>
+

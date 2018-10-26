@@ -1,0 +1,473 @@
+<html>
+    <wicket:panel xmlns:wicket="http://wicket.apache.org">
+        <div id="gradeTableWrapper">
+            <div wicket:id="gradeTable" id="gradeTable" accesskey="g" wicket:message="aria-label:gradetable.wrapper.tooltip" aria-describedby="gradeTableCaption"></div>
+        </div>
+
+        <script id="courseGradeHeaderTemplate" type="text/template">
+            <span class="colHeader hide">${col}</span>
+            <div class="relative">
+                <a class="gb-title">
+                    <wicket:message key="column.header.coursegrade"/>
+                </a>
+                <div class="gb-grade-item-flags">
+                    {if settings.isCourseGradeReleased}
+                    <span class="gb-flag-released" wicket:message="title:label.coursegrade.released">
+                        {if settings.isUserAbleToEditAssessments}
+                            <span aria-hidden="true" style="display:none;" class="gb-tooltip-extras">
+                                <div>
+                                    <a href="javascript:void(0);" class="gb-gradebook-settings"><wicket:message key="label.coursegrade.editsettings"/></a>
+                                </div>
+                            </span>
+                        {/if}
+                    </span>
+                    {else}
+                    <span class="gb-flag-not-released" wicket:message="title:label.coursegrade.notreleased">
+                        {if settings.isUserAbleToEditAssessments}
+                            <span aria-hidden="true" style="display:none;" class="gb-tooltip-extras">
+                                <div>
+                                    <a href="javascript:void(0);" class="gb-gradebook-settings"><wicket:message key="label.coursegrade.editsettings"/></a>
+                                </div>
+                            </span>
+                        {/if}
+                    </span>
+                    {/if}
+                </div>
+                {if settings.isUserAbleToEditAssessments}
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default dropdown-toggle"
+                           data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                           wicket:message="title:coursegrade.header.menulabel"
+                           tabindex="-1">
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                            <li><a href="javascript:void(0);" class="gb-set-zero-score" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+                            {if !settings.isCategoryTypeWeighted}
+                                <li>
+                                    <a href="javascript:void(0);" class="gb-toggle-points" role="menuitem">
+                                    {if settings.showPoints}
+                                        <wicket:message key="coursegrade.option.hidepoints" />
+                                    {else}
+                                        <wicket:message key="coursegrade.option.showpoints" />
+                                    {/if}
+                                    </a>
+                                </li>
+                            {/if}
+                        		<li><a href="javascript:void(0);" class="gb-view-course-grade-statistics" role="menuitem"><wicket:message key="coursegrade.option.viewcoursegradestatistics" /></a></li>
+                        </ul>
+                    </div>
+                {/if}
+            </div>
+        </script>
+        <script id="assignmentHeaderTemplate" type="text/template">
+            <span class="colHeader hide">${col}</span>
+            <div class="relative">
+                {if extraCredit}
+                    <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
+                {/if}
+                {if externallyMaintained}
+                    <span class="gb-external-app ${externalAppIconCSS}"
+                          wicket:message="title:label.gradeitem.externalapplabel">
+                    </span>
+                {/if}
+                {var tooltip = title.replace(/"/g, '&quot;')}
+                <a class="gb-title" title="${tooltip}">
+                    ${abbrevTitle}
+                    {if hasAssociatedRubric}
+                        <span class="fa fa-fw fa-table" wicket:message="title:rubrics.question_use_rubric"></span>
+                    {/if}
+                </a>
+                {if settings.isCategoriesEnabled}
+                    {if categoryId}
+                        <div class="gb-category">
+                            <wicket:message key="label.category"/>
+                            {if categoryExtraCredit}
+                                <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
+                            {/if}
+                            <span>${categoryName}</span>
+                            {if settings.isCategoryTypeWeighted}
+                                <span class="gb-category-weight">[${categoryWeight}]</span>
+                            {/if}
+                        </div>
+                    {else}
+                        <div class="gb-uncategorized">
+                            <wicket:message key="gradebookpage.uncategorised"/>
+                        </div>
+                    {/if}
+                {/if}
+                <div class="gb-grade-section">
+                    {if settings.isPercentageGradeEntry}
+                        <wicket:message key="label.relativeweight"/>
+                    {else}
+                        <wicket:message key="label.total"/>
+                    {/if}
+                    <span class="gb-total-points">
+                        ${points}
+                    </span>
+                </div>
+                <div class="gb-due-date">
+                    <wicket:message key="label.due"/> 
+                    <span>${dueDate}</span>
+                </div>
+                <div class="gb-grade-item-flags">
+                    {if released}
+                        <span class="gb-flag-released" wicket:message="title:label.gradeitem.released"></span>
+                    {else}
+                        <span class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
+                    {/if}
+                    {if includedInCourseGrade}
+                        <span class="gb-flag-counted" wicket:message="title:label.gradeitem.counted"></span>
+                    {else}
+                        <span class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
+                    {/if}
+                </div>
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default dropdown-toggle"
+                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       tabindex="-1">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        {if settings.isUserAbleToEditAssessments}
+                            <li><a href="javascript:void(0);" class="edit-assignment-details" role="menuitem"><wicket:message key="assignment.option.edit" /></a></li>
+                        {/if}
+                        <li><a href="javascript:void(0);" class="gb-view-statistics" role="menuitem"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
+                        {if settings.isUserAbleToEditAssessments}
+                            <li><a href="javascript:void(0);" class="gb-move-left" role="menuitem"><wicket:message key="assignment.option.moveleft" /></a></li>
+                            <li><a href="javascript:void(0);" class="gb-move-right" role="menuitem"><wicket:message key="assignment.option.moveright" /></a></li>
+                        {/if}
+                        {if !externallyMaintained && settings.isUserAbleToEditAssessments}
+                            <li><a href="javascript:void(0);" class="gb-set-ungraded" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
+                        {/if}
+                        <li><a href="javascript:void(0);" class="gb-hide-column" role="menuitem" data-assignmentid="${assignmentId}"><wicket:message key="assignment.option.hide" /></a></li>
+                        {if !externallyMaintained && settings.isUserAbleToEditAssessments}
+                            <li><a href="javascript:void(0);" class="gb-delete-item" role="menuitem"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+        </script>
+        <script id="categoryScoreHeaderTemplate" type="text/template">
+            <span class="colHeader hide">${col}</span>
+            <div class="relative">
+                {if extraCredit}
+                    <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
+                {/if}
+                {var tooltip = title.replace(/"/g, '&quot;')}
+                <a class="gb-title" title="${tooltip}">
+                    <span class="gb-category">
+                        <span class="swatch" style="background-color: #${color}"></span>
+                        ${categoryName}
+                        {if settings.isCategoryTypeWeighted}
+                            <div class="gb-category-weight-label">
+                                <wicket:message key="label.gradeitem.categoryaveragelabel"/>
+                                <span class="gb-category-weight" wicket:message="title:label.gradeitem.categoryweight">
+                                    [${weight}]
+                                </span>
+                            </div>
+                        {/if}
+                    </span>
+                </a>
+                {for info in dropInfo}
+                <div class="gb-drop-info">${info}</div>
+                {/for}
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default dropdown-toggle"
+                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       tabindex="-1">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="javascript:void(0);" class="gb-hide-column" role="menuitem" data-categoryid="${categoryId}"><wicket:message key="assignment.option.hide" /></a></li>
+                    </ul>
+                </div>
+            </div>
+        </script>
+        <script id="studentHeaderTemplate" type="text/template">
+            <div class="relative">
+                <div class="colHeader">
+                    <a class="gb-title">
+                        <wicket:message key="column.header.students"/>
+                    </a>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default dropdown-toggle"
+                           data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                           wicket:message="title:students.menulabel"
+                           tabindex="-1">
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                            {if !settings.isStudentOrderedByLastName}
+                                <li><a class="gb-student-name-order-toggle" data-order-by="last_name" href="#"><wicket:message key="sortbyname.option.last"/></a></li>
+                            {/if}
+                            {if !settings.isStudentOrderedByFirstName}
+                                <li><a class="gb-student-name-order-toggle" data-order-by="first_name" href="#"><wicket:message key="sortbyname.option.first"/></a></li>
+                            {/if}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </script>
+        <script id="studentNumberHeaderTemplate" type="text/template">
+            <div class="relative">
+                <div class="colHeader">
+                    <a class="gb-title">
+                        <wicket:message key="column.header.studentNumber"/>
+                    </a>
+                </div>
+            </div>
+        </script>
+        <script id="studentNumberCellTemplate" type="text/template">
+            <div class="relative gb-student-number-cell">
+                <div class="gb-value">
+                    <div class="rowHeader">
+                        ${studentNumber}
+                    </div>
+                </div>
+            </div>
+        </script>
+        <script id="cellTemplate" type="text/template">
+            <div class="relative">
+                <span class="gb-value">${value}</span>
+                <span class="gb-notification"></span>
+                <span class="gb-comment-notification"></span>
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default dropdown-toggle"
+                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       tabindex="-1">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li class="{if !hasAssociatedRubric} hidden {/if}"><a class="gb-grade-rubric" href="#" role="menuitem"><wicket:message key="rubrics.option.graderubric" /></a></li>
+                        <li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
+                        <li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
+                        <li><a class="gb-excuse-grade" href="#" role="menuitem"><wicket:message id="excuse-message" key="excuse.grade" /></a></li>
+                    </ul>
+                </div>
+            </div>
+        </script>
+        <script id="courseGradeCellTemplate" type="text/template">
+            <div class="relative">
+                <span class="gb-value {if isOverridden} gb-overridden {/if}">
+                    ${value}
+                </span>
+                {if GbGradeTable.settings.isUserAbleToEditAssessments}
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default dropdown-toggle"
+                           data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                           wicket:message="title:coursegrade.cell.menulabel"
+                           tabindex="-1">
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                            <li><a href="javascript:void(0);" class="gb-course-grade-override" role="menuitem"><wicket:message key="coursegrade.option.override"/></a></li>
+                            <li><a href="javascript:void(0);" class="gb-course-grade-override-log" role="menuitem"><wicket:message key="coursegrade.option.overridelog"/></a></li>
+                        </ul>
+                    </div>
+                {/if}
+            </div>
+        </script>
+        <script id="studentCellTemplate" type="text/template">
+            {if settings.isStudentOrderedByLastName}
+                {var tooltip = lastName + ", " + firstName + " (" + eid + ")"}
+            {else}
+                {var tooltip = firstName + " " + lastName + " (" + eid + ")"}
+            {/if}
+            {var tooltip = tooltip.replace(/"/g, '&quot;')}
+            <div class="relative gb-student-cell" title="${tooltip}">
+                <div class="gb-value">
+                    <div class="rowHeader">
+                        <a href="javascript:void(0);" class="gb-view-grade-summary" tabindex="-1">
+                            {if settings.isStudentOrderedByLastName}
+                                <div>
+                                    <span class="gb-last-name">${lastName}</span>,
+                                    <span class="gb-first-name">${firstName}</span>
+                                </div>
+                                <div>
+                                    (<span class="gb-eid">${eid}</span>)
+                                </div>
+                            {else}
+                                <div>
+                                    <span class="gb-first-name">${firstName}</span>
+                                    <span class="gb-last-name">${lastName}</span>
+                                </div>
+                                <div>
+                                    (<span class="gb-eid">${eid}</span>)
+                                </div>
+                            {/if}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </script>
+        <script id="metadataTemplate" type="text/template">
+            <div id="${id}" class="gb-metadata">
+                <a href="javascript:void(0);" class="gb-metadata-close"></a>
+                <div class="gb-metadata-summary">
+                    <h4 class="sr-only"><wicket:message key="metadata.header" /></h4>
+                    <dl class="sr-only dl-horizontal">
+                        <dt><wicket:message key="metadata.student" /></dt>
+                        <dd>${student.lastName}, ${student.firstName} (${student.eid})</dd>
+                        {if defined('assignment')}
+                        <dt><wicket:message key="metadata.assignment" /></dt>
+                        <dd>${assignment.title}</dd>
+                        {/if}
+                        {if defined('value')}
+                        <dt><wicket:message key="metadata.score" /></dt>
+                        <dd>${value}</dd>
+                        {/if}
+                        {if defined('courseGrade')}
+                        <dt><wicket:message key="metadata.courseGrade" /></dt>
+                        <dd>${courseGrade}</dd>
+                        {/if}
+                        {if defined('category')}
+                        <dt><wicket:message key="metadata.category" /></dt>
+                        <dd>${category.categoryName}</dd>
+                        {/if}
+                        {if defined('categoryAverage')}
+                        <dt><wicket:message key="metadata.categoryAverage" /></dt>
+                        <dd>${categoryAverage}</dd>
+                        {/if}
+                    </dl>
+                </div>
+                <div class="gb-metadata-notifications">
+                    {if defined('notifications') && notifications.length > 0}
+                        <p class="sr-only"><wicket:message key="metadata.flags" /></p>
+                        <ul>
+                            {for notification in notifications}
+                                {if notification.type == 'comment'}
+                                    <li class="gb-metadata-comment-notification">
+                                        <span class="gb-flag-comment"></span> <wicket:message key="grade.notifications.hascomment"/>
+                                        <blockquote><wicket:message key="grade.notifications.commentloading"/></blockquote>
+                                        {if defined('readonly') && !readonly} 
+                                            <div>
+                                                <a href="javascript:void(0);" class="gb-edit-comments"><wicket:message key="grade.notifications.editcomment"/></a>
+                                            </div>
+                                        {/if}
+                                    </li>
+                                {elseif notification.type == 'extra-credit'}
+                                    <li>
+                                        <span class="gb-flag-extra-credit"></span> <wicket:message key="grade.notifications.overlimit"/>
+                                    </li>
+                                {elseif notification.type == 'excused'}
+                                    <li>
+                                        <span class="gb-flag-excused"></span> <wicket:message key="grade.notifications.excused"/>
+                                    </li>
+                                {elseif notification.type == 'save-error'}
+                                    <li>
+                                        <span class="gb-flag-save-error"></span> <wicket:message key="grade.notifications.haserror"/>
+                                    </li>
+                                    <li>
+                                        <span class="gb-flag-save-invalid"></span> <wicket:message key="grade.notifications.invalid"/>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0);" class="gb-revert-score"><wicket:message key="grade.notifications.revert"/></a>
+                                    </li>
+                                {elseif notification.type == 'save-invalid'}
+                                    <li>
+                                        <span class="gb-flag-save-invalid"></span> <wicket:message key="grade.notifications.invalid"/>
+                                    </li>
+                                {elseif notification.type == 'concurrent-edit'}
+                                    {if notification.showSaveError}
+                                        <li>
+                                            <span class="gb-flag-save-error"></span> <wicket:message key="grade.notifications.haserror"/>
+                                        </li>
+                                    {/if}
+                                    <li>
+                                        <span class="gb-flag-concurrent-edit"></span> <wicket:message key="grade.notifications.concurrentedit"/>
+                                        {if notification.conflict}
+                                            <dl class="dl-horizontal">
+                                                <dt><wicket:message key="grade.notifications.concurrentedituser"/></dt>
+                                                <dd>${notification.conflict.lastUpdatedBy}</dd>
+                                                <dt><wicket:message key="grade.notifications.concurrentedittime"/></dt>
+                                                <dd>${new Date(notification.conflict.lastUpdated).toLocaleTimeString()}</dd>
+                                            </dl>
+                                        {/if}
+                                    </li>
+                                {elseif notification.type == 'external-invalid'}
+                                    <li>
+                                        <span class="gb-flag-save-invalid"></span> <wicket:message key="grade.notifications.externalinvalid"/>
+                                    </li>
+                                {elseif notification.type == 'external'}
+                                    <li class="gb-external-app-wrapper">
+                                        <span class="gb-flag-external"></span> <wicket:message key="grade.notifications.isexternal"/>
+                                    </li>
+                                {elseif notification.type == 'readonly'}
+                                    <li>
+                                        <span class="gb-flag-read-only"></span> <wicket:message key="grade.notifications.readonly"/>
+                                    </li>
+                                    <li>
+                                        <span class="gb-flag-read-only"></span> <wicket:message key="grade.notifications.privileges"/>
+                                    </li>
+                                {else}
+                                    <li>
+                                        <span class="gb-flag-${notification.type}"></span> ${notification.type}
+                                    </li>
+                                {/if}
+                            {/for}
+                        </ul>
+                    {else}
+                        <p><wicket:message key="metadata.noflags"/></p>
+                    {/if}
+                </div>
+            </div>
+        </script>
+        <script id="tooltipTemplate" type="text/template">
+            <div id="gbTooltip" class="gb-metadata">
+                <a href="javascript:void(0);" class="gb-metadata-close"></a>
+                <p>
+                    {if defined('icon')}
+                        <span class="${icon}"></span>
+                    {/if}
+                    ${tooltip}
+                </p>
+            </div>
+        </script>
+        <script id="studentSummaryTemplate" type="text/template">
+            <wicket:message key="label.toolbar.studentsummary"/>
+        </script>
+        <script id="gradeItemSummaryTemplate" type="text/template">
+            <wicket:message key="label.toolbar.gradeitemsummary"/>
+        </script>
+        <script id="gradeItemSummaryTooltipTemplate" type="text/template">
+            <wicket:message key="label.toolbar.gradeitemsummary-tooltip"/>
+        </script>
+        <script id="gradeMenuTooltip" type="text/template">
+            <wicket:message key="grade.menulabel"/>
+        </script>
+        <script id="gradeHeaderMenuTooltip" type="text/template">
+            <wicket:message key="assignment.menulabel"/>
+        </script>
+        <script id="captionTemplate" type="text/template">
+            <div id="gradeTableCaption">
+                <div class="container-fluid">
+                    <div class="sr-only row">
+                        <h4><wicket:message key="gradetable.caption.summaryheader"/></h4>
+                        <p><wicket:message key="gradetable.caption.summary"/></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4><wicket:message key="gradetable.caption.keyboardnavigationheader"/></h4>
+                            <wicket:message key="gradetable.caption.keyboardnavigation"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4><wicket:message key="gradetable.caption.keyboardshortcutsheader"/></h4>
+                            <wicket:message key="gradetable.caption.keyboardshortcuts"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <wicket:message key="gradetable.caption.keyboardtablemodeshortcuts"/>
+                        </div>
+                        <div class="col-sm-5">
+                            <wicket:message key="gradetable.caption.keyboardeditingshortcuts"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+    </wicket:panel>
+</html>

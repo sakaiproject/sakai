@@ -1,0 +1,44 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("deploy.register")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		$!formStatus
+		$formOutput
+		<p id="pre_launch">$tlang.getString('register.external.pre.launch')</p>
+		<p id="post_launch" style="display:none">$tlang.getString('register.external.post.launch')</p>
+		<p>
+		<a href="$registerURL" target="_blank" onclick="
+			document.getElementById('activate_button').style.display='inline';
+			document.getElementById('pre_launch').style.display='none';
+			document.getElementById('post_launch').style.display='inline';
+		">$tlang.getString('register.popup.text')</a>
+		</p>
+		<p class="act">
+			<input type="submit" accesskey ="x" id="activate_button" style="display: none" 
+				name="$tlang.getString('gen.activate')" value="$tlang.getString('gen.activate')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Activate")&id=$id';return false;">
+			<input type="submit" accesskey ="x" name="$tlang.getString('gen.cancel')" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
+		</p>
+	</form>
+	<!-- Create a large amount of vertical space so the iframe works... -->
+	<div style="height: 1000px">
+    &nbsp;
+	</div>
+	<hr/>
+#if ( ! $isAdmin )
+<script>includeLatestJQuery('lti_deploy_delete.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+</div>

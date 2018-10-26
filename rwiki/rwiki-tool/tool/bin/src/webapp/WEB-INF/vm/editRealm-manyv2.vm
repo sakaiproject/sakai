@@ -1,0 +1,126 @@
+#set( $multiRealmEditBean = ${requestScope.MultiRealmEditBean} )
+#set( $realmCollectionBean = ${requestScope.AuthZGroupCollectionBean} )
+#set( $errorBean = ${requestScope.rsacMap.errorBean} )
+#set( $rlb = ${requestScope.rsacMap.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_edit_section}: ${util.escapeHtml($multiRealmEditBean.localSpace)}" )
+#header(${title} false "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool actionToolBar">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
+	  </form>
+	 </div>
+		
+	 <div id="rwiki_content" class="nosidebar" >
+          <h3>${rlb.jsp_edit_acl_title}: 
+            ${util.escapeHtml($multiRealmEditBean.PageName)}
+          </h3>
+          #if ( ${errorBean.errors.size()}  > 0 )
+	         <p class="validation" style="clear: none;">
+		          #foreach( $error in ${errorBean.errors} )
+		          ${util.escapeHtml($error)}
+		          #end
+		        </p>
+	         #end
+          <form action="?#" method="post" summary="Realm Permissions"> 
+              <table cellspacing="0"> 
+                <tr>      
+                  <td colspan="7"> 
+                        <select name="add_realm" >
+                        #foreach( $azgb in ${realmCollectionBean.Realms} )
+                           #if ($azgb.roles.size() > 0 )
+                              <option value="${azgb.realmId}" >${util.escapeHtml($azgb.realmId)}</option>
+                           #end
+                        #end
+                        </select>
+                        <input type="submit" name="command_add_realm" value="${rlb.jsp_add_realm}" />   
+                  </td>
+                </tr>
+                <tr> 
+              	 	<th colspan="7" >
+              	 		<label>${rlb.jsp_realm}: ${util.escapeHtml($authZGroupBean.RealmId)}</label>
+              	 		<input type="submit" name="command_remove_realm" value="${rlb.jsp_remove_realm}"/>
+              	 	</th>
+              	 </tr>
+              	 <tr>
+              	 	   <th>${rlb.jsp_permission_roles}</th>
+              	 	   <td><label>${rlb.jsp_permission_create}</label></td>
+              	 	   <td><label>${rlb.jsp_permission_read}</label></td>
+              	 	   <td><label>${rlb.jsp_permission_edit}</label></td>
+              	 	   <td><label>${rlb.jsp_permission_admin}</label></td>
+              	 	   <td><label>${rlb.jsp_permission_super_admin}</label></td>
+              	 </tr>
+              	 #foreach( $azgb in ${realmCollectionBean.realms} )
+              	   #foreach ( $rb in ${azgb.roles} )
+              	   <tr class="permissionsGroupRole">
+              	      <th><label>${rb.id}</label></th>
+              	      <td>
+              	      #if ({$rb.secureCreate})
+              	        <input type="checkbox" name="create_${azgb.id}_${rb.id}" />
+              	      #else
+              	         <input type="checkbox" name="create_${azgb.id}_${rb.id}" checked="checked"/>
+              	      #end
+              	      </td> 
+              	      <td>
+              	      #if ({$rb.secureRead})
+              	        <input type="checkbox" name="read_${azgb.id}_${rb.id}" />
+              	      #else
+              	         <input type="checkbox" name="read_${azgb.id}_${rb.id}" checked="checked"/>
+              	      #end
+              	      </td> 
+              	      <td>
+              	      #if ({$rb.secureUpdate})
+              	        <input type="checkbox" name="update_${azgb.id}_${rb.id}" />
+              	      #else
+              	         <input type="checkbox" name="update_${azgb.id}_${rb.id}" checked="checked"/>
+              	      #end
+              	      </td> 
+              	      <td>
+              	      #if ({$rb.secureAdmin})
+              	        <input type="checkbox" name="admin_${azgb.id}_${rb.id}" />
+              	      #else
+              	         <input type="checkbox" name="admin_${azgb.id}_${rb.id}" checked="checked"/>
+              	      #end
+              	      </td> 
+              	      <td>
+              	      #if ({$rb.secureSuperAdmin})
+              	        <input type="checkbox" name="superadmin_${azgb.id}_${rb.id}" />
+              	      #else
+              	         <input type="checkbox" name="superadmin_${azgb.id}_${rb.id}" checked="checked"/>
+              	      #end
+              	      </td> 
+              	   </tr>	 	
+              	 	 #end
+              	 #end
+	 
+              	 	<tr>
+              	 		<td colspan="7" >
+              	 				<input type="test" name="{3}" />
+              	 				<input type="submit" name="command_add_realm" value="${rlb.jsp_add_role}"/>
+              	 		</td>
+              	 </tr>
+	 
+                
+                <tr> 
+                  <td colspan="7"> 
+                        <input type="hidden" name="pageName" value="${util.escapeHtml($multiRealmEditBean.getPageName())}" />
+                        <input type="hidden" name="panel" value="Main"/>
+                        <input type="hidden" name="action" value="editRealmMany"/>
+                        <input type="submit" name="command_save" value="${rlb.getString("jsp_button_save")}"/>
+                        <input type="submit" name="command_cancel" value="${rlb.getString("jsp_button_cancel")}"/>
+                        <input type="hidden" name="realm" value="${util.escapeHtml($multiRealmEditBean.getLocalSpace())}"/>
+                  </td>
+                </tr>
+              </table>
+          </form>
+	 </div>
+ </div>
+</div>
+#footer()
+
+

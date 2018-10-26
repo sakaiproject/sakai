@@ -1,0 +1,195 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_visit.vm,v 1.3 2005/06/03 16:29:11 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+
+	## SAK-24423 - alert messages needed for site browser join
+	#if( $alertMessage )
+		<div class="alertMessage">$tlang.getString( "gen.alert" ) $validator.escapeHtml( $alertMessage )</div>
+	#end
+	
+	<div class="navPanel">
+		<div class="itemNav">
+			<form action="#toolForm("$action")" method="post" class="inlineForm">	
+				#if ($prevSite)
+					<a href="#" onclick="location='#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($prevSite.Id)")';return false;" accesskey="p">
+						<input type="button" value="&lt; $tlang.getString('list.previous')" title="$tlang.getString('vi.prev') $validator.escapeHtml($prevSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</a>
+				#else
+					<input type="button" value="&lt; $tlang.getString('list.previous')" class="button" disabled="disabled" />	
+				#end
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" accesskey="l" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				
+				## SAK-24423 - only show the join button if site browser joining is enabled in sakai.properties
+				#if( $siteBrowserJoinEnabled )
+					#if( $site.isJoinable() && !$alreadyMember && !$joinExcludeFromPublicList )
+						<a href="#" onclick="location='#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">
+							<input type="button" value="$tlang.getString( "join.joinNow" )" class="button" onclick="SPNR.disableControlsAndSpin( this, null );"
+						</a>
+					#end
+				#end
+				
+				#if ($nextSite)
+					<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($nextSite.Id)")';return false;" accesskey="n">
+						<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</a>
+				#else	
+					<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" disabled="disabled" />
+				#end
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+	</div>	
+	
+	
+	<h3>$validator.escapeHtml($site.Title)</h3>
+	#if ($infoUrl)
+				<iframe style="display:block;clear:both" 
+					width="100%"
+					#if ($height) height="$height" #end
+					frameborder="0"
+					marginwidth="0"
+					marginheight="0"
+					scrolling="auto"
+					align="middle"
+					src="$infoUrl">
+				</iframe>
+	#end
+	#set ($sdesc = $site.Description)
+	#if ($sdesc && ($sdesc.length() > 0))
+		<p class="indnt1">$sdesc</p>
+	#end
+	<h4>$tlang.getString("vi.public")</h4>
+	#if ($announcements.size() > 0)
+		#foreach ($message in $announcements)
+			<h5 class="textBlockHeader indnt1">
+				$validator.escapeHtml($message.Header.subject) -  <span class="textPanelFooter">$validator.escapeHtml($message.Header.From.DisplayName) ($message.Header.Date.toStringLocalFull())</span>
+			</h5>
+			
+			<div class="textBlock indnt2">
+				$validator.escapeHtmlFormattedText($message.body)
+			</div>
+			
+			#if (!$message.Header.Attachments.isEmpty())
+				<h6  class="textBlockHeader indnt2">
+					$tlang.getString("vi.att")
+				</h6>
+				#set ($props = false)
+				<ul class="attachList   indnt3">
+					#foreach ($attachment in $message.Header.Attachments)
+						#set ($props = $attachment.Properties)
+						#if ($props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('vi.folder')" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="" />
+								#end
+									<a href="$attachment.Url" target="_blank">
+										$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))
+									</a>
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+														($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+				#end
+				#end
+	#else
+		<p class="indnt1 instruction">$tlang.getString("vi.there")</p>
+	#end
+
+	<h4>$tlang.getString("vi.public1")</h4>
+	#if ($resources.size() > 0)
+		#foreach ($rsrc in $resources)
+			#set ($properties = $rsrc.Properties)
+				<h5 class="textBlockHeader indnt1">
+					<a href="$rsrc.Url" target="_blank">
+					#if ($properties.getBooleanProperty($properties.NamePropIsCollection))
+						<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt ="$tlang.getString("vi.folder")" />
+					#else
+						<img src = "#imageLink($contentTypeImageService.getContentTypeImage($properties.getProperty($properties.NamePropContentType)))" border="0" alt ="" />
+					#end
+						$validator.escapeHtml($properties.getPropertyFormatted($properties.NamePropDisplayName))
+					</a>	
+					 - <span class="textPanelFooter">$validator.escapeHtml($properties.getPropertyFormatted($properties.NamePropCreator))  ($properties.getPropertyFormatted($properties.NamePropCreationDate)). 
+					&nbsp; $tlang.getString("vi.size")  $properties.getPropertyFormatted($properties.NamePropContentLength).  
+				</span>
+				</h5>
+			#set ($desc = $properties.getPropertyFormatted($properties.NamePropDescription))
+			#if ($desc && ($desc.length() > 0))
+				<div class="textBlock indnt3">
+					$validator.escapeHtml($desc)
+				</div>	
+			#end
+		#end
+	#else
+		<p class="indnt1 instruction">$tlang.getString("vi.there1")</p>
+	#end
+
+		
+	<h4>$tlang.getString("vi.public2")</h4>
+	
+	#if ($syllabus.size() > 0)
+		#foreach ($message in $syllabus)
+			<h5 class="textBlockHeader indnt1">
+				$validator.escapeHtml($message.syllabusData.title)
+			</h5>
+			<div class="textBlock indnt2">
+				$validator.escapeHtmlFormattedText($message.syllabusData.asset)
+			</div>	
+			#if (!$message.attachList.isEmpty())
+				<h6 class="textBlockHeader indnt2">
+					$tlang.getString("vi.att")
+				</h6>
+				<ul class="attachList indnt3">
+					#foreach ($attachment in $message.attachList)
+						<li>
+							<a href="$attachment.url" target="_blank">
+								$validator.escapeHtml($attachment.name)
+							</a>
+						</li>
+					#end
+				</ul>
+			#end
+			#end
+		#else
+		<p class="indnt1 instruction">$tlang.getString("vi.there2")</p>
+	#end
+	
+	<br />
+		<div class="navPanel">
+	<div class="itemNav">
+	<form action="#toolForm("$action")" method="post" class="inlineForm">	
+	#if ($prevSite)
+		<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($prevSite.Id)")';return false;">
+		<input type="button" value="&lt; $tlang.getString('list.previous')" title="$tlang.getString('vi.prev') $validator.escapeHtml($prevSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</a>
+	#else
+		<input type="button" value="&lt; $tlang.getString('list.previous')" class="button" disabled="disabled" />
+	#end
+	<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+	
+	## SAK-24423 - only show the join button if sitebrowser joining is enabled in sakai.properties
+	#if( $siteBrowserJoinEnabled )
+		#if( $site.isJoinable() && !$alreadyMember && !$joinExcludeFromPublicList )
+			<a href="#" onclick="location = '#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">
+				<input type="button" value="$tlang.getString( "join.joinNow" )" class="button" onclick="SPNR.disableControlsAndSpin( this, null );"
+					title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )" />
+			</a>
+		#end
+	#end
+	
+	#if ($nextSite)
+		<a href="#" onclick="location = '#toolLinkParam("$action" "doNavigate_to_site" "newSiteId=$validator.escapeUrl($nextSite.Id)")';return false;">
+			<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)" class="button" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</a>
+	#else
+		<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" disabled="disabled" />	
+	#end
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	</div
+		</div>
+
+</div>

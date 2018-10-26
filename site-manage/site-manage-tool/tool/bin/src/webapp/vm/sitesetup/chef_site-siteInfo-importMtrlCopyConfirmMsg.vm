@@ -1,0 +1,39 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importMtrlCopyConfirm.vm,v 1.2 2005/06/06 20:06:02 htripath.indiana.edu Exp $ -->
+## Might want to get these dynamically 
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+	Copying Materials
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<p class="step">
+	Copying of other site's material to this site
+	</p>
+	<p class="instruction">
+	Copying the following materials to your present site:
+	</p>
+	<form name="featuresForm" action="#toolForm("$action")" method="post" >
+	  <br>
+					#foreach($item in $finalZipSites)
+						Importing $item.getLegacyTool() information
+						<br>
+						-> $item.getSakaiTool() records added
+						<br>
+					#end
+					<br>
+		<br>
+		<b>Import Complete</b>
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doSaveMtrlSiteMsg" value="OK" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		
+					
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

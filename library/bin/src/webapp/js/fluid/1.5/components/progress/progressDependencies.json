@@ -1,0 +1,14 @@
+{
+    "progress": {
+        "name": "Progress",
+        "description": "Show duration of long-running tasks with a linear progress indicator.",
+        "files": [
+            "./js/Progress.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "jQueryUICore",
+            "framework"
+        ]
+    }
+}

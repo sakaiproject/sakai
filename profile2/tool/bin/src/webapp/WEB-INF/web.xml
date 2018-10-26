@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	 version="2.4">
+
+	<display-name>profile2</display-name>
+	
+	<!--  This application's servlet class -->
+	<servlet>
+	    <servlet-name>sakai.profile2</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    <init-param>
+	      	<param-name>applicationClassName</param-name>
+	      	<param-value>org.sakaiproject.profile2.tool.ProfileApplication</param-value>
+	    </init-param>
+		<load-on-startup>1</load-on-startup>
+  	</servlet>
+  	
+	<servlet-mapping>
+		<servlet-name>sakai.profile2</servlet-name>
+		<url-pattern>/*</url-pattern>		
+	</servlet-mapping>
+  	
+  	
+  	<!-- Deploy mode -->
+	<context-param>
+		<param-name>configuration</param-name>
+		<!-- <param-value>development</param-value> -->
+		<param-value>deployment</param-value>
+	</context-param>
+	
+	<!-- Sakai Request Filter -->
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+		<!-- this must be set to false so that file uploads are NOT parsed by Sakai's RequestFilter
+			this also means that the wicket app needs to check the various sakai.properties that set upload size etc,
+			 rather than relying on the Sakai RequestFilter to do it.
+		 -->
+		<init-param>
+			<param-name>upload.enabled</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.profile2</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<!-- Sakai Tool Listener -->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+	
+	<!-- Sakai Spring Listener -->
+	<listener>
+		<listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+	</listener>
+	
+</web-app>

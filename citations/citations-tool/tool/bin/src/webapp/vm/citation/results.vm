@@ -1,0 +1,160 @@
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+#if( $editorIntegration )
+  <script type="text/javascript" src="/sakai-citations-tool/js/searchresultcommon.js">
+  </script>
+#end
+
+<!-- template: sakai_citation-results.vm -->
+
+<div class="portletBody">
+  <div class="indnt1">
+    #if( $editorIntegration )
+      #parse( "vm/citation/_integration_disconnect_alert.vm" )
+    #end
+    #if($alertMessages)
+      #parse( "vm/citation/_alert.vm" )
+    #end
+    <h3 id="advancedSearchHeader" #if( $basicSearch ) style="display: none;" #end>$tlang.getString("title.adv.search")</h3>
+    <h3 id="basicSearchHeader" #if( !$basicSearch ) style="display: none;" #end>$tlang.getString("title.basic.search")</h3>
+
+    #if( $resourcesTool )
+  	  #parse( "vm/citation/_details.vm" )
+    #end
+
+    #if( ! $noResults )
+      #if( $resourcesTool )
+        <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
+      #end
+      #if( $editorIntegration )
+        <p class="instruction">$tlang.getFormattedMessage("instr.results.integration", $instrMainArgs)</p>
+      #end
+    #end
+    <p class="instruction">$tlang.getFormattedMessage("instr.results.sub", $instrSubArgs)</p>
+
+    <form name="$FORM_NAME" id="$FORM_NAME" method="post"
+      action="#toolForm("CitationHelperAction")">
+	  <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+      <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
+      <input name="searchType" id="searchType" value="$searchType" type="hidden" />
+      <input name="pageSelector" id="pageSelector" value="" type="hidden" />
+      <input name="cancelOp" id="cancelOp" value="$FORM_NAME" type="hidden" />
+
+      #foreach( $databaseId in $selectedDatabases )
+        <input type="checkbox" name="databasesSelected" checked="checked"
+          id="$databaseId" value="$databaseId" style="display: none;"
+        />
+      #end
+      
+      #set( $searchpage = "results" )
+
+      #parse( "vm/citation/_advSearch.vm" )
+
+      #parse( "vm/citation/_basicSearch.vm" )
+
+      #if( $noSearch )
+        <h3>$tlang.getString("no.terms.search")</h3>
+      #elseif( $noDatabases )
+        <h3>$tlang.getString("no.databases.search")</h3>
+      #elseif( $noResults )
+        <h3>$tlang.getString("no.results")</h3>
+      #elseif($searchResults && $searchResults.searchResults && $searchResults.searchResults.citations)
+        #if($searchResults.searchResults.citations.isEmpty())
+          <h3>$tlang.getString("no.results")</h3>
+        #else
+          #parse( "vm/citation/_resultsCitations.vm" )
+        #end
+      #end
+
+      <input type="hidden" id="actionUrl" value="#toolForm("CitationHelperAction")" />
+      <input type="hidden" id="collectionId" value="$!collectionId" />
+      <input type="hidden" id="removeLabel" value="$tlang.getString("remove.results")" />
+      <input type="hidden" id="addLabel" value="$tlang.getString("add.results")" />
+	  <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    </form>
+
+    <p class="act">
+      #if( $resourcesTool )
+        <input type="button" class="active"
+          name="Continue" id="Continue" value="$tlang.getString("label.review")"
+          onclick="javascript: showSpinner( '.processing' ); document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+        />
+      #end
+
+      <input type="button" name="Back" id="Back" value="$tlang.getString("label.new.search")"
+        onclick="javascript: showSpinner( '.processing' ); document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doSearch';submitform('$FORM_NAME');"
+      />
+
+      #if( $resourcesTool )
+        #if( $resourcesAddAction )
+        <input type="button" name="Cancel" id="Cancel"
+          value="$tlang.getString("label.cancel")"
+          onclick="javascript: showSpinner( '.processing' ); document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+        />
+        #else
+        <input type="button" name="Done" id="Done"
+          value="$tlang.getString("label.done")"
+          onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+        />
+        #end
+      #end
+
+      #if( $editorIntegration )
+        <input type="button" name="Done" id="Done"
+          value="$tlang.getString("close.integration")"
+          onclick="javascript:window.close();"
+        />
+      #end
+
+      <span class="processing" style="display: none;">
+        <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
+        $stlang.getString("gen.proces")
+      </span>
+    </p>
+
+  </div>  <!-- end div.indnt1 -->
+
+</div>  <!-- end div.portletBody -->
+
+<div id="messageDiv" style="display: none;"></div>
+<script type="text/javascript">
+// set up count refresh
+top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperAction")", "$citationsHelperMode" );
+
+  // catch the "enter" key
+  $( '.basicField, .advField' ).keydown( function( e ) {
+    if (e.keyCode == 13) {
+      submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );
+      return false;
+    }
+  });
+
+/*
+ * Highlights rows selected in a table using a button element
+ *
+ * Params:
+ *   removeLabel  value used for the button to indicate remove (unselect)
+ */
+function highlightButtonSelections( removeLabel ) {
+  $( "tr[input]" ).removeClass( "highLightAdded" );
+  $( "tr[input[@value=" + removeLabel + "]]" ).addClass( "highLightAdded" );
+}
+
+/*
+ * Checks to make sure the user has entered search terms (databases carry over
+ * from previous search)
+ *
+ * Returns a boolean: true if search can proceed, false otherwise
+ */
+function legalSearch( searchType ) {
+  if (!gotAQuery( searchType, '$basicSearchType', '$advancedSearchType' )) {
+      alert("$tlang.getString( "noTerms.search" )");
+      return false;
+  }
+
+  // user has entered search terms & dbs are already selected
+  return true;
+}
+</script>

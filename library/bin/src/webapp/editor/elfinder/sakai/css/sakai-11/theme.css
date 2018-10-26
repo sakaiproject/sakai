@@ -1,0 +1,164 @@
+/* Main */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+#elfinder .elfinder {
+  border: 0;
+}
+
+/* navbar icons */
+/* Mortarboard for site icon */
+.elfinder .elfinder-navbar-root > .elfinder-navbar-icon:before,
+.elfinder .elfinder-navbar-root.elfinder-navbar-expanded > .elfinder-navbar-icon:before {
+  content: '\f19d';
+}
+
+/* announcements */
+.elfinder .elfinder-navbar-icon.sakai-tool-announcements:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-announcements:before {
+  content: '\f0a1';
+}
+
+/* dropbox */
+.elfinder .elfinder-navbar-icon.sakai-tool-dropbox:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-dropbox:before {
+  content: '\f16b';
+}
+
+/* assignments */
+.elfinder .elfinder-navbar-icon.sakai-tool-assignments:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-assignments:before {
+  content: '\f233';
+}
+
+/* attachments */
+.elfinder .elfinder-navbar-icon.sakai-tool-attachments:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-attachments:before {
+  content: '\f0c6';
+}
+
+/* forums */
+.elfinder .elfinder-navbar-icon.sakai-tool-forums:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-forums:before,
+.elfinder-cwd-icon-sakai:before {
+  content: '\f075';
+}
+
+/* Modify the status bar */
+.elfinder .elfinder-statusbar {
+  background: none; /* reset */
+  background: #eaeaea;
+  border-top: 0;
+  border-bottom: 1px solid #bfbfbf;
+}
+
+#sakai-ui-footer .elfinder-stat-size {
+  float: left;
+  height: 24px;
+  line-height: 24px;
+}
+
+#sakai-ui-footer .elfinder-stat-selected {
+  font-style: italic;
+  text-align: right;
+  height: 24px;
+  line-height: 24px;
+  padding-right: 5px;
+}
+
+/* Dialogs */
+/* CKEditor in dialog */
+.elfinder-dialog .cke_chrome {
+  border: none;
+}
+
+/* CodeMirror in dialog */
+.elfinder-dialog .elfinder-codemirror {
+  /* this class is added on with Javascript in sakai-11/js/editors.js */
+  overflow: hidden;  /* scrollbars in Chrome */
+  margin: 0 0 1px 0; /* fixes overspilling of gutter */
+}
+
+/* Extra UI */
+#sakai-ui-footer {
+  overflow: hidden;
+  padding: 6px 8px 2px;
+  position: relative;
+
+  border-top: 1px solid #bfbfbf;
+
+  box-shadow: 0 1px 0 #fff inset;
+
+  background: #cfd1cf;
+  background-image: linear-gradient(to bottom, #ebebeb, #cfd1cf);
+  filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#ebebeb', endColorstr='#cfd1cf');
+}
+
+#sakai-ui-footer .buttons {
+  float: right;
+  overflow: hidden;
+}
+
+#sakai-ui-footer .button,
+.elfinder-dialog .ui-dialog-buttonpane button.button {
+  cursor: pointer;
+  width: auto;
+  float: left;
+  overflow: hidden;
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+
+  margin: 0 0 4px 4px;
+  padding: 4px 12px;
+  text-align: center;
+  font-weight: bold;
+
+  text-align: center;
+  color: #333;
+  vertical-align: middle;
+  cursor: pointer;
+
+  border: 1px solid #b6b6b6;
+  border-bottom-color: #999;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.5), 0 0 2px rgba(255,255,255,.15) inset, 0 1px 0 rgba(255,255,255,.15) inset;
+
+  background: #e4e4e4;
+  background-image: linear-gradient(to bottom, #ffffff, #e4e4e4);
+  filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#ffffff', endColorstr='#e4e4e4');
+
+}
+
+.elfinder-dialog .ui-dialog-buttonpane button.button .ui-button-text {
+  font-weight: bold;
+  padding: 0;
+}
+
+#sakai-ui-footer .button-ok,
+.elfinder-dialog .ui-dialog-buttonpane button.button.button-ok {
+  color: #fff;
+  text-shadow: 0 -1px 0 #55830c;
+  border-color: #62a60a #62a60a #4d9200;
+
+  background: #69b10b;
+  background-image: linear-gradient(to bottom, #9ad717, #69b10b);
+  filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#9ad717', endColorstr='#69b10b');
+}
+
+/* font colours */
+#sakai-ui-footer .button-ok *,
+.elfinder-dialog .ui-dialog-buttonpane button.button.button-ok * {
+  color: #fff;
+}
+
+#sakai-ui-footer .button-ok:hover,
+.elfinder-dialog .ui-dialog-buttonpane button.button.button-ok:hover {
+  border-color: #5b9909 #5b9909 #478500;
+
+  background: #88be14;
+  background: linear-gradient(to bottom, #88be14 0%,#5d9c0a 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#88be14', endColorstr='#5d9c0a',GradientType=0 );
+}

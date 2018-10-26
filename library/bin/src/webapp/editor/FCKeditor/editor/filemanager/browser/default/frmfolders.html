@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * This page shows the list of folders available in the parent folder
+ * of the current folder.
+-->
+<html>
+	<head>
+       		<!-- force IE to use newest rendering engine -->
+	        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" />
+
+		<title>Folders</title>
+		<link href="browser.css" type="text/css" rel="stylesheet">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script type="text/javascript" src="js/common.js"></script>
+		<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+		<script type="text/javascript">
+
+function HtmlEncode(s)
+{
+  return $('<div/>').text(s).html();
+}
+var sActiveFolder ;
+
+var bIsLoaded = false ;
+var iIntervalId ;
+
+var oListManager = new Object() ;
+
+oListManager.Init = function()
+{
+	this.Table = document.getElementById('tableFiles') ;
+	this.UpRow = document.getElementById('trUp') ;
+
+	this.TableRows = new Object() ;
+}
+
+oListManager.Clear = function()
+{
+	// Remove all other rows available.
+	while ( this.Table.rows.length > 1 )
+		this.Table.deleteRow(1) ;
+
+	// Reset the TableRows collection.
+	this.TableRows = new Object() ;
+}
+
+oListManager.AddItem = function( folderName, folderPath )
+{
+	// Create the new row.
+	var oRow = this.Table.insertRow(-1) ;
+	oRow.className = 'FolderListFolder' ;
+
+	// Build the link to view the folder.
+	folderName = HtmlEncode(folderName);
+	var sLink = '<a href="#" onclick="OpenFolder(\'' + folderPath + '\');return false;">' ;
+
+	// Add the folder icon cell.
+	var oCell = oRow.insertCell(-1) ;
+	oCell.width = 16 ;
+	oCell.innerHTML = sLink + '<img alt="" src="images/spacer.gif" width="16" height="16" border="0"><\/a>' ;
+
+	// Add the folder name cell.
+	oCell = oRow.insertCell(-1) ;
+	oCell.noWrap = true ;
+	oCell.innerHTML = '&nbsp;' + sLink + folderName + '<\/a>' ;
+
+	this.TableRows[ folderPath ] = oRow ;
+}
+
+function CheckLoaded()
+{
+	if ( window.top.IsLoadedResourcesList )
+	{
+		window.clearInterval( iIntervalId ) ;
+		bIsLoaded = true ;
+		OpenFolder( sActiveFolder ) ;
+	}
+}
+
+function OpenFolder( folderPath )
+{
+	sActiveFolder = folderPath ;
+
+	if ( ! bIsLoaded )
+	{
+		if ( ! iIntervalId )
+			iIntervalId = window.setInterval( CheckLoaded, 100 ) ;
+		return ;
+	}
+
+	var folderName = '';
+	folderName = ( sFolderPath == folderPath ? oListManager.TableRows[ sFolderPath ].innerHTML.replace(/<\/?[^>]+(>|$)/g, '') : folderName );
+
+	// Change the style for the select row (to show the opened folder).
+	for ( var sFolderPath in oListManager.TableRows )
+	{
+		oListManager.TableRows[ sFolderPath ].className =
+			( sFolderPath == folderPath ? 'FolderListCurrentFolder' : 'FolderListFolder' ) ;
+	}
+
+	// Load the resources list for this folder.
+	window.parent.frames['frmResourcesList'].LoadResources( folderPath ) ;
+}
+
+function LoadFolders( folderPath )
+{
+	// Clear the folders list.
+	oListManager.Clear() ;
+
+	// Get the parent folder path.
+	var sParentFolderPath ;
+	if ( folderPath != '/' )
+		sParentFolderPath = folderPath.substring( 0, folderPath.lastIndexOf( '/', folderPath.length - 2 ) + 1 ) ;
+
+	// Sakai specific check to prevent user getting stuck at top level with nothing to click
+	if (sParentFolderPath == '/')
+		sParentFolderPath = null;
+
+	if ( folderPath != '/' )
+	{
+		sActiveFolder = folderPath ;
+		oConnector.CurrentFolder = sParentFolderPath ;
+		oConnector.SendCommand( 'GetFolders', null, GetFoldersCallBack ) ;
+	}
+	else
+		OpenFolder( '/' ) ;
+}
+
+function GetFoldersCallBack( fckXml )
+{
+	if ( oConnector.CheckError( fckXml ) != 0 )
+		return ;
+
+	// Get the current folder path.
+	var oNode = fckXml.SelectSingleNode( 'Connector/CurrentFolder' ) ;
+	var sCurrentFolderPath = oNode.attributes.getNamedItem('path').value ;
+
+	var oNodes = fckXml.SelectNodes( 'Connector/Folders/Folder' ) ;
+
+	for ( var i = 0 ; i < oNodes.length ; i++ )
+	{
+		var sFolderName = oNodes[i].attributes.getNamedItem('name').value ;
+		var sFolderUrl = oNodes[i].attributes.getNamedItem('url').value ;
+		oListManager.AddItem( sFolderName, sFolderUrl ) ;
+	}
+
+	OpenFolder( sActiveFolder ) ;
+}
+
+function SetResourceType( type )
+{
+	oConnector.ResourceType = type ;
+	// Changed by Joshua Ryan for the Sakai Connector
+	LoadFolders( oConnector.CurrentFolder ) ;
+}
+
+window.onload = function()
+{
+	oListManager.Init() ;
+
+	// Changed by Joshua Ryan for the Sakai Connector
+	LoadFolders( oConnector.CurrentFolder );
+}
+		</script>
+	</head>
+	<body class="FileArea">
+		<table id="tableFiles" cellSpacing="0" cellPadding="0" width="100%" border="0">
+		</table>
+	</body>
+</html>

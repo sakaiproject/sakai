@@ -1,0 +1,187 @@
+/*
+             Mist
+=================================
+ * Color Scheme:
+ *     white     : #ffffff
+ *     light blue: #dfefff
+ *     med blue  : #5a95cf
+ *     dark blue : #4070a1
+ *     grey      : #999999
+ *     charcoal  : #333333
+ *     black     : #000000
+ */
+
+/* 
+ * General Styling
+ */
+  
+.fl-theme-mist,
+.fl-theme-mist.fl-preview-theme {color:#000000; background-color:#f4f4f4; border-color:#4070a1;}
+
+/* Links */
+.fl-theme-mist a {color: #5a95cf; font-weight:bold;}
+.fl-theme-mist a:hover {color: #6DB5FB;}
+
+/* Headers */
+.fl-theme-mist h1 {color:#4070a1; border-bottom-width:0.2em; border-bottom-style:solid;} 
+.fl-theme-mist h2 {color: #5a95cf;}
+
+/* Tables */
+.fl-theme-mist th {border:0.1em solid #5a95cf; background-color:#dfefff;}
+.fl-theme-mist td {border:0.1em solid #999999;}
+
+/* 
+ * FSS Elements
+ */
+ 
+/* Focus */
+.fl-theme-mist .fl-focus:focus,
+.fl-theme-mist .fl-focus :focus,
+.fl-theme-mist.fl-focus :focus,
+.fl-theme-mist .selectable  {outline: 0.1em solid #F00;}
+
+ /* Text fields, textareas */
+.fl-theme-mist .fl-textfield,
+.fl-theme-mist .fl-textarea {border:1px solid #5a95cf; border-bottom-color:#5a95cf; border-right-color:#5a95cf; background-color:#dfefff;}
+
+/* Icons */
+.fl-theme-mist .fl-icon {background-color:#5a95cf}
+
+/* Buttons */
+.fl-theme-mist .fl-button-left {background-image:url('../images/themes/mist/buttons-med-cap.png');}
+.fl-theme-mist .fl-button-right {background-image:url('../images/themes/mist/buttons-med-cap.png');}
+.fl-theme-mist .fl-button-inner {background-image:url('../images/themes/mist/buttons-med-bg.png');}
+
+/* Tabs */
+.fl-theme-mist .fl-tabs {border-bottom-color:#4070a1;}
+.fl-theme-mist .fl-tabs li,
+.fl-theme-mist .fl-tabs li a  {font-weight:bold; color:#4070a1; border-color:#4070a1; border-bottom-color:#4070a1; text-decoration:none; background-color:#dfefff;}
+.fl-theme-mist .fl-tabs li a:hover {background-color:#5a95cf; color:#fff;}
+
+.fl-theme-mist .fl-tabs li.fl-activeTab,
+.fl-theme-mist .fl-tabs li.fl-activeTab:hover,
+.fl-theme-mist .fl-tabs li.fl-activeTab a,
+.fl-theme-mist .fl-tabs li.fl-activeTab a:hover
+
+.fl-theme-mist .fl-tabs li.fl-tabs-active,
+.fl-theme-mist .fl-tabs li.fl-tabs-active a,
+.fl-theme-mist .fl-tabs li.fl-tabs-active a:hover {background-color: #f4f4f4; border-bottom-color:#f4f4f4; color:#508cc9;}
+.fl-theme-mist .fl-tabs-content {background-color:#f4f4f4; color:#000; border:1px solid #61c5ff; border-top:none; margin-top:-4px;}
+
+.fl-theme-mist .fl-tabs-enhanced {
+    background:url('../images/themes/mist/tabs-med-container-bg.png') repeat-x left bottom;
+    border-bottom:none;
+    margin:10px 1px 0;
+    padding:5px 0 6px;
+    *padding:2px 0;
+}
+
+.fl-theme-mist .fl-tabs-enhanced li {
+    background: transparent url('../images/themes/mist/tabs-med-cap.png') no-repeat left top; 
+    padding:4px 0 6px 16px;
+    *padding-top:0;
+}
+.fl-theme-mist .fl-tabs-enhanced li a {
+    background: transparent url('../images/themes/mist/tabs-med-bg.png') no-repeat right top; 
+    border:none;
+    margin:0;
+    padding:4px 16px 6px 0;
+    color:#666666;
+    *padding-bottom:4px;
+}
+.fl-theme-mist .fl-tabs-enhanced li.fl-tabs-active {
+    background:transparent url('../images/themes/mist/tabs-med-active-cap.png') no-repeat scroll left top;
+}
+.fl-theme-mist .fl-tabs-enhanced li.fl-tabs-active a {
+    background:transparent url('../images/themes/mist/tabs-med-active-bg.png') no-repeat scroll right top;
+    color:#000000;
+}
+
+/* Menu */
+.fl-theme-mist .fl-listmenu, 
+.fl-theme-mist .fl-list-menu {border:1px solid #4070a1; border-bottom-width:2px; background-color:#fff;}
+.fl-theme-mist .fl-listmenu li, 
+.fl-theme-mist .fl-list-menu li,
+.fl-theme-mist .fl-listmenu li a, 
+.fl-theme-mist .fl-list-menu li a  {font-weight:bold; color:#4070a1; background-color:#dfefff; border-color:#4070a1; text-decoration:none;}
+.fl-theme-mist .fl-listmenu a:hover, 
+.fl-theme-mist .fl-list-menu a:hover {background-color:#5a95cf; color:#fff;}
+.fl-theme-mist .fl-listmenu .fl-activemenu a, 
+.fl-theme-mist .fl-list-menu .fl-activemenu a,
+.fl-theme-mist .fl-listmenu .fl-activemenu a:hover, 
+.fl-theme-mist .fl-list-menu .fl-activemenu a:hover { background-color: #fff; border-bottom-color:#fff; color:#508cc9;}
+
+/* Grid */
+.fl-theme-mist .fl-grid {border:2px solid #4070a1; background-color:#fff;}
+.fl-theme-mist .fl-grid li {background-color:#dfefff; border:1px solid #4070a1}
+.fl-theme-mist .fl-grid .fl-grid-caption {background-color:#dfefff; color:#5a95cf; }
+
+/* Widgets */
+.fl-theme-mist .fl-widget {background:#efefef url('../images/themes/mist/widget-bg.png') repeat-x top left; border:1px solid #CCCCCC;}
+.fl-theme-mist .fl-widget h2 {color:#000;}
+.fl-theme-mist .fl-widget .fl-icon-more  {background-image:url('../images/themes/mist/icon-widget-More.png'); margin-left:0px;}
+.fl-theme-mist .fl-widget .fl-icon-close {background-image:url('../images/themes/mist/icon-widget-Close.png'); margin-right:0px;}
+
+/* Widget titlebar */
+.fl-theme-mist .fl-grabbable .fl-widget-titlebar {background-image:url('../images/themes/mist/icon-widget-gripper.png');}
+.fl-theme-mist .fl-widget-titlebar .icon {background-position:center center;}
+.fl-theme-mist .fl-widget-titlebar .fl-button-right,
+.fl-theme-mist .fl-widget-titlebar .fl-button-left {
+    color:#4070a1;
+    background-image:url(../images/themes/mist/buttons-titlebar-cap.png);
+    text-decoration:none;
+}
+.fl-theme-mist .fl-widget-titlebar .fl-button-inner {
+    background-image:url(../images/themes/mist/buttons-titlebar-bg.png);
+}
+
+/* Widget options */
+.fl-theme-mist .fl-widget-options a.icon:hover {background-color:#5a95cf; border-color:#000;}
+
+/* Widget content */
+.fl-theme-mist .fl-widget-content {background-color:#fff;}
+
+/* Widget Content Background */
+.fl-theme-mist .fl-widget-content .fl-tabs-enhanced {
+    background:url('../images/themes/mist/tabs-light-container-bg.png') repeat-x left bottom;
+    border-bottom:none;
+    margin:10px 1px 0;
+    padding:5px 0 6px;
+    *padding:2px 0;
+}
+
+.fl-theme-mist .fl-widget-content .fl-tabs-enhanced li {
+    background: transparent url('../images/themes/mist/tabs-light-cap.png') no-repeat left top; 
+    padding:4px 0 6px 16px;
+    *padding-top:0;
+}
+.fl-theme-mist .fl-widget-content .fl-tabs-enhanced li a {
+    background: transparent url('../images/themes/mist/tabs-light-bg.png') no-repeat right top; 
+    border:none;
+    margin:0;
+    padding:4px 16px 6px 0;
+    color:#666666;
+    *padding-bottom:4px;
+}
+.fl-theme-mist .fl-widget-content .fl-tabs-enhanced li.fl-tabs-active {
+    background:transparent url('../images/themes/mist/tabs-light-active-cap.png') no-repeat scroll left top;
+}
+.fl-theme-mist .fl-widget-content .fl-tabs-enhanced li.fl-tabs-active a {
+    background:transparent url('../images/themes/mist/tabs-light-active-bg.png') no-repeat scroll right top;
+    color:#000000;
+}
+
+/* 
+ * Infusion Components
+ */
+ 
+/* Progress */
+.fl-theme-mist .fl-progress-bounds {border-color:#999999; background-color:#fff;}
+.fl-theme-mist .fl-progress-fill {color:#4070a1; background-color:#000;}
+
+/* Reorderer */
+.fl-theme-mist .fl-reorderer-dropMarker {background-color:#f00;}
+
+/* Inline Edit */
+.fl-theme-mist .fl-inlineEdit-edit {background-color:#dfefff; border:0.1em solid #5a95cf; margin:-0.1em;}
+

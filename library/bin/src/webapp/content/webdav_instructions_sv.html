@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Style-Type" content="text/css">
+		<title>Upload-Download Multiple Resources</title>
+		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+	</script>
+	<script>includeLatestJQuery('webdav_instructions_sv.html');</script>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+	function trim(s){
+		if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
+		}
+	function splitedWebDavLink() {
+		return $(parent.document.getElementById("webDavUrl")).val().split('/');
+	}
+	var swdl = splitedWebDavLink();
+	function localizeData() {
+		for(i=0; (p = document.getElementsByTagName("span")[i]); i++) {
+			if (p.className=='webDavPort') {
+				p.innerHTML=getHostPort();
+			}
+			if (p.className=='webDavHostName') {
+				p.innerHTML=getServerName();
+			}
+			if (p.className=='webDavUrlEncoded') {
+				p.innerHTML=getBaseUrlEncoded();
+			}
+			if (p.className=='webDavService') {
+				p.innerHTML=getWebDavType();
+			}
+			if (p.className=='webDavFolderUrlEncoded') {
+				p.innerHTML=getFolderUrlEncoded();
+			}
+		}
+	}
+	function getBaseUrlEncoded() {
+		return '<b>'+swdl[0]+'//'+swdl[2]+'/'+swdl[3]+'/'+escape(swdl[4]).replace('@','%40')+'</b>';
+	}
+	function getFolderUrlEncoded() {
+		var folder = '<b>'+swdl[3];
+		for (var i = 4; i < swdl.length; i++) {
+			folder+='/'+swdl[i];
+		}
+		folder+='</b>';
+		return folder;
+	}
+	function getHostPort() {
+		// Return HTTP specific port
+		if (swdl[2].indexOf(":")>0) return swdl[2].substring(swdl[2].indexOf(':')+1);
+		else {
+			// Return HTTP default ports
+			if (swdl[0]=='https:') return '443';
+			else return '80';
+		}
+	}
+	function getWebDavType() {
+		if (swdl[0]=='https:') return '(HTTP/SSL)';
+		else return '';
+	}
+	function getServerName() {
+		// remove the port
+		if (swdl[2].indexOf(":")>0) return swdl[2].substring(0,swdl[2].indexOf(':'));
+		else {
+			return swdl[2];
+		}
+	}
+	
+		// -->
+		</script>
+		
+	</head>
+<body onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):'';localizeData()">
+		<div>
+		  <div id="davdocs_step2">
+			
+		    <p><strong>Steg 2 -</strong> Välj operativsystem nedan och följ installationsinstruktionerna:</p>
+		    <ul>
+				<li><a href="#vista_7">Windows Vista / Windows 7</a></li>
+				<li><a href="#osx">Mac OS 10,0 till 10,3</a></li>
+				<li><a href="#osx_tiger">Mac OS 10.4 och uppåt</a></li>
+				<li><a href="#linux_gnome">Linux (Gnome)</a></li>
+				<li><a href="#linux_kde">Linux (KDE)</a></li>
+				<li><a href="#linux_console">Linux-konsol</a></li>
+			</ul>
+	 	  </div>
+
+			<div class="webdav_os">
+				<a name="vista_7"></a>
+				<h4>Konfigurera WebDAV för Windows Vista / Windows 7</h4>
+
+				<p><strong>OBS</strong> : Användning av WebDAV funktionaliteten på <em>Windows Vista</em>
+ kräver att du har Vista Service Pack 2 installerat. Om du ännu inte har
+ Service Pack 2 installerat, kör Windows Update genom att klicka <strong>på Start&gt; Alla program&gt; Windows Update</strong> .</p>
+
+ 	            <ol>
+                	<li>Från skrivbordet eller Start-menyn, klicka på <strong>Dator</strong> .</li>
+                    <li>Längst upp i fönstret klickar du <strong>på Anslut nätverksenhet</strong> .</li>
+					<li>Välj en ledig enhetsbokstav (t.ex. Z) från <em>Enhets</em>-rullgardinsmenyn.</li>
+                    <li>I <em>Mapp</em>-fältet, skriv (eller kopiera och klistra in) webbadressen till sajten som visas ovan. Klicka på <strong>Slutför</strong> .</li>
+                    <li>Ange ditt användarnamn och ditt genererade lösenord när frågan kommer upp.</li>
+					<li>Du kan nu dra filer och mappar till och från din dator och visa filer i mappen.</li>
+				</ol>
+			
+				<p>När installationen är klar kommer kursen/projektets resurs-area 
+visas under Dator som en enhet, där den kommer att fungera precis som 
+alla andra enheten i Utforskaren. Du kan nu dra filer och mappar till 
+och från din dator och sajtens Resurs-mappar.</p>
+			
+				<h5>Alternativ metod att konfigurera WebDAV i Windows Vista / Windows 7</h5>
+			
+                <p>Om varianten ovan inte går att ansluta med, kan du 
+prova att att komma åt dina filer med en annan WebDAV-klient, en 
+tredjepart-klient som heter <strong>AnyClient</strong>. Följ denna instruktion för att ladda ner, installera och konfigurera AnyClient.</p>
+			
+				<ol>
+			  		<li>Ladda ner AnyClient WebDAV klient från: <a href="http://www.anyclient.com/" target="_blank">http://www.anyclient.com</a> .</li>
+			  		<li>Kör <strong>install.exe</strong> -filen och avsluta installationsguiden.</li>
+			  		<li>Om installationsprogrammet inte startar AnyClient automatiskt, klicka på <strong>Start&gt; Alla program&gt; AnyClient&gt; AnyClient</strong> att öppna AnyClient.</li>
+			  		<li>Klicka på <strong>Anslut</strong> längst ner till vänster.</li>
+			  		<li>Klicka på <strong>Nytt</strong> längst ner till vänster och ge denna inställning ett meningsfullt namn på menyn till vänster (t ex <em>Historia 101 Filsamling</em> ).</li>
+			  		<li>I <em>Host</em>-dialogrutan, skriv (eller kopiera och klistra in) den väg som visas ovan i <b>steg 1</b> <em><span class="webDavFolderUrlEncoded"><b>dav/ab8680d7-fb9e-4f11-9a52-e5184315f7e4</b></span></em>.</li>
+					<li>Skriv in ditt användarnamn och genererade lösenord.</li>
+			  		<li>I <em>Anslutningstyp</em> markera WebDAV.</li>
+			  		<li>Klicka på <strong>Spara</strong> längst ned i fönstret för att spara denna inställning för framtida användning och klicka på <strong>Anslut</strong> .</li>
+			  	</ol>
+
+			</div>
+
+			<div class="webdav_os">
+				<a name="osx"></a>
+				<h4>Konfigurera WebDAV för Mac som använder Cyberduck</h4>
+
+				<ol>
+					<li>Ladda ner Cyberduck WebDAV-klient.
+					  <ul>
+					    <li>För OS X version 10.5 och senare, ladda ner den senaste programvaran: <a href="http://cyberduck.ch/" target="_blank">http://cyberduck.ch/</a></li>
+					    <li>OS X-versioner före 10.5, ladda ner Cyberduck WebDAV klient på: <a href="http://update.cyberduck.ch/Cyberduck-2.8.5.dmg" target="_blank">http://update.cyberduck.ch/Cyberduck-2.8.5.dmg</a></li>
+					  </ul>
+ladda ner den senaste programvaran: <a href="http://cyberduck.ch/" target="_blank">http://cyberduck.ch/</a></li>
+					<li>Dubbelklicka på/montera dmg-filen.</li>
+					<li>Dra och släpp mappen från skivavbilden till program-mappen.</li>
+					<li>Öppna Cyberduck-programmet i mappen Program.</li>
+					<li>Klicka på <strong>öppen anslutning</strong> knappen.</li>
+					<li>Välj WebDAV <span class="webDavService"></span></li>
+					<li>I <b>Server</b> skriver du (eller kopiera och klistra in): <b><span class="webDavHostName">localhost</span></b></li>
+					<li>I <b>Port</b> , skriv (eller kopiera och klistra in): <span class="webDavPort">8080</span></li>
+					<li>Skriv in ditt användarnamn och genererade lösenord</li>
+					<li>Klicka på <i>Fler alternativ</i> och skriv (eller kopiera och klistra in) i <b>mappen</b> den sista delen av "Steg 1" URL: <em><span class="webDavFolderUrlEncoded"><b>dav/ab8680d7-fb9e-4f11-9a52-e5184315f7e4</b></span></em></li>
+					<li>Klicka nu på <b>Anslut</b> .</li>
+				</ol>
+
+				<p>Du kommer nu se ett fönster på skärmen som representerar de 
+resurser som finns på sajten. Dra och släpp mellan detta fönster och 
+andra fönster i Finder på din Mac för att överföra filer till och från 
+resurs-mappen.</p>
+
+			</div>
+
+			<div class="webdav_os">
+				<a name="osx_tiger"></a>
+				<h4>Konfigurera WebDAV för Mac (OS 10,4 till 10,6)</h4>
+			
+				<p><strong>OBS </strong>:Beroende på vilken version du har av OS X,
+ kan WebDAV-stödet i Finder vara instabilt. Om du har problem med denna 
+lösning kan du använda varianten ovan med <a href="#osx">Cyberduck</a> istället.
+				
+				<ol>
+					<li>Från menyraden längst upp på skärmen i Finder, välj <strong>Gå&gt; Anslut till server ...</strong></li>
+					<li>I <em>serveradress</em>-dialogrutan, skriv (eller kopiera och klistra in) den väg som visas ovan i <b>steg 1</b> <em><span class="webDavFolderUrlEncoded"><b>dav/ab8680d7-fb9e-4f11-9a52-e5184315f7e4</b></span></em>.</li>
+					<li>Tryck på <strong>+</strong>-knappen för att spara den här vägen för framtida bruk.</li>
+					<li>Klicka på <strong>Anslut</strong> .</li>
+					<li>Skriv in ditt användarnamn och lösenord och klicka på <strong>Anslut</strong> .</li>
+				</ol>
+
+				<p>Du kommer nu se ett fönster på skärmen som representerar resurser
+ i din sajt. Du kan nu dra och släppa filer till eller från det här 
+fönstret och ta bort filer genom att dra dem till papperskorgen.</p>
+
+			</div>
+			
+			<div class="webdav_os">
+				<a name="linux_gnome"></a>
+				<h3>Konfigurera WebDAV för Linux (Gnome)</h3>
+				
+				<p><strong>OBS</strong>: Vissa versioner av Linux kan ha problem att
+ få tillgång Home resurser, men tillgång till alla andra sajter 
+typer kommer att fungera bra (kurs, projekt etc.).</p>
+				<ol>
+					<li>Gå till <b>Platser&gt; Anslut till server ...</b></li>
+					<li>I <b>Typ av tjänst</b> väljer WebDAV<span class="webDavService"></span>.</li>
+					<li>I <b>Server</b>, skriv (eller kopiera och klistra in): <b><span class="webDavHostName">localhost</span></b></li>
+					<li>I <b>Port</b>, skriv (eller kopiera och klistra in): <span class="webDavPort">8080</span></li>										
+					<li>I <b>mapp</b>, skriv (eller kopiera och klistra in) sista delen av "Steg 1" URL: <em><span class="webDavFolderUrlEncoded"><b>dav/ab8680d7-fb9e-4f11-9a52-e5184315f7e4</b></span></em></li>
+					<li>Markera alternativet <b>Lägg till bokmärke</b></li>
+					<li>I <b>Bokmärkesnamn</b>, ange namnet på mappen för att skapa under "Nätverk" och klicka på <strong>Nästa</strong> .</li>
+					<li>Klicka nu på <b>Anslut</b>.</li>
+					<li>Slutligen kommer du bli ombedd att ange ditt genererade lösenord.</li>			
+				</ol>
+				
+				<p>Du ser nu en ny enhet under <b>Platser</b> . Detta representerar 
+resurser i din sajt. Det kommer att fungera som vilken annan mapp på din
+ dator. Du kan nu dra och släppa filer till eller från det här fönstret 
+och ta bort filer genom att dra dem till papperskorgen.</p>
+
+				
+			</div>
+
+			<div class="webdav_os">
+				<a name="linux_kde"></a>
+				<h3>Konfigurera WebDAV för Linux (KDE)</h3>
+
+				<ol>
+					<li>Öppna filhanteraren <em>(Dolphin)</em> .</li>
+					<li>På vänster sida, i <strong>Platser</strong> , välj <b>Nätverk</b> .</li>
+					<li>Klicka på <b>Lägg till nätverksmapp</b> .</li>
+					<li>Kolla <em>webb-mappen (WebDAV)</em> och klicka på <em>Nästa</em> .</li>
+					<li>I <b>namn</b>, ange namnet på mappen för att skapa under "Nätverk" och klicka på <strong>Nästa</strong> .</li>
+					<li>I <b>Användare</b>, ange ditt användarnamn.</li>
+					<li>I <b>Server</b>, skriv (eller kopiera och klistra in): <b><span class="webDavHostName">localhost</span></b></li>
+					<li>I <b>mapp</b>, skriv (eller kopiera och klistra in) sista delen av "Steg 1" URL: <em><span class="webDavFolderUrlEncoded"><b>dav/ab8680d7-fb9e-4f11-9a52-e5184315f7e4</b></span></em></li>
+					<li>Om webbadressen använder HTTPS, markera alternativet <b>Encoded</b> , och porten kommer att ändras automatiskt till <span class="webDavPort">8080</span> .</li>
+					<li>Markera alternativet <b>Skapa en ikon för den här fjärrmappen</b> .</li>
+					<li>Klicka nu på <b>Spara och anslut</b> .</li>	
+					<li>Slutligen kommer du bli ombedd att ange ditt genererade lösenord.</li>					
+				</ol>
+				
+				<p>Du ser nu en ny enhet i <b>nätverket</b> inne i filhanteraren <em>(Dolphin)</em>
+ . Detta representerar resurser i din sajt. Det kommer att fungera 
+precis som alla andra mappar på din dator. Du kan nu dra och släppa 
+filer till eller från det här fönstret och ta bort filer genom att dra 
+dem till papperskorgen.</p>
+				
+			</div>
+			
+			<div class="webdav_os">
+				<a name="linux_console"></a>
+				<h3>Konfigurera WebDAV för Linux (konsol)</h3>
+					
+				<ol>
+					<li>Öppna en ny terminal.</li>
+					<li>Skriv in kommandot <strong>kadaver <span class="webDavUrlEncoded"><b>http://localhost:8080/dav/ab8680d7-fb9e-4f11-9a52-e5184315f7e4</b></span></strong></li>
+					<li>Du kan bli ombedd att godta ett certifikat</li>
+					<li>Skriv in ditt användarnamn och genererade lösenord</li>
+					<li>Nu kan du ladda ner och ladda upp dokument från kommandoraden.</li>					
+				</ol>
+							
+				<p>Skriv <b>hjälp</b> för att visa alla tillgängliga kommandon.</p>
+			</div>
+		</div>
+</body></html>

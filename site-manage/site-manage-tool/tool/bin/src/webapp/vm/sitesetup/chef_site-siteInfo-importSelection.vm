@@ -1,0 +1,52 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importSelection.vm,v 1.0 2007/10/29 08:00:00 tnguyen.iupui.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<form name="importSelectionForm" action="#toolForm("$action")" method="post">
+		## import is possible when use has maintain rights on at least one site other than the current one
+		#if ($!sites && $sites.size()>1)
+			<p class="instruction">
+				$tlang.getString("sitinfimp.selection")
+			</p>
+			<br>
+			<div class="indnt2">
+				<a href="#toolLink("SiteAction" "doMenu_siteInfo_importMigrate")" title ="$tlang.getString('sitinfimp.migrate')">
+					$tlang.getString("sitinfimp.migrate")
+				</a>
+			</div>
+			<p class="indnt2">
+				$tlang.getString("sitinfimp.migrate.info")
+			</p>
+			<p></p>
+			<div class="indnt2">
+				<a href="#toolLink("SiteAction" "doMenu_siteInfo_import")" title ="$tlang.getString('sitinfimp.import')">
+					$tlang.getString("sitinfimp.import")
+				</a>
+			</div>
+			<p class="indnt2">
+				$tlang.getString("sitinfimp.import.info")
+			</p>
+			<p></p>
+			<div class="indnt2">
+				<a href="#toolLink("SiteAction" "doMenu_siteInfo_import_user")" title ="$tlang.getString('sitinfimp.import.user')">
+					$tlang.getString("sitinfimp.import.user")
+				</a>
+			</div>
+			<p class="indnt2">
+				$tlang.getString("sitinfimp.import.user.info")
+			</p>
+		#else
+			## show "no site available warning"
+			<p class="instruction">
+				$tlang.getString("import.noOtherSite")
+			</p>
+			<p class="act">
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+		#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

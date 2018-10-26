@@ -1,0 +1,34 @@
+<%-- Generate a breadcrumb trail for all pages except Instructor View --%>
+<%-- NOTE: Hierarchical trail, not an activity trail --%>
+
+<div class="breadcrumb"><h3>
+
+	<%--  The root of the breadcrumb rendered here --%>
+	<h:commandLink action="#{bean.navigateToOverview}" value="#{msgs.breadcrumb_overview}" immediate="true" rendered="#{bean.breadcrumbPage eq 'overview'}" />
+	<h:commandLink action="#{bean.navigateToRoster}"   value="#{msgs.breadcrumb_roster}"   immediate="true" rendered="#{bean.breadcrumbPage eq 'roster'}"   />
+		
+	<%-- if we are 2 levels down, render the middle location --%>
+	<h:panelGroup rendered="#{bean.middle}">
+		<h:outputText value="&nbsp; > &nbsp;" escape="false" />
+		<h:commandLink action="#{bean.navigateToAssignmentDetails}">
+			<h:outputText value="#{bean.assignment.name}" />
+			<f:param name="assignmentId" value="#{bean.assignmentId}" />
+		</h:commandLink>
+	</h:panelGroup>
+
+	<h:outputText value="&nbsp; > &nbsp;" escape="false" />
+
+	<%-- Here we are at the bottom, render final spot --%>
+	<h:outputText value="#{msgs.breadcrumb_add}" rendered="#{bean.adding}" />
+
+	<h:outputText value="#{msgs.breadcrumb_edit}" rendered="#{bean.editing}" />
+	
+	<%-- if adding, will render as blank, if editing, will display assignment name
+		 since this is the behavior we want, no rendering tag needed --%>
+	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.fromPage ne 'courseGrade'}" />
+
+	<%-- If breadcrumb on Course Grade page, display this --%>
+	<h:outputText value="#{msgs.breadcrumb_courseGrade}" rendered="#{bean.fromPage eq 'courseGrade'}" />
+	
+	<h:outputText value="#{msgs.breadcrumb_spreadsheet}" rendered="#{bean.fromPage eq 'spreadsheetListing'}" />
+</h3></div>

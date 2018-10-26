@@ -1,0 +1,19 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfoConfirm.vm,v 1.2 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
+## Edit Site Information Confirmation page
+<div class="portletBody">
+	<h3>$tlang.getString("mb.confirm")</h3>                                                                                           
+	#if ($alertMessage)<p class="alertMessage">$validator.escapeHtml($alertMessage)</p>#end
+	<p class="alertMessage">$tlang.getString("mb.confirm1") </p> 
+	<ol>
+	#foreach ($site in $unjoinSite)
+		<li>$validator.escapeHtml($site)</li>
+	#end
+	</ol>	
+	<form action="#toolForm("$action")" method="post">
+		<div class="act">
+			<input type="submit" class="active" name="eventSubmit_doGoto_unjoinyes" value="$tlang.getString("mb.unjoin")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doGoto_unjoincancel" value="$tlang.getString("mb.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>	
+</div>

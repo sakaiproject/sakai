@@ -1,0 +1,25 @@
+<div id="basicSearchForm" #if(!$basicSearch)style="display:none;"#end>
+  <div class="shorttext">
+    <label for="keywords">$tlang.getString("terms.search")</label>
+    <input class="basicField" name="keywords" id="keywords" type="text" size="40" value="$xilator.escapeHtml($!{keywords})" />
+    <span class="basicSearch">
+      <input class="active" type="button" name="basicFormSearchButton" id="basicFormSearchButton"
+        value="$tlang.getString("submit.search")"
+        onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+      />
+    </span>
+    <input type="button" class="basicCancel" name="basicFormCancelButton" id="basicFormCancelButton"
+      value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
+      onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
+    />
+    <span class="basicSearchLoad_replace">
+      <span class="itemAction">
+        <a id="advancedSearchLink" href="#" onclick="showAdvancedForm( '$advancedSearchType' ); return false;">$tlang.getString( "link.adv.search" )</a>
+      </span>
+    </span>
+    <span class="basicSearchLoad" style="display: none;">
+      <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.search" )" />
+      $tlang.getString( "wait.search" )
+    </span>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_pages.vm,v 1.6 2005/06/06 19:42:22 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		<h3>
+			$tlang.getString("sitgrp.edisit") $!site.Id
+		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitgrp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction"> 
+			$tlang.getString("sitgrp.theare")
+		</div>
+#if ($groups.size() > 0)
+	#set ($groupCount = 0)
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitgrp.lisofgrp")">
+			<tr>
+				<th id="Id">$tlang.getString("sitgrp.grpid")</th>
+				<th id="Title">$tlang.getString("sitgrp.tit")</th>
+				<th id="Description">$tlang.getString("sitgrp.des")</th>
+			</tr>
+	#foreach ($group in $groups)
+		#set ($groupCount=$groupCount + 1)
+			<tr>
+				<td headers="Id"  style="border-bottom:1px dashed  gray">
+					<a href="#toolLinkParam("$action" "doEdit_group" "id=$validator.escapeUrl($group.Id)")">
+						$validator.escapeHtml($group.Id)
+					</a>
+				</td>
+				<td headers="Title"  style="border-bottom:1px dashed  gray">$validator.escapeHtml($group.Title)</td>
+				<td headers="Description"  style="border-bottom:1px dashed  gray">$validator.escapeHtml($group.Description)</td>
+			</tr>
+	#end
+		</table>
+#else
+		<div class="instruction">
+			$tlang.getString("sitgrp.nogrp")
+		</div>
+#end
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h4>
+				$tlang.getString("sitgrp.conedi")
+			</h4>	
+
+				<div class="act">
+					<input type="submit" name="eventSubmit_doEdit_to_main" value="$tlang.getString("sitgrp.don")" />
+				</div>
+			<h4>	
+				$tlang.getString("sitgrp.comthesit")
+			</h4>	
+
+				<div class="act">
+					<input type="submit" name="eventSubmit_doSave_edit" value="$tlang.getString("sitgrp.sav")"  accesskey="s" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitgrp.can")" accesskey="x"  />
+				</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

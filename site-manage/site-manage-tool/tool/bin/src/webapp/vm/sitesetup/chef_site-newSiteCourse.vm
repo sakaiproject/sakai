@@ -1,0 +1,300 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourse.vm,v 1.3 2005/05/25 17:42:01 gsilver.umich.edu Exp $ -->
+<div class="portletBody container-fluid">
+	#if($menu)#toolbar($menu)#end
+	#if (!$!site)
+		<h3>$tlang.getString("nscourse.creating")</h3>
+		<p class="step">
+			$tlang.getString("nscourse.course_sections_selection") - $term.title
+		</p>
+	#else
+		<h3>$tlang.getString("nscourse.edit") <span class="highlight">$!siteTitle</span></h3>
+	#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	<p class="instruction">
+		#if (!$!site)
+		$tlang.getString("nscourse.select")
+		#else
+			$tlang.getString("nscourse.add") $!siteTitle:
+		#end
+	</p>
+	<form name = "addCourseForm" method="post" action="#toolForm($action)">
+		#if ($site)
+			<div class="form-group row ">				
+				<label for="selectTerm" class="col-sm-3 form-control-label">
+					<span class ="reqStar">*</span>
+					$tlang.getString("nscourse.acad2")
+				</label>	
+				<div class="col-sm-6">
+					<select name="selectTerm" id="selectTerm" onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('option').value='change';document.addCourseForm.submit();">
+						#foreach($t in $termList)
+							<option value ="$t.eid"
+								#if($t.eid == $term.eid)
+									selected="selected"
+								#end
+							>
+							$t.title
+							</option>
+						#end
+					</select> 
+				</div>
+			</div>
+		#end
+		
+		
+		
+	#if ($enableCourseCreationForUser )
+		<div class="highlightPanel">
+			<div class="labelindnt">
+				<p class="textPanelFooter">$tlang.getString("nscourse.change_this_ID")</p>
+			</div>
+			<p class="shorttext">
+				<label for="userId-id">
+					$tlang.getString("nscourse.current_displaying_courses_sections_for_id")
+				</label>	
+				<input type="text" name="userId" id="userId-id" value="$userId"/>
+				<input type="hidden" name="itemType" value="$!siteType" />
+				<input type="hidden" name="selectTerm" value="$term.eid" />
+				<input type="submit" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('option').value='change_user'; document.addCourseForm.submit(); return false;"
+				 />
+				#if ($campusDirectory)
+					<a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;"
+						title="$tlang.getString("nscourse.look_up_an_username")">
+						<img alt="" src="/library/image/silk/magnifier.png" style="vertical-align:middle"/>
+					</a>
+				#end
+			</p>
+		</div>
+	#end		
+
+			#if ($!termCourseList && $!termCourseList.size() > 0)
+				#if (($!providerCourseList && $!providerCourseList.size() != 0) || ($!requestedCourseList && $!requestedCourseList.size() != 0))
+					<p>$tlang.getString("nscourse.youmay")</p>
+				#end
+				
+				## display only subject, course number and section
+				##and finally - the labels work, but having commas in the id does not validate. Can we concatenate or replace with underscore? Here is reqs on ids and labels: an id attribute value must begin with a letter (A-Z or a-z) and consist of the following characters: (A-Z), (a-z), (0-9), hyphens (-), underscores (_), colons (:), and periods (.).
+				#set($crosslisted=0)	
+				#set($courseNumber=0)
+				#foreach($courseObject in $termCourseList)
+					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0"  summary="$tlang.getString("nscourse.courselist.summary")" border="0" style="width:auto">
+					<tr>	
+					<th colspan="2" title="$!courseObject.eid">
+                                        $!courseObject.title $!courseObject.description
+					#if ($!courseObject.courseOfferingObjects.size() > 1)
+						(cross-listed)
+						#set($crosslisted=1)	
+					#end
+					</th>
+					<th>
+						$tlang.getString("useOfficialDescription")
+					</th>
+					</tr>
+					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
+						<tr class="exclude"><td colspan="3" style="white-space:nowrap">
+						#if ($providerCourseList) 
+							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size() - $!providerCourseList.size())
+						#else
+							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size())
+						#end
+
+						#if ($!courseOfferingObject.sections.size() > 1)
+							#set($hasAttachedSectionObject=false)
+							#foreach($sectionObject in $courseOfferingObject.sections)
+								#if ($!sectionObject.attached)
+									#set($hasAttachedSectionObject=true)
+								#end
+							#end
+							#if(!$hasAttachedSectionObject)
+								<div id="selectAll$courseNumber">
+								 ## this should probably be toggled to "unselect" if the group is all selected
+								 ##	(user continued then came back to this view)
+									<h4>
+										<a href="javascript:selectAll($courseNumber, $endKey)"  >
+										$tlang.getString("nscourse.select_group_sections")</a>
+									</h4>	
+								</div>
+								<div id="unselectAll$courseNumber" style="display:none">
+									<h4><a href="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a></h4>
+								</div>
+							#end
+						#end
+						</td></tr>
+						#foreach($sectionObject in $courseOfferingObject.sections)
+							#if (!$!providerCourseList.contains("$!sectionObject.eid")) 
+								<tr 
+									#if ($!selectedProviderCourse.contains("$!sectionObject.eid") || 		$!selectedAuthorizerCourse.contains("$!sectionObject.eid") )
+										class="selectedSelected"
+									#end
+									id="row-course$courseNumber"
+								><td class="attach"
+								#if (!$!sectionObject.isLecture)
+									style="padding-left:1.5em"
+								#end
+								>
+								<input type="checkbox" name="providerCourseAdd" value="$!sectionObject.eid" id="course$courseNumber"
+								#if ($!selectedProviderCourse.contains("$!sectionObject.eid") || $!selectedAuthorizerCourse.contains("$!sectionObject.eid") )
+									checked="checked"
+								#end 
+								#if ((!$!selectedProviderCourse.contains("$!sectionObject.eid") || !$!selectedAuthorizerCourse.contains("$!sectionObject.eid")) && $!sectionObject.attached)
+									disabled="disabled"
+								#end
+								onclick="javascript:setContinueButton();"
+								onchange="this.checked ? document.getElementById('row-course$courseNumber').className='selectedSelected' :document.getElementById('row-course$courseNumber').className=''"
+								/>
+								</td>
+								<td style="white-space:nowrap">
+									<h5>
+									<label for="course$courseNumber" title="$sectionObject.eid">$validator.escapeHtml($sectionObject.title) $!sectionObject.getCategoryDescription()</label>
+									#if ($!sectionObject.attached)
+										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
+									#end
+									#set ($courseNumber = $courseNumber +1)
+									</h5>
+								</td>
+								<td>
+									#set($sectionDescription=false)
+									#set($sectionDescription=$!sectionObject.description)
+									#if ($!sectionDescription && !$!sectionDescription.isEmpty())
+										<input type="checkbox" name="providerCourseAddDescription" value="$!sectionObject.eid" id="courseDesc$courseNumber" 
+											#if ($!selectedProviderCourseDescription.contains($!sectionObject.eid))
+												checked="checked"
+											#end 
+										/>
+                                        <label for="courseDesc$courseNumber" class="skip">$tlang.getString("useOfficialDescription"): $validator.escapeHtml($sectionObject.title) ($sectionObject.eid) $!sectionObject.getCategoryDescription()</label>
+									#end
+								</td>
+								</tr>
+							#end
+						#end
+					#end
+					</table>
+					<p></p>
+				 #end
+			#else
+				## no registered course
+				<p class="instruction">$tlang.getString("noterm_class")</p>
+			#end	
+				## instructor could choose to go to the manual creation page
+				<input  type="hidden" name="manualAdds" value="x" id="manual_add"/>
+				<input type="hidden" name="find_course"  value="x" id="find_course"/>
+				
+
+		#if ($authorizationRequired)
+			#if ($termCourseList && $currentUserId != $userId)
+					<div class="shorttext required form-group row ">											
+						<label for="uniqname" class="col-sm-3 form-control-label">		
+						   <span class="reqStar">*</span>	
+						   $tlang.getString("man.authoriz")
+						</label>
+						<div class="col-sm-6">
+							<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!authorizers" />
+						</div>
+					</div>
+					<p class="labelindnt">
+					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
+					</p>
+					<div class="shorttext form-group row">
+						<label for="additional" class="col-sm-3 form-control-label">
+							$tlang.getString("man.spec")
+						</label>
+						<div class="col-sm-6">
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						</div>
+					</div>
+					<p  class="labelindnt">
+						<span class="textPanelFooter">$tlang.getString("man.please")</span>
+					</p>
+			#end
+		#end
+		<p/>
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="option" id="option" value="x" />
+		<input type="hidden" name="eventSubmit_doContinue_new_course" value="x" />
+			#if (!$site)
+				## determine to skip manual course site create link in worksite setup
+				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
+					<!-- Add Not Listed Courses -->
+					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
+				#end
+				## if site creation is based on template, this could be the final step!
+				#if ($!basedOnTemplate && !$publishTemplate) 
+					<div class="instruction" id ="nextInstructions">
+						<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+					</div>
+				#end
+				<p class="act">
+				<input
+					class="active"
+					disabled="true"
+					type="submit" 
+					accesskey="s"
+					name="Continue" 
+					id="continueButton" 
+					#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
+					/>
+				<input
+					type="submit" 
+					accesskey="b"
+					name="Back" 
+					id="backButton" 
+					value="$tlang.getString('gen.back')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='back'; document.addCourseForm.submit(); return false;"
+					/>
+				<input
+					type="submit" 
+					accesskey="x"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('gen.cancel')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
+					/>
+				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled
+				#if( $!contNoRosterEnabled )
+				<input
+					type="submit" 
+					accesskey="x"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('nscourse.no_rosters')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='norosters'; document.addCourseForm.submit(); return false;"
+					/>
+				#end
+				</p>
+			#else
+				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
+					<!-- Add Not Listed Courses -->
+					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
+				#end
+				<p class="act">
+				<input type="hidden" name="option" id="option" value="x" />
+				<input
+					disabled="true"
+					type="submit" 
+					accesskey="s"
+					name="AddClass" 
+					id="addClassButton" name="addClassButton"
+					value="$tlang.getString('gen.continue')"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('option').value='add'; document.addCourseForm.submit(); return false;"
+					/>
+				<input
+					type="submit" 
+					accesskey="x"
+					name="Cancel" 
+					id="Cancel" 
+					value="$tlang.getString('gen.back')"
+					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('option').value='cancel_edit'; document.addCourseForm.submit(); return false;"
+				/>
+			</p>
+			#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	<script type="text/javascript">
+	// <![CDATA[
+	setContinueButton();
+	// ]]>
+	</script> 
+	
+</div>

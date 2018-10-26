@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="testPropertiesConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/hibernate.properties</value>
+            </list>
+        </property>
+    </bean>
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+		<property name="url" value="${hibernate.connection.url}"/>
+        <property name="username" value="${hibernate.connection.username}"/>
+        <property name="password" value="${hibernate.connection.password}"/>
+	</bean>
+
+    <bean id="assessmentGradingFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="proxyTargetClass" value="true"/>
+        <property name="transactionManager">
+            <bean class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+                <property name="sessionFactory" ref="sessionFactory"/>
+            </bean>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
+                <property name="sessionFactory" ref="sessionFactory"/>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="itemFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="proxyTargetClass" value="true"/>
+        <property name="transactionManager">
+            <bean class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+                <property name="sessionFactory" ref="sessionFactory"/>
+            </bean>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
+                <property name="sessionFactory" ref="sessionFactory"/>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.query.substitutions">true 1, false 0</prop>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+            </props>
+        </property>
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/tool/assessment/data/dao/assessment/AssessmentBase.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/assessment/ItemData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/shared/TypeData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/questionpool/QuestionPoolData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/assessment/PublishedAssessment.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/assessment/PublishedItemData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/grading/GradingData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/grading/MediaData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
+                <value>org/sakaiproject/tool/assessment/data/dao/assessment/FavoriteColChoices.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Sakai SiteStats Tool</name>
+  <groupId>org.sakaiproject.sitestats</groupId>
+  <artifactId>sitestats-tool</artifactId>
+  <organization>
+    <name>Universidade Fernando Pessoa</name>
+    <url>http://www.ufp.pt</url>
+  </organization>
+  <inceptionYear>2006</inceptionYear>
+
+  <!-- Parent: Sakai SiteStats base -->
+  <parent>
+    <groupId>org.sakaiproject.sitestats</groupId>
+    <artifactId>sitestats</artifactId>
+    <version>19-SNAPSHOT</version><!-- sitestats.version --> 
+  </parent>
+  
+  <!-- Packaging -->
+  <packaging>war</packaging>
+  
+  <!-- Dependencies -->
+  <dependencies>
+    <!-- Kernel -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-utils</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+    </dependency>
+    
+    <!-- SiteStats -->
+    <dependency>
+      <groupId>org.sakaiproject.sitestats</groupId>
+      <artifactId>sitestats-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.sitestats</groupId>
+      <artifactId>sitestats-bundle</artifactId>
+    </dependency>
+    
+    <!-- Apache Wicket -->
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket</artifactId>
+      <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-extensions</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-ioc</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-nodep</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-spring</artifactId>
+    </dependency>
+  <!--  <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-spring-annot</artifactId>
+    </dependency>-->
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-datetime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-devutils</artifactId>
+    </dependency>
+
+    <!-- Apache Commons -->
+    <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+    
+    <!-- Servlet -->  
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
+    </dependency>
+    
+  </dependencies>
+  
+  <!-- Build -->
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.html</include>
+          <include>**/*.js</include>
+          <include>**/*.properties</include>
+          <include>**/*.gif</include>
+          <include>**/*.css</include>
+          <include>**/*.xsl</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/webapp</directory>
+        <includes>
+          <include>**/*.html</include>
+          <include>**/*.js</include>
+          <include>**/*.properties</include>
+          <include>**/*.gif</include>
+          <include>**/*.css</include>
+          <include>**/*.xsl</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <!-- Compress CSS Stylesheets and Javascript -->
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>yuicompressor-maven-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compress</goal>
+            </goals>
+          </execution>
+        </executions>        
+        <configuration>
+          <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+          <nosuffix>true</nosuffix>
+	  <jswarn>false</jswarn> 
+          <excludes>
+            <exclude>**/**/*.html</exclude>
+            <exclude>**/**/*.xsl</exclude>
+            <exclude>**/**/*.properties</exclude>
+            <!--<exclude>**/**/*.htc</exclude>-->
+            <exclude>**/**/*.gif</exclude>            
+            <exclude>**/**/*.png</exclude>            
+            <exclude>**/**/*.jpg</exclude>
+            <exclude>**/**/*.min.js</exclude>
+            <exclude>**/**/*.pack.js</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

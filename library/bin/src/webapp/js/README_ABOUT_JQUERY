@@ -1,0 +1,13 @@
+Please do not link to any jQuery Javascript or plugins in this directory
+*except* for the versions that are in the jquery/ folder.
+
+In addition, only link to the versions that have numbers in their directory structure.
+e.g.
+jquery/1.4.2/jquery-1.4.2.min.js
+jquery/ui/1.8.4/jquery-ui-1.8.4.min.js
+
+Everything else will be deprecated and possibly removed.
+
+---
+Sakai Maintenance Team
+September 2010.

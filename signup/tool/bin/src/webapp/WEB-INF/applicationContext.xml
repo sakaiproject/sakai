@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- entity providers -->
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.signup.tool.entityproviders.SignupEventEntityProvider">
+		<property name="sakaiFacade"
+			ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="signupMeetingService"
+			ref="org.sakaiproject.signup.logic.SignupMeetingService" />
+			<property name="eventProcessHandler"
+			ref="org.sakaiproject.signup.tool.entityproviders.EventProcessHandler" />
+	</bean>
+	
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.signup.tool.entityproviders.MySignupEventsProvider">
+		<property name="sakaiFacade"
+			ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="signupMeetingService"
+			ref="org.sakaiproject.signup.logic.SignupMeetingService" />
+			<property name="eventProcessHandler"
+			ref="org.sakaiproject.signup.tool.entityproviders.EventProcessHandler" />
+	</bean>
+	
+	<bean
+		class="org.sakaiproject.signup.tool.entityproviders.SignupEntityProducer" init-method="init">
+		<property name="sakaiFacade"
+			ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="signupMeetingService"
+			ref="org.sakaiproject.signup.logic.SignupMeetingService" />
+			<property name="entityManager"
+			ref="org.sakaiproject.entity.api.EntityManager" />
+	</bean>
+	
+	<bean
+		class="org.sakaiproject.signup.tool.entityproviders.EventProcessHandler">
+		<property name="sakaiFacade"
+			ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="signupMeetingService"
+			ref="org.sakaiproject.signup.logic.SignupMeetingService" />
+		<property name="signupRESTfulSessionManager"
+			ref="org.sakaiproject.signup.tool.entityproviders.SignupRESTfulSessionManager" />
+	</bean>
+	
+	<bean
+		class="org.sakaiproject.signup.tool.entityproviders.SignupRESTfulSessionManager">
+	</bean>
+		
+</beans>

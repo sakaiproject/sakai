@@ -1,0 +1,133 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership.vm,v 1.10 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+
+<div id="dialog">
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+		sakai.setupSelectList('currentSites','selunselallid','selectedSelected');
+	});
+
+	function unjoin(buttonElement)
+	{
+		SPNR.disableControlsAndSpin(buttonElement, null);
+		document.currentSitesForm.submit();
+		return false;
+	}
+</script>
+
+<div class="portletBody specialLink container-fluid">
+	#if($menu)#toolbar($menu)#end
+
+	<div class="membershipContent">
+
+		#if ($alertMessage)
+			<div class="alertMessage">$validator.escapeHtml($alertMessage)</div>
+			<div class="clear"></div>
+		#end
+
+		<div class="sakai-table-toolBar">
+			<div class="sakai-table-filterContainer">
+				#if(!$unjoinableSites.isEmpty() || !$search.isEmpty())
+					#searchFilterPanel("searchFilter1", $search, "doSearch", "doSearch_clear")
+				#end
+			</div>
+
+			#set ($checkboxCount = 0)
+			#foreach ($site in $!unjoinableSites)
+				#if(!$disableUnjoinSelection && !($!site.Type && $!disableUnjoinSiteTypes.contains($!site.Type)) && $SiteService.allowUnjoinSite($site.Id))
+					#set ($checkboxCount = 1)
+					#break
+				#end
+			#end
+			<div class="sakai-table-buttonContainer">
+				<input type="button" class="unjoin" value="$tlang.getString('mb.unjoin')" accesskey="s" disabled="disabled" onclick="unjoin(this);" />
+				<input type="button" class="reset" value="$tlang.getString('mb.clear')" accesskey="x" disabled="disabled" onclick="utils.clearSelections();" />
+			</div>
+
+			<div class="sakai-table-pagerContainer">
+				#pagerPanel("pager1")
+			</div>
+		</div>
+
+		<form action="#toolForm("$action")" method="post" name="currentSitesForm" id="currentSitesForm">
+			<div class="table-responsive">
+				<table class="table table-responsive table-bordered table-striped table-hover" summary="$tlang.getString('joinable.list.summary')" id="currentSites">
+					<thead>
+						<tr>
+							#if ($checkboxCount > 0)
+								<th id="checkbox" scope="col" class="screenOnly attach">
+									<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
+								</th>
+							#end
+							<th id="worksite" scope="col" class="attach">
+								<a href="#toolLink("$action" "doToggle_sort")" title="$tlang.getString('list.sortbytitle')">
+									$tlang.getString("gen.worksite")
+									#if ($currentSortAsc)
+										<img src="#imageLink("sakai/sortascending.gif")" title="$tlang.getString('list.stasc')" alt="$tlang.getString('list.stasc')" />
+									#else
+										<img src="#imageLink("sakai/sortdescending.gif")" title="$tlang.getString('list.stdesc')" alt="$tlang.getString('list.stdesc')" />
+									#end
+								</a>
+							</th>
+							<th scope="col" id="description">$tlang.getString("gen.description")</th>
+						</tr>
+					</thead>
+					<tbody>
+						#set ($rowCount =0)
+						#foreach ($site in $unjoinableSites)
+							#set ($rowCount =$rowCount + 1)
+							<tr>
+								#if ($checkboxCount > 0)
+									<td headers="checkbox" class="screenOnly attach">
+										#set($siteType=$site.Type)
+										## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
+										#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
+											<label for="check-$rowCount" class="sr-only">$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)</label>
+											<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable" onclick="utils.checkEnableUnjoin();" />
+										#end
+									</td>
+								#end
+
+								<td scope="row" headers="worksite" class="attach noWrap" id="mcstR-$rowCount">
+									<a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
+								</td>
+
+								<td headers="description mcstR-$rowCount" class="specialLink">
+									#if ($validator.escapeHtml($site.Description) != '')
+										$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+										<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
+									#end
+								</td>
+							</tr>
+						#end
+					</tbody>
+				</table>
+
+				#if (!$search.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</div>
+				#elseif ($unjoinableSites.isEmpty())
+					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nomembs')</div>
+				#end
+			</div>
+
+			<input type="hidden" name="sakai_action" id="sakai_action" value="doGoto_unjoinconfirm" />
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+
+		#if ($unjoinableSites.size() > 10 && $pagesizeInt > 10)
+			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
+				<div class="sakai-table-filterContainer">
+					#searchFilterPanel("searchFilter2", $search, "doSearch", "doSearch_clear")
+				</div>
+				<div class="sakai-table-buttonContainer">
+					<input type="button" class="unjoin" value="$tlang.getString('mb.unjoin')" disabled="disabled" onclick="unjoin(this);" />
+					<input type="button" class="reset" value="$tlang.getString('mb.clear')" disabled="disabled" onclick="utils.clearSelections();" />
+				</div>
+				<div class="sakai-table-pagerContainer">
+					#pagerPanel("pager2")
+				</div>
+			</div>
+		#end
+	</div>
+</div>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config />
+    <bean id="org.sakaiproject.sitestats.impl.SiteStatsDatabaseConfig"
+          class="org.sakaiproject.sitestats.impl.SiteStatsPersistenceConfig" />
+
+    <!-- Read file properties -->
+    <bean id="testPropertiesConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/hibernate.properties</value>
+                <value>classpath:/test-sakai.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Data source -->
+    <bean id="javax.sql.DataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+        <property name="url" value="${hibernate.connection.url}"/>
+        <property name="username" value="${hibernate.connection.username}"/>
+        <property name="password" value="${hibernate.connection.password}"/>
+    </bean>
+
+    <!-- SessionFactory -->
+    <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="javax.sql.DataSource" />
+        <property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.cache.use_query_cache">${hibernate.use_cache}</prop>
+                <prop key="hibernate.query.substitutions">true 1, false 0</prop>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- Transaction manager from the SessionFactory -->
+    <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory"/>
+    </bean>
+
+    <bean abstract="true" id="sstTxTemplate"
+        class="org.springframework.orm.hibernate4.support.HibernateDaoSupport">
+        <property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory" />
+    </bean>
+
+</beans>

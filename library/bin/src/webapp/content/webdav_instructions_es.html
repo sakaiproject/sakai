@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<title>Subir-Descargar m&uacute;ltiples recursos</title>
+	<script type="text/javascript" language="JavaScript"
+		src="/library/js/headscripts.js">
+		</script>
+        <script>includeLatestJQuery('webdav_instructions_es.html');</script>
+	<link href="/library/js/jquery/ui/1.12.1/css/smoothness/jquery-ui.css"
+		type="text/css" rel="stylesheet" media="all" />
+	<style type="text/css">
+	#tabs img {
+		border: 1px solid #ccc;
+		-webkit-box-shadow: 3px 3px 20px 4px rgba(204, 204, 204, 1);
+		-moz-box-shadow: 3px 3px 20px 4px rgba(204, 204, 204, 1);
+		box-shadow: 3px 3px 20px 4px rgba(204, 204, 204, 1);
+		margin: 10px;
+	}
+	</style>
+	
+	<script language="JavaScript" type="text/JavaScript">
+		resizeFrame = function(updown){
+	        var clientH;
+	        if (top.location !== self.location) {
+	            var frame = parent.document.getElementById(window.name);
+	        }
+	        if (frame) {
+	            if (updown === 'shrink') {
+	                clientH = document.body.clientHeight;
+	            }
+	            else {
+	                clientH = document.body.clientHeight + 50;
+	            }
+	            $(frame).height(clientH);
+	        }
+	        else {
+	            // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+	        }
+        };
+                
+		var i, a, href
+		for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+		{
+			if(a.getAttribute("rel").indexOf("style") != -1)
+			{
+				if(a.getAttribute("href").indexOf("portal.css") != -1)
+				{
+					//normal - top is portal
+					document.write ('<link href=\"');
+					var lastSlash = a.getAttribute("href").lastIndexOf("/");
+					document.write (a.getAttribute("href").substring(0,lastSlash+1));
+					document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					document.write ('<link href=\"');
+					document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+					document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+				}
+				else
+				{
+					//not normal - top is something else - use it's stylesheets
+					document.write ('<link href=\"');
+					document.write (a.getAttribute("href"));
+					document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+				}
+			}
+		}
+		function trim(s){
+			if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
+		}
+	        
+		function splitedWebDavLink() {
+	        return $(parent.document.getElementById("webDavUrl")).val().split('/');
+		}
+		var swdl = splitedWebDavLink();
+		function localizeData() {
+			for(i=0; (p = document.getElementsByTagName("span")[i]); i++) {
+				if (p.className=='webDavPort') {
+					p.innerHTML=getHostPort();
+				}
+				if (p.className=='webDavHostName') {
+					p.innerHTML=getServerName();
+				}
+				if (p.className=='webDavUrlEncoded') {
+					p.innerHTML=getBaseUrlEncoded();
+				}
+				if (p.className=='webDavService') {
+					p.innerHTML=getWebDavType();
+				}
+				if (p.className=='webDavFolderUrlEncoded') {
+					p.innerHTML=getFolderUrlEncoded();
+				}
+				if (p.className=='webDavGnomeUrl') {
+					p.innerHTML=getGnomeUrl();
+				}
+			}
+		}
+		function getBaseUrlEncoded() {
+			return '<b>'+swdl[0]+'//'+swdl[2]+'/'+swdl[3]+'/'+escape(swdl[4]).replace('@','%40')+'</b>';
+		}
+	function getFolderUrlEncoded() {
+		var folder = '<b>'+swdl[3];
+		for (var i = 4; i < swdl.length; i++) {
+			folder+='/'+swdl[i];
+		}
+		folder+='</b>';
+		return folder;
+	}
+		function getHostPort() {
+			// Return HTTP specific port
+			if (swdl[2].indexOf(":")>0) return swdl[2].substring(swdl[2].indexOf(':')+1);
+			else {
+				// Return HTTP default ports
+				if (swdl[0]=='https:') return '443';
+				else return '80';
+			}
+		}
+		function getWebDavType() {
+			if (swdl[0]=='https:') return '(HTTP/SSL)';
+			else return '';
+		}
+		function getServerName() {
+			// remove the port
+			if (swdl[2].indexOf(":")>0) return swdl[2].substring(0,swdl[2].indexOf(':'));
+			else {
+				return swdl[2];
+			}
+		}
+		function getGnomeUrl() {
+			// replace http by dav
+			return 'dav'+$(parent.document.getElementById("webDavUrl")).val().substring(4);
+		}
+	</script>
+</head>
+
+<body onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):'';localizeData()">
+	<div id="tabs" style="font-size: 95%">
+		<ul>
+			<li><a href="#instr-windows8">Windows 8/10</a></li>
+			<li><a href="#instr-windows7">Windows 7</a></li>
+			<li><a href="#instr-mac">Mac</a></li>
+			<li><a href="#instr-linux">Linux</a></li>
+			<li><a href="#instr-other">Otras versiones</a></li>
+		</ul>
+
+		<div id="instr-windows8">
+			<h4>Configurar WebDAV para Windows 8/10</h4>
+			<ol>
+				<li>En primer lugar navegue al escritorio: después de iniciar sesión en Windows, clic en el icono Escritorio.</li>
+				<li>Desde el escritorio, clic en el explorador de archivos, asegurese que 'Este equipo' está seleccionado en el panel izquierdo.
+					<p><img src="win8img2_es.png" alt="Explorador de archivos de Windows" /></p>
+				</li>
+				<li>En la parte superior del explorador de archivos, clic sobre Equipo &gt; Conectar a unidad de red.
+					<p><img src="win8img3_es.png" alt="Unidades de red de windows" /></p>
+				</li>
+				<li>Seleccione una letra de unidad libre (por ejemplo, S:) de la lista de unidades.
+					<p><img src="win8img4_es.png" alt="Unidades de red en Windows" /></p>
+				</li>
+				<li>En el apartado Carpeta, escriba (o copie y pegue) la direcci&oacute;n URL del sitio mostrada en el paso 1 y haga clic en Finalizar.</li>
+				<li>En la ventana emergente, debe introducir su usuario y clave de la plataforma y hacer clic en Aceptar.</li>
+				<li>Ya puedes copiar y pegar o arrastrar archivos y carpetas desde tu ordenador hacia esta nueva unidad. Los archivos serán accesibles desde la herramienta recursos del sitio dentro de la plataforma.</li>
+			</ol>
+			
+			<h5>M&eacute;todo alternativo para configurar WebDAV en Windows</h5>
+	
+			<p>Si el proceso descrito anteriormente da problemas de
+				conexi&oacute;n, puedes usar el cliente de WedDAV
+				<a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
+			
+		</div>
+		<div id="instr-windows7">
+			<h4>Configurar WebDAV para Windows Vista/Windows 7</h4>
+	
+			<p>
+				<strong>Nota</strong>: Para usar WebDAV en <em>Windows Vista</em>
+				es necesario tener instalado el Service Pack 2. Si no tienes el
+				Service Pack 2 instalado, debes ejecutar Windows Update haciendo clic
+				en <strong>Inicio &gt; Todos los programas &gt; Windows
+					Update</strong>.
+			</p>
+	
+			<ol>
+				<li>Desde el escritorio o men&uacute; inicio, clic en <strong>Mi Pc o Equipo</strong>.</li>
+				<li>Desde la parte superior de la ventana, clic en <strong>Conectar a una unidad de red</strong>.</li>
+				<li>Selecciona una letra de unidad libre (e.g., Z) de la lista de <em>Unidades</em>.</li>
+				<li>En el apartado <em>Carpeta</em>, escriba (o copie y pegue) la URL de este sitio mostrada arriba en el paso 1 y haga clic en <strong>Finalizar</strong>.</li>
+				<li>En la ventana emergente, debe introducir su usuario y clave de la plataforma y hacer clic en <strong>Aceptar</strong>.</li>
+				<li>Ya puedes copiar y pegar o arrastrar archivos y carpetas desde tu ordenador hacia esta nueva unidad. Los archivos ser&aacute;n accesibles desde la herramienta recursos del sitio dentro de la plataforma.</li>
+			</ol>
+	
+			<p>Cuando el proceso de configuraci&oacute;n finalice, los
+				recursos del sitio aparceran en una unidad dentro de Mi Pc o Equipo,
+				y se comportar&aacute; como cualquier disco duro dentro de Windows.</p>
+	
+			<h5>M&eacute;todo alternativo para configurar WebDAV en Windows</h5>
+	
+			<p>Si el proceso descrito anteriormente da problemas de
+				conexi&oacute;n, puedes usar el cliente de WedDAV
+				<a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
+	
+		</div>
+		<div id="instr-mac">
+			<h4>Configurar WebDAV para Mac (OS 10.4 - 10.6)</h4>
+	
+			<p>
+				<strong>Nota</strong>: Seg&uacute;n la versi&oacute;n de su sistema
+				operativo el uso de Finder puede ser err&aacute;tico. Si le da
+				problemas le recomendamos que use <a class="activateTab" href="#instr-other">Cyberduck</a>. 
+			</p>
+			
+			<ol>
+				<li>Desde el menu de la parte superior en el Finder, selecciona <strong>Ir &gt; Conectarse al servidor</strong></li>
+				<li>En <em>Direcci&oacute;n del Servidor</em>, introduce (o copia y pega) la URL que se encuentra en la parte superior de esta p&aacute;gina.</li>
+				<li>Haz clic en el bot&oacute;n <strong>+</strong> si quieres guardar esta URL para accesos futuros.</li>
+				<li>Haz clic <strong>Conectar</strong>.</li>
+				<li>Introduce tu usuario de Sakai y tu contrase&ntilde;a y haz clic en <strong>Conectar</strong>.</li>
+			</ol>
+	
+			<p>Ahora ver&aacute;s una ventana en tu Mac que representa los
+				recursos que tienes en el sitio del Aula Virtual. Simplemente copia
+				y pega desde tus ventanas del finder hacia esta nueva ventana para
+				asi transferir los archivos a recursos del sitio dentro del Aula
+				virtual.</p>
+		</div>
+		<div id="instr-linux">
+			<h4>Configurar WebDAV para Linux (Gnome)</h4>
+			<ol>
+				<li>Vamos a <b>Archivos &gt; Conectar con el servidor...</b></li>
+				<li>En <b>Direcci&oacute;n de servidor</b> introducimos la direcci&oacute;n: <b><em><span class="webDavGnomeUrl">davs://xxxx/dav/xxxx</span></em></b></li>				
+				<li>Pulamos el bot&oacute;n <b>Conectar</b>.</li>
+				<li>Al conectar le aparecer&aacute; una ventana pidiendo la clave de la plataforma.</li>
+			</ol>
+			
+			<p>
+				Cuando el proceso de configuraci&oacute;n est&aacute; completo, la
+				carpeta de recursos del sitio aparecera en <b>Archivos</b>, y
+				actuar&aacute; como una carpeta normal dentro de Linux. Ahora podemos
+				copiar, pegar, arrastrar todo tipo de ficheros y carpetas de nuestro
+				ordenador a esta nueva carpeta.
+			</p>
+			
+			<h4>Configurar WebDAV para Linux (Gnome) versiones anteriores</h4>
+			<ol>
+				<li>Vamos a <b>Lugares &gt; Conectar con el servidor...</b></li>
+				<li>En <b>Tipo de servicio</b> seleccionamos WebDav <span class="webDavService"></span>.</li>
+				<li>En <b>Servidor</b> ponemos: <b><span class="webDavHostName">hostname</span></b></li>
+				<li>En <b>Puerto</b> ponemos: <span class="webDavPort">80</span></li>
+				<li>En <b>Carpeta</b> ponemos el final de la URL del paso uno: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em></li>
+				<li>Marcamos la opci&oacute;n de <b>A&ntilde;adir marcador</b></li>
+				<li>En <b>Nombre del marcador</b> ponemos el nombre de la carpeta que se crear&aacute; dentro de Red que har&aacute; referencia a su sitio de la plataforma (por ejemplo, <em>Recursos de Didactica de la educaci&oacute;n)</em> y clic en <strong>Siguiente</strong>.</li>
+				<li>Pulamos el bot&oacute;n <b>Conectar</b>.</li>
+				<li>Al conectar le aparecer&aacute; una ventana pidiendo la clave de la plataforma.</li>
+			</ol>
+			
+			<p>
+				Cuando el proceso de configuraci&oacute;n est&aacute; completo, la
+				carpeta de recursos del sitio aparecera en <b>Lugares</b>, y
+				actuar&aacute; como una carpeta normal dentro de Linux. Ahora podemos
+				copiar, pegar, arrastrar todo tipo de ficheros y carpetas de nuestro
+				ordenador a esta nueva carpeta.
+			</p>
+	
+	
+			<h4>Configurar WebDAV para Linux (KDE)</h4>
+	
+			<ol>
+				<li>Abrimos el Gestor de archivos <em>(Dolphin)</em>.</li>
+				<li>A la izquierda en <strong>Lugares</strong> seleccionamos <b>Red</b>.</li>
+				<li>A continuaci&oacute;n pinchamos en <b>A&ntilde;adir carpeta de red</b>.</li>
+				<li>Marcamos <em>Carpeta Web (webdav)</em> y pulsamos en <em>Siguiente</em>.</li>
+				<li>En <b>Nombre</b> ponemos el nombre de la carpeta que se crear&aacute; dentro de Red que har&aacute; referencia a su sitio de la plataforma (por ejemplo, <em>Recursos de Didactica de la educaci&oacute;n)</em> y clic en <strong>Siguiente</strong>.</li>
+				<li>En <b>Usuario</b> ponemos nuestro usuario de la plataforma.</li>
+				<li>En <b>Servidor</b> ponemos: <b><span class="webDavHostName">hostname</span></b></li>
+				<li>En <b>Carpeta</b> ponemos el final de la URL del paso uno: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em></li>
+				<li>Si es HTTPS marcamos la opci&oacute;n <b>Usar cifrado</b>, al marcala el puerto se cambiar&aacute; autom&aacute;ticamente a <span class="webDavPort">80</span>.</li>
+				<li>Con la opci&oacute;n <b>Crear un icono para esta carpeta remota</b>, hacemos que se guarden todos los datos y no los tengamos que volver a introducir.</li>
+				<li>Pulamos el bot&oacute;n <b>Guardar y conectar</b>.</li>
+				<li>Al conectar le aparecer&aacute; una ventana pidiendo la clave de la plataforma.</li>
+			</ol>
+	
+			<p>
+				Cuando el proceso de configuraci&oacute;n est&aacute; completo, la
+				carpeta de recursos del sitio aparecera en <b>Red</b> dentro del
+				Gestor de archivos <em>(Dolphin)</em>, y actuar&aacute; como una
+				carpeta normal dentro de Linux. Ahora podemos copiar, pegar,
+				arrastrar todo tipo de ficheros y carpetas de nuestro ordenador a
+				esta nueva carpeta.
+			</p>
+	
+			<h4>Configurar WebDAV para Linux (modo consola)</h4>
+	
+			<ol>
+				<li>Abrimos un terminal.</li>
+				<li>Escribimos la instrucci&oacute;n <strong>cadaver <span class="webDavUrlEncoded">la URL del paso 1</span></strong></li>
+				<li>Le puede solicitar que acepte el certificado de tu instituci&oacute;n.</li>
+				<li>Debe autenticarse con su usuario y clave de la plataforma.</li>
+				<li>Ahora puede descargar y subir documentos por l&iacute;nea de comandos.</li>
+			</ol>
+	
+			<p>
+				Escriba <b>help</b> para ver los comandos disponibles.
+			</p>
+		</div>
+		<div id="instr-other">
+			<h4>Configurar WebDAV para Mac/Windows usando Cyberduck</h4>
+
+			<ol>
+				<li>Descargar el cliente WebDAV Cyberduck.
+					<ul>
+						<li>Para Windows o Mac OS X versi&oacute;n 10.5 y superiores, descargar e instalar la versi&oacute;n m&aacute;s reciente en:
+							<a href="http://cyberduck.io/" target="_blank">http://cyberduck.io/</a>
+						</li>
+						<li>Para Mac OS X versiones anteriores a 10.5, descargar el	cliente WebDAV Cyberduck en: 
+							<a href="http://update.cyberduck.io/Cyberduck-2.8.5.dmg"
+							   target="_blank">http://update.cyberduck.io/Cyberduck-2.8.5.dmg</a>
+							<ul>
+								<li>Descomprima el archivo y haz doble clic en el fichero .dmg. (Dependiendo de la configuraci&oacute;n de tu descompresor, la imagen se montar&aacute; autom&aacute;ticamente en el disco).</li>
+								<li>Una imagen de disco llamada <em>Cyberduck-2.8.5</em> debe estar ahora disponible. Simplemente arrastra la imagen de disco hacia tu carpeta de Aplicaciones</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>Abre la aplicaci&oacute;n Cyberduck desde Aplicaciones.</li>
+				<li>Haga clic en el bot&oacute;n <strong>Nueva Conexi&oacute;n</strong>.</li>
+				<li>En <b>Servidor</b> pegue la direcci&oacute;n copiada en el paso 1. Eso le rellenar&aacute; autom&aacute;ticamente todos los campos. Tambi&eacute;n lo puede rellenar manualmente:
+					<ul>
+						<li>En <b>Servidor</b> ponemos: <b><span class="webDavHostName">hostname</span></b></li>
+						<li>En <b>Puerto</b> ponemos: <span class="webDavPort">80</span></li>
+						<li>Pulse sobre <i>Mas opciones</i> y ponga en <b>Carpeta</b> el final de la URL del paso uno: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em></li>
+					</ul>
+				</li>
+				<li>Desactive la opci&oacute;n de Usuario an&oacute;nimo.</li>
+				<li>Introduce tu usuario y tu contrase&ntilde;a de la plataforma</li>				
+				<li>Haga clic en el bot&oacute;n <b>Conectar</b>.</li>				
+			</ol>
+			
+			<p>Le aparecer&aacute; una ventana con los recursos de la plataforma, desde la cual podr&aacute; arrastrar ficheros a su equipo, o bien arrastrar ficheros de su equipo.</p>
+	
+			<p>Puede guardar esta configuraci&oacute;n para futuras conexiones:</p>
+			<ol>
+				<li>Vaya al men&uacute; superior <b>Favorito</b>.</li>
+				<li>Pulse sobre la opci&oacute; <b>Nuevo Favorito</b>.</li>
+				<li>En la ventana cambie el nombre que aparece <em>"<span class="webDavHostName">hostname</span> – WebDAV (HTTPS)"</em> por el nombre de su asignatura.</li>
+				<li>Cierre la ventana.</li>
+			</ol>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	    $(document).ready(function(){
+	        $("#tabs").tabs({
+	            activate: function( event, ui ) {
+	                resizeFrame('grow')
+	            }
+	        });
+	        $( "#tabs" ).on( "tabsselect", function( event, ui ) {
+	            resizeFrame('grow')
+	        } );
+	        $('.activateTab').click(function(){
+	            $( '#tabs ul li a[href="'+$(this).attr('href')+'"]' ).trigger( "click" ); 
+	        });
+	    })
+	</script>
+</body>
+</html>

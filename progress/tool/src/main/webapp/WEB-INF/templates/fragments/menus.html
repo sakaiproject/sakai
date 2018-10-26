@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="main (active)">
+    <ul class="navIntraTool actionToolBar">
+        <li role="presentation">
+            <span class="current" th:if="${active} == 'index'" th:text="#{menus.view}">View</span>
+            <span th:unless="${active} == 'index'">
+                <a href="#" th:href="@{/index}" th:text="#{menus.view}">View</a>
+            </span>
+        </li>
+        <li role="presentation">
+            <span class="current" th:if="${active} == 'add'" th:text="#{menus.add}">Add</span>
+            <span th:unless="${active} == 'add'">
+                <a href="#" th:href="@{/add}" th:text="#{menus.add}">Add</a>
+            </span>
+        </li>
+        <li role="presentation" th:if="${active} == 'edit'">
+            <span class="current" th:text="#{menus.edit}">Edit</span>
+        </li>
+        <li role="presentation">
+            <span class="current" th:if="${active} == 'deleted'" th:text="#{menus.deleted}">Deleted</span>
+            <span th:unless="${active} == 'deleted'">
+                <a href="#" th:href="@{/deleted}" th:text="#{menus.deleted}">Deleted</a>
+            </span>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

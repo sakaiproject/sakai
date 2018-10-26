@@ -1,0 +1,149 @@
+.#{$namespace}siteHierarchy{
+	background: $tool-background-color;
+	min-height: $hierarchy-size;
+
+	h1{
+		color: $background-color;
+		font-weight: 300;
+		margin: 0;
+	}
+	a{
+		color: $breadcrumbs-color;
+		margin: 0 $standard-spacing;
+		padding: 0;
+		text-decoration: none;
+	}
+
+	.#{$namespace}hierarchy--parent-sites{
+		display: block;
+	}
+
+	// Show the breadcrumbs on a separate row (when there are parent sites)
+	@media #{$nonPhone}{
+		@include display-flex;
+		@include flex-direction(column);		// so parent sites will appear above tool name
+		@include align-items(flex-start);
+		@include flex-wrap(wrap);
+		min-height: initial;
+		margin: 0;
+		padding: $standard-spacing;
+		
+		.#{$namespace}hierarchy--sites {
+			@include display-flex;
+			@include flex-wrap(wrap);
+		}
+		
+		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator{
+			display: none;		// hide the site name in the breadcrumbs
+		}
+
+		.#{$namespace}hierarchy--parent-sites, .#{$namespace}hierarchy--parent-sites + .#{$namespace}hierarchy--siteName {
+			@include display-flex; 		// when there are parent sites, show them
+			@include flex-wrap(wrap);
+			font-size: 0.9em;
+			font-weight: 200;
+		}
+		
+		.#{$namespace}hierarchy--1 a{
+			margin-left: 0;		// remove spacing from first site
+		}
+
+		// Force a fixed width for these so we don't jump when switching between a narrow icon and the wider reset icon (or vice versa)
+		.#{$namespace}breadcrumb--icon{
+			display: inline-block;
+			text-align: center;
+			width: 24px;
+			font-size: 0.9em;
+			margin-top: -4px;	// compensating for Font Awesome's baseline alignment
+			margin-right: $standard-space;	// space between icon and text
+		}
+
+		a.#{$namespace}hierarchy--toolName{
+			@include display-flex;
+			@include align-items(center);
+			color: $breadcrumbs-tool-color;
+			text-transform: uppercase;
+			font-size: 1.25em;
+			font-weight: bold;
+			margin: 0;
+
+			&:hover, &:focus {
+				text-decoration: none;		// apply an underline later to just the text (see below)
+				.#{$namespace}breadcrumb--icon{
+					display: none;
+				}
+
+				.#{$namespace}breadcrumb--reset-icon{
+					width: 24px;
+					text-align: right;
+					text-decoration: none;			// just underline the tool name; not the icon
+					display: inline-block;
+					margin-right: $standard-space;		// space between icon and text
+				}
+				.#{$namespace}breadcrumb--toolNameText{
+					text-decoration: underline;		// removed from the link above and only applied to the text here
+				}
+			}
+
+			.#{$namespace}breadcrumb--reset-icon{
+				display: none;
+			}
+		}
+	}
+
+	@media #{$phone}{
+		@include display-flex;	// flexing this so parent site/subsites breadcrumbs don't overlap for the first layer; more work needs to be done to improve this
+		background-color: transparent;
+		box-shadow: none;
+		position: absolute;
+		top: 0;
+		height: $banner-height - 4;
+		line-height: $banner-height - 4;
+		white-space: nowrap;
+		left: 0;
+
+		h1{
+			color: $breadcrumbs-tool-color;
+		}
+
+		.#{$namespace}hierarchy--siteName a:hover .#{$namespace}hierarchy--siteName-label {
+			text-decoration: underline;
+		}
+		
+		a.#{$namespace}hierarchy--toolName{
+			display: none;
+		}
+		a.#{$namespace}hierarchy--toolName:hover{
+			color: $breadcrumbs-tool-color;
+			border-bottom: 1px solid $breadcrumbs-hover-color;
+		}
+		
+		.#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
+			display: none;
+		}
+
+		.#{$namespace}breadcrumb--reset-icon{
+			display: none;
+		}
+
+		.#{$namespace}hierarchy-item {
+			color: $breadcrumbs-tool-color;
+		}
+
+		.#{$namespace}hierarchy--siteNameSeparator {
+			display: none;
+		}
+
+		&.moving {
+			top: -22.2em;
+		}
+	}
+
+
+
+}
+
+.#{$namespace}breadCrumbs{
+	margin:auto;
+	max-width: calc( 50% - 3em);
+}

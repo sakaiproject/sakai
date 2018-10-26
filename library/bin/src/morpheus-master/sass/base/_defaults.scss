@@ -1,0 +1,235 @@
+@import "base/compass";
+
+body{
+	color: 		 $text-color;
+	font-family: $font-family;
+	font-size: 	 $default-font-size !important; // Bootstrap Tool error
+	font-weight: $default-font-weight;
+	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
+	&.#{$namespace}portalBody{
+		background-color: $body-background-color;
+		@media #{$phone}{
+			padding: $banner-height 0 0 0;
+		}
+	}
+}
+
+a{
+	color: $text-color;
+	&:hover{  // This means a:hover
+		color: $text-color;
+		text-decoration: none;
+	}
+	&[href]{  // This means a[href]
+		color: $link-color;
+		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
+			outline-color: invert;
+		}
+		&:hover{
+			color: $link-hover-color;
+			background-color: $link-hover-background-color;
+			text-decoration:underline;
+		}
+		&:active{
+			color: $link-active-color;
+			background-color: $link-active-background-color;
+		}
+		&.btn{
+			text-decoration: none;
+		}
+		&.btn-primary{
+			@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
+		}
+		text-decoration:underline;
+	}
+	&.url{
+		@media #{$phone}{
+		    display: block;
+			max-width: 100%;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;
+		}
+	}
+}
+
+input, textarea{
+	color: $text-color;
+	font-family: $font-family;
+	font-size: 	 $default-font-size;
+	max-width: 100%;
+}
+
+form, table{
+	textarea{
+		@media #{$phone}{
+			width: 100%;
+			max-width: 100%;
+		}
+	}
+}
+
+h1, h2, h3, h4, h5, h6{
+	font-family: $header-font-family;
+	font-weight: 700;
+	line-height: 1.05;
+	margin: 0.75em 0 0.5em 0;
+}
+
+h1{
+	font-size: #{$default-font-size + 8};
+}
+
+h2{
+	font-size: #{$default-font-size + 6};
+}
+
+h3{
+	font-size: #{$default-font-size + 4};
+}
+
+h4{
+	font-size: #{$default-font-size + 2};
+}
+
+.skip{
+	position: absolute !important;
+	height: 0px; width: 0px;
+	overflow: hidden;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px);
+	margin: 0;
+	padding: 0;
+}
+
+input[type="submit"],input[type="button"]{
+	@extend .button_color;
+}
+
+input[type="reset"],input[type="button"]{
+	@extend .button_color;
+}
+
+input[type="checkbox"], input[type="radio"]{
+	background-color: #FFF;
+	border: 1px solid #A0A0A0;
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	vertical-align: sub;
+	@include appearance(none);
+	&:focus
+	{
+		box-shadow: 0px 0px 1px 4px Highlight;
+		outline: 0 none; // to override Bootstrap
+		outline-offset: 0; // to override Bootstrap
+	}
+
+	//SAK-30977
+	&[disabled],&[disabled="disabled"],&[disabled="true"]{
+		opacity: 0.5;
+		& + label{
+			cursor: not-allowed;
+			color: $text-color-disabled;
+		}
+	}
+}
+
+label.disabled{
+	cursor: not-allowed;
+	color: $text-color-disabled;
+}
+
+input[type="checkbox"]{
+	@include border-radius(3px);
+	&:checked{
+		background-image: url("images/check.png");
+		background-size: 16px;
+	}
+}
+input[type="radio"]{
+	@include border-radius(24px);
+	&:checked{
+		background: $text-color;                // fallback support
+		background: radial-gradient(circle at center, $text-color 0%, $text-color 48%, $background-color 58%);
+	}
+}
+
+select{
+	@extend .select;
+}
+
+.is-hidden{
+	display: none;
+}
+
+strong, b{
+	font-weight: 700;
+}
+
+i, em{
+	font-style: italic;
+}
+
+u, ins {
+	text-decoration: underline;
+}
+
+s, strike, del {
+	text-decoration: line-through;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+video, embed, object, iframe {
+	max-width: 100%;
+}
+
+legend {
+	// override the Bootstrap defaults
+	display: inline-block;
+	width: auto;
+	margin-bottom: 0;
+	padding: 0.5em;
+	border: 0 none;
+}
+
+input[type="submit"][disabled="disabled"],
+input[type="button"][disabled="disabled"],
+input[type="submit"][disabled="true"],
+input[type="button"][disabled="true"],
+input[type="submit"][disabled],
+input[type="button"][disabled],
+input[type="submit"][class="disabled"],
+input[type="button"][class="disabled"],
+input[type="submit"][disabled="disabled"]:hover,
+input[type="button"][disabled="disabled"]:hover,
+input[type="submit"][disabled="true"]:hover,
+input[type="button"][disabled="true"]:hover,
+input[type="submit"][disabled]:hover,
+input[type="button"][disabled]:hover,
+input[type="submit"][class="disabled"]:hover,
+input[type="button"][class="disabled"]:hover,
+button[disabled]:hover,
+button[class="disabled"]:hover,
+.formButtonDisabled, .formButtonDisabled:hover {
+	background: transparent linear-gradient(#EEE 0%, #EEE 100%) repeat scroll 0% 0% !important;
+	color: #333 !important;
+	border: 1px solid #DDD !important;
+	box-shadow: none !important;
+	cursor: not-allowed;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+ul, ol {
+    padding: 0 0 0 1.5em;
+}
+
+span.marker {
+    background-color: yellow;
+}

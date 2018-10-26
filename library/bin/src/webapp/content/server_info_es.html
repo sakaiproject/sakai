@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>Bienvenido a Sakai</title>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		// -->
+		</script>
+	</head>
+	<body>
+		<div class="portletBody">
+			<h3> Bienvenido a Sakai </h3>
+			<p>Bienvenido a la demostraci&oacute;n de Sakai. La configuraci&oacute;n de demostraci&oacute;n se ha creado para
+				tener una instancia de Sakai funcionando de manera r&aacute;pida y f&aacute;cil. Para m&aacute;s informaci&oacute;n sobre la instalaci&oacute;n
+				de Sakai como soluci&oacute;n, por favor revise los ficheros readme,
+				visite la p&aacute;gina principal de Sakai sakaiproject.org, y la p&aacute;gina del desarrollador de Sakai en
+				collab.sakaiproject.org.</p>
+			<p class="instruction">La informaci&oacute;n por defecto que aparece aqu&iacute; para un usuario nuevo se puede modificar por el administrador.
+			   Para ello debe editar la propiedad "server.info.url" del fichero sakai.properties para que se muestre el fichero html que se desee.</p>
+		</div>
+	</body>
+</html>

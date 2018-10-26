@@ -1,0 +1,74 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/web/chef_iframe-customize.vm,v 1.7 2005/05/23 21:06:12 suiyy.umich.edu Exp $
+
+<script type="text/javascript">
+	focus_path = [ "title" ];
+</script>
+
+<div class="portletBody">
+	<h3>
+		$heading
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		#if ($!pageTitleEditable)
+		<p class="shorttext indnt1"> 
+			<span class="reqStar">*</span>
+			<label for="$form_tool_title"> $tlang.getString("gen.tootit")</label>
+			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" maxlength="$max_length_title"/><br />
+		</p>	
+		<p class="shorttext indnt1">
+			<span class="reqStar">*</span>
+			<label for="$form_page_title"> $tlang.getString("gen.pagtit")</label>
+			<input type="text" id="$form_page_title" name="$form_page_title" value="$!validator.escapeHtml($page_title)" maxlength="$max_length_title" /><br />
+		</p>	
+		#else
+		<p class="shorttext indnt1">
+			<span class="reqStar">*</span>
+			<label for="title"> $tlang.getString("gen.title")</label>
+			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" maxlength="$max_length_title" /><br />
+		</p>	
+		#end
+		<p class="shorttext indnt1">
+			<label for="height">$tlang.getString("gen.height")</label>
+			<select id="height" name="height" size="1" onchange="this.value=='$tlang.getString('gen.heisomelse')'?document.getElementById('customNumber').style.display = 'block':document.getElementById('customNumber').style.display = 'none'">
+				<option value = "300px" #if ($!height == "300px") selected="selected" #end>$tlang.getString('gen.hei1')</option>
+				<option value = "450px" #if ($!height == "450px") selected="selected" #end>$tlang.getString('gen.hei2')</option>
+				<option value = "600px" #if ($!height == "600px") selected="selected" #end>$tlang.getString('gen.hei3')</option>
+				<option value = "750px" #if ($!height == "750px") selected="selected" #end>$tlang.getString('gen.hei4')</option>
+				<option value = "900px" #if ($!height == "900px") selected="selected" #end>$tlang.getString('gen.hei5')</option>
+				<option value = "1200px" #if ($!height == "1200px") selected="selected" #end>$tlang.getString('gen.hei6')</option>
+				<option value = "1800px" #if ($!height == "1800px") selected="selected" #end>$tlang.getString('gen.hei7')</option>
+				<option value = "2400px" #if ($!height == "2400px") selected="selected" #end>$tlang.getString('gen.hei8')</option>
+				<option value = "$tlang.getString('gen.heisomelse')" #if ($!height == "$tlang.getString('gen.heisomelse')") selected="selected" #end>$tlang.getString('gen.heisomelse')</option>
+			</select>
+		</p>	
+
+		<p class="shorttext" id="customNumber" #if ($height == "$tlang.getString('gen.heisomelse')") style="display:block" #else style="display:none" #end>
+			<label for="customNumberField">
+				$tlang.getString('gen.custheight') <span class="skip">$tlang.getString('gen.pixelshid')</span>
+			</label>
+			<input id="customNumberField" maxlength="4" size="4" type="text" name="customNumberField" #if ($height == "$tlang.getString('gen.heisomelse')") value="$!validator.escapeHtml($custom_height)" #end/>
+			$tlang.getString('gen.pixels')
+		</p>	
+#if ($source)
+		<p class="shorttext indnt1">
+			<span class="reqStar">*</span>
+			<label for="source">$tlang.getString("gen.url")</label>
+			<input type="text" name="source" id="source" value="$!validator.escapeHtml($source)" size="40"/>
+		</p>
+#end
+
+	#if ($showPopup)
+		<p class ="checkbox labelindnt">
+				<input type="checkbox" value="true" name="popup" id="opentrue" #if ($popup) checked="checked" #end  class="indnt1" />
+				<label for="opentrue">$tlang.getString("gen.info.pop")</label>
+		</p>
+	#end
+
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<script type="text/javascript" src="../js/jquery-1.2.6.js" rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../js/SakaiTableRenderer.js" rsf:id="scr=contribute-script"></script>
+</head>
+<body>
+  
+<div>
+  <!-- Pagers -->
+  <div id="" rsf:id="standard-sakai-pager:">
+    <form> <!-- Dummy form. On Change events won't work without a form. -->
+    <!-- <div class="listNav"> -->
+    <div>
+      <div rsf:id="instructions:" class="instruction">Viewing 1 to 50 of 83 students</div>
+      <input rsf:id="first-page-button" type="button" value="|&lt;" />
+      <input rsf:id="prev-page-button" type="button" value="&lt;" />
+      <select rsf:id="num-pages-select">
+        <option value="5">Show 5</option>
+        <option value="10">Show 10</option>
+        <option value="20">Show 20</option>
+        <option selected="selected" value="50">Show 50</option>
+        <option value="100">Show 100</option>
+        <option value="0">Show all</option>
+      </select>
+      <input rsf:id="next-page-button" type="button" value="&gt;" title="todo" />
+      <input rsf:id="last-page-button" type="button" value="&gt;|" title="todo" />
+    </div>
+    </form>
+  </div>
+  
+
+  <!-- Search Filter Widgets -->
+  <div rsf:id="search-filter:" id="search-filter" >
+    <input rsf:id="search-text-input" id="" type="text"
+      value="Student name or ID" onfocus="" />
+    <input rsf:id="find-button" id="" type="button" value="Find" />
+    <input rsf:id="clear-button" id="" type="button" value="Clear" />
+  </div>
+  
+  <!-- Table Headers for Sorting -->
+  <th rsf:id="theader:sort-link" id="from">
+    <a rsf:id="sort-link" id="" href="#" onclick="" title ="Sort by sender">From</a>
+  </th>
+  <th rsf:id="theader:cursort-dsc-link" id="date">
+    <a href="#"
+       rsf:id="sort-link" 
+       onclick=""   
+       title ="Sort by date received">
+      <span rsf:id="link-text">Date Received</span>
+	  <img border="0" 
+	       src="/library/image/sakai/sortdescending.gif?panel=Main" 
+	       alt ="Sort by date received descending" />
+	</a>
+  </th>
+  <th rsf:id="theader:cursort-asc-link" id="date">
+    <a href="#" 
+       onclick=""
+       rsf:id="sort-link"
+       title ="Sort by date received">
+      <span rsf:id="link-text">Date Received</span>
+	  <img border="0" 
+	       src="/library/image/sakai/sortascending.gif?panel=Main" 
+	       alt ="Sort by date received ascending" />
+	</a>
+  </th>
+</div>  
+  
+</body>
+</html>

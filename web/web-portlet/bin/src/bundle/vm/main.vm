@@ -1,0 +1,106 @@
+<div class="portletBody">
+${includeLatestJQuery}
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+#if ($!popup) 
+#if ( ! $!popupdone) 
+<script type="text/javascript" language="JavaScript">
+window.open('$!source','_blank');
+</script>
+#end
+<p>
+$tlang.getString("new.page.launch") </p> <p>
+<a href="$source" onclick="window.open('$!source','_blank'); return false;" target="_blank">$tlang.getString("new.page.relaunch")</a>
+</p>
+#else
+<script type="text/javascript" language="JavaScript">
+$(document).ready(function() {
+$('.closeMe a').click(function(e){
+    e.preventDefault();
+    $(this).closest('.alertMessage').fadeOut('slow')
+});
+})
+
+if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 ) {
+
+    function timeout$placement() { 
+        var myframe = $("#id$placement");
+        var loaded = false;
+        window.console && console.log("$!source timeout check...");
+        try {
+            var iframeLoc = myframe.get(0).contentWindow.location;
+            iframeLoc = String(iframeLoc);
+            var windowLoc = String(window.location);
+            window.console && console.log("iframe.location="+windowLoc);
+            var ipos = -1;
+            var slashcount = 0;
+            for (var i=0; i<windowLoc.length; i++ ) {
+                if ( windowLoc[i] == '/' ) slashcount++;
+                if ( slashcount == 3 ) {
+                    ipos = i;
+                    break;
+                }
+            }
+            if ( ipos == -1 ) {
+                loaded = false;
+            } else { 
+                var prefix = windowLoc.substring(0, ipos);
+                window.console && console.log("iframe.prefix="+prefix);
+                loaded = iframeLoc.indexOf(prefix) == 0;
+            }
+        } catch(ex) {  // This is an expected/normal/hoped for occurance
+            loaded = true;
+        }
+        if ( ! loaded ) {
+            $('#alert$placement').show();
+        } else {
+            window.console && console.log('$!source load success');
+        }
+
+    }
+
+    var timer$placement = false;
+    $(document).ready(function() {
+        timer$placement = window.setTimeout("timeout$placement()",$loadTime);
+    });
+} else {
+    window.console && console.log('$!source does not start with http:// or https://');
+}
+</script>
+<div class="alertMessage specialLink" style="display:none" id="alert$placement">$tlang.getString("gen.alert") 
+$tlang.getString("gen.trouble.loading")
+<a href="$source" onclick="window.open('$!source','_blank'); return false;" target="_blank">$tlang.getString("new.page.relaunch")</a>
+<p class="closeMe"><a href="#" style="text-decoration:none !important;font-size:110%;color:#c00 !important" title="$tlang.getString("dissmiss.page.relaunch.message")">x <span class="skip">$tlang.getString("dissmiss.page.relaunch.message")</span></a></p> 
+</div>
+<div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
+<iframe 
+    id="id$placement"
+    title="$tlang.getString("gen.info.title.message")"
+    width="100%"
+    style="width:100%;height:$height"
+    frameborder="0"
+    marginwidth="0"
+    marginheight="0"
+    scrolling="auto"
+    allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+    allow="camera; microphone"
+    src="$!source">
+</iframe>
+<script>
+window.addEventListener('message', function(e) {
+  try {
+    var message = JSON.parse(e.data);
+    var idval = 'id$placement';
+    if ( message.subject == 'lti.frameResize' ) {
+      var height = message.height;
+      document.getElementById(idval).height = height;
+      console.log('Reveived lti.frameResize height='+height);
+    }
+  } catch (error) {
+   console.log('lti.frameResize of '+idval+' failed height='+height);
+   console.log(e.data);
+  }
+});
+</script>
+</div>
+#end
+</div>

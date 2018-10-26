@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+               http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.configurable.cm"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.cm"/>
+        <property name="jobName" value="Course Management CSV Synchronization"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.cm.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="path.base"/>
+                    <property name="descriptionResourceKey" value="path.base.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.AcademicSessionProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.AcademicSessionProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseSetProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseSetProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CanonicalCourseProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CanonicalCourseProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingMemberProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingMemberProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionCategoryProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionCategoryProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentSetProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentSetProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMeetingProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMeetingProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor.description"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.cm"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob"
+          init-method="init">
+        <property name="adminUser" value="admin"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="dataProcessors">
+            <list>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.AcademicSessionProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseSetProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CanonicalCourseProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingMemberProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionCategoryProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentSetProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMeetingProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor"/>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor"/>
+            </list>
+        </property>
+        <property name="emailNotification" value="false"/>
+        <property name="recipients">
+            <util:list value-type="java.lang.String">
+                <value>who@somewhere.com</value>
+            </util:list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.configurable.user"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.user"/>
+        <property name="jobName" value="User CSV Synchronization"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.cm.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="path.base"/>
+                    <property name="descriptionResourceKey" value="path.base.description"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.UserProcessor.filename"/>
+                    <property name="descriptionResourceKey" value="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.UserProcessor.description"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob.user"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.SynchronizationJob"
+          init-method="init">
+        <property name="adminUser" value="admin"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="dataProcessors">
+            <list>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.UserProcessor"/>
+            </list>
+        </property>
+        <property name="emailNotification" value="false"/>
+        <property name="recipients">
+            <util:list value-type="java.lang.String">
+                <value>who@somewhere.com</value>
+            </util:list>
+        </property>
+    </bean>
+
+    <bean abstract="true" id="cmProcessor">
+        <property name="dateFormat" value="MM/dd/yyyy"/>
+        <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+        <property name="cmAdmin" ref="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"/>
+        <property name="fileArchiveUtil" ref="org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil"/>
+        <property name="headerRowPresent" value="false"/>
+        <property name="archive" value="false"/>
+    </bean>
+
+    <bean abstract="true" id="userProcessor">
+        <property name="fileArchiveUtil" ref="org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil"/>
+        <property name="headerRowPresent" value="false"/>
+        <property name="archive" value="false"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userEmailNotification" value="true"/>
+        <property name="generatePassword" value="false"/>
+        <property name="updateAllowed" value="true"/>
+        <property name="updatePassword" value="false"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CanonicalCourseProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CanonicalCourseProcessor">
+        <property name="filename" value="/tmp/canonical_course.csv"/>
+        <property name="columns" value="3"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.AcademicSessionProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.AcademicSessionProcessor">
+        <property name="filename" value="/tmp/academic_session.csv"/>
+        <property name="columns" value="5"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseSetProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseSetProcessor">
+        <property name="filename" value="/tmp/course_set.csv"/>
+        <property name="columns" value="5"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingProcessor">
+        <property name="filename" value="/tmp/course_offering.csv"/>
+        <property name="columns" value="8"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingMemberProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.CourseOfferingMemberProcessor">
+        <property name="filename" value="/tmp/course_offering_member.csv"/>
+        <property name="columns" value="4"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionProcessor">
+        <property name="filename" value="/tmp/section.csv"/>
+        <property name="columns" value="7"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentSetProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentSetProcessor">
+        <property name="filename" value="/tmp/enrollment_set.csv"/>
+        <property name="columns" value="6"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.EnrollmentProcessor">
+        <property name="filename" value="/tmp/enrollment.csv"/>
+        <property name="columns" value="5"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMeetingProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMeetingProcessor">
+        <property name="filename" value="/tmp/section_meeting.csv"/>
+        <property name="columns" value="3"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionMemberProcessor">
+        <property name="filename" value="/tmp/section_member.csv"/>
+        <property name="columns" value="4"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.InstructorProcessor">
+        <property name="filename" value="/tmp/instructor.csv"/>
+        <property name="columns" value="2"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.MembershipProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.MembershipProcessor">
+        <property name="filename" value="/tmp/membership.csv"/>
+        <property name="columns" value="5"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionCategoryProcessor" parent="cmProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.SectionCategoryProcessor">
+        <property name="filename" value="/tmp/section_category.csv"/>
+        <property name="columns" value="2"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.UserProcessor" parent="userProcessor"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis.UserProcessor">
+        <property name="filename" value="/tmp/users.csv"/>
+        <property name="columns" value="12"/>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil"
+          class="org.sakaiproject.component.app.scheduler.jobs.cm.util.FileArchiveUtil">
+        <property name="directory" value="/tmp"/>
+        <property name="dateFormat" value="yyyy-MM-dd"/>
+    </bean>
+</beans>

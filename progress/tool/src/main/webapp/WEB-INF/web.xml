@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <display-name>sakai.widget</display-name>
+
+    <!-- Sakai Request Filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.widget</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <!-- Sakai Tool Listener -->
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+    <!-- Sakai Spring Listener -->
+    <listener>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+    </listener>
+
+    <!--<servlet>-->
+        <!--<servlet-name>sakai.widget</servlet-name>-->
+        <!--<servlet-class>org.sakaiproject.widget.tool.servlet.SakaiToolServlet</servlet-class>-->
+        <!--<load-on-startup>0</load-on-startup>-->
+        <!--<init-param>-->
+            <!--<param-name>index</param-name>-->
+            <!--<param-value>/index</param-value>-->
+        <!--</init-param>-->
+    <!--</servlet>-->
+
+    <servlet>
+        <servlet-name>sakai.widget</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <init-param>
+            <param-name>contextClass</param-name>
+            <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>org.sakaiproject.widget.tool.SpringMvcConfiguration</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sakai.widget</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index</welcome-file>
+    </welcome-file-list>
+
+</web-app>

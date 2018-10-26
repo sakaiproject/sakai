@@ -1,0 +1,80 @@
+<!--
+
+    $URL:$
+    $Id:$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+            
+
+            <div class="portletBody">
+            <!-- Menu -->
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+            <!-- Page title -->
+            <h2><wicket:message key="menu_serverwide">[menu_serverwide]</wicket:message></h2>
+            
+            <!-- Contents -->
+            <form wicket:id="serverWideReportForm">
+                <div id="content" style="width:100%">
+                    <!-- Selectors -->
+                    <div wicket:id="selectors">
+                        <a wicket:id="reportMonthlyLogin" class="selector"><wicket:message key="submenu_monthly_login_report">[submenu_monthly_login_report]</wicket:message></a>
+                        <span wicket:id="reportMonthlyLoginLbl" class="selector"><wicket:message key="submenu_monthly_login_report">[submenu_monthly_login_report]</wicket:message></span>
+                        &nbsp;|&nbsp;
+                        <a wicket:id="reportWeeklyLogin" class="selector"><wicket:message key="submenu_weekly_login_report">[submenu_weekly_login_report]</wicket:message></a>
+                        <span wicket:id="reportWeeklyLoginLbl" class="selector"><wicket:message key="submenu_weekly_login_report">[submenu_weekly_login_report]</wicket:message></span>
+                        &nbsp;|&nbsp;
+                        <a wicket:id="reportDailyLogin" class="selector"><wicket:message key="submenu_daily_login_report">[submenu_daily_login_report]</wicket:message></a>
+                        <span wicket:id="reportDailyLoginLbl" class="selector"><wicket:message key="submenu_daily_login_report">[submenu_daily_login_report]</wicket:message></span>
+                        &nbsp;|&nbsp;
+                        <a wicket:id="reportRegularUsers" class="selector"><wicket:message key="submenu_regular_users_report">[submenu_regular_users_report]</wicket:message></a>
+                        <span wicket:id="reportRegularUsersLbl" class="selector"><wicket:message key="submenu_regular_users_report">[submenu_regular_users_report]</wicket:message></span>
+                        &nbsp;|&nbsp;
+                        <a wicket:id="reportHourlyUsage" class="selector"><wicket:message key="submenu_hourly_usage_report">[submenu_hourly_usage_report]</wicket:message></a>
+                        <span wicket:id="reportHourlyUsageLbl" class="selector"><wicket:message key="submenu_hourly_usage_report">[submenu_hourly_usage_report]</wicket:message></span>
+                        &nbsp;|&nbsp;
+                        <a wicket:id="reportTopActivities" class="selector"><wicket:message key="submenu_top_activities_report">[submenu_top_activities_report]</wicket:message></a>
+                        <span wicket:id="reportTopActivitiesLbl" class="selector"><wicket:message key="submenu_top_activities_report">[submenu_top_activities_report]</wicket:message></span>
+                        &nbsp;|&nbsp;
+                        <a wicket:id="reportTool" class="selector"><wicket:message key="submenu_tool_report">[submenu_tool_report]</wicket:message></a>
+                        <span wicket:id="reportToolLbl" class="selector"><wicket:message key="submenu_tool_report">[submenu_tool_report]</wicket:message></span>
+                    </div>
+                
+                    <!-- Title, description, chart & notes -->
+                    <h4><span wicket:id="report.reportTitle" style="display:none">[reportTitle]</span></h4>
+                    <p class="instruction">
+                        <span wicket:id="report.reportDescription" style="display:none">[reportDescription]</span>
+                    </p>
+                    <div wicket:id="reportChart" style="height: 420px; width: 98%" class="chartContainer"></div>
+                    <div wicket:id="report.reportNotes" class="instruction" style="padding-left: 5px; display:none;"></div>
+                </div>
+            </form>
+			</div>
+		</wicket:extend>
+	</body>
+</html>

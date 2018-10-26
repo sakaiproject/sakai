@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- tool context -->
+
+  <!-- A Wrapper for the Render Component used at tool level -->
+  <bean id="uk.ac.cam.caret.sakai.rwiki.tool.api.ToolRenderService"
+    class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.ToolRenderServiceImpl"
+    init-method="init" >
+  </bean>
+  
+  <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="uk.ac.cam.caret.sakai.rwiki.tool.entityproviders.RWikiEntityProvider">
+	<property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
+	<property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
+	<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+  </bean>
+  
+</beans>	
+

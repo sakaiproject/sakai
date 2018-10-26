@@ -1,0 +1,112 @@
+.headerAlignment {
+	text-align: center ! important;
+}
+ul.not_sortabl
+{
+	width: 300px;
+	list-style: none;
+	margin: 4px;
+	padding: 6px;	
+}
+ul.sortable
+{
+	width: 300px;
+	list-style: none;
+	margin: 4px;
+	padding: 6px;
+}
+ul.sortable a
+{
+	text-decoration: none !important;
+} 
+li.sortable_item
+{
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+}
+li.editable_item
+{
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 3px solid #66F;
+}
+li.sortable_active
+{
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	background-color: #ddd;
+}
+li.sortable_hover
+{
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	opacity: .2;
+	filter: alpha(opacity=20);
+}
+.sort_helper
+{
+	list-style: none;
+	border: 1px dotted #ccc;
+}
+.item_control_box
+{	
+	display: inline;
+	position: absolute;
+	left: 260px;
+	width: 65px;
+}
+.item_label_box
+{
+	display: inline;
+	width: 245px;
+}
+a.item_control, a.tool_add_url
+{
+	cursor: pointer;
+}
+.hidden
+{
+	display: none;
+}
+.tool_list
+{
+	padding: 10px;
+}
+.option_list
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+#list-label
+{
+	padding: 10px;
+	display: none;
+	border: 1px solid #ccc;
+	background-color: #9F9;
+}
+#option-label
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+	background-color: #99F;
+}
+#group-list td
+{
+	width: 360px;
+	padding: 5px;
+	vertical-align: top;	
+}
+.actionButtonBar
+{
+	margin: .5em 0; padding: 0
+}

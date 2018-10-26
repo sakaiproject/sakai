@@ -1,0 +1,38 @@
+<h:column rendered="#{instructorViewBean.scoringAgentEnabled}">
+	<f:facet name="header">
+		<h:panelGroup>
+			<h:outputText
+				value="#{instructorViewBean.scoringAgentData.gradeWithScoringAgentText}" />
+			<f:verbatim> / </f:verbatim>
+			<h:outputLink id="refreshAll" value="#"
+				onclick='refreshAllScores(\"#{instructorViewBean.scoringAgentData.retrieveStudentScoresUrl}\", \"#{msgs.refreshAllReminder}\");'
+				rendered="#{!row.associatedAssignment.externallyMaintained}">
+				<h:graphicImage
+					value="/../library/image/silk/arrow_refresh-blue.png"
+					alt="#{instructorViewBean.scoringAgentData.refreshAllGradesText}"
+					title="#{instructorViewBean.scoringAgentData.refreshAllGradesText}" />
+			</h:outputLink>
+		</h:panelGroup>
+	</f:facet>
+
+    <h:panelGroup rendered="#{row.assignment && row.scoringComponentEnabled 
+                                   && !row.associatedAssignment.externallyMaintained}">
+		<h:outputLink id="grade" value="#"
+			onclick='showPopup(encodeUrl(\"#{row.scoringComponentUrl}\")); renderLinkUpdate(this.id, event,\"#{msgs.refreshReminder}\"); return false;'>
+			<h:graphicImage
+				value="#{instructorViewBean.scoringAgentData.scoringAgentImageRef}"
+				alt="#{instructorViewBean.scoringAgentData.gradeWithScoringAgentText}"
+				title="#{instructorViewBean.scoringAgentData.gradeWithScoringAgentText}" />
+		</h:outputLink>
+		<f:verbatim>&nbsp;&nbsp;</f:verbatim>
+		<h:outputLink id="getgrade" value="#"
+			onclick='refreshGrade(getScoreTextBoxId(this.id), \"#{row.retrieveScoreUrl}\");'>
+			<h:graphicImage value="/../library/image/silk/arrow_refresh-blue.png"
+				width="16" height="16"
+				alt="#{instructorViewBean.scoringAgentData.refreshGradeText}"
+				title="#{instructorViewBean.scoringAgentData.refreshGradeText}" />
+		</h:outputLink>
+		<h:outputText id="associatedId" style="display:none;"
+	        styleClass="associatedId" value="#{row.associatedAssignment.id}" />
+    </h:panelGroup>
+</h:column>

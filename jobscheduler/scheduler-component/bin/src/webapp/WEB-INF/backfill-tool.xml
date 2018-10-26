@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.api.app.scheduler.BackFillToolJob"
+          class="org.sakaiproject.component.app.scheduler.ConfigurableAutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"/>
+        <constructor-arg value="Backfill tools to sites"/>
+        <property name="resourceBundleBase"
+                  value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="site.id"/>
+                    <property name="descriptionResourceKey" value="site.id.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="interval"/>
+                    <property name="descriptionResourceKey" value="interval.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="type"/>
+                    <property name="descriptionResourceKey" value="type.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="true"/>
+                    <property name="labelResourceKey" value="tool"/>
+                    <property name="descriptionResourceKey" value="tool.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="true"/>
+                    <property name="labelResourceKey" value="skip.user.sites"/>
+                    <property name="descriptionResourceKey" value="skip.user.sites.description"/>
+                    <property name="defaultValue" value="true"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+</beans>

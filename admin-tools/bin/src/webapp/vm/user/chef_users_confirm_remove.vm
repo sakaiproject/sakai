@@ -1,0 +1,36 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_confirm_remove.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
+#css("/admin-tools/css/sakai-user-tool.css" 'media="screen"')
+#javascript("/library/js/spinner.js")
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>	$tlang.getString("useact.remuse")
+</h3>	
+
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="alertMessage">
+			$permDelWarning
+		</div>
+		<table class="listHier" cellspacing="0" summary ="$tlang.getString("useact.remuse.list.summary")">
+			<tr>
+				<th id="Eid">$tlang.getString("useconrem.useid")</th>
+				<th id="Name">$tlang.getString("useconrem.nam")</th>
+				<th id="Email">$tlang.getString("useconrem.ema")</th>
+				<th id="Id">$tlang.getString("useconrem.useuid")</th>
+			</tr>
+			<tr>
+				<td headers="Eid"> $validator.escapeHtml($user.Eid)</td>
+				<td headers="Name">$validator.escapeHtml($user.DisplayName)</td>
+				<td headers="Email">$validator.escapeHtml($user.Email)</td>
+				<td headers="Id">$validator.escapeHtml($user.Id)</td>
+			</tr>
+		</table>
+		<form action="#toolForm("$action")" method="post">
+			<div class="act">
+				<input type="submit" id="remove" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("useconrem.rem")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" id="cancel" name="eventSubmit_doCancel_remove" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+</div>

@@ -1,0 +1,173 @@
+.headerAlignment {
+	text-align: center ! important;
+}
+ul.not_sortabl
+{
+	list-style: none;
+	margin: 4px;
+	padding: 6px;	
+}
+ul.sortable
+{
+	list-style: none;
+	padding: 0;
+}
+ul.sortable a
+{
+	text-decoration: none !important;
+}
+ul.sortable li
+{
+	position: relative;
+}
+.fl-reorderer-avatar .tool-icon,
+ul.sortable li .tool-icon
+{
+	color: rgb(69, 69, 69);
+	padding-right: 4px;
+	line-height: 1em;
+	display: inline-block;
+}
+li.sortable_item
+{
+	margin: 5px 0;
+	padding: 5px 0 5px 5px;
+	border: 1px solid #cecece;
+	background-color: #f8f8f8;
+}
+li.sortable_item:hover
+{
+	background-color: #f3f3f3;
+}
+li.sortable_item:before
+{
+	font-family: 'Glyphicons Halflings';
+	content: "\e236";
+	color: #DDD;
+	margin: 0 6px 0 2px;
+	font-size: 0.8em;
+}
+li.editable_item
+{
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 3px solid #43a7c8;
+}
+li.sortable_active
+{
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	background-color: #ddd;
+}
+li.sortable_hover
+{
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	opacity: .2;
+	filter: alpha(opacity=20);
+}
+.sort_helper
+{
+	list-style: none;
+	border: 1px dotted #ccc;
+}
+.item_control_box.dropdown
+{	
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.item_control_box.dropdown > a
+{
+	display: block;
+	padding: 5px 10px;
+	border-left: 1px solid transparent;
+	color: rgb(69, 69, 69);
+}
+.item_control_box.dropdown.open > a,
+.item_control_box.dropdown > a:hover
+{
+	background-color: #e4e4e4;
+	border-left-color: #bababa;
+}
+.item_control.del-link
+{
+	color: #ce1a00;
+}
+.item_flags_box
+{
+	float: right;
+	margin-right: 35px;
+	margin-top: 2px;
+	color: #aaaaaa;
+}
+.item_flags_box .glyphicon
+{
+	float: left;
+	margin-right: 10px;
+}
+.item_control_box .dropdown-menu>li>a
+{
+	padding-left: 10px;
+}
+.item_control_box .dropdown-menu>li>a .glyphicon
+{
+	padding-right: 5px;
+}
+.item_label_box
+{
+	display: inline;
+}
+.hidden
+{
+	display: none;
+}
+.option_list
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+#list-label
+{
+	padding: 10px;
+	display: none;
+	border: 1px solid #ccc;
+	background-color: #9F9;
+}
+#option-label
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+	background-color: #99F;
+}
+#page-list{
+	width: 100%;
+	max-width: 600px;
+}
+#page-list td
+{
+	padding: 5px;
+	vertical-align: top;	
+}
+.fl-reorderer-avatar
+{
+	background-color: #ccc !important;
+}
+.alertMessageContainer {
+	min-height: 60px;
+}
+.item_edit_box
+{
+	margin-top: 10px;
+	padding: 10px;
+	border-top: 1px dotted #DDD;
+}
+.item_edit_box label
+{
+	min-width: 60px;
+}

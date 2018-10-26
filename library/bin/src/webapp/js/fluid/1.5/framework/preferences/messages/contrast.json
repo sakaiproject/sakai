@@ -1,0 +1,9 @@
+{
+    "contrast-default": "Default",
+    "contrast-bw": "Black on white",
+    "contrast-wb": "White on black",
+    "contrast-by": "Black on yellow",
+    "contrast-yb": "Yellow on black",
+    "contrast-lgdg": "Low contrast",
+    "contrastLabel": "Colour & Contrast"
+}

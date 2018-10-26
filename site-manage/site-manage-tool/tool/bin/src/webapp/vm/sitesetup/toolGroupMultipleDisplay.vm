@@ -1,0 +1,209 @@
+<script type="text/javascript">
+      $(document).ready(function() {
+            setupCategTools();
+            setLTIPrefix("$ltitool_id_prefix");
+       });
+</script>
+
+<div id="toolHolderWW" class="container-fluid">
+  <div class="row">
+    <div id="toolHolderW" class="col-md-7">
+        <div id="collExpContainer">
+            <a id="expandAll" href="#">$tlang.getString("feat.expand.all")</a>
+            <a id="contractAll" style="display:none" href="#">$tlang.getString("feat.collapse.all")</a>
+        </div>
+        <ol id="toolHolder">
+            #set ($groupCount = 0)
+            #foreach ($mapEntry in $toolsByGroup.entrySet())
+                #set ($escapedKey = "")
+                #set ($groupCount = $groupCount  + 1)
+                #set ($escapedKey = $mapEntry.key.replaceAll(" ", "_"))
+                    <li id="$escapedKey" class="">
+                        <h4 class="$escapedKey specialLink">
+                            <a #if ($groupCount == 1 || $!expandedGroups.contains($mapEntry.key)) class="open" #end href="#">
+                                <span class="catTitle">$mapEntry.key</span>
+                                <span class="checkedCount"></span>
+                                #if ($groupCount == 1) 
+                                    <span class="sel_unsel_core">
+                                        <em id="selectAll" class="selectAll" href="#" style="display: none;">$tlang.getString("feat.select.all")</em>
+                                        <em id="unSelectAll" class="selectAll" href="#" style="display: none;">$tlang.getString("feat.unselect.all")</em>
+                                    </span>
+                                #end
+                            </a>
+                        </h4>
+                        <ul class="toolGroup" #if ($!expandedGroups.contains($mapEntry.key)) style="display:block" #end>
+                            ## list those extra tools (added outside Site Info tool with tool id not listed as the allowed tool for current site type) as hidded input
+                            #foreach($tool in $!extraSelectedToolList)
+                                <input type="hidden" name="selectedTools" value="$tool" />
+                            #end
+                            ## generate list of all tools in groups
+                            #foreach($tool in $mapEntry.value)
+                                #set ($rowCount=0)
+                                #set($toolId = $tool.getId())                                    
+                                #if (!$toolId.equals("sakai.web.168"))
+                                     ## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
+                                     #set ($rowCount=$rowCount + 1)
+                                     #if ($!tool.isRequired())
+                                            <li style="display:none">
+                                                <input type="hidden" name="selectedTools" value="$toolId" />
+                                            </li>
+                                     #end
+                                     #if ($!toolId.equals($!homeToolId))
+                                             #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
+                                     ## SAK-29132 - Don't do anything if this is an instance of a multi-tool, it's handled down below
+                                     #elseif ($multipleToolIdTitleMap.containsKey($toolId))
+                                       <!-- Multi tool $toolId is handled below -->
+                                     #else 
+                                     	<li id="row-$rowCount">
+                                            <div class="toolListControl" id="$toolId.replace(".","_")_wrap">
+                                                <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId" aria-describedby="${toolId}.desc"
+                                                #if ($tool.isRequired())
+                                                    checked="checked" 
+                                                    disabled="disabled"
+                                                #else
+                                                    #if($toolRegistrationSelectedList)
+                                                        #foreach($tId in $toolRegistrationSelectedList)
+                                                            #if ($tId == $toolId)
+                                                                checked="checked"
+                                                            #end
+                                                        #end
+                                                    #end
+                                                    ## for LTI tools
+                                                    #if ($ltiTools)
+                                                    	#foreach($tId in $ltiTools.keySet())
+                                                    		#if ($tId == $toolId)
+                                                                checked="checked"
+                                                            #end
+                                                    	#end
+                                                    #end
+                                                #end
+                                                />
+                                                <label for="$toolId">
+                                                    #set($title=$validator.escapeHtml($tool.getTitle()))
+                                                    $title
+                                                    ## only shown then title is customized
+                                                    #if ($!allowPageOrderHelper)
+                                                        #set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
+                                                        #if (!$currentTitle.equals($title) && !$currentTitle.isEmpty())
+                                                            ($currentTitle)
+                                                        #end
+                                                    #end
+                                                </label>
+                                            </div>
+                                            <div class="toolListDesc textPanelFooter specialLink" id="${toolId}.desc">
+                                              		## in case that a tool does not have description defined
+                                              		#set($description="")
+                                              		#set($description=$tool.getDescription())
+                                              		$description
+                                                    #if ($!multipleToolIdTitleMap.containsKey($toolId))
+                                                        #set($properties = $!multipleToolConfiguration.get($toolId))
+                                                        #if (!$properties.isEmpty())
+                                                            ## show configurations
+                                                            (#foreach ($property in $!properties.keySet())
+                                                                $property = $validator.escapeHtml($properties.get($property)) 
+                                                            #end)
+                                                        #end
+                                                    #end
+                                                    #if ($tool.getMoreInfo() && ($tool.getMoreInfo() != ""))
+                                                        &nbsp;(<a class="moreInfoTool" title='$tool.getTitle()' href="$tool.getMoreInfo()" target="_blank">$tlang.getString("feat.more.info")</a>)
+                                                     #end
+                                            </div>
+                                     #end
+                                        </li>
+                                     ## add multi if required
+                                     #if ($tool.hasMultiples())
+                                        #foreach($key in $toolGroupMultiples.keySet() )
+                                           #if ($key==$toolId)
+                                              #set($toolMultipleList=$toolGroupMultiples.get($key))
+                                              #set($multiListSize = $toolMultipleList.size())
+                                              #if($multiListSize > 0)
+                                                 #parse("/vm/sitesetup/toolGroupMultiples.vm")
+                                              #end
+                                           #end
+                                        #end
+                                     #end 
+                                #end
+                            #end
+                        </ul> 
+                    </li>
+                #end
+        </ol>
+    </div>
+    <div class="col-md-1 separator"></div>
+    <div class="col-md-4">
+    <div id="toolSelectionList">
+    <div id="toolSelectionListMessage" style="display:none" class="instruction">$tlang.getString("feat.selected.tools.none")</div>
+    <ul>
+        <li id="toolSelectionListHeader">
+          <h3 id="toolSelectionListToolHeader">$tlang.getString("feat.selected.tools")</h3>
+          <h3 id="toolSelectionListRemoveHeader">$tlang.getString("feat.removeHeading")</h3>
+        </li>
+    </ul>
+    </div>
+    <div class="mathJaxToggleArea">
+      <label class="onoffswitch-label" for="isMathJaxEnabledForSite">
+          $tlang.getString("sinfo.mathjax.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
+      </div>
+    </div>
+    <div class="lessonsSubNavToggleArea" style='display: none'>
+      <label class="onoffswitch-label" for="isLessonsSubNavEnabledForSite">
+          $tlang.getString("sinfo.lessonbuildersubnav.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          <input type="checkbox" name="isLessonsSubNavEnabledForSite" class="onoffswitch-checkbox" id="isLessonsSubNavEnabledForSite" #if($isLessonsSubNavEnabledForSite)checked="checked"#end>
+      </div>
+    </div>
+    #if ($neoChat == 'true' || $neoChat == 'false')
+    <div class="portalNeochatToggleArea">
+      <label class="onoffswitch-label" for="isPortalNeochatEnabledForSite">
+          $tlang.getString("sinfo.portalneochat.allowForSite")
+      </label>
+      <div class="onoffswitch">
+          #if ($isPortalNeochatEnabledForSite == 'true')
+              <input type="checkbox" name="isPortalNeochatEnabledForSite" class="onoffswitch-checkbox" id="isPortalNeochatEnabledForSite" checked="checked">
+          #else
+              <input type="checkbox" name="isPortalNeochatEnabledForSite" class="onoffswitch-checkbox" id="isPortalNeochatEnabledForSite" #if(!$existSite && $neoChat == 'true')checked="checked"#end>
+          #end
+      </div>
+    </div>
+    #end
+    <script>
+        $(function() {
+            var lessonsSubNavToggleArea = $('.lessonsSubNavToggleArea');
+            var toolSelectionList = $('#toolSelectionList');
+            var toolList = $('#toolHolderW');
+            var isLessonsSubNavEnabledForSiteCheckbox = $('#isLessonsSubNavEnabledForSite');
+
+            function checkForSelectedLessonsTools() {
+              if (toolSelectionList.find('li[id*=sakai_lessonbuildertool]:visible').length > 0) {
+                  lessonsSubNavToggleArea.show();
+              } else {
+                  lessonsSubNavToggleArea.hide();
+              }
+            };
+
+            toolList.find('input[type=checkbox]').on('click', function() {
+                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
+                return true;
+            });
+
+            toolSelectionList.on('click', '.removeTool', function() {
+                setTimeout(checkForSelectedLessonsTools, 200); // fade out on selected item takes ~100ms
+                return true;
+            });
+
+            toolSelectionList.on('click mouseup keyup', '#alertBoxYes', function() {
+                setTimeout(checkForSelectedLessonsTools, 0);
+                return true;
+            });
+
+            checkForSelectedLessonsTools();
+        });
+    </script>
+    </div>
+  </div> <!-- row -->
+</div> <!-- toolHolderWW -->
+<div id="moreInfoHolder" style="display:none; height:500px;width:700px;overflow:auto"><img src="" id="moreImageSrc"/></div>

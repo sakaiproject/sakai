@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+  <bean id="dataBean" class="uk.ac.cam.caret.rsf.testcomponents.beans.DataBean" />
+
+  <bean id="componentChoice" class="uk.ac.cam.caret.rsf.testcomponents.beans.ComponentChoiceBean"/>
+
+  <bean id="localeSetter" class="uk.org.ponder.localeutil.LocaleHolder"/>
+
+  <bean id="componentChoiceManager"
+    class="uk.ac.cam.caret.rsf.testcomponents.beans.ComponentChoiceManager">
+    <property name="requestBeanLocator" ref="requestBeanLocator"/>
+    <property name="componentChoiceBean" ref="componentChoice"/>
+    <property name="dateEvolvers" ref="dateEvolvers" />
+    <property name="textEvolvers" ref="textEvolvers" />
+    <property name="selectEvolvers" ref="selectEvolvers"/>
+    <property name="localeSetter" ref="localeSetter" />
+  </bean>
+
+  <bean id="textEvolver" factory-bean="componentChoiceManager"
+    factory-method="getTextInputEvolver" />
+
+  <bean id="dateEvolver" factory-bean="componentChoiceManager"
+    factory-method="getDateInputEvolver" scope="prototype" />
+    
+  <bean id="selectEvolver" factory-bean="componentChoiceManager"
+    factory-method="getSelectEvolver" scope="prototype" />
+
+  <bean id="requestLocale" factory-bean="localeSetter" factory-method="getLocale"/>
+
+  <bean class="uk.ac.cam.caret.rsf.testcomponents.producers.IndexProducer">
+    <!-- This would not be injected with OTP -->
+    <property name="dataBean" ref="dataBean" />
+    <property name="choiceBean" ref="componentChoiceManager" />
+    <property name="dateEvolver1" ref="dateEvolver" />
+    <property name="dateEvolver2" ref="fieldDateInputEvolver" />
+    <property name="textEvolver" ref="textEvolver" />
+    <property name="selectEvolver" ref="selectEvolver" />
+    <property name="locale" ref="requestLocale" />
+  </bean>
+  
+  <bean class="uk.ac.cam.caret.rsf.testcomponents.producers.SingleProducer">
+    <property name="dynamicListInputEvolver" ref="standardDynamicListInputEvolver"/>
+  </bean>
+
+  <bean class="uk.ac.cam.caret.rsf.testcomponents.producers.ResultsProducer">
+    <property name="localeGetter" ref="requestLocaleProxy" />
+    <property name="dataBean" ref="dataBean" />
+  </bean>
+
+</beans>

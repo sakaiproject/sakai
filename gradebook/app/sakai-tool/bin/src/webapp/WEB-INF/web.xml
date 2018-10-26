@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-gradebook-tool</display-name>
+	<description>Sakai Gradebook Tool Integration</description>
+	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:conf/rsf-config.xml,
+	      classpath:conf/blank-applicationContext.xml,
+	      classpath:conf/sakai-applicationContext.xml,
+	      classpath:conf/components-applicationContext.xml,
+		  classpath:conf/sakaiComponents-applicationContext.xml,
+		  classpath:conf/sakai-entitybroker-applicationContext.xml,
+	      /WEB-INF/applicationContext.xml,
+			/WEB-INF/spring-beans.xml,
+			/WEB-INF/spring-facades.xml
+		</param-value>
+	</context-param>
+	  <context-param>
+    <param-name>requestContextConfigLocation</param-name>
+    <param-value>
+      classpath:conf/rsf-requestscope-config.xml,
+      classpath:conf/blank-requestContext.xml,
+      classpath:conf/sakai-requestContext.xml,
+      classpath:conf/components-requestContext.xml,
+	  classpath:conf/sakaiComponents-requestContext.xml,
+	  classpath:conf/sakai-entitybroker-requestContext.xml,
+      /WEB-INF/requestContext.xml
+    </param-value>
+  </context-param>
+
+    <!-- Use the Sakai Spring application context wrapper to reach components. -->
+    <listener>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Register jsf tool with sakai -->
+    <servlet>
+        <servlet-name>sakai.gradebook.tool</servlet-name>
+        <servlet-class>org.sakaiproject.tool.gradebook.ui.GradebookFilePickerServlet</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>entry.servlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    
+    <!--  Servlet for RSF Helper -->
+    <servlet>
+    	<servlet-name>sakai-gradebook-helper</servlet-name>
+     
+	    <servlet-class>
+	      org.sakaiproject.rsf.servlet.ReasonableSakaiServlet
+	    </servlet-class>
+  </servlet>
+
+	<!-- Redirects the user to the appropriate starting page, based on their role -->
+	<servlet>
+		<servlet-name>Entry Servlet</servlet-name>
+		<servlet-class>org.sakaiproject.tool.gradebook.ui.EntryServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<!-- Dispatcher for helper tool -->    
+    <servlet>
+		<servlet-name>
+          sakai.gradebook.addItem.helper
+       </servlet-name>
+       <servlet-class>
+          org.sakaiproject.jsf.util.HelperAwareJsfTool
+       </servlet-class>
+       <init-param>
+            <param-name>default</param-name>
+            <param-value>addAssignment</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+	<servlet-mapping>
+		<servlet-name>Entry Servlet</servlet-name>
+		<url-pattern>/entry.servlet</url-pattern>
+	</servlet-mapping>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+	<context-param>
+    	<param-name>javax.faces.CONFIG_FILES</param-name>
+    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-gb-jsf.xml</param-value>
+  	</context-param>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+
+	<!--  Sakai filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+         <init-param>
+        	<param-name>upload.enabled</param-name>
+        	<param-value>false</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+        <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.gradebook.addItem.helper</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+
+    <!-- Support for MyFaces component resources. -->
+    <filter>
+        <filter-name>MyFacesExtensionsFilter</filter-name>
+        <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
+        <init-param>
+            <param-name>uploadMaxFileSize</param-name>
+            <param-value>10m</param-value>
+        </init-param>
+        <init-param>
+            <param-name>uploadThresholdSize</param-name>
+            <param-value>100k</param-value>
+        </init-param>
+   </filter>
+
+
+    <filter-mapping>
+        <filter-name>MyFacesExtensionsFilter</filter-name>
+          <url-pattern>/*</url-pattern>
+         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+   </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyFacesExtensionsFilter</filter-name>
+        <url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
+    </filter-mapping>
+
+
+    <filter>
+        <filter-name>GradebookAuthzFilter</filter-name>
+        <filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
+        <init-param>
+            <param-name>authorizationFilterConfigurationBean</param-name>
+            <param-value>org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authnServiceBean</param-name>
+            <param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authzServiceBean</param-name>
+            <param-value>org_sakaiproject_tool_gradebook_facades_Authz</param-value>
+        </init-param>
+        <init-param>
+            <param-name>contextManagementServiceBean</param-name>
+            <param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>GradebookAuthzFilter</filter-name>
+		<url-pattern>*.jsf</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+
+
+    <!--
+		Prelude and coda for standalone web application.
+		To eliminate "head" and "body" tags, making the application output suitable
+		as a portlet or for embedding, replace "preludeStandalone" with "link" tags
+		for any required CSS or JavaScript files and remove the coda.
+	-->
+
+		<jsp-config>
+			<jsp-property-group>
+				<url-pattern>*.jsp</url-pattern>
+				<include-prelude>/inc/preludeEmbedded.jspf</include-prelude>
+				<!-- Or, for the original standalone look... -->
+				<!-- <include-prelude>/inc/preludeEmbeddedClassic.jspf</include-prelude> -->
+				<include-coda>/inc/codaEmbedded.jspf</include-coda>
+			</jsp-property-group>
+		</jsp-config>
+
+</web-app>

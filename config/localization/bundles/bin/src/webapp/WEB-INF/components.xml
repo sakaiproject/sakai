@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.localization.util.AuthzImplProperties" class="org.sakaiproject.localization.util.AuthzImplProperties"/>
+	<bean id="org.sakaiproject.localization.util.ContentProperties" class="org.sakaiproject.localization.util.ContentProperties"/>
+	<bean id="org.sakaiproject.localization.util.ContentTypeProperties" class="org.sakaiproject.localization.util.ContentTypeProperties"/>
+	<bean id="org.sakaiproject.localization.util.EmailImplProperties" class="org.sakaiproject.localization.util.EmailImplProperties"/>
+	<bean id="org.sakaiproject.localization.util.SiteemaconProperties" class="org.sakaiproject.localization.util.SiteemaconProperties"/>
+	<bean id="org.sakaiproject.localization.util.SiteImplProperties" class="org.sakaiproject.localization.util.SiteImplProperties"/>
+	<bean id="org.sakaiproject.localization.util.ToolProperties" class="org.sakaiproject.localization.util.ToolProperties"/>
+	<bean id="org.sakaiproject.localization.util.TypeProperties" class="org.sakaiproject.localization.util.TypeProperties"/>	
+</beans>

@@ -1,0 +1,5 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("archive.noaccess")
+	</h3>
+</div>

@@ -1,0 +1,134 @@
+##{$namespace}xlogin{
+	
+	position: fixed;
+	top: calc(50% - 15em);
+	left: calc(50% - 15em);
+	width: 29em;
+	min-height: 14em;
+
+	background: $background-color;
+	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
+	.logo{
+		background: $top-header-background url($logo) no-repeat center center;
+		background-size: $logo-width $logo-height;
+		width: 100%;
+		height: 64px;
+		margin: 0 auto;
+		overflow: hidden;
+		@include border-radius( 0px );
+	}
+	h1{
+		padding: 0.6em;
+  		font-size: 1.8em;
+  		color: $primary-color;
+  		text-align: center;
+	}
+	.alertMessage{
+		background: $error-background-color;
+		border: $error-color;
+		color: $error-color;
+		padding: 0.8em;
+		text-align: center;
+	}
+	fieldset{
+		padding: 1em;
+		label{
+			font-size: 1.2em;
+			display: inline-block;
+			min-width: 38%;
+			min-height: 3em;
+			@media #{$phone}{
+				display: block;
+				min-height: 0.5em;
+			}
+		}
+		input[type="text"],input[type="password"]{
+			display: inline-block;
+			min-width: 56%;
+			border: 1px solid darken($background-color-secondary, 15%);
+			padding: 0.3em;
+			@media #{$phone}{
+				display: block;
+				width: 95%;
+			}
+		}
+		input[type="submit"]{
+			font-size: 1.1em;
+			margin: 0 0 1em 0;
+		}
+		p{
+			text-align: right;
+			@media #{$phone}{
+				margin: 1em 0 0 0;
+			}
+		}
+	}
+
+	&.with-errors{
+		input[type="text"],input[type="password"]{			
+			border: 1px solid $error-color;
+			background: $error-background-color;
+		}
+
+		input[type="password"].capsLockOnDisplay {
+			background: $error-background-color url("images/capsLock.png") no-repeat right;
+		}
+	}
+
+	&.loadedByAjax{
+		z-index: 1010;
+		box-shadow: 0 0 15px rgba( $text-color , 0.25 );
+	}
+
+	@media #{$phone}{
+		position: absolute;
+		top:   0;
+		left:  10%;
+		width: 80%;
+		margin: 2em auto;
+	}
+
+}
+
+#Mrphs-xlogin-container{
+	opacity: 0;
+	@include transition(opacity 0.25s linear 0s);
+	&.loaded{
+		opacity: 1;
+	}
+}
+
+#Mrphs-choice{
+	@extend #Mrphs-xlogin;
+	.msg{
+		padding: 0.6em;
+		font-size: 1.4em;
+		font-weight: 700;
+		color: $primary-color;
+		text-align: center;
+	}
+
+	.link{
+		width: 48%;
+		display: inline-block;
+		text-align: center;
+	}
+}
+#Mrphs-xlogin .xloginMessage{
+	padding: 0.9em;
+	text-align: center;
+}
+
+#loginPortalMask{
+	background: rgba(0,0,0,0.5);
+	position: fixed;
+	height: 100%;
+	width:  100%;
+	top:  0;
+	left: 0;
+	z-index: 1000;
+}
+
+.capsLockOnDisplay {
+	background: $background-color url("images/capsLock.png") no-repeat right;
+}

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ** @author Stephan J. Schmidt
+  ** @version $Id: build.xml 207 2005-09-08 17:07:32Z andrew $
+  -->
+<project basedir="." default="compile" name="Radeox">
+
+  <taskdef resource="clovertasks"/>
+
+  <target name="with.clover">
+     <clover-setup initString="radeox_coverage.db/"/>
+  </target>
+
+  <target name="report.html" depends="with.clover">
+   <clover-report>
+      <current outfile="clover_html" title="clover radeox">
+         <format type="html"/>
+      </current>
+   </clover-report>
+  </target>
+
+  <target name="record.point" depends="with.clover">
+    <clover-historypoint historyDir="clover_history"/>
+  </target>
+
+  <target name="hist.report" depends="with.clover">
+     <clover-report>
+           <historical outfile="historical.pdf"
+                  historyDir="clover_history"/>
+     </clover-report>
+  </target>
+
+  <path id="classpath">
+    <pathelement location="lib/picocontainer.jar"/>
+    <pathelement location="lib/clover.jar"/>
+    <pathelement location="lib/groovy.jar"/>
+    <pathelement location="lib/asm.jar"/>
+    <pathelement location="lib/asm-util.jar"/>
+    <pathelement location="lib/commons-logging.jar"/>
+    <pathelement location="lib/junit.jar"/>
+    <pathelement location="lib/junitperf.jar"/>
+    <!-- <pathelement location="lib/jython.jar"/> -->
+    <!-- <pathelement location="lib/javax.servlet.jar"/> -->
+  </path>
+
+   <target name="init">
+     <property name="testTarget" value="AllTests"/>
+     <property name="debug" value="true"/>
+     <property name="out" value="./target/classes"/>
+     <property name="src" value="./src"/>
+     <property name="test" value="${src}/test"/>
+     <property name="conf" value="./conf"/>
+     <property name="jar" value="./lib"/>
+     <property name="version" value="1.0"/>
+     <property name="status" value="-BETA-2"/>
+   </target>
+
+   <target name="prepare" depends="init">
+      <mkdir dir="${out}"/>
+      <mkdir dir="./doc/api"/>
+   </target>
+
+   <target name="compile" depends="prepare">
+     <javac srcdir="${src}" destdir="${out}" classpathref="classpath" debug="${debug}"/>
+   </target>
+
+  <target name="compile-test" depends="prepare">
+     <javac srcdir="${src}" destdir="${out}" classpathref="classpath" debug="${debug}">
+        <include name="org/radeox/test/**"/>
+        <include name="radeox/test/**"/>
+     </javac>
+  </target>
+
+  <target name="test" depends="jar" description="run compliance tests">
+    <junit printsummary="true">
+       <formatter usefile="false" type="plain"/>
+       <test name="org.radeox.test.${testTarget}"/>
+       <classpath refid="classpath"/>
+       <classpath location="lib/radeox.jar"/>
+    </junit>
+  </target>
+
+  <target name="jar-api" depends="compile">
+    <jar destfile="${jar}/radeox-api.jar" excludes="**/CVS"
+      manifest="${src}/META-INF/manifest.radeox-api">
+      <fileset dir="${out}/" includes="org/radeox/api/**"/>
+    </jar>
+  </target>
+
+  <target name="jar" depends="compile" description="build radeox.jar" >
+    <jar destfile="${jar}/radeox.jar" excludes="**/CVS"
+      manifest="${src}/META-INF/manifest.radeox">
+      <fileset dir="${out}/" includes="**"/>
+      <fileset dir="${src}" includes="META-INF/**"/>
+      <fileset dir="." includes="conf/**"/>
+      <fileset dir="${src}" includes="*.properties"/>
+      <fileset dir="${conf}/" includes="*.properties"/>
+    </jar>
+  </target>
+
+  <target name="dist" depends="clean, jar, jar-api, javadoc, test">
+   <delete failonerror="false" includeEmptyDirs="true">
+      <fileset dir="${out}" includes="**"/>
+   </delete>
+    <tar destfile="../radeox-${version}${status}-src.tgz" compression="gzip">
+      <tarfileset dir="." prefix="radeox-${version}${status}" mode="700">
+        <include name="Changes.txt"/>
+        <include name="conf/**"/>
+        <include name="src/**"/>
+        <include name="build.xml"/>
+        <include name="license.txt"/>
+        <include name="Radeox.version"/>
+        <include name="README"/>
+        <include name="docs/**"/>
+        <include name="documentation/**"/>
+        <include name="lib/**"/>
+      </tarfileset>
+    </tar>
+  </target>
+
+  <target name="example" depends="jar">
+    <java classname="org.radeox.example.InteractiveExample">
+      <classpath refid="classpath"/>
+       <classpath location="lib/radeox.jar"/>
+    </java>
+  </target>
+
+
+  <target description="clean up compiled code" depends="init" name="clean">
+    <delete failonerror="false">
+      <fileset dir="${out}" includes="**" excludes="CVS"/>
+    </delete>
+    <delete failonerror="false">
+      <fileset dir="${jar}" includes="radeox-${version}${status}.jar"/>
+    </delete>
+  </target>
+
+ <target description="generation javadocs" name="javadoc">
+  <javadoc packagenames="org.radeox.*"
+           sourcepath="src"
+           excludepackagenames="org.radeox.test.*"
+           defaultexcludes="yes"
+           destdir="docs/api"
+           author="true"
+           version="true"
+           use="true"
+           windowtitle="Radeox API">
+    <doctitle><![CDATA[<h1>Radeox</h1>]]></doctitle>
+    <bottom><![CDATA[<i>Copyright &#169; 2003 Matthias L. Jugel, Stephan J. Schmidt. All Rights Reserved.</i>]]></bottom>
+    <!-- <tag name="todo" scope="all" description="To do:" />
+    <group title="Group 1 Packages" packages="com.dummy.test.a*"/>
+    <group title="Group 2 Packages" packages="com.dummy.test.b*:com.dummy.test.c*"/>
+    -->
+    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
+  </javadoc>
+</target>
+
+</project>

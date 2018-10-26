@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven/>
+	<!-- read in the hibernate.properties file properties -->
+	<bean id="testPropertiesConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/hibernate.properties</value>
+			</list>
+		</property>
+	</bean>
+
+    <!-- create a data source -->
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+        <property name="url" value="${hibernate.connection.url}"/>
+        <property name="username" value="${hibernate.connection.username}"/>
+        <property name="password" value="${hibernate.connection.password}"/>
+    </bean>
+
+   <!-- create a SessionFactory bean from the data source and point it at our HBMs -->
+   <bean id="sessionFactory"
+         class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+      <property name="dataSource" ref="dataSource" />
+      <property name="annotatedClasses">
+          <list>
+              <value>org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl</value>
+          </list>
+      </property>
+      <property name="hibernateProperties">
+         <props>
+            <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+            <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+            <prop key="hibernate.query.substitutions">true 1, false 0</prop>
+            <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+         </props>
+      </property>
+   </bean>
+
+   <!-- Create a transaction manager from the SessionFactory -->
+   <bean id="transactionManager"
+         class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+       <property name="sessionFactory" ref="sessionFactory" />
+   </bean>
+
+   <bean id="triggerEventManager"
+         class="org.sakaiproject.component.app.scheduler.events.hibernate.TriggerEventManagerHibernateImpl">
+       <property name="sessionFactory" ref="sessionFactory"/>
+   </bean>
+
+</beans>

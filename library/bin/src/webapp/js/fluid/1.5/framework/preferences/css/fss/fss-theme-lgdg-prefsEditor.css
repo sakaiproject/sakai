@@ -1,0 +1,344 @@
+/*
+        Low Contrast (light grey on dark grey)
+=============================================
+ * Color Scheme:
+ *     light grey: #bdbdbb
+ *     dark grey: #555555
+ */
+@font-face {
+  font-family: 'InfusionIcons';
+  src: url('../fonts/InfusionIcons-FSS.ttf') url('../fonts/InfusionIcons-FSS.eot');
+}
+/* 
+ * General Styling
+ */
+.fl-theme-prefsEditor-lgdg, .fl-theme-prefsEditor-lgdg *, .fl-preview-theme.fl-theme-prefsEditor-lgdg, .fl-theme-prefsEditor-dglg.fl-inverted-color, .fl-theme-prefsEditor-dglg .fl-inverted-color, .fl-theme-prefsEditor-dglg.fl-inverted-color *, .fl-theme-prefsEditor-dglg .fl-inverted-color *, .fl-preview-theme.fl-theme-prefsEditor-dglg.fl-inverted-color {
+  color: #bdbdbb !important;
+  background-color: #555555 !important;
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+}
+/* Divs, inputs */
+.fl-theme-prefsEditor-lgdg div, .fl-theme-prefsEditor-lgdg input, .fl-theme-prefsEditor-dglg .fl-inverted-color div, .fl-theme-prefsEditor-dglg .fl-inverted-color input {
+  color: #bdbdbb !important;
+  background-color: #555555 !important;
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+}
+/* iframes */
+.fl-theme-prefsEditor-lgdg iframe, .fl-theme-prefsEditor-dglg .fl-inverted-color iframe {
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+}
+/* Links */
+.fl-theme-prefsEditor-lgdg a, .fl-theme-prefsEditor-dglg .fl-inverted-color a {
+  color: #bdbdbb !important;
+  font-weight: bold !important;
+  background-color: #555555 !important;
+}
+/* Headers */
+.fl-theme-prefsEditor-lgdg h1, .fl-theme-prefsEditor-lgdg h2, .fl-theme-prefsEditor-lgdg h3, .fl-theme-prefsEditor-lgdg h4, .fl-theme-prefsEditor-lgdg h5, .fl-theme-prefsEditor-lgdg h6, .fl-theme-prefsEditor-dglg .fl-inverted-color h1, .fl-theme-prefsEditor-dglg .fl-inverted-color h2, .fl-theme-prefsEditor-dglg .fl-inverted-color h3, .fl-theme-prefsEditor-dglg .fl-inverted-color h4, .fl-theme-prefsEditor-dglg .fl-inverted-color h5, .fl-theme-prefsEditor-dglg .fl-inverted-color h6 {
+  color: #bdbdbb !important;
+  background-color: #555555 !important;
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+}
+/* Tables */
+.fl-theme-prefsEditor-lgdg th, .fl-theme-prefsEditor-dglg .fl-inverted-color th {
+  border-top-width: 0.1em;
+  border-top-style: solid;
+  border-top-color: #bdbdbb !important;
+  border-right-width: 0.1em;
+  border-right-style: solid;
+  border-right-color: #bdbdbb !important;
+  border-bottom-width: 0.1em;
+  border-bottom-style: solid;
+  border-bottom-color: #bdbdbb !important;
+  border-left-width: 0.1em;
+  border-left-style: solid;
+  border-left-color: #bdbdbb !important;
+  background-color: #bdbdbb !important;
+  color: #555555 !important;
+}
+.fl-theme-prefsEditor-lgdg td, .fl-theme-prefsEditor-dglg .fl-inverted-color td {
+  border-top-width: 0.1em;
+  border-top-style: solid;
+  border-top-color: #bdbdbb !important;
+  border-right-width: 0.1em;
+  border-right-style: solid;
+  border-right-color: #bdbdbb !important;
+  border-bottom-width: 0.1em;
+  border-bottom-style: solid;
+  border-bottom-color: #bdbdbb !important;
+  border-left-width: 0.1em;
+  border-left-style: solid;
+  border-left-color: #bdbdbb !important;
+  background-color: #555555 !important;
+  color: #bdbdbb !important;
+}
+/* 
+ * FSS Elements
+ */
+/* Focus */
+.fl-theme-prefsEditor-lgdg .fl-focus:focus, .fl-theme-prefsEditor-lgdg .fl-focus :focus, .fl-theme-prefsEditor-lgdg.fl-focus :focus, .fl-theme-prefsEditor-lgdg .selectable, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-focus:focus, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-focus :focus, .fl-theme-prefsEditor-dglg.fl-inverted-color.fl-focus :focus, .fl-theme-prefsEditor-dglg .fl-inverted-color .selectable {
+  outline-width: 0.2em;
+  outline-style: solid;
+  outline-color: #bdbdbb;
+}
+.fl-theme-prefsEditor-lgdg .fl-knockout, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-knockout {
+  background-color: transparent !important;
+  background-image: none !important;
+  background-repeat: repeat !important;
+  background-attachment: scroll !important;
+  background-position: top left !important;
+  color: #bdbdbb !important;
+}
+/* Deprecated: use .fl-noBackgroundImages */
+/* Icons */
+.fl-theme-prefsEditor-lgdg .fl-icon, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-icon {
+  background-color: #555555 !important;
+}
+/* Tabs */
+.fl-theme-prefsEditor-lgdg .fl-tabs, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs {
+  border-bottom-color: #bdbdbb !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-tabs li, .fl-theme-prefsEditor-lgdg .fl-tabs li *, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li * {
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-tabs li, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li {
+  background-color: #bdbdbb !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-tabs li *, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li * {
+  color: #555555 !important;
+  font-weight: bold !important;
+  background-color: #bdbdbb !important;
+  text-decoration: none !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-tabs li:hover, .fl-theme-prefsEditor-lgdg .fl-tabs li:hover *, .fl-theme-prefsEditor-lgdg .fl-tabs li a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li:hover *, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li a:hover {
+  color: #bdbdbb !important;
+  background-color: #555555 !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-tabs li.fl-tabs-active, .fl-theme-prefsEditor-lgdg .fl-tabs li.fl-tabs-active a, .fl-theme-prefsEditor-lgdg .fl-tabs li.fl-tabs-active a:hover, .fl-theme-prefsEditor-lgdg .fl-tabs li.fl-activeTab, .fl-theme-prefsEditor-lgdg .fl-tabs li.fl-activeTab:hover, .fl-theme-prefsEditor-lgdg .fl-tabs li.fl-activeTab a, .fl-theme-prefsEditor-lgdg .fl-tabs li.fl-activeTab a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-tabs-active, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-tabs-active a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-tabs-active a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-activeTab, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-activeTab:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-activeTab a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tabs li.fl-activeTab a:hover {
+  background-color: #555555 !important;
+  border-bottom-color: #555555 !important;
+  color: #bdbdbb !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-tab-content, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-tab-content {
+  background-color: #555555 !important;
+  color: #bdbdbb !important;
+}
+/* Menu */
+.fl-theme-prefsEditor-lgdg .fl-listmenu, .fl-theme-prefsEditor-lgdg .fl-list-menu, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-listmenu, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-list-menu {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: #bdbdbb !important;
+  border-right-width: 1px;
+  border-right-style: solid;
+  border-right-color: #bdbdbb !important;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #bdbdbb !important;
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: #bdbdbb !important;
+  border-bottom-width: 2px;
+  background-color: #555555 !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-listmenu li, .fl-theme-prefsEditor-lgdg .fl-list-menu li, .fl-theme-prefsEditor-lgdg .fl-listmenu li a, .fl-theme-prefsEditor-lgdg .fl-list-menu li a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-listmenu li, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-list-menu li, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-listmenu li a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-list-menu li a {
+  font-weight: bold !important;
+  color: #bdbdbb !important;
+  background-color: #555555 !important;
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+  text-decoration: none !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-listmenu a:hover, .fl-theme-prefsEditor-lgdg .fl-list-menu a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-listmenu a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-list-menu a:hover {
+  background-color: #bdbdbb !important;
+  color: #555555 !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-listmenu .fl-activemenu a, .fl-theme-prefsEditor-lgdg .fl-list-menu .fl-activemenu a, .fl-theme-prefsEditor-lgdg .fl-listmenu .fl-activemenu a:hover, .fl-theme-prefsEditor-lgdg .fl-list-menu .fl-activemenu a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-listmenu .fl-activemenu a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-list-menu .fl-activemenu a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-listmenu .fl-activemenu a:hover, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-list-menu .fl-activemenu a:hover {
+  background-color: #bdbdbb !important;
+  border-bottom-color: #555555 !important;
+  color: #555555 !important;
+}
+/* Buttons */
+.fl-theme-prefsEditor-lgdg .fl-button-left, .fl-theme-prefsEditor-lgdg .fl-button-right, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-button-left, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-button-right, .fl-theme-prefsEditor-lgdg button, .fl-theme-prefsEditor-dglg .fl-inverted-color button {
+  color: #bdbdbb !important;
+  background-color: #555555 !important;
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: #bdbdbb !important;
+  border-right-width: 2px;
+  border-right-style: solid;
+  border-right-color: #bdbdbb !important;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: #bdbdbb !important;
+  border-left-width: 2px;
+  border-left-style: solid;
+  border-left-color: #bdbdbb !important;
+  border-radius: 3px;
+  font-weight: bold !important;
+  padding-top: 0;
+  padding-right: 0.75em;
+  padding-bottom: 0;
+  padding-left: 0.75em;
+}
+/* Widgets */
+.fl-theme-prefsEditor-lgdg .fl-widget, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget {
+  background-color: #bdbdbb !important;
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: #555555 !important;
+  border-right-width: 1px;
+  border-right-style: solid;
+  border-right-color: #555555 !important;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #555555 !important;
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: #555555 !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-widget h2, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget h2 {
+  display: inline;
+}
+.fl-theme-prefsEditor-lgdg .fl-widget a, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget a {
+  color: #bdbdbb !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-icon-widget-more, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-icon-widget-more, .fl-theme-prefsEditor-lgdg .fl-icon-widget-close, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-icon-widget-close, .fl-theme-prefsEditor-lgdg .fl-icon-widget-grab, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-icon-widget-grab {
+  font-family: 'InfusionIcons' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+  font-size: 1em !important;
+  margin-top: 0;
+  margin-right: 0.25em;
+  margin-bottom: 0;
+  margin-left: 0.25em;
+}
+.fl-theme-prefsEditor-lgdg .fl-widget .fl-icon-widget-more:before, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget .fl-icon-widget-more:before {
+  content: "";
+}
+.fl-theme-prefsEditor-lgdg .fl-widget .fl-icon-widget-close:before, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget .fl-icon-widget-close:before {
+  content: "";
+}
+.fl-theme-prefsEditor-lgdg .fl-grabbable .fl-icon-widget-grab:before, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-grabbable .fl-icon-widget-grab:before {
+  content: "";
+}
+.fl-theme-prefsEditor-lgdg .fl-grabbable .fl-widget-titlebar a {
+  text-decoration: none !important;
+}
+/* Widget titlebar */
+.fl-theme-prefsEditor-lgdg .fl-widget .fl-widget-titlebar {
+  margin-bottom: 3px;
+  padding-top: 3px;
+  padding-right: 3px;
+  padding-bottom: 3px;
+  padding-left: 3px;
+}
+.fl-theme-prefsEditor-lgdg .fl-grabbable .fl-widget-titlebar h2, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-grabbable .fl-widget-titlebar h2 {
+  display: inline;
+}
+.fl-theme-prefsEditor-lgdg .fl-widget-titlebar .icon, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget-titlebar .icon {
+  background-position: center center;
+}
+/* Widget options */
+.fl-theme-prefsEditor-lgdg .fl-widget .fl-widget-options, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget .fl-widget-options {
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+.fl-theme-prefsEditor-lgdg .fl-widget .fl-widget-options li, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget .fl-widget-options li {
+  border-left-width: 1px;
+  border-left-style: solid;
+  border-left-color: #555555 !important;
+}
+/* Widget content */
+.fl-theme-prefsEditor-lgdg .fl-widget .fl-widget-content, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-widget .fl-widget-content {
+  background-color: #555555 !important;
+}
+/* 
+ * Infusion Components
+ */
+/* Progress */
+.fl-theme-prefsEditor-lgdg .fl-progress-bounds, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-progress-bounds {
+  border-top-color: #bdbdbb !important;
+  border-right-color: #bdbdbb !important;
+  border-bottom-color: #bdbdbb !important;
+  border-left-color: #bdbdbb !important;
+  background-color: #555555 !important;
+}
+.fl-theme-prefsEditor-lgdg .fl-progress-fill, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-progress-fill {
+  color: #555555 !important;
+  background-color: #bdbdbb !important;
+}
+/* Reorderer */
+.fl-theme-prefsEditor-lgdg .fl-reorderer-dropMarker, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-reorderer-dropMarker {
+  background-color: #f00 !important;
+}
+/* Inline edit */
+.fl-theme-prefsEditor-lgdg .fl-inlineEdit-edit, .fl-theme-prefsEditor-dglg .fl-inverted-color .fl-inlineEdit-edit {
+  background-color: #bdbdbb !important;
+  color: #555555 !important;
+  border-top-width: 0.1em;
+  border-top-style: solid;
+  border-top-color: #555555 !important;
+  border-right-width: 0.1em;
+  border-right-style: solid;
+  border-right-color: #555555 !important;
+  border-bottom-width: 0.1em;
+  border-bottom-style: solid;
+  border-bottom-color: #555555 !important;
+  border-left-width: 0.1em;
+  border-left-style: solid;
+  border-left-color: #555555 !important;
+  padding-top: 0.1em;
+  padding-right: 0.1em;
+  padding-bottom: 0.1em;
+  padding-left: 0.1em;
+  margin-top: -0.1em;
+  margin-right: -0.1em;
+  margin-bottom: -0.1em;
+  margin-left: -0.1em;
+}
+/* Overrides for deprecated markup */
+.fl-theme-prefsEditor-lgdg .fl-icon {
+  text-indent: 0;
+  width: auto;
+}
+.fl-theme-prefsEditor-lgdg .fl-button-inner {
+  font-size:  !important;
+  padding-top: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+}
+.fl-theme-prefsEditor-lgdg .fl-button-left, .fl-theme-prefsEditor-lgdg .fl-button-right {
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  padding-top: 0;
+  padding-right: 1em;
+  padding-bottom: 0;
+  padding-left: 1em;
+}

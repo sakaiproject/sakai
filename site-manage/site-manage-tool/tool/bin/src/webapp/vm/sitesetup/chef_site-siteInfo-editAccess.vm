@@ -1,0 +1,497 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm,v 1.3 2005/05/15 17:05:00 gsilver.umich.edu Exp $ -->
+## Site list Sites list on worksite setup home page
+#if ($shoppingPeriodInstructorEditable || $viewDelegatedAccessUsers)
+	#javascript("/sakai-site-manage-tool/js/site-manage-delegatedaccess.js")
+	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
+	#javascript("/sakai-site-manage-tool/js/jquery.asmselect.js")
+	#css("/sakai-site-manage-tool/css/jquery.asmselect.css" 'media="screen"')
+#end
+<script type="text/javascript">
+<!-- hide from non-JS browsers
+	function checkPublish(checked)
+	{
+		if (checked)
+		{
+			if (document.getElementById('publicChangeableOption').value=='true') 
+			{
+				document.getElementById('publicChangeableDiv').style.display = 'block';
+				document.getElementById('publicChangeableNoDiv').style.display = 'none';
+				document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'none';
+			}
+			else
+			{
+				document.getElementById('publicChangeableDiv').style.display = 'none';
+				document.getElementById('publicChangeableNoDiv').style.display = 'block';
+				document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'none';
+			}
+			#if (!$!disableJoinable)
+				document.getElementById('globalAccessDiv').style.display = 'block';
+				document.getElementById('globalAccessNoDiv').style.display = 'none';
+			#end
+			utils.resizeFrame('grow');
+		}
+	}
+	
+	## A mechanism to validate this page; it will enable or disable the continue/update button
+	function validatePage()
+	{
+		var valid = true;
+
+		#if ($!site)
+			#set($submitButtonId="updateButton")
+		#else
+			#set($submitButtonId="continueButton")
+		#end
+		var submitButton = document.getElementById("$submitButtonId");
+
+		if (!limitByAccountTypesValidation())
+		{
+			valid = false;
+		}
+
+		if (valid)
+		{
+			submitButton.removeAttribute("disabled");
+		}
+		else
+		{
+			submitButton.setAttribute("disabled", "disabled");
+		}
+
+		## limitByAccountTypesValidation can cause an info message to display. Avoid double scroll bars:
+		utils.resizeFrame();
+	}
+// -->	
+</script>
+<div class ="portletBody">
+	#if($menu)#toolbar($menu)#end
+	#if (!$!site)
+		<h3>
+			$tlang.getString("ediacc.other.setsitacc")
+		</h3>
+	#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("ediacc.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
+		<input name="publicChangeableOption" id="publicChangeableOption" type="hidden" #if($!publicChangeable) value="true" #else value="false" #end />
+		<input name="publishedOption" id="publishedOption" type="hidden" #if($published) value="true" #else value="false" #end />
+		## site status ##
+		<fieldset>
+		<legend>
+		<h4>
+			$tlang.getString("ediacc.sitsta")
+		</h4>
+		</legend>
+		<p id="site_status_inst">
+			$tlang.getString("ediacc.pubyousit")
+		</p>
+		<div class="radio">			
+			<label for="publish">
+				<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked);" aria-describedby="site_status_inst" />
+				$tlang.getString("ediacc.pubsit")
+			</label>
+		</div>
+		<div class="radio">			
+			<label for="unpublish">
+				<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked);" aria-describedby="site_status_inst" />
+				$tlang.getString("ediacc.unpubsit")
+			</label>
+		</div>
+		</fieldset>
+		## END site status ##
+		## Additional Access ##
+		#if (!$!disableAdditional)
+        <fieldset>
+			<legend>
+				<h4>$tlang.getString("ediacc.addit")</h4>
+			</legend>
+ 			<p>$tlang.getString("ediacc.additin")</p>
+			#foreach($roleGroup in $additionalRoleGroups)
+				#if ($roleGroup.size > 0)
+					<fieldset style="float: left; width: 20em;">
+						<legend><h4>$roleGroup.name</h4></legend>
+						#foreach($role in $roleGroup.roles)
+							<p class="checkbox indnt1">
+								<label>
+									<input name="role$role.id" type="checkbox" value="true" #if($role.granted)checked="true"#end #if(!$role.editable)disabled="true"#end>
+									$role.name
+								</label>
+							</p>
+						#end
+					</fieldset>
+				#end
+			#end
+			<div class="clear"></div>
+			</p>
+        </fieldset>
+        #end
+        ## END Additional Access ##
+		## Site visibility ##
+		<fieldset>
+		<legend>
+		<h4>
+			$tlang.getString("ediacc.vis")
+		</h4>
+		</legend>
+		#if ($!publicChangeable && $published) 
+			#set($publicChangeableDivDisplay='style="display:block"')
+			#set($publicChangeableNoDivDisplay='style="display:none"')
+			#set($publicChangeableNoUnpublishDivDisplay='style="display:none"')
+		#else 
+			#set($publicChangeableDivDisplay='style="display:none"')
+			## show different divs for unpublished site or unchangeable site
+			#if (!$published)
+				#set($publicChangeableNoUnpublishDivDisplay='style="display:block"')
+				#set($publicChangeableNoDivDisplay='style="display:none"')
+			#else
+				#set($publicChangeableNoUnpublishDivDisplay='style="display:none"')
+				#set($publicChangeableNoDivDisplay='style="display:block"')
+			#end
+		#end
+		<div id="publicChangeableDiv" $publicChangeableDivDisplay >
+			<p  id="site_vis_inst">
+				$tlang.getString("ediacc.vis.instr")
+				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+			</p>
+			<div class="radio">
+				<label for="access_public">
+					<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end aria-describedby="site_vis_inst" />
+					$tlang.getString("ediacc.dismysit")
+				</label>
+			</div>
+			<div class="radio">
+				<label for="access_private">
+					<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end aria-describedby="site_vis_inst" />
+					$tlang.getString("ediacc.pri")
+				</label>
+			</div>
+		</div>
+		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
+			<p>
+				## the site should be public
+				$tlang.getString("ediacc.dismysit")
+			</p>
+			<p />
+		</div>
+		<div id="publicChangeableNoUnpublishDiv" $publicChangeableNoUnpublishDivDisplay>
+			<p>
+				## not changeable due to this is a draft site
+				$tlang.getString("ediacc.disdraft")
+			</p>
+			<p />
+		</div>
+		</fieldset>
+		## END site visibility ##
+		## Global Access ##
+		<fieldset>
+		<legend>
+		<h4>
+			$tlang.getString("ediacc.gloacc")
+		</h4>
+		</legend>
+		#if (!$!disableJoinable && $published)
+			#set($globalAccessDivDisplay='style="display:block"')
+			#set($globalAccessNoDivDisplay='style="display:none"')
+		#else
+			#set($globalAccessDivDisplay='style="display:none"')
+			#set($globalAccessNoDivDisplay='style="display:block"')
+		#end 
+		<div id="globalAccessDiv" $globalAccessDivDisplay>
+			<p id="site_glob_inst">
+				$tlang.getString("ediacc.gloacc1")
+				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+				<br />
+			</p>
+			<p >
+				$tlang.getString("ediacc.yousitcan")
+			</p>
+			## set site joinable and joiner role
+			<div class="radio">
+				<label for="unjoinable">
+					<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
+				      onclick="this.checked ? document.getElementById('joinerrole').style.display='none' : document.getElementById('joinerrole').style.display='block'; utils.resizeFrame();"
+				      aria-describedby="site_glob_inst" />
+					$tlang.getString("ediacc.cannotbejoi")
+				</label>
+			</div>
+			<div class="radio">
+				<label for="joinable">
+				     <input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
+				            onclick="this.checked ? document.getElementById('joinerrole').style.display='block' : document.getElementById('joinerrole').style.display='none'; utils.resizeFrame();"
+				            aria-describedby="site_glob_inst" />				
+					$tlang.getFormattedMessage("ediacc.canbejoi", $uiService)
+				</label>
+			</div>
+			<div id="joinerrole" #if ($joinable) style="display: block;" #else  style="display: none;" #end>
+				<div class="messageWarning indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
+				<p class="checkbox indnt3">
+					<label for="joinerRole">
+							<span class="reqStar" id="joinreqStar">*</span>
+							#if ($alertMessage)<span class="highlight"> $tlang.getString("ediacc.rolforpep")</span> #else  $tlang.getString("ediacc.rolforpep") #end
+					</label>
+					<select name="joinerRole" id="joinerRole">
+						<option value="">$tlang.getString("ediacc.plesel")</option>
+						#foreach($r in $roles)
+							#if (!$r.isProviderOnly())
+								<option value ="$r.Id"
+									#if($r.Id == $joinerRole)
+										selected="selected"
+									#end
+								>
+									$r.Id
+								</option>
+							#end
+						#end
+					</select>
+				</p>
+				
+				## SAK-24423 - joinable site settings title
+				#if( $joinGroupEnabled || $joinExcludeFromPublicListEnabled || $joinLimitAccountTypesEnabled ||
+						$joinGroupEnabledLocalDisabledGlobal || $joinExcludeEnabledLocalDisabledGlobal ||
+						$joinLimitEnabledLocalDisabledGlobal )
+					<p class="indnt3">$tlang.getString( "ediacc.additionJoinAccessOptions" )</p>
+				#end
+				
+				## SAK-24423 - joinable site settings - joiner group
+				#if( $joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal )
+					<p class="checkbox indnt6">
+						<label for="selectJoinerGroup" #if( !$joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal ) class="instruction" #end>
+							$tlang.getString( "ediacc.joinToGroup" )
+						</label>
+						<select name="selectJoinerGroup" id="selectJoinerGroup" #if( !$joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal ) disabled #end >
+							<option value="noSelection" #if( $joinerGroup == "noSelection" ) selected="selected" #end>$tlang.getString( "ediacc.joinGroupNoSelection" )</option>
+							#foreach( $group in $siteGroups )
+								<option value="$group.Id" #if( $group.Id == $joinerGroup ) selected="selected" #end>$group.title</option>
+							#end
+						</select>
+						#if( $joinGroupEnabledLocalDisabledGlobal )
+							<p class="indnt7 messageInformation">$tlang.getString( "ediacc.groupEnabledLocalDiabledGlobal" )</p>
+						#end
+					</p>
+				#end
+				
+				## SAK-24423 - joinable site settings - exclude from public list
+				#if( $joinExcludeFromPublicListEnabled || $joinExcludeEnabledLocalDisabledGlobal )
+					<p class="checkbox indnt4">
+						<input name="chkJoinExcludeFromPublicList" id="chkJoinExcludeFromPublicList" type="checkbox"
+							#if( $joinExcludeFromPublicList ) checked="checked" #end
+							#if( !$joinExcludeFromPublicListEnabled || $joinExcludeEnabledLocalDisabledGlobal ) disabled #end />
+						<label for="chkJoinExcludeFromPublicList" #if( !$joinExcludeFromPublicListEnabled || $joinExcludeEnabledLocalDisabledGlobal ) class="instruction" #end>
+							$tlang.getString( "ediacc.joinExcludeFromPublic" )
+						</label>
+					</p>
+					#if( $joinExcludeEnabledLocalDisabledGlobal )
+						<p class="indnt7 messageInformation">$tlang.getString( "ediacc.excludeEnabledLocalDisabledGlobal" )</p>
+					#end
+				#end
+				
+				## SAK-24423 - joinable site settings - limit by account types
+				#if( $joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal )
+					<p id="joinLimitByAccountType" class="checkbox indnt4">
+						<input name="chkJoinLimitByAccountType" id="chkJoinLimitByAccountType" type="checkbox" 
+							onclick="this.checked ? document.getElementById( 'joinerAccountTypes' ).style.display='block' 
+							: document.getElementById('joinerAccountTypes').style.display='none'; utils.resizeFrame(); validatePage();"
+							#if( $joinLimitByAccountType ) checked="checked" #end
+							#if( !$joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal ) disabled #end />
+						<label for="chkJoinLimitByAccountType" #if( !$joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal ) class="instruction" #end>
+							$tlang.getString( "ediacc.joinLimitByAccountType" )
+						</label>
+					</p>
+					<p id="joinLimitInfoDiv" class="messageInformation indnt6" style="display:none">
+						$tlang.getString("ediacc.selectAtLeastOneAccountType")
+					</p>
+					
+					#if( $joinLimitEnabledLocalDisabledGlobal )
+						<p class="indnt7 messageInformation">$tlang.getString( "ediacc.limitEnabledLocalDisabledGlobal" )</p>
+					#end
+					
+					<div class="indnt6" id="joinerAccountTypes" #if( $joinLimitByAccountType ) style="display:block" #else  style="display:none" #end>
+						#foreach( $category in $joinableAccountTypeCategories )
+							#if( !$category )
+								#foreach( $accType in $joinableAccountTypes )
+									<p class="checkbox">
+										<input type="checkbox" name="chkJoin-$accType.type" id="chkJoin-$accType.type" onchange="validatePage();"
+											#foreach( $accountType in $joinLimitedAccountTypes )
+												#if( $accountType == $accType.type )
+													checked="checked"
+												#end
+											#end
+											#if( $joinLimitEnabledLocalDisabledGlobal )
+												disabled
+											#end
+										/>
+										<label for="chkJoin-$accType.type" #if( $joinLimitEnabledLocalDisabledGlobal ) class="instruction" #end>
+											$accType.label
+										</label>
+									</p>
+								#end
+							#end
+	
+							<p class="checkbox #if( $joinLimitEnabledLocalDisabledGlobal ) instruction #end">
+								$category
+								#foreach( $accType in $joinableAccountTypes )
+									#if( $accType.category == $category )
+										#set( $checkboxName = "$accType.category$accType.type" )
+										<p class="checkbox">
+											<input type="checkbox" name="chkJoin-$accType.type" id="chkJoin-$checkboxName" onclick="doCategoryCheck( this ); validatePage();"
+												#foreach( $accountType in $joinLimitedAccountTypes )
+													#if( $accountType == $accType.type )
+														checked="checked"
+													#end
+												#end
+												#if( $joinLimitEnabledLocalDisabledGlobal )
+													disabled
+												#end
+											/>
+											<label for="chkJoin-$checkboxName" #if( $joinLimitEnabledLocalDisabledGlobal ) class="instruction" #end>
+												$accType.label
+											</label>
+										</p>
+									#end
+								#end
+							</p>
+						#end
+			</div>
+				#end
+				
+		</div>
+		</div>
+		</fieldset>
+		<div id="globalAccessNoDiv" $globalAccessNoDivDisplay>
+			<p>
+				$tlang.getString("ediacc.other.setsitacc"): $tlang.getString("sitegen.siteinfolist.sitepar")
+			</p>
+			<p/>
+		</div>
+		## END Global Access ##
+		<span id="siteId" style="display:none">$site.id</span>
+		#if ($viewDelegatedAccessUsers)
+			<span id="viewDelegatedAccessUsers" style="display:none">true</span>
+			<div id="viewDelegatedAccessUsersDiv" style="display:none">
+				<fieldset>
+				<legend>
+				<h4>$tlang.getString("daAccess.header")</h4>
+				</legend>
+				<div class="instruction">
+					$tlang.getString("daAccess.instructions")
+				</div>
+				<br/>
+				<table id="viewDAAccessUsersTable" class = "listHier lines" cellspacing="0" border="0" style="width: auto">
+					<tr>
+						<th>$tlang.getString("daAccess.tableheader.name")</th>
+						<th>$tlang.getString("daAccess.tableheader.eid")</th>
+						<th>$tlang.getString("daAccess.tableheader.realm")</th>
+						<th>$tlang.getString("daAccess.tableheader.role")</th>
+						<th>$tlang.getString("daAccess.tableheader.restrictedTools")</th>
+					</tr>
+				</table>
+				<br/>
+				<br/>
+				</fieldset>
+			</div>
+		#end
+		
+		#if ($shoppingPeriodInstructorEditable)
+		<span id="shoppingPeriodInstructorEditable" style="display:none">true</span>
+		<div id="shoppingVisibilityDiv" style="display:none">
+			<!-- easy access for JS -->
+			<fieldset>
+			<legend>
+			<h4>$tlang.getString("shopping.header")</h4>
+			</legend>
+			<div class="instruction" id="editShoppingInstructions" name="editShoppingInstructions">
+				$tlang.getString("shopping.instructions")
+			</div>
+			<div class="instruction" id="viewShoppingInstructions" name="viewShoppingInstructions" style="display: none">
+				$tlang.getString("shopping.instructions.view")
+			</div>
+			<div class="indnt1">
+				<a href="#" name="optOutOfShoppingPeriod" id="optOutOfShoppingPeriod" onclick="optOutOfShoppingPeriod(); return false;">
+					$tlang.getString("shopping.optout.label")
+				</a>
+				<br/>
+				<br/>
+				<input type="checkbox" name="shoppingPeriodOverride" id="shoppingPeriodOverride" onclick="setShoppingSettingsDisabled(!this.checked);"/>
+				<label for"shoppingPeriodOverride" name="shoppingPeriodOverrideLabel" id="shoppingPeriodOverrideLabel">$tlang.getString("shopping.override.label"): </label>
+				
+				<table>
+				<tr>
+				<td align="right">
+				<label for="shoppingVisibilityStart">$tlang.getString("shopping.start.label"): </label>
+				</td>
+				<td>
+				<input type="text" id="shoppingVisibilityStart" name="shoppingVisibilityStart" class="shoppingSetting" value=""/>
+				</td>
+				</tr>
+				<tr>
+				<td align="right">
+				<label for="shoppingVisibilityEnd">$tlang.getString("shopping.end.label"): </label>
+				</td>
+				<td>
+				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" class="shoppingSetting" value=""/>
+				</td>
+				</tr>
+				<tr>
+				<td align="right">
+				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label>
+				</td>
+				<td>
+				<select name="shoppingRole" id="shoppingRole" class="shoppingSetting">
+					<option value="">$tlang.getString("shopping.noauth")</option>
+				</select>
+				</td>
+				</tr>
+				<tr>
+					<td style="vertical-align:top;">
+						<label for="showAuthTools">$tlang.getString("shopping.showTools.label"): </label>
+						<br/>
+						<img id="shoppingToolsWarning" src="/library/image/silk/exclamation.png" style="display:none"/>
+					</td>
+					<td>
+						<div id="shoppingtabs">
+							<ul>
+								<li><a href="#shoppingtabs-1">$tlang.getString("shopping.showTools.publicLabel")</a></li>
+								<li><a href="#shoppingtabs-2">$tlang.getString("shopping.showTools.authLabel")</a></li>
+							</ul>
+							<div id="shoppingtabs-1">
+								<select name="showPublicTools" title="$tlang.getString('shopping.showTools.publicTitle')" onchange="setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});" id="showPublicTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+								</select>
+								<a id="showPublicToolsSelectAll" class="shoppingSetting" href="#">$tlang.getString("selectAll")</a>
+							</div>
+							<div id="shoppingtabs-2">
+								<select name="showAuthTools" title="$tlang.getString('shopping.showTools.authTitle')" id="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+								</select>
+								<a id="showAuthToolsSelectAll" class="shoppingSetting" href="#">$tlang.getString("selectAll")</a>
+							</div>
+						</div>
+					</td>
+				</tr>
+				</table>
+				<span class="alertMessage" id="showToolsWarning" style="display:none">$tlang.getString("shopping.showTools.warning")</span>
+			</div>
+			</fieldset>
+			</div>
+
+		</div>
+		#end
+			<p/>
+				
+		<input type="hidden" name="continue" value="$!continue" />
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<div class ="act">
+			#if($!site)
+				<input type="submit" accesskey="s" id="updateButton" onclick="SPNR.disableControlsAndSpin( this, null );" 
+					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
+				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#else
+				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" /onclick="SPNR.disableControlsAndSpin( this, null );" >
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#end
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

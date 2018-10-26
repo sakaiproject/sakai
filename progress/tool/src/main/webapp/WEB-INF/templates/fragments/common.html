@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<head th:fragment="head">
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/theme.blue.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/widget.css}"/>
+    <script type="text/javascript" src="/library/js/headscripts.js"></script>
+    <script type="text/javascript">includeLatestJQuery('sakai.widget');</script>
+    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
+    <title th:text="#{common.title}">Sakai Widget Tool</title>
+</head>
+
+<div th:fragment="widgetTable">
+    <script>
+        $(document).ready(function() {
+            $("#widgetTable")
+                .tablesorter({theme: 'blue', widthFixed: true, widgets: ['zebra']})
+                .tablesorterPager({container: $("#widgetTablePager")});
+        });
+    </script>
+    <table id="widgetTable" class="tablesorter">
+        <thead>
+        <tr>
+            <th th:text="#{table.id}">ID</th>
+            <th th:text="#{table.title}">TITLE</th>
+            <th th:text="#{table.description}">DESCRIPTION</th>
+            <th th:text="#{table.expiration}">EXPIRATION</th>
+            <th th:text="#{table.created}">CREATED ON</th>
+            <th th:text="#{table.modified}">LAST MODIFIED</th>
+        </tr>
+        </thead>
+        <tbody th:remove="all-but-first">
+        <tr th:each="widget : ${widgets}">
+            <td><a href="edit.html" th:href="@{/edit(id=${widget.id})}" th:text="${widget.id}">Id</a></td>
+            <td th:text="${widget.title}">Title</td>
+            <td th:text="${widget.description}">Description</td>
+            <td th:text="${{widget.dateExpired}}">Expiration Date</td>
+            <td th:text="${{widget.dateCreated}}">Create Date</td>
+            <td th:text="${{widget.dateModified}}">Modified Date</td>
+        </tr>
+        </tbody>
+    </table>
+    <div id="widgetTablePager" class="tablesorter-pager">
+        <form>
+            <img th:src="@{/icons/first.png}" class="first">
+            <img th:src="@{/icons/prev.png}" class="prev">
+            <input type="text" class="pagedisplay">
+            <img th:src="@{/icons/next.png}" class="next">
+            <img th:src="@{/icons/last.png}" class="last">
+            <select class="pagesize">
+                <option selected="selected" value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

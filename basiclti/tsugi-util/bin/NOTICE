@@ -1,0 +1,69 @@
+BasicLTI Utilities (tsugi-util)
+Copyright 2010- Charles R. Severance
+
+-----------------------------------------------------------
+
+This product includes software (OAuth) developed by
+AOL LLC., Google, Inc., and Netflix, Inc. (http://code.google.com/p/oauth/).
+
+This product includes software (Base64) developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+-----------------------------------------------------------
+
+History of the License of org.tsugi code
+
+The code in the package org.tsugi was originally written by 
+Charles R. Severance and placed in the org.imsglobal package.
+While the code was not owned by IMS Global, the copyright was 
+IMS Global (and not Sakai Foundation or Apereo Foundation) to encourage
+others to extract this code and put it into their own projects.
+
+Paul Gray and others decived to pull the org.imsglobal code out from
+the Sakai source tree and create a separate repository to make it simpler
+for folks to make use of the code outside of Sakai.  This independent 
+fork was done with the approval of Charles R. Severance.
+
+	https://github.com/pfgray/basiclti-util-java.git
+
+In June 2015, Paul was asked to move the repository from his own personal
+account into an IMS owned github repository:
+
+	https://github.com/IMSGlobal/basiclti-util-java
+
+This was also done with the apporval of Charles R. Severance
+
+This made good sense as now IMS is now in posession of the code to 
+produce those "org.imsglobal" artifacts.
+
+The artifact in the Sakai repository has drifted away from that 
+original fork as each repo has their own goals and objectivies.
+
+This code was renamed "org.tsugi" and the copyright changed back to 
+Charles R. Severance in order to avoid confusion with the IMS
+artifacts with the same names.  
+
+	https://jira.sakaiproject.org/browse/SAK-30308
+
+The org.tsugi code for now co-evolves with Sakai's needs for LTI 2.x,
+ContentItem, and other specs.  At some point in the future, the 
+org.tsugi code might find its way into a separate repository so it
+is simply referenced by Sakai. But until other customers develop for
+code base - the code will remain in the Sakai repository.
+
+Employment notes
+
+While Dr. Charles R. Severance at times did hourly consulting for 
+IMS Global during the time period he was working on this code, 
+the effort on this code was never billed to IMS Global since 
+IMS was not willing to support Sakai software development.  During 
+the period 2012-2014 Dr. Charles Severance worked as a consultant 
+paid by Blackboard explicitly supporting his involvement and 
+contributions to Sakai.  Much of the LTI 2.0 code was built and 
+paid for by BlackBoard with an Open Source Contribution Agreement 
+with Sakai/Apereo.
+
+-- Charles R. Severance
+Tue Feb  2 12:37:58 EST 2016
+
+

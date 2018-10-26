@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+	<wicket:panel>
+
+        <form wicket:id="addOrEditGradeItemForm" class="form-horizontal">
+            <div wicket:id="addGradeFeedback"></div>
+
+            <div class="form-group">
+                <div wicket:id="subComponents"></div>
+
+				<div class="col-xs-offset-3 col-xs-8">
+					<button wicket:id="submit" type="submit" class="button_color gb-create-or-save"><wicket:container wicket:id="submitLabel" /></button>
+					<button wicket:id="createAnother" type="submit" class="button_color gb-create-another" wicket:message="title:label.addgradeitem.createanother">
+						<span aria-hidden="true" class="glyphicon glyphicon-plus"></span>
+						<span class="sr-only"><wicket:message key="label.addgradeitem.createanother"/></span>
+					</button>
+					<button wicket:id="cancel" type="button"><wicket:message key="button.cancel" /></button>
+				</div>
+			</div>
+		
+		</form>
+
+	</wicket:panel>
+</body>
+</html>

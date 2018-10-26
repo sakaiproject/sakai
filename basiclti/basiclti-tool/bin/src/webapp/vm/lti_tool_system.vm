@@ -1,0 +1,186 @@
+
+	<title>jQuery plugin: Tablesorter 2.0 - Pager plugin</title>
+
+	<!-- jQuery -->
+${includeLatestJQuery}
+
+<script type="text/javascript" src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link type="text/css" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" media="screen" />
+
+    <!-- Tablesorter: required -->
+    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.blue.min.css');</script>
+    <script type="text/javascript">includeWebjarLibrary('jquery.tablesorter');</script>
+
+	<script id="js">$(function(){
+
+	// **********************************
+	//  Description of ALL pager options
+	// **********************************
+	var pagerOptions_system = {
+
+		// target the pager markup - see the HTML block below
+		container: $("#tools_system_pager"),
+
+		// output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+		output: '{startRow} to {endRow} ({totalRows})',
+
+		// apply disabled classname to the pager arrows when the rows at either extreme is visible - default is true
+		updateArrows: true,
+
+		// starting page of the pager (zero based index)
+		page: 0,
+
+		// Number of visible rows - default is 10
+		size: 50,
+
+		// if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+		// table row set to a height to compensate; default is false
+		fixedHeight: true,
+
+		// remove rows from the table to speed up the sort of large tables.
+		// setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+		removeRows: false,
+
+		// css class names of pager arrows
+		cssNext: '.next', // next page arrow
+		cssPrev: '.prev', // previous page arrow
+		cssFirst: '.first', // go to first page arrow
+		cssLast: '.last', // go to last page arrow
+		cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+		cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+
+		// class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+		cssDisabled: 'disabled' // Note there is no period "." in front of this class name
+
+	};
+		
+	// initialize the tablersorter for the system external tool table
+	$("#tools_system")
+		.tablesorter({
+            theme: 'blue',
+			widthFixed: true,
+			widgets: ['zebra', "filter"],
+			widgetOptions : { 
+		      // css class applied to the table row containing the filters & the inputs within that row 
+		      filter_cssFilter : 'tablesorter-filter', 
+		 
+		      // If there are child rows in the table (rows with class name from "cssChildRow" option) 
+		      // and this option is true and a match is found anywhere in the child row, then it will make that row 
+		      // visible; default is false 
+		      filter_childRows : false, 
+		 
+		      // Set this option to true to use the filter to find text from the start of the column 
+		      // So typing in "a" will find "albert" but not "frank", both have a's; default is false 
+		      filter_startsWith : false, 
+		 
+		      // Set this option to false to make the searches case sensitive 
+		      filter_ignoreCase : true, 
+		 
+		      // Delay in milliseconds before the filter widget starts searching; This option prevents searching for 
+		      // every character while typing and should make searching large tables faster. 
+		      filter_searchDelay : 300, 
+		 
+		      // See the filter widget advanced demo on how to use these special functions 
+		      filter_functions : {} 
+		 
+		    },
+		    //Default sort
+		    sortList : [ [ 4,0] ],
+			headers: { 
+	            // special configuration for this column (we start counting zero) 
+	            5: { 
+	                // disable it by setting the property sorter to false 
+	                sorter: false
+	            }
+	    	}
+		})
+	
+		// initialize the pager plugin
+		// ****************************
+		.tablesorterPager(pagerOptions_system);
+
+	});
+</script>
+<div class="portletBody">
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span class="current">$tlang.getString("tool.in.system")</span></li>
+		<li><span><a href="" title="$tlang.getString("tool.in.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;"> $tlang.getString("tool.in.site")</a></span></li>
+		#if ( $isAdmin && $showLTI2 )<li><span><a href="" title="$tlang.getString("deploy.in.system")" onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;"> $tlang.getString("deploy.in.system")</a></span></li>#end
+	</ul>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+        #if ($configMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($configMessage)</div><div class="clear"></div>#end
+	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></a></div>#end
+	<br/>
+	#if ($!ltiTools && $ltiTools.size() > 0 )
+		$tlang.getString("tool.description.system")
+		<br/>
+		<div id="tools_system_pager" class="pager">
+			<img src="/basiclti-admin-tool/icons/first.png" class="first" alt="First" />
+			<img src="/basiclti-admin-tool/icons/prev.png" class="prev" alt="Prev" />
+			<span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+			<img src="/basiclti-admin-tool/icons/next.png" class="next" alt="Next" />
+			<img src="/basiclti-admin-tool/icons/last.png" class="last" alt="Last" />
+			<select class="pagesize">
+				<option value="10">10</option>
+				<option selected="selected" value="50">50</option>
+				<option value="100">100</option>
+				<option value="200">200</option>
+			</select>
+		</div>
+		<table id="tools_system" class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.table")">
+			<thead>
+	        <tr>
+                <th id="title" data-placeholder="$tlang.getString('search.title')">$tlang.getString("bl_title")</th>
+                <th id="launch" data-placeholder="$tlang.getString('search.url')">$tlang.getString("bl_launch")</th>
+                <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
+                #if ($isAdmin) <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> #end
+                #if ($isAdmin) <th id="toolorder" class="filter-false">$tlang.getString("bl_toolorder")</th> #end
+                #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
+	        </tr>
+	        </thead>
+	        <tbody>
+            #foreach($tool in $ltiTools)
+            	
+				<tr>
+	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$validator.escapeHtml($tool.get("title"))</td>
+	                <td headers="launch">
+						#set($launch="")
+						#set($launch=$tool.get("launch"))
+						$!launch
+	                </td>
+	                <td headers="site_id">
+	                	#set($siteId="<span style='display:none;'>zzzz</span>")
+	                	#set($siteId=$tool.get("SITE_ID"))
+	                	$!siteId
+	                </td>
+	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
+	                #if ($isAdmin) <td headers="toolorder">$!tool.get("toolorder")</a></td> #end
+	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
+		                <td headers="action">
+		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
+	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a> / 
+	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a>
+	                        #end
+		                </td>
+	                 #end
+                </tr>
+			#end
+			</tbody>
+		</table>
+	#else
+		<p>$tlang.getString("tool.none")</p>
+	#end
+	$tlang.getString("tool.note")
+#if ( ! $isAdmin )
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
+</div>

@@ -1,0 +1,3830 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE taglib
+  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<taglib>
+
+  <tlib-version>1.9</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>sakai</short-name>
+  <uri>http://sakaiproject.org/jsf/sakai</uri>
+  <description>
+<![CDATA[     This tag library contains Sakai 2.0 JavaServer Faces
+    component tags for creating user interface elements specified in the
+    <a href="http://cvs.sakaiproject.org/release/1.0.0/docs/Sakai-Style-Guide-1.0.0.pdf" target="_blank">Sakai style guide</a>.]]>
+  </description>
+
+  <tag>
+    <name>view</name>
+    <tag-class>org.sakaiproject.jsf.tag.ViewTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Outermost container for a Sakai tool.  Parent should be a f:view tag.
+      Contains all other Sakai tags.  Responsible for rendering the HTML,
+      HEAD, and BODY tags (if necessary in the rendering context).  If the
+      tool is being rendered as a fragment of HTML, this tag will detect
+      this and not render the HTML, HEAD, and BODY.
+    </description>
+
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The page title.  Rendered as the HTML title of the tool page, unless
+        the tool is being aggreggated and doesn't have its own HTML document.
+      </description>
+    </attribute>
+    <attribute>
+      <name>toolCssHref</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+      <description>
+        The URL of a stylesheet whose link should go between the base
+        Sakai stylesheet and the installation skin stylesheet.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>view_container</name>
+    <tag-class>org.sakaiproject.jsf.tag.ViewTag</tag-class>
+    <body-content>JSP</body-content>
+    <description><![CDATA[
+      <b>DEPRECATED</b> - Use sakai:view tag instead.
+    ]]>
+    </description>
+
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The page title.  Rendered as the HTML title of the tool page, unless
+        the tool is being aggreggated and doesn't have its own HTML document.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>view_content</name>
+    <tag-class>org.sakaiproject.jsf.tag.ViewContentTag</tag-class>
+    <body-content>JSP</body-content>
+    <description><![CDATA[ 
+      <b>DEPRECATED</b> - no longer necessary.  This tag has been
+      phased out and is only here for compatibility with older Sakai tools.
+      ]]>
+    </description>
+  </tag>
+  
+    <tag>
+    <name>view_title</name>
+    <tag-class>org.sakaiproject.jsf.tag.ViewTitleTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Output a view title according to the Sakai Style Guide.  Usually displayed at the
+      top of a tool page.
+    </description>
+    <attribute>
+      <name>indent</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          	  The integer intentation level at which to display this component - See the Sakai Style Guide.
+          	  Default is no special indentation.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+       The text of the title to display.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <example>
+    <![CDATA[
+    	<sakai:view_title value="Edit Announcement" indent="2" />
+   	]]>
+    </example>
+  </tag>
+  
+
+  <tag>
+    <name>tool_bar</name>
+    <tag-class>org.sakaiproject.jsf.tag.ToolBarTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Renders a Sakai style toolbar at the top of the tool.  
+      Should be contained in an h:form tag.  Children are tool_bar_ttem or tool_bar_spacer tags.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The value binding expression linking this component to a property in a backing bean.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The component identifier for this component. This value must be unique
+        within the closest parent component that is a naming container.
+      </description>
+    </attribute>
+    
+    <attribute>
+    	<name>rendered</name>
+    	<required>false</required>
+    	<rtexprvalue>false</rtexprvalue>
+    	<type>boolean</type>
+    	<description>
+    	  Determine if this component is to be rendered.
+    	</description>
+    </attribute>
+    
+    <attribute>
+         <name>separator</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
+  </tag>
+
+
+  <tag>
+    <name>tool_bar_item</name>
+    <tag-class>org.sakaiproject.jsf.tag.ToolBarItemTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Renders a Sakai style toolbar item (or button).  Parent should be a tool_bar tag.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The value binding expression linking this component to a property in a backing bean.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The component identifier for this component. This value must be unique
+        within the closest parent component that is a naming container.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>action</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>MethodBinding representing the application action to invoke when this
+      component is activated by the user. The expression must evaluate to a public method
+      that takes no parameters, and returns a String (the logical outcome) which is passed
+      to the NavigationHandler for this application.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>The displayed label of the toolbar item.</description>
+    </attribute>
+
+    <attribute>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description>If true, the toolbar item is disabled.  Clicking on the item does nothing.</description>
+    </attribute>
+
+    <attribute>
+      <name>immediate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description>Flag indicating that, if this component is activated by the user,
+      notifications should be delivered to interested listeners and actions immediately
+      (that is, during Apply Request Values phase) rather than waiting until Invoke Application phase.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Space-separated list of CSS style class(es) to be applied when
+        this element is rendered.  This value must be passed through
+        as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>current</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description>Flag indicating whether or not this component represents the current page</description>
+    </attribute>
+
+  </tag>
+
+
+  <tag>
+    <name>tool_bar_spacer</name>
+    <tag-class>org.sakaiproject.jsf.tag.ToolBarSpacerTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Renders a spacer (separator) in a Sakai style toolbar.  Parent should be a tool_bar tag.
+    </description>
+  </tag>
+
+
+  <tag>
+    <name>tool_bar_message</name>
+    <tag-class>org.sakaiproject.jsf.tag.ToolBarMessageTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Renders a message in the toolbar location.  Typically used instead of a toolbar.
+      Parent should usually be an h:form tag.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The value binding expression linking this component to a property in a backing bean.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The component identifier for this component. This value must be unique
+        within the closest parent component that is a naming container.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The text of the message.
+      </description>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <name>instruction_message</name>
+    <tag-class>org.sakaiproject.jsf.tag.InstructionMessageTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Render an instructional message.  Should be contained in a sakai:view tag.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+   <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The message text
+      </description>
+    </attribute>
+
+  </tag>
+
+
+  <tag>
+    <name>messages</name>
+    <tag-class>org.sakaiproject.jsf.tag.MessagesTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Output JSF messages (Sakai alert messages).  Parent should be a sakai:view tag.
+    </description>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+
+ <tag>
+    <name>input_date</name>
+    <tag-class>org.sakaiproject.jsf.tag.InputDateTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      <![CDATA[
+      Date entry widget that allows entering date and/or time.
+      Date can be selected through a text input as well as a date-picker
+      popup calendar.  Time is available through a text input
+      ]]>
+    </description>
+
+  <!-- Sun JSF - leave below.  MyFaces JSF - comment it out? -->
+    <!--  <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class> -->
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>showDate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        If true, enable input for user to enter the date.  Default is true.
+      </description>
+    </attribute>
+    <attribute>
+      <name>showTime</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        If true, enable input for user to enter the time.  Default is true.
+      </description>
+    </attribute>
+    <attribute>
+       <name>showSecond</name>
+       <required>false</required>
+       <rtexprvalue>false</rtexprvalue>
+       <description>
+         If true, and showTime is true, input seconds.
+         Default is false.
+         If false, default to zero seconds.
+       </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this element should be rendered.
+          Default is true;
+      </description>
+    </attribute>
+    <attribute>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this element must never
+          receive focus or be included in a subsequent
+          submit.
+      </description>
+    </attribute>
+    <!-- nice to have -->
+    <!--
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          this element is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+    <attribute>
+      <name>tabindex</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Position of this element in the tabbing order
+          for the current document.  This value must be
+          an integer between 0 and 32767.
+      </description>
+    </attribute>
+    -->
+  </tag>
+
+
+
+  <tag>
+    <name>output_date</name>
+    <tag-class>org.sakaiproject.jsf.tag.OutputDateTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Output a date in the Sakai date format, for example 2003-Mar-07 07:42:00 pm.
+      See the Sakai Style Guide, under topic Date/Time Entry.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>showTime</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        If true, show time.  Default is true.
+        If false, no time will be shown.
+      </description>
+    </attribute>
+    <attribute>
+      <name>showDate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        If true, show date.  Default is true.
+        If false, no date will be shown.
+      </description>
+    </attribute>
+    <attribute>
+      <name>showSeconds</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        If true and showTime is true, show seconds.
+        Default value is false.
+      </description>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <name>button_bar</name>
+    <tag-class>org.sakaiproject.jsf.tag.ButtonBarTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Render Sakai style button ("action") bar at the bottom of the tool.
+      See the Sakai Style Guide, "Item Summary Detail" and "Aggregated Item Summary".
+      Children are button_bar_item tags.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+
+  </tag>
+
+
+  <tag>
+    <name>button_bar_item</name>
+    <tag-class>org.sakaiproject.jsf.tag.ButtonBarItemTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Render an item in a Sakai style button bar.  Parent should be a sakai:button_bar tag.
+    </description>
+
+    <attribute>
+      <name>active</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Whether this component is the "active" button (maybe the default button?).  Default is false.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		To allow adding the css class of 'active' to the button in the button_bar that is most likely to be the default
+      </description>
+    </attribute>    
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>action</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+          MethodBinding representing the application action to invoke when this component
+          is activated by the user. The expression must evaluate to a public method that
+          takes no parameters, and returns a String (the logical outcome) which is passed
+          to the NavigationHandler for this application.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>java.lang.String</type>
+      <description>
+       The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description>
+          Flag indicating that this element must never receive focus or be included in a subsequent submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>immediate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <type>boolean</type>
+      <description>
+           Flag indicating that, if this component is activated by the user,
+           notifications should be delivered to interested listeners and actions
+           immediately (that is, during Apply Request Values phase) rather than
+           waiting until Invoke Application phase.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>accesskey</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          	 Access key that, when pressed, transfers focus to this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>tabindex</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Position of this element in the tabbing order for the current document.
+        This value must be an integer between 0 and 32767.
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          	  Advisory title information about markup elements generated for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Javascript code executed when a pointer button is
+        clicked over this element.
+      </description>
+    </attribute>    
+  </tag>
+
+  <tag>
+    <name>peer_refresh</name>
+    <tag-class>org.sakaiproject.jsf.tag.PeerRefreshTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Adds a javascript refresh to a peer html element to the rendering.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The name of the peer element.
+      </description>
+    </attribute>
+
+  </tag>
+
+  <tag>
+    <name>courier</name>
+    <tag-class>org.sakaiproject.jsf.tag.CourierTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      Place a Sakai Courier in the response.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>refresh</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The refresh interval, in seconds
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>flat_list</name>
+    <tag-class>org.sakaiproject.jsf.tag.FlatListTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Render a flat (non-hierarchical) list.  See the Sakai Style Guide,
+      under topics "List" and "Actionable List".
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    
+      <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught styleClass for this widget
+      </description>
+    </attribute>
+
+      <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught style for this widget
+      </description>
+    </attribute>
+
+      <attribute>
+      <name>columnClasses</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught columnClasses  for this widget
+      </description>
+    </attribute>
+
+      <attribute>
+      <name>summary</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught summary  for this widget
+      </description>
+    </attribute>
+
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <name>doc_properties</name>
+    <tag-class>org.sakaiproject.jsf.tag.DocPropertiesTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      A 2 column name / value set of properties for a document
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <name>doc_section_title</name>
+    <tag-class>org.sakaiproject.jsf.tag.DocSectionTitleTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      A document section title
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <name>doc_section</name>
+    <tag-class>org.sakaiproject.jsf.tag.DocSectionTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      A document section
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <name>group_box</name>
+    <tag-class>org.sakaiproject.jsf.tag.GroupBoxTag</tag-class>
+    <body-content>JSP</body-content>
+    <description><![CDATA[
+      <b>DEPRECATED</b> - use panel_titled instead.
+      ]]>
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The group box title
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>panel_titled</name>
+    <tag-class>org.sakaiproject.jsf.tag.GroupBoxTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Container that renders children components inside a titled grouping box.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The group box title
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+
+    <name>panel_edit</name>
+    <tag-class>org.sakaiproject.jsf.tag.PanelEditTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Setup an editing panel.  2 column layout.
+    </description>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+
+  </tag>
+
+  <tag>
+    <name>rich_text_area</name>
+    <tag-class>org.sakaiproject.jsf.tag.RichTextAreaTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+    	<![CDATA[
+    	<b>DEPRECATED</b> - use inputRichText tag instead.  Only present
+    	here for compatibility with older Sakai tools.
+    	Renders a WYSIWYG text editor. Allows the user to edit HTML formatted text.
+    	The JavaScript widget is based on the open-source 
+    	<a href="http://www.htmlarea.com/" target="_blank">HTMLArea</a> project.  
+    	]]>
+    </description>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+    
+	<attribute>
+	  <name>columns</name>
+	  <required>false</required>
+	  <rtexprvalue>false</rtexprvalue>
+	  <description>
+		 Number of columns in the textarea (in character units).  Complements the the 'width' attribute.
+	  </description>
+	</attribute>
+
+	<attribute>
+	  <name>rows</name>
+	  <required>false</required>
+	  <rtexprvalue>false</rtexprvalue>
+	  <description>
+		 Number of rows in the textarea (in character units).  Complements the 'height' attribute.
+	  </description>
+	</attribute>
+
+    <attribute>
+      <name>width</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Width of the widget (in pixel units).  Complements the 'columns' attribute.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>height</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Height of the widget (in pixel units).  Complements the 'rows' attribute.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>toolbarButtonRows</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Number of rows of buttons in the toolbar.  Defaults to 2.  Valid values are 0, 2, or 3.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>javascriptLibrary</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+             The URL to the directory of the HTMLArea JavaScript library.
+             Defaults to the Sakai legacy customized HTMLArea.  May be a relative URL. 
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>autoConfig</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+             Whether to recalculate the configuration - defaults to false.  If true,
+             the width, height, and toolbarButtonRows will be recalculated based on 
+             the values given.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>justArea</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        <![CDATA[<strong>DEPRECATED</strong>]]> - use toolbarButtonRows=0 instead.  
+        If true, the WYSIWYG toolbar is not shown.  The text is still editable.  
+        Keyboard shortcuts for formatting (like Ctrl-B for bold) still work.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>inputRichText</name>
+    <tag-class>org.sakaiproject.jsf.tag.InputRichTextTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      <![CDATA[
+        Renders a WYSIWYG text editor and toolbar within an HTML "textarea" element.
+        Allows the user to edit HTML formatted text.
+        The textarea is decorated using the HTMLArea JavaScript library.
+        The JavaScript widget is based on the open-source
+      <a href="http://www.htmlarea.com/" target="_blank">HTMLArea</a> project.
+      HTMLArea is copyright
+      <a href="http://interactivetools.com" target="_blank">InteractiveTools.com</a>
+      and <a href="http://dynarch.com" target="_blank">Dynarch.com</a> and it is released
+      under a BSD-style license.
+      <br />
+      <br />
+      HTMLArea was created and developed up to
+      version 2.03 by InteractiveTools.com. Version 3.0 is a full rewrite,
+      developed by <a href="http://www.bazon.net/mishoo/">Mihai Bazon</a>.
+      It contains code sponsored by third-party
+      companies as well. Please see our About Box for details about
+      who sponsored what plugins.
+      ]]>
+    </description>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The editable HTML displayed inside the textarea.
+      </description>
+    </attribute>
+
+  <attribute>
+    <name>cols</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+     Number of columns in the textarea (in character units).  Defaults to 80.
+     Complements the the 'width' attribute.  Passes through to the HTML textarea element.
+    </description>
+  </attribute>
+
+  <attribute>
+    <name>rows</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+     Number of rows in the textarea (in character units).  Defaults to 15.
+     Complements the 'height' attribute.  Passes through to the HTML textarea element.
+    </description>
+  </attribute>
+
+    <attribute>
+      <name>width</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Width of the widget (in pixel units).
+        If this attribute is not specified, the width is controlled by the 'cols' attribute.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>height</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Height of the widget (in pixel units).
+        If this attribute is not specified, the width is controlled by the 'rows' attribute.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>textareaOnly</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          If true, only the textarea will be rendered.  Defaults to false.
+          If true, the rich text toolbar
+          and external HTMLArea JavaScript will not be rendered.  Attributes that
+          affect the textarea element will be rendered (for example style, styleClass).
+          This widget is then rendered as just a plain-old textarea.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>enableFullPage</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          If true, this will set CKEditor's fullPage property, which captures the entire HTML document
+          with html, head and body tags.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>buttonSet</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Select toolbar from among a number precanned lists of command buttons.
+        Allowed values are: "none", "small", "medium", "large". (values tentative).
+        Defaults to "medium", which has 2 rows of buttons.  For fine-grained
+        control of which buttons are shown, use the buttonList attribute
+        instead.  "small" has 1 row
+        of buttons.  "large" has 3 rows of buttons, almost everything available.
+        "none" has 0 rows of buttons, no buttons at all - The text is still editable;
+        Keyboard shortcuts for formatting (like Ctrl-B for bold) still work.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>buttonList</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Comma delimited list of toolbar command buttons registered with
+        component.  If not specified, will default to a defined list.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>javascriptLibraryExtensionURL</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        URL to an external JavaScript file with additional
+        JavaScript to execute beyond the default, for example
+        extra command button definitions.  May be a relative URL.
+        Default is nothing.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>javascriptLibraryURL</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+             The URL to the directory of the HTMLArea JavaScript library.
+             This allows overriding the default HTMLArea JavaScript library
+             that comes with this component.
+             May be a relative URL.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>showXPath</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        If true show XPath at bottom of editor.  Default is true.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>hideAble</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Show sub control allowing you to hide editor.
+        Default is false.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>autoConfig</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+            ___TODO: This is here for legacy purposes - is it really necessary anymore?___
+             Whether to recalculate the configuration - defaults to false.  If true,
+             the width, height, and toolbar buttons will be recalculated based on
+             the values given.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>converter</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Converter instance registered with this component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+   </attribute>
+
+   <attribute>
+      <name>immediate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this component's value must be
+          converted and validated immediately (that is, during
+          Apply Request Values phase), rather than waiting
+          until Process Validations phase.
+      </description>
+   </attribute>
+   <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>required</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that the user is required to provide a submitted
+          value for this input component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>validator</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          MethodBinding representing a validator method that will be called
+          during Process Validations to perform correctness checks on the
+          value of this component.  The expression must evaluate to a public
+          method that takes FacesContext, UIComponent, and Object parameters,
+          with a return type of void.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>valueChangeListener</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          MethodBinding representing a value change listener method that will be
+          notified when a new value has been set for this input component.  The
+          expression must evaluate to a public method that takes a
+          ValueChangeEvent parameter, with a return type of void.
+      </description>
+    </attribute>
+    <attribute>
+      <name>accesskey</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Access key that, when pressed, transfers focus
+          to this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>dir</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Direction indication for text that does not inherit directionality.
+          Valid values are "LTR" (left-to-right) and "RTL" (right-to-left).
+      </description>
+    </attribute>
+    <attribute>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this element must never
+          receive focus or be included in a subsequent
+          submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Code describing the language used in the generated markup
+          for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>readonly</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this component will prohibit
+          changes by the user.  The element may receive focus
+          unless it has also been disabled.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          CSS style(s) to be applied to the underlying textarea when it is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          the underlying textarea is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+    <attribute>
+      <name>tabindex</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Position of the underlying textarea element in the tabbing order
+          for the current document.  This value must be
+          an integer between 0 and 32767.
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Advisory title information about markup elements generated
+          for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>attachedFiles</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          A list of SelectItems or a Map of link to label strings that
+          will be rendered as a list on the editor.
+      </description>
+    </attribute>
+    <attribute>
+      <name>collectionBase</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Collection with in Content Hosting to use for any ContentHostingService 
+          interactions with in the editor, such as the FCK file browser.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>inputFileUpload</name>
+    <tag-class>org.sakaiproject.jsf.tag.InputFileUploadTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+    Widget that allows the user to upload a file.  The uploaded
+    file is available through the value of the component, through the FileItem
+    interface.  See the Apache commons-fileupload 1.0 API for details at
+    http://jakarta.apache.org/commons/fileupload/.  The recommended use of this 
+    widget is to use the valueChangeListener attribute to call a method that 
+    will process the uploaded file.  The uploaded file is NOT persisted to 
+    storage automatically; the application is responsible for that, not the 
+    widget.  
+    
+    The widget needs a filter configured in web.xml.  The Sakai
+    RequestFilter is recommended; however, a custom filter is permissable.
+    The widget is compatible with the MyFaces filter ("extensionsFilter") as an alternative.
+    A custom filter must expose the uploaded file though the commons-fileupload 1.0
+    FileItem interface, in one of two ways.  It must be made available 
+    either as a request attribute with the 
+    field name, and would be accessible as follows:
+    FileItem item = (FileItem) request.getAttribute(fieldName);
+    OR as a method on a request wrapper with the following signature:
+    public org.apache.commons.fileupload.FileItem getFileItem(String fieldName)
+     </description>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.  If the "directory" attribute is not
+          used, the value of the component is the uploaded FileItem.  If the "directory"
+          attribute is used, the value of the component is the server-side absolute
+          path to the uploaded file.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>directory</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          If present, the directory to which to persist uploaded files.  Use of this 
+          attribute is discouraged.  If this attribute is used, a tool which contains
+          the  tag will not
+          be cluster-safe since different application servers probably do not share 
+          the same filesystem.  If a file already exists and another file of the same
+          name is uploaded, the existing file will be overwritten.
+      </description>
+    </attribute> 
+    
+    <attribute>
+      <name>valueChangeListener</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          This is the recommended way to access the uploaded file.  The valueChangeListener
+          will be called when a file is uploaded.MethodBinding representing a value change 
+          listener method that will be
+          notified when a new value has been set for this input component.  The
+          expression must evaluate to a public method that takes a
+          ValueChangeEvent parameter, with a return type of void.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          CSS style(s) to be applied to the underlying input tag when it is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          the underlying input tag is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+   </attribute>
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+
+   <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    
+   <attribute>
+      <name>immediate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this component's value must be
+          converted and validated immediately (that is, during
+          Apply Request Values phase), rather than waiting
+          until Process Validations phase.
+      </description>
+   </attribute>
+   
+    <attribute>
+      <name>required</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that the user is required to provide a submitted
+          value for this input component.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>validator</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          MethodBinding representing a validator method that will be called
+          during Process Validations to perform correctness checks on the
+          value of this component.  The expression must evaluate to a public
+          method that takes FacesContext, UIComponent, and Object parameters,
+          with a return type of void.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>accept</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>align</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>accesskey</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>maxlength</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>size</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+    
+<!-- 
+    <attribute>
+      <name>dir</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Direction indication for text that does not inherit directionality.
+          Valid values are "LTR" (left-to-right) and "RTL" (right-to-left).
+      </description>
+    </attribute>
+-->
+    <attribute>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+<!-- 
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Code describing the language used in the generated markup
+          for this component.
+      </description>
+    </attribute>
+-->
+    <attribute>
+      <name>readonly</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>tabindex</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Pass-through attribute.  Will be output as-is on the underlying input element.
+      </description>
+    </attribute>
+<!-- 
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Advisory title information about markup elements generated
+          for this component.
+      </description>
+    </attribute>
+-->
+	<example>
+    <![CDATA[
+    In myfile.jsf:
+    <f:view>
+      <h:form enctype="multipart/form-data">   
+         <sakai:inputFileUpload valueChangeListener="#{examplebean.processFileUpload}" />
+         <h:commandButton value="Upload" type="submit" />
+      </h:form>
+    </f:view>
+    
+    In web.xml:
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+         <init-param>
+        	<param-name>upload.enabled</param-name>
+        	<param-value>true</param-value>
+        </init-param>
+    </filter>
+    
+    In ExampleBean.java:
+         public void processFileUpload(ValueChangeEvent event) throws AbortProcessingException
+         {
+             try
+             {
+                 FileItem item = (FileItem) event.getNewValue();
+	             String fieldName = item.getFieldName();
+	             String fileName = item.getName();
+	             long fileSize = item.getSize();
+	        
+	             // Read the file as a stream (may be more memory-efficient)
+	             InputStream fileAsStream = item.getInputStream();
+ 
+	             // OR INSTEAD read the contents as a byte array (probably less memory-efficient)
+	             byte[] fileContents = item.get();
+	        
+	             // now process the file.  Do application-specific processing
+	             // such as parsing the file, storing it in the database,
+	             // or whatever needs to happen with the uploaded file.
+             }
+             catch (Exception ex)
+             {
+                 // handle exception
+             }
+         }
+    ]]>
+    </example>
+
+  </tag>
+
+  <tag>
+    <name>pager</name>
+    <tag-class>org.sakaiproject.jsf.tag.PagerTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+        Pager widget that provides UI controls for paging a table.  See the
+        Sakai style guide, under heading "List Navigator UI Components".
+    </description>
+     <attribute>
+      <name>totalItems</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Total number of items in the list.  This attribute is read-only;
+        the widget will get this value, but not set it.
+      </description>
+    </attribute>
+     <attribute>
+      <name>firstItem</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>The item number (0-based) of the first item displayed.
+      This attribute is read-write; the widget will get this value, and set it when
+        it is changed.  Alternate to using the value attribute.</description>
+    </attribute>
+    <attribute>
+      <name>pageSize</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Number of items to display in a single page of items.
+        Default is 20.  This attribute is read-write; the widget will get this value, and set it when
+        it is changed.  Alternate to using the value attribute.
+      </description>
+    </attribute>
+    <attribute>
+      <name>accesskeys</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Whether to have HTML "accesskey" attributes for the buttons.  Default is false.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        The value (which is the paging state of this widget) is two numbers
+        in a String, of the form "firstItem,pageSize".
+        See attributes firstItem and pageSize.
+      </description>
+     </attribute>
+    <attribute>
+      <name>lastItem</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>One past the last item displayed (eg, items 1-10 would have lastItem=10).
+      This attribute is write-only; the widget calculates this attribute
+      and sets it when it has changed.
+      </description>
+    </attribute>
+    <attribute>
+      <name>valueChangeListener</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Register a listener that will be called when the widget value (the paging state) changes.
+        See the value attribute.
+      </description>
+    </attribute>
+    <!--  actionListener is unnecessary, use valueChangeListener instead -->
+    <!--
+    <attribute>
+      <name>actionListener</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Register a listener that will be called when the widget value (the paging state) changes.
+        See the value attribute.
+      </description>
+    </attribute>
+    -->
+    <attribute>
+      <name>pageSizes</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         String which is a list of options of number of items per page.  Default is "5,10,20,50,100".
+      </description>
+    </attribute>
+    <attribute>
+      <name>renderFirst</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Whether to display the "first item" button.  Default is true.</description>
+    </attribute>
+    <attribute>
+      <name>renderPrev</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Whether to display the "previous item" button.  Default is true.</description>
+    </attribute>
+    <attribute>
+      <name>renderNext</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Whether to display the "next item" button.  Default is true.</description>
+    </attribute>
+    <attribute>
+      <name>renderLast</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Whether to display the "last item" button.  Default is true.</description>
+    </attribute>
+    <attribute>
+      <name>renderPageSize</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Whether to display the select page size dropdown.  Default is true.</description>
+    </attribute>
+    <attribute>
+      <name>textFirst</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Text to display on the button which goes to the first page of items.  Default is "|&lt;".</description>
+    </attribute>
+    <attribute>
+      <name>textPrev</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Text to display on the button which goes to the previous page of items.  Default is "&lt;".</description>
+    </attribute>
+    <attribute>
+      <name>textNext</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Text to display on the button which goes to the next page of items.  Default is "&gt;".</description>
+    </attribute>
+    <attribute>
+      <name>textLast</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Text to display on the button which goes to the last page of items.  Default is "&gt;|".</description>
+    </attribute>
+    <attribute>
+      <name>textPageSize</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Text message to display for selecting page size.  Default is "Show {0}".</description>
+    </attribute>
+    <attribute>
+      <name>textItem</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Word that describes the items.  Default is "items".  This might be (for example) "students".</description>
+    </attribute>
+    <attribute>
+      <name>textStatus</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>Text message to display the status of paging.  Default is "Viewing {0} to {1} of {2} {3}".</description>
+    </attribute>
+    <!-- Below: Generic JSF attributes -->
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component reference expression for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Component id of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>immediate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this component's value must be
+          converted and validated immediately (that is, during
+          Apply Request Values phase), rather than waiting
+          until Process Validations phase.
+      </description>
+   </attribute>
+    <example>
+    <![CDATA[
+    Example #1:
+    <sakai:pager totalItems="92" pageSize="20" textItem="students" renderPageSize="false" />
+
+    Example #2 (Common usage):
+    <sakai:pager
+        totalItems="#{pagerBean.totalItems}"
+        firstItem="#{pagerBean.firstItem}"
+        pageSize="#{pagerBean.pageSize}"
+        valueChangeListener="#{pagerBean.handleValueChange}"
+        accesskeys="true"
+        immediate="true" />
+
+    <h:dataTable first="#{pagerBean.firstItem}" rows="#{pagerBean.pageSize}" value="#{pagerBean.data}" var="item">
+        <h:column>
+            <h:outputText value="#{item}" />
+        </h:column>
+    </h:dataTable>
+
+    Example #3 (Advanced customization):
+    <sakai:pager totalItems="101" firstItem="49" pageSize="3" pageSizes="3,5,7,11"
+        renderFirst="false" renderLast="false"
+        textPrev="Previous page" textNext="Next page" immediate="true"
+        textStatus="There are {2} things this pager is managing.  You are looking at {0} to {1} right now."
+    />
+    ]]>
+    </example>
+  </tag>
+
+
+  <tag>
+    <name>debug</name>
+    <tag-class>org.sakaiproject.jsf.tag.DebugTag</tag-class>
+    <body-content>empty</body-content>
+    <description>
+      This tag is strictly for debugging purposes.  It outputs information
+      on various JSF variables and scopes, and should not be used in production.
+    </description>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+  <name>applet</name>
+  <tag-class>org.sakaiproject.jsf.tag.AppletTag</tag-class>
+  <body-content>JSP</body-content>
+    <description>
+      <![CDATA[<p>render applet</b>.
+       </p>]]>
+    </description>
+    <attribute>
+      <name>name</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet name.
+      </description>
+    </attribute>
+    <attribute>
+      <name>version</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet version.
+      </description>
+    </attribute>
+    <attribute>
+      <name>codebase</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet codebase.
+      </description>
+    </attribute>
+    <attribute>
+      <name>width</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet width.
+      </description>
+    </attribute>
+    <attribute>
+      <name>height</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet height.
+      </description>
+    </attribute>
+    <attribute>
+      <name>hspace</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet horizontal space.
+      </description>
+    </attribute>
+    <attribute>
+      <name>vspace</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet vertical space.
+      </description>
+    </attribute>
+    <attribute>
+      <name>javaClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet Java class.
+      </description>
+    </attribute>
+    <attribute>
+      <name>javaArchive</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet Java archive.
+      </description>
+    </attribute>
+    <attribute>
+      <name>paramList</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The applet parameters in a comma separated key=value format.
+          TODO: escaping quoting etc.
+      </description>
+    </attribute>
+ </tag>
+
+
+  <tag>
+  <name>dataLine</name>
+  <tag-class>org.sakaiproject.jsf.tag.DataLineTag</tag-class>
+  <body-content>JSP</body-content>
+    <description>
+      <![CDATA[<p>Analogous to the data table in iterating over a list,
+       but without creating a surrounding table or using columns.  "Rows"
+       are the data rows of the underlying data, <b>not table rows</b>.
+       </p>]]>
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>separator</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          If not empty, the contents of this attribute are interpolated
+          between each iteration.
+      </description>
+    </attribute>
+    <attribute>
+      <name>first</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Zero-relative row number of the first row to be displayed.  If this
+          property is set to zero, rendering will begin with the first row of
+          the underlying data.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rows</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The number of rows of the underlying data model to be displayed,
+          starting with the one identified by the
+          "first" property.  If this value is set to zero, all available rows
+          in the underlying data model will be displayed.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Name of a request-scope attribute under which the model data for the
+          row selected by the current value of the "rowIndex" property (i.e.
+          also the current value of the "rowData" property) will be exposed.
+      </description>
+    </attribute>
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Code describing the language used in the generated markup
+          for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          clicked over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>ondblclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          double clicked over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeydown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeypress</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed and released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeyup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousedown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousemove</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved within this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseout</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved away from this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseover</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved onto this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          this element is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         The value binding expression linking this component to a property in a backing bean
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+  <name>dynaTable</name>
+  <tag-class>org.sakaiproject.jsf.tag.DynaTableTag</tag-class>
+  <body-content>JSP</body-content>
+    <description>
+      <![CDATA[<p>Analogous to the data table in iterating over a list,
+       but without creating a surrounding table or using columns.  "Rows"
+       are the data rows of the underlying data, <b>not table rows</b>.
+       </p>]]>
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>first</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Zero-relative row number of the first row to be displayed.  If this
+          property is set to zero, rendering will begin with the first row of
+          the underlying data.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rows</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The number of rows of the underlying data model to be displayed,
+          starting with the one identified by the
+          "first" property.  If this value is set to zero, all available rows
+          in the underlying data model will be displayed.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Name of a request-scope attribute under which the model data for the
+          row selected by the current value of the "rowIndex" property (i.e.
+          also the current value of the "rowData" property) will be exposed.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Code describing the language used in the generated markup
+          for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          clicked over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>ondblclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          double clicked over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeydown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeypress</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed and released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeyup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousedown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousemove</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved within this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseout</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved away from this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseover</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved onto this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          this element is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         The value binding expression linking this component to a property in a backing bean
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+  <name>multiColumn</name>
+  <tag-class>org.sakaiproject.jsf.tag.MultiColumnTag</tag-class>
+  <body-content>JSP</body-content>
+    <description>
+      <![CDATA[<p>Analogous to the data table in iterating over a list,
+        this is a 'non-visual' container for itnerated columns.
+        </p><p>
+        This is recognized by dynaTable.
+       </p>]]>
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>first</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Zero-relative row number of the first row to be displayed.  If this
+          property is set to zero, rendering will begin with the first row of
+          the underlying data.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rows</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The number of rows of the underlying data model to be displayed,
+          starting with the one identified by the
+          "first" property.  If this value is set to zero, all available rows
+          in the underlying data model will be displayed.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>var</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Name of a request-scope attribute under which the model data for the
+          row selected by the current value of the "rowIndex" property (i.e.
+          also the current value of the "rowData" property) will be exposed.
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+    <name>stylesheet</name>
+    <tag-class>org.sakaiproject.jsf.tag.StylesheetTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+     Render a reference to a context resolved external CSS file.
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>path</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+       Context resolved path to a external CSS file.
+      </description>
+    </attribute>
+    <attribute>
+      <name>contextBase</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+       Alternattive context to resolve path to a external CSS file.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+  <name>script</name>
+  <tag-class>org.sakaiproject.jsf.tag.ScriptTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      Render a reference to a context resolved external JavaScript file.
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        Render a reference to a context resolved external JavaScript file.
+      </description>
+    </attribute>
+    <attribute>
+      <name>path</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Context resolved path to an external JavaScript file.
+      </description>
+    </attribute>
+    <attribute>
+      <name>contextBase</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+       Alternative context to resolve path to an external JavaScript file.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+    <name>inputColor</name>
+    <tag-class>org.sakaiproject.jsf.tag.InputColorTag</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+        Render a sample-color bar and a color picker icon, as well as
+        an hidden field with the component value.  Clicking icon
+        causes color picker to popup. Transfer chosen
+        color picker value to hidden field and render bar in that color.
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+  </tag>
+
+  <tag>
+  <name>hideDivision</name>
+  <tag-class>org.sakaiproject.jsf.tag.HideDivisionTag</tag-class>
+  <body-content>JSP</body-content>
+    <description>
+        Surround child components with a division.
+        Present a title bar and clickable icon,
+        Clicking icon causes the division to toggle
+        btween visible and invisibele.
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>true</required>
+        <rtexprvalue>false</rtexprvalue>
+      <description>
+          Title for title bar.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          clicked over this element, after the internal
+          JavaScript.
+      </description>
+    </attribute>
+    <attribute>
+      <name>ondblclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          double clicked over this element, after the internal
+          JavaScript.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeydown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeypress</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed and released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeyup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousedown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousemove</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved within this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseout</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved away from this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseover</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved onto this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          released over this element.
+      </description>
+    </attribute>
+  </tag>
+  <tag>
+  <name>timerBar</name>
+  <tag-class>org.sakaiproject.jsf.tag.TimerBarTag</tag-class>
+  <body-content>JSP</body-content>
+  <description>
+      Display a moving bar that keeps track of elapsed time.
+  </description>
+  <attribute>
+    <name>height</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Timer bar height.
+    </description>
+  </attribute>
+  <attribute>
+    <name>width</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Timer bar width.
+    </description>
+  </attribute>
+  <attribute>
+    <name>wait</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Total number of seconds duration for timer bar.
+        This is the total time that it will take if elapsed
+        is zero.
+    </description>
+  </attribute>
+  <attribute>
+    <name>elapsed</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Total number of tenths of a second elapsed.
+        Countdown will begin with wait time diminished
+        by elapsed times 10, progress will show appropriate
+        percentage remaining.
+    </description>
+  </attribute>
+  <attribute>
+    <name>elapsedColor</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Color indicating elapsed time on bar.
+        Valid values are supported HTML color names or RGB values.
+        Default: "gray".
+    </description>
+  </attribute>
+  <attribute>
+    <name>remainingColor</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Color indicating remaining time on bar.
+        Valid values are supported HTML color names or RGB values.
+        Default: "green".
+    </description>
+  </attribute>
+  <attribute>
+    <name>expireScript</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        JavaScript expriration handling code.
+    </description>
+  </attribute>
+  <attribute>
+    <name>expireMessage</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+      JavaScript popup message.
+    </description>
+  </attribute>
+  <attribute>
+    <name>expireHandling</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+      Enable JavaScript expiration handlers.
+      If false, disables expireMessage and expireScript;
+    </description>
+  </attribute>
+  <attribute>
+    <name>rendered</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Flag indicating whether or not this component should be rendered
+        (during Render Response Phase), or processed on any subsequent
+        form submit.
+    </description>
+  </attribute>
+  </tag>
+  <tag>
+  <name>progressBar</name>
+  <tag-class>org.sakaiproject.jsf.tag.ProgressBarTag</tag-class>
+  <body-content>JSP</body-content>
+  <description>
+      Display a moving bar indicating a wait.
+      Similar to timerBar, but without the options.
+  </description>
+  <attribute>
+    <name>wait</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Total number of seconds duration for progress bar.
+        This is the total time that it will take if elapsed
+        is zero.
+    </description>
+  </attribute>
+  <attribute>
+    <name>rendered</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Flag indicating whether or not this component should be rendered
+        (during Render Response Phase), or processed on any subsequent
+        form submit.
+    </description>
+  </attribute>
+  </tag>
+  
+  <tag>
+  <name>popup</name>
+  <tag-class>org.sakaiproject.jsf.tag.PopupTag</tag-class>
+  <body-content>JSP</body-content>
+  <description>
+      Popup another window upon clicking a button or link.
+  </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>url</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Valid URL for the contents of popup.
+      </description>
+    </attribute>
+    <attribute>
+      <name>useButton</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Instead of rendering children, display button.
+         Default is false or no.
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         The title text if a link, the button text if a button.
+      </description>
+    </attribute>
+    <attribute>
+      <name>target</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         The name of target window. Default is "sakai_popup".
+      </description>
+    </attribute>
+    <attribute>
+      <name>toolbar</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Does the popup display a toolbar?  Default is "no" or "false".
+      </description>
+    </attribute>
+    <attribute>
+      <name>menubar</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Does the popup display a menubar?  Default is "no" or "false".
+      </description>
+    </attribute>
+    <attribute>
+      <name>personalbar</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Does the popup display a personalbar?  Default is "no" or "false".
+      </description>
+    </attribute>
+    <attribute>
+      <name>scrollbars</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Does the popup display scrollbars?  Default is "no" or "false".
+      </description>
+    </attribute>
+    <attribute>
+      <name>width</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         Width of the popup. Default is 650.
+      </description>
+  </attribute>
+  <attribute>
+     <name>height</name>
+     <required>false</required>
+     <rtexprvalue>false</rtexprvalue>
+     <description>
+        Height of the popup. Default is 375.
+     </description>
+  </attribute>
+  <attribute>
+     <name>scrollbars</name>
+     <required>false</required>
+     <rtexprvalue>false</rtexprvalue>
+     <description>
+        Does the popup display scrollbars?  Default is "no" or "false".
+     </description>
+  </attribute>
+  <attribute>
+     <name>resizable</name>
+     <required>false</required>
+     <rtexprvalue>false</rtexprvalue>
+     <description>
+        Is the popup display resizable?  Default is "yes" or "true".
+     </description>
+  </attribute>
+  <attribute>
+     <name>rendered</name>
+     <required>false</required>
+     <rtexprvalue>false</rtexprvalue>
+     <description>
+        Flag indicating whether or not this component should be rendered
+        (during Render Response Phase), or processed on any subsequent
+        form submit.
+     </description>
+  </attribute>
+  </tag>
+  <tag>
+  <name>alphaIndex</name>
+  <tag-class>org.sakaiproject.jsf.tag.AlphaIndexTag</tag-class>
+  <body-content>JSP</body-content>
+    <description>
+        Create a set of internal links to, or advance to something
+        starting with a different letter.
+        TODO: PLACEHOLDER.  NEED TO DETERMINE INTEGRATION INTO SORT/PAGING.
+    </description>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+  <attribute>
+    <name>initials</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>rendered</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Flag indicating whether or not this component should be rendered
+        (during Render Response Phase), or processed on any subsequent
+        form submit.
+    </description>
+  </attribute>
+  </tag>
+  <tag>
+  <name>anchorReference</name>
+  <tag-class>org.sakaiproject.jsf.tag.AnchorReferenceTag</tag-class>
+  <body-content>JSP</body-content>
+  <description>
+      Render an HTML anchor tag with an name attribute.
+  </description>
+  <attribute>
+    <name>id</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        The component identifier for this component.  This value must be
+        unique within the closest parent component that is a naming
+        container.
+    </description>
+  </attribute>
+  <attribute>
+    <name>name</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        The name for the anchor.
+    </description>
+  </attribute>
+  <attribute>
+    <name>rendered</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+    <description>
+        Flag indicating whether or not this component should be rendered
+        (during Render Response Phase), or processed on any subsequent
+        form submit.
+    </description>
+  </attribute>
+  </tag>
+  <tag>
+    <name>selectCommand</name>
+    <tag-class>org.sakaiproject.jsf.tag.SelectCommandTag</tag-class>
+    <!--  <tei-class>com.sun.faces.taglib.FacesTagExtraInfo</tei-class> -->
+    <body-content>JSP</body-content>
+    <description>
+      <![CDATA[<p>Render an HTML option list with
+      onchange action behavior that acts like a
+      form submit button when clicked.</p>
+     <p><a name="decode">Decode Behavior</a></p><ul>
+    <p>See the <a href="javax.faces.SelectManyjavax.faces.Listbox.html#decodeOne">"Decode
+      Behavior for UISelectOne Components"</a> section as well as for
+      <a href="javax.faces.SelectManyjavax.faces.commandButton.html#decodeOne">"Decode
+      Behavior for UICommand Components"</a>.
+<p>Obtain the <code>Map</code> from the "requestParameterMap"
+      property of the <code>ExternalContext</code>.
+If the value in the<code>Map</code> for the value of the "clientId" property of the
+      component is <code>null</code>, create a String by concatenating
+      the value of the "clientId" property of the component with the
+      String ".x" (without the quotes).  Create another String in the
+      same manner, but concatenate ".y" (without the quotes).  If<code>null</code> is the value in the <code>Map</code> for both
+      Strings, return from <code>decode()</code>.  If the value in the<code>Map</code> for the value of the "clientId" property of the
+      component is not <code>null</code>, get the value of the "type"
+      attribute, and convert it to lower case.  If the result is equal
+      to the String "reset" (without the quotes), return from<code>decode()</code>.  Otherwise, create a<code>javax.faces.event.ActionEvent</code> around the component,
+      and pass it to the <code>queueEvent()</code> method of the
+      component, which must be an instance of<code>UICommand</code>.
+
+
+
+</p></ul><p>Encode Behavior</p><ul><p>Render an HTML "select" element.  Render the clientId of the
+      component as the value of the "name" attribute.  If the
+      "styleClass" attribute is specified, render its value as the value
+      of the "class" attribute on the "select" element. If the component
+      to be rendered is a UISelectMany, render "true" as the value of
+      the "multiple" attribute.  Use the number of items as the value of
+      the "size" attribute.  See the <a href="javax.faces.SelectManyjavax.faces.Listbox.html#options">"Rendering
+      the option elements" </a> specification for<code>ListboxRenderer</code> for more detail on how to render the "option" elements in this renderer.</p></ul>]]>
+    </description>
+    <attribute>
+      <name>converter</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Converter instance registered with this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The component identifier for this component.  This value must be
+          unique within the closest parent component that is a naming
+          container.
+      </description>
+    </attribute>
+    <attribute>
+      <name>immediate</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this component's value must be
+          converted and validated immediately (that is, during
+          Apply Request Values phase), rather than waiting
+          until Process Validations phase.
+      </description>
+    </attribute>
+    <attribute>
+      <name>rendered</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>actionListener</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          MethodBinding representing an action listener method that will be
+          notified when this component is activated by the user.  The
+          expression must evaluate to a public method that takes an
+          ActionEvent parameter, with a return type of void.
+      </description>
+    </attribute>
+    <attribute>
+      <name>required</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that the user is required to provide a submitted
+          value for this input component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>validator</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          MethodBinding representing a validator method that will be called
+          during Process Validations to perform correctness checks on the
+          value of this component.  The expression must evaluate to a public
+          method that takes FacesContext, UIComponent, and Object parameters,
+          with a return type of void.
+      </description>
+    </attribute>
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          The current value of this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>valueChangeListener</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          MethodBinding representing a value change listener method that will be
+          notified when a new value has been set for this input component.  The
+          expression must evaluate to a public method that takes a
+          ValueChangeEvent parameter, with a return type of void.
+      </description>
+    </attribute>
+    <attribute>
+      <name>accesskey</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+
+          Access key that, when pressed, transfers focus
+          to this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>dir</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+
+          Direction indication for text that does not inherit directionality.
+          Valid values are "LTR" (left-to-right) and "RTL" (right-to-left).
+      </description>
+    </attribute>
+    <attribute>
+      <name>disabled</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this element must never
+          receive focus or be included in a subsequent
+          submit.
+      </description>
+    </attribute>
+    <attribute>
+      <name>disabledClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         CSS style class to apply to the rendered label
+         on disabled options.
+      </description>
+    </attribute>
+    <attribute>
+      <name>enabledClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         CSS style class to apply to the rendered label
+         on enabled options.
+      </description>
+    </attribute>
+    <attribute>
+      <name>lang</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Code describing the language used in the generated markup
+          for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onblur</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when this element loses focus.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onchange</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when this element loses focus
+          and its value has been modified since gaining focus.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          clicked over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>ondblclick</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          double clicked over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onfocus</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when this element receives focus.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeydown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeypress</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          pressed and released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onkeyup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a key is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousedown</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          pressed down over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmousemove</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved within this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseout</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          moved away from this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseover</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+
+          Javascript code executed when a pointer button is
+          moved onto this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onmouseup</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when a pointer button is
+          released over this element.
+      </description>
+    </attribute>
+    <attribute>
+      <name>onselect</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Javascript code executed when text within this
+          element is selected by the user.
+      </description>
+    </attribute>
+    <attribute>
+      <name>readonly</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Flag indicating that this component will prohibit
+          changes by the user.  The element may receive focus
+          unless it has also been disabled.
+      </description>
+    </attribute>
+    <attribute>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          CSS style(s) to be applied when this component is rendered.
+      </description>
+    </attribute>
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          this element is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+    <attribute>
+      <name>tabindex</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Position of this element in the tabbing order
+          for the current document.  This value must be
+          an integer between 0 and 32767.
+      </description>
+    </attribute>
+    <attribute>
+      <name>title</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Advisory title information about markup elements generated
+          for this component.
+      </description>
+    </attribute>
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+         The value binding expression linking this component to a property in a backing bean
+      </description>
+    </attribute>
+  </tag>
+
+	<tag>
+		<name>flowState</name>
+		<tag-class>org.sakaiproject.jsf.tag.FlowStateTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>id</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>bean</name>
+			<required>true</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+	</tag>
+	
+	<tag>
+     <name>contentTypeMap</name>
+     <tag-class>org.sakaiproject.jsf.tag.JsfContentTypeMapTag</tag-class>
+     <body-content>empty</body-content>
+     <description>
+    		Exposes a map of the file types: images, names and extensions.
+    		If image is the mapType, the returned value will be the file name for the fileType icon.
+    		If name is the mapType, the returned value will be the display name for the fileType.
+    		If extension is the mapType, the returned value will be the extension for the fileType
+     </description>
+     <attribute>
+         <name>fileType</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+         	String representation of the mime type (like "text/xml")
+         </description>
+     </attribute>
+     <attribute>
+         <name>mapType</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+         	Accepted values are image, name, extension
+         </description>
+     </attribute>
+     <attribute>
+         <name>pathPrefix</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+         	Path prefix for where the image lives (only needed if mapType is image)
+         </description>
+     </attribute>
+     <attribute>
+         <name>var</name>
+         <required>true</required>
+         <rtexprvalue>false</rtexprvalue>
+         <description>
+             Name of a request-scope attribute under which the return value will be exposed.
+         </description>
+    </attribute>
+   </tag>
+   
+   <tag>
+   	<name>separatedList</name>
+   	<tag-class>org.sakaiproject.jsf.tag.SeparatedListTag</tag-class>
+     <body-content>JSP</body-content>
+     <description>
+    Adds a separator between the child nodes
+     </description>
+     <attribute>
+         <name>separator</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
+     <attribute>
+         <name>styleClass</name>
+         <required>false</required>
+         <rtexprvalue>false</rtexprvalue>
+     </attribute>
+     <attribute>
+      <name>id</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Component id of this component.
+      </description>
+    </attribute>
+   </tag>
+
+</taglib>
+
+

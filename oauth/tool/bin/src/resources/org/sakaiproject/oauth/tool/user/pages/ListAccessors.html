@@ -1,0 +1,54 @@
+<?xml encoding="UTF-8" ?>
+<!--
+  #%L
+  OAuth Tool
+  %%
+  Copyright (C) 2009 - 2013 The Sakai Foundation
+  %%
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+              http://opensource.org/licenses/ecl2
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<head>
+    <title>
+        <wicket:message key="page.title">Trusted Applications</wicket:message>
+    </title>
+</head>
+<body>
+<wicket:extend>
+
+    <h3><wicket:message key="page.header">List of Applications.</wicket:message></h3>
+    <table wicket:enclosure="accessorlist">
+        <tr class="accessor" wicket:id="accessorlist">
+            <td class="name"><a href="http://consumerurl" wicket:id="consumerUrl">Consumer's name</a></td>
+            <td class="description">
+                <div class="description" wicket:id="consumerDescription">Consumer's description</div>
+                <div class="creation-date" wicket:id="creationDate">creationDate</div>
+                <div class="expiration-date" wicket:id="expirationDate">expirationDate</div>
+            </td>
+            <td class="actions">
+                <a wicket:id="delete">
+                    <wicket:message key="accessor.delete">delete</wicket:message>
+                </a>
+            </td>
+        </tr>
+    </table>
+    <span wicket:id="noAccessor">You currently don't have any applications able to access your account.</span>
+
+</wicket:extend>
+</body>
+</html>

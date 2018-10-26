@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- database beans -->
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlDefault"   class="org.sakaiproject.user.impl.UserServiceSqlDefault"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlHSql"      class="org.sakaiproject.user.impl.UserServiceSqlHSql"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlMySql"     class="org.sakaiproject.user.impl.UserServiceSqlMySql"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlOracle"    class="org.sakaiproject.user.impl.UserServiceSqlOracle"/>
+
+	<bean id="org.sakaiproject.user.api.UserDirectoryService"
+			class="org.sakaiproject.user.impl.PrecachingDbUserService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
+		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
+		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
+		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+        <lookup-method name="formattedText" bean="org.sakaiproject.util.api.FormattedText" />
+
+		<!--  The provider can also be injected directly via "setProvider(UserDirectoryProvider provider)" -->
+		<property name="providerName" value="org.sakaiproject.user.api.UserDirectoryProvider"/>
+
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		<property name="separateIdEid"><value>true</value></property>
+
+        <property name="passwordService" ref="org.sakaiproject.user.impl.PasswordService"/>
+
+        <property name="databaseBeans">
+           <map>
+              <entry key="default"><ref bean="org.sakaiproject.user.impl.UserServiceSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.user.impl.UserServiceSqlHSql"   /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.user.impl.UserServiceSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.user.impl.UserServiceSqlOracle" /></entry>
+           </map>
+        </property>
+
+        <property name="directDbAccess" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.directDbAccess" /></property>
+
+	</bean>
+
+    <bean id="org.sakaiproject.user.api.UserDirectoryService.directDbAccess" 
+            class="org.sakaiproject.user.impl.DirectDbAccess">
+        <property name="dataSource" ref="javax.sql.DataSource" />
+    </bean>
+
+	<bean id="org.sakaiproject.user.api.AuthenticationManager"
+			class="org.sakaiproject.user.impl.UserAuthnComponent"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+		<lookup-method name="authenticationCache" bean="org.sakaiproject.user.impl.AuthenticationCache" />
+
+	</bean>
+
+	<bean id="org.sakaiproject.user.api.PreferencesService"
+			class="org.sakaiproject.user.impl.DbPreferencesService"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
+		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+
+ 		<property name="tableName"><value>SAKAI_PREFERENCES</value></property>
+ 		<property name="locksInDb"><value>false</value></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<!--
+		Authentication cache to improve the efficiency of clients that don't maintain
+		secure sessions, such as DAV.
+	-->
+    <bean id="org.sakaiproject.user.impl.AuthenticationCache"
+        class="org.sakaiproject.user.impl.AuthenticationCache"
+        init-method="init" destroy-method="destroy">
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+    </bean>
+
+    <!-- Password service, create this as a named bean so it can be configured if required. -->
+    <bean id="org.sakaiproject.user.impl.PasswordService"
+        class="org.sakaiproject.user.impl.PasswordService">
+	</bean>
+	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService" 
+		class="org.sakaiproject.user.impl.UserNotificationPreferencesRegistrationServiceImpl" />
+
+	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration" abstract="true"
+		class="org.sakaiproject.util.UserNotificationPreferencesRegistrationImpl" >
+		<property name="userNotificationPreferencesRegistrationService">
+			<ref bean="org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService"/>
+		</property>
+	</bean>
+
+	<!-- the authCache Watcher -->
+	<bean class="org.sakaiproject.user.impl.AuthnCacheWatcher" init-method="init" destroy-method="destroy">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+	</bean>
+
+
+
+</beans>

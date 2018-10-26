@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+       
+<body>
+
+<wicket:panel>	
+	
+	<div class="side-widget-heading" wicket:id="heading">[My friends]</div>
+ 	<div class="side-widget-content">
+ 		
+		<div class="side-widget-labels">
+			<span class="side-widget-item-count" wicket:id="numFriendsLabel">[num friends]</span>
+		 	<a class="side-widget-more-link" wicket:id="viewFriendsLink"><span wicket:id="viewFriendsLabel">[view friends]</span></a>
+		</div>
+		
+		<div id="friends-feed-wrapper">
+			<table>
+				<tbody>
+					<tr wicket:id="rows" class="even">
+						<td wicket:id="cols">
+							<div class="friends-feed-item" wicket:id="friendsFeedItem">
+								<img class="friends-feed-item-photo" wicket:id="friendPhoto" />
+								<span class="friends-feed-item-caption" wicket:id="friendName">[friend name]</span>
+							</div>
+				  		</td>
+				 	</tr>
+				 </tbody>
+			</table>
+		</div>
+		
+ 		 		
+ 	</div>
+
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

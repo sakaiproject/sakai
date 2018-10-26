@@ -1,0 +1,59 @@
+<!--
+
+    $URL:$
+    $Id:$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+
+            <div class="portletBody">
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+			<div style="width:100% !important">
+			    <h2><wicket:message key="menu_sitelist">[menu_sitelist]</wicket:message></h2>
+			    <span class="instruction"><wicket:message key="instructions_sitelist">[instructions]</wicket:message></span>
+			    
+			    <div class="navPanel">
+	                <div class="viewNav">
+	                    <wicket:message key="site_type">[site_type]</wicket:message>
+	                    <select wicket:id="siteTypes">
+	                        <option>option</option>
+	                    </select>
+	                </div>
+	                <div class="searchNav">
+	                    <span wicket:id="search"></span>
+	                </div>
+			    </div>
+			    
+			    <table class="listHier lines" style="width: 99.9% !important" cellspacing="0" wicket:id="table">[table]</table>
+		    
+		    </div>
+			</div>
+		    
+		</wicket:extend>
+	</body>
+</html>

@@ -1,0 +1,77 @@
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
+
+    <h2><wicket:message key="importExport.confirmation.heading" /></h2>
+    <p><wicket:message key="importExport.confirmation.description" /></p>
+
+    <div wicket:id="grades_update_container">
+    	<div class="messageInformation"><strong><wicket:message key="importExport.confirmation.update.heading" /></strong></div>
+        <table class="table table-striped table-condensed grade_import_confirmation">
+            <thead>
+              <tr>
+                <th><wicket:message key="importExport.confirmation.title" /></th>
+                <th><wicket:message key="importExport.confirmation.points" /></th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr wicket:id="grades_update">
+                    <td><span wicket:id="title">[assignment 1]</span></td>
+                    <td><span wicket:id="points">[50]</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div wicket:id="grades_create_container">
+   		<div class="messageInformation"><strong><wicket:message key="importExport.confirmation.create.heading" /></strong></div>
+        <table class="table table-striped table-condensed grade_import_confirmation">
+            <thead>
+              <tr>
+                <th><wicket:message key="importExport.confirmation.title" /></th>
+                <th><wicket:message key="importExport.confirmation.points" /></th>
+                <th><wicket:message key="importExport.confirmation.extraCredit" /></th>
+                <th><wicket:message key="importExport.confirmation.dueDate" /></th>
+                <th><wicket:message key="importExport.confirmation.releaseToStudents" /></th>
+                <th><wicket:message key="importExport.confirmation.includeInCourseGrades" /></th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr wicket:id="grades_create">
+                    <td><span wicket:id="title">[assignment 1]</span></td>
+                    <td><span wicket:id="points">[50]</span></td>
+                    <td><span wicket:id="extraCredit"></span></td>
+                    <td><span wicket:id="dueDate"></span></td>
+                    <td><span wicket:id="releaseToStudents"></span></td>
+                    <td><span wicket:id="includeInCourseGrades"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!--  TODO collapse these three containers -->
+    <div wicket:id="grades_modify_container">
+   		<div class="messageInformation"><strong><wicket:message key="importExport.confirmation.modify.heading" /></strong></div>
+        <table class="table table-striped table-condensed grade_import_confirmation">
+            <thead>
+              <tr>
+                <th><wicket:message key="importExport.confirmation.title" /></th>
+                <th><wicket:message key="importExport.confirmation.points" /></th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr wicket:id="grades_modify">
+                    <td><span wicket:id="title">[assignment 1]</span></td>
+                    <td><span wicket:id="points">[50]</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <form wicket:id="form">
+        <div class="act">
+            <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
+            <input class="active" type="submit" wicket:id="finishbutton" wicket:message="value:importExport.button.finish"/>
+            <input type="submit" wicket:id="cancelbutton" wicket:message="value:importExport.button.cancel"/>
+        </div>
+    </form>
+
+</wicket:panel>

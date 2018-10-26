@@ -1,0 +1,82 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-addCourseConfirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+##Confirmation page for adding  classes
+<div class ="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+		$tlang.getString("sitegen.addcourse.adding") $validator.escapeHtml($siteTitle)...
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitegen.addcourse.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<p class="instruction">
+		$tlang.getString("sitegen.addcourse.please")
+	</p>
+	<form name = "addRemoveConfirmForm" method="post" action="#toolForm($action)">
+	<h4>
+		$tlang.getString("sitegen.addcourse.class")
+	</h4>
+	<h5>
+		$tlang.getString("sitegen.addcourse.foll")<br />
+	</h5>
+	<ul class="attachList indnt2">
+		#foreach($id in $providerCourseTitles)
+			<li>
+				$id
+			</li>
+		#end
+		#foreach($id in $!cmRequestedCourseList)
+				<li>
+						$id.title $tlang.getString("man.requested")<br />
+				</li>
+			#end
+		#foreach($c in $manualCourseList)
+			<li>
+				$c $tlang.getString("man.requested")<br />
+			</li>
+		#end
+	</ul>
+	<h5>
+		$tlang.getString("sitegen.addcourse.you")<br />
+	</h5>
+	<ul class="attachList indnt2">
+		#foreach($id in $selectedProviderCourseTitles.keySet())
+			<li>
+				$!selectedProviderCourseTitles.get($id)
+			</li>
+		#end
+	</ul>
+		#foreach ($c in $!cmSelectedSections)
+			<ul class="attachList indnt2">
+				## for cm select section based on course lookup
+				<li>
+						$c.title $tlang.getString("man.requested")
+					</li>
+			</ul>
+		#end	
+		#if ($!manualAddNumber)
+			<ul class="attachList indnt2">
+				#foreach ($k in [0..$manualAddNumber])
+						#set($courseFieldValues = $!fieldValues.get($k))
+						#set($bound = $!form_requiredFields.size())
+						#set($bound = $bound - 1)
+						<li>
+							#foreach ($fieldCount in [0..$!bound])
+								$!courseFieldValues.get($fieldCount).getValue()
+							#end
+							$tlang.getString("man.requested")
+						</li>
+				#end
+			</ul>
+		#end
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="12" />
+		<p class ="act">
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitegen.addcourse.add")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("sitegen.addcourse.back")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.addcourse.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

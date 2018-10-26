@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- This is the bean that reloads a calendar in a particular case -->
+	<bean id="org.sakaiproject.calendar.impl.ExternalCalendarElementRefresher"
+		class="org.sakaiproject.calendar.impl.MockExternalCalendarElementRefresher">
+	</bean>
+	
+	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager"
+		class="net.sf.ehcache.CacheManager">
+	</bean>
+	
+	<bean id="calendar.external.subscriptions.institutional.cachetime" class="java.lang.Integer">
+		<constructor-arg value="60"/>
+	</bean>
+	
+	<bean id="calendar.external.subscriptions.user.cachetime" class="java.lang.Integer">
+		<constructor-arg value="60"/>
+	</bean>
+
+	<bean id="calendar.external.subscriptions.institutional.cacheentries" class="java.lang.Integer">
+		<constructor-arg value="16"/>
+	</bean>
+
+	<bean id="calendar.external.subscriptions.user.cacheentries" class="java.lang.Integer">
+		<constructor-arg value="16"/>
+	</bean>
+</beans>

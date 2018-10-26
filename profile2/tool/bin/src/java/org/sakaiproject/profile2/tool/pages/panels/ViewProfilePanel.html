@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+       
+<body>
+
+<wicket:panel>
+
+    <!-- no containers visible? -->	
+	<span wicket:id="noContainersVisible" class="profile_instruction">Nothing visible</span>
+	
+	<!-- basic info -->
+	<div class="mainSection" wicket:id="mainSectionContainer_basic">
+		<div class="mainSectionHeading">
+			<span wicket:id="mainSectionHeading_basic">[Basic Information]</span>
+		</div>
+		<div class="mainSectionContent">
+			<table class="profileContent">
+		
+				<!-- nickname -->
+				<tr wicket:id="nicknameContainer">
+					<td class="label" wicket:id="nicknameLabel">[nicknameLabel]</td>
+					<td class="content" wicket:id="nickname">[nickname]</td>
+				</tr>
+				
+				<!-- birthday -->
+				<tr wicket:id="birthdayContainer">
+					<td class="label" wicket:id="birthdayLabel">[birthdayLabel]</td>
+					<td class="content" wicket:id="birthday">[birthday]</td>
+				</tr>
+				
+				<!-- personal summary -->
+				<tr wicket:id="personalSummaryContainer">
+					<td class="label" wicket:id="personalSummaryLabel">[personalSummaryLabel]</td>
+					<td class="content" wicket:id="personalSummary">[personalSummary]</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	
+	
+	<!-- contact -->
+	<div class="mainSection" wicket:id="mainSectionContainer_contact">
+		<div class="mainSectionHeading">
+			<span wicket:id="mainSectionHeading_contact">[Contact Information]</span>
+		</div>
+		<div class="mainSectionContent">
+			<table class="profileContent">
+		
+				<!-- email -->
+				<tr wicket:id="emailContainer">
+					<td class="label" wicket:id="emailLabel">[emailLabel]</td>
+					<td class="content" wicket:id="email">[email]</td>
+				</tr>
+				
+				<!-- homepage -->
+				<tr wicket:id="homepageContainer">
+					<td class="label" wicket:id="homepageLabel">[homepageLabel]</td>
+					<td class="content"><a wicket:id="homepage" href="#" target="_blank">[homepage]</a></td>
+				</tr>
+				
+				<!-- work phone -->
+				<tr wicket:id="workphoneContainer">
+					<td class="label" wicket:id="workphoneLabel">[workphoneLabel]</td>
+					<td class="content" wicket:id="workphone">[workphone]</td>
+				</tr>
+				
+				<!-- home phone -->
+				<tr wicket:id="homephoneContainer">
+					<td class="label" wicket:id="homephoneLabel">[homephoneLabel]</td>
+					<td class="content" wicket:id="homephone">[workphone]</td>
+				</tr>
+				
+				<!-- mobile phone -->
+				<tr wicket:id="mobilephoneContainer">
+					<td class="label" wicket:id="mobilephoneLabel">[mobilephoneLabel]</td>
+					<td class="content" wicket:id="mobilephone">[mobilephone]</td>
+				</tr>
+				
+				<!-- facsimile -->
+				<tr wicket:id="facsimileContainer">
+					<td class="label" wicket:id="facsimileLabel">[facsimileLabel]</td>
+					<td class="content" wicket:id="facsimile">[facsimile]</td>
+				</tr>
+														
+			</table>
+		</div>
+	</div>
+	
+	
+	<!-- university staff -->
+	<div class="mainSection" wicket:id="mainSectionContainer_staff">
+		<div class="mainSectionHeading">
+			<span wicket:id="mainSectionHeading_staff">[University Staff]</span>
+		</div>
+		<div class="mainSectionContent">
+			<table class="profileContent">
+		
+				<!-- position -->
+				<tr wicket:id="positionContainer">
+					<td class="label" wicket:id="positionLabel">[positionLabel]</td>
+					<td class="content" wicket:id="position">[position]</td>
+				</tr>
+				
+				<!-- department -->
+				<tr wicket:id="departmentContainer">
+					<td class="label" wicket:id="departmentLabel">[departmentLabel]</td>
+					<td class="content" wicket:id="department">[department]</td>
+				</tr>
+				
+				<!-- school -->
+				<tr wicket:id="schoolContainer">
+					<td class="label" wicket:id="schoolLabel">[schoolLabel]</td>
+					<td class="content" wicket:id="school">[school]</td>
+				</tr>
+				
+				<!-- room -->
+				<tr wicket:id="roomContainer">
+					<td class="label" wicket:id="roomLabel">[roomLabel]</td>
+					<td class="content" wicket:id="room">[room]</td>
+				</tr>
+				
+				<!-- staff profile -->
+				<tr wicket:id="staffProfileContainer">
+					<td class="label" wicket:id="staffProfileLabel">[staffProfileLabel]</td>
+					<td class="content" wicket:id="staffProfile">[staffProfile]</td>
+				</tr>
+				
+				<!-- university profile URL -->
+				<tr wicket:id="universityProfileUrlContainer">
+					<td class="label" wicket:id="universityProfileUrlLabel">[universityProfileUrlLabel]</td>
+					<td class="content"><a wicket:id="universityProfileUrl" href="#" target="_blank">[universityProfileUrl]</a></td>
+				</tr>
+				
+				<!-- academic/research profile URL -->
+				<tr wicket:id="academicProfileUrlContainer">
+					<td class="label" wicket:id="academicProfileUrlLabel">[academicProfileUrlLabel]</td>
+					<td class="content"><a wicket:id="academicProfileUrl" href="#" target="_blank">[academicProfileUrl]</a></td>
+				</tr>
+				
+				<!-- publications -->
+				<tr wicket:id="publicationsContainer">
+					<td class="label" wicket:id="publicationsLabel">[publicationsLabel]</td>
+					<td class="content" wicket:id="publications">[publications]</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<!-- business -->
+	<div wicket:id="viewBusiness"></div>
+	
+	<!-- student -->
+	<div class="mainSection" wicket:id="mainSectionContainer_student">
+		<div class="mainSectionHeading">
+			<span wicket:id="mainSectionHeading_student">[Student Information]</span>
+		</div>
+		<div class="mainSectionContent">
+			<table class="profileContent">
+			
+				<!-- course -->
+				<tr wicket:id="courseContainer">
+					<td class="label" wicket:id="courseLabel">[courseLabel]</td>
+					<td class="content" wicket:id="course">[course]</td>
+				</tr>
+				
+				<!-- subjects -->
+				<tr wicket:id="subjectsContainer">
+					<td class="label" wicket:id="subjectsLabel">[subjectsLabel]</td>
+					<td class="content" wicket:id="subjects">[subjects]</td>
+				</tr>
+														
+			</table>
+		</div>
+	</div>
+	
+	<!-- social networking -->
+	<div class="mainSection" wicket:id="mainSectionContainer_socialNetworking">
+		<div class="mainSectionHeading">
+			<span wicket:id="mainSectionHeading_socialNetworking">[Social Networking]</span>
+		</div>
+		<div class="mainSectionContent">
+			<table class="profileContent">
+			
+				<!-- facebook -->
+				<tr wicket:id="facebookContainer">
+					<td class="label" wicket:id="facebookLabel">[facebookLabel]</td>
+					<td class="content"><a wicket:id="facebookLink" href="#" target="_blank">[facebookLink]</a></td>
+				</tr>
+				
+				<!-- linkedin -->
+				<tr wicket:id="linkedinContainer">
+					<td class="label" wicket:id="linkedinLabel">[linkedinLabel]</td>
+					<td class="content"><a wicket:id="linkedinLink" href="#" target="_blank">[linkedinLink]</a></td>
+				</tr>
+				
+				<!-- myspace -->
+				<tr wicket:id="myspaceContainer">
+					<td class="label" wicket:id="myspaceLabel">[myspaceLabel]</td>
+					<td class="content"><a wicket:id="myspaceLink" href="#" target="_blank">[myspaceLink]</a></td>
+				</tr>
+				
+				<!-- twitter -->
+				<tr wicket:id="twitterContainer">
+					<td class="label" wicket:id="twitterLabel">[twitterLabel]</td>
+					<td class="content"><a wicket:id="twitterLink" href="#" target="_blank">[twitterLink]</a></td>
+				</tr>
+				
+				<!-- skype -->
+				<tr wicket:id="skypeContainer">
+					<td class="label" wicket:id="skypeLabel">[skypeLabel]</td>
+					<td class="content"><a wicket:id="skypeLink" href="#">[skypeLink]</a></td>
+				</tr>
+				
+			</table>
+		</div>
+	</div>		
+
+
+          <!-- interests -->
+	<div class="mainSection" wicket:id="mainSectionContainer_personal">
+		<div class="mainSectionHeading">
+			<span wicket:id="mainSectionHeading_personal">[Personal Information]</span>
+		</div>
+		<div class="mainSectionContent">
+			<table class="profileContent">
+								
+				<!-- favourite books -->
+				<tr wicket:id="booksContainer">
+					<td class="label" wicket:id="booksLabel">[booksLabel]</td>
+					<td class="content" wicket:id="favouriteBooks">[favouriteBooks]</td>
+				</tr>
+				
+				<!-- favourite tv shows -->
+				<tr wicket:id="tvContainer">
+					<td class="label" wicket:id="tvLabel">[tvLabel]</td>
+					<td class="content" wicket:id="favouriteTvShows">[favouriteTvShows]</td>
+				</tr>
+				
+				<!-- favourite movies -->
+				<tr wicket:id="moviesContainer">
+					<td class="label" wicket:id="moviesLabel">[moviesLabel]</td>
+					<td class="content" wicket:id="favouriteMovies">[favouriteMovies]</td>
+				</tr>
+				
+				<!-- favourite quotes -->
+				<tr wicket:id="quotesContainer">
+					<td class="label" wicket:id="quotesLabel">[quotesLabel]</td>
+					<td class="content" wicket:id="favouriteQuotes">[favouriteQuotes]</td>
+				</tr>
+																				
+			</table>
+		</div>
+	</div>
+</wicket:panel>
+</body>
+</html>

@@ -1,0 +1,21 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_memory.vm,v 1.2 2005/04/27 16:43:52 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#menu($menu)#end
+	<h3>$tlang.getString("memory.vm.memory")</h3>
+		#if ($alertMessage)
+			<div class="alertMessage">
+				$tlang.getFormattedMessage("memory.vm.alert.nosplit", $validator.escapeHtml($alertMessage))
+			</div>
+		#end
+	#if ($status)<p class="infoPanel">$validator.escapeHtml($status)</p>#end
+	<div class="instruction">$tlang.getFormattedMessage("memory.vm.ava.nosplit", $memory)</div>
+	<form action="#toolForm("$action")" method="post">
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doReset" value=" $tlang.getString("memory.vm.reset") " />
+			<input type="submit" class="active" name="eventSubmit_doEvict" value=" $tlang.getString("memory.vm.evict") " />
+			<input type="submit" name="eventSubmit_doStatus" value=" $tlang.getString("memory.vm.status") " />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

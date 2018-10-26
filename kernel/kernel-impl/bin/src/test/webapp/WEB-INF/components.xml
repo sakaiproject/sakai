@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<bean id="testPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="properties">
+			<props>
+				<prop key="placeholderString1.key">default</prop>
+			</props>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
+
+	<bean id="org.sakaiproject.component.test.ITestComponent" class="org.sakaiproject.component.test.MockComponent"
+		init-method="init">
+		<property name="overrideString1" value="default"/>
+		<property name="placeholderString1" value="${placeholderString1.key}"/>
+		<property name="serverId" value="${serverId}"/>
+		<property name="listOverride1">
+			<list>
+				<value>default1</value>
+				<value>default2</value>
+			</list>
+		</property>
+		<property name="mapOverride1" ref="defaultMap"/>
+		<property name="stringArrayPlaceholder1" value="default1, default2"/>
+	</bean>
+	
+	<util:map id="defaultMap">
+		<entry key="key1" value="default1"/>
+		<entry key="key2" value="default2"/>
+	</util:map>
+	
+	<bean id="org.sakaiproject.component.test.String" class="java.lang.String">
+		<constructor-arg>
+			<value>default</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="org.sakaiproject.component.test.ITestComponent2" class="org.sakaiproject.component.test.MockComponent"
+		init-method="init">
+		<property name="overrideString1" value="default"/>
+		<property name="placeholderString1" value="${stringWithNestedPlaceholders}"/>
+		<property name="listOverride1">
+			<list>
+				<value>default1</value>
+				<value>default2</value>
+			</list>
+		</property>
+		<property name="stringArrayPlaceholder1" value="default1, default2"/>
+	</bean>
+	
+	<bean id="org.sakaiproject.component.test.ITestProvider" class="org.sakaiproject.component.test.MockProvider1"/>
+	
+	<bean id="org.sakaiproject.component.test.TestProvider2" class="org.sakaiproject.component.test.MockProvider2"/>
+	
+	<alias name="org.sakaiproject.component.test.ITestComponent" alias="testAliasRetention"/>
+	
+	<bean id="org.sakaiproject.component.test.dynamic.DbProperties" class="org.sakaiproject.component.test.dynamic.DbPropertiesDao"
+		init-method="init">
+		<property name="autoDdl" value="true"/>
+		<property name="dataSource" ref="org.sakaiproject.component.test.dynamic.propertiesDataSource"/>
+		<property name="initialDbProperties">
+			<map>
+				<entry key="dynamicKey1" value="initialDynamicValue1"/>
+				<entry key="dynamicKey2" value="initialDynamicValue2"/>
+				<entry key="overrideString1@org.sakaiproject.component.test.ITestComponent" value="dynamic"/>
+			</map>
+		</property>
+	</bean> 
+
+</beans>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+        <bean id="org.sakaiproject.basiclti.service.BasicLTISecurityService"
+                class="org.sakaiproject.basiclti.impl.BasicLTISecurityServiceImpl"
+                init-method="init"
+                destroy-method="destroy">
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.LTIService"
+                class="org.sakaiproject.lti.impl.DBLTIService"
+                init-method="init"
+                destroy-method="destroy">
+            <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+            <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+            <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+            <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+            <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+            <property name="autoDdl"><value>${auto.ddl}</value></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.UserFinderOrCreator"
+                class="org.sakaiproject.lti.impl.UserFinderOrCreatorImpl">
+            <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.SiteEmailPreferenceSetter"
+                class="org.sakaiproject.lti.impl.SiteEmailPreferenceSetterImpl">
+            <property name="preferencesService"><ref bean="org.sakaiproject.user.api.PreferencesService"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.UserLocaleSetter"
+                class="org.sakaiproject.lti.impl.UserLocaleSetterImpl">
+            <property name="preferencesService"><ref bean="org.sakaiproject.user.api.PreferencesService"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.UserPictureSetter"
+                class="org.sakaiproject.lti.impl.UserPictureSetterImpl">
+            <property name="profileImageLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileImageLogic"/></property>
+            <property name="profilePreferencesLogic"><ref bean="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.LTIRoleMapper"
+                class="org.sakaiproject.lti.impl.LTIRoleMapperImpl">
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.SiteMembershipUpdater"
+                class="org.sakaiproject.lti.impl.SiteMembershipUpdaterImpl">
+            <property name="roleMapper"><ref bean="org.sakaiproject.lti.api.LTIRoleMapper"/></property>
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.SiteMembershipsSynchroniser"
+                class="org.sakaiproject.lti.impl.SiteMembershipsSynchroniserImpl">
+            <property name="userFinderOrCreator"><ref bean="org.sakaiproject.lti.api.UserFinderOrCreator"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+            <property name="siteMembershipUpdater"><ref bean="org.sakaiproject.lti.api.SiteMembershipUpdater"/></property>
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.impl.jobs.SiteMembershipsSyncJob"
+                class="org.sakaiproject.lti.impl.jobs.SiteMembershipsSyncJob">
+            <property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService"/></property>
+            <property name="siteMembershipsSynchroniser"><ref bean="org.sakaiproject.lti.api.SiteMembershipsSynchroniser"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ltiSiteMemberships"
+                class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+                init-method="init">
+            <property name="beanId"><value>org.sakaiproject.lti.impl.jobs.SiteMembershipsSyncJob</value></property>
+            <property name="jobName"><value>Synchronise LTI Site Memberships</value></property>
+            <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" /></property>
+        </bean>
+
+        <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LTIReportingJob"
+              class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+              init-method="init">
+            <property name="beanId">
+                <value>org.sakaiproject.lti.impl.LTIReportingJob</value>
+            </property>
+            <property name="jobName">
+                <value>LTI Addition Reporting</value>
+            </property>
+            <property name="resourceBundleBase" value="org.sakaiproject.lti.impl.LTIReportingJob"/>
+            <property name="configurableJobProperties">
+                <set>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="to"/>
+                        <property name="descriptionResourceKey" value="to.description"/>
+                        <property name="defaultValue" value="user@example.com"/>
+                    </bean>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="from"/>
+                        <property name="descriptionResourceKey" value="from.description"/>
+                        <property name="defaultValue" value="sender@example.com"/>
+                    </bean>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="period"/>
+                        <property name="descriptionResourceKey" value="period.description"/>
+                        <property name="defaultValue" value="86400000"/>
+                    </bean>
+                    <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                        <property name="required" value="true"/>
+                        <property name="labelResourceKey" value="toolId"/>
+                        <property name="descriptionResourceKey" value="toolId.description"/>
+                        <property name="defaultValue" value=""/>
+                    </bean>
+                </set>
+            </property>
+            <property name="schedulerManager">
+                <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+            </property>
+        </bean>
+        <bean id="org.sakaiproject.lti.impl.LTIReportingJob" class="org.sakaiproject.lti.impl.LTIReportingJob">
+            <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+            <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+            <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        </bean>
+        <bean id="org.sakaiproject.lti.api.LTIExportService"
+                class="org.sakaiproject.lti.impl.LTIExportServiceImpl"
+                init-method="init">
+            <property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        </bean>
+</beans>

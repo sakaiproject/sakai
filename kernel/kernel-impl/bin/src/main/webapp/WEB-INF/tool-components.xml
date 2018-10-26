@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.tool.api.SessionManager"
+			name="org.sakaiproject.tool.api.SessionStore"
+			class="org.sakaiproject.tool.impl.SessionComponent"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+		<lookup-method name="rebuildBreakdownService" bean="org.sakaiproject.tool.api.RebuildBreakdownService" />
+		<lookup-method name="clusterManager" bean="org.sakaiproject.cluster.api.ClusterService"/>
+
+		<property name="clusterableTools">
+			<!-- The tool id's should be used for any clusterable tool.  A clusterable tool, is any tool that can 
+				guarantee that everything that tool
+				puts in the session is itself clusterable, and in the case of Terracotta, is documented in the
+				tc-config.xml file.  This value is a String, instead of a Set of values, to allow for overriding
+                the contents in the sakai.properties file. -->
+			<value>sakai.login,sakai.membership</value>
+		</property>
+
+		<property name="inactiveInterval"><value>1800</value></property>
+		<property name="checkEvery"><value>60</value></property>
+		<!-- session journaler is null by default -->
+		<!--
+		<property name="sessionListener" ref="org.sakaiproject.tool.api.SessionAttributeListener.journaler" />
+		-->
+	</bean>
+
+    <!--
+    RebuildBreakdownServiceImpl is responsible for converting Session data into Serializable
+    objects, storing them internally, and then converting them back into Session objects, in support
+    of Session clustering
+    Also can be used for general serialization
+    -->
+    <bean id="org.sakaiproject.tool.api.RebuildBreakdownService"
+          class="org.sakaiproject.tool.impl.RebuildBreakdownServiceImpl"
+          init-method="init">
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+    </bean>
+
+
+    <!-- uncomment this if sessionListener property is enabled above -->
+    <!--
+    <bean id="org.sakaiproject.tool.api.SessionAttributeListener.journaler"
+        class="org.sakaiproject.tool.impl.attribs.SessionAttributeJournaler">
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="enableJournal" value="true" />
+    </bean>
+    
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="Journaler:name=sessionJournaler" value-ref="org.sakaiproject.tool.api.SessionAttributeListener.journaler"/>
+            </map>
+        </property>
+    </bean>
+    -->
+
+	<!-- register one component to be both the ToolManager and the ActiveToolManager -->
+	<bean id="org.sakaiproject.tool.api.ActiveToolManager"
+			name="org.sakaiproject.tool.api.ToolManager"
+			class="org.sakaiproject.tool.impl.ActiveToolComponent"
+			init-method="init"
+			destroy-method="destroy">
+
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<property name="resourceLoader">
+			<bean factory-bean="org.sakaiproject.tool.impl.ToolResourceFactory" factory-method="createInstance"/>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.tool.impl.ToolResourceFactory" class="org.sakaiproject.tool.impl.ToolResourceFactory">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+	<!-- Export active session data over JMX -->
+	<bean id="org.sakaiproject.tool.api.MBeanExporter" class="org.springframework.jmx.export.MBeanExporter"
+		lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="org.sakaiproject:name=Sessions" value-ref="org.sakaiproject.tool.impl.JMXSessionComponent" />
+			</map>
+		</property>
+		<property name="server">
+			<bean class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
+		</property>
+		<property name="assembler">
+			<bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+				<property name="managedMethods">
+					<value>getServerId,getServerInstance,getServerIdInstance,getActive05Min,getActive10Min,getActive15Min,getSessionsCount,getSessionsIds,getActive,getSession,invalidateSession,killSession</value>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+    <!-- annotated MBean bean -->
+    <bean id="org.sakaiproject.tool.impl.JMXSessionComponent" class="org.sakaiproject.tool.impl.JMXSessionComponent">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
+
+    <!-- use annotations to manage MBeans -
+    Cannot use this because -> Could not generate CGLIB subclass of class [class org.sakaiproject.search.mbeans.SearchServiceManagement]: Common causes of this problem include using a final class or a non-visible class
+    <bean id="sakaiSpringMBeanAttributeSource"
+          class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+    <bean id="sakaiSpringMBeanAssembler"
+          class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+        <property name="attributeSource" ref="sakaiSpringMBeanAttributeSource"/>
+    </bean>
+    <bean id="sakaiSpringMBeanNamingStrategy"
+          class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+        <property name="attributeSource" ref="sakaiSpringMBeanAttributeSource"/>
+    </bean>
+    <bean id="sakaiSpringMBeanExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="assembler" ref="sakaiSpringMBeanAssembler"/>
+        <property name="namingStrategy" ref="sakaiSpringMBeanNamingStrategy"/>
+        <property name="server">
+            <bean class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
+        </property>
+        <property name="autodetect" value="true"/>
+    </bean>
+    -->
+
+</beans>

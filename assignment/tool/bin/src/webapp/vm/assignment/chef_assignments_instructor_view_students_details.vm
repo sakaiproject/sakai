@@ -1,0 +1,60 @@
+<!-- start: chef_assignments_instructor_view_students_details.vm  -->
+<div class="portletBody container-fluid">
+
+  #if ($!isAdditionalNotesEnabled && !$assignment.isGroup())
+    <h1>$tlang.getString('assignment.additional.notes.export.title')</h1>
+    <div>$tlang.getString('assignment.additional.notes.export.header')</div>
+
+    <table class="listHier lines nolines" id ="submissionList" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentdetails")">
+    <tr>
+    <th id="studentname">
+        $tlang.getString("gen.student")
+    </th>
+    <th id="notes">
+      $tlang.getString("gen.notes")
+    </th>
+    </tr>
+    #foreach ($userSubmission in $userNotes)
+      #set($submission=false)
+      #set($submission = $userSubmission.Submission)
+      #set($siteUser=false)
+
+      #set($siteUser = $userSubmission.User)
+      #set($submitterSortName=$!siteUser.sortName) 
+      #set($submitterName=$!submitterSortName) 
+      #set($submitterDisplayId=$!siteUser.getDisplayId())
+
+      #set($submitterId = $!siteUser.getId())
+      #if ($!submitterDisplayId)
+        ##attach the displayId
+        #set($submitterName=$submitterName.concat(" (").concat($submitterDisplayId).concat(")"))
+      #end
+      #if ($!submission)## && $submission.submitted) 
+        #set($notes = [])
+        #set($notes = $notesMap.get($siteUser.id))
+        #if($notes.size() > 0)
+        <tr>        
+          <td headers="studentname">
+            #if ($value_CheckAnonymousGrading)
+                $validator.escapeHtml($!submission.Id) $tlang.getString("grading.anonymous.title")
+            #else
+                $validator.escapeHtml($submitterName)
+            #end
+          </td>
+          <td headers="notes">            
+            <ul>
+            #foreach($note in $notes)
+              #if($!note) <li>$!note</li> #end
+            #end
+            </ul>
+          </td>
+        </tr>
+        #end
+       #end
+      #end
+      </table>
+      <div>$tlang.getString('assignment.additional.notes.export.footer')</div>
+  #end
+
+</div>
+<!-- end: chef_assignments_instructor_view_students_details.vm  -->

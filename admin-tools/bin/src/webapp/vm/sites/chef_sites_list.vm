@@ -1,0 +1,168 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_list.vm,v 1.4 2005/06/06 19:42:22 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>
+		$tlang.getString("sitlis.sites")
+	</h3>	
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitlis.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("sitlis.theare") 
+		</div>
+		
+##paging widget
+		<div class="listNav">
+						#if($totalNumber>0)
+						<div class="instruction">	
+						$tlang.getFormattedMessage("sitedipag.list.viewing", $startEndTotalNumbers)
+						</div>
+						#end
+						#if ($pagesize != 0)
+							#if ($goFPButton == "true")
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("sitedipag.first")" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+							#if ($goPPButton == "true")
+								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('sitedipag.previous') $pagesize"  accesskey="p" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+						#end
+						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+							<span class="skip">$tlang.getString("sitedipag.listnavselect")</span>
+							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
+								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("sitedipag.show5")</option>
+								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("sitedipag.show10")</option>
+								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("sitedipag.show20")</option>
+								<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("sitedipag.show50")</option>
+								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("sitedipag.show100")</option>
+								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("sitedipag.show200")</option>
+							</select>
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						</form>
+						#if ($pagesize != 0)
+							#if ($goNPButton == "true")
+								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('sitedipag.next') $pagesize"  accesskey="n" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+							#if ($goLPButton == "true")
+								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('sitedipag.last')" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#else
+								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								</form>
+							#end
+						#end
+				</div> ##end navPanel
+				
+		
+#if ($sites.size() > 0)
+	#set ($siteCount = 0)
+	<div class="table-responsive">
+		<table class="table table-striped table-bordered" summary="$tlang.getString("sitlis.list.summary")">
+			<tr>
+				<th scope="col" id="Id">$tlang.getString("sitlis.sitid")</th>
+				<th scope="col" id="Title">$tlang.getString("sitlis.tit")</th>
+				<th scope="col" id="Published">$tlang.getString("sitlis.pub")</th>
+				<th scope="col" id="Joinable">$tlang.getString("sitlis.joi")</th>
+				<th scope="col" id="Type">$tlang.getString("sitlis.typ")</th>
+				<th scope="col" id="Description">$tlang.getString("sitlis.des")</th>
+			</tr>
+	#foreach ($site in $sites)
+##		#set ($realm = $realms.getAuthzGroup($site.Reference))
+			<tr>
+				<th scope="row" headers="Id">
+				<a href="#siteLink($site.Id)" id="external-link" class="external-link"><span class="fa fa-external-link" title="$tlang.getString("sitlis.link")"></span></a> | 
+					#if ($service.allowUpdateSite($site.Id))
+						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("sitlis.edit")">
+							$validator.escapeHtml($site.Id) <span class="fa fa-pencil-square-o"></span>
+						</a>
+					#else
+						$validator.escapeHtml($site.Id)
+					#end
+				</th>
+				<td headers="Title">$validator.escapeHtml($site.Title)</td>
+				<td headers="Published">#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
+				<td headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joialt")" />#end</td>
+				<td headers="Type">$validator.escapeHtml($site.Type)</td>
+				<td headers="Description">
+					#if ($site.ShortDescription && $site.ShortDescription !="")
+						<div class="short-description">
+							<strong>$tlang.getString("sitlis.shodes")</strong>
+							<small> $validator.escapeHtml($site.ShortDescription) </small>
+						</div>
+					#end	
+					#if ($site.Description && $site.Description !="")
+						<div class="description">
+							<strong>$tlang.getString("sitlis.des2")</strong>
+							<small> $site.Description </small>
+						</div>
+					#end	
+					#if ($site.IconUrl && $site.IconUrl !="")
+						<div class="icon-url">
+							<strong>$tlang.getString("sitlis.ico")</strong>
+							<small> $validator.escapeHtml($site.IconUrl) </small>
+						</div>
+					#end
+					#if ($site.InfoUrl  && $site.InfoUrl !="")
+						<div class="info-url">
+							<strong>$tlang.getString("sitlis.sitinf")</strong>
+							<small> $validator.escapeHtml($site.InfoUrl) </small>						
+						</div>
+					#end
+						<div class="created-by">
+							<strong>$tlang.getString("sitlis.cre")</strong>
+							<small>
+								#if ($site.CreatedDate) $userTimeService.dateFormatLong($site.CreatedDate, $tlang.Locale) #end
+								#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
+							</small>
+						</div>
+##					#if ($realm.ProviderGroupId)
+##						<div class="realm-provider">
+##							Authorization Group External Group Id:
+##						</div>
+##						<small>
+##							$realm.ProviderGroupId
+##						</small>
+##					#end
+					&nbsp;
+				</td>
+			</tr>
+	#end
+		</table>
+	</div>
+#else
+		<div class="instruction">
+			$tlang.getString("sitlis.nosit")
+		</div>
+#end
+	</div>

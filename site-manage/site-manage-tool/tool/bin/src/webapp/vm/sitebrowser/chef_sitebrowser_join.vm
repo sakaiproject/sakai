@@ -1,0 +1,20 @@
+<div class="portletBody">
+	
+	<div class="navPanel">
+		<div class="itemNav">
+			<form action="#toolForm( "$action" )" method="post" class="inlineForm">
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString( "vi.ret" )" accesskey="l" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+	</div>
+	
+	<h3>$message</h3>
+	
+	#if( $success )
+		<br />
+		<a href="$link" title="$tlang.getString( "list.go" ) $validator.escapeHtml( $siteTitle ) $tlang.getString( "site" )" target="_top">
+			$siteTitle
+		</a>
+	#end
+</div>

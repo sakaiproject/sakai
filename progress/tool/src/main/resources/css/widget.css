@@ -1,0 +1,10 @@
+/* In a real app css would be a part of the morpheus skin in library */
+#widgetTablePager {
+    text-align: center;
+}
+#widgetTablePager select {
+    padding: 0.15em 2.2em 0.15em 0.5em;
+}
+#widgetExpiration {
+    width: auto;
+}

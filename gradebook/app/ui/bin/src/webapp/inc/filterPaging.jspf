@@ -1,0 +1,32 @@
+<%/*
+	Search filter and paging controls for enrollment tables.
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+*/%>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
+<h:panelGrid styleClass="gbContainerNav" columns="2" columnClasses="gbLeftNav,gbRightNav">
+	<t:div>
+		<t:div styleClass="gbListView spinnerBesideContainer">
+			<h:outputLabel value="#{msgs.search_sections_filter}" for="selectSectionFilter"/><h:outputText escape="false" value="&nbsp;&nbsp;" />
+			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}" onchange="SPNR.insertSpinnerAfter( this, null, null ); this.form.submit()">
+				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
+			</h:selectOneMenu>
+		</t:div>
+		<t:div>
+		    <h:outputLabel value="#{msgs.search_sections_search}" for="searchString" styleClass="skip" />
+			<h:inputText
+				id="searchString"
+				value="#{bean.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msgs.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'gbForm:searchSubmitButton');"
+			/><f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.search}" value="#{msgs.search_find}" id="searchSubmitButton" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.clear}" value="#{msgs.search_clear}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</t:div>
+	</t:div>
+
+	<t:div styleClass="shorttext">
+	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" 
+		valueChangeListener="#{bean.changePagingState}" immediate="true"/>
+	</t:div>
+</h:panelGrid>

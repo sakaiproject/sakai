@@ -1,0 +1,51 @@
+
+#macro(showMultivalued $values)
+	#if(! $values.isEmpty())
+		#foreach($value in $values)
+			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!{xilator.escapeHtml($!{value})}</p>
+		#end
+	#end
+#end
+
+#macro(getFieldValue $field $oneValue $index)
+	#if("shorttext" == "$!{field.valueType}")
+		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml($oneValue)}" type="text" size="50" />
+	#elseif("number" == "$!{field.valueType}")
+		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml($oneValue)}" type="text" size="20" />
+	#elseif("longtext" == "$!{field.valueType}")
+		<textarea name="$!{field.identifier}$index" id="$!{field.identifier}$index" cols="50" rows="4">$!{oneValue}</textarea>
+	#elseif("date" == "$!{field.valueType}")
+		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml($oneValue)}" type="text" size="20" />
+	#end	
+#end
+
+#macro(getMultivalued $field $multiValues $count)
+	<div id="div_$!{field.identifier}" class="multiValue">
+		<table>
+			#if($multiValues && ($multiValues.size() > 0))
+				#set($index = 0)
+				#foreach($singleValue in $multiValues)
+					<tr>
+						<td>
+							#getFieldValue($!field "$!singleValue" $!index)
+						</td>
+					</tr>
+					#set($index = $index + 1)
+				#end
+			#else
+				#set($index = 1)
+				<tr>
+					<td>
+						#getFieldValue($field "" "0")
+					</td>
+				</tr>
+			#end
+			<tr>
+				<td>
+					<a href="#" onclick="javascript:getAnother('${DEFAULT_TEMPLATE.identifier}', ${count})">$tlang.getString( "addanother.create" )</a>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<input type="hidden" name="$!{field.identifier}_count" id="$!{field.identifier}_count" value="$index" />
+#end

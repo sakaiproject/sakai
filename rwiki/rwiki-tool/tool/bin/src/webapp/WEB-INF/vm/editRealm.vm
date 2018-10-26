@@ -1,0 +1,104 @@
+#set( $rightRenderBean = ${requestScope.infoRightRenderBean} )
+#set( $homeBean = ${requestScope.homeBean} )
+#set( $realmEditBean = ${requestScope.realmEditBean} )
+#set( $errorBean = ${requestScope.errorBean} )
+#set( $rlb = ${requestScope.resourceLoaderBean} )
+#set( $title = "${rlb.jsp_edit_section}: ${util.escapeHtml($realmEditBean.localSpace)}" )
+#header(${title} false "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+	<div class="navIntraTool actionToolBar">
+	  <form action="?#" method="get" class="rwiki_searchForm">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
+	  </form>
+	 </div>
+		
+	 <div id="rwiki_content" class="nosidebar" >
+	    <h3>${rlb.jsp_edit_section}: ${util.escapeHtml($realmEditBean.localSpace)}</h3>
+	    #if ( ${errorBean.errors.size()}  > 0 )
+	      <p class="validation" style="clear: none;">
+		       #foreach( $error in ${errorBean.errors} )
+		        ${util.escapeHtml($error)}
+		       #end
+		     </p>
+	    #end
+	    <form action="?#" method="post">
+	      <div class="rwikirenderedContent">
+		       <table class="listHier lines" style="width:70%" cellspacing="0" summary="${rlb.jsp_role_permissions_summary}" >
+		         <tbody>
+		           <tr id="permissions">
+		             <th scope="col">${rlb.jsp_role_permissions}</th>
+		             <th scope="col">${rlb.jsp_permission_create}</th>
+		             <th scope="col">${rlb.jsp_permission_read}</th>
+		             <th scope="col">${rlb.jsp_permission_edit}</th>
+		             <th scope="col">${rlb.jsp_permission_admin}</th>
+		             <th scope="col">${rlb.jsp_permission_super_admin}</th>
+		           </tr>
+		        #foreach( $role in ${realmEditBean.roles} )
+		           <tr class="permissionsGroupRole">
+			             <td style="padding-left:3em;padding-right:3em">${role.id}</td>
+			             <td>
+			             #if (${role.secureCreate} )
+			               <label class="skip"  for="create_${role.id}_id">${role.id} ${rlb.jsp_permission_create}</label><input type="checkbox" name="create_${role.id}" id="create_${role.id}_id" checked="checked" title="${role.id} ${rlb.jsp_permission_create}"/>
+			             #else
+			               <label class="skip"  for="create_${role.id}_id">${role.id} ${rlb.jsp_permission_create}</label><input type="checkbox" name="create_${role.id}" id="create_${role.id}_id" title="${role.id} ${rlb.jsp_permission_create}"/>
+			             #end
+			             </td>
+			             <td>
+			             #if (${role.secureRead} )
+   			            <label class="skip"  for="read_${role.id}_id">${role.id} ${rlb.jsp_permission_read}</label><input type="checkbox" name="read_${role.id}" id="read_${role.id}_id" checked="checked" title="${role.id} ${rlb.jsp_permission_read}"/>
+			             #else
+			             <label class="skip"  for="read_${role.id}_id">${role.id} ${rlb.jsp_permission_read}</label>  <input type="checkbox" name="read_${role.id}" id="read_${role.id}_id" title="${role.id} ${rlb.jsp_permission_read}"/>
+			             #end
+			             </td>
+   			          <td>
+			             #if (${role.secureUpdate} )
+			              <label class="skip"  for="update_${role.id}_id">${role.id} ${rlb.jsp_permission_edit}</label>  <input type="checkbox" name="update_${role.id}" id="update_${role.id}_id" checked="checked" title="${role.id} ${rlb.jsp_permission_edit}"/>
+			             #else
+			               <label class="skip"  for="update_${role.id}_id">${role.id} ${rlb.jsp_permission_edit}</label> <input type="checkbox" name="update_${role.id}" id="update_${role.id}_id" title="${role.id} ${rlb.jsp_permission_edit}"/>
+   			          #end
+			             </td>
+			             <td>
+			             #if (${role.secureAdmin})
+			                <label class="skip"  for="admin_${role.id}_id">${role.id} ${rlb.jsp_permission_admin}</label> <input type="checkbox" name="admin_${role.id}"  id="admin_${role.id}_id" checked="checked" title="${role.id} ${rlb.jsp_permission_admin}"/>
+   			          #else
+			               <label class="skip"  for="admin_${role.id}_id">${role.id} ${rlb.jsp_permission_admin}</label> <input type="checkbox" name="admin_${role.id}" id="admin_${role.id}_id"  title="${role.id} ${rlb.jsp_permission_admin}"/>
+			             #end
+			             </td>
+			             <td>
+   			          #if (${role.secureSuperAdmin})
+			               <label class="skip"  for="superadmin_${role.id}_id">${role.id} ${rlb.jsp_permission_super_admin}</label> <input type="checkbox" name="superadmin_${role.id}" id="superadmin_${role.id}_id" checked="checked" title="${role.id} ${rlb.jsp_permission_super_admin}"/>
+			             #else
+			               <label class="skip"  for="superadmin_${role.id}_id">${role.id} ${rlb.jsp_permission_super_admin}</label> <input type="checkbox" name="superadmin_${role.id}" id="superadmin_${role.id}_id" title="${role.id} ${rlb.jsp_permission_super_admin}"/>
+			             #end
+   			          </td>
+		           </tr>
+		        #end
+		         </tbody>
+		       </table>
+
+	           <div class="rwiki_editControl">
+	              <p class="act">
+	                 <input type="hidden" name="pageName" value="${util.escapeHtml($realmEditBean.pageName)}" />
+	                 <input type="hidden" name="panel" value="Main"/>
+	                 <input type="hidden" name="action" value="editRealm"/>
+	                 <input type="submit" name="command_save" value="${rlb.jsp_button_save}" accesskey="s"/> 
+	                 <input type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}" accesskey="x"/>
+	                 <input type="hidden" name="realm" value="${util.escapeHtml($realmEditBean.localSpace)}"/>
+	              </p>
+	           </div>
+	      </div>
+	    </form>
+	 </div>
+	 
+ </div>
+</div>
+#footer()
+
+
+
+

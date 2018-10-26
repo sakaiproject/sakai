@@ -1,0 +1,111 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<title>Sakai "Old-style" Date Choosing Widget</title>
+<link href="/library/skin/tool_base.css" type="text/css"
+	rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css"
+	rel="stylesheet" media="all" />
+<script type="text/javascript" language="JavaScript"
+	src="/library/js/headscripts.js"></script>
+</head>
+<body>
+	<div class="portletBody">
+		<form>
+			<div rsf:id="broken-date:">
+				<p class="shorttext">
+					<label for="month"> Open Date </label> <select id="month"
+						rsf:id="month" onchange="blur()">
+						<option value="1">JAN</option>
+						<option value="2">FEB</option>
+						<option value="3">MAR</option>
+						<option value="4">APR</option>
+						<option value="5">MAY</option>
+						<option value="6">JUN</option>
+						<option value="7">JUL</option>
+						<option value="8">AUG</option>
+						<option value="9" selected="selected">SEP</option>
+						<option value="10">OCT</option>
+						<option value="11">NOV</option>
+						<option value="12">DEC</option>
+					</select> <select rsf:id="day" id="day" onchange="blur()">
+
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+						<option value="21" selected="selected">21</option>
+						<option value="22">22</option>
+						<option value="23">23</option>
+						<option value="24">24</option>
+						<option value="25">25</option>
+						<option value="26">26</option>
+						<option value="27">27</option>
+						<option value="28">28</option>
+						<option value="29">29</option>
+						<option value="30">30</option>
+						<option value="31">31</option>
+
+					</select> <select rsf:id="year" id="year" onchange="blur()">
+
+						<option value="2002">2002</option>
+						<option value="2003">2003</option>
+						<option value="2004">2004</option>
+						<option value="2005">2005</option>
+						<option value="2006" selected="selected">2006</option>
+						<option value="2007">2007</option>
+
+					</select>
+					<script type="text/javascript"
+						src="/library/calendar/sakai-calendar.js"></script>
+					<script type="text/javascript" rsf:id="sakai-old-date-init">
+						chef_dateselectionwidgetpopup(
+								'new_assignment_openyear',
+								'new_assignment_openmonth',
+								'new_assignment_openday');
+					</script>
+					at <select rsf:id="hour" id="hour">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12" selected="selected">12</option>
+					</select> <select rsf:id="minute" id="minute">
+						<option value="0" selected="selected">00</option>
+						<option value="15">15</option>
+						<option value="30">30</option>
+						<option value="45">45</option>
+					</select> <select rsf:id="ampm" id="ampm">
+						<option value="AM">AM</option>
+						<option value="PM" selected="selected">PM</option>
+					</select>
+				</p>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

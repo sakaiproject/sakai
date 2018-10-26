@@ -1,0 +1,119 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_edit_page.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["title"];
+</script>
+<div class="portletBody">
+
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		<h3>
+			$tlang.getString("sitedipag.edisit") $!site.Id / $tlang.getString("sitedipag.pag") $!page.Id
+		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedipag.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("sitedipag.revandmod")
+		</div>
+
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h4>
+				$tlang.getString("sitedipag.pag")
+			</h4>	
+			<table  class="itemSummary" summary="$tlang.getString("sitedipag.revandmod")">
+				<tr>
+					<th>$tlang.getString("sitedipag.pag2")</th>
+					<td>
+						$validator.escapeHtml($page.Id)
+					</td>
+				</tr>
+				<tr>
+					<th>
+						<span class="highlight">*</span>
+						<label for="title">
+							$tlang.getString("sitedipag.tit")
+						</label>
+					</th>
+					<td>
+						<input type="text" name="title" id="title" #if($page) value="$!validator.escapeHtml($page.Title)"#end />
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("sitedipag.lay")
+					</th>
+					<td>
+						#foreach ($layout in $layouts)
+							<input type="radio" name="layout" id="layout$velocityCount" value="$velocityCount" #if($velocityCount==($page.Layout+1))checked="checked"#end />
+							<label for="layout$velocityCount">$layout</label> <br />
+						#end							
+					</td>
+				</tr>
+				<tr>
+					<th>
+						<label for="popup">
+							$tlang.getString("sitedipag.pop")
+						</label>
+					</th>
+					<td>
+						<input type="radio" value="true" name="popup" id="opentrue" #if ($page.isPopUp()) checked="checked" #end /><label for="opentrue"> $tlang.getString("sitedi.yes") </label>
+						<input type="radio" value="false" name="popup" id="openfalse" #if (!$page || !$page.isPopUp()) checked="checked" #end /><label for="openfalse"> $tlang.getString("sitedi.no")</label>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						<label for="custom">
+							$tlang.getString("sitedipag.custom")
+						</label>
+					</th>
+					<td>
+						<input type="radio" value="true" name="custom" id="customtrue" #if ($titleCustom=='true') checked="checked" #end /><label for="customtrue"> $tlang.getString("sitedi.yes") </label>
+						<input type="radio" value="false" name="custom" id="customfalse" #if (!$page || $titleCustom=='false') checked="checked" #end /><label for="customfalse"> $tlang.getString("sitedi.no")</label>
+					</td>
+				</tr>				
+			</table>
+			#if ($page)
+				<h4>
+					$tlang.getString("sitedi.pro")
+				</h4>
+				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+					<tr><td></td><td></td></tr>
+					#set ($paramNames = $page.Properties.PropertyNames)
+					#foreach ($paramName in $paramNames)
+						#set ($paramValue = $page.Properties.getPropertyFormatted($paramName))
+						<tr>
+							<th>
+								<label for="param_$paramName">
+									$validator.escapeHtml($paramName):
+								</label>
+							</th>
+							<td>
+								<input type="text" disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+							</td>
+						</tr>
+					#end
+				</table>
+			#end
+			<p class="instruction">$tlang.getString("sitedi.addeditprops")</p>
+			<div class="act">
+				<input type="submit" name="eventSubmit_doPageProperties" value="$tlang.getString("sitedi.props")" />
+			</div>
+			<h4>	
+				$tlang.getString("sitedipag.conedi")
+			</h4>	
+			<div class="act">
+				<input type="submit"  class="active" name="eventSubmit_doDone_page" value="$tlang.getString("sitedipag.don")" />
+				<input type="submit" name="eventSubmit_doTools" value="$tlang.getString("sitedipag.too")" />
+			</div>
+			<h4>
+				$tlang.getString("sitedipag.comthesit")
+			</h4>	
+			<div class="act">
+				<input type="submit" class="active" name="eventSubmit_doSave_page" value="$tlang.getString("sitedipag.sav")" accesskey="s"  />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedipag.can")"  accesskey="x" />
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

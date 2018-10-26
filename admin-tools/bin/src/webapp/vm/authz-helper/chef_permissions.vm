@@ -1,0 +1,118 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+#css("/admin-tools/css/authz.css")
+<script>includeLatestJQuery('chef_permissions.vm');</script>
+#javascript("/admin-tools/js/authz.js")
+#javascript("/library/js/spinner.js")
+#if($menu)
+	#toolbar($menu)
+#end
+	
+	<h3>
+		$thelp.getString("per.lis.title")
+	</h3>
+		#if ($alertMessage)<div class="alertMessage">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+
+	<div class="instruction">
+		$validator.escapeHtml($!description)
+	</div>
+	## no need to show the drop down menu if there is no group defined for the site
+	<div class="navPanel">
+		#if ($!groups && $groups.size()>0)
+		## if there are any groups at all
+		<div class="viewNav" id="groupSelector">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm($action)">
+				<input type="hidden" name="eventSubmit_doView_permission_option" value="view" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				<div class="spinnerBesideContainer">
+					<label for="groupSelection">
+					$thelp.getString("per.lis.selectgrp")
+					</label>
+					<select id="authzGroupSelection" name="authzGroupSelection" onchange="SPNR.insertSpinnerAfter( this, null, null );document.viewForm.submit();">
+						<option value ="$siteRef" #if ($!viewRealmIds.contains($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
+						## for each group
+						#set($groupCount=0)
+						 #foreach ($group in $!groups)
+							#set($groupCount=$groupCount + 1)
+							<option value ="$group.Reference" #if ($!viewRealmIds.contains($group.Reference)) selected = "selected" #end>$validator.escapeHtml($group.Title)</option>
+				     	#end
+						## end 	for each group
+					</select>
+					#if ($groupCount==0)
+					<script type="text/javascript"> $('#groupSelector').hide()</script>
+					#end
+				</div>
+			</form>	
+		</div>
+		#end
+		## end if there are any groups at all			
+		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
+			<input type="button" value="$thelp.getString("per.lis.restoredef")" onclick="SPNR.disableControlsAndSpin( this, null );window.location.reload();" />
+		</div>
+	</div>
+	
+		<form name= "permissionForm" action="#toolForm("$action")" method="post">
+			#if ($!roles)
+				<table class="listHier checkGrid specialLink" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0" style="width:auto">
+					<tr>
+						<th id="permission">
+							<a href="#" title="$thelp.getString("per.lis.head.title")">$thelp.getString("per.lis.head")</a>
+						</th>
+						#foreach($role in $roles)
+							<th class="role"><a href="#"  title="$thelp.getString("per.lis.role.title")">$roleName.getName($role.Id)</a></th>
+						#end
+					</tr>
+						#foreach($lock in $abilities)
+
+							<tr>
+							<td class="permissionDescription unclicked" scope="row">
+								<a href="#" title="$thelp.getString("per.lis.perm.title")">
+									#set($desc = $lock)
+									#set($desc = $!functionDescriptions.get($lock))
+									$desc
+								</a>
+							</td>
+
+							#set($roleCount=0)
+							#foreach($role in $roles)
+								## The roles can come from a different realm so get the current realm's roles.
+								## Might not exist in current realm so might be empty
+								#set($myRole = $realm.getRole($role.Id))
+								#set($roleAbilities = $rolesAbilities.get($role.Id))
+								#set($roleCount=$roleCount + 1)
+								#set($alreadyGranted = $roleAbilities.contains($lock))
+								#set($granted = ($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))
+								<td class="$roleCount checkboxCell">
+									#if($alreadyGranted)
+										<label for="$role.Id$lock" class="sr-only">
+											<span>$thelp.getString("per.alrgra") $role.Id: $desc</span>
+										</label>
+										<input type="checkbox" disabled="true" checked="checked" id="$role.Id$lock"
+											title="$thelp.getString("per.alrgra")"/>
+										## Hidden field is to preseve the existing value in the realm even if overridden.
+										<input type="hidden" name="$role.Id$lock" value="$granted"/>
+									#else
+										<label for="$role.Id$lock" class="sr-only">
+											<span>$thelp.getString("gen.enable") $role.Id: $desc</span>
+										</label>
+										#set ($checked = ($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))
+										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if($checked)checked="checked"#end  #if(! $limiter.isEnabled($role.id, $lock, $checked))disabled="true"#end />
+									#end
+								</td>
+							#end
+						</tr>
+					#end
+				</table>
+				<div class="act">
+						<input type="submit" class="active"  name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</div>
+			#else
+				<div class="alertMessage">$thelp.getString("per.alert")</div>
+				<div class="act">
+					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				</div>
+			#end
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>

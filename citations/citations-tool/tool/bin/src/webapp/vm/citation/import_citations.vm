@@ -1,0 +1,104 @@
+<!--
+#*
+ $URL:https://source.sakaiproject.org/svn/citations/trunk/citations-tool/tool/src/webapp/vm/citation/import_citations.vm $
+*#
+ **********************************************************************************
+ *
+ * Copyright (c) 2006 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************
+-->
+
+
+<script type="text/javascript" language="JavaScript">
+doubleDeep = true;
+// alert("Oye");
+// alert("fromList = $state.getAttribute("fromListPage") ");
+</script>
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+
+<!-- template: sakai_citation-import_citations.vm -->
+<div class="portletBody">
+        #set ($fromListPage = $state.getAttribute("fromListPage"))
+
+  <div class="indnt1">
+
+    <h3 id="basicSearchHeader">$tlang.getString("import.title")</h3>
+    <p />
+    <form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post" 
+	      enctype="multipart/form-data" >
+      <p class="instruction">$tlang.getString("import.directions")</p>
+      <input name="sakai_action" id="sakai_action" value="" type="hidden" />
+	  <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+      <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
+
+	  <input type="button" value='$tlang.getString("label.import")' id="import1"
+	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
+			 
+	  #if($fromListPage)
+	  <input type="button" name="ReviewCitations" id="ReviewCitations1"
+             value="$tlang.getString("label.back.fromlist")"
+	    	 onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+	  #else
+	  <input type="button" name="AddCitations" id="AddCitations1"
+             value="$tlang.getString("label.back.search")"
+             onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
+	  #end
+	  
+	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel1" type="button" 
+	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>
+	  <p />
+	  <span id="risFileUpload">
+		  $tlang.getString("import.file"): 
+		  <input name="risupload" id="risupload" type="file" /> 
+	  </span>
+	  <span id="importingMessage" style="display: none;">
+	    <img src="/library/image/sakai/spinner.gif" alt="importing"> 
+        $tlang.getString("label.importing")
+	  </span>
+	  <p />
+	  <span id="risTextUpload">
+		  $tlang.getString("import.ristext"):
+	    <p />
+	    <textarea cols="80" rows="4" name="ristext" id="ristext"></textarea>
+	  </span>
+      <p />
+	  <input type="button" value='$tlang.getString("label.import")' id="import2"
+	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
+			 
+	  #if($fromListPage)
+	  <input type="button" name="ReviewCitations2" id="ReviewCitations2"
+             value="$tlang.getString("label.back.fromlist")"
+	    	 onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+	  #else
+	  <input type="button" name="AddCitations2" id="AddCitations2"
+             value="$tlang.getString("label.back.search")"
+             onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"/>
+	  #end
+
+	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel2" type="button"
+	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>	
+	  <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    </form>
+  </div>
+  
+  #if ($state.removeAttribute("fromListPage"))
+  #end
+
+</div>
+

@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">  
+      
+<body>
+
+<wicket:panel>	
+	
+
+	<div class="mainSection">
+		<div class="mainSectionHeading"><span wicket:id="heading">[Contact Information]</span></div>
+		
+		<div class="mainSectionContentForm">	
+
+			<form wicket:id="form" class="profileForm">
+				
+				<div wicket:id="editWarning" class="edit-other-warning">[You are editing {other person}'s profile]</div>
+				
+				<div wicket:id="formFeedback">[formFeedback]</div>
+				
+				<div wicket:id="feedback"></div>
+				
+				<table class="profileContent">
+					
+					<!-- email -->
+					<tr wicket:id="emailContainer">
+						<td class="label" wicket:id="emailLabel">[emailLabel]</td>
+						<td class="content">
+							<label for="emailinput" class="accessibility-label"><wicket:message key="accessibility.profile.email.input">Enter your email</wicket:message></label>
+							<input type="text" wicket:id="email" class="formInputField" aria-describedby="emailFeedback" />
+							<span class="feedbackLabel" wicket:id="emailFeedback">[emailFeedback]</span>
+							<span wicket:id="emailReadOnly">[emailReadOnly]</span>
+						</td>
+					</tr>
+					
+					<!-- homepage -->
+					<tr wicket:id="homepageContainer">
+						<td class="label" wicket:id="homepageLabel">[homepageLabel]</td>
+						<td class="content">
+							<label for="homepageinput" class="accessibility-label"><wicket:message key="accessibility.profile.homepage.input">Enter your webpage url</wicket:message></label>
+							<input type="text" wicket:id="homepage" class="formInputField" aria-describedby="homepageFeedback" />
+							<span class="feedbackLabel" wicket:id="homepageFeedback">[homepageFeedback]</span>
+						</td>
+					</tr>
+					
+					<!-- workphone -->
+					<tr wicket:id="workphoneContainer">
+						<td class="label" wicket:id="workphoneLabel">[workphoneLabel]</td>
+						<td class="content">
+							<label for="workphoneinput" class="accessibility-label"><wicket:message key="accessibility.profile.workphone.input">Enter your work phone number</wicket:message></label>
+							<input type="text" wicket:id="workphone" class="formInputField" aria-describedby="workphoneFeedback" />
+							<span class="feedbackLabel" wicket:id="workphoneFeedback">[workphoneFeedback]</span>
+						</td>
+					</tr>
+					
+					<!-- homephone -->
+					<tr wicket:id="homephoneContainer">
+						<td class="label" wicket:id="homephoneLabel">[homephoneLabel]</td>
+						<td class="content">
+							<label for="homephoneinput" class="accessibility-label"><wicket:message key="accessibility.profile.homephone.input">Enter your home phone number</wicket:message></label>
+							<input type="text" wicket:id="homephone" class="formInputField" aria-describedby="homephoneFeedback" />
+							<span class="feedbackLabel" wicket:id="homephoneFeedback">[homephoneFeedback]</span>
+						</td>
+					</tr>
+					
+					<!-- mobilephone -->
+					<tr wicket:id="mobilephoneContainer">
+						<td class="label" wicket:id="mobilephoneLabel">[mobilephoneLabel]</td>
+						<td class="content">
+							<label for="mobilephoneinput" class="accessibility-label"><wicket:message key="accessibility.profile.mobilephone.input">Enter your mobile phone number</wicket:message></label>
+							<input type="text" wicket:id="mobilephone" class="formInputField" aria-describedby="mobilephoneFeedback" />
+							<span class="feedbackLabel" wicket:id="mobilephoneFeedback">[mobilephoneFeedback]</span>
+						</td>
+					</tr>
+					
+					<!-- facsimile -->
+					<tr wicket:id="facsimileContainer">
+						<td class="label" wicket:id="facsimileLabel">[facsimileLabel]</td>
+						<td class="content">
+							<label for="facsimileinput" class="accessibility-label"><wicket:message key="accessibility.profile.facsimile.input">Enter your fax phone number</wicket:message></label>
+							<input type="text" wicket:id="facsimile" class="formInputField" aria-describedby="facsimileFeedback" />
+							<span class="feedbackLabel" wicket:id="facsimileFeedback">[facsimileFeedback]</span>
+						</td>
+					</tr>
+					
+					
+				</table>
+				
+				<div class="profileFormButtons">
+					<input type="submit" wicket:id="submit" value="Save changes" />
+					<input type="button" wicket:id="cancel" value="Cancel"/>
+				</div>
+				
+			</form>	
+		</div>
+	</div>
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

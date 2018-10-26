@@ -1,0 +1,732 @@
+#* ------------------------------------------------------------------
+#
+# The CHEF Velocity Macro library
+#
+# To be included in each webapp's velocity file area.
+#
+*# ------------------------------------------------------------------
+
+#* ------------------------------------------------------------------
+# The standard way to escape text to make it safe for embedding in html
+*# ------------------------------------------------------------------
+#macro (chef_html $txt)$sakai_Validator.escapeHtml($txt)#end
+
+#* ------------------------------------------------------------------
+# The standard toolbar based on the $sakai_menu definition
+# Note: url type items don't support form field sending, override other settings, and go to a new window
+# CSS requirements:  navIntraTool inlineForm searchField
+#                   portletToolBarDisabled chefToolBarSelected chefToolBarDisabled
+*# ------------------------------------------------------------------
+#macro (chef_toolbar)
+
+	## use the standard menu reference
+	#set ($mnu=$sakai_menu)
+	#set($hasItems="false")
+	#foreach ($item in $mnu.Items)
+		#if ($item.IsEnabled || $item.IsChecked || $mnu.Showdisabled)
+			#set($hasItems="true")
+		#end	
+	#end
+
+	#if (($mnu) && (!$mnu.isEmpty())  && ($hasItems=="true"))
+		<ul class="navIntraTool actionToolBar">
+			#set ($toolbaritemCount=0)	
+			#foreach ($item in $mnu.Items)
+				## figure the link
+				#set ($base=$sakai_ActionURL.reset().setParameter("sakai_action", $item.Action).toString())
+
+				#if ($item.IsCurrent)
+					#set ($current= "current")
+				#else
+					#set ($current= "")
+				#end
+
+				#if ($item.IsEnabled)
+					#if(!$item.IsDivider)
+					
+						## enabled not field not divider (i.e. a button)
+						#if (!$item.IsField)
+							#if ($formItem==1)
+								#set ($prevItemWasField= "fieldSibling")
+							#else
+								#set ($prevItemWasField= "")
+							#end	
+							## non-url support (i.e. action back to tool)
+							#if ($item.Url.length() == 0)
+								## checked item support
+								#if($item.IsChecked)
+									#set( $toolbaritemCount=$toolbaritemCount + 1)
+									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
+										<span class="chefToolBarToggle $prevItemWasField $current">#if(!$item.IsCurrent)<a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">#end$item.Title#if(!$item.IsCurrent)</a>#end</span>
+									</li>
+								## unchecked item support
+								#else
+									#set( $toolbaritemCount=$toolbaritemCount + 1)
+									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
+										<span class="$prevItemWasField $current">#if(!$item.IsCurrent)<a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">#end$item.Title#if(!$item.IsCurrent)</a>#end</span>
+									</li>
+								#end
+							## url support (i.e. to another place, another window)
+							#else
+								#set( $toolbaritemCount=$toolbaritemCount + 1)
+								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
+									<span class="externalLink $prevItemWasField $current">#if(!$item.IsCurrent)<a href="$item.Url" title="$item.AccessibilityLabel" target="_blank">#end$item.Title#if(!$item.IsCurrent)</a>#end</span>
+								</li>	
+							#end
+							#set ($formItem=0)
+						## here's a text field in a form for the toolbar
+						#else
+							#set( $toolbaritemCount=$toolbaritemCount + 1)
+							#set ($formItem=1)
+							<li #if ($toolbaritemCount ==1) class="firstToolBarItem inputItem" #else class="inputItem" #end>
+								<span class="formItem">
+									<form name="$item.Form" action="$base" class="inlineForm" method="post">
+										<input size="15" value="$validator.escapeHtml($item.Value)" name="$item.Title" id="$item.Title" type="text" class="searchField" title="$item.AccessibilityLabel" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+									</form>
+								</span>	
+							</li>	
+						#end
+				## here's a menu divider
+				#else
+##					<span class="portletToolBarDisabled">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+				#end
+			
+			## not enabled - could be checked
+			#elseif ($item.IsChecked)
+				#set( $toolbaritemCount=$toolbaritemCount + 1)
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="current $prevItemWasField $current">$item.Title</span></li>
+
+			## not enabled - not checked - show if we are showing disabled
+			#elseif ($mnu.Showdisabled)
+				#set( $toolbaritemCount=$toolbaritemCount + 1)
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="disabled $prevItemWasField $current">$item.Title</span></li>
+			#end
+		## end of foreach loop
+		#end
+		</ul>
+	## end if "if there's a menu" if
+	#end
+#end
+
+ #* ------------------------------------------------------------------
+ # The standard way to deal with the flash notifications
+ *# ------------------------------------------------------------------
+#macro (chef_flashnotif)
+	#if($flashNotif)
+		<div id="flashNotif" >
+			<span class="flashNotifMessage">$flashNotif</span>
+			<a href="#" onclick = "event.preventDefault();$('#flashNotif').hide();" class="flashNotifClose" title=$flashNotifCloseTitle>&times;
+			<span class="skip">$flashNotifCloseTitle</span></a>
+		</div>
+	#end
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to deal with the ToolPortlet Alert
+*# ------------------------------------------------------------------
+#macro (chef_alert)
+	#if(!$sakai_alert.isEmpty())<div class="alertMessage">$sakai_alert.Alert</div>#end
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to deal with the message at the top of a tool
+*# ------------------------------------------------------------------
+#macro (chef_viewmsg $msg)
+	<div class="chefPageviewTitle">#chef_html($msg)</div>
+#end
+
+
+#* ------------------------------------------------------------------
+# The standard way to deal with the message in place of a flat list
+*# ------------------------------------------------------------------
+#macro (chef_listmsg $msg)
+	<div class="chefListMessage">#chef_html($msg)</div>
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to start a vm file - deal with fragment or not & css
+*# ------------------------------------------------------------------
+#macro (chef_start)
+#if ($sakai_fragment=='false')
+<!DOCTYPE html>
+<html lang="#if($language)$language#{else}en#end" dir="#if($dir)$dir#{else}ltr#end">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <title>$!{toolTitle}</title>
+    $!sakai_head	
+    
+    	## setup wysiwyg editor
+        ########################### This should already be handled by portal or sakai-editor/editor.js
+    #*
+	#set($editor_path = "vm/editor/$!sakai_editor/sakai_header.vm") 
+	<!-- $editor_path -->
+	#parse("$editor_path")
+    *#
+    
+#if ($frameRefresh)
+	#foreach ($id in $frameRefresh)
+	<script type="text/javascript">
+	try
+	{
+		if (parent.${id}.location.toString().length > 1)
+		{
+			parent.${id}.location.replace(parent.${id}.location);
+		}
+	}
+	catch (e1)
+	{
+		try
+		{
+			if (parent.parent.${id}.location.toString().length > 1)
+			{
+				parent.parent.${id}.location.replace(parent.parent.${id}.location);
+			}
+		}
+		catch (e2)
+		{
+		}
+	}
+	</script>
+	#end
+#end
+#if ($topRefresh)
+	<script type="text/javascript">
+		parent.location.replace(parent.location);
+	</script>
+#end
+#if ($focusChange)
+	<script type="text/javascript">
+	try
+	{
+		parent.setFocus(${focusChange});
+	}
+	catch (e1)
+	{
+		alert(e1);
+	}
+	</script>
+#end
+  </head>
+  <body #if ($sakai_onload) onload="${sakai_onload}" #end >
+#end
+## no comment
+#end
+
+
+#* ------------------------------------------------------------------
+# Macros for adding content to the header
+*# ------------------------------------------------------------------
+
+#* ------------------------------------------------------------------
+# Prepends a line to the <head> section of the page.
+# This is useful for adding CSS which should go before the skin CSS
+# so that it can be easily overridden by the skin.
+*# ------------------------------------------------------------------
+
+#macro (header_prepend $extra)
+#set($sakai_head="${extra}
+${sakai_head}")
+#end
+
+#* ------------------------------------------------------------------
+# Appends a line to the <head> section of the page.
+# This is useful for adding JavaScript which needs to exist after the
+# standard JavaScript.
+*# ------------------------------------------------------------------
+
+#macro (header_append $extra)
+#set($sakai_head="${sakai_head}
+${extra}")
+#end
+
+
+#* ------------------------------------------------------------------
+# The standard way to end a vm file - deal with fragment or not
+*# ------------------------------------------------------------------
+#macro (chef_end)
+#if ($sakai_fragment=='false')</body></html>#end
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to start a portlet body - end with portletContainerEnd
+*# ------------------------------------------------------------------
+#macro (chef_portletContainer)
+<div class="chefPortletContainer">
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to end a portlet body - started with portletContainer
+*# ------------------------------------------------------------------
+#macro (chef_portletContainerEnd)
+</div>
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to start a portlet content - end with portletContentEnd
+*# ------------------------------------------------------------------
+#macro (chef_portletContent)
+	<div class = "chefPortletContent">
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to end a portlet content - started with portletContent
+*# ------------------------------------------------------------------
+#macro (chef_portletContentEnd)
+	</div>
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to start a flat list view table - end with portletFlatListEnd
+*# ------------------------------------------------------------------
+#macro (chef_portletFlatList $summary)
+		<table class ="chefFlatListViewTable" cellspacing="0" summary ="$summary">
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to end a flat list view table - started with portletFlatList
+*# ------------------------------------------------------------------
+#macro (chef_portletFlatListEnd)
+		</table>
+#end
+
+
+#* ------------------------------------------------------------------
+# The standard way to setup a date selection widget
+#
+# IMPORTANT: ResourceBundle with months referenced by $tlang.getString("jan")
+#            through $tlang.getString("dec") _must_ be defined
+#
+# Creates a drop-down date selection, as well as a pop-up date selection
+# $yearselect_id  The name and id attribute of the year selection dropdown list (html SELECT tag)
+# $monthselect_id The name and id attribute of the month selection dropdown list (html SELECT tag)
+# $dayselect_id   The name and id attribute of the day selection dropdown list (html SELECT tag)
+# $earliestYear   The earliest year to display in the year dropdown (2002 for example)
+# $latestYear     The latest year to display in the year dropdown (2005 for examlple)
+# $yearSelected   The year selected
+# $monthSelected  The month selected
+# $daySelected    The day selected
+# $dateFormat     Locale specific date format pattern
+# $onChangeAction optional javascript for onchange attribute
+*# ------------------------------------------------------------------
+
+#macro (chef_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat $onChangeAction)
+
+	#set($yearList = [$earliestYear .. $latestYear])
+	
+   #foreach ( $format in $dateFormat )
+    
+    #* Create Month Select Box
+    *#
+    
+    #if ($format=="m")
+     <label for="$monthselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.month")</label>
+    #if ($onChangeAction)     
+    <select name="$monthselect_id" id="$monthselect_id" onchange="$onChangeAction">
+    #else
+    <select name="$monthselect_id" id="$monthselect_id">
+    #end
+      #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
+        
+		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
+        
+		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("mar")</option> #else <option value="3">$tlang.getString("mar")</option> #end
+        
+		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("apr")</option> #else <option value="4">$tlang.getString("apr")</option> #end
+        
+		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("may")</option> #else <option value="5">$tlang.getString("may")</option> #end
+        
+		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("jun")</option> #else <option value="6">$tlang.getString("jun")</option> #end
+        
+		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("jul")</option> #else <option value="7">$tlang.getString("jul")</option> #end
+        
+		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("aug")</option> #else <option value="8">$tlang.getString("aug")</option> #end
+        
+		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("sep")</option> #else <option value="9">$tlang.getString("sep")</option> #end
+        
+		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("oct")</option> #else <option value="10">$tlang.getString("oct")</option> #end
+        
+		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("nov")</option> #else <option value="11">$tlang.getString("nov")</option> #end
+        
+		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
+
+    </select>
+    #end
+    
+    #* Create Day Select Box
+    *#
+    
+    #if ($format=="d")
+     <label for="$dayselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.day")</label>
+    #if ($onChangeAction)
+    <select name="$dayselect_id" id="$dayselect_id" onchange="$onChangeAction">
+    #else
+    <select name="$dayselect_id" id="$dayselect_id">
+    #end
+      #foreach($d in [1..31])
+        #if($d == $daySelected)
+            <option value="$d" selected="selected">$d</option>
+        #else
+            <option value="$d">$d</option>
+        #end
+	   #end
+    </select>
+    #end
+    
+    #* Create Year Select Box
+    *#
+    
+    #if ($format=="y")
+      <label for="$yearselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.year")</label>
+      #if ($onChangeAction)
+      <select name="$yearselect_id" id="$yearselect_id" onchange="$onChangeAction">
+      #else
+      <select name="$yearselect_id" id="$yearselect_id">
+      #end
+        #foreach ($y in $yearList)
+            #if ($y == $yearSelected)
+                    <option value="$y" selected="selected">$y</option>
+            #else
+                    <option value="$y">$y</option>
+            #end
+        #end
+      </select>
+      #end
+    
+   #end
+	
+   
+   #* Create Date Selection Popup
+   *#
+   
+   #chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
+	
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to setup a date selection widget
+#
+# IMPORTANT: ResourceBundle with months referenced by $tlang.getString("jan")
+#            through $tlang.getString("dec") _must_ be defined
+#
+# Creates a drop-down date selection, as well as a pop-up date selection
+# $yearselect_id  The name and id attribute of the year selection dropdown list (html SELECT tag)
+# $monthselect_id The name and id attribute of the month selection dropdown list (html SELECT tag)
+# $dayselect_id   The name and id attribute of the day selection dropdown list (html SELECT tag)
+# $earliestYear   The earliest year to display in the year dropdown (2002 for example)
+# $latestYear     The latest year to display in the year dropdown (2005 for examlple)
+# $yearSelected   The year selected
+# $monthSelected  The month selected
+# $daySelected    The day selected
+# $dateFormat     Locale specific date format pattern
+# $monthtitle     The title attribute for the month selector
+# $daytitle       The title attribute for the day selector
+# $yeartitle      The title attribute for the year selector
+# $onChangeAction optional javascript for onchange attribute
+*# ------------------------------------------------------------------
+
+#macro (chef_dateselectionwidgetwithtitles $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $dateFormat $monthtitle $daytitle $yeartitle $onChangeAction)
+
+	#set($yearList = [$earliestYear .. $latestYear])
+	
+   #foreach ( $format in $dateFormat )
+    
+    #* Create Month Select Box
+    *#
+    
+    #if ($format=="m")
+     <label for="$monthselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.month")</label>
+      #if ($onChangeAction)     
+      <select name="$monthselect_id" id="$monthselect_id" title="$monthtitle" onchange="$onChangeAction">
+      #else
+      <select name="$monthselect_id" id="$monthselect_id" title="$monthtitle">
+      #end
+      #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("jan")</option> #else <option value="1">$tlang.getString("jan")</option> #end
+        
+		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("feb")</option> #else <option value="2">$tlang.getString("feb")</option> #end
+        
+		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("mar")</option> #else <option value="3">$tlang.getString("mar")</option> #end
+        
+		#if ($monthSelected == 4) <option value="4" selected="selected">$tlang.getString("apr")</option> #else <option value="4">$tlang.getString("apr")</option> #end
+        
+		#if ($monthSelected == 5) <option value="5" selected="selected">$tlang.getString("may")</option> #else <option value="5">$tlang.getString("may")</option> #end
+        
+		#if ($monthSelected == 6) <option value="6" selected="selected">$tlang.getString("jun")</option> #else <option value="6">$tlang.getString("jun")</option> #end
+        
+		#if ($monthSelected == 7) <option value="7" selected="selected">$tlang.getString("jul")</option> #else <option value="7">$tlang.getString("jul")</option> #end
+        
+		#if ($monthSelected == 8) <option value="8" selected="selected">$tlang.getString("aug")</option> #else <option value="8">$tlang.getString("aug")</option> #end
+        
+		#if ($monthSelected == 9) <option value="9" selected="selected">$tlang.getString("sep")</option> #else <option value="9">$tlang.getString("sep")</option> #end
+        
+		#if ($monthSelected == 10) <option value="10" selected="selected">$tlang.getString("oct")</option> #else <option value="10">$tlang.getString("oct")</option> #end
+        
+		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("nov")</option> #else <option value="11">$tlang.getString("nov")</option> #end
+        
+		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("dec")</option> #else <option value="12">$tlang.getString("dec")</option> #end
+
+    </select>
+    #end
+    
+    #* Create Day Select Box
+    *#
+    
+    #if ($format=="d")
+     <label for="$dayselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.day")</label>
+    #if ($onChangeAction)
+    <select name="$dayselect_id" id="$dayselect_id" title="$daytitle" onchange="$onChangeAction">
+    #else
+    <select name="$dayselect_id" id="$dayselect_id" title="$daytitle">
+    #end
+      #foreach($d in [1..31])
+        #if($d == $daySelected)
+            <option value="$d" selected="selected">$d</option>
+        #else
+            <option value="$d">$d</option>
+        #end
+	   #end
+    </select>
+    #end
+    
+    #* Create Year Select Box
+    *#
+    
+    #if ($format=="y")
+      <label for="$yearselect_id" class="skip"><span class="reqStar">*</span> $tlang.getString("dateselectionwidget.year")</label>
+      #if ($onChangeAction)
+      <select name="$yearselect_id" id="$yearselect_id" title="$yeartitle" onchange="$onChangeAction">
+      #else
+      <select name="$yearselect_id" id="$yearselect_id" title="$yeartitle">
+      #end
+        #foreach ($y in $yearList)
+            #if ($y == $yearSelected)
+                    <option value="$y" selected="selected">$y</option>
+            #else
+                    <option value="$y">$y</option>
+            #end
+        #end
+      </select>
+      #end
+    
+   #end
+	
+   
+   #* Create Date Selection Popup
+   *#
+   
+   #chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
+	
+#end
+
+
+#* ---------------------------------------------------------------------------------------
+# The standard way to instantiate a popup calendar widget that allows the user to select a date
+# $yearselect_id  The id attribute of the year selection dropdown list (html SELECT tag)
+# $monthselect_id The id attribute of the month selection dropdown list (html SELECT tag)
+# $dayselect_id   The id attribute of the day selection dropdown list (html SELECT tag)
+# ----------------------------------------------------------------------------------------
+*#
+#macro (chef_dateselectionwidgetpopup $yearselect_id $monthselect_id $dayselect_id)
+	
+	#set ($calendar_title = "")
+	#if ($!tlang.keySet().contains("calendar.title"))
+		#set ($calendar_title = $tlang.getString("calendar.title"))
+	#end
+
+	## Everything is in an our own external JavaScript library
+	## <script type="text/javascript" src="#libraryLink('jscalendar/sakai-jscalendar.js')"></script>
+	## Call a JavaScript function from within the library to do setup
+	## <script type="text/javascript" defer="1">chef_dateselectionwidgetpopup('$yearselect_id', '$monthselect_id', '$dayselect_id');</script>
+	
+	## Everything is in an our own external JavaScript library
+	<script type="text/javascript" src="#libraryLink('calendar/sakai-calendar.js')"></script>
+	## Call a JavaScript function from within the library to do setup
+	<script type="text/javascript">chef_dateselectionwidgetpopup('$yearselect_id', '$monthselect_id', '$dayselect_id', null, "$calendar_title", '$!tlang.locale');</script>
+#end
+
+
+#* ------------------------------------------------------------------
+# The standard way to instantiate a WYSIWYG formatted text editing widget
+# $textarea_id - The HTML id of the textarea form element already in the HTML document
+*# ------------------------------------------------------------------
+#macro (chef_setupformattedtextarea $textarea_id)
+	#if (!$is_wireless_device)
+		<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>	
+	#end
+#end
+
+#* ------------------------------------------------------------------
+# As above but parameters (height, width, toolbar options) are expected
+# $textarea_id - The HTML id of the textarea form element already in the HTML document
+*# ------------------------------------------------------------------
+
+#macro (chef_setupformattedtextareaparams $textarea_id $height $width $ToolBarSetChoice)
+	#if (!$is_wireless_device)
+		<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id', { height: '$height', width: '$width', toolbarSet: '$ToolBarSetChoice' } );</script>
+	#end	
+#end
+
+#* ------------------------------------------------------------------
+# The standard way to instantiate a WYSIWYG full-document editing widget
+# $textarea_id - The HTML id of the textarea form element already in the HTML document
+*# ------------------------------------------------------------------
+#macro (chef_setuphtmldocumenttextarea $textarea_id)
+
+	#*
+	## setup wysiwyg editor
+	#set($editor_path = "vm/editor/$!sakai_editor/sakai_body.vm") 
+	<!-- $editor_path -->
+	#parse("$editor_path")
+
+	<script type="text/javascript" defer="1">chef_setuphtmldocumenttextarea('$textarea_id');</script>
+	*#
+	<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>
+	
+#end
+
+
+#* ------------------------------------------------------------------
+# This allows you to link to JavaScript and have it automatically version the URLs
+#  ------------------------------------------------------------------
+*#
+#macro (javascript $url)
+	<script type="text/javascript" src="${url}$!{portalCdnQuery}"></script>
+#end
+
+#* ------------------------------------------------------------------
+# This allows you to link to CSS and have it automatically version the URLs
+#  ------------------------------------------------------------------
+*#
+#macro (css $url $attrs)
+    <link type="text/css" href="${url}$!{portalCdnQuery}" rel="stylesheet" $!{attrs}/>
+#end
+
+#macro (sakai_courier)
+#if ($courier)
+<script type="text/javascript">
+updateTime = ${courierTimeout}000;
+updateUrl = "$courier";
+scheduleUpdate();
+</script>
+#end
+#end
+
+#* ------------------------------------------------------------------
+#
+# For CHEF 1.x support
+#
+*# ------------------------------------------------------------------
+
+#macro (toolbar $toolbar_mnu)
+#set($sakai_menu=$toolbar_mnu)
+#chef_toolbar()
+#end
+
+#macro (toolLink $toolLinkJunk $toolLinkAction)$sakai_ActionURL.setParameter("sakai_action","$toolLinkAction")#end
+
+#macro (toolForm $toolFormJunk)$sakai_ActionURL.setAction()#end
+
+#macro (imageLink $imageLinkName)$sakai_ActionURL.setResourcePath("${sakai_image_path}${imageLinkName}")#end
+
+#macro (scriptLink $scriptName)$sakai_ActionURL.setResourcePath("${sakai_script_path}${scriptName}")#end
+
+#macro (libraryLink $path)${sakai_library_path}${path}#end
+
+#macro (scheduleLink $scheduleLinkName)/library/schedule/$scheduleLinkName#end
+
+#macro (chatlogLink $chatlogLinkPanel)$sakai_ActionURL.setParameter("$param_panel","$chatlogLinkPanel")#end
+
+#macro (contentLink $contentLinkPanel)$sakai_ActionURL.setParameter("$param_panel","$contentLinkPanel")#end
+
+#macro (contentCourierLink $contentCourierLinkPanel)$sakai_ActionURL.setParameter("$param_panel","$contentCourierLinkPanel")#end
+
+#macro (toolLinkParam $toolLinkJunk $toolLinkAction $toolLinkQuery)$sakai_ActionURL.setParameter("sakai_action","$toolLinkAction").setQueryString("$toolLinkQuery")#end
+
+#macro (siteLink $siteId)${config.getPortalUrl()}/site/${siteId}#end
+
+#* -----------------------------------------------------------------------------------
+#  Adds a view filter dropdown to the page. Intended for use in a sakai-table-toolbar.
+#  Requires spinner.js to be loaded on the page.
+#  -----------------------------------------------------------------------------------
+*#
+#macro (viewFilterPanel $panelName $selectName $selectOptions $actionKey)
+#set($libLink="#libraryLink('js/sakai-table-toolbar/viewFilterPanelMacro.js')")
+<script type='text/javascript' src='$libLink' defer></script>
+<div class="sakai-table-viewFilter">
+	<label for="viewFilter_$panelName">$tlang.getString("view.label")</label>
+	<span class="skip">$tlang.getString("gen.listnavselect")</span>
+	<select id="viewFilter_$panelName" name="$selectName" onchange="VM_VFP.doChangeView('#toolLink("$action", "$actionKey")', this);">
+		$selectOptions
+	</select>
+</div>
+#end ## viewFilterPanel
+
+#* -----------------------------------------------------------------------------------
+#  Adds a table pager to the page. Intended for use in a sakai-table-toolbar.
+#  Requires spinner.js to be loaded on the page.
+#  -----------------------------------------------------------------------------------
+*#
+#macro (pagerPanel $panelName)
+#set($libLink="#libraryLink('js/sakai-table-toolbar/pagerPanelMacro.js')")
+<script type='text/javascript' src='$libLink' defer></script>
+#if(!$allMsgNumber)#set($allMsgNumber = 0)#end
+#if(!$topMsgPos || $allMsgNumber == 0) #set($topMsgPos = 0) #end
+#if(!$btmMsgPos || $allMsgNumber == 0) #set($btmMsgPos = 0) #end
+#if($allMsgNumber == 0)
+	#set($goFPButton = "false")
+	#set($goPPButton = "false")
+	#set($goNPButton = "false")
+	#set($goLPButton = "false")
+#end
+#if(!$goLPButton) #set($goLPButton = "false") #end
+<div class="sakai-table-pagerLabel">$tlang.getFormattedMessage("gen.viewing.phrase", $topMsgPos, $btmMsgPos, $allMsgNumber)</div>
+<div class="sakai-table-pagerControls">
+	<span class="skip">$tlang.getString("gen.first")</span>
+	<input type="button" name="eventSubmit_doList_first" value="&#124;&lt;" title="$tlang.getString("gen.first")"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_first")', this);" #if ($goFPButton != "true") disabled="disabled" #end />
+
+	<span class="skip">$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)</span>
+	<input type="button" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getFormattedMessage('gen.previous.pagesize', $pagesize)"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_prev")', this);" #if ($goPPButton != "true") disabled="disabled" #end />
+
+	<label for="selectPageSize_$panelName">$tlang.getString("gen.select.label")</label>
+	<span class="skip">$tlang.getString("gen.listnavselect")</span>
+	<div class="sakai-table-pagerPageSize">
+		<select id="selectPageSize_$panelName" name="selectPageSize_$panelName" #if ($allMsgNumber == 0) disabled="disabled" #end
+			onchange="VM_PP.doChangePageSize('#toolLink("$action", "doChange_pagesize")', this);">
+		#foreach ($i in $!pagesizes)
+			<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getFormattedMessage("gen.show", $i)</option>
+		#end
+		</select>
+	</div>
+
+	<span class="skip">$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)</span>
+	<input type="button" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getFormattedMessage('gen.next.pagesize', $pagesize)"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_next")', this);" #if($goNPButton != "true") disabled="disabled" #end />
+
+	<span class="skip">$tlang.getString('gen.last')</span>
+	<input type="button" name="eventSubmit_doList_last" value="&gt;&#124;" title="$tlang.getString('gen.last')"
+		onclick="VM_PP.doPageNav('#toolLink("$action", "doList_last")', this);" #if ($goLPButton != "true") disabled="disabled" #end />
+</div>
+#end ## pagerPanel
+
+#* -----------------------------------------------------------------------------------
+#  Adds a search filter to the page. Intended for use in a sakai-table-toolbar.
+#  Requires spinner.js to be loaded on the page.
+#  -----------------------------------------------------------------------------------
+*#
+#macro (searchFilterPanel $panelName $userSearchTerm $searchActionKey $clearSearchActionKey)
+<div class="sakai-table-searchFilter">
+	<label for="$panelName">$tlang.getString("search.label")</label>
+	<div class="sakai-table-searchFilterControls">
+		<input type="text" name="$panelName" id="$panelName" value="$validator.escapeHtml($!userSearchTerm)" class="sakai-table-searchFilter-searchField" />
+		<input type="button" id="btnSearch_$panelName" value="$tlang.getString('search.button')" onclick="VM_SFP.doSearch('#toolLink("$action" "$searchActionKey")', 'btnSearch_$panelName', '$panelName');" />
+		#if($!userSearchTerm && !$userSearchTerm.isEmpty())
+			<input type="button" value="$tlang.getString("search.clear")" onclick="VM_SFP.doClearSearch('#toolLink("$action" "$clearSearchActionKey")', this);" />
+		#end
+	</div>
+</div>
+#set($libLink="#libraryLink('js/sakai-table-toolbar/searchFilterPanelMacro.js')")
+<script type='text/javascript' src='$libLink' defer></script>
+#end ## searchFilterPanel

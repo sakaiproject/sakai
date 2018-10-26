@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:panel>
+
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="settingsGradeReleaseHeader">
+			<h3 class="panel-title">
+				<a role="button" data-toggle="collapse" href="#settingsGradeRelease" aria-expanded="false" aria-controls="settingsGradeRelease">
+					<wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message>
+				</a>
+			</h3>
+		</div>
+		<div wicket:id="settingsGradeReleasePanel" id="settingsGradeRelease" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeReleaseHeader">
+			<div class="panel-body">
+				<div class="checkbox">
+					<label>
+						<input wicket:id="displayReleased" type="checkbox" />
+						<wicket:message key="settingspage.graderelease.label" />
+					</label>
+				</div>
+				<p class="instruction"><wicket:message key="settingspage.graderelease.instructions" /></p>
+
+				<div class="checkbox">
+					<label>
+						<input wicket:id="displayCourseGrade" type="checkbox" />
+						<wicket:message key="settingspage.displaycoursegrade.label" />
+					</label>
+				</div>
+
+				<div class="form-group" wicket:id="courseGradeType">
+				
+					<p class="messageError" wicket:id="minimumOptions">minimum options message</p>
+					
+					<div class="col-sm-offset-1 col-sm-20">
+						<div class="checkbox">
+							<label>
+								<input wicket:id="letterGrade" type="checkbox" />
+								<span><wicket:message key="settingspage.displaycoursegrade.lettergrade" /></span>
+							</label>
+						</div>
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="percentage" type="checkbox" />
+								<span><wicket:message key="settingspage.displaycoursegrade.percentage" /></span>
+							</label>
+						</div>
+
+						<div class="checkbox">
+							<label>
+								<input wicket:id="points" type="checkbox" />
+								<span><wicket:message key="settingspage.displaycoursegrade.points" /></span>
+							</label>
+						</div>
+					</div>
+					
+					<div class="instruction">
+						<div><wicket:message key="settingspage.displaycoursegrade.instructions.1" /></div>
+						<div><wicket:message key="settingspage.displaycoursegrade.instructions.2" /></div>
+					</div>
+					
+				</div>
+				
+				<div class="form-group" wicket:id="courseGradePreview">
+					<span><wicket:message key="settingspage.displaycoursegrade.preview" /></span>
+					<span class="bg-info" wicket:id="preview">X+ 99%</span>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+
+</wicket:panel>
+</body>
+</html>

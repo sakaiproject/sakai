@@ -1,0 +1,21 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_confirm_remove.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $ -->
+#javascript("/library/js/spinner.js")
+<div class="portletBody">
+	<h3>
+		$tlang.getString("realm.confirm.removing")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.confirm.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<form action="#toolForm("$action")" method="post">
+		<div class="alertMessage">$tlang.getString("realm.confirm.please")</div>
+		<div class="indnt2">
+			$validator.escapeHtml($realm.Id) <br />
+			$tlang.getString("realm.confirm.usedfor") $validator.escapeHtml($realm.Description)
+		</div>
+		<div class="act">
+			<input type="submit" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("realm.confirm.remove")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_remove" value="$tlang.getString("realm.confirm.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

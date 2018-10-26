@@ -1,0 +1,129 @@
+.bullhorn-counter {
+    color: #fff;
+    font-weight: bold;
+    font-size: $default-font-size - 4px;
+    position: absolute;
+    padding: 0px 2px;
+    margin-top: 18px;
+    margin-left: -6px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    line-height: 1.5em;
+}
+
+.bullhorn-counter-red {
+    background-color: #a20000;
+}
+
+.bullhorn-counter-blue {
+    background-color: #2a94c0;
+}
+
+.portal-bullhorns.qtip {
+    border: 0 none;
+    box-shadow: 0 0 4px rgba( $text-color ,0.35);
+    background-color: $tool-tab-background-color;
+    font-family: $font-family;
+    font-size: $default-font-size;
+    color: $tool-tab-background-color;
+    max-width: 450px;
+    z-index: 100003 !important;
+
+    .qtip-content {
+        background-color: $tool-tab-background-color;
+        padding: 0;
+        color: $text-color;
+    }
+}
+
+.portal-bullhorn-social-alerts, .portal-bullhorn-academic-alerts {
+    padding-bottom: 5px;
+    @media #{$nonPhone} {
+        width: 450px;
+    }
+    @media #{$phone} {
+        width: 240px;
+    }
+
+    .portal-bullhorn-social-alert, .portal-bullhorn-academic-alert {
+        overflow: auto;
+        border: solid #E0E0E0;
+        border-width: 0px 0px 1px 0px;
+        padding: 5px;
+
+        .portal-bullhorn-photo {
+            float: left;
+            width: 20%;
+            min-width: 32px;
+            max-width: 32px;
+            height: 32px;
+            background-position: 50%;
+            background-size: auto 100%;
+            border-radius: 50%;
+        }
+        .portal-bullhorn-icon {
+            float: left;
+        }
+        .portal-bullhorn-content {
+            float: left;
+            @media #{$nonPhone} {
+                width: 390px;
+            }
+            @media #{$phone} {
+                width: 180px;
+            }
+
+            .portal-bullhorn-message {
+                margin-left: 7px;
+                line-height: 110%;
+
+                .portal-bullhorn-display-name {
+                    font-weight: bold;
+                    padding-bottom: 3px;
+                }
+            }
+            .portal-bullhorn-time {
+                padding-left: 6px;
+                margin-top: 5px;
+                font-size: $default-font-size - 3px;
+                white-space: nowrap;
+                font-style: italic;
+            }
+            .portal-bullhorn-options {
+                padding-left: 5px;
+                margin-top: 5px;
+
+                a {
+                    padding-left: 3px;
+                    font-size: $default-font-size - 3px;
+                    font-weight: bold;
+                }
+            }
+        }
+        .portal-bullhorn-clear {
+            float: left;
+            width: 5px;
+            margin-left: 5px;
+            padding-right: 2px;
+        }
+    }
+}
+
+
+#portal-bullhorn-clear-all {
+    padding: 5px;
+}
+
+.portal-bullhorn-no-alerts {
+    font-weight: bold;
+    padding: 5px;
+}
+
+#portal-bullhorns-label {
+    @extend .all-sites-label;
+    padding-top: 3px;
+    @media #{$phone} {
+        display: none;
+    }
+}

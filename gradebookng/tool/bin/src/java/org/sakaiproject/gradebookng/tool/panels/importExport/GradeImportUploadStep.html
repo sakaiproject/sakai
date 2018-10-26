@@ -1,0 +1,40 @@
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
+
+    <div wicket:id="export">[export panel will be placed here]</div>
+
+    <section class="gb-import-export-section">
+        <h2><wicket:message key="importExport.import.heading" /></h2>
+
+        <p><wicket:message key="importExport.import.description" /></p>
+        <p><wicket:message key="importExport.template.description" /></p>
+
+        <form wicket:id="form">
+            <fieldset>
+              <input type="file" wicket:id="upload" />
+            </fieldset>
+
+            <div class="act">
+                <input class="active" type="submit" wicket:id="continuebutton" wicket:message="value:importExport.button.continue"/>
+                <input type="submit" wicket:id="cancelbutton" wicket:message="value:importExport.button.cancel"/>
+            </div>
+        </form>
+
+    </section>
+    
+    <!--  conventions -->
+    <section>
+    	<div class="instruction">
+    		<h2><wicket:message key="importExport.instructions.title" /></h2>
+    		<p><wicket:message key="importExport.instructions.summary" /></p>
+    		<ul>
+    			<li><wicket:message key="importExport.instructions.1" /></li>
+    			<li><wicket:message key="importExport.instructions.2" /></li>
+    			<li><wicket:message key="importExport.instructions.3" /></li>
+    			<li><wicket:message key="importExport.instructions.4" /></li>
+    			<li><wicket:message key="grade.notifications.invalid" /></li>
+    		</ul>
+    	</div>
+    
+    </section>
+
+</wicket:panel>

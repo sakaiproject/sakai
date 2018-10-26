@@ -1,0 +1,17 @@
+<gbx:iterator value="#{bean.gradebookItems}" var="row" rowIndexVar="rowIndex">
+	<gbx:dhtmlPopup popupId="#{rowIndex}" columns="2"
+		value="#{row.eventRows}" var="eventRow"
+		rendered="#{row.assignment && not empty row.eventRows}"
+		titleText="#{row.eventsLogTitle}"
+		closeIconUrl="dhtmlpopup/dhtmlPopClose.gif"
+		styleClass="dhtmlPopup" titleBarClass="dhtmlPopupTitleBar" closeClass="dhtmlPopupClose" dataRowClass="dhtmlPopupDataRow">
+		<h:outputText value="#{eventRow.date}">
+			<gbx:convertDateTime dateStyle="short" type="both"/>
+		</h:outputText>
+		<h:outputFormat value="#{msgs.grading_event_description}" escape="false">
+			<f:param value="#{bean.eventsLogType}"/>
+			<f:param value="#{eventRow.grade}"/>
+			<f:param value="#{eventRow.graderName}"/>
+		</h:outputFormat>
+	</gbx:dhtmlPopup>
+</gbx:iterator>

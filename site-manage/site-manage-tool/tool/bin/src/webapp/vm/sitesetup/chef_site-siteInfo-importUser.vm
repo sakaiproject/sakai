@@ -1,0 +1,52 @@
+##<!-- $Header: Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+		$tlang.getString("sitinfimp.reuse.user")
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<form name="featuresForm" action="#toolForm("$action")" method="post">
+		## import is possible when use has maintain rights on at least one site other than the current one
+		#if ($!sites && $sites.size()>1)
+			<p class="instruction">
+				$tlang.getString("sitinfimp.youcan.user1") $!currentSite.getType() $tlang.getString("sitinfimp.youcan.user2")
+			</p>
+			#set ($siteIDCounter =0)
+			#foreach($site in $sites)
+			#set ($siteIDCounter = $siteIDCounter + 1)
+				#if ($!currentSite && ($site.Id != $!currentSite.Id))
+					<div class="checkbox">						
+						<label for="site_$siteIDCounter">
+							<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
+								#if ($!importSiteList.containsKey($!site))
+									checked="checked"
+								#end
+					 		/>
+							$validator.escapeHtml($site.getTitle())
+						</label>
+					</div>	
+				#end
+			#end
+			<input type="hidden" name="back" value="$!toIndex" />
+			<input type="hidden" name="templateIndex" value="$!templateIndex" />
+			<input type="hidden" name="templateIndex" value="61" />
+			<input type="hidden" name="continue" value="$!toIndex" />
+			<p class="act">
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.finish')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+		#else
+			## show "no site available warning"
+			<p class="instruction">
+				$tlang.getString("import.noOtherSite")
+			</p>
+			<p class="act">
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			</p>
+		#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

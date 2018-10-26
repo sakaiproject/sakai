@@ -1,0 +1,13 @@
+{
+    "undo": {
+        "name": "Undo",
+        "description": "Step-back for model-based interactions.",
+        "files": [
+            "./js/Undo.js"
+        ],
+        "dependencies": [
+            "jQuery",
+            "framework"
+        ]
+    }
+}

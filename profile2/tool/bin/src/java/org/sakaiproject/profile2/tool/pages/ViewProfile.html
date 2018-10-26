@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">  
+      
+<body>
+<wicket:extend>
+	
+	<div id="pageWrapper" class="container-fluid">
+	<div class="row">
+	
+		<div id="leftPanel" class="col-md-3">
+	    	<div id="myPhoto">
+	    		<img wicket:id="photo" />
+	    	</div>
+	    	
+	    	<ul id="sideLink" wicket:id="sideLinks">
+	    		<li wicket:id="addFriendContainer"><a wicket:id="addFriendLink" class="icon connection-add"><span wicket:id="addFriendLabel">[addFriendLabel]</span></a></li>
+	    	</ul>
+	    	
+	    	<div wicket:id="addFriendWindow"></div>
+	    	
+	    	<!--  kudos -->
+	    	<div class="side-widget" wicket:id="myKudos" />
+	    	
+	    	<!--  friends feed -->
+	    	<div class="side-widget" wicket:id="friendsFeed" />
+	    	
+	    	<!-- gallery feed -->
+	    	<div class="side-widget" wicket:id="galleryFeed" />
+	    </div>
+		
+		<div id="mainPanel" class="col-md-9">
+			
+			<!--  heading/status panel -->
+			<div id="profileHeading">
+		    	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>
+		    	<span wicket:id="online" class="presence-indicator">[online indicator here]</span>
+		    	<div wicket:id="status" class="view-status-msg">[status here]</div>
+		    	
+		    	
+		    	<!-- tabs -->
+				<div class="main-profile-tabpanel" wicket:id="viewProfileTabs">[view profile tabs]</div>
+		    </div>
+		</div>
+	</div>
+	</div>
+	
+	<!--  general ViewProfile scripting  -->
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+			//resize iframe
+			setMainFrameHeight(window.name);
+
+			//online presence tooltip
+			$('.sakai-wicket-onlinepresence').qtip();	
+			
+			
+		});
+
+	</script>
+	
+</wicket:extend>
+</body>
+</html>
+

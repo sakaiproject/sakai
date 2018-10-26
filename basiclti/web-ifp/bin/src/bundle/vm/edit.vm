@@ -1,0 +1,37 @@
+<script type="text/javascript">
+	focus_path = [ "title" ];
+</script>
+
+<div class="portletBody">
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('web-ifp edit.vm');</script>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+	<h3>
+		$tlang.getString("gen.custom")
+	</h3>
+	#if ($alertMessage)
+	<div class="alertMessage">
+	$tlang.getString("gen.alert") $alertMessage
+	</div>
+	<div class="clear"></div>
+	#end
+	<form action="$actionUrl" method="post" name="customizeForm" >
+		#if ($noCustomizations)
+			<span class="messageInformation">$noCustomizations</span>
+		#elseif ($formInput)
+			$formInput
+		#end
+
+		<p class="act">
+			#if ($noCustomizations)
+				<input type="submit" accesskey ="x" class="active" name="$doCancel" value="$tlang.getString('gen.back')" />
+			#else
+				<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+				<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+			#end
+		</p>
+	</form>
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
+</div>

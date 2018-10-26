@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="siteId" factory-bean="sakai-Placement"
+    factory-method="getContext" />
+   
+  <bean id="GroupListProducer"
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupListProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+   
+  <bean id="GroupEditProducer" 
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupEditProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+  </bean>
+  
+  <bean id="GroupAutoCreateProducer" 
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupAutoCreateProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+  
+  <bean id="CreateJoinableGroupsProducer" 
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.CreateJoinableGroupsProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+
+ 	<bean id="SiteManageGroupSectionRoleHandler" init-method="init"
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler">
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="messages" ref="targettedMessageList" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+  
+    <bean id="GroupDelProducer" 
+      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupDelProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+  </bean>
+  
+  <bean id="GroupImportStep1Producer"
+     class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupImportStep1Producer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+  </bean>
+  
+  <bean id="GroupImportStep2Producer"
+     class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupImportStep2Producer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+  </bean>
+  
+</beans>

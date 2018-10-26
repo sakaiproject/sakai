@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Reflect typical modern practice and serve templates from local webapp -->
+	<bean id="componentsTemplateResourceBase" class="java.lang.String">
+		<constructor-arg value="/" />
+	</bean>
+
+	<!-- This version for direct deployment, prior to Sakai 2.4 -->
+	<!-- <bean id="componentsTemplateResourceBase" class="java.lang.String"> <constructor-arg value="/../SakaiRSFComponents-templates/"/> 
+		</bean> -->
+	<!-- Use this version when deployed in a post-2.4 shared-template deployment -->
+	<!-- <bean id="componentsTemplateResourceBase" class="java.lang.String"> <constructor-arg value="/../sakai-rsf-templates/"/> </bean> -->
+	<bean id="SakaiRSFComponentsTemplateContributor" parent="templateContributorParent">
+		<property name="templateResourceBase" ref="componentsTemplateResourceBase" />
+		<property name="templateNames" value="sakai-old-date, sakai-FCKEditor, 
+      sakai-plainTextEditor, sakai-date-field-input" />
+	</bean>
+
+	<bean id="SakaiRSFForcePortalContributor" parent="templateContributorParent">
+		<property name="mustContribute" value="true" />
+		<property name="templateResourceBase" ref="componentsTemplateResourceBase" />
+		<property name="templateNames" value="sakai-rsf-portal" />
+	</bean>
+
+	<bean parent="requestAddressibleParent">
+		<property name="value" value="iso8601DateTransit" />
+	</bean>
+
+</beans>

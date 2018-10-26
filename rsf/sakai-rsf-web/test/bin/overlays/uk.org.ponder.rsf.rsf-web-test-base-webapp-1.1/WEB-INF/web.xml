@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+  "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+  "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+<!-- This empty web.xml is required since Maven 2 will not respect a "partial WAR"
+ strategy without it -->
+  <display-name>RSFComponents-test-base-webapp</display-name>
+  <description>RSF Components test base webapp</description>
+</web-app>

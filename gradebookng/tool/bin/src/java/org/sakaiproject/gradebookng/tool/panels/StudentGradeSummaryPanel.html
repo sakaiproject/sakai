@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+	<wicket:panel>
+		<div class="gb-grade-summary-content">
+			<span wicket:id="tabs" class="tabpanel">[tabbed panel will be here]</span>
+
+			<div class="gb-summary-modal-actions">
+				<div wicket:id="studentNavigation" class="row">
+					<div class="col-md-12">
+						<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
+						<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+						<button type="submit" class="button_color gb-summary-close" wicket:id="done"><wicket:message key="button.done" /></button>
+						<button type="button" class="button_color gb-summary-fake-close" style="display: none;"><wicket:message key="button.done" /></button>
+					</div>
+				</div>
+			</div>
+			<button type="button" class="btn btn-info btn-xs gb-summary-print"><wicket:message key="button.print" /></button>
+		</div>
+
+		<script id="studentGradeSummaryCloseConfirmationTemplate" type="text/template">
+			<div class="modal fade gb-grade-summary-close-confirmation">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h3 class="modal-title"><wicket:message key="label.studentsummary.closeconfirmation.title" /></h3>
+						</div>
+						<div class="modal-body">
+							<p><wicket:message key="label.studentsummary.closeconfirmation.content" /></p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="button_color btn-student-summary-continue" data-dismiss="modal"><wicket:message key="label.studentsummary.closeconfirmation.continue" /></button>
+							<button type="button" class="btn-student-summary-cancel" data-dismiss="modal"><wicket:message key="label.studentsummary.closeconfirmation.cancel" /></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+	</wicket:panel>
+</body>
+</html>

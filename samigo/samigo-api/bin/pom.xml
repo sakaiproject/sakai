@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+	<parent>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo</artifactId>
+		<version>19-SNAPSHOT</version>
+	</parent>
+    
+	<name>Sakai Samigo API (samigo-api)</name>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samigo-api</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+	<packaging>jar</packaging>
+    
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+    
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-api</artifactId>
+      </dependency>
+    </dependencies>
+    
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.xsl</include>
+					<include>**/*.xsd</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>

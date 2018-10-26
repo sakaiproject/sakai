@@ -1,0 +1,99 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title rsf:id="msg=modifyemail.page.title">Modify Email Template</title>
+		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
+		<link href="../css/Emailtemplateservice.css" type="text/css" rel="stylesheet" media="all" />
+	</head>
+
+	<body>
+		<div class="portletBody container-fluid">
+	
+  <div rsf:id="message-for:*">
+	<span>Message for user here</span>
+  </div>
+
+
+			<div rsf:id="message-for:*" class="alertMessage">
+				<ul style="margin:0px;">
+					<li>Message for user here</li>
+				</ul>
+			</div>
+
+		<div class="page-header">
+			<h1 rsf:id="modify-template-header">Modify reminder email template</h1>
+		</div>
+
+			<form rsf:id="emailTemplateForm" name="emailTemplateForm" method="post">
+				<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
+					<p rsf:id="msg=modifyemail.modify.text.instructions" class="text-info">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
+					<div rsf:id="email_templates_fieldhints" class="bs-callout-info">
+${EvalTitle} - the title of this evaluation <br/>
+${EvalStartDate} - the start date of this evaluation <br/>
+${EvalDueDate} - the due date of this evaluation <br/>
+${EvalResultsDate} - the view results date of this evaluation <br/>
+${EvalGroupTitle} - the title to the site/course/group/evalGroup which this evaluation is assigned to for this user <br/>
+${HelpdeskEmail} - the email address for the helpdesk (or the support contact) <br/>
+${URLtoAddItems} - the direct URL for evaluatees to add items to evals assigned from above <br/>
+${URLtoTakeEval} - the direct URL for evaluators to take this evaluation <br/>
+${URLtoViewResults} - the direct URL to view results for this evaluation <br/>
+${URLtoSystem} - the main URL to the system this is running in <br/>
+${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
+${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation <br/>
+					</div>
+
+		<div class="form-container">
+			<div class="form-group row" id="etsEmailSubject">
+				<label class="col-md-2" rsf:id="msg=modifyemail.template.subject" for="emailSubject">Subject:</label>
+				<div class="col-md-6">
+					<input class="form-control" rsf:id="emailSubject" type="text" id="emailSubject" size="80" maxlength="250" />
+				</div>
+			</div>
+			<div class="form-group row" id="etsEmailFrom">
+				<label class="col-md-2" rsf:id="msg=modifyemail.template.from" for="emailFrom">From:</label>
+				<div class="col-md-6">
+					<input class="form-control" rsf:id="emailFrom" type="text" id="emailFrom" size="80" maxlength="250" />
+				</div>
+			</div>
+				<div class="form-group row" id="etsEmailKey">
+					<label class="col-md-2" rsf:id="msg=modifyemail.template.key" for="emailKey">key:</label>
+					<div class="col-md-6">
+						<input class="form-control" rsf:id="emailKey" type="text" id="emailKey" size="80" maxlength="250" />
+					</div>
+				</div>
+				<div class="form-group row" id="etsEmailKey">
+					<label class="col-md-2" rsf:id="msg=modifyemail.template.locale" for="emailLocale">locale:</label>
+					<div class="col-md-6">
+						<input class="form-control" rsf:id="emailLocale" type="text" id="email:Locale" size="80" maxlength="250" />
+					</div>
+				</div>
+				<div class="form-group row" id="etsEmailMessage">
+					<label class="col-md-2" rsf:id="msg=textInput" for="emailMessage">Plain text</label>
+					<div class="col-md-6">
+						<textarea class="form-control" rsf:id="emailMessage" rows="10" cols="100" name="emailMessage" id="emailMessage">
+                         The text of the email message will appear here
+                    	</textarea>
+					</div>
+				</div>
+				<div class="form-group row" id="etsEmailHtml">
+					<label class="col-md-2" rsf:id="msg=htmlInput" for="emailHtmlMessage">Html text</label>
+					<div class="col-md-6">
+						<textarea class="form-control" rsf:id="emailHtmlMessage" rows="10" cols="100">
+                         The HTML text of the email message will appear here
+                    	</textarea>
+					</div>
+				</div>
+		</div>
+
+				<p class="act">
+                    <input rsf:id="saveEmailTemplate" name="saveEmailTemplate" type="submit" value="Save Changes" accesskey="s" class="active" />
+                    <input rsf:id="cancelButton" class="cancelButton" type="button" value="Cancel" onclick="javascript:history.go(-1);return false;" accesskey="x" />
+				</p>	
+
+			</form>
+		</div>	
+	</body>
+</html>

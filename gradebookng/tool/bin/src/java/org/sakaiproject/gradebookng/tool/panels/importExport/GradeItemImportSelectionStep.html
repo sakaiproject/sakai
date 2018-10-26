@@ -1,0 +1,52 @@
+<wicket:panel xmlns:wicket="http://wicket.apache.org">
+
+    <h2><wicket:message key="importExport.selection.heading" /></h2>
+    <p><wicket:message key="importExport.selection.description" /></p>
+
+    <div class="panel-group" id="omissionsAccordion" role="tablist" aria-multiselectable="true">
+        <wicket:container wicket:id="omissionsPanel" />
+    </div>
+
+    <p><wicket:message key="importExport.selection.note" /></p>
+
+	<button wicket:id="hideNoChanges" id="hideNoChanges" class="button" aria-controls="grade_import_selection"><wicket:message key="importExport.selection.hideitems" /></button>
+    <form wicket:id="form" class="selection_form">
+	    <table id="grade_import_selection" class="table table-condensed">
+	        <thead>
+	            <tr>
+	                <th class="col-xs-1">&nbsp;</th>
+	                <th class="col-xs-6"><wicket:message key="importExport.selection.title" /></th>
+	                <th class="col-xs-2"><wicket:message key="importExport.selection.points" /></th>
+	                <th class="col-xs-3"><wicket:message key="importExport.selection.status" /></th>
+	            </tr>
+	        </thead>
+	        <tbody>
+				<wicket:container wicket:id="items">
+					<tr wicket:id="gb_item" class="gb_item">
+						<td><input type="checkbox" wicket:id="checkbox"/></td>
+						<td class="item_title"><wicket:container wicket:id="title">[assignment 1]</wicket:container></td>
+						<td class="item_points"><wicket:container wicket:id="points">[50]</wicket:container></td>
+						<td class="item_status"><wicket:container wicket:id="status">[no changes/new]</wicket:container></td>
+					</tr>
+						
+					<tr wicket:id="comments" class="comment">
+						<td><input type="checkbox" wicket:id="checkbox"/></td>
+						<td class="item_title"><wicket:message key="importExport.commentname" /></td>
+						<td class="item_points">&nbsp;</td>
+						<td class="item_status"><wicket:container wicket:id="status">[no changes/new]</wicket:container></td>
+					</tr>
+	             
+	            </wicket:container>
+	       </tbody>
+	    </table>
+	    	
+	    <p><wicket:message key="importExport.selection.details" /></p>
+	
+	    <div class="act">
+	      <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
+	      <input class="active" type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next"/>
+	      <input type="submit" wicket:id="cancelbutton" wicket:message="value:importExport.button.cancel"/>
+	    </div>
+    </form>
+    <div wicket:id="allHiddenLabel" class="instruction"></div>
+</wicket:panel>

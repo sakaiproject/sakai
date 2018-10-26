@@ -1,0 +1,65 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_simpleSearch.vm,v 1.2 2005/05/19 19:53:16 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	$(document).ready(function(){
+		if (!$('#selectTerm')[0]) {
+			// selectTerm element doesn't exist
+			return;
+		}
+		$("input:radio").click(function() {
+			if ($(this).attr('class') == 'siteTypeTerm') {
+				$('#selectTerm').prop( 'disabled', false );
+			} else {
+				$('#selectTerm').prop( 'disabled', true );
+			}
+		})
+	});
+</script>
+<div class="portletBody">
+	<h3 class="heading">$tlang.getString("se.search")</h3>
+
+	<form class="siteSearchForm" action="#toolForm("$action")" method="post">
+		<div class="radio indnt3">
+			<input type="radio" name="siteType" id="siteTypeAny" value="Any" checked="checked" />
+			<label for="siteTypeAny">$tlang.getString("se.any")</label>
+		</div>
+
+		#if ($siteTypes.size() > 0 )
+			#set($siteTypeCount=0)
+			#foreach ($type in $siteTypes)
+				#set($siteTypeCount=$siteTypeCount + 1)
+				#if ($type == $termSearchSiteType)
+					<input type="hidden" name="ClassSiteFromSystem" value="true" />
+					<div class="radio indnt3">
+						<input type="radio" name="siteType" class="siteTypeTerm" id="siteType$siteTypeCount" value="$type" />
+						<label for="siteType$siteTypeCount">$type $tlang.getString("se.sites")</label>
+
+						<select name="selectTerm" id="selectTerm" disabled>
+							<option value="Any" selected>$tlang.getString("se.any.term")</option>
+
+							## SAK-28997
+							#foreach( $term in $terms.entrySet() )
+								<option value="$term.key">$term.value</option>
+							#end
+						</select>
+					</div>
+				#else
+					<div class="radio indnt3">
+						<input type="radio" name="siteType" id="siteType$siteTypeCount" value="$type" />
+						<label for="siteType$siteTypeCount">$type $tlang.getString("se.sites")</label>
+					</div>
+				#end
+			#end
+		#end
+
+		<div class="siteTitleSearch">
+			<label for="searchbox">$tlang.getString("se.search1")</label>
+			<input type="text" name="search" id="searchbox" size="20" maxlength="50" value="" placeholder="$tlang.getString("se.titleSearch.placeholder")" />
+			<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="eventSubmit_doSearch" />
+		</div>
+
+		<div class="act">
+			<input type="submit" class="active" name="eventSubmit_doSearch" value="$tlang.getString("list.search")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

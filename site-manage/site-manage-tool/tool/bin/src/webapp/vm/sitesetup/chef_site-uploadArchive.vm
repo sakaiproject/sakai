@@ -1,0 +1,29 @@
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	
+	<h3>$tlang.getString("archive.createsite.upload")</h3>
+	
+    <p class="step">
+		$tlang.getString("archive.createsite.info.2")
+	</p>
+	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	<form action="#toolForm("$action")" method="post" enctype="multipart/form-data">
+		
+		<strong class="reqStarInline"> * </strong>
+		<label for="importFile">
+            $tlang.getString("archive.createsite.choose")
+        </label>
+		<input type="file" name="importFile" id="importFile" />
+	
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doUploadArchive" value="$tlang.getString('archive.createsite.upload')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

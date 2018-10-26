@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+
+<title>"New-style" Date Choosing Widget - Yahoo implementation</title>
+
+<link type="text/css" rel="stylesheet" 
+  href="../yui/logger/assets/logger.css" rsf:id="scr=contribute-style"/> 
+
+<script type="text/javascript" src="../yui/yahoo/yahoo.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/dom/dom.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/event/event.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/connection/connection.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/dragdrop/dragdrop.js"
+  rsf:id="scr=contribute-script"></script> 
+<script type="text/javascript" src="../yui/logger/logger.js"
+  rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../yui/calendar/calendar.js"
+  rsf:id="scr=contribute-script"></script>
+  
+<link type="text/css" rel="stylesheet" href="../yui/calendar/assets/calendar.css" 
+  rsf:id="scr=contribute-style" />
+<link type="text/css" rel="stylesheet" href="../css/annotation.css" 
+  rsf:id="scr=contribute-style" />
+  
+<script type="text/javascript" src="../js/ISO8601-date.js" rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../js/rsf.js?nocache" rsf:id="scr=contribute-script"></script>
+<script type="text/javascript" src="../js/yahoo-calendar-setup.js?nocache" rsf:id="scr=contribute-script"></script>
+
+</head>
+
+<body style="margin:10px">
+<h1>"New-style" Date Choosing Widget - Yahoo implementation</h1>
+Test template by entering <b>08/11/06</b> for date and <b>09:00</b> for time value.
+<!--
+<script>
+//<![CDATA[
+window.setTimeout(function() {
+var myLogReader1 = new YAHOO.widget.LogReader(null,{width: "60em", verboseOutput: false}); 
+myLogReader1.formatMsg = function(oLogMsg) { 
+  var category = oLogMsg.category; 
+  return "<p><span class='"+category+"'>"+category+"</span> "+ 
+          this.html2Text(oLogMsg.msg)+"</p>"; }}, 10 );
+//]]>
+</script>
+-->
+<div style="margin: 5em">
+<div rsf:id="date-field-input:" style="display:inline">
+<script rsf:id="datesymbols">
+//<![CDATA[
+  // These are the date symbols for en_ZA
+  PUC_MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  PUC_MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  PUC_WEEKDAYS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  PUC_WEEKDAYS_MEDIUM = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  PUC_WEEKDAYS_SHORT = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  PUC_WEEKDAYS_1CHAR = ["S", "M", "T", "W", "T", "F", "S"];
+  PUC_FIRST_DAY_OF_WEEK = "1";
+  PUC_DATE_FORMAT = "yy/MM/dd";
+  PUC_DATETIME_FORMAT = "yy/MM/dd hh:mm";
+  PUC_TIME_FORMAT = "hh:mm";
+//]]>
+</script> 
+<span>
+
+<span rsf:id="date-title">Date:</span>
+<span class="annotation-target">
+<span rsf:id="date-annotation" id="nameBase1:date-annotation"
+  class="annotation-inactive annotation-incomplete">dd/MM/YY</span>
+
+<input rsf:id="date-field" id="nameBase1:date-field" size="12"/>
+</span>
+<input rsf:id="true-date" id="nameBase1:true-date" type="hidden"/>
+
+<span rsf:id="date-container" id="nameBase1:date-container"
+  style="position:absolute; display:none"></span>
+
+<a rsf:id="date-link" id="nameBase1:date-link"
+  href="javascript:void(null)" style="display:none">
+  <img src="../images/pdate.gif" border="0"
+  style="vertical-align:middle; margin:5px" /></a>
+
+&nbsp;
+<span rsf:id="time-title">Time:</span>
+ <span class="annotation-target">
+   <span rsf:id="time-annotation" id="nameBase1:time-annotation"
+  class="annotation-inactive annotation-incomplete">hh:mm</span>
+<input rsf:id="time-field" id="nameBase1:time-field" size="7" />
+ </span>
+</span>
+
+<script rsf:id="init-date">
+  RSF_Calendar.initYahooCalendar_Datefield("nameBase1:", "Select Date");
+</script>
+</div> <!-- end enclosing span for branch container -->
+<!-- A dummy 2nd instance of the component used to test JS isolation -->
+
+
+<div style="margin-top:5em">
+
+
+<span rsf:id="date-title">Date:</span>
+<span class="annotation-target">
+<span rsf:id="date-annotation" id="nameBase2:date-annotation"
+    class="annotation-inactive annotation-incomplete">dd/MM/YY</span>
+</span>
+<input rsf:id="date-field" id="nameBase2:date-field" size="12"/>
+<input rsf:id="true-date" id="nameBase2:true-date" type="hidden"/>
+
+<a rsf:id="date-link" id="nameBase2:date-link" 
+  href="javascript:void(null)" style="display:none">
+  <img src="../images/pdate.gif" border="0"
+  style="vertical-align:middle;margin:5px" /></a>
+
+<span rsf:id="date-container" id="nameBase2:date-container"
+  style="position:absolute; display:none"></span>
+</div>
+
+<script rsf:id="init-date">
+  RSF_Calendar.initYahooCalendar_Datefield("nameBase2:", "Select Date");
+</script>
+</div>
+
+</body>
+</html>

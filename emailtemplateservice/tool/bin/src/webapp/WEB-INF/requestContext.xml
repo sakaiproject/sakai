@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+ <bean class="org.sakaiproject.emailtemplateservice.tool.producers.MainViewProducer">
+ 	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+ 	<property name="messages" ref="targettedMessageList" />
+ 	<property name="externalLogic" ref="org.sakaiproject.emailtemplateservice.service.external.ExternalLogic"/>
+
+ </bean>
+ 
+ <bean class="org.sakaiproject.emailtemplateservice.tool.producers.ModifyEmailProducer">
+ 	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+ 	<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+ 	<property name="messages" ref="targettedMessageList" />
+ 	<property name="externalLogic" ref="org.sakaiproject.emailtemplateservice.service.external.ExternalLogic"/>
+ 	<property name="handler" ref="modifyEmailHandler" />
+</bean>
+ 
+ <bean name="modifyEmailHandler" class="org.sakaiproject.emailtemplateservice.tool.handler.ModifyEmailHandler">
+ 	<property name="emailTemplateLocator" ref="EmailTemplateLocator" />
+ 	<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+ 	<property name="messages" ref="targettedMessageList" />
+ </bean>
+ 
+ <bean name="EmailTemplateLocator" class="org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator">
+ 	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+ 	<property name="messages" ref="targettedMessageList" />
+ </bean>
+ 
+ 
+</beans>
+
+

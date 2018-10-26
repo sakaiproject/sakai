@@ -1,0 +1,590 @@
+
+@font-face {
+    font-family: "Icons";
+    src:url('../fonts/overviewPanel-icons.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/overviewPanel-icons.eot'),
+         url('../fonts/overviewPanel-icons.ttf');
+}
+
+@font-face {
+    font-family: "Fluid-star";
+    src:url('../fonts/fluid-star.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/fluid-star.eot'),
+         url('../fonts/fluid-star.ttf');
+}
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../fonts/OpenSans-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../fonts/OpenSans-Bold.ttf');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'RobotoSlab';
+    src: url('../fonts/RobotoSlab-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'RobotoSlab';
+    src: url('../fonts/RobotoSlab-Bold.ttf');
+    font-weight: bold;
+}
+
+
+.fl-overviewPanel-container {
+    /* 
+     * APPLY this class on the container enclosing the overviewPanel component.
+     * Customize these values to change the positioning.
+     * 
+     * Note: If you change the position, you may have to change the position of 
+     * .fl-overviewPanel-hidden styles so that the transition goes in the desired 
+     * direction.
+     */
+    position:fixed;
+    top:0;
+    left:0;
+    width:24em;
+    z-index: 9999;
+    font-size: 1em;
+    font-family: "OpenSans","Helvetica Neue","Helvetica",Helvetica,Arial,sans-serif;
+    height: 100%;
+    min-height: 28em;
+    
+    /* Transition used to control hide/show of this container */
+    transition: all 0.2s linear;
+}
+
+.fl-overviewPanel .fl-overviewPanel-title {
+    background-color: #333;
+    font-family: 'RobotoSlab', serif;
+    color: #ccc;
+    padding: 0.5em 0.5em 0.5em 3em;
+    height: 5.5em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 2em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-contents {
+    /* 
+     * If changing the height of title or footer, make sure the top and bottom
+     * positions of fl-overviewPanel-contents are adjusted.
+     */
+    top: 6.5em;     /* Change this if needed - offset the height of fl-overviewPanel-title + 1em (for line-height compensation).  */
+    bottom: 18.5em; /* Change this if needed - offset the height of fl-overviewPanel-footer. */
+    padding: 1.5em;
+    position: absolute;
+    overflow: auto;
+}
+
+.fl-overviewPanel .fl-overviewPanel-footer {
+    height: 18.5em;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    line-height: 1em;
+}
+
+
+/* General styles */
+
+.fl-overviewPanel {
+    position: relative;
+    left: 0;
+    color: #fff;
+    height: inherit;
+}
+
+.fl-overviewPanel h1 {
+    margin: 0;
+    font-size: 1.4em;
+}
+
+.fl-overviewPanel h2 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus,
+.fl-overviewPanel a:active,
+.fl-overviewPanel a:focus {
+    outline: 0.3em solid #27A9E1;
+}
+
+.fl-overviewPanel-group:after { /* clearfix (aka. group) */
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* The Star icon that acts as a toggle button */
+
+.fl-overviewPanel .fl-overviewPanel-icon-fluidStar {
+    position:fixed;
+    top:0.2em;
+    left:0.2em;
+    z-index: 1; /* Z-index and position relative is defined so it appears properly relative to the panel's title. */   
+    font-size: 1.5em; 
+}
+
+.fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    text-decoration: none;
+    font-family: "Fluid-star" !important; /* FLUID-5321: use important to keep learner prefs from changing it. */ 
+    font-weight: normal !important; /* Keep UIO from changing the weight of icons. Bold icons look poor. */
+    padding: 0.7em 0.3em;
+    color: #FFCC00;
+    float: left;
+    position:relative;
+    background-color: #333; /* IE8 */
+    background-color: rgba(51,51,51,.96);
+    line-height: 1.8em;
+    transition: background-color 0.2s ease;
+    outline: 0.2em solid #333;
+    outline: 0.2em solid rgba(51,51,51,.96);
+}
+
+.fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:hover {
+    background-color: #444;
+}
+
+.fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:before {
+    content: "\e600";
+}
+
+/* The Demo Menu itself */
+.fl-overviewPanel .fl-overviewPanel-body {
+    background-color:#444; /* IE8 */
+    background-color: rgba(51,51,51,.96);
+    height: 100%;
+    
+    /* Fade out the overviewPanel contents. Otherwise it just disappears. */ 
+    transition: visibility 0.1s linear;
+    visibility:visible;
+}
+
+/* Demo Menu Visibility */
+
+.fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-body {
+    transition: visibility 0.1s linear;
+    visibility: hidden;
+}
+
+.fl-overviewPanel-container.fl-overviewPanel-hidden {
+    /* Make this container essentially hidden. Some dimensions need to be given to avoid a problem with rendering on Safari. */
+    width: 0.01em; 
+    height: 0.01em; 
+    transition: all 0.2s linear; /* This transition creates the desired sliding effect. */ 
+}
+
+
+/* Header area with title */
+
+.fl-overviewPanel .fl-overviewPanel-title h1 {
+    display: inline-block;
+    padding: 0.5em;
+    margin-left: 0.2em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-title a {
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.2s ease;
+}
+
+.fl-overviewPanel .fl-overviewPanel-title a:hover {
+    color: #ffcc00;
+}
+
+/* Content area of the component */
+
+.fl-overviewPanel .fl-overviewPanel-componentName {
+    font-weight: bold;
+    margin: 0.6em 0;
+    display:block;
+}
+
+.fl-overviewPanel .fl-overviewPanel-componentVersion {
+    font-style: italic;
+}
+
+.fl-overviewPanel .fl-overviewPanel-instructions {
+    border: 0.2em solid #FFCC00;
+    padding: 1em;
+    margin-top: 2em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-instructions h2 {
+    text-transform: uppercase;
+    font-weight: normal;
+}
+
+/* Icon links to code, API, and designs. */ 
+.fl-overviewPanel .fl-overviewPanel-links {
+    padding-top: 0.5em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul {
+    margin: 0 auto;
+    padding-left: 0;
+    width: 80%;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul li {
+    display: inline-block;
+    list-style: none outside none;
+    margin-bottom: 1.5em ;
+    width: 49%;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    width: 100%;
+    text-align:center;
+    display: inline-block;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul li a:focus .fl-overviewPanel-iconContainer,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:focus .fl-overviewPanel-demoCodeLinkText,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:focus .fl-overviewPanel-apiLinkText,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:focus .fl-overviewPanel-designLinkText,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:focus .fl-overviewPanel-infusionCodeLinkText {
+    background: #444;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover {
+    color: #ffcc00;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover .fl-overviewPanel-iconContainer,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover .fl-overviewPanel-demoCodeLinkText,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover .fl-overviewPanel-apiLinkText,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover .fl-overviewPanel-designLinkText,
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover .fl-overviewPanel-infusionCodeLinkText {
+    background: #444;
+}
+
+.fl-overviewPanel-iconContainer {
+    margin: 0 auto;
+}
+
+
+.fl-overviewPanel .fl-overviewPanel-footer .fl-overviewPanel-links .fl-overviewPanel-links-icon {
+    display: inline-block;
+    background-color: #fff;
+    width: 2em;
+    height: 2em;
+    border-radius: 50em;
+    font-family: icons !important; /* FLUID-5321: use important to keep learner prefs from changing it. */ 
+    font-weight: normal !important; /* Keep UIO from changing the weight of icons. Bold icons look poor. */
+    color: #333333;
+    line-height: 1em;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.fl-overviewPanel .fl-overviewPanel-footer .fl-overviewPanel-links .fl-overviewPanel-links-icon:before {
+    position: relative;
+    top: 0.35em;
+    font-size: 1.2em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links ul li a:hover .fl-overviewPanel-links-icon {
+    background-color: #ffcc00;
+}
+
+.fl-overviewPanel .fl-overviewPanel-links-icon-api:before {
+    content: "\e602";
+}
+
+.fl-overviewPanel .fl-overviewPanel-links-icon-github:before {
+    content: "\e601";
+}
+
+.fl-overviewPanel .fl-overviewPanel-links-icon-code:before {
+    content: "\e600";
+}
+
+.fl-overviewPanel .fl-overviewPanel-links-icon-design:before {
+    content: "\e603";
+}
+
+.fl-overviewPanel-demoCodeLinkText,
+.fl-overviewPanel-apiLinkText,
+.fl-overviewPanel-designLinkText,
+.fl-overviewPanel-infusionCodeLinkText {
+    display:block;
+}
+
+
+.fl-overviewPanel .fl-overviewPanel-feedback-link {
+    text-align: center;
+    margin-top: 1em;
+}
+
+.fl-overviewPanel .fl-overviewPanel-feedbackText {
+    display:block;
+}
+
+.fl-overviewPanel .fl-overviewPanel-feedback-link a {
+    color: #FFCC00;
+}
+
+/* Footer / Close button */
+
+.fl-overviewPanel .fl-overviewPanel-footer .fl-overviewPanel-closeControl {
+    background-color: #fff;
+    border-radius: 0.3em; 
+    padding: 0.3em 1em;
+    color:  #333333;
+    text-decoration: none;
+    text-transform: lowercase;
+    display: inline-block;
+    float: right;
+    margin: 1em 1em 0 0;
+}
+
+/* Theming */
+
+.fl-theme-bw .fl-overviewPanel-hidden .fl-overviewPanel,
+.fl-theme-wb .fl-overviewPanel-hidden .fl-overviewPanel,
+.fl-theme-yb .fl-overviewPanel-hidden .fl-overviewPanel,
+.fl-theme-by .fl-overviewPanel-hidden .fl-overviewPanel,
+.fl-theme-lgdg .fl-overviewPanel-hidden .fl-overviewPanel { 
+    /* on all themes, hide the right border when "hidden". */
+    border-right: 0;
+}
+
+/* black on white */
+.fl-theme-bw .fl-overviewPanel,
+.fl-theme-bw .fl-overviewPanel-body,
+.fl-theme-bw .fl-overviewPanel a,
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-links-icon-api,
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-links-icon-github,
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-links-icon-design {
+    color: #000;
+    background-color: #fff;
+}
+
+.fl-theme-bw .fl-overviewPanel {
+    border-right: 0.2em solid #000;
+}
+
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-title .fl-overviewPanel-icon-fluidStar,
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-title a,
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-title {
+    background-color: #000;
+    color: #fff;
+}
+
+.fl-theme-bw .fl-overviewPanel a {
+    text-decoration: underline;
+}
+
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.2em solid #fff;
+}
+
+.fl-theme-bw .fl-overviewPanel *:focus,
+.fl-theme-bw .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus,
+.fl-theme-bw .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus {
+    outline: 0.3em solid #000;
+}
+
+.fl-theme-bw .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.1em solid #000;
+}
+
+.fl-theme-bw .fl-overviewPanel-instructions {
+    border: 0.2em solid #000;
+}
+
+
+/* white on black */
+.fl-theme-wb .fl-overviewPanel,
+.fl-theme-wb .fl-overviewPanel-body,
+.fl-theme-wb .fl-overviewPanel a, 
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-links-icon-api,
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-links-icon-github,
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-links-icon-design {
+    color: #fff;
+    background-color: #000;
+}
+
+.fl-theme-wb .fl-overviewPanel {
+    border-right: 0.2em solid #fff;
+}
+
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-title .fl-overviewPanel-icon-fluidStar,
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-title a,
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-title {
+    background-color: #fff;
+    color: #000;
+}
+
+.fl-theme-wb .fl-overviewPanel a {
+    text-decoration: underline;
+}
+
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.2em solid #000;
+}
+
+.fl-theme-wb .fl-overviewPanel *:focus,
+.fl-theme-wb .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus,
+.fl-theme-wb .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus {
+    outline: 0.3em solid #fff;
+}
+
+.fl-theme-wb .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.1em solid #fff;
+}
+
+.fl-theme-wb .fl-overviewPanel-instructions {
+    border: 0.2em solid #fff;
+}
+
+
+/* Low contrast: light grey on dark grey */
+.fl-theme-lgdg .fl-overviewPanel,
+.fl-theme-lgdg .fl-overviewPanel-body,
+.fl-theme-lgdg .fl-overviewPanel a, 
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-links-icon-api,
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-links-icon-github,
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-links-icon-design {
+    color: #bdbdbb;
+    background-color: #555;
+}
+
+.fl-theme-lgdg .fl-overviewPanel {
+    border-right: 0.2em solid #bdbdbb;
+}
+
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-title .fl-overviewPanel-icon-fluidStar,
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-title a,
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-title {
+    background-color: #bdbdbb;
+    color: #555;
+}
+
+.fl-theme-lgdg .fl-overviewPanel a {
+    text-decoration: underline;
+}
+
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.2em solid #555;
+}
+
+.fl-theme-lgdg .fl-overviewPanel *:focus,
+.fl-theme-lgdg .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus,
+.fl-theme-lgdg .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus {
+    outline: 0.3em solid #bdbdbb;
+}
+
+.fl-theme-lgdg .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.1em solid #bdbdbb;
+}
+
+.fl-theme-lgdg .fl-overviewPanel-instructions {
+    border: 0.2em solid #bdbdbb;
+}
+
+/* Yellow on Black */
+.fl-theme-yb .fl-overviewPanel,
+.fl-theme-yb .fl-overviewPanel-body,
+.fl-theme-yb .fl-overviewPanel a, 
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-links-icon-api,
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-links-icon-github,
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-links-icon-design {
+    color: #FFFF00;
+    background-color: #000;
+}
+
+.fl-theme-yb .fl-overviewPanel {
+    border-right: 0.2em solid #ffcc00;
+}
+
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-title .fl-overviewPanel-icon-fluidStar,
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-title a,
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-title {
+    background-color: #FFFF00;
+    color: #000;
+}
+
+.fl-theme-yb .fl-overviewPanel a {
+    text-decoration: underline;
+}
+
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.2em solid #000;
+}
+
+.fl-theme-yb .fl-overviewPanel *:focus,
+.fl-theme-yb .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus,
+.fl-theme-yb .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus {
+    outline: 0.3em solid #FFFF00; 
+}
+ 
+.fl-theme-yb .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.1em solid #FFFF00;
+}
+
+.fl-theme-yb .fl-overviewPanel-instructions {
+    border: 0.2em solid #FFFF00;
+}
+
+/* Black on Yellow */
+.fl-theme-by .fl-overviewPanel,
+.fl-theme-by .fl-overviewPanel-body,
+.fl-theme-by .fl-overviewPanel a,
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-links-icon-api,
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-links-icon-github,
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-links-icon-design {
+    color: #000;
+    background-color: #FFFF00;
+}
+
+.fl-theme-by .fl-overviewPanel {
+    border-right: 0.2em solid #000;
+}
+
+.fl-theme-by .fl-overviewPanel-hidden .fl-overviewPanel {
+    border: none;
+}
+
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-title .fl-overviewPanel-icon-fluidStar,
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-title a,
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-title {
+    background-color: #000;
+    color: #FFFF00;
+}
+
+.fl-theme-by .fl-overviewPanel a {
+    text-decoration: underline;
+}
+
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.2em solid #FFFF00;
+}
+
+.fl-theme-by .fl-overviewPanel *:focus,
+.fl-theme-by .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus,
+.fl-theme-by .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a:focus {
+    outline: 0.3em solid #000;
+}
+
+.fl-theme-by .fl-overviewPanel-hidden .fl-overviewPanel .fl-overviewPanel-icon-fluidStar a {
+    outline: 0.1em solid #000;
+}
+
+.fl-theme-by .fl-overviewPanel-instructions {
+    border: 0.2em solid #000;
+}

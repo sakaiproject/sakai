@@ -1,0 +1,62 @@
+<script type="text/javascript">
+  focus_path = ["archive-id"];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	
+	<h3>
+		$tlang.getString("archive.vm.archive.batch")
+	</h3>
+	
+	#if ($alertMessage)<br /><div class="alertMessage">$alertMessage</div>#end
+	
+	<h4>$tlang.getString("archive.vm.export.term")</h4>
+		
+	#if ($isRunning) 
+		<div class="information">$statusMessage</div>
+	#else
+		
+		<form action="#toolForm("$action")" method="post">
+	
+    		<p class="shorttext">
+    			<label for="archive-term">
+    				$tlang.getString("archive.vm.term")
+    			</label>	
+    			<select name="archive-term" id="archive-term">
+    				#foreach( $term in $terms )
+    					<option value="$term.eid">$term.title</option>
+    				#end
+    			</select>
+    		</p>
+    		<p class="act"><input type="submit" name="eventSubmit_doBatch_Archive_PreProcess" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>
+    		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+		
+	#end
+	
+	
+	
+	<hr class="itemSeparator" />
+	
+	<h4>$tlang.getString("archive.vm.import.file")</h4>
+
+	<form 
+		name="batchImportForm" 
+		id="batchImportForm" 
+		action="#toolForm("$action")&special=upload" 
+		method="post" 
+		enctype="multipart/form-data">
+		
+		<p class="shorttext">
+			<label for="importFile">
+				$tlang.getString("archive.vm.filebatchimport")
+			</label>	
+			<input type="file" name="importFile"   id="importFile"  />
+		</p>	
+		<p class="act"><input type="submit" name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")" class="indnt1" /></p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

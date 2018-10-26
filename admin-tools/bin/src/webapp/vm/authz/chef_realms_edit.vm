@@ -1,0 +1,143 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_edit.vm,v 1.3 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
+#javascript("/library/js/spinner.js")
+<script type="text/javascript">
+  focus_path = [#if(!$realm)"id"#else"provider"#end];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	<h3>
+		$tlang.getString("realm.edit.edit") $validator.escapeHtml($!realm.Id)
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.edit.alert") $validator.escapeHtml($alertMessage)</div>#end	
+	<div class="instruction">
+		$tlang.getString("realm.edit.used") $validator.escapeHtml($!realm.Description): $tlang.getString("realm.edit.review")
+	</div>
+
+	<form name="$form-name" action="#toolForm("$action")" method="post">
+		<h4>
+				$tlang.getString("realm.edit.realm")
+		</h4>
+		<p class="shorttext">		
+			<label  for="id">
+				#if(!$realm)
+					<span class="reqStar">*</span>
+				#end	
+				$tlang.getString("realm.edit.id")
+			</label>
+			#if(!$realm)<input type="text" name="id" id="id" />#else$validator.escapeHtml($realm.Id)#end
+		</p>
+		<p class="shorttext">						
+			<label for="provider">
+				$tlang.getString("realm.edit.provider")
+			</label>
+			<input type="text" name="provider" id="provider" #if($realm) value="$!validator.escapeHtml($realm.ProviderGroupId)"#end />
+		</p>
+		<p class="shorttext">
+			<label for="maintain">
+				$tlang.getString("realm.edit.maintain")
+			</label>
+			<input type="text" name="maintain" id="maintain" #if($realm) value="$!validator.escapeHtml($realm.MaintainRole)"#end />
+		</p>	
+			<h4>
+				$tlang.getString("realm.edit.complete")
+			</h4>	
+			<div class="act">
+				<input type="submit" name="eventSubmit_doSave" value="$tlang.getString("realm.edit.save")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.edit.cancel")" />
+		</div>
+			<h4>	
+				$tlang.getString("realm.edit.users")
+			</h4>	
+			<div class="instruction">
+				$tlang.getString("realm.edit.these")
+			</div>
+			#if ($grants.size() > 0)
+				#set ($userCount = 0)
+					<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("realm.edit.users.list.summary")">
+						<tr>
+							<th id="Id">$tlang.getString("realm.edit.userid")</th>
+							<th id="Description">$tlang.getString("realm.edit.role")</th>
+							<th id="Active">$tlang.getString("realm.edit.active")</th>
+							<th id="Provided">$tlang.getString("realm.edit.from")</th>
+						</tr>
+						#foreach ($grant in $grants)
+							<tr>
+								<td headers="Id">
+									<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_user" "target=$validator.escapeUrl($grant.UserId)")'+buildQueryString('$form-name');return false;">
+										$validator.escapeHtml($grant.UserDisplayId)
+									</a>
+								</td>
+								<td headers="Description">
+									$validator.escapeHtml($grant.Role.Id)
+								</td>
+								<td headers="Active">
+									#if ($grant.Active)
+										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString('realm.edit.active')" hspace="5" />
+									#end
+								</td>
+								<td headers="Provided">
+									#if ($grant.Provided)
+										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString('realm.edit.provided')" hspace="5" />
+									#end
+								</td>
+							</tr>
+						#end
+					</table>
+				#else
+					<div class="instruction">
+						$tlang.getString("realm.edit.noroles")
+					</div>
+				#end
+				<h4>
+					$tlang.getString("realm.edit.complete")
+				</h4>	
+				<div class="act">
+					<input type="submit" name="eventSubmit_doSave" value="$tlang.getString("realm.edit.save")" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.edit.cancel")" />
+				</div>
+				<h4>
+					$tlang.getString("realm.edit.roles")
+				</h4>	
+				<div class="instruction">
+					$tlang.getString("realm.edit.these1")
+				</div>
+				#if ($roles.size() > 0)
+					#set ($roleCount = 0)
+					<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("realm.edit.roles.list.summary")">
+						<tr>
+							<th id="Id">$tlang.getString("realm.edit.roleid")</th>
+							<th id="Description">$tlang.getString("realm.edit.description")</th>
+						</tr>
+						#foreach ($role in $roles)
+							<tr>
+								<td headers="Id">
+									<h4>
+										<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_role" "target=$validator.escapeUrl($role.Id)")'+buildQueryString('$form-name');return false;" title="$tlang.getString("realm.role.set")">
+											$validator.escapeHtml($role.Id)
+										</a>
+									</h4>	
+								</td>
+								<td headers="Description">
+									$validator.escapeHtml($!role.Description)
+								</td>
+							</tr>
+						#end
+				</table>
+			#else
+			<div class="instruction">
+				$tlang.getString("realm.edit.noroles1")
+			</div>
+		#end
+		<h4>
+			$tlang.getString("realm.edit.complete")
+		</h4>
+		<div class="act">
+			<input type="submit" class="active" name="eventSubmit_doSave" value="$tlang.getString("realm.edit.save")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.edit.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

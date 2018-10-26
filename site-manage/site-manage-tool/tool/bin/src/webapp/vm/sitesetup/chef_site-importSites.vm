@@ -1,0 +1,148 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-importSites.vm,v 1.3 2005/05/25 20:24:30 zqian.umich.edu Exp $ -->
+<div class="portletBody">
+	## SAK-23305
+	#set($materialFound = false)
+	#foreach($toolId in $selectedTools)
+		#if ($importSupportedTools.contains($toolId))
+			#foreach ($site in $importSites.keys())
+				#set($allPages = $site.getPages())
+				#foreach ($page in $allPages)
+					#set($pageTools = $page.getTools())
+					#foreach ($pageTool in $pageTools)
+						#if (($pageTool.getTool().getId() == $toolId) && ("sakai.resources" == $toolId))
+							#set($materialFound = true)
+						#end
+					#end
+				#end
+			#end
+		#end
+	#end
+	#if ($materialFound)
+		<div class="alertMessage">
+			#if ($hideImportedContent)
+				$tlang.getString("sitinfimp.material.hidden.warn")
+			#else
+				$tlang.getString("sitinfimp.material.visible.warn")
+			#end
+		</div>
+		<div class="clear"></div>
+	#end
+	<h3>
+		$tlang.getString("import.reuse")
+	</h3>
+	<p class="step">
+		$tlang.getString("import.reuse2")
+	</p>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	<p class="instruction">
+	$tlang.getString("import.choose")
+	</p>
+	
+	##from here
+	
+	
+	
+	
+	<form name="importSitesForm" action="#toolForm("$action")" method="post">
+		<div class="table-responsive">
+			<table class ="table table-bordered table-hover table-striped"  summary="$tlang.getString("import.choose.list.summary")" >
+				<tr>
+					<th>
+						&nbsp;
+					</th>
+					#foreach($site in $importSites.keys())
+						<th>
+							<label>
+								<input type="checkbox" class="import-sites-tool-toggle"/>
+								$validator.escapeHtml($site.getTitle())
+							</label>
+						</th>
+					#end
+				</tr>
+				#set ($toolCount=0)
+				#foreach($toolId in $selectedTools)
+						#set($selectedSites = $!importSitesTools.get($toolId))
+						#set ($toolCount=$toolCount + 1)
+						#if ($importSupportedTools.contains($toolId))
+						<tr>					
+							<td>
+									#set($toolTitle = "")
+									#set($alternateToolTitles = "")
+								
+									#foreach($t in $toolRegistrationList)
+										#if ($t.getId() == $toolId)
+											#set($toolTitle = $t.getTitle())
+										#end
+									#end
+									#if($toolId == "sakai.iframe.site")
+										#set($toolTitle = $siteInfoToolTitle)
+									#end
+								
+									#set($alternateToolTitles = $!alternateToolTitlesMap.get($toolId))
+								
+									<h5>$toolTitle
+									
+										#if ($alternateToolTitles != "")
+											<span class="instruction">($alternateToolTitles)</span>
+										#end
+								
+    									#if ($addMissingTools)
+    										## if the tool doesnt exist in the selected site, output icon
+    										#if(!$toolsInDestinationSite.contains($toolId))
+												<sup>+</sup>
+    										#end
+    									#end
+									</h5>
+								</td>
+								#set ($siteCount=0)
+								#foreach($site in $importSites.keys())
+									#set ($siteCount=$siteCount + 1)
+										<td>
+											#set($toolFound = false)
+											#set($allPages = $site.getPages())
+											#foreach ($page in $allPages)
+												#set($pageTools = $page.getTools())
+												#foreach ($pageTool in $pageTools)
+													#if ($pageTool.getTool().getId() == $toolId)
+														#set($toolFound = true)
+													#end
+												#end
+											#end
+										
+											#set ($toolsWithContent = $!siteToolsWithContent.get($site.getId()))
+											#if(!$toolsWithContent.contains($toolId))
+												#set($toolFound = false)
+    										#end
+										
+											#if ($toolFound)
+												<input type="checkbox" id="toolSite$toolCount$siteCount" name="$toolId" value="$site.Id" #if($!selectedSites.contains($site.Id))checked="checked"#end />
+												<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
+											#else
+												<input type="checkbox" id="toolSite$toolCount$siteCount"  name="$toolId" value="$site.Id" disabled="disabled" />
+											#end
+										</td>
+								#end
+							</tr>	
+						#end
+				#end
+			</table>
+		</div>
+		
+		#if ($addMissingTools)
+			<p class="messageConfirmation">$tlang.getString("import.newtool")</p>
+		#end
+		
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="$continue" />
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" #if($!existingSite)value="$tlang.getString('gen.finish')"#else value="$tlang.getString('gen.continue')" #end onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

@@ -1,0 +1,25 @@
+/* **************************************************************** *
+ *                      Gradebook Print styles                      *
+ * **************************************************************** */
+ 
+ .gb-summary-expand-all,
+ .gb-summary-collapse-all,
+ .gb-summary-category-toggle,
+ #toggleCategories,
+ #gradeSummaryTable-sticky
+ .tablesorter-icon {
+  display: none;
+ }
+
+.gb-summary-grade-panel {
+  height: auto !important;
+}
+
+#gradeSummaryTable {
+  page-break-inside: auto;
+}
+
+#gradeSummaryTable tr {
+  page-break-inside: avoid;
+  page-break-after:auto;
+}

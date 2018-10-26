@@ -1,0 +1,8 @@
+<ol class='serialization vertical h1NestedLevel'>
+
+    ## nested citations
+	#parse( "vm/citation/_listNestedCitations.vm" )
+
+    ## unnested citations
+	#parse( "vm/citation/_listUnnestedCitations.vm" )
+</ol>

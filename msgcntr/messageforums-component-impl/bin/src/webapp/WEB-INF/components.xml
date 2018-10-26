@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.messageforum" 
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/OpenForum.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PrivateForum.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DBMembershipItemImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PermissionLevelImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/EmailNotification.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/SynopticMsgcntrItem.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/HiddenGroupImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageMoveHistory.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Rank.hbm.xml</value>                  
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/RankImage.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/AnonymousMapping.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+	   
+    <bean id="org.sakaiproject.api.app.messageforums.DiscussionForumService" 
+        class="org.sakaiproject.component.app.messageforums.DiscussionForumServiceImpl" init-method="init">
+        <property name="forumManager">
+     		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+        </property>		       
+        <property name="areaManager">
+  	        <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        </property>
+        <property name="messageManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
+        <property name="typeManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		    </property>
+		    <property name="dfManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+        </property> 
+        <property name="permissionManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+        </property> 
+        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+        </property>
+        <property name="authzGroupService">
+            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="siteService">
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
+        </property>
+        <property name="toolManager">
+            <ref bean="org.sakaiproject.tool.api.ToolManager"/>
+        </property>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    </bean>
+	    
+    <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
+        class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl" init-method="init">
+        <property name="typeManager">
+            <ref bean="org.sakaiproject.api.common.type.TypeManager"/>
+        </property>  
+		    <property name="sqlService">
+		     		<ref bean="org.sakaiproject.db.api.SqlService"/>
+		    </property>        
+    </bean>
+     
+    <bean id="org.sakaiproject.api.app.messageforums.DummyDataHelperApi" class="org.sakaiproject.component.app.messageforums.DummyDataHelper">
+        <property name="typeMgr">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        </property>
+    </bean>
+ 
+     <bean id="org.sakaiproject.api.app.messageforums.PermissionManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.PermissionManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+                <property name="areaManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+                </property>
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>		
+		         <property name="defaultPermissionsManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>	       
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager" class="org.sakaiproject.component.app.messageforums.DefaultPermissionsManagerImpl"   init-method="init">
+        <property name="functionManager">
+            <ref bean="org.sakaiproject.authz.api.FunctionManager"/>
+        </property>
+         <property name="authzGroupService">
+           <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
+        <property name="toolManager">
+           <ref bean="org.sakaiproject.tool.api.ToolManager" />
+        </property>
+    </bean>
+     
+    <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl" init-method="init">
+		<property name="toolManager">
+             <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+		</property>
+	    <property name="authzGroupService">
+           <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
+        <property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>		
+	    <property name="permissionManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
+        </property>
+        <property name="permissionLevelManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+        </property>
+        <property name="typeManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+	    </property>
+	    <property name="securityService">
+            <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+        </property>	
+        <property name="forumManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+        </property>   
+        <property name="areaManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        </property>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+     </bean>
+    
+   
+
+    <bean id="org.sakaiproject.api.app.messageforums.PermissionLevelManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.PermissionLevelManagerImpl" init-method="init">
+                <property name="autoDdl">
+                    <value>${auto.ddl}</value>
+                </property>
+                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+		        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		        <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+				<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		        <property name="typeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
+                <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+            </bean>
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.messageforums.AreaManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.AreaManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+		        <property name="forumManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+		        </property>
+		        <property name="siteService">
+		        	<ref bean="org.sakaiproject.site.api.SiteService" />
+		        </property>	
+		        <property name="serverConfigurationService">
+		        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>     
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+
+	<bean id="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.messageforums.MessageForumsForumManagerImpl" init-method="init">
+				<property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+				</property>   
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+	       	</bean>
+		</property>
+		
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>		
+	</bean>
+
+    <bean id="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsMessageManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>				 				
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>				 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
+		        <property name="siteService">
+		        	<ref bean="org.sakaiproject.site.api.SiteService"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.ui.PrivateMessageManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+                <property name="areaManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+                </property>
+                <property name="messageManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+                </property>
+                <property name="forumManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+                </property>						
+   				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>		
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>		 								
+		        <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>			 
+		        <property name="emailService">
+        		    <ref bean="org.sakaiproject.email.api.EmailService"/>
+		        </property>			 		        
+		        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
+		        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+       
+    <bean id="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+                <property name="helper">
+                    <ref bean="org.sakaiproject.api.app.messageforums.DummyDataHelperApi"/>
+                </property>
+                <property name="areaManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+                </property>
+                <property name="messageManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+                </property>							
+                <property name="forumManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+                </property>	
+                <property name="permissionManager">
+                    <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
+                </property>
+                <property name="typeManager">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+		        </property>
+		        <property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>
+				<property name="siteService">
+                  <ref bean="org.sakaiproject.site.api.SiteService"/>
+                </property>
+                <property name="membershipManager">
+                  <ref bean="org.sakaiproject.api.app.messageforums.MembershipManager"/>
+                </property> 
+                <property name="securityService">
+                    <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+                </property>
+                <property name="authzGroupService">
+                    <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+                </property>
+                <property name="sessionManager">
+                    <ref bean="org.sakaiproject.tool.api.SessionManager"/>
+                </property>
+                 <property name="permissionLevelManager">
+		            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
+        		 </property>
+        		 <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
+		        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+		        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.MessageForumsUserManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.MessageForumsUserManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+                <property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>
+				<property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.MembershipManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl" init-method="init">            
+                <property name="siteService">
+                  <ref bean="org.sakaiproject.site.api.SiteService"/>
+                </property>
+                <property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>
+                <property name="authzGroupService">
+                  <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+                </property>
+                <property name="toolManager">
+                  <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+                </property>
+                <property name="securityService">
+                  <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+                </property>              
+		 	    <property name="privacyManager">
+					<ref bean="org.sakaiproject.api.privacy.PrivacyManager" />
+		        </property>
+		        <property name="prtMsgManager">
+		        	<ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
+		        </property>
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.UserPreferencesManager"
+   	   	class="org.sakaiproject.component.app.messageforums.SakaiUserPreferencesManagerImpl">
+   	   	<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService" />
+   	</bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.TopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.TopicEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="uiPermissionsManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+		</property>
+		<property name="messageManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
+        <property name="privateMessageManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+      	</property>
+      	<property name="typeManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        </property>
+        <property name="entityBrokerManager">
+            <ref bean="org.sakaiproject.entitybroker.EntityBrokerManager"/>
+        </property>
+   		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.ForumEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.messageforums.ForumMessageEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl">
+		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="privateMessageManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+      	</property>
+      	<property name="uiPermissionsManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+        </property>
+        <property name="messageManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </property>
+        <property name="securityService">
+        	<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+        </property>
+        <property name="siteService">
+        	<ref bean="org.sakaiproject.site.api.SiteService"/>
+        </property>
+        <property name="userDirectoryService">
+        	<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+        </property>
+    </bean>
+
+	<bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrItemProvider" class="org.sakaiproject.component.app.messageforums.entity.SynopticMsgcntrItemEntityProviderImpl">
+		<property name="synopticMsgcntrManager" ref="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/> 
+    </bean>
+
+
+	<bean id="forumsAdaptor"
+		class="org.sakaiproject.component.app.messageforums.entity.MessageForumsEntityContentProducer"
+		init-method="init">
+		<property name="searchService">
+			<ref bean="org.sakaiproject.search.api.SearchService" />
+		</property>
+		<property name="searchIndexBuilder">
+			<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
+		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		</property>
+		<property name="toolName">
+			<value>forums</value>
+		</property>
+		<property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+		<property name="messageForumsMessageManager"
+			ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" />
+		<property name="UIPermissionManager"
+			ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
+		<property name="discussionForumManager"
+			ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="developerHelperService"
+			ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="addEvents">
+			<list>
+				<value>forums.new</value>
+			</list>
+		</property>
+		<property name="removeEvents">
+			<list>
+				<value>forums.delete</value>
+			</list>
+		</property>
+	</bean>
+    
+    
+    <bean id="org.sakaiproject.api.app.messageforums.EmailNotificationManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.EmailNotificationManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+ 				<property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="discussionForumManager">
+		        	<ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+ 		
+	<bean id="org.sakaiproject.api.app.messageforums.ForumScheduleNotification" class="org.sakaiproject.component.app.messageforums.ForumScheduleNotificationImpl">
+		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="typeManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        </property>
+        <property name="areaManager">
+  	        <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        </property>      
+        <property name="forumManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+         </property>  
+	</bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"     
+ 		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+         <property name="transactionManager">
+             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+         </property>
+ 		<property name="target">
+ 			<bean class="org.sakaiproject.component.app.messageforums.SynopticMsgcntrManagerImpl" init-method="init">
+ 				<property name="sessionFactory">
+                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                 </property>
+                 <property name="pvtMessageManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+                 </property>   
+                
+                 <property name="uiPermissionsManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+                 </property>
+                 <property name="typeManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+                 </property>
+                 <property name="forumManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+                 </property>
+                 <property name="messageManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+                 </property>
+                 <property name="sqlService">
+  	               <ref bean="org.sakaiproject.db.api.SqlService"/>
+                 </property>
+                 <property name="securityService">
+  	               <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+                 </property>
+                 <property name="siteService">
+  	               <ref bean="org.sakaiproject.site.api.SiteService"/>
+                 </property>
+         	</bean>
+ 		</property>
+ 		
+ 		<property name="transactionAttributes">
+ 			<props>
+ 				<prop key="*">PROPAGATION_REQUIRED</prop>
+ 			</props>
+ 		</property>	
+ 
+ 	</bean>
+ 
+ 	
+ 	<bean id="org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts"
+    		class="org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts"
+    		init-method="init">   
+    		<property name="pvtMessageManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+         </property>   
+        
+         <property name="uiPermissionsManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+         </property>
+         <property name="typeManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+         </property>
+         <property name="forumManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+         </property>
+         <property name="messageManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+         </property>
+         <property name="siteService">
+           <ref bean="org.sakaiproject.site.api.SiteService"/>
+         </property>
+         <property name="sqlService">
+         	<ref bean="org.sakaiproject.db.api.SqlService"/>
+         </property>
+         <property name="securityService">
+         	<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+         </property>
+    	</bean>
+    	
+    <bean id="UpdateSynopticMessageCountsJob"
+       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+       init-method="init">
+       <property name="beanId">
+          <value>org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts</value>
+       </property>
+       <property name="jobName">
+          <value>Update Synoptic Message Counts Job</value>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.RankManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.RankManagerImpl" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+ 				<property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>		
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager" />
+				</property>		 								
+		        <property name="contentHostingService">
+        		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
+				<property name="serverConfigurationService">
+					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+				</property>
+				<property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>	
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+ 
+    <bean id="org.sakaiproject.api.app.messageforums.AnonymousManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.AnonymousManagerImpl">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+                <property name="serverConfigurationService">
+                    <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+                </property>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+</beans>

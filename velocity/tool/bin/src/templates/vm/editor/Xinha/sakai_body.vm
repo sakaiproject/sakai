@@ -1,0 +1,15 @@
+	<script type="text/javascript">
+		var _editor_url = "#libraryLink("editor/$!sakai_editor/")"
+		var _editor_lang = "en";
+	</script>
+	<script type="text/javascript" language="JavaScript" src="#libraryLink('editor/Xinha/htmlarea.js')">
+	</script>
+	<script type="text/javascript" language="JavaScript" src="#libraryLink('editor/Xinha/htmlarea_css.js')">
+	</script>
+#if($!twinpeaks)
+	<script type="text/javascript" language="JavaScript" src="#libraryLink('editor/Xinha/sakai_editor_twinpeaks.js')">
+	</script>
+#else
+	<script type="text/javascript" language="JavaScript" src="#libraryLink('editor/Xinha/sakai_editor.js')">
+	</script>
+#end

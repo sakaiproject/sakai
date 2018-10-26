@@ -1,0 +1,46 @@
+##<!-- $Header: $ -->
+<div class="portletBody">
+	<h3 class ="insCo insBor insBak">
+		$tlang.getString("site.creating")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	<form action="#toolForm("$action")" method="post">
+		<table class ="itemSummary" cellspacing="0" summary="info on the new project site">
+			<tr>
+				<th>
+					$tlang.getString("site.sname")
+				</th>
+				<td>
+					$validator.escapeHtml($title)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("site.descr")
+				</th>
+				<td>
+					$validator.escapeHtml($description)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("site.short")
+				</th>
+				<td>
+					$validator.escapeHtml($short_description)
+				</td>
+			</tr>
+		</table>
+
+		<input type="hidden" name="back" value="$!backIndex" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<input type="hidden" name="continue" value="0" />
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doFinish_site_type_tools" value="$tlang.getString('site.create')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

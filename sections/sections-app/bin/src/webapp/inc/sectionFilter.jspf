@@ -1,0 +1,42 @@
+
+
+	<t:div rendered="#{filterBean.displaySplitFilter}">
+
+		<h:outputText value="#{msgs.student_view_view}"/>
+
+		<h:selectOneMenu value="#{filterBean.myFilter}" onchange="this.form.submit()" rendered="#{filterBean.sectionAssignable}" immediate="true">
+			<f:selectItem itemLabel="#{msgs.student_view_all}" itemValue=""/>
+			<f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
+		</h:selectOneMenu>
+
+		<h:selectOneMenu value="#{filterBean.categoryFilter}" onchange="this.form.submit()">
+			<f:selectItem itemLabel="#{msgs.student_view_sections}" itemValue=""/>
+			<f:selectItems value="#{filterBean.categorySelectItems}"/>
+		</h:selectOneMenu>
+
+	</t:div>
+
+
+	<t:div rendered="#{filterBean.displaySingleFilter}">
+
+		<h:outputText value="#{msgs.student_view_view_all}"/>
+
+		<h:selectOneMenu value="#{filterBean.categoryFilter}" onchange="this.form.submit()">
+			<f:selectItem itemLabel="#{msgs.student_view_sections}" itemValue=""/>
+			<f:selectItems value="#{filterBean.categorySelectItems}"/>
+		</h:selectOneMenu>
+
+	</t:div>
+
+	
+	<t:div rendered="#{filterBean.displayCompactFilter}">
+
+		<h:outputText value="#{msgs.student_view_view}"/>
+
+		<h:selectOneMenu value="#{filterBean.myFilter}" onchange="this.form.submit()">
+			<f:selectItem itemLabel="#{msgs.filter_all_sections}" itemValue=""/>
+			<f:selectItem itemLabel="#{msgs.filter_my_sections}" itemValue="MY"/>
+		</h:selectOneMenu>
+
+	</t:div>
+	

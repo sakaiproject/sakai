@@ -1,0 +1,258 @@
+﻿﻿﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>Олон нөөцүүдийг оруулах-татах</title>
+		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+	</script>
+	<script>includeLatestJQuery('webdav_instructions_mn.html');</script>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+	function trim(s){
+		if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
+		}
+	function splitedWebDavLink() {
+		return $(parent.document.getElementById("webDavUrl")).val().split('/');
+	}
+	var swdl = splitedWebDavLink();
+	function localizeData() {
+		for(i=0; (p = document.getElementsByTagName("span")[i]); i++) {
+			if (p.className=='webDavPort') {
+				p.innerHTML=getHostPort();
+			}
+			if (p.className=='webDavHostName') {
+				p.innerHTML=getServerName();
+			}
+			if (p.className=='webDavUrlEncoded') {
+				p.innerHTML=getBaseUrlEncoded();
+			}
+			if (p.className=='webDavService') {
+				p.innerHTML=getWebDavType();
+			}
+			if (p.className=='webDavFolderUrlEncoded') {
+				p.innerHTML=getFolderUrlEncoded();
+			}
+		}
+	}
+	function getBaseUrlEncoded() {
+		return '<b>'+swdl[0]+'//'+swdl[2]+'/'+swdl[3]+'/'+escape(swdl[4]).replace('@','%40')+'</b>';
+	}
+	function getFolderUrlEncoded() {
+		var folder = '<b>'+swdl[3];
+		for (var i = 4; i < swdl.length; i++) {
+			folder+='/'+swdl[i];
+		}
+		folder+='</b>';
+		return folder;
+	}
+	function getHostPort() {
+		// Return HTTP specific port
+		if (swdl[2].indexOf(":")>0) return swdl[2].substring(swdl[2].indexOf(':')+1);
+		else {
+			// Return HTTP default ports
+			if (swdl[0]=='https:') return '443';
+			else return '80';
+		}
+	}
+	function getWebDavType() {
+		if (swdl[0]=='https:') return '(HTTP/SSL)';
+		else return '';
+	}
+	function getServerName() {
+		// remove the port
+		if (swdl[2].indexOf(":")>0) return swdl[2].substring(0,swdl[2].indexOf(':'));
+		else {
+			return swdl[2];
+		}
+	}
+	
+		// -->
+		</script>
+		
+	</head>
+<body onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):'';localizeData()">
+		<div>
+		  <div id="davdocs_step2">
+			
+		    <p><strong>Үе шат 2 - </strong>Доороос ажиллуулах системээ сонгоод тохиргоо хийх зааварчилгааг дагана уу:</p>
+		    <ul>
+				<li><a href="#vista_7">Windows Vista/Windows 7</a></li>
+				<li><a href="#osx">Mac OS 10.0 - 10.3</a></li>
+				<li><a href="#osx_tiger">Mac OS 10.4 and up</a></li>
+				<li><a href="#linux_gnome">Linux (Gnome)</a></li>
+				<li><a href="#linux_kde">Linux (KDE)</a></li>
+				<li><a href="#linux_console">Linux console</a></li>
+			</ul>
+	 	  </div>
+			
+			<div class="webdav_os">
+				<a name="vista_7"></a>
+				<h4>Windows Vista/Windows 7-д WebDAV-ын тохиргоо хийх </h4>
+
+				<p><strong>Анхааруулга</strong>:<em>Windows Vista</em> дахь Сакайн WebDAV-г хэрэглэхийн тулд Vista Service Pack 2-ыг суулгасан байх ёстой. Хэрэв та одоохондоо Service Pack 2-ыг суулгаж амжаагүй бол <strong>Start &gt; All Programs &gt; Windows Update</strong>-ыг дарж Windows Update-ыг ажиллуулна уу.</p>
+
+ 	            <ol>
+                	<li>Desktop-оос юмуу Start цэсээс <strong>Computer</strong>-ыг дар.</li>
+                    <li>Цонхны дээд хэсэг дэх <strong>Map Network Drive</strong>-ыг дар.</li>
+					<li> <em>Drive</em> drop down цэсээс сул байгаа чиглүүлэх үсгийг (e.g., Z)сонго.</li>
+                    <li><em>Folder</em>-ын хэсэгт дээр харуулсан энэ сайтын URL-ыг бич (эсвэл хуулаад paste хий). <strong>Finish</strong>-ыг дар.</li>
+                    <li>Хэрэгтэй бол Сакайнхаа хэрэглэгчийн нэр, нууц үгээ оруулаад <strong>OK</strong>-ыг дар.</li>
+					<li>Одоо та файлууд болон фолдеруудаа компютер, сайтынхаа нөөц фолдер хоёрын хооронд чирэх боломжтой.</li>
+				</ol>
+			
+				<p>Тохиргоо хийгдэж дуусахаар сургалт юмуу төслийн нөөцүүдийн фолдер нь Windows Explorer-ын бусад drive-ын адил ажиллах Computer-ын доор drive хэлбэрээр гарч ирнэ. Одоо та файлууд болон фолдеруудаа компютер, сайтынхаа нөөц фолдер хоёрын хооронд чирэх боломжтой.</p>
+			
+				<h5> Windows Vista/Windows 7-д WebDAV-ын тохиргоо хийх өөр нэг арга</h5>
+			
+				<p>Хэрэв дээрх үйлдэл холболтын алдаа үүсгэвэл  <strong>AnyClient</strong> гэж нэрлэгддэг гуравдагч талын клиент компютерыг ашиглан файлуудруугаа нэвтрэхийн тулд WebDAV-ын үйл ажиллагааг ашиглаж болно. Татах, суулгах, болон AnyClient-ыг брдүүлэхийн тулд энэ үйлдлийг дага.</p>
+			
+				<ol>
+			  		<li>AnyClient WebDAV client-ыг <a href="http://www.anyclient.com" target="_blank">http://www.anyclient.com</a>-аас татаж аваарай.</li>
+			  		<li> <strong>install.exe</strong> файлыг ажиллуулж, тохиргооны Визардыг хийж дуусгана.</li>
+			  		<li>Хэрэв суулгах программ AnyClient-ыг автоматаар ажиллуулахгүй бол AnyClient-ыг нээхийн тулд <strong>Start &gt; All Programs &gt; AnyClient &gt; AnyClient</strong>-ыг дар.</li>
+			  		<li>Зүүн доод булан дахь <strong>Connect</strong>-ын дар.</li>
+			  		<li>Зүүн доод булан дахь <strong>New</strong>-ын дарж зүүн тал дахь цэсэнд энэ холболтод утга учиртай нэр өгөөрэй ( <em>History 101 Resources</em> г.м).</li>
+			  		<li> <em>Host</em> харилцах цонхон дахь <b>step 1</b>-д, дээр харуулснаар замаа бичнэ(эсвэл хуулаад paste хийнэ).</li>
+					<li>Сакайн хэрэглэгчийн нэр, нууц үгээ бичнэ.</li>
+			  		<li> <em>Connection type</em> дроп бокст WebDAV-ыг сонгоно.</li>
+			  		<li>Дахин хэрэглэх энэ холболтоо хадгалахын тулд цонхны доод хэсэг дэх <strong>Save</strong>-ыг дараад <strong>Connect</strong>-ыг дар.</li>
+			  	</ol>
+
+			</div>
+
+			<div class="webdav_os">
+				<a name="osx"></a>
+				<h4>Cyberduck-ыг ашиглан Mac-д WebDAV-ын тохиргоо хийх</h4>
+
+				<ol>
+					<li>Cyberduck WebDAV client-ыг татах.
+					  <ul>
+					    <li> OS X version 10.5-ыг юмуу сүүлийн хувилбарыг авах бол Хамгийн сүүлийн үеийн програм хангамжийг: <a href="http://cyberduck.ch/" target="_blank">http://cyberduck.ch/</a>-аас татаарай</li>
+					    <li>OS X versions 10.5-ын өмнөх хувилбарыг авах бол Cyberduck WebDAV client-ыг: <a href="http://update.cyberduck.ch/Cyberduck-2.8.5.dmg" target="_blank">http://update.cyberduck.ch/Cyberduck-2.8.5.dmg</a>-аас татаарай</li>
+					  </ul>
+Хамгийн сүүлийн үеийн програм хангамжийг: <a href="http://cyberduck.ch/" target="_blank">http://cyberduck.ch/</a>-аас татаж аваарай</li>
+					<li>Файлыг багасгаад .dmg файлыг давхар дар. (Багасгах програм хангамжийн тохиргооноос хамааран дискийн дүрс автоматаар ачаалж магадгүй.)</li>
+					<li><em>Cyberduck-2.8.5</em>-тай ойролцоо нэртэй дискийн дүрс одоо нээлттэй болох ёстой. Фолдероо зүгээр л дискийн дүрсээс хэрэглээний програмын фолдерлуугаа чирээд тавь.</li>
+					<li>Хэрэглээний програмынхаа фолдерт Cyberduck хэрэглээний програмыг нээ.</li>
+					<li> <strong>Open Connection</strong> товчийг дар.</li>
+					<li>WebDAV-ыг сонго <span class="webDavService"></span></li>
+					<li> <b>Server</b>-д  <b><span class="webDavHostName">hostname</span></b> бичнэ(эсвэл хуулаад paste хийнэ):</li>
+					<li><b>Port</b>-д <span class="webDavPort">80</span> бичнэ(эсвэл хуулаад paste хийнэ):</li>
+					<li>Сакайн хэрэглэгчийн нэр, нууц үгээ бичнэ.</li>
+					<li> <i>More options</i> дээр дарж  <b>Folder</b>-д "Үе шат 1"-ын сүүлийн хэсгийн URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>бичнэ(эсвэл хуулаад paste хийнэ):</li>
+					<li>Одоо <b>Connect</b>-ыг дар.</li>
+				</ol>
+
+				<p>Сайтад чинь байгаа нөөцүүдийг харуулах Mac дэлгэцэн дээрээ та одоо цонх харах болно. Сакайн сайтын нөөцийн фолдероос болон фолдерлуу файл шилжүүлэх бол Mac дээрх энэ цонх болон бусад илрүүлэгч цонхнуудын хооронд зүгээр л чирээд тавь.</p>
+
+			</div>
+
+			<div class="webdav_os">
+				<a name="osx_tiger"></a>
+				<h4>Mac (OS 10.4 - 10.6)-д WebDAV-ын тохиргоо хийх </h4>
+			
+				<p><strong>Анхааруулга</strong>: OS X-ын тодорхой шинэчлэлээс хамааран Macintosh илрүүлэгч дэх Webdav-ын тусламж ашиглахад хэтэрхий дутуу дулимаг байж магадгүй. Хэрэв танд энэ тал дээр асуудал гарвал <a href="#osx">Cyberduck</a>-ыг ашиглаарай.
+
+				<ol>
+					<li>Илрүүлэгч дэх дэлгэцийн дээд тал дахь цэсээс <strong>Go &gt; Connect to Server...</strong>-ыг сонго</li>
+					<li><em>Server Address</em> харилцах цонхноос <b>step 1</b>-д дээр харуулснаар замаа бичнэ(эсвэл хуулаад paste хийнэ).</li>
+					<li>Дахин хэрэглэхээр энэхүү замаа хадгалахын тулд <strong>+</strong> товчийг дар.</li>
+					<li> <strong>Connect</strong>-ыг дар.</li>
+					<li>Хэрэглэгчийн нэр, нууц үгээ бичээд <strong>Connect</strong>-ыг дар.</li>
+				</ol>
+
+				<p>Сайт дахь нөөцүүдийг харуулах дэлгэцэн дээр одоо та цонх харах болно. Одоо та энэ цонхноос юмуу энэ цонхруу файлуудыг чирээд тавьж болох бөгөөд файлуудыг хогийн савруу чирж устгах боломжтой.</p>
+
+			</div>
+			
+			<div class="webdav_os">
+				<a name="linux_gnome"></a>
+				<h3>Linux (Gnome)-д WebDAV-ын тохиргоо хийх </h3>
+				
+				<p><strong>Анхаар</strong>:Linux-ын зарим хувилбарууд нь Home-ын нөөцөд нэвтрэхэд асуудал гарч болзошгүй боловч бусад бүх сайтын төрлүүдрүү нэвтрэхэд зүгээр ажиллана (сургалт, төсөл, г.м).</p>
+				<ol>
+					<li> <b>Places &gt; Connect to Server...</b>-руу ор</li>
+					<li> <b>Service type</b> дахь WebDav-ыг сонго <span class="webDavService"></span>.</li>
+					<li> <b>Server</b>-д бичнэ(эсвэл хуулаад paste хийнэ): <b><span class="webDavHostName">hostname</span></b></li>
+					<li> <b>Port</b>-д бичнэ(эсвэл хуулаад paste хийнэ): <span class="webDavPort">80</span></li>										
+					<li> <b>Folder</b>-д "Үе шат 1"-ын сүүлийн хэсгийн URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>-ыг бичнэ(эсвэл хуулаад paste хийнэ)</li>
+					<li> Хувилбарыг шалгана <b>Add bookmark</b></li>
+					<li> <b>Bookmark name</b>-д "Network"-ын доор үүсгэх фолдерынхоо нэрийг оруулаад <strong>Next</strong>-ыг дар.</li>
+					<li>Одоо <b>Connect</b> дээр дар.</li>
+					<li>Эцэст нь Сакайн нууц үгээ оруулах хэрэгтэй болно.</li>			
+				</ol>
+				
+				<p>Одоо та <b>Places</b>-ын доор шинэ drive-ыг харах болно. Энэ нь сайт дахь нөөцүүдийг төлөөлнө. Энэ компютер дээрх бусад фолдеруудтай адилхан ажиллана. Одоо та энэ цонхноос юмуу энэ цонхруу файлуудыг чирээд тавьж болох бөгөөд файлуудыг хогийн савруу чирж устгах боломжтой.</p>
+
+				
+			</div>
+
+			<div class="webdav_os">
+				<a name="linux_kde"></a>
+				<h3>Linux (KDE)-д WebDAV-ын тохиргоо хийх </h3>
+				
+				<p><strong>Анхаар</strong>: Linux-ын зарим хувилбарууд нь Home-ын нөөцөд нэвтрэхэд асуудал гарч болзошгүй боловч бусад бүх сайтын төрлүүдрүү нэвтрэхэд зүгээр ажиллана (сургалт, төсөл, г.м).</p>
+				<ol>
+					<li>Файл менежерыг нээ <em>(Dolphin)</em>.</li>
+					<li>Зүүн тал дахь <strong>Places</strong>-д <b>Network</b>-ыг сонго.</li>
+					<li> <b>Add network folder</b> дээр дар.</li>
+					<li> <em>web folder (webdav)</em>-ыг шалгаад <em>Next</em> дээр дар.</li>
+					<li> <b>Name</b>-д  "Network"-ын доор үүсгэх фолдерынхоо нэрийг оруулаад <strong>Next</strong>-ыг дар.</li>
+					<li> <b>User</b>-д Сакайн хэрэглэгчийн нэрээ оруул.</li>
+					<li> <b>Server</b>-д <b><span class="webDavHostName">hostname</span></b>-ыг бичнэ(эсвэл хуулаад paste хийнэ):</li>
+					<li> <b>Folder</b>-д "Үе шат 1"-ын сүүлийн хэсгийн URL: <em><span class="webDavFolderUrlEncoded">dav/xxxx-xxxx-xxxx</span></em>-ыг бичнэ(эсвэл хуулаад paste хийнэ)</li>
+					<li>Хэрэв URL нь HTTPS-ыг ашигладаг бол <b>Encoded</b> хувилбарыг шалга, порт нь автоматаар <span class="webDavPort">80</span> болж өөрчлөгдөнө.</li>
+					<li> <b>Create an icon for this remote folder</b> хувилбарыг шалга.</li>
+					<li>Одоо <b>Save and connect</b> дээр дар.</li>	
+					<li>Эцэст нь Сакайн нууц үгээ оруулах хэрэгтэй болно.</li>					
+				</ol>
+				
+				<p>Одоо та <em>(Dolphin)</em> файл менежер дотор <b>Network</b>-ын доор шинэ drive-ыг харах болно. Энэ нь сайт дахь нөөцүүдийг төлөөлнө. Энэ компютер дээрх бусад фолдеруудтай адилхан ажиллана. Одоо та энэ цонхноос юмуу энэ цонхруу файлуудыг чирээд тавьж болох бөгөөд файлуудыг хогийн савруу чирж устгах боломжтой.</p>
+				
+			</div>
+			
+			<div class="webdav_os">
+				<a name="linux_console"></a>
+				<h3>Linux (console)-д WebDAV-ын тохиргоо хийх</h3>
+					
+				<ol>
+					<li>Шинэ терминалыг нээ.</li>
+					<li>Коммандаа бич <strong>cadaver <span class="webDavUrlEncoded">URL from Step 1</span></strong></li>
+					<li>Та магадгүй гэрчилгээг хүлээн зөвшөөрөх хэрэгтэй болно</li>
+					<li>Сакайнхаа хэрэглэгчийн нэр, нууц үгээ бич</li>
+					<li>Одоо та коммандын эгнээнээс баримт татаж, оруулж болно.</li>					
+				</ol>
+							
+				<p>Бүх боломжит коммандуудыг авах бол <b>help</b>-ыг дар.</p>						
+			</div>
+
+		</div>
+
+	</body>
+</html>

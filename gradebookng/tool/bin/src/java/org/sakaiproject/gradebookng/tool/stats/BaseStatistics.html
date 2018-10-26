@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+	<wicket:panel>
+		
+		<dl class="dl-horizontal">
+			<dt><wicket:message key="label.statistics.average"></wicket:message></dt>
+			<dd wicket:id="average"></dd>
+			<dt><wicket:message key="label.statistics.median"></wicket:message></dt>
+			<dd wicket:id="median"></dd>
+			<dt><wicket:message key="label.statistics.deviation"></wicket:message></dt>
+			<dd wicket:id="deviation"></dd>
+			<dt><wicket:message key="label.statistics.lowest"></wicket:message></dt>
+			<dd wicket:id="lowest"></dd>
+			<dt><wicket:message key="label.statistics.highest"></wicket:message></dt>
+			<dd wicket:id="highest"></dd>
+			<dt><wicket:message key="label.statistics.graded"></wicket:message></dt>
+			<dd wicket:id="graded"></dd>
+			
+			<!--  subclasses can add additional stats within a wicket:extend wrapper, and they will be added here -->
+			<wicket:child />
+		</dl>
+
+	</wicket:panel>
+</body>
+</html>

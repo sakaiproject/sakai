@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="<%= request.getAttribute("sakai.html.head.lang") %>">
+
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf/section" prefix="sec"%>
+
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="sections"/>
+</jsp:useBean>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/xml; charset=UTF-8" />
+		<title>Sections</title>
+		<%= request.getAttribute("sakai.html.head.css.base") %>
+		<!-- Insert local css here -->
+		<link href="${pageContext.request.contextPath}/css/sections.css" type="text/css" rel="stylesheet" media="all" />
+		<%= request.getAttribute("sakai.html.head.css.skin") %>
+		<%= request.getAttribute("sakai.html.head.js") %>
+		<!-- Insert local js here -->
+		<script type="text/javascript" src="${pageContext.request.contextPath}/js/sections.js"> </script>
+		<script type="text/javascript">includeLatestJQuery('polls');</script>
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+        <link type="text/css" href="/library/js/jquery/ui/1.12.1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
+        <script>
+			$(document).ready(function(){
+				<%=request.getAttribute("sakai.html.body.onload")%>
+				prepForms();
+				setTimeout('setSectionPageFocus()',1);
+			});
+        </script>
+	</head>
+	<body>
