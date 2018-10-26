@@ -65,6 +65,9 @@
         e.stopPropagation();
         console.log('event stopped at host');
       },
+      closeOpen: function() {
+        $('.show-tooltip .cancel').click();
+      },
       activate: function() {
         this.fire('activate');
       },
@@ -72,6 +75,7 @@
         e.stopPropagation();
 
         if (!hasClass(this.tt, 'show-tooltip')) {
+          this.closeOpen();
           this.popoverOpen = "true";
           var triggerPosition = altOffset(e.target);
 
