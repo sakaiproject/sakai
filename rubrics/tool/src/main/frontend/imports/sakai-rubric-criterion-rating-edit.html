@@ -76,11 +76,15 @@
         e.stopPropagation();
         console.log('event stopped at host');
       },
+      closeOpen: function() {
+        $('.show-tooltip .cancel').click();
+      },
       editCriterion: function(e) {
         e.stopPropagation();
         var titleinput = this.tt.querySelector('[type="text"]');
 
         if (!hasClass(this.tt, 'show-tooltip')) {
+          this.closeOpen();
           var triggerPosition = altOffset(e.target);
 
           addClass(this.tt, 'show-tooltip');
