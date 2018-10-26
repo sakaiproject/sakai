@@ -468,7 +468,7 @@ public class GradingServiceTest {
         Assert.assertEquals("this is 10 + 5 + 1 = {{formula1}}", result);
 
         input = "this is {var1} + {var2} + {var3} = {{formula1}}, total=[[{var1}+{var2}+{var3}]]";
-        expected = "this is 10 + 5 + 1 = {{formula1}}, total=[[10+5+1]]";
+        expected = "this is 10 + 5 + 1 = {{formula1}}, total=[[10+(5)+(1)]]";
         expected2 = "this is 10 + 5 + 1 = {{formula1}}, total=16";
         map = new HashMap<String, String>() {{
             put("var1", "10");
