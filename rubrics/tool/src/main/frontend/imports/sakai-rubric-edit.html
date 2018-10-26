@@ -54,12 +54,16 @@
         e.stopPropagation();
         console.log('event stopped at host');
       },
+      closeOpen: function() {
+        $('.show-tooltip .cancel').click();
+      },
       editRubric: function(e) {
         e.stopPropagation();
         var titleinput = this.tt.querySelector('[type="text"]');
         this.fire('show-tooltip', this.rubric);
 
         if (!hasClass(this.tt, 'show-tooltip')) {
+          this.closeOpen();
           this.popoverOpen = "true";
           var triggerPosition = altOffset(e.target);
 
