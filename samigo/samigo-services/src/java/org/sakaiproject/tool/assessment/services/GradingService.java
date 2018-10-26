@@ -108,28 +108,31 @@ public class GradingService
   public static final String ANSWER_TYPE_REAL = "REAL";
 
   // CALCULATED_QUESTION
-  final String OPEN_BRACKET = "\\{";
-  final String CLOSE_BRACKET = "\\}";
-  final String CALCULATION_OPEN = "[["; // not regex safe
-  final String CALCULATION_CLOSE = "]]"; // not regex safe
-  final String FORMAT_MASK = "0E0";
-  final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
-  final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
+  public static final String OPEN_BRACKET = "\\{";
+  public static final String CLOSE_BRACKET = "\\}";
+  public static final String CALCULATION_OPEN = "[["; // not regex safe
+  public static final String CALCULATION_CLOSE = "]]"; // not regex safe
+  public static final String FORMAT_MASK = "0E0";
+  public static final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
+  public static final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
    * NOTE: Old regex: ([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#`~&:;|,/<>\\[\\]\\\\\\'\"]+?)
    * was way too complicated.
    */
-  final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
-  final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
+  public static final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
+  public static final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
+  public static final String CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED = OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET;
 
   // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
-  final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + "(?!\\})");
-  final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + CLOSE_BRACKET);
-  final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
-  final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
-
+  public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
+  public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
+  public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
+  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
+  // SAK-39922
+  public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("(?<!\\{)-" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
+  public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("(?<!\\{)\\+" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
   /**
    * Get all scores for a published assessment from the back end.
    */
@@ -3073,6 +3076,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   public String replaceMappedVariablesWithNumbers(String expression, Map<String, String> variables) {
       if (expression == null) {
           expression = "";
+      }
+      else {
+    	  String checkDoubleMinus = CALCQ_ANSWER_AVOID_DOUBLE_MINUS.matcher(expression).replaceAll("-({$1})");
+    	  expression = CALCQ_ANSWER_AVOID_PLUS_MINUS.matcher(checkDoubleMinus).replaceAll("+({$1})");
       }
 
       if (variables == null) {
