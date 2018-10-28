@@ -1725,14 +1725,22 @@ public class SimplePageBean {
 		    // have an item number specified, look for the item to insert before
 		    for (SimplePageItem item: items) {
 			if (item.getId() == before) {
-			    // found item to insert before
-			    // use its sequence and bump up it and all after
-			    nseq = item.getSequence();
-			    after = true;
-			    if (addAfter) {
-				nseq++;
-				continue;
-			    }
+				//if Comments Section item, find the biggest sequence
+				//and assign nseq to be after it for the new item
+				if(isCommentsItem(item)) {
+					nseq = findNextSequence(items);
+				}
+				//for all the other regular items
+				else {
+					// found item to insert before
+					// use its sequence and bump up it and all after
+					nseq = item.getSequence();
+					after = true;
+					if (addAfter) {
+						nseq++;
+						continue;
+					}
+				}
 			}
 			if (after && item.getPageId() >= 0) {
 			    item.setSequence(item.getSequence() + 1);
@@ -5611,6 +5619,19 @@ public class SimplePageBean {
 	    if (fixupType != 0)
 		lessonBuilderEntityProducer.fixupGroupRefs(getCurrentSiteId(), this, fixupType);
 
+	}
+
+	private boolean isCommentsItem(SimplePageItem item) {
+		return item.getType() == SimplePageItem.COMMENTS;
+	}
+
+	private int findNextSequence(List<SimplePageItem> items) {
+		int nseq = 0;
+		for (SimplePageItem item : items) {
+			if( item.getSequence() > nseq)
+				nseq = item.getSequence();
+		}
+		return nseq++;
 	}
 
 	public boolean isItemAvailable(SimplePageItem item) {
