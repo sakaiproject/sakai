@@ -198,15 +198,26 @@
 				</li>
 				</ul></f:verbatim>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
+					<f:verbatim><div class="instruction"></f:verbatim>
+						<h:outputText value="#{msgs.reorderInstruction}" />
+						<f:verbatim><span class="sr-only"></f:verbatim>
+							<h:outputText value="#{msgs.reorderInstruction_sr}" />
+						<f:verbatim></span></f:verbatim>
+					<f:verbatim></div></f:verbatim>
 					<f:verbatim>
 						<div>
 							<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
 							<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
 						</div>
+
+						<span id="lastMoveArray" class="hidden"></span>
+						<span id="lastMoveArrayInit" class="hidden"></span>
+						<span id="lastItemMoved" class="hidden"></span>
+
 						<div id="accordion">
 					</f:verbatim>
-					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple" styleClass="accordion-items-container">
-						<f:verbatim><div><div class="group" syllabusItem="</f:verbatim>
+					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple" styleClass="accordion-items-container" id="reorder-list">
+						<f:verbatim><div class="reorder-element"><div class="group" syllabusItem="</f:verbatim>
 						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
 						<f:verbatim>"><h3></f:verbatim>
 						<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">

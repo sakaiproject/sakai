@@ -54,7 +54,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	if(isInstructor){
 		$( "#accordion span" ).sortable({
 			axis: "y",
-			handle: "h3 span.handleIcon",
+			handle: ".group",
 			start: function(event, ui){
 			dragStartIndex = ui.item.index();
 		},
@@ -69,10 +69,56 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 			if(moved !== 0){
 				//update the position:
 				postAjax($(ui.item).children(":first").attr("syllabusItem"), {"move": moved}, msgs);
+				updatePositions();
 			}
 		}
 		});
+		var itemsOrder = [];
+		function updatePositions() {
+			itemsOrder = [];
+			$('.reorder-element .group').each(function() {
+				itemsOrder.push($(this).attr('syllabusitem'));
+			});
+		}
+		updatePositions()
+		var saveTimeout;
+		$('#lastItemMoved').change(function() {
+			// Clear the enqueued positions save
+			clearTimeout(saveTimeout);
+			syllabusId = $(this).text();
+			syllabusItem = $('#' + syllabusId).parent().attr('syllabusitem');
+			saveTimeout = setTimeout(function(){
+				// Save the positions after 500ms with no more changes
+				// First of all save the selected item
+				var positionBefore = itemsOrder.indexOf(syllabusItem);
+				var index = $('#' + syllabusId).parent().parent().index();
+				var move = positionBefore - index;
+				if (move !== 0) {
+					postAjax(syllabusItem, {"move": move}, msgs);
+					itemsOrder.move(positionBefore, index);
+				}
+				var index = 0;
+				// After this, check if other elements also should be saved (mulitple changes)
+				$('.reorder-element .group').each(function() {
+					var syllabusItem = $(this).attr('syllabusitem');
+					var positionBefore = itemsOrder.indexOf(syllabusItem);
+					var move = positionBefore - index;
+					if (move === 0) {
+						index++;
+						return;
+					}
+					// This request should send all the array of positions in order to make it asynchronous (this logic will need a change)
+					postAjax(syllabusItem, {"move": move}, msgs);
+					itemsOrder.move(positionBefore, index);
+					index++;
+				});
+			}, 500);
+		});
 	}
+	Array.prototype.move = function(from,to){
+		this.splice(to,0,this.splice(from,1)[0]);
+		return this;
+	};
 	if(activeVar === false && openDataId && openDataId !== ''){
 		//instructor is working on this data item, keep it open and focused on when refreshing
 		$( "#accordion div[syllabusItem=" + openDataId + "].group .ui-accordion-header").click().focus();
