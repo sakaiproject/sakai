@@ -33,6 +33,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -310,6 +311,25 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     return list.isEmpty() ? null : list.get(0);
  }
 
+  public void removeItemAttachment(Long itemAttachmentId) {
+    ItemAttachment itemAttachment = getHibernateTemplate().load(ItemAttachment.class, itemAttachmentId);
+    ItemDataIfc item = itemAttachment.getItem();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+    while (retryCount > 0) {
+      try {
+        if (item != null) {
+          Set set = item.getItemAttachmentSet();
+          set.remove(itemAttachment);
+          getHibernateTemplate().delete(getHibernateTemplate().merge(itemAttachment));
+          retryCount = 0;
+        }
+      } catch (Exception e) {
+        log.warn("Error while trying to delete itemAttachment: " + e.getMessage());
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+      }
+    }
+  }
+ 
   /**
    * Similar to saveItem(ItemFacade item), only we can process many items within a single transaction, thereby improving performance
    * @param items
@@ -335,8 +355,14 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
             item.setItemId(itemdata.getItemId());
             retryCount = 0;
           } catch (Exception e) {
-            log.warn("saveitems - problem save or update itemdata: {}", e.getMessage());
-            retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+            try{
+              itemdata = getHibernateTemplate().merge(itemdata);
+              item.setItemId(itemdata.getItemId());
+              retryCount = 0;
+            } catch (Exception e2) {
+              log.warn("saveitems - problem save or update itemdata: {}", e2.getMessage());
+              retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e2, retryCount);
+            }
           }
         }
 

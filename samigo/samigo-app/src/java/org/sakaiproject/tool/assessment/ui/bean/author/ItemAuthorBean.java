@@ -1202,7 +1202,7 @@ public class ItemAuthorBean
     ItemService service = loadItemService(isEditPendingAssessmentFlow);
     ItemFacade itemData = null;
     // itemId == null => new questiion
-    if (this.itemId!=null){
+    if (StringUtils.isNotEmpty(this.itemId)){
       try{
         itemData = service.getItem(this.itemId);
       }
