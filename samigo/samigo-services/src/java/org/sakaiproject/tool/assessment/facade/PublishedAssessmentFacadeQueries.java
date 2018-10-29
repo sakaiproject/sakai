@@ -2518,7 +2518,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public void removeSectionAttachment(Long sectionAttachmentId) {
 		PublishedSectionAttachment sectionAttachment = getHibernateTemplate().load(PublishedSectionAttachment.class, sectionAttachmentId);
 		SectionDataIfc section = sectionAttachment.getSection();
-		// String resourceId = sectionAttachment.getResourceId();
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {

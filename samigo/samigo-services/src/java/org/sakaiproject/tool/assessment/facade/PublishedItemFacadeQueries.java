@@ -29,7 +29,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -234,7 +236,6 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 				getHibernateTemplate());
 	}
 
-
 	@Override
 	public List<Long> getPublishedItemsIdsByHash(String hash) {
 		final HibernateCallback<List<Long>> hcb = session -> {
@@ -245,7 +246,6 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		List<Long> list1 = getHibernateTemplate().execute(hcb);
 		return list1;
 	}
-
 
 	@Override
 	public Long getPublishedAssessmentId(Long itemId) {
@@ -262,5 +262,23 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		}
 	}
 
-
+	@Override
+ 	public void removeItemAttachment(Long itemAttachmentId) {
+		PublishedItemAttachment itemAttachment = getHibernateTemplate().load(PublishedItemAttachment.class, itemAttachmentId);
+		ItemDataIfc item = itemAttachment.getItem();
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		while (retryCount > 0) {
+			try {
+				if (item != null) {
+					Set set = item.getItemAttachmentSet();
+					set.remove(itemAttachment);
+					getHibernateTemplate().delete(getHibernateTemplate().merge(itemAttachment));
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("Error while trying to delete PublishedItemAttachment: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
+			}
+		}
+	}
 }
