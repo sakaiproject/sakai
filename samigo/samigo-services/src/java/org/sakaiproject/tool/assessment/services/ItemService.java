@@ -464,6 +464,15 @@ public class ItemService
     }
   }
   
+  public void removeItemAttachment(Long attachmentId) {
+    try {
+      PersistenceService.getInstance().getItemFacadeQueries().removeItemAttachment(attachmentId);
+    } catch(Exception e) {
+      log.error(e.getMessage(), e);
+      throw new RuntimeException(e);
+    }
+  }
+  
   /**
    * Save favorite column choices for matrix survey question.
    */
