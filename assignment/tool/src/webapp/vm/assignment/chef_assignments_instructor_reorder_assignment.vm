@@ -85,7 +85,7 @@
 			#set($count = 1)
 			#foreach($assignment in $assignments)
 
-			<li class="sortable row" tabindex="0" id="listitem.orderable$count">
+			<li class="sortable row reorder-element" tabindex="0" id="listitem.orderable$count">
 				<span style="display:none" class="grabHandle">
 					<input type="text" size="3" value="$count" id="index$count"/>
 					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
