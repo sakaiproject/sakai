@@ -418,18 +418,18 @@ function doAjax(messageId, topicId, self){
     return false;
 }
 
-// This will display/hide extended description for an element
-// Need to be fancy due to a bug (SAK-11933) where copy/pasting
-// content causes addition tags with class 'toggle' to be in
-// markup, causing errors on display.
-// Found multiple versions of this fix, so centralizing it here
-function toggleExtendedDescription(hideShowEl, parent, element) {
-    resize();
-    hideShowEl.toggle();
-    parent.slideToggle(resize);
-    element.toggle();
-    element[0].classList.toggle('opened');
-}
+$(document).ready(function() {
+    var toggleFinished = true;
+    $('.toggle').click(function(e) {
+        if (toggleFinished) {
+            toggleFinished = false;
+            $(this).parent().parent().find('.toggleParent').toggle();
+            $(this).parent().parent().find('[id$=fullTopicDescription]').slideToggle('slow', function() {
+                toggleFinished = true;
+            });
+        }
+    });
+});
 
 function toggleDates(hideShowEl, parent, element) {
     resize();

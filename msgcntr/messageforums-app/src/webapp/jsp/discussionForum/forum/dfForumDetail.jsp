@@ -56,41 +56,42 @@
 				--%>
 				<h:outputText value="#{ForumTool.selectedForum.forum.shortDescription}" styleClass="shortDescription"/>
 		  		<f:subview id="longDesc" rendered="#{!empty forum.attachList || (ForumTool.selectedForum.forum.extendedDescription != '' &&  ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>')}">
-				<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_view}"  styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
-						onclick="resize();$(this).next('.hide').toggle(); $('div.toggle:first', $(this).parents('table.forumHeader')).slideToggle(resize);$(this).toggle();$(this).toggleClass('opened');">
-					<h:graphicImage url="/images/collapse.gif" alt="" /><h:outputText value="#{msgs.cdfm_view}" />
-					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
-                                        <h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty ForumTool.selectedForum.attachList && ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
-                                        <h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty ForumTool.selectedForum.attachList}"/>
-			        </h:outputLink>
-			  
-				<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
-						onclick="resize();$(this).prev('.show').toggle(); $('div.toggle:first', $(this).parents('table.forumHeader')).slideToggle(resize);$(this).toggle();">
-					<h:graphicImage url="/images/expand.gif" alt="" /> <h:outputText value="#{msgs.cdfm_hide}" />
-					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
-                                        <h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty ForumTool.selectedForum.attachList && ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
-                                        <h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty ForumTool.selectedForum.attachList}"/>
-			        </h:outputLink>
-				<f:subview id="hideLongDesc" rendered="#{!ForumTool.alwaysShowFullDesc}">
-					<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
-				</f:subview>
-				<f:subview id="showLongDesc" rendered="#{ForumTool.alwaysShowFullDesc}">
-					<f:verbatim><div class="toggle"></f:verbatim>
-				</f:subview>
-				<mf:htmlShowArea value="#{ForumTool.selectedForum.forum.extendedDescription}"  
-		                     hideBorder="true" />
-				<%-- attachments --%>
-				<h:dataTable  styleClass="attachListTable" value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
-				    <h:column>
-				        <sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>                                                                 
-				        <h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />                            
-				    </h:column>
-				    <h:column>        
-				        <h:outputLink value="#{eachAttach.url}" target="_blank">
-				            <h:outputText value="#{eachAttach.attachment.attachmentName}"  />
-				        </h:outputLink>                 
-				     </h:column>     
-				</h:dataTable>
+
+				<h:panelGroup>
+					<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+						<a href="#" id="showMessage" class="toggle show">
+							<h:graphicImage url="/images/expand.gif" alt=""/>
+							<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
+							<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
+							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
+						</a>
+					</h:panelGroup>
+					<h:panelGroup id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
+						<a href="#" id="hideMessage" class="toggle show">
+							<h:graphicImage url="/images/collapse.gif" alt="" />
+							<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
+							<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedForum.attachList}" />
+							<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedForum.attachList}"/>
+						</a>
+					</h:panelGroup>
+				</h:panelGroup>
+
+				<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+					<h:outputText escape="false" value="#{ForumTool.selectedForum.forum.extendedDescription}" />
+
+					<%-- attachments --%>
+					<h:dataTable  styleClass="attachListTable" value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" columnClasses="attach,bogus" border="0" cellpadding="3" cellspacing="0">
+						<h:column>
+							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />
+						</h:column>
+						<h:column>
+							<h:outputLink value="#{eachAttach.url}" target="_blank">
+								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+							</h:outputLink>
+						</h:column>
+					</h:dataTable>
+				</h:panelGroup>
 				
 				<f:verbatim></div></f:verbatim>
 				</f:subview>
@@ -170,42 +171,44 @@
 						
 						<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" styleClass="shortDescription" />
 						<f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
-						<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_view}" styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
-								onclick="resize();$(this).next('.hide').toggle(); $('td div.toggle', $(this).parents('tr:first')).slideToggle(resize);$(this).toggle();$(this).toggleClass('opened');">
-								<h:graphicImage url="/images/collapse.gif" alt=""/><h:outputText value="#{msgs.cdfm_view}" />
-								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
-								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
-								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
-				    </h:outputLink>  
-				  
-						<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
-								onclick="resize();$(this).prev('.show').toggle(); $('td div.toggle', $(this).parents('tr:first')).slideToggle(resize);$(this).toggle();">
-								<h:graphicImage url="/images/expand.gif" alt=""/><h:outputText value="#{msgs.cdfm_hide}" />
-								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
-								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
-								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
-				    </h:outputLink>
 
-					<f:subview id="hideLongDescTopic" rendered="#{!ForumTool.alwaysShowFullDesc}">
-						<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
-					</f:subview>
-					<f:subview id="showLongDescTopic" rendered="#{ForumTool.alwaysShowFullDesc}">
-						<f:verbatim><div class="toggle"></f:verbatim>
-					</f:subview>
-					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
-		 			<%--  <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/> --%>
-					<div class="table-responsive">				
-							<h:dataTable styleClass="table table-hover table-striped table-bordered attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
-					  <h:column>
-									<h:graphicImage url="/images/attachment.gif" alt="" />
-						</h:column>
-						<h:column>
-						<h:outputLink value="#{eachAttach.url}" target="_blank">
-							<h:outputText value="#{eachAttach.attachment.attachmentName}" />
-						</h:outputLink>				  
-					</h:column>
-			  </h:dataTable>
-			</div>
+						<h:panelGroup>
+							<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+								<a href="#" id="showMessage" class="toggle show">
+									<h:graphicImage url="/images/expand.gif" alt=""/>
+									<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
+									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}"/>
+									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
+								</a>
+							</h:panelGroup>
+							<h:panelGroup id="hideLinkBlock" styleClass="toggleParent hideLinkBlock #{ForumTool.alwaysShowFullDesc ? '' : 'display-none'}">
+								<a href="#" id="hideMessage" class="toggle show">
+									<h:graphicImage url="/images/collapse.gif" alt="" />
+									<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
+									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}" />
+									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
+								</a>
+							</h:panelGroup>
+						</h:panelGroup>
+
+					<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel #{ForumTool.alwaysShowFullDesc ? 'display-none' : ''}">
+						<h:outputText escape="false" value="#{topic.topic.extendedDescription}" />
+
+						<div class="table-responsive">
+							<h:panelGroup rendered="#{!empty topic.attachList}">
+								<h:dataTable styleClass="table table-hover table-striped table-bordered attachListTable" value="#{topic.attachList}" var="eachAttach" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
+									<h:column>
+										<h:graphicImage url="/images/attachment.gif" alt="" />
+									</h:column>
+									<h:column>
+										<h:outputLink value="#{eachAttach.url}" target="_blank">
+											<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+										</h:outputLink>
+									</h:column>
+								</h:dataTable>
+							</h:panelGroup>
+						</div>
+					</h:panelGroup>
 			<f:verbatim></div></f:verbatim>
 			</f:subview>
 					</h:panelGroup>
@@ -232,4 +235,3 @@
 	 <h:outputText value="#{msgs.cdfm_insufficient_privileges_view_forum}" rendered="#{ForumTool.selectedForum.forum.draft && ForumTool.selectedForum.forum.createdBy != ForumTool.userId}" />
     </sakai:view>
 </f:view>
-

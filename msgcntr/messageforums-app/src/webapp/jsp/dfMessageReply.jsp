@@ -15,16 +15,6 @@
 			<f:verbatim><input type="hidden" id="currentTopicId" name="currentTopicId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedTopic.topic.id}"/><f:verbatim>"/></f:verbatim>
 			<f:verbatim><input type="hidden" id="currentForumId" name="currentForumId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedForum.forum.id}"/><f:verbatim>"/></f:verbatim>
              		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-			<script type="text/javascript">
-				$(document).ready(function() {
-					$('#openLinkBlock').hide();
-					jQuery('.toggle').click(function(e) { 
-						$('#replytomessage').toggle('slow');
-						$('.toggleParent').toggle();					
-						 resizeFrame('grow')
-				});					
-				});
-			</script>
 				
 		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
@@ -54,43 +44,32 @@
 				<h:outputText value="#{msgs.cdfm_reply_message_pref}" styleClass="title highlight"/> <h:outputText value="#{ForumTool.selectedMessage.message.title}" styleClass="title"/>
 				<h:outputText value="#{ForumTool.selectedMessage.anonAwareAuthor}" styleClass="textPanelFooter #{ForumTool.selectedMessage.useAnonymousId ? 'anonymousAuthor' : ''}" />
 				<h:outputText value=" #{msgs.cdfm_me}" styleClass="textPanelFooter" rendered="#{ForumTool.selectedMessage.currentUserAndAnonymous}" />
-					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
-					<h:outputText value="#{ForumTool.selectedMessage.message.created}" styleClass="textPanelFooter">
-						<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  
-					</h:outputText>
-					<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
-					<p style="padding:0;margin:.5em 0" id="openLinkBlock" class="toggleParent">
-						<a href="#" id="showMessage" class="toggle show">
-							<h:graphicImage url="/images/collapse.gif" alt=""/>	
-							<h:outputText value=" #{msgs.cdfm_read_full_rep_tomessage}" />
-						</a>
-					</p>
-					<p style="padding:0;margin:.5em 0" id="hideLinkBlock" class="toggleParent">
-						<a href="#" id="hideMessage" class="toggle show">
-							<h:graphicImage url="/images/expand.gif" alt="" />					
-							<h:outputText value=" #{msgs.cdfm_hide_full_rep_tomessage}"/>
-						</a>
-					</p>
-
-			<div  id="replytomessage">	
+				<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
+				<h:outputText value="#{ForumTool.selectedMessage.message.created}" styleClass="textPanelFooter">
+					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  
+				</h:outputText>
+				<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
+				<p id="openLinkBlock" class="toggleParent openLinkBlock">
+					<a href="#" id="showMessage" class="toggle show">
+						<h:graphicImage url="/images/collapse.gif" alt=""/>
+						<h:outputText value=" #{msgs.cdfm_read_full_rep_tomessage}" />
+					</a>
+				</p>
+				<p id="hideLinkBlock" class="toggleParent hideLinkBlock display-none">
+					<a href="#" id="hideMessage" class="toggle show">
+						<h:graphicImage url="/images/expand.gif" alt="" />
+						<h:outputText value=" #{msgs.cdfm_hide_full_rep_tomessage}"/>
+					</a>
+				</p>
+				<div id="fullTopicDescription" class="fullTopicDescription">
 					<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}" hideBorder="true" />
-	
-				<h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}" columnClasses="attach,bogus" styleClass="attachList"  
-						style="font-size:.9em;width:auto;margin-left:1em" border="0">
+					<h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}" columnClasses="attach,bogus" styleClass="attachList" border="0">
 						<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
-						<sakai:contentTypeMap fileType="#{eachAttach.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
-  							  <h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />
-					<%----%>
+							<sakai:contentTypeMap fileType="#{eachAttach.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />
 						</h:column>
 						<h:column>
-							<%--							<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 							<h:outputText value="#{eachAttach.attachmentName}"/>
-							</h:outputLink>--%>
-							<%--							<h:outputLink value="#{ForumTool.attachmentUrl}" target="_blank">
-							<f:param name="attachmentId" value="#{eachAttach.attachment.attachmentId}"/>
-							<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
-							</h:outputLink>--%>
-							<h:outputText value="#{eachAttach.attachmentName}"/>							
 						</h:column>
 					</h:dataTable>
 				</div>
