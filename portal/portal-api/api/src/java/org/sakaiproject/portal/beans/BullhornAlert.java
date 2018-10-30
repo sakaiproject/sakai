@@ -51,6 +51,9 @@ public class BullhornAlert {
     @Temporal(TemporalType.TIMESTAMP)
     private Date eventDate;
 
+    @Column(name="DEFERRED", nullable=false)
+    private Boolean deferred;
+
     @Transient
     private String fromDisplayName;
 
