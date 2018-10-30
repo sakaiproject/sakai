@@ -71,6 +71,8 @@
   </template>
 
   <script>
+    includeWebjarLibrary('momentjs');
+
     Polymer({
       is: "sakai-rubric",
       properties: {
@@ -184,6 +186,7 @@
       ready: function() {
         this.rubricExpanded = "false";
         this.handleShareLink();
+        this.set('rubric.metadata.modified', moment(this.rubric.metadata.modified).locale(portal.locale).format('LLLL'));
       }
     });
   </script>
