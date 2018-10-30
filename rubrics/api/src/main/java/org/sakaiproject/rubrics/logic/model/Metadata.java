@@ -27,8 +27,6 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
-import org.sakaiproject.rubrics.logic.RubricsLocalDateTimeSerializer;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -47,7 +45,7 @@ public class Metadata {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime created;
 
-    @JsonSerialize(using = RubricsLocalDateTimeSerializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime modified;
     private String ownerId;
