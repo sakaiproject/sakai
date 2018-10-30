@@ -46,6 +46,8 @@ import javax.servlet.ServletInputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -90,8 +92,9 @@ public class UploadAudioMediaServlet extends HttpServlet
   {
     boolean mediaIsValid = true;
     ServletContext context = super.getServletContext();
-    String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
-    String saveToDb = (String)context.getAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB");
+    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+    String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
+    String saveToDb = serverConfigurationService.getString("samigo.saveMediaToDb", "true");
 
     log.debug("req content length ="+req.getContentLength());
     log.debug("req content type ="+req.getContentType());

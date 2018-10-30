@@ -41,6 +41,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload.FileItem;
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+
 @Slf4j
 public class UploadRenderer extends Renderer {
 
@@ -81,9 +84,10 @@ public class UploadRenderer extends Renderer {
     // check if file > maxSize allowed
     log.debug("clientId ="+ clientId);
     log.debug("fileItem ="+ item);
-    // if (item!=null) log.debug("***UploadRender: fileItem size ="+ item.getSize());
-    Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
-     // RU - typo. Stanford agrees, so this should be FINR
+
+    ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+    Long maxSize = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "40960"));
+
     if (item!=null && item.getSize()/1000 > maxSize.intValue()){
       ((ServletContext)external.getContext()).setAttribute("TEMP_FILEUPLOAD_SIZE", Long.valueOf(item.getSize()/1000));
       ((EditableValueHolder) component).setSubmittedValue("SizeTooBig:" + item.getName());
@@ -95,7 +99,7 @@ public class UploadRenderer extends Renderer {
     if (binding != null) target = binding.getValue(context);
     else target = component.getAttributes().get("target");
 
-    String repositoryPath = (String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+    String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
     log.debug("****"+repositoryPath);
     if (target != null){
       File dir = new File(repositoryPath+target.toString()); //directory where file would be saved
