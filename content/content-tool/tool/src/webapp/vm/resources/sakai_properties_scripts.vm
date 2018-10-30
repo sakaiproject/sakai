@@ -1565,7 +1565,7 @@
 document.calendars = new Array();
 document.calendarcounter = 0;
 
-#if($calendarcounter > 0)	
+#if($calendarcounter && $calendarcounter > 0)	
 	document.calendars = new Array();
 	document.calendarcounter = $calendarcounter;
 #set($n = $calendarcounter - 1)
@@ -1577,7 +1577,7 @@ document.calendarcounter = 0;
 #end
 #end
 </script>
-#if($calendarcounter > 0)
+#if($calendarcounter && $calendarcounter > 0)
 #javascript("/library/calendar/sakai-calendar.js")
 #javascript("/library/calendar/js/calendar2.js")
 #end
