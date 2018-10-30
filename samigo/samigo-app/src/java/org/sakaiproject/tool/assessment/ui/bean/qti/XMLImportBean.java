@@ -109,18 +109,9 @@ public class XMLImportBean implements Serializable
 	  String uploadFile = (String) e.getNewValue();
 
 	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
-		  FacesContext context = FacesContext.getCurrentInstance();
-		  ExternalContext external = context.getExternalContext();
-		  String paramValue = ((Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX")).toString();
-		  Long sizeMax = null;
-		  float sizeMax_float = 0f;
-		  if (paramValue != null) {
-			  sizeMax = Long.parseLong(paramValue);
-			  sizeMax_float = sizeMax.floatValue()/1024;
-		  } 
-		  int sizeMax_int = Math.round(sizeMax_float);
+		  Long sizeMax = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "40960"));
 		  ResourceLoader rb =new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
-		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), sizeMax_int);
+		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), Math.round(sizeMax.floatValue()/1024));
 	      FacesMessage message = new FacesMessage(sizeTooBigMessage);
 	      FacesContext.getCurrentInstance().addMessage(null, message);
 	      // remove unsuccessful file
