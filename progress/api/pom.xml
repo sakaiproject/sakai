@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.widget</groupId>
-        <artifactId>sakai-widget-base</artifactId>
-        <version>13-SNAPSHOT</version>
+        <groupId>org.sakaiproject.progress</groupId>
+        <artifactId>progress-base</artifactId>
+        <version>19-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sakai-widget-api</artifactId>
+    <artifactId>progress-api</artifactId>
     <packaging>jar</packaging>
 
-    <name>sakai-widget-api</name>
+    <name>progress-api</name>
 
     <properties>
         <deploy.target>shared</deploy.target>

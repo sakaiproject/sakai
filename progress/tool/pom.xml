@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-        <groupId>org.sakaiproject.widget</groupId>
-        <artifactId>sakai-widget-base</artifactId>
-        <version>13-SNAPSHOT</version>
+        <groupId>org.sakaiproject.progress</groupId>
+        <artifactId>progress-base</artifactId>
+        <version>19-SNAPSHOT</version>
     </parent>
 
-	<artifactId>sakai-widget-tool</artifactId>
+	<artifactId>progress-tool</artifactId>
 	<packaging>war</packaging>
 
-	<name>sakai-widget-tool</name>
+	<name>progress-tool</name>
 
 	<properties>
         <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
@@ -20,8 +20,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.sakaiproject.widget</groupId>
-			<artifactId>sakai-widget-api</artifactId>
+			<groupId>org.sakaiproject.progress</groupId>
+			<artifactId>progress-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>

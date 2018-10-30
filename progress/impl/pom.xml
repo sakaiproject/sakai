@@ -7,14 +7,14 @@
 
     <parent>
         <groupId>org.sakaiproject.widget</groupId>
-        <artifactId>sakai-widget-base</artifactId>
-        <version>13-SNAPSHOT</version>
+        <artifactId>progress-base</artifactId>
+        <version>19-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sakai-widget-impl</artifactId>
+    <artifactId>progress-impl</artifactId>
     <packaging>sakai-component</packaging>
 
-    <name>sakai-widget-impl</name>
+    <name>progress-impl</name>
 
     <dependencies>
         <dependency>
