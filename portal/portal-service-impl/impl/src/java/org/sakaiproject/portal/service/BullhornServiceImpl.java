@@ -132,6 +132,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(CommonsEvents.COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
+            HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
             eventTrackingService.addLocalObserver(this);
         }
 
@@ -341,6 +342,25 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } catch (NumberFormatException nfe) {
                             log.error("Caught number format exception whilst handling events", nfe);
                         }
+                    } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
+                        final String siteId = pathParts[2];
+
+                        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+                            protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                                final List<BullhornAlert> deferredAlerts
+                                    = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
+                                        .add(Restrictions.eq("deferred", true))
+                                        .add(Restrictions.eq("siteId", siteId)).list();
+
+                                for (BullhornAlert da : deferredAlerts) {
+                                    da.setDeferred(false);
+                                    sessionFactory.getCurrentSession().update(da);
+                                    countCache.remove(da.getToUser());
+                                }
+                            }
+                        });
                     }
                 } catch (Exception ex) {
                     log.error("Caught exception whilst handling events", ex);
@@ -380,6 +400,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private void doAcademicInsert(String from, String to, String event, String ref
                                             , String title, String siteId, Date eventDate, String url) {
 
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -394,6 +415,14 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setSiteId(siteId);
                 ba.setEventDate(eventDate);
                 ba.setUrl(url);
+
+                boolean deferred = false;
+                try {
+                    deferred = !siteService.getSite(siteId).isPublished();
+                } catch (IdUnusedException iue) {
+                    log.warn("Failed to find site with id '" + siteId + "'. deferred will be false.");
+                }
+                ba.setDeferred(deferred);
 
                 sessionFactory.getCurrentSession().persist(ba);
             }
@@ -416,6 +445,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setSiteId("");
                 ba.setEventDate(eventDate);
                 ba.setUrl(url);
+                ba.setDeferred(false);
 
                 sessionFactory.getCurrentSession().persist(ba);
             }
@@ -515,6 +545,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
         List<BullhornAlert> alerts = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
                 .add(Restrictions.eq("alertType", ACADEMIC))
+                .add(Restrictions.eq("deferred", false))
                 .add(Restrictions.eq("toUser", userId)).list();
 
         for (BullhornAlert alert : alerts) {
@@ -552,6 +583,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             count = (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
                 .add(Restrictions.eq("alertType", ACADEMIC))
                 .add(Restrictions.eq("toUser", userId))
+                .add(Restrictions.eq("deferred", false))
                 .setProjection(Projections.rowCount()).uniqueResult();
             cachedCounts.put("academic", count);
             countCache.put(userId, cachedCounts);
@@ -571,8 +603,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private boolean clearAllAlerts(String alertType, String userId) {
 
-        sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where alertType = :alertType and toUser = :toUser")
-                .setString("alertType", alertType).setString("toUser", userId)
+        sessionFactory.getCurrentSession().createQuery(
+                "delete BullhornAlert where alertType = :alertType and toUser = :toUser and deferred = :deferred")
+                .setString("alertType", alertType).setString("toUser", userId).setBoolean("deferred", false)
                 .executeUpdate();
         countCache.remove(userId);
         return true;
