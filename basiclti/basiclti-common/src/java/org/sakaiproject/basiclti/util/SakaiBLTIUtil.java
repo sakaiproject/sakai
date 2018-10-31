@@ -2233,7 +2233,6 @@ user_id: admin
 		}
 
 		// Now read, set, or delete the grade...
-		pushAdvisor();
 		Session sess = SessionManager.getCurrentSession();
 		String message = null;
 
@@ -2278,7 +2277,6 @@ user_id: admin
 			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
 		} finally {
 			sess.invalidate(); // Make sure to leave no traces
-			popAdvisor();
 		}
 
 		return retval;
@@ -2322,7 +2320,6 @@ user_id: admin
 			return "Grade failure siteId=" + siteId;
 		}
 
-		pushAdvisor();
 		// Now read, set, or delete the grade...
 		Session sess = SessionManager.getCurrentSession();
 		String message = null;
@@ -2369,7 +2366,6 @@ user_id: admin
 			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
 		} finally {
 			sess.invalidate(); // Make sure to leave no traces
-			popAdvisor();
 		}
 
 		return retval;
@@ -2402,10 +2398,13 @@ user_id: admin
 			}
 		} catch (GradebookNotFoundException e) {
 			assignmentObject = null; // Just to make double sure
+		} finally {
+			popAdvisor();
 		}
 
 		// Attempt to add assignment to grade book
 		if (assignmentObject == null && g.isGradebookDefined(siteId)) {
+			pushAdvisor();
 			try {
 				assignmentObject = new Assignment();
 				assignmentObject.setPoints(Double.valueOf(scoreMaximum));
@@ -2422,16 +2421,16 @@ user_id: admin
 			} catch (Exception e) {
 				log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
 				assignmentObject = null; // Just to make double sure
+			} finally {
+				popAdvisor();
 			}
 		}
+
 		if (assignmentObject == null || assignmentObject.getId() == null) {
 			log.warn("assignmentObject or Id is null.");
 			assignmentObject = null;
 		}
 
-		// TODO: Figure this out
-		// sess.invalidate(); // Make sure to leave no traces
-		popAdvisor();
 		return assignmentObject;
 	}
 
