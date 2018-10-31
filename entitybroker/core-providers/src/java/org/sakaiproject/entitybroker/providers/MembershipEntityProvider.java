@@ -240,7 +240,7 @@ RESTful, ActionsExecutable {
 
         List<EntityData> l = getEntities(new EntityReference(PREFIX, ""), new Search(
                 CollectionResolvable.SEARCH_LOCATION_REFERENCE, locationReference));
-        ActionReturn actionReturn = new ActionReturn(l, Formats.JSON);
+        ActionReturn actionReturn = new ActionReturn(l, view.getFormat());
         if ((extraResponseHeaders != null) && !extraResponseHeaders.isEmpty()) {
             actionReturn.setHeaders(extraResponseHeaders);
         }

@@ -81,7 +81,7 @@
         sortColumn="#{studentViewBean.sortColumn}"
 				sortAscending="#{studentViewBean.sortAscending}"
 				columnClasses="attach,left,center,center,center,center,external"
-				headerClasses="attach,left,center,center,center,center comments,bogus"
+				headerClasses="categoryIcon,left,center,center,center,center comments,bogus"
 				rowClasses="#{studentViewBean.rowStyles}"
 				styleClass="listHier wideTable lines"
 				rendered="#{studentViewBean.assignmentsReleased}"
