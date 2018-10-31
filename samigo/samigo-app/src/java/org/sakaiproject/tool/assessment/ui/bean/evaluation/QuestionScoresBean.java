@@ -32,6 +32,8 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -118,8 +120,10 @@ public class QuestionScoresBean
 
     private String showTagsInEvaluationStyle;
 
-  // Rubrics
+  @Setter @Getter
   private String rubricStateDetails;
+
+  @Setter @Getter
   private boolean hasAssociatedRubric;
 
   /**
@@ -995,19 +999,7 @@ public void clear(ActionEvent event) {
         this.showTagsInEvaluationStyle = showTagsInEvaluationStyle;
     }
 
-	public String getRubricStateDetails() {
-		return rubricStateDetails;
-	}
-
-	public void setRubricStateDetails(String rubricStateDetails) {
-		this.rubricStateDetails = rubricStateDetails;
-	}
-
 	public boolean isHasAssociatedRubric() {
 		return hasAssociatedRubric;
-	}
-
-	public void setHasAssociatedRubric(boolean hasAssociatedRubric) {
-		this.hasAssociatedRubric = hasAssociatedRubric;
 	}
 }
