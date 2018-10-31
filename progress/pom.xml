@@ -4,25 +4,30 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>19-SNAPSHOT</version>
-    </parent>
+    <name>progress-base</name>
+    <description>A Sakai Spring MVC project using Thymeleaf</description>
+    <inceptionYear>2018</inceptionYear>
 
     <groupId>org.sakaiproject.progress</groupId>
     <artifactId>progress-base</artifactId>
     <packaging>pom</packaging>
 
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>19-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+
+
     <modules>
-        <module>progress-api/api</module>
-        <module>progress-impl/impl</module>
-        <module>progress-tool/tool</module>
+        <module>api</module>
+        <module>impl</module>
+        <module>tool</module>
     </modules>
 
-    <name>progress-base</name>
-    <description>A Sakai Spring MVC project using Thymeleaf</description>
-    <inceptionYear>2018</inceptionYear>
+
 
     <licenses>
         <license>
@@ -82,10 +87,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.sakaiproject.progress</groupId>
-                <artifactId>progress-api</artifactId>
-                <version>19-SNAPSHOT</version>
-                <scope>provided</scope>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>

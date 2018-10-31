@@ -4,16 +4,18 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <name>progress-api</name>
+    <groupId>org.sakaiproject.progress</groupId>
+    <artifactId>progress-api</artifactId>
+
+    <packaging>jar</packaging>
+
     <parent>
         <groupId>org.sakaiproject.progress</groupId>
         <artifactId>progress-base</artifactId>
         <version>19-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
-    <artifactId>progress-api</artifactId>
-    <packaging>jar</packaging>
-
-    <name>progress-api</name>
 
     <properties>
         <deploy.target>shared</deploy.target>
@@ -29,5 +31,4 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
     </dependencies>
-
 </project>

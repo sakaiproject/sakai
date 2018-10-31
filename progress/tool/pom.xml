@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<name>progress-tool</name>
+	<groupId>org.sakaiproject.progress</groupId>
+	<artifactId>progress-tool</artifactId>
+
+	<packaging>war</packaging>
+
 	<parent>
         <groupId>org.sakaiproject.progress</groupId>
         <artifactId>progress-base</artifactId>
         <version>19-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
     </parent>
 
-	<artifactId>progress-tool</artifactId>
-	<packaging>war</packaging>
-
-	<name>progress-tool</name>
-
 	<properties>
-        <thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
+		<thymeleaf.version>3.0.9.RELEASE</thymeleaf.version>
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
 	</properties>
@@ -30,11 +33,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<!-- third party dependencies -->
-    	<dependency>
-	      <groupId>org.apache.commons</groupId>
-	      <artifactId>commons-lang3</artifactId>
-    	</dependency>
-        <!-- Sakai dependencies -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<!-- Sakai dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
@@ -75,6 +78,11 @@
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-java8time</artifactId>
 			<version>3.0.1.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.progress</groupId>
+			<artifactId>progress-api</artifactId>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>

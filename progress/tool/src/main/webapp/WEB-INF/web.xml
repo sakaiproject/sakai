@@ -39,7 +39,7 @@
     <!--</servlet>-->
 
     <servlet>
-        <servlet-name>sakai.widget</servlet-name>
+        <servlet-name>sakai.progress</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <init-param>
@@ -48,11 +48,11 @@
         </init-param>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>org.sakaiproject.widget.tool.SpringMvcConfiguration</param-value>
+            <param-value>org.sakaiproject.progress.tool.SpringMvcConfiguration</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>sakai.widget</servlet-name>
+        <servlet-name>sakai.progress</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 

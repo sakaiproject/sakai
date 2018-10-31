@@ -1,4 +1,4 @@
-package org.sakaiproject.widget.tool.formatter;
+package org.sakaiproject.progress.tool.formatter;
 
 import org.springframework.format.Formatter;
 import org.springframework.lang.UsesJava8;

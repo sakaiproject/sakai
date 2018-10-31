@@ -1,4 +1,4 @@
-package org.sakaiproject.progress.model.persistence;
+package org.sakaiproject.progress.api.persistence;
 
 /**
  * Model for tracking configuration in a database

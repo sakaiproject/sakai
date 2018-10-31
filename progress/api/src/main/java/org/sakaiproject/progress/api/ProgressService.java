@@ -1,4 +1,4 @@
-package org.sakaiproject.progress.model;
+package org.sakaiproject.progress.api;
 
 /**
  * Interface that will serve as the basic contract to the persistence layer for getting and setting configurations

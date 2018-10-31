@@ -92,6 +92,7 @@
                 <module>postem</module>
                 <module>presence</module>
                 <module>profile2</module>
+                <module>progress</module>
                 <module>providers</module>
                 <module>reset-pass</module>
                 <module>roster2</module>
