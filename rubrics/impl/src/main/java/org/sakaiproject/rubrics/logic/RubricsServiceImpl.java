@@ -365,7 +365,7 @@ public class RubricsServiceImpl implements RubricsService {
             Resource<ToolItemRubricAssociation> rubricToolItemAssociationResource = getRubricAssociationResource(
                     toolId, associatedItemId).get();
 
-            String criterionJsonData = createCriterionJsonPayload(associatedItemId, params, rubricToolItemAssociationResource);
+            String criterionJsonData = createCriterionJsonPayload(associatedItemId, evaluatedItemId, params, rubricToolItemAssociationResource);
 
             if (existingEvaluation == null) { // Create a new one
 
@@ -404,7 +404,7 @@ public class RubricsServiceImpl implements RubricsService {
 
     }
 
-    private String createCriterionJsonPayload(String associatedItemId,
+    private String createCriterionJsonPayload(String associatedItemId, String evaluatedItemId,
                                               Map<String,String> formPostParameters,
                                               Resource<ToolItemRubricAssociation> association) throws Exception {
 
@@ -436,11 +436,11 @@ public class RubricsServiceImpl implements RubricsService {
             }
             index++;
 
-            final String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion");
+            final String selectedRatingPoints = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterion");
 
-            if (StringUtils.isNotBlank(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion-override"))) {
+            if (StringUtils.isNotBlank(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-" + associatedItemId + "-criterion-override"))) {
                 pointsAdjusted = true;
-                points = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion-override");
+                points = criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-" + associatedItemId + "-criterion-override");
             } else {
                 pointsAdjusted = false;
                 points = selectedRatingPoints;
@@ -459,7 +459,7 @@ public class RubricsServiceImpl implements RubricsService {
 
             criterionJsonData += String.format("{ \"criterionId\" : \"%s\", \"points\" : \"%s\", " +
                             "\"comments\" : \"%s\", \"pointsAdjusted\" : %b, \"selectedRatingId\" : \"%s\"  }",
-                    criterionData.getKey(), points, StringEscapeUtils.escapeJson(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + associatedItemId + "-criterion-comment")),
+                    criterionData.getKey(), points, StringEscapeUtils.escapeJson(criterionData.getValue().get(RubricsConstants.RBCS_PREFIX + evaluatedItemId + "-"+ associatedItemId + "-criterion-comment")),
                     pointsAdjusted, selectedRatingId);
         }
 

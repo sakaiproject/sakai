@@ -43,7 +43,8 @@ public class StudentScoreAttachmentListener implements ActionListener {
             for (Object questionObj : sectionContent.getItemContents()) {
                 ItemContentsBean question = (ItemContentsBean) questionObj;
                 String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-                String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + entityId + "-state-details");
+                String evalId = studentScoresBean.getAssessmentGradingId() + "." + question.getItemData().getItemId();
+                String rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_PREFIX + evalId + "-" + entityId + "-state-details");
                 question.setRubricStateDetails(rubricStateDetails);
             }
         }

@@ -333,10 +333,10 @@ public class ItemAddListener
 		// RUBRICS, save the binding between the assignment and the rubric
 		if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
 			String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null));
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null, null));
 		} else {
 			String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null));
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null, null));
 		}
 	}
 	catch (FinFormatException e) {
