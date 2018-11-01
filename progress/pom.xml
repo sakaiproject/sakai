@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>13-SNAPSHOT</version>
+        <artifactId>base</artifactId>
+        <version>19-SNAPSHOT</version>
     </parent>
 
     <groupId>org.sakaiproject.widget</groupId>
@@ -98,10 +98,10 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
+           <dependency>
                 <groupId>org.sakaiproject.widget</groupId>
                 <artifactId>sakai-widget-api</artifactId>
-                <version>13-SNAPSHOT</version>
+                <version>19-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
