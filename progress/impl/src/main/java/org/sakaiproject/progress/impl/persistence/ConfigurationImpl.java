@@ -1,6 +1,6 @@
 package org.sakaiproject.progress.impl.persistence;
 
-import org.sakaiproject.progress.model.persistence.Configuration;
+import org.sakaiproject.progress.api.persistence.Configuration;
 
 /**
  * Implementation for Configuration

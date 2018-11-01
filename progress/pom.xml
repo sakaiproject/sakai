@@ -60,29 +60,29 @@
         <!--</developer>-->
     <!--</developers>-->
 
-    <!--<build>-->
-        <!--<sourceDirectory>src/main/java</sourceDirectory>-->
-        <!--<scriptSourceDirectory>src/main/scripts</scriptSourceDirectory>-->
-        <!--<testSourceDirectory>src/test/java</testSourceDirectory>-->
-        <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>src/main/resources</directory>-->
-            <!--</resource>-->
-        <!--</resources>-->
-        <!--<testResources>-->
-            <!--<testResource>-->
-                <!--<directory>src/test/resources</directory>-->
-            <!--</testResource>-->
-        <!--</testResources>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<artifactId>maven-war-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<warSourceDirectory>src/main/webapp</warSourceDirectory>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <scriptSourceDirectory>src/main/scripts</scriptSourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencyManagement>
         <dependencies>

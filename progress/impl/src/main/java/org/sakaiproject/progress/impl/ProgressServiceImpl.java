@@ -1,6 +1,6 @@
 package org.sakaiproject.progress.impl;
 
-import org.sakaiproject.progress.model.ProgressService;
+import org.sakaiproject.progress.api.ProgressService;
 
 /**
  * Implementation of the persistence layer for getting and setting configurations
