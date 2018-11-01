@@ -17,10 +17,19 @@
     <name>sakai-widget-impl</name>
 
     <dependencies>
+		<dependency>
+	      	<groupId>org.apache.commons</groupId>
+      		<artifactId>commons-lang3</artifactId>
+      		<scope>compile</scope>
+    	</dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-private</artifactId>
         </dependency>
+		<dependency>
+	      <groupId>org.sakaiproject.kernel</groupId>
+	      <artifactId>sakai-kernel-api</artifactId>
+	    </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
