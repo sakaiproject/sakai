@@ -2228,7 +2228,7 @@ user_id: admin
 
 		Assignment assignmentObject = getAssignment(site, user_id, assignment, 100L);
 		if (assignmentObject == null) {
-			log.warn("assignmentObject or Id is null, cannot proceed with grading.");
+			log.warn("assignmentObject or Id is null, cannot proceed with grading in site {} for assignment {}", siteId, assignment);
 			return "Grade failure siteId=" + siteId;
 		}
 
@@ -2316,7 +2316,7 @@ user_id: admin
 
 		Assignment assignmentObject = getAssignment(site, user_id, assignment, maxPoints);
 		if (assignmentObject == null) {
-			log.warn("assignmentObject or Id is null, cannot proceed with grading.");
+			log.warn("assignmentObject or Id is null, cannot proceed with grading for site {}, assignment {}", siteId, assignment);
 			return "Grade failure siteId=" + siteId;
 		}
 
