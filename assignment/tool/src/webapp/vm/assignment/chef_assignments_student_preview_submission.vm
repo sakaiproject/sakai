@@ -101,7 +101,7 @@
     <h4>
         $tlang.getString("gen.submission")
     </h4>
-    #if ($!text.length() > 0)
+    #if ($text && $!text.length() > 0)
         <div class="textPanel">
             $validator.escapeHtmlFormattedText($text)
         </div>
