@@ -8,27 +8,27 @@
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-    <context:component-scan base-package="org.sakaiproject.widget"/>
+    <context:component-scan base-package="org.sakaiproject.progress"/>
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
     <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.assignment"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
-                <value>org.sakaiproject.widget.model.Widget</value>
+                <value>org.sakaiproject.progress.model.Progress</value>
             </list>
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.widget.impl.persistence.WidgetRepository"
-          class="org.sakaiproject.widget.impl.persistence.WidgetRepositoryImpl">
+    <bean id="org.sakaiproject.progress.impl.persistence.Configuration"
+          class="org.sakaiproject.progress.impl.persistence.ConfigurationImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
-    <bean id="org.sakaiproject.widget.api.WidgetService"
-          class="org.sakaiproject.widget.impl.WidgetServiceImpl"
+    <bean id="org.sakaiproject.progress.api.ProgressService"
+          class="org.sakaiproject.progress.impl.ProgressServiceImpl"
           init-method="init">
-        <property name="widgetRepository" ref="org.sakaiproject.widget.impl.persistence.WidgetRepository"/>
+        <property name="configuration" ref="org.sakaiproject.progress.impl.persistence.ConfigurationImpl"/>
     </bean>
 
 </beans>
