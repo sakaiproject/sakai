@@ -150,6 +150,12 @@
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>lessonbuilder-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <version>${sakai.ehcache.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -79,6 +79,7 @@ import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.ehcache.ObjectExistsException;
 
 
 /**
@@ -153,6 +154,10 @@ public class SiteHandler extends WorksiteHandler
 			try
 			{
 				return doGet(parts, req, res, session, siteId);
+			}
+			catch (ObjectExistsException|NullPointerException oee) {
+				log.info("Server not ready");
+				return NEXT;
 			}
 			catch (Exception ex)
 			{
@@ -276,6 +281,10 @@ public class SiteHandler extends WorksiteHandler
 	{		
 				
 		// default site if not set
+		if ( session == null ) { 
+			log.info("Server is not available yet");
+			return;
+		}
 		String userId = session.getUserId();
 		if (siteId == null)
 		{
