@@ -537,7 +537,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         }
 
         try {
-            AssignmentSubmission fetchSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            assignmentService.getSubmission(assignment.getId(), submitterId);
             Assert.fail("NonUniqueResultException expected");
         } catch (Exception e) {
             Assert.assertEquals(NonUniqueResultException.class, e.getClass());
