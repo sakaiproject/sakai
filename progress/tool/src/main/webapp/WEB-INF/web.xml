@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
-    <display-name>sakai.widget</display-name>
+    <display-name>sakai.progress</display-name>
 
     <!-- Sakai Request Filter -->
     <filter>
@@ -12,7 +12,7 @@
     </filter>
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.widget</servlet-name>
+        <servlet-name>sakai.progress</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -29,8 +29,8 @@
     </listener>
 
     <!--<servlet>-->
-        <!--<servlet-name>sakai.widget</servlet-name>-->
-        <!--<servlet-class>org.sakaiproject.widget.tool.servlet.SakaiToolServlet</servlet-class>-->
+        <!--<servlet-name>sakai.progress</servlet-name>-->
+        <!--<servlet-class>org.sakaiproject.progress.tool.servlet.SakaiToolServlet</servlet-class>-->
         <!--<load-on-startup>0</load-on-startup>-->
         <!--<init-param>-->
             <!--<param-name>index</param-name>-->
