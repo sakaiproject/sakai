@@ -16,14 +16,17 @@
 package org.sakaiproject.assignment.impl.persistence;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -107,6 +110,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
         Session session = sessionFactory.getCurrentSession();
         AssignmentSubmission submission = (AssignmentSubmission) session.get(AssignmentSubmission.class, submissionId);
         if (submission != null) {
+            log.info("Deleting submission {}", submission);
             Assignment assignment = submission.getAssignment();
             // must call refresh here to ensure the collections are initialized before changing, this is due to lazy loaded entities
             session.refresh(assignment);
@@ -176,12 +180,41 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
-        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+        List<AssignmentSubmission> submissions = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .createAlias("submitters", "s")
                 .add(Restrictions.eq("s.submitter", userId))
-                .uniqueResult();
+                .list();
+
+        switch (submissions.size()) {
+            case 0: return null;
+            case 1: return submissions.get(0);
+            default:
+                log.info("Duplicate submissions detected for assignment {} and user {} attempting to clean", assignmentId, userId);
+                // when more than 1 was found it is considered a duplicate submission
+                // filter out user submissions and those that were submitted
+                List<AssignmentSubmission> canRemove = submissions.stream()
+                        .filter(s -> !s.getGraded() && !s.getReturned() && !s.getUserSubmission() && s.getDateSubmitted() == null)
+                        .collect(Collectors.toList());
+                int sizeDiff = submissions.size() - canRemove.size();
+                switch (sizeDiff) {
+                    case 0:
+                        // we can remove any so lets keep the first one created and remove the rest
+                        canRemove.sort(Comparator.comparing(AssignmentSubmission::getDateCreated));
+                        submissions.subList(1, submissions.size()).forEach(s -> deleteSubmission(s.getId()));
+                        return submissions.get(0);
+                    case 1:
+                        submissions.removeAll(canRemove);
+                        canRemove.forEach(s -> deleteSubmission(s.getId()));
+                        return submissions.get(0);
+                    default:
+                        log.warn("For assignment {} {} submissions found for user: {}, can only remove {} which is not enough to create a unique submission.", assignmentId, submissions.size(), userId, canRemove.size());
+                        canRemove.forEach(s -> deleteSubmission(s.getId()));
+                        throw new NonUniqueResultException(sizeDiff);
+                }
+        }
     }
 
     @Override
