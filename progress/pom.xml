@@ -4,15 +4,22 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <name>progress-base</name>
+    <description>A Sakai Spring MVC project using Thymeleaf</description>
+    <inceptionYear>2018</inceptionYear>
+
+    <groupId>org.sakaiproject.progress</groupId>
+    <artifactId>progress-base</artifactId>
+    <packaging>pom</packaging>
+
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>13-SNAPSHOT</version>
+        <version>19-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.sakaiproject.widget</groupId>
-    <artifactId>sakai-widget-base</artifactId>
-    <packaging>pom</packaging>
+
 
     <modules>
         <module>api</module>
@@ -20,10 +27,7 @@
         <module>tool</module>
     </modules>
 
-    <name>sakai-widget-base</name>
-    <description>A Sakai Spring MVC project using Thymeleaf</description>
-    <url>https://github.com/ern/sakai-widget</url>
-    <inceptionYear>2018</inceptionYear>
+
 
     <licenses>
         <license>
@@ -33,44 +37,28 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:git:https://github.com/ern/sakai-widget.git</connection>
-        <developerConnection>scm:git:https://github.com/ern/sakai-widget.git</developerConnection>
-        <tag>head</tag>
-        <url>https://www.github.com/ern/sakai-widget</url>
-    </scm>
+    <!--<ciManagement>-->
+        <!--<system>Travis CI</system>-->
+        <!--<url>https://travis-ci.org/ern/sakai-widget</url>-->
+        <!--<notifiers/>-->
+    <!--</ciManagement>-->
 
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://www.github.com/ern/sakai-widget/issues</url>
-    </issueManagement>
 
-    <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/ern/sakai-widget</url>
-        <notifiers/>
-    </ciManagement>
-
-    <organization>
-        <name>Longsight</name>
-        <url>http://www.longsight.com</url>
-    </organization>
-
-    <developers>
-        <developer>
-            <id>ern</id>
-            <name>Earle Nietzel</name>
-            <email>earle@longsight.com</email>
-            <url>https://github.com/ern</url>
-            <organization>Longsight</organization>
-            <organizationUrl>http://www.longsight.com</organizationUrl>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>-5</timezone>
-            <properties/>
-        </developer>
-    </developers>
+    <!--<developers>-->
+        <!--<developer>-->
+            <!--<id>ern</id>-->
+            <!--<name>Earle Nietzel</name>-->
+            <!--<email>earle@longsight.com</email>-->
+            <!--<url>https://github.com/ern</url>-->
+            <!--<organization>Longsight</organization>-->
+            <!--<organizationUrl>http://www.longsight.com</organizationUrl>-->
+            <!--<roles>-->
+                <!--<role>Developer</role>-->
+            <!--</roles>-->
+            <!--<timezone>-5</timezone>-->
+            <!--<properties/>-->
+        <!--</developer>-->
+    <!--</developers>-->
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -99,10 +87,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.sakaiproject.widget</groupId>
-                <artifactId>sakai-widget-api</artifactId>
-                <version>13-SNAPSHOT</version>
-                <scope>provided</scope>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
             </dependency>
         </dependencies>
     </dependencyManagement>

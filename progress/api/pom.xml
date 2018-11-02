@@ -4,16 +4,18 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sakaiproject.widget</groupId>
-        <artifactId>sakai-widget-base</artifactId>
-        <version>13-SNAPSHOT</version>
-    </parent>
+    <name>progress-api</name>
+    <groupId>org.sakaiproject.progress</groupId>
+    <artifactId>progress-api</artifactId>
 
-    <artifactId>sakai-widget-api</artifactId>
     <packaging>jar</packaging>
 
-    <name>sakai-widget-api</name>
+    <parent>
+        <groupId>org.sakaiproject.progress</groupId>
+        <artifactId>progress-base</artifactId>
+        <version>19-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
     <properties>
         <deploy.target>shared</deploy.target>
@@ -29,5 +31,4 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
     </dependencies>
-
 </project>

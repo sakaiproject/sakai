@@ -1,13 +1,4 @@
-package org.sakaiproject.widget.model;
-
-import java.time.Instant;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+package org.sakaiproject.progress.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,33 +9,26 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
+import javax.persistence.*;
+import java.time.Instant;
+
 /**
  * This is the Widget persistence POJO its mostly uses JPA annotations
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name = "WIDGET")
+@Table(name = "PROGRESS")
 @Data
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode(of = "id")
-public class Widget {
+public class Progress {
 
     @Id
     @Column(name = "ID", length = 36, nullable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
-
-    @Column(name = "TITLE")
-    private String title;
-
-    @Column(name = "CONTEXT", length = 99, nullable = false)
-    private String context;
-
-    @Enumerated
-    @Column(name = "STATUS", nullable = false)
-    private STATUS status = STATUS.UNLOCKED;
 
     @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
     @Column(name = "CREATED_DATE", nullable = false)
@@ -54,13 +38,9 @@ public class Widget {
     @Column(name = "MODIFIED_DATE")
     private Instant dateModified;
 
-    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
-    @Column(name = "EXPIRATION_DATE")
-    private Instant dateExpired;
-
     @Lob
-    @Column(name = "DESCRIPTION", length = 65535)
-    private String description;
+    @Column(name = "CONFIGURATION", length = 65535)
+    private String configuration;
 
     public enum STATUS {
         UNLOCKED,   // 0

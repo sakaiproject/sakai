@@ -1,7 +1,7 @@
-package org.sakaiproject.widget.tool;
+package org.sakaiproject.progress.tool;
 
 import lombok.Setter;
-import org.sakaiproject.widget.tool.formatter.DateTimeLocalFormatter;
+import org.sakaiproject.progress.tool.formatter.DateTimeLocalFormatter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
