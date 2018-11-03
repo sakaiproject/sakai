@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <registration>
-	<tool id="sakai.widget"
-		title="Widgets"
-		description="Tool that creates widgets.">
+	<tool id="sakai.progress"
+		title="Progress"
+		description="Tool that tracks progress">
 
         <category name="course" />
         <category name="project" />

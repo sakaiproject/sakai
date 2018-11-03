@@ -1,7 +1,7 @@
-package org.sakaiproject.widget.tool;
+package org.sakaiproject.progress.tool;
 
 import lombok.Setter;
-import org.sakaiproject.widget.tool.formatter.DateTimeLocalFormatter;
+import org.sakaiproject.progress.tool.formatter.DateTimeLocalFormatter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -24,7 +24,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan("org.sakaiproject.widget.tool")
+@ComponentScan("org.sakaiproject.progress.tool")
 public class SpringMvcConfiguration extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
     @Setter private ApplicationContext applicationContext;
@@ -47,7 +47,7 @@ public class SpringMvcConfiguration extends WebMvcConfigurerAdapter implements A
         return engine;
     }
 
-    @Bean(name = "org.sakaiproject.widget.tool.Messages")
+    @Bean(name = "org.sakaiproject.progress.tool.Messages")
     public MessageSource messageSource() {
         ResourceLoaderMessageSource messages = new ResourceLoaderMessageSource();
         messages.setBasename("Messages");

@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.sakaiproject.widget.tool;
+package org.sakaiproject.progress.tool;
 
 import java.text.MessageFormat;
 import java.util.Locale;
