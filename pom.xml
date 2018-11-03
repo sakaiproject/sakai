@@ -101,7 +101,6 @@
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
-                <module>progress</module>
                 <module>search</module>
                 <module>sections</module>
                 <module>shortenedurl</module>
@@ -186,7 +185,6 @@
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
-                <module>progress</module>
                 <module>search</module>
                 <module>sections</module>
                 <module>shortenedurl</module>
