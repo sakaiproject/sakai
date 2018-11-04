@@ -705,94 +705,96 @@ public class LTI13Servlet extends HttpServlet {
 		out.println(" \"members\": [");
 
 		SakaiBLTIUtil.pushAdvisor();
-		boolean success = false;
+		try {
+			boolean success = false;
 
-		List<Map<String, Object>> lm = new ArrayList<>();
+			List<Map<String, Object>> lm = new ArrayList<>();
 
-		// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
-		Set<Member> members = site.getMembers();
-		Map<String, Member> memberMap = new HashMap<>();
-		List<String> userIds = new ArrayList<>();
-		for (Member member : members) {
-			userIds.add(member.getUserId());
-			memberMap.put(member.getUserId(), member);
-		}
-
-		List<User> users = UserDirectoryService.getUsers(userIds);
-		boolean first = true;
-
-		// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
-		String roleMapProp = (String) tool.get("rolemap");
-		roleMapProp = "maintain:Dude";
-
-		Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
-		for (User user : users) {
-			JSONObject jo = new JSONObject();
-			jo.put("status", "Active");
-			jo.put("context_id", site.getId());
-			jo.put("context_title", site.getTitle());
-			jo.put("user_id", user.getId());
-			jo.put("lis_person_sourcedid", user.getEid());
-
-			if (releaseName != 0) {
-				jo.put("name", user.getDisplayName());
-			}
-			if (releaseEmail != 0) {
-				jo.put("email", user.getEmail());
+			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
+			Set<Member> members = site.getMembers();
+			Map<String, Member> memberMap = new HashMap<>();
+			List<String> userIds = new ArrayList<>();
+			for (Member member : members) {
+				userIds.add(member.getUserId());
+				memberMap.put(member.getUserId(), member);
 			}
 
-			Member member = memberMap.get(user.getId());
-			Map<String, Object> mm = new TreeMap<>();
-			Role role = member.getRole();
-			String ims_user_id = member.getUserId();
+			List<User> users = UserDirectoryService.getUsers(userIds);
+			boolean first = true;
 
-			JSONArray roles = new JSONArray();
+			// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
+			String roleMapProp = (String) tool.get("rolemap");
+			roleMapProp = "maintain:Dude";
 
-			// If there is a role mapping, it has precedence over site.update
-			if ( roleMap.containsKey(role.getId()) ) {
-				roles.add(roleMap.get(role.getId()));
-			} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
-				roles.add("Instructor");
-			} else {
-				roles.add("Learner");
-			}
-			jo.put("roles", roles);
+			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+			for (User user : users) {
+				JSONObject jo = new JSONObject();
+				jo.put("status", "Active");
+				jo.put("context_id", site.getId());
+				jo.put("context_title", site.getTitle());
+				jo.put("user_id", user.getId());
+				jo.put("lis_person_sourcedid", user.getEid());
 
-			JSONObject sakai_ext = new JSONObject();
-			if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment_name != null ) {
-				String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-				String placement_id = getPlacementId(signed_placement);
-				String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
-				if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
-			}
-
-			Collection groups = site.getGroupsWithMember(ims_user_id);
-
-			if (groups.size() > 0) {
-				JSONArray lgm = new JSONArray();
-				for (Iterator i = groups.iterator();i.hasNext();) {
-					Group group = (Group) i.next();
-					JSONObject groupObj = new JSONObject();
-					groupObj.put("id", group.getId());
-					groupObj.put("title", group.getTitle());
-					lgm.add(groupObj);
+				if (releaseName != 0) {
+					jo.put("name", user.getDisplayName());
 				}
-				sakai_ext.put("sakai_groups", lgm);
+				if (releaseEmail != 0) {
+					jo.put("email", user.getEmail());
+				}
+
+				Member member = memberMap.get(user.getId());
+				Map<String, Object> mm = new TreeMap<>();
+				Role role = member.getRole();
+				String ims_user_id = member.getUserId();
+
+				JSONArray roles = new JSONArray();
+
+				// If there is a role mapping, it has precedence over site.update
+				if ( roleMap.containsKey(role.getId()) ) {
+					roles.add(roleMap.get(role.getId()));
+				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
+					roles.add("Instructor");
+				} else {
+					roles.add("Learner");
+				}
+				jo.put("roles", roles);
+
+				JSONObject sakai_ext = new JSONObject();
+				if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment_name != null ) {
+					String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+					String placement_id = getPlacementId(signed_placement);
+					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
+				}
+
+				Collection groups = site.getGroupsWithMember(ims_user_id);
+
+				if (groups.size() > 0) {
+					JSONArray lgm = new JSONArray();
+					for (Iterator i = groups.iterator();i.hasNext();) {
+						Group group = (Group) i.next();
+						JSONObject groupObj = new JSONObject();
+						groupObj.put("id", group.getId());
+						groupObj.put("title", group.getTitle());
+						lgm.add(groupObj);
+					}
+					sakai_ext.put("sakai_groups", lgm);
+				}
+
+				jo.put("sakai_ext", sakai_ext);
+
+				if (!first) {
+					out.println(",");
+				}
+				first = false;
+				out.print(JacksonUtil.prettyPrint(jo));
+
 			}
-
-			jo.put("sakai_ext", sakai_ext);
-
-			if (!first) {
-				out.println(",");
-			}
-			first = false;
-			out.print(JacksonUtil.prettyPrint(jo));
-
+			out.println("");
+			out.println(" ] }");
+		} finally {
+			SakaiBLTIUtil.popAdvisor();
 		}
-		out.println("");
-		out.println(" ] }");
-
-		SakaiBLTIUtil.popAdvisor();
 
 	}
 
