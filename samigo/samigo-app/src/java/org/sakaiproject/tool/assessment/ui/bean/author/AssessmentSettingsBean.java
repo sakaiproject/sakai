@@ -190,6 +190,7 @@ public class AssessmentSettingsBean
   private boolean isValidDueDate = true;
   private boolean isValidRetractDate = true;
   private boolean isValidFeedbackDate = true;
+  private boolean isRetractAfterDue = true;
   
   private String originalStartDateString;
   private String originalDueDateString;
@@ -1177,12 +1178,15 @@ public class AssessmentSettingsBean
     if (retractDateString == null || retractDateString.trim().equals("")) {
       this.isValidRetractDate = true;
       this.retractDate = null;
+      this.isRetractAfterDue = true;
     }
     else {
 
       Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+      Date tempDueDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
 
       if (tempDate != null) {
+        this.isRetractAfterDue = !(tempDueDate == null || tempDate.before(tempDueDate));
         this.isValidRetractDate = true;
         this.retractDate = tempDate;
       } else {
@@ -1454,6 +1458,11 @@ public class AssessmentSettingsBean
   public boolean getIsValidRetractDate()
   {
 	  return this.isValidRetractDate;
+  }
+
+  public boolean getIsRetractAfterDue()
+  {
+	  return this.isRetractAfterDue;
   }
   
   public boolean getIsValidFeedbackDate()
