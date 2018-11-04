@@ -6547,6 +6547,13 @@ public class DiscussionForumTool
         gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
+
+            // Get fresh copy of current data, to prevent hibernate version discrepancy on
+            // intermediate update from "Select a Gradebook item" html select input.
+            selectedMessage = new DiscussionMessageBean(
+                messageManager.getMessageByIdWithAttachments(selectedMessage.getMessage().getId()),
+                messageManager);
+
         	Message msg = selectedMessage.getMessage();
         //SAK-30711
         	msg.setGradeAssignmentName(Long.toString(gbItemId));
