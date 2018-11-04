@@ -118,7 +118,7 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 
 			// SAK-20449 XSS protection
 			if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://") &&
-				!url.startsWith("mailto:")) {
+				!url.startsWith("mailto:") && !url.startsWith("/")) {
 				log.warn("RWiki URL (" + url + ") looks invalid so we're removing it from the display.");
 				url = "";
 			}
