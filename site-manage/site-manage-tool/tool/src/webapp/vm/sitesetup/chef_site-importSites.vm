@@ -70,7 +70,6 @@
 						<tr>					
 							<td>
 									#set($toolTitle = "")
-									#set($alternateToolTitles = "")
 								
 									#foreach($t in $toolRegistrationList)
 										#if ($t.getId() == $toolId)
@@ -81,13 +80,7 @@
 										#set($toolTitle = $siteInfoToolTitle)
 									#end
 								
-									#set($alternateToolTitles = $!alternateToolTitlesMap.get($toolId))
-								
 									<h5>$toolTitle
-									
-										#if ($alternateToolTitles != "")
-											<span class="instruction">($alternateToolTitles)</span>
-										#end
 								
     									#if ($addMissingTools)
     										## if the tool doesnt exist in the selected site, output icon
