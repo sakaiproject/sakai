@@ -23,6 +23,8 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -37,12 +39,15 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -51,6 +56,7 @@ import java.util.Set;
  */
 @Slf4j
 public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderService {
+    private static final String DATE_FORMAT = "MMM dd, yyyy '@' hh:mm aa";
     private List<String> additionalHeaders = new ArrayList<>();
     @Setter
     private EmailService emailService;
@@ -64,6 +70,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
     private PreferencesService preferencesService;
     @Setter
     private ScheduledInvocationManager scheduledInvocationManager;
+    @Setter
+    private SecurityService securityService;
     @Setter
     private ServerConfigurationService serverConfigurationService;
 
@@ -111,10 +119,16 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
 
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                for (Member member : site.getMembers()) {
-                    if (assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
-                        sendEmailReminder(site, assignment, member);
+                SecurityAdvisor advisor = (u, f, r) -> { return SecurityAdvisor.SecurityAdvice.ALLOWED; };
+                securityService.pushAdvisor(advisor);
+                try {
+                    for (Member member : site.getMembers()) {
+                        if (assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
+                            sendEmailReminder(site, assignment, member);
+                        }
                     }
+                } finally {
+                    securityService.popAdvisor(advisor);
                 }
             }
         } catch (IdUnusedException | PermissionException e) {
@@ -132,9 +146,11 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
 
         String courseName = site.getTitle();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm aa");
+        Locale locale = new ResourceLoader().getLocale(submitter.getUserId());
+        SimpleDateFormat sdf = (locale != null)
+                                    ? new SimpleDateFormat(DATE_FORMAT, locale) : new SimpleDateFormat(DATE_FORMAT);
         Instant dueDate = assignment.getDueDate();
-        String formattedDateDue = sdf.format(dueDate);
+        String formattedDateDue = sdf.format(Date.from(dueDate));
 
         String toStr = getUserEmail(submitter.getUserId());
         if (StringUtils.isEmpty(toStr)) {
