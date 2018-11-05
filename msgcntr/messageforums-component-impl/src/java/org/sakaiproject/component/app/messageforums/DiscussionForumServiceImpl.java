@@ -540,12 +540,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 						if (!getImportAsDraft())
 						{
-							forumManager.saveDiscussionForum(newForum, newForum.getDraft(), false, currentUserId);
+							newForum = forumManager.saveDiscussionForum(newForum, newForum.getDraft(), false, currentUserId);
 						}
 						else
 						{
 							newForum.setDraft(Boolean.TRUE);
-							forumManager.saveDiscussionForum(newForum, true, false, currentUserId);
+							newForum = forumManager.saveDiscussionForum(newForum, true, false, currentUserId);
 						}
 						
 						//add the ref's for the old and new forum
