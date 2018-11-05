@@ -33,6 +33,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +46,7 @@ import java.util.stream.IntStream;
 
 import javax.annotation.Resource;
 
+import org.hibernate.NonUniqueResultException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,6 +78,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -392,17 +395,30 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void removeSubmission() {
         String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
-        try {
-            AssignmentSubmission submission = createNewSubmission(context, submitterId);
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
-            String submissionId = submission.getId();
-            assignmentService.removeSubmission(submission);
 
+        AssignmentSubmission submission = null;
+        try {
+            submission = createNewSubmission(context, submitterId);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        String submissionId = submission.getId();
+
+        try {
+            assignmentService.removeSubmission(submission);
+        } catch (Exception e) {
+            Assert.fail("Could not remove submission\n" + e.toString());
+        }
+
+        try {
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             AssignmentSubmission removedSubmmision = assignmentService.getSubmission(submissionId);
             Assert.assertNull(removedSubmmision);
         } catch (Exception e) {
-            Assert.fail("Could not create submission\n" + e.toString());
+            Assert.fail("Could not get removed submission\n" + e.toString());
         }
     }
 
@@ -410,15 +426,121 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void findSubmissionForUser() {
         String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = null;
+
         try {
-            AssignmentSubmission submission = createNewSubmission(context, submitterId);
-            Assignment assignment = submission.getAssignment();
-            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
-            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            submission = createNewSubmission(context, submitterId);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+
+        Assignment assignment = submission.getAssignment();
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        try {
             AssignmentSubmission submission1 = assignmentService.getSubmission(assignment.getId(), submitterId);
             Assert.assertEquals(submission.getId(), submission1.getId());
         } catch (Exception e) {
+            Assert.fail("Could not fetch submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void duplicateSubmissionsViaService() {
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = null;
+
+        try {
+            submission = createNewSubmission(context, submitterId);
+        } catch (Exception e) {
             Assert.fail("Could not create submission\n" + e.toString());
+        }
+
+        Assignment assignment = submission.getAssignment();
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+        try {
+            AssignmentSubmission submission1 = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertEquals(submission.getId(), submission1.getId());
+        } catch (Exception e) {
+            Assert.fail("Could not fetch submission\n" + e.toString());
+        }
+
+        // Lets test TRY to create a duplicate submission
+        AssignmentSubmission dupSubmission = null;
+        try {
+            // returns the original vs creating duplicate
+            dupSubmission = assignmentService.addSubmission(assignment.getId(), submitterId);
+            // submission is the same
+            Assert.assertEquals(dupSubmission.getId(), submission.getId());
+        } catch (Exception e) {
+            Assert.fail("Could not create duplicate submission\n" + e.toString());
+        }
+    }
+
+    @Test
+    public void duplicateSubmissionRemoval() {
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        AssignmentSubmission submission = null;
+
+        try {
+            submission = createNewSubmission(context, submitterId);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission\n" + e.toString());
+        }
+
+        Assignment assignment = submission.getAssignment();
+        AssignmentSubmission duplicateSubmission = duplicateSubmission(submission);
+        assignment.getSubmissions().add(duplicateSubmission);
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (Exception e) {
+            Assert.fail("Could not update assignment with duplicate submission\n" + e.toString());
+        }
+
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())).thenReturn(true);
+        try {
+            AssignmentSubmission fetchSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertEquals(submission.getId(), fetchSubmission.getId());
+        } catch (Exception e) {
+            Assert.fail("Could not fetch submission\n" + e.toString());
+        }
+
+        AssignmentSubmission duplicateSubmission1 = duplicateSubmission(submission);
+        submission.setUserSubmission(true);
+        assignment.getSubmissions().add(duplicateSubmission1);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (Exception e) {
+            Assert.fail("Could not update assignment with duplicate submission\n" + e.toString());
+        }
+
+        try {
+            AssignmentSubmission fetchSubmission = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertEquals(submission.getId(), fetchSubmission.getId());
+            Assert.assertTrue(fetchSubmission.getUserSubmission());
+        } catch (Exception e) {
+            Assert.fail("Could not fetch submission\n" + e.toString());
+        }
+
+        // create multiple user submissions which can not be deleted
+        AssignmentSubmission duplicateSubmission2 = duplicateSubmission(submission);
+        assignment.getSubmissions().add(duplicateSubmission2);
+        try {
+            assignmentService.updateAssignment(assignment);
+        } catch (Exception e) {
+            Assert.fail("Could not update assignment with duplicate submission\n" + e.toString());
+        }
+
+        try {
+            assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.fail("NonUniqueResultException expected");
+        } catch (Exception e) {
+            Assert.assertEquals(NonUniqueResultException.class, e.getClass());
         }
     }
 
@@ -827,5 +949,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         nf.setMinimumFractionDigits(dec);
         nf.setGroupingUsed(false);
         when(formattedText.getNumberFormat(dec, dec, false)).thenReturn(nf);
+    }
+
+    private AssignmentSubmission duplicateSubmission(AssignmentSubmission submission) {
+        // lets create some duplicate submissions by side stepping the service, nobody should ever do this its only for testing
+        AssignmentSubmission duplicateSubmission = new AssignmentSubmission();
+        BeanUtils.copyProperties(submission, duplicateSubmission);
+        duplicateSubmission.setId(null);
+        duplicateSubmission.setProperties(new HashMap<>());
+        duplicateSubmission.setAttachments(new HashSet<>());
+        duplicateSubmission.setFeedbackAttachments(new HashSet<>());
+        duplicateSubmission.setSubmitters(new HashSet<>());
+        submission.getSubmitters().forEach(s -> {
+            AssignmentSubmissionSubmitter submitter = new AssignmentSubmissionSubmitter();
+            BeanUtils.copyProperties(s, submitter);
+            submitter.setId(null);
+            submitter.setSubmission(duplicateSubmission);
+            duplicateSubmission.getSubmitters().add(submitter);
+        });
+        duplicateSubmission.setDateCreated(Instant.now().plusSeconds(5));
+        return duplicateSubmission;
     }
 }
