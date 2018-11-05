@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 
@@ -130,7 +131,12 @@ public class EhcacheMemoryService implements MemoryService {
 
     @Override
     public Cache getCache(String cacheName) {
-        return new EhcacheCache(makeEhcache(cacheName, null));
+	try {
+		return new EhcacheCache(makeEhcache(cacheName, null));
+	} catch (ObjectExistsException ex) {
+		log.debug("Cache {} already exists; possibly created by another thread", cacheName);
+		return null;
+	}
     }
 
     @Override
