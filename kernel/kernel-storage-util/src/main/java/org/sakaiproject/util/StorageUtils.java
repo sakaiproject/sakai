@@ -57,6 +57,7 @@ import org.xml.sax.helpers.DefaultHandler;
 @Slf4j
 public class StorageUtils {
 	private static SAXParserFactory parserFactory;
+	private static DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
 	/**
 	 * Create a new DOM Document.
@@ -67,7 +68,7 @@ public class StorageUtils {
 	{
 		try
 		{
-			DocumentBuilder builder = getDocumentBuilder();
+			DocumentBuilder builder = dbFactory.newDocumentBuilder();
 			Document doc = builder.newDocument();
 
 			return doc;
@@ -93,7 +94,7 @@ public class StorageUtils {
 		InputStream fis = null;
 		try
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
+			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 			fis = new FileInputStream(name);
 			doc = docBuilder.parse(fis);
 		}
@@ -115,7 +116,7 @@ public class StorageUtils {
 		// OK, that didn't work - the document is probably ISO-8859-1
 		try
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
+			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "ISO-8859-1");
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
@@ -130,7 +131,7 @@ public class StorageUtils {
 		// try forcing UTF-8
 		try
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
+			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "UTF-8");
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
@@ -155,7 +156,7 @@ public class StorageUtils {
 	{
 		try
 		{
-			DocumentBuilder docBuilder = getDocumentBuilder();
+			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 			InputSource inputSource = new InputSource(new StringReader(in));
 			Document doc = docBuilder.parse(inputSource);
 			return doc;
@@ -225,12 +226,10 @@ public class StorageUtils {
 		try
 		{
 			out = new FileOutputStream(fileName);
-//			 get an instance of the DOMImplementation registry
-			 DocumentBuilderFactory factory 
-			   = DocumentBuilderFactory.newInstance();
-			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  DOMImplementation impl = builder.getDOMImplementation();
-			  
+			// get an instance of the DOMImplementation registry
+			DocumentBuilder builder = dbFactory.newDocumentBuilder();
+			DOMImplementation impl = builder.getDOMImplementation();
+
 			DOMImplementationLS feature = (DOMImplementationLS) impl.getFeature("LS","3.0");
 			LSSerializer serializer = feature.createLSSerializer();
 			LSOutput output = feature.createLSOutput();
@@ -270,9 +269,7 @@ public class StorageUtils {
 			
 			StringWriter sw = new StringWriter();
 			
-			 DocumentBuilderFactory factory 
-			   = DocumentBuilderFactory.newInstance();
-			  DocumentBuilder builder = factory.newDocumentBuilder();
+			  DocumentBuilder builder = dbFactory.newDocumentBuilder();
 			  DOMImplementation impl = builder.getDOMImplementation();
 			  
 			
@@ -319,16 +316,4 @@ public class StorageUtils {
             return "";
         }
     }
-
-
-    /**
-     * @return a DocumentBuilder object for XML parsing.
-     */
-    private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
-    {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        return dbf.newDocumentBuilder();
-    }
-
 }
