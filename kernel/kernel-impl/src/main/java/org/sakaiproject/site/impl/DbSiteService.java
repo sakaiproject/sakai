@@ -1196,7 +1196,14 @@ public abstract class DbSiteService extends BaseSiteService
 			LinkedHashMap<String, Site> siteMap = getOrderedSiteMap(siteIds, requireDescription);
 
 			SqlReader reader = requireDescription ? fullSiteReader : lightSiteReader;
-			String order = getSitesOrder(sort);
+			String order = null;
+			if ((sort != SortType.CREATED_BY_ASC)
+					&& (sort != SortType.CREATED_BY_DESC)
+					&& (sort != SortType.MODIFIED_BY_ASC)
+					&& (sort != SortType.MODIFIED_BY_DESC))
+			{
+				order = getSitesOrder(sort);
+			}
 
 			// Account for limitations in the number of IN parameters we can use by batching
 			// Load just the sites that weren't found in cache
