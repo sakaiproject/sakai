@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.authz.api.Member;
@@ -119,7 +120,16 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
 
             // Do not send reminders if the site is unpublished or softly deleted
             if (site.isPublished() && !site.isSoftlyDeleted()) {
-                SecurityAdvisor advisor = (u, f, r) -> { return SecurityAdvisor.SecurityAdvice.ALLOWED; };
+                SecurityAdvisor advisor = (userId, function, reference) -> {
+
+                    if (function.equals(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT)
+                        || function.equals(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)
+                        || function.equals(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                    } else {
+                        return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                    }
+                };
                 securityService.pushAdvisor(advisor);
                 try {
                     for (Member member : site.getMembers()) {
