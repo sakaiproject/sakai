@@ -188,7 +188,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          UIOutput.make(groupForm, "prompt", headerText);
          UIOutput.make(groupForm, "emptyGroupTitleAlert", messageLocator.getMessage("editgroup.titlemissing"));
          
-         if (g != null && g.isLocked()) {
+         if (g != null && g.isLocked(Group.LockMode.MODIFY)) {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null)); 
          } else {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
@@ -460,7 +460,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
             UILabelTargetDecorator.targetLabel(filterSetLabel, filterSetSelect);
          }
          
-         if (g != null && g.isLocked()) {
+         if (g != null && g.isLocked(Group.LockMode.MODIFY)) {
             UIDisabledDecorator disable = new UIDisabledDecorator(true);
             groupTitleInput.decorate(disable);
             groupDescr.decorate(disable);
