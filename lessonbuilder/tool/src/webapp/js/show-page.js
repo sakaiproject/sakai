@@ -3532,7 +3532,11 @@ function printViewWithParameter(url) {
     var j = url.indexOf("/tool/");
     if (j < 0)
 	return url;
+    var z = url.indexOf("ShowPage");
+    if (z < 0)
     return url.substring(0, i) + url.substring(j) + '?printall=true';
+    else
+    return url.substring(0, i) + url.substring(j) + '&printall=true';
 }
 
 // make columns in a section the same height. Is there a better place to trigger this?
