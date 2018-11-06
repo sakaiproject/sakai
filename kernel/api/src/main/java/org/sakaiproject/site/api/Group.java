@@ -49,8 +49,12 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	static final String GROUP_PROP_JOINABLE_UNJOINABLE = "group_prop_joinable_unjoinable";
 	/** The property to indicate whether the group is locked and by which entities references it is locked **/
 	static final String GROUP_PROP_LOCKED_BY = "group_prop_locked_by";
+	/** The property to indicate whether the group is locked for deletion and by which entities references it is locked **/
+	static final String GROUP_PROP_LOCKED_FOR_DELETION_BY = "group_prop_locked_for_deletion_by";
 	/** Entities references separator for locked by property **/
 	static final String GROUP_PROP_SEPARATOR = "#:#";
+	
+	public enum LockMode {NONE, ALL, MODIFY, DELETE}
 
 	/** @return a human readable short title of this group. */
 	String getTitle();
@@ -111,55 +115,43 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	void insertMember(String userId, String roleId, boolean active, boolean provided) throws IllegalStateException;
 
 	/**
-	 * Locks this group by an entity.
-	 * 
-	 * @param entity
-	 *        The entity that is going to lock this group.
-	 */
-	void lockGroup(Entity entity);
-
-	/**
 	 * Locks this group by the reference of an entity.
 	 * 
 	 * @param reference
 	 *        The reference of an entity that is going to lock this group.
+	 * @param mode
+	 *        The lock mode.
 	 */
-	void lockGroup(String lock);
-
-	/**
-	 * Unlocks this group by an entity.
-	 * 
-	 * @param entity
-	 *        The entity that will cease on locking this group.
-	 */
-	void unlockGroup(Entity entity);
+	void lockGroup(String lock, LockMode lockMode);
 
 	/**
 	 * Unlocks this group by the reference of an entity.
 	 * 
 	 * @param reference
-	 *        The reference of an entity that will cease on locking this group.
+	 *        The reference of an entity that is going to unlock this group.
+	 * @param mode
+	 *        Unlock the group for that mode.
 	 */
-	void unlockGroup(String lock);
+	void unlockGroup(String lock, LockMode lockMode);
 
 	/**
-	 * Unlocks this group from any entity that might be locking it.
-	 */
-	void unlockGroup();
-
-	/**
-	 * Checks if this group is locked by any entity.
+	 * Checks if this group is locked by any entity and that mode.
 	 * 
+	 * @param lock
+	 *        The reference of an entity that locked the group.
+	 * @param lockMode
+	 *        The lock mode of the group.
 	 * @return true if this group is locked by any entity, false if not.
 	 */
-	boolean isLocked();
+	boolean isLocked(String lock, LockMode lockMode);
 
 	/**
-	 * Checks if this group is locked by the reference of an entity.
+	 * Checks if this group is locked by that mode.
 	 * 
-	 * @param reference
-	 *        The reference of an entity where want to see if is locking this group.
-	 * @return true if this group is locked by the reference of an entity, false if not.
+	 * @param lockMode
+	 *        The lock mode of the group.
+	 * @return true if this group is locked by any entity, false if not.
 	 */
-	boolean isLocked(String lock);
+	boolean isLocked(LockMode lockMode);
+
 }
