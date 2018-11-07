@@ -15,44 +15,45 @@
  */
 package org.sakaiproject.profile2.tool.pages;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.markup.html.panel.Panel;
 
-import org.sakaiproject.profile2.exception.ProfileFriendsIllegalAccessException;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+import org.apache.wicket.markup.html.basic.Label;
+
+import org.apache.wicket.model.StringResourceModel;
+
 @Slf4j
 public class ViewFriends extends BasePage {
 
-	public ViewFriends(final String userUuid) {
-		
-		log.debug("ViewFriends()");
-		
-		//get user viewing this page
-		final String currentUserUuid = sakaiProxy.getCurrentUserId();
-				
-		//check person viewing this page (currentuserId) is allowed to view userId's friends - unless admin
-		if(!sakaiProxy.isSuperUser()){
-			boolean isFriendsListVisible = privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS);
-			if(!isFriendsListVisible) {
-				throw new ProfileFriendsIllegalAccessException("User: " + currentUserUuid + " is not allowed to view the friends list for: " + userUuid);
-			}
-		}
-		
-		//show confirmed friends panel for the given user
-		Panel confirmedFriends = new ConfirmedFriends("confirmedFriends", userUuid);
-		confirmedFriends.setOutputMarkupId(true);
-		add(confirmedFriends);
-		
-		//post view event
-		sakaiProxy.postEvent(ProfileConstants.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userUuid, false);
-		
+    public ViewFriends(final String userUuid) {
+
+        log.debug("ViewFriends()");
+
+        //get user viewing this page
+        final String currentUserUuid = sakaiProxy.getCurrentUserId();
+
+        //check person viewing this page (currentuserId) is allowed to view userId's friends - unless admin
+        boolean isFriendsListVisible = sakaiProxy.isSuperUser()
+                    || privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS);
+
+        if (isFriendsListVisible) {
+            //show confirmed friends panel for the given user
+            Panel confirmedFriends = new ConfirmedFriends("confirmedFriends", userUuid);
+            confirmedFriends.setOutputMarkupId(true);
+            add(confirmedFriends);
+
+            //post view event
+            sakaiProxy.postEvent(ProfileConstants.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userUuid, false);
+        } else {
+            log.debug("User: {} is not allowed to view the friends list for: {} ", currentUserUuid, userUuid);
+            String displayName = sakaiProxy.getUserDisplayName(userUuid);
+            Label notPermitted = new Label("confirmedFriends"
+                        , new StringResourceModel("error.friend.view.disallowed", null, new Object[] {displayName}));
+            add(notPermitted);
+        }
 	}
-	
 }
-
-
-
