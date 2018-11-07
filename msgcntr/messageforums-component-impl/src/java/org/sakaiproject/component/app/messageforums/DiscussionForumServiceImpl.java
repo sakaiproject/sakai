@@ -538,18 +538,19 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						Area area = areaManager.getDiscussionArea(toContext, false);
 						newForum.setArea(area);
 
+						DiscussionForum savedForum = null;
 						if (!getImportAsDraft())
 						{
-							forumManager.saveDiscussionForum(newForum, newForum.getDraft(), false, currentUserId);
+							savedForum = forumManager.saveDiscussionForum(newForum, newForum.getDraft(), false, currentUserId);
 						}
 						else
 						{
 							newForum.setDraft(Boolean.TRUE);
-							forumManager.saveDiscussionForum(newForum, true, false, currentUserId);
+							savedForum = forumManager.saveDiscussionForum(newForum, true, false, currentUserId);
 						}
 						
 						//add the ref's for the old and new forum
-						transversalMap.put("forum/" + fromForumId, "forum/" + newForum.getId());
+						transversalMap.put("forum/" + fromForumId, "forum/" + savedForum.getId());
 
 						// get/add the topics
 						List topicList = dfManager.getTopicsByIdWithMessagesMembershipAndAttachments(fromForumId);
@@ -558,7 +559,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								DiscussionTopic fromTopic = (DiscussionTopic)topicList.get(currTopic);
 								Long fromTopicId = fromTopic.getId();
 
-								DiscussionTopic newTopic = forumManager.createDiscussionForumTopic(newForum);
+								DiscussionTopic newTopic = forumManager.createDiscussionForumTopic(savedForum);
 
 								newTopic.setTitle(fromTopic.getTitle());
 								if (fromTopic.getShortDescription() != null && fromTopic.getShortDescription().length() > 0) {
@@ -619,7 +620,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									}
 								}
 
-								forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft(), currentUserId, false);
+								forumManager.saveDiscussionForumTopic(newTopic, savedForum.getDraft(), currentUserId, false);
 								
 								//add the ref's for the old and new topic
 								transversalMap.put("forum_topic/" + fromTopicId, "forum_topic/" + newTopic.getId());
