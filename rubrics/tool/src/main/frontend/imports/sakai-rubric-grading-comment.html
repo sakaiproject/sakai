@@ -21,7 +21,7 @@
       </div>
       <div class="popover-content form">
         <div class="form-group">
-          <textarea aria-labelledby="[[lang('criterion_comment','Leave a comment about this criterion for the student')]]" name="rbcs-[[entityId]]-criterion-comment-[[criterion.id]]" id="criterion_[[entityId]]_comment_[[criterion.id]]" value="{{comments::keyup}}"></textarea>
+          <textarea aria-labelledby="[[lang('criterion_comment','Leave a comment about this criterion for the student')]]" class="form-control" name="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-comment-[[criterion.id]]" id="criterion_[[evaluatedItemId]]_[[entityId]]_comment_[[criterion.id]]|[[randombit]]|" value="{{comments::keyup}}"></textarea>
         </div>
       </div>
     </div>
@@ -58,6 +58,9 @@
           observer: 'handleComment'
         },
         entityId: {
+          type: String,
+        },
+        evaluatedItemId: {
           type: String,
         }
       },
@@ -131,7 +134,7 @@
         setTimeout(function(){
           this.comments = this.criterion.comments;
           this.showActive();
-          var commentEditor = CKEDITOR.replace('criterion_' + this.entityId + '_comment_'+this.criterion.id, {
+          var commentEditor = CKEDITOR.replace('criterion_' + this.evaluatedItemId + '_' + this.entityId + '_comment_' + this.criterion.id + '|' + this.randombit + '|', {
             toolbar : [
               // ['Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink'],
               ['Bold', 'Italic', 'Underline'],
@@ -144,9 +147,15 @@
         }.bind(this));
       },
       ready: function(e) {
+        this.randombit = getRandomInt(0, 15000);
         // // get popover reference
         this.tt = this.$$('.popover');
       }
     });
+  </script>
+  <script>
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
   </script>
 </dom-module>
