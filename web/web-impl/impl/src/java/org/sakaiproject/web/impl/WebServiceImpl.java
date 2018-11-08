@@ -70,6 +70,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	private static final String VERSION_ATTR = "version";
 	private static final String WEB_CONTENT_URL_PROP = "source";
 	private static final String HEIGHT_PROP = "height";
+	private static final String CUSTOM_ICON_PROP = "imsti.fa_icon";
 	private static final String SPECIAL_PROP = "special";
 	
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
@@ -394,7 +395,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return toolIds;
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List ids)
+	public void transferCopyEntities(String fromContext, String toContext, List<String> ids)
 	{
 		log.debug("web content transferCopyEntities");
 		try
@@ -403,55 +404,48 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 			Site fromSite = SiteService.getSite(fromContext);
 			Site toSite = SiteService.getSite(toContext);
 			
-			List fromSitePages = fromSite.getPages();
+			List<SitePage> fromSitePages = fromSite.getOrderedPages();
 
 			if (fromSitePages != null && !fromSitePages.isEmpty()) {
-				Iterator pageIter = fromSitePages.iterator();
-				while (pageIter.hasNext()) {
-					SitePage currPage = (SitePage) pageIter.next();
-
-					List toolList = currPage.getTools();
-					Iterator toolIter = toolList.iterator();
-					while (toolIter.hasNext()) {
-						ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
-						
+				for (SitePage currPage : fromSitePages) {
+					List<ToolConfiguration> toolList = currPage.getTools();
+					for (ToolConfiguration toolConfig : toolList) {
 						 // we do not want to import "special" uses of sakai.iframe, such as worksite info
 						String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
 
 						if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
 							String contentUrl = toolConfig.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
 							String toolTitle = toolConfig.getTitle();
-							String pageTitle = currPage.getTitle();
-							String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
-
+							final String pageTitle = currPage.getTitle();
+							final int pagePosition = currPage.getPosition();
+							final boolean pagePopup = currPage.isPopUp();
+							final String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
+							final String customIcon = toolConfig.getPlacementConfig().getProperty(CUSTOM_ICON_PROP);
 
 							// in some cases the new site already has all of this. so make
 							// sure we don't make a duplicate
-
 							boolean skip = false;
 
-							String[] toolIds = {TOOL_ID};
 							Collection<ToolConfiguration> toolConfs = toSite.getTools(TOOL_ID);
 							if (toolConfs != null && !toolConfs.isEmpty())  {
 							    for (ToolConfiguration config: toolConfs) {
-								if (config.getToolId().equals(TOOL_ID)) {
-								    SitePage p = config.getContainingPage();
-								    if (pageTitle != null &&
-									pageTitle.equals(p.getTitle()) &&
-									contentUrl != null &&
-									contentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
-									skip = true;
-									break;
-								    }
-								}
+									if (config.getToolId().equals(TOOL_ID)) {
+									    SitePage p = config.getContainingPage();
+									    if (pageTitle != null && pageTitle.equals(p.getTitle()) &&
+											contentUrl != null && contentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
+											skip = true;
+											break;
+									    }
+									}
 							    }
 							}
 
-							if(!skip && toolTitle != null && toolTitle.length() >0 && pageTitle !=null && pageTitle.length() > 0)
-							{
+							if(!skip && toolTitle != null && toolTitle.length() >0 && pageTitle !=null && pageTitle.length() > 0) {
 								Tool tr = ToolManager.getTool(TOOL_ID);
 								SitePage page = toSite.addPage(); 
 								page.setTitle(pageTitle);
+								page.setPosition(pagePosition);
+								page.setPopup(pagePopup);
 								ToolConfiguration tool = page.addTool();
 								tool.setTool(TOOL_ID, tr);
 								tool.setTitle(toolTitle);
@@ -460,15 +454,12 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 									contentUrl = contentUrl.replace(fromContext, toContext);
 									tool.getPlacementConfig().setProperty(WEB_CONTENT_URL_PROP, contentUrl);
 								}
-
 								if (height != null) {
 									tool.getPlacementConfig().setProperty(HEIGHT_PROP, height);
 								}
-
-								if (currPage.isPopUp()) 
-									page.setPopup(true);
-								else
-									page.setPopup(false);
+								if (customIcon != null) {
+									tool.getPlacementConfig().setProperty(CUSTOM_ICON_PROP, customIcon);
+								}
 							}
 						}
 					}
@@ -504,59 +495,45 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return null;
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
-	{	
-		try
-		{
-			if(cleanup == true)
-			{
+	public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+		try {
+			if (cleanup) {
+				Vector<String> removePageIds = new Vector<>();
 				Site toSite = SiteService.getSite(toContext);
-				
-				List toSitePages = toSite.getPages();
-				if (toSitePages != null && !toSitePages.isEmpty()) 
-				{
-					Vector removePageIds = new Vector();
-					Iterator pageIter = toSitePages.iterator();
-					while (pageIter.hasNext()) 
-					{
-						SitePage currPage = (SitePage) pageIter.next();
 
-						List toolList = currPage.getTools();
-						Iterator toolIter = toolList.iterator();
-						while (toolIter.hasNext()) 
-						{
-							ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
-							
+				List<SitePage> toSitePages = toSite.getOrderedPages();
+				if (toSitePages != null && !toSitePages.isEmpty()) {
+					for (SitePage currPage : toSitePages) {
+						List<ToolConfiguration> toolList = currPage.getTools();
+						for (ToolConfiguration toolConfig : toolList) {
 							 // we do not want to import "special" uses of sakai.iframe, such as worksite info
 							String special = toolConfig.getPlacementConfig().getProperty(SPECIAL_PROP);
 
-							if (toolConfig.getToolId().equals(TOOL_ID) && special == null) 
-							{
+							if (toolConfig.getToolId().equals(TOOL_ID) && special == null) {
 								removePageIds.add(toolConfig.getPageId());
 							}
 						}
 					}
-					for (int i = 0; i < removePageIds.size(); i++) 
-					{
-						String removeId = (String) removePageIds.get(i);
+
+					for (String removeId : removePageIds) {
 						SitePage sitePage = toSite.getPage(removeId);
 						toSite.removePage(sitePage);
 					}
-					
 				}
-				SiteService.save(toSite);
-				ToolSession session = SessionManager.getCurrentToolSession();
 
-				if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null)
-				{
-					session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+				// Only save if pages were actually removed
+				if (!removePageIds.isEmpty()) {
+					SiteService.save(toSite);
+					ToolSession session = SessionManager.getCurrentToolSession();
+
+					if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
+						session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
+					}
 				}
-				 
-			} 
+			}
 			transferCopyEntities(fromContext, toContext, ids);
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			log.info("WebContent transferCopyEntities Error" + e);
 		}
 	}
