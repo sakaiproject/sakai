@@ -222,18 +222,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     Topic tempTopic = null;
     Set resultSet = new HashSet();      
-    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+    List temp = getHibernateTemplate().execute(hcb);
     for (Iterator i = temp.iterator(); i.hasNext();)
     {
       Object[] results = (Object[]) i.next();        
           
       if (results != null) {
         if (results[0] instanceof Topic) {
-          tempTopic = (Topic)results[0];
-          tempTopic.setBaseForum((BaseForum)results[1]);            
+          tempTopic = (Topic) HibernateUtils.unproxy(results[0]);
+          tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[1]));
         } else {
-          tempTopic = (Topic)results[1];
-          tempTopic.setBaseForum((BaseForum)results[0]);
+          tempTopic = (Topic) HibernateUtils.unproxy(results[1]);
+          tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[0]));
         }
         resultSet.add(tempTopic);
       }
@@ -261,11 +261,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           
       if (results != null) {
         if (results[0] instanceof Topic) {
-          tempTopic = (Topic)results[0];
-          tempTopic.setBaseForum((BaseForum)results[1]);            
+          tempTopic = (Topic) HibernateUtils.unproxy(results[0]);
+          tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[1]));
         } else {
-          tempTopic = (Topic)results[1];
-          tempTopic.setBaseForum((BaseForum)results[0]);
+          tempTopic = (Topic) HibernateUtils.unproxy(results[1]);
+          tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[0]));
         }
         resultSet.add(tempTopic);
       }
@@ -293,11 +293,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           
       if (results != null) {
         if (results[0] instanceof Topic) {
-          tempTopic = (Topic)results[0];
-          tempTopic.setBaseForum((BaseForum)results[1]);            
+          tempTopic = (Topic) HibernateUtils.unproxy(results[0]);
+          tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[1]));
         } else {
-          tempTopic = (Topic)results[1];
-          tempTopic.setBaseForum((BaseForum)results[0]);
+          tempTopic = (Topic) HibernateUtils.unproxy(results[1]);
+          tempTopic.setBaseForum((BaseForum) HibernateUtils.unproxy(results[0]));
         }
         resultSet.add(tempTopic);
       }
@@ -660,11 +660,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				Object[] results = (Object[]) temp.get(0);
 				if (results != null && results.length > 1) {
 					if (results[0] instanceof Topic) {
-						res = (Topic) results[0];
-						res.setBaseForum((BaseForum) results[1]);
+						res = (Topic) HibernateUtils.unproxy(results[0]);
+						res.setBaseForum((BaseForum) HibernateUtils.unproxy(results[1]));
 					} else {
-						res = (Topic) results[1];
-						res.setBaseForum((BaseForum) results[0]);
+						res = (Topic) HibernateUtils.unproxy(results[1]);
+						res.setBaseForum((BaseForum) HibernateUtils.unproxy(results[0]));
 					}
 				}
 			}
