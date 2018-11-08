@@ -245,6 +245,7 @@
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
         <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
     </bean>
 
     <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.assignment"
