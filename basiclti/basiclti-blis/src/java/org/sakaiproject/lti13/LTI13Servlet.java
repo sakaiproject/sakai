@@ -1565,8 +1565,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String redirect = login_hint;
-		redirect += "?state=" + java.net.URLEncoder.encode(state);
+		String redirect = login_hint + "?state=" + java.net.URLEncoder.encode(state);
 		log.debug("redirect={}", redirect);
 
 		try {

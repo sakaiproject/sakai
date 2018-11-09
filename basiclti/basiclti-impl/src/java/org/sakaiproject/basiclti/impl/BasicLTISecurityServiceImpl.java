@@ -348,8 +348,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						String state = req.getParameter("state");
 						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
 						log.debug("State={} oidc_endpoint={}",state, oidc_endpoint);
-						if ( oidc_endpoint != null && oidc_endpoint.trim().length() > 1 &&
-							( state == null || state.trim().length() < 1) ) {
+						if (StringUtils.isNotBlank(oidc_endpoint) && StringUtils.isEmpty(state)) {
 							redirectOIDC(req, res, oidc_endpoint, rb);
 						}
 						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, rb, contentReturn, propData);
@@ -405,8 +404,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String state = req.getParameter("state");
 					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
 					log.debug("State={} oidc_endpoint={}",state, oidc_endpoint);
-					if ( oidc_endpoint != null && oidc_endpoint.trim().length() > 1 &&
-						( state == null || state.trim().length() < 1) ) {
+					if (StringUtils.isNotBlank(oidc_endpoint) && StringUtils.isEmpty(state)) {
 						redirectOIDC(req, res, oidc_endpoint, rb);
 					}
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, ltiService, rb);
