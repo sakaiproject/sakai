@@ -11,6 +11,8 @@
 <b>$tlang.getString('lti13_keyset_url')</b><br/>$keySetUrl</p>
 <p class="row" id="lti13_token_url">
 <b>$tlang.getString('lti13_token_url')</b><br/>$tokenUrl</p>
+<p class="row" id="lti13_oidc_auth">
+<b>$tlang.getString('lti13_oidc_auth')</b><br/>$authOIDC</p>
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
 			<input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')"

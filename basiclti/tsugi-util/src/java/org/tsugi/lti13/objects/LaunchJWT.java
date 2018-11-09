@@ -26,6 +26,8 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
 	public String deployment_id;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/launch_url")
+	public String launch_url;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/message_type")
 	public String message_type;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/version")

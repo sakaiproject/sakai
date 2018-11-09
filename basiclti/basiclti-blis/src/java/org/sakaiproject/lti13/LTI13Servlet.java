@@ -204,6 +204,12 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// /imsblis/lti13/oidc_auth?state=42&login_hint=/access/basiclti/site/92e..e8e67/content:6
+		if (parts.length == 4 && "oidc_auth".equals(parts[3]) ) {
+			handleOIDCAuthorization(request, response);
+			return;
+		}
+
 		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
 		LTI13Util.return400(response, "Unrecognized GET request parts="+parts.length+" request="+uri);
@@ -1530,4 +1536,45 @@ public class LTI13Servlet extends HttpServlet {
 		LTI13Util.return400(response, "Could not delete assignment "+assignment_id);
 		log.error("Could delete assignment={}", assignment_id);
 	}
+
+	/**
+	 * Process the returned OIDC Authorization request
+	 * @param signed_placement
+	 * @param lineItem - Can be null
+	 * @param results
+	 * @param request
+	 * @param response
+	 */
+	private void handleOIDCAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		String state = (String) request.getParameter("state");
+		if ( state != null && state.trim().length() < 1 ) state = null;
+
+		String login_hint = (String) request.getParameter("login_hint");
+		if ( login_hint != null && login_hint.trim().length() < 1 ) state = null;
+
+		if ( state == null || login_hint == null ) {
+			LTI13Util.return400(response, "Missing login_hint or state parameter");
+			log.error("Missing login_hint or state parameter");
+			return;
+		}
+
+		if ( login_hint.contains("&") || login_hint.contains("?") || ! login_hint.startsWith("/access/basiclti/site/") ) {
+			LTI13Util.return400(response, "Bad format for login_hint");
+			log.error("Bad format for login_hint");
+			return;
+		}
+
+		String redirect = login_hint;
+		redirect += "?state=" + java.net.URLEncoder.encode(state);
+		log.debug("redirect={}", redirect);
+
+		try {
+			response.sendRedirect(redirect);
+		} catch (IOException unlikely) {
+			log.error("failed redirect {}", unlikely.getMessage());
+		}
+
+	}
+
 }
