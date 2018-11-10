@@ -864,7 +864,7 @@ public class SakaiBLTIUtil {
 
 	// This must return an HTML message as the [0] in the array
 	// If things are successful - the launch URL is in [1]
-	public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool, LTIService ltiService, ResourceLoader rb) {
+	public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool, String state, LTIService ltiService, ResourceLoader rb) {
 		if (content == null) {
 			return postError("<p>" + getRB(rb, "error.content.missing", "Content item is missing or improperly configured.") + "</p>");
 		}
@@ -1011,6 +1011,7 @@ public class SakaiBLTIUtil {
 		setProperty(lti2subst, "ResourceLink.id", resource_link_id);
 
 		setProperty(toolProps, "launch_url", launch_url);
+		setProperty(toolProps, "state", state);  // So far LTI 1.3 only
 
 		setProperty(toolProps, LTIService.LTI_SECRET, secret);
 		setProperty(toolProps, "key", key);
@@ -1436,7 +1437,7 @@ public class SakaiBLTIUtil {
 	 * successful - the launch URL is in [1]
 	 */
 	public static String[] postContentItemSelectionRequest(Long toolKey, Map<String, Object> tool,
-			ResourceLoader rb, String contentReturn, Properties dataProps) {
+			String state, ResourceLoader rb, String contentReturn, Properties dataProps) {
 		if (tool == null) {
 			return postError("<p>" + getRB(rb, "error.tool.missing", "Tool is missing or improperly configured.") + "</p>");
 		}
@@ -1563,6 +1564,7 @@ public class SakaiBLTIUtil {
 		if ( isLTI13 ) {
 			Properties toolProps = new Properties();
 			toolProps.put("launch_url", launch_url);
+			setProperty(toolProps, "state", state);  // So far LTI 1.3 only
 			toolProps.put(LTIService.LTI_DEBUG, dodebug ? "1" : "0");
 
 			Map<String, Object> content = null;
@@ -1796,10 +1798,11 @@ user_id: admin
 			lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 			deepLink = true;
 		}
+		lj.launch_url = launch_url;  // The actual launch URL
 		lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
 		lj.locale = ltiProps.getProperty("launch_presentation_locale");
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
-		lj.issuer = "https://www.sakaiproject.org/";
+		lj.issuer = getOurServerUrl();
 		lj.audience = client_id;
 		lj.deployment_id = org_guid;
 		lj.subject = ltiProps.getProperty("user_id");
@@ -1965,14 +1968,26 @@ user_id: admin
 			dodebug = true;
 		}
 
+		String state = toolProps.getProperty("state");
+		if ( state != null && state.trim().length() < 1 ) state = null;
+
+		String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
+		if ( lti13_oidc_redirect != null ) launch_url = lti13_oidc_redirect;
+
 		String html = "<form action=\"" + launch_url + "\" method=\"POST\">\n"
-				+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n"
-				+ "    <input type=\"submit\" value=\"Go!\" />\n"
-				+ "</form>\n";
+				+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
+
+		if ( state != null ) {
+			html += "    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n";
+		}
+
+		html += "    <input type=\"submit\" value=\"Go!\" />\n</form>\n";
 
 		if (dodebug) {
 			html += "<p>\n--- Unencoded JWT:<br/>"
 					+ BasicLTIUtil.htmlspecialchars(ljs)
+					+ "</p>\n<p>\n--- State:<br/>"
+					+ BasicLTIUtil.htmlspecialchars(state)
 					+ "</p>\n<p>\n--- Encoded JWT:<br/>"
 					+ BasicLTIUtil.htmlspecialchars(jws)
 					+ "</p>\n";
