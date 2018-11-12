@@ -113,6 +113,33 @@ public class Rubric implements Modifiable, Serializable, Cloneable {
         return clonedRubric;
     }
 
+    public Rubric clone(String siteId) throws CloneNotSupportedException {
+        Rubric clonedRubric = new Rubric();
+        clonedRubric.setId(null);
+        clonedRubric.setTitle(this.title);
+        clonedRubric.setDescription(this.description);
+        Metadata metadata = new Metadata();
+        metadata.setLocked(false);
+        metadata.setShared(false);
+        metadata.setOwnerId(siteId);
+        clonedRubric.setMetadata(metadata);
+        clonedRubric.setCriterions(this.getCriterions().stream().map(criterion -> {
+            Criterion clonedCriterion = null;
+            try {
+				clonedCriterion = criterion.clone();
+				Metadata cmetadata = new Metadata();
+				cmetadata.setLocked(false);
+				cmetadata.setShared(false);
+				cmetadata.setOwnerId(siteId);
+				clonedCriterion.setMetadata(cmetadata);
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+            return clonedCriterion;
+        }).collect(Collectors.toList()));
+        return clonedRubric;
+    }
+
     @Override
     public Metadata getModified() {
         return metadata;

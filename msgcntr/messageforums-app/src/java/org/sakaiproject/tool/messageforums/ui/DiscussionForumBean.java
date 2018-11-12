@@ -772,6 +772,6 @@ public class DiscussionForumBean
 	}
 
 	public String getHasRubric(){
-		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, forum.getUuid()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }

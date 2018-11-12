@@ -49,6 +49,8 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -92,6 +94,8 @@ import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -103,6 +107,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	private GradebookPermissionService gradebookPermissionService;
 	protected SiteService siteService;
 
+	@Getter @Setter
+	private RubricsService rubricsService;
 	@Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName) {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -422,8 +428,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public void transferGradebook(final GradebookInformation gradebookInformation,
-			final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, final String toGradebookUid) {
+	public Map<String,String> transferGradebook(final GradebookInformation gradebookInformation,
+			final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, final String toGradebookUid, final String fromContext) {
+
+		final Map<String, String> transversalMap = new HashMap<>();
 
 		final Gradebook gradebook = getGradebook(toGradebookUid);
 
@@ -478,11 +486,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 						// create the assignment for the current category
 						try {
-							createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), a.getName(), a.getPoints(),
+							Long newId = createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), a.getName(), a.getPoints(),
 									a.getDueDate(), true, false, a.isExtraCredit());
+							if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, a.getId().toString(), fromContext) != null){
+								transversalMap.put("gb/"+a.getId(),"gb/"+newId);
+							}
 						} catch (final ConflictingAssignmentNameException e) {
 							// assignment already exists. Could be from a merge.
 							log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", a.getName());
+						} catch (final Exception ex) {
+							log.warn("GradebookAssignment: exception {} trying to create {} in target site. Skipping creation.", ex.getMessage(), a.getName());
 						}
 
 						// record that we have created this assignment
@@ -508,10 +521,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		assignments.removeIf(a -> assignmentsCreated.contains(a.getName()));
 		assignments.forEach(a -> {
 			try {
-				createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
+				Long newId = createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
+				if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, a.getId().toString(), fromContext) != null){
+					transversalMap.put("gb/"+a.getId(),"gb/"+newId);
+				}
 			} catch (final ConflictingAssignmentNameException e) {
 				// assignment already exists. Could be from a merge.
 				log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", a.getName());
+			} catch (final Exception ex) {
+				log.warn("GradebookAssignment: exception {} trying to create {} in target site. Skipping creation.", ex.getMessage(), a.getName());
 			}
 		});
 
@@ -543,6 +561,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			log.info("Merge to gradebook {} skipped grade mapping change because grading scale {} is not defined", toGradebookUid,
 					fromGradingScaleUid);
 		}
+		return transversalMap;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
