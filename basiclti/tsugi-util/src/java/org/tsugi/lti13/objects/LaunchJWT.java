@@ -27,7 +27,7 @@ public class LaunchJWT extends BaseJWT {
 	public String deployment_id;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/target_link_uri")
-	public String launch_url;
+	public String target_link_uri;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/message_type")
 	public String message_type;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/version")
@@ -59,6 +59,9 @@ public class LaunchJWT extends BaseJWT {
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/resource_link")
 	public ResourceLink resource_link;
+
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/user_id")
+	public String user_id;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/context")
 	public Context context;
