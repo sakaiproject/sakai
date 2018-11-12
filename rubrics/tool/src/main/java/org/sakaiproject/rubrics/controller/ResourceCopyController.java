@@ -65,6 +65,7 @@ public class ResourceCopyController {
 
     private static final String X_COPY_HEADER = "x-copy-source";
     private static final String X_LANG_HEADER = "lang";
+    private static final String X_SITE_HEADER = "site";
 
     @PreAuthorize("canCopy(#sourceId, 'Rubric')")
     @RequestMapping(value = "/rubrics", method = RequestMethod.POST, headers = {X_COPY_HEADER,X_LANG_HEADER})
@@ -86,6 +87,18 @@ public class ResourceCopyController {
         return new ResponseEntity<Rubric>(clonedRubric, headers, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("canCopy(#sourceId, 'Rubric')")
+    @RequestMapping(value = "/rubrics/clone", method = RequestMethod.POST, headers = {X_COPY_HEADER,X_SITE_HEADER})
+    ResponseEntity<Rubric> copyRubricToSite(@Param("sourceId") @RequestHeader(value = X_COPY_HEADER) String sourceId, @RequestHeader(value = X_SITE_HEADER) String site)
+            throws CloneNotSupportedException {
+        Rubric sourceRubric = rubricRepository.findOne(Long.parseLong(sourceId));
+        Rubric clonedRubric = sourceRubric.clone(site);
+        clonedRubric = rubricRepository.save(clonedRubric);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(repositoryEntityLinks.linkFor(Rubric.class).slash(clonedRubric.getId()).toUri());
+        return new ResponseEntity<Rubric>(clonedRubric, headers, HttpStatus.CREATED);
+    }
+	
     @PreAuthorize("canCopy(#sourceId, 'Criterion')")
     @RequestMapping(value = "/criterions", method = RequestMethod.POST, headers = {X_COPY_HEADER,X_LANG_HEADER})
     ResponseEntity<Criterion> copyCriterion(@Param("sourceId") @RequestHeader(value = X_COPY_HEADER) String sourceId, @RequestHeader(value = X_LANG_HEADER) String lang)

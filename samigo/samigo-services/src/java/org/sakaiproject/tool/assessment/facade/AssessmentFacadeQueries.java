@@ -98,6 +98,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
+import org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -1622,6 +1623,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					ItemData item = (ItemData) itemIter.next();
 					//We use this place to add the saveItem Events used by the search index to index all the new questions
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+					String oldRef = assessmentMap.get(a);
+					String associationId = oldRef.substring(CoreAssessmentEntityProvider.ENTITY_PREFIX.length() + 1) + "." + item.getOriginalItemId();
+					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+					try{
+						if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, fromContext).isPresent()) {
+							transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
+						}
+					} catch(Exception e){
+						log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+					}
 					Set itemMetaDataSet = item.getItemMetaDataSet();
 					Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 					while (itemMetaDataIter.hasNext()) {
@@ -1634,10 +1645,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				}
 			}
 		}
-		for (AssessmentData assessmentData : newList) {
-		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
-		}
-		for (AssessmentData data: newList) {
+		for (AssessmentData data : newList) {
+		    getHibernateTemplate().saveOrUpdate(data);
 		    String oldRef = assessmentMap.get(data);
 		    if (oldRef != null && data.getAssessmentBaseId() != null)
 			transversalMap.put(oldRef, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentBaseId());

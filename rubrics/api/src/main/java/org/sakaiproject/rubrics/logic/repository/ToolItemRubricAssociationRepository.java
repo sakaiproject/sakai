@@ -53,6 +53,6 @@ public interface ToolItemRubricAssociationRepository extends MetadataRepository<
     List<ToolItemRubricAssociation> findByToolIdAndItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
 
     @RestResource(path = "by-rubric-id", rel = "by-rubric-id")
-    @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId and " + QUERY_CONTEXT_CONSTRAINT)
-    List<ToolItemRubricAssociation> findByRubricId(@Param("rubricId") String rubricId);
+    @Query("select resource from ToolItemRubricAssociation resource where resource.rubricId = :rubricId ") //and " + QUERY_CONTEXT_CONSTRAINT)
+    List<ToolItemRubricAssociation> findByRubricId(@Param("rubricId") Long rubricId);
 }

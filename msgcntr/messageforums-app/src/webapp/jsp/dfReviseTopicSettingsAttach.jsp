@@ -102,7 +102,7 @@
 	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
 	String stateDetails = forumTool.getRbcsStateDetails();
-	String entityId = forumTool.getSelectedTopic().getTopic().getUuid();
+	String entityId = "top." + forumTool.getSelectedTopic().getTopic().getId();
 %>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
 <link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
