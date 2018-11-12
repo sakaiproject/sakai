@@ -69,7 +69,7 @@
 		
 		String stateDetails = forumTool.getRbcsStateDetails();
 		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
-		String entityId = forumTool.getRubricAssociationUuid();
+		String entityId = forumTool.getRubricAssociationId();
 		String rbcsEvaluationId = userId+".";
 		if (forumTool.getSelectedMessage() != null) {
 			rbcsEvaluationId += forumTool.getSelectedMessage().getMessage().getUuid();
