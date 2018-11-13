@@ -1384,7 +1384,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         // Check to see how active the user has been
         TransferableChatMessage userHeartbeat = heartbeatMap.getIfPresent(channelId).getIfPresent(sessionId);
-        if (userHeartbeat == null || userHeartbeat.getTimestamp() == null) {
+        if (userHeartbeat == null || userHeartbeat.getTimestamp() > 0L) {
             return false;
         }
 
