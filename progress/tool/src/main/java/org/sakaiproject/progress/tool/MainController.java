@@ -41,10 +41,16 @@ public class MainController {
 
 	@Resource(name = "org.sakaiproject.tool.api.ToolManager")
 	private ToolManager toolManager;
+	
+	/* Make ProgressModel class
+	@Resource(name = "org.sakaiproject.progress.tool.ProgressModel")
+	private ProgressModel progress;
+	*/
 
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
+		
 	    return "index";
 	}
 
