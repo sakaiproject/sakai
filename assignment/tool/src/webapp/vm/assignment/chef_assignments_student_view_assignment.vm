@@ -53,7 +53,7 @@
 			</tr>
 			<tr>
 				<th>
-					$tlang.getString("viewassig.datcre")
+					$tlang.getString("viewassig.datmod")
 				</th>
 				<td>
 					$!service.getUsersLocalDateTimeString($assignment.DateModified)
@@ -111,10 +111,10 @@
 					$tlang.getString("gen.gra")
 				</th>
 				<td>
-					#set ($gradeScale = $assignment.TypeOfGrade)
-					$gradeScale
-					#if ($gradeTypeTable.get($assignment.TypeOfGrade) == $!tlang.getString("points"))
-						($tlang.getString("grade.max") $assignment.MaxGradePoint)
+					#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
+					$gradeTypeTable.get($gradeScale)
+					#if ($gradeTypeTable.get($gradeScale) == $!tlang.getString("points"))
+						($tlang.getString("grade.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
 					#end
 				</td>
 			</tr>

@@ -5,12 +5,12 @@
     <style include="sakai-rubrics-styles"></style>
 
   
-    <iron-icon on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_rubric_[[rubric.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[item.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>
+    <iron-icon on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_rubric_[[rubric.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[rubric.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>
 
     <div id="delete_rubric_[[rubric.id]]" class="popover rubric-delete-popover left">
       <div class="arrow"></div>
       <div class="popover-title" tabindex="0">
-        <sr-lang key="confirm_remove">Are you sure you want to remove</sr-lang> [[item.title]]?
+        <sr-lang key="confirm_remove">Are you sure you want to remove </sr-lang> [[rubric.title]]?
       </div>
       <div class="popover-content">
         <div class="buttons text-right"> 
