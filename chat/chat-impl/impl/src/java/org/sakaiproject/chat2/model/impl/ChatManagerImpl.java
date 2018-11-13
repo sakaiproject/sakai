@@ -1384,6 +1384,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
         // Check to see how active the user has been
         TransferableChatMessage userHeartbeat = heartbeatMap.getIfPresent(channelId).getIfPresent(sessionId);
+        if (userHeartbeat == null || userHeartbeat.getTimestamp() == null) {
+            return false;
+        }
+
         long timeDiff = ((new Date()).getTime()) - userHeartbeat.getTimestamp();
         log.debug("Heartbeat diff for {} is {}; interval={}", sessionId, timeDiff, pollInterval*2);
         // Safari seems to back off on setTimeout calls when in background for 60 seconds
