@@ -36,8 +36,8 @@ import javax.annotation.Resource;
 @Controller
 public class MainController {
 
-//	@Resource(name = "org.sakaiproject.progress.api.ProgressService")
-//	private ProgressService progressService;
+	@Resource(name = "org.sakaiproject.progress.api.ProgressService")
+	private ProgressService progressService;
 
 	@Resource(name = "org.sakaiproject.tool.api.ToolManager")
 	private ToolManager toolManager;
