@@ -51,7 +51,6 @@ confirmation dialog
 	});
 	</script>
 
-	<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 </head>
 <%-- unfortunately have to use a scriptlet here --%>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -124,8 +123,6 @@ confirmation dialog
 			</h:selectOneRadio>
 		</div>
 	</div>
-
-	<%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
     <%-- 2 QUESTION TEXT --%>
     <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
