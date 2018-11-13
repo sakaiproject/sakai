@@ -22,4 +22,4 @@ before_cache:
  - find $HOME/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
 
 install:
-- mvn install -Psnapshots -DskipTests=true -Dmaven.javadoc.skip=true -V -B
+ - mvn install -Psnapshots -DskipTests=true -Dmaven.javadoc.skip=true -V -B
