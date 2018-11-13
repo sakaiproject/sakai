@@ -24,7 +24,7 @@ import org.adl.datamodels.SCODataManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManagerDao {
 	private static final Log LOG = LogFactory.getLog(DataManagerDaoImpl.class);

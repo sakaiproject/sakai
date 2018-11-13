@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.scorm.model.api.SeqActivityTreeSnapshot;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqActivityTreeDao {
 	private static final Log LOG = LogFactory.getLog(SeqActivityTreeDaoImpl.class);

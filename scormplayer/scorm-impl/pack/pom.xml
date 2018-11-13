@@ -71,6 +71,12 @@
             <type>jar</type>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <type>jar</type>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build />
