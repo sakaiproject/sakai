@@ -78,6 +78,10 @@
       },
       listresponse: function(request) {
         this.rubricslist = request.detail.response._embedded.rubrics;
+        if(request.detail.response.page.size <= this.rubricslist.length){
+          this.$.getRubrics.params = {"size": this.rubricslist.length+25};
+          this.$.getRubrics.generateRequest();
+        }
       },
       activate: function(e, aid) {
         var rubrics = Polymer.dom(this.root).querySelectorAll('sakai-rubric');
