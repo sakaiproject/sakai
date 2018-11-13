@@ -21,22 +21,22 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.CleanupFailureDataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.support.OpenSessionInViewFilter;
+import org.springframework.orm.hibernate4.SessionFactoryUtils;
+import org.springframework.orm.hibernate4.support.OpenSessionInViewFilter;
 
 public class HibernateFilter extends OpenSessionInViewFilter {
 
 	@Override
-	protected Session getSession(SessionFactory sessionFactory) throws DataAccessResourceFailureException {
-		Session session = SessionFactoryUtils.getSession(sessionFactory, true);
+	protected Session openSession(SessionFactory sessionFactory) throws DataAccessResourceFailureException {
+		Session session = super.openSession(sessionFactory);
 		//set the FlushMode to auto in order to save objects.
 		session.setFlushMode(FlushMode.AUTO);
 		return session;
 	}
 
 
-	@Override
-	protected void closeSession(Session session, SessionFactory sessionFactory) {
+	/*@Override
+	protected void closeSession(Session session) {
 		try{
 			if (session != null && session.isOpen() && session.isConnected()) {
 				try {
@@ -46,7 +46,7 @@ public class HibernateFilter extends OpenSessionInViewFilter {
 				} catch(Exception e){}
 			}
 		} finally{
-			super.closeSession(session, sessionFactory);
+			SessionFactoryUtils.closeSession(session);
 		}
-	}
+	}*/
 }

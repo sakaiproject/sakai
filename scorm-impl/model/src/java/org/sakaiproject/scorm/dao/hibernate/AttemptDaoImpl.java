@@ -29,14 +29,14 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
 import org.sakaiproject.scorm.model.api.Attempt;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 
 	public int count(final long contentPackageId, final String learnerId) {
 		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			public Object doInHibernate(Session session) throws HibernateException {
 				Criteria criteria = session.createCriteria(Attempt.class)
 						.add(Restrictions.eq("contentPackageId", contentPackageId))
 				        .add(Restrictions.eq("learnerId", learnerId))
@@ -97,14 +97,14 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 
 	public Attempt lookup(final long contentPackageId, final String learnerId, final long attemptNumber) {
 		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			public Object doInHibernate(Session session) throws HibernateException {
 				StringBuilder buffer = new StringBuilder();
-				buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=? and learnerId=? and attemptNumber=?");
+				buffer.append("from ").append(Attempt.class.getName()).append(" where contentPackageId=:contentPackageId and learnerId=:learnerId and attemptNumber=:attemptNumber");
 
 				Query query = session.createQuery(buffer.toString());
-				query.setLong(0, contentPackageId);
-				query.setString(1, learnerId);
-				query.setLong(2, attemptNumber);
+				query.setLong("contentPackageId", contentPackageId);
+				query.setString("learnerId", learnerId);
+				query.setLong("attemptNumber", attemptNumber);
 
 				return query.uniqueResult();
 			}
@@ -136,9 +136,9 @@ public class AttemptDaoImpl extends HibernateDaoSupport implements AttemptDao {
 	}
 
 	protected Attempt uniqueResult(final DetachedCriteria criteria) {
-	    return (Attempt)getHibernateTemplate().execute(new HibernateCallback() {
+	    return (Attempt)getHibernateTemplate().executeWithNativeSession(new HibernateCallback() {
 			
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			public Object doInHibernate(Session session) throws HibernateException {
 				Criteria s = criteria.getExecutableCriteria(session);
 				return s.uniqueResult();
 			}
