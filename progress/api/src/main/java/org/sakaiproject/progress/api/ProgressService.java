@@ -5,6 +5,18 @@ package org.sakaiproject.progress.api;
  * TODO: Modify this to meet actual requirements
  */
 public interface ProgressService {
-    void getConfig();
-    void setConfig();
+    public void getConfig();
+    public void setConfig();
+
+    public long getCourseID();
+    public void setCourseID();
+
+    public Date getDateCreated();
+
+    public Date getDateEdited();
+    public void setDateEdited();
+
+    public string getModifiedBy();
+
+    public ProgressItem getProgressItem();
 }
