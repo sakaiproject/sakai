@@ -2252,7 +2252,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Parse the returned information to insert a Content Item from a Deep Link
 		/* {
-                "type": "ltiLink",
+                "type": "ltiResourceLink",
                 "title": "Breakout",
                 "url": "http:\/\/localhost:8888\/tsugi\/mod\/breakout\/",
                 "presentation": {

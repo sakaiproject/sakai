@@ -1914,7 +1914,7 @@ user_id: admin
 			data={"remember":"always bring a towel"}
 
 		    "deep_link_return_url": "https://platform.example/deep_links",
-			"accept_types": ["link", "file", "html", "ltiLink", "image"],
+			"accept_types": ["link", "file", "html", "ltiResourceLink", "image"],
 			"accept_media_types": "image/:::asterisk:::,text/html",
 			"accept_presentation_document_targets": ["iframe", "window", "embed"],
 			"accept_multiple": true,

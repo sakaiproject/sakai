@@ -55,7 +55,7 @@ import org.tsugi.lti2.LTI2Constants;
     "https:\/\/purl.imsglobal.org\/spec\/lti-dl\/claim\/content_items": [
         [
             {
-                "type": "ltiLink",
+                "type": "ltiResourceLink",
                 "title": "Breakout",
                 "url": "http:\/\/localhost:8888\/tsugi\/mod\/breakout\/",
                 "presentation": {
@@ -117,7 +117,7 @@ public class DeepLinkResponse {
 
 	// TYPE is in LTI2Constants.TYPE (since it is JSON_LD really)
 	public static final String TYPE_LINKITEM = "link";
-	public static final String TYPE_LTILINKITEM = "ltiLink";
+	public static final String TYPE_LTILINKITEM = "ltiResourceLink";
 	public static final String TYPE_CONTENTITEM = "html";
 	public static final String TYPE_FILEITEM = "file";
 

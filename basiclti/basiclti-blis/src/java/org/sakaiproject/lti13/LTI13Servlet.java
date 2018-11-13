@@ -1055,7 +1055,7 @@ public class LTI13Servlet extends HttpServlet {
 		String lti_link_id = request.getParameter("lti_link_id");
 		if ( lti_link_id != null && lti_link_id.length() > 0 ) {
 			found = true;
-			retval.ltiLinkId = lti_link_id;
+			retval.resourceLinkId = lti_link_id;
 		}
 		String resource_id = request.getParameter("resource_id");
 		if ( resource_id != null && resource_id.length() > 0 ) {
