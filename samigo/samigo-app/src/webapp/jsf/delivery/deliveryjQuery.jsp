@@ -24,11 +24,14 @@
 
 <script type="text/javascript">
      var honorPledgeIsChecked = true;
+     var scoringType = <h:outputText value="#{delivery.scoringType}"/>;
+     var autoSubmit = <h:outputText value="#{delivery.settings.autoSubmit}"/>;
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
 
      var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
      var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";     
+     var newAttemptAutoSubmitWarning = "<h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_1} "/><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average} " rendered="#{delivery.scoringType == 4}" /><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last} " rendered="#{delivery.scoringType == 2}" /><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_2} "/>";
      
      $(document).ready(function(){
 
@@ -46,10 +49,22 @@
 			);
 		}
 
-		// Block the UI to avoid user double-clicks
+		// Check honor code checkbox, warn about autosubmitting empty attempts, lock the UI to avoid user double-clicks
 		$("input[type='submit'][class!='noActionButton']").click(function() { 
-			if (!honorPledgeIsChecked) return false;
-                        if (!timerSave) $.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
+			var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
+			if (beginButtonIds.includes($(this).attr('id'))) {
+				if (!honorPledgeIsChecked) {
+					alert("<h:outputText value='#{deliveryMessages.honor_pledge_select}'/>");
+					$('#takeAssessmentForm\\:honorPledgeRequired').show();
+					return false;
+				}
+				if (autoSubmit && (scoringType === 2 || scoringType === 4)) {
+					if (!confirm(newAttemptAutoSubmitWarning)) {
+						return false;
+					}
+				}
+			}
+			if (!timerSave) $.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
 		//Disable the back button
 		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
@@ -58,14 +73,5 @@
 			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
 		}
 	});
-
-        function checkIfHonorPledgeIsChecked() {
-          if(!honorPledgeIsChecked){
-            alert("<h:outputText value='#{deliveryMessages.honor_pledge_select}'/>");
-            $('#takeAssessmentForm\\:honorPledgeRequired').show();
-            return false;
-          }
-          return true;
-        }
 
 </script>
