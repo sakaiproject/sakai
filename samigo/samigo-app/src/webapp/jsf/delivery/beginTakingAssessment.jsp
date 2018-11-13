@@ -203,8 +203,7 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
-	     && delivery.navigation != 1 && delivery.firstTimeTaking}"
-	     onclick="return checkIfHonorPledgeIsChecked()">
+	     && delivery.navigation != 1 && delivery.firstTimeTaking}">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
   
@@ -212,8 +211,7 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
-	     && delivery.navigation == 1 && delivery.firstTimeTaking}"
-	     onclick="return checkIfHonorPledgeIsChecked()">
+	     && delivery.navigation == 1 && delivery.firstTimeTaking}">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
   
@@ -237,7 +235,7 @@
   </h:commandButton>
   
 
- <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" onclick="return checkIfHonorPledgeIsChecked()">
+ <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
