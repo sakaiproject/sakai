@@ -1,6 +1,7 @@
 package org.sakaiproject.progress.impl;
 
 import lombok.Setter;
+import lombok.Getter;
 
 import org.sakaiproject.progress.api.ProgressService;
 import org.sakaiproject.progress.api.ProgressServiceException;
@@ -13,6 +14,8 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import java.util.Date;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
@@ -27,11 +30,17 @@ import lombok.extern.slf4j.Slf4j;
 public class ProgressServiceImpl implements ProgressService {
 	
 	@Setter private Configuration configuration;
+	@Getter @Setter private long courseId;
+	@Getter private Date dateCreated;
+	@Getter @Setter private Date dateEdited;
+	@Getter private String modifiedBy;
+	private List<ProgressItem> progressItemList;
+
 
     public void init(){
         if (ServerConfigurationService.getBoolean("auto.ddl", false)) {
             initDB(ServerConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"));
-        }
+
     }
 
     @Override
@@ -41,6 +50,16 @@ public class ProgressServiceImpl implements ProgressService {
 
     @Override
     public void setConfig() {
+
+    }
+
+    @Override
+    public ProgressItem getProgressItemList(){
+
+    }
+
+    @Override
+    public ProgressItem getProgressItem(long id){
 
     }
     
