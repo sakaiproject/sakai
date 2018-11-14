@@ -26,6 +26,7 @@
      var honorPledgeIsChecked = true;
      var scoringType = <h:outputText value="#{delivery.scoringType}"/>;
      var autoSubmit = <h:outputText value="#{delivery.settings.autoSubmit}"/>;
+     var totalSubmissions = <h:outputText value="#{delivery.totalSubmissions}"/>;
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
 
@@ -58,7 +59,7 @@
 					$('#takeAssessmentForm\\:honorPledgeRequired').show();
 					return false;
 				}
-				if (autoSubmit && (scoringType === 2 || scoringType === 4)) {
+				if (totalSubmissions > 0 && autoSubmit && (scoringType === 2 || scoringType === 4)) {
 					if (!confirm(newAttemptAutoSubmitWarning)) {
 						return false;
 					}
