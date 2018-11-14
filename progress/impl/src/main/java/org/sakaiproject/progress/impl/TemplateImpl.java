@@ -24,8 +24,8 @@ package org.sakaiproject.progress.impl;
 import java.io.Serializable;
 import java.util.ListIterator;
 
-import org.sakaiproject.api.app.postem.data.StudentGrades;
-import org.sakaiproject.api.app.postem.data.Template;
+import org.sakaiproject.progress.api.StudentGrades;
+import org.sakaiproject.progress.api.Template;
 
 public class TemplateImpl implements Template, Serializable {
 	protected String templateCode;
