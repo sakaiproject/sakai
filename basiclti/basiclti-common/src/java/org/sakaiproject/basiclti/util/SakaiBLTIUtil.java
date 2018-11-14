@@ -1904,7 +1904,7 @@ user_id: admin
 			Extra fields for DeepLink
 			lti_message_type=ContentItemSelectionRequest
 			accept_copy_advice=false
-			accept_media_types=application/vnd.ims.lti.v1.ltilink
+			accept_media_types=application/vnd.ims.lti.v1.ltiResourceLink
 			accept_multiple=false
 			accept_presentation_document_targets=iframe,window
 			accept_unsigned=true
@@ -1927,7 +1927,12 @@ user_id: admin
 		if ( deepLink ) {
 			DeepLink ci = new DeepLink();
 			// accept_copy_advice is not in deep linking - files are to be copied - images maybe
-			ci.accept_media_types = ltiProps.getProperty("accept_media_types");
+			String accept_media_types = ltiProps.getProperty("accept_media_types");
+			if ( ContentItem.MEDIA_LTILINKITEM.equals(accept_media_types) ) {
+				ci.accept_types.add(DeepLink.ACCEPT_TYPE_LTILINK);
+			} else {
+				ci.accept_media_types = ltiProps.getProperty("accept_media_types");
+			}
 			ci.accept_multiple = "true".equals(ltiProps.getProperty("accept_multiple"));
 			String target = ltiProps.getProperty("accept_presentation_document_targets");
 			if ( target != null ) {
@@ -1936,6 +1941,7 @@ user_id: admin
 					ci.accept_presentation_document_targets.add(piece);
 				}
 			}
+
 			// Accept_unsigned is not in DeepLinking - they are signed JWTs
 			ci.auto_create = "true".equals(ltiProps.getProperty("auto_create"));
 			// can_confirm is not there
