@@ -103,7 +103,7 @@
 
     <!-- These should only be updated when the webjars version is updated -->
     <ckeditor.autosave.version>0.18.1</ckeditor.autosave.version>
-    <ckeditor.wordcount.version>1.17.3</ckeditor.wordcount.version>
+    <ckeditor.wordcount.version>1.17.4</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
     <ckeditor.image2.version>4.9.2</ckeditor.image2.version>
