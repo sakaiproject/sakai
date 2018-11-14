@@ -54,7 +54,7 @@ public interface IGradebookService {
 
     public void setStudents(Set students);
 
-    //public Template getTemplate();
+    public Template getTemplate();
 
     //public void setTemplate(Template template);
 
