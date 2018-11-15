@@ -1977,7 +1977,7 @@ user_id: admin
 		}
 
 		String state = toolProps.getProperty("state");
-		if ( StringUtils.isEmpty(state) ) state = null;
+		state = StringUtils.trimToNull(state);
 
 		String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
 		if ( lti13_oidc_redirect != null ) launch_url = lti13_oidc_redirect;

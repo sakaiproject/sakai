@@ -95,7 +95,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.tsugi.ags2.objects.LineItem;
 import org.tsugi.ags2.objects.Result;
 import org.tsugi.lti13.objects.LaunchLIS;
@@ -1543,13 +1543,13 @@ public class LTI13Servlet extends HttpServlet {
 	private void handleOIDCAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		String state = (String) request.getParameter("state");
-		if ( StringUtils.isEmpty(state) ) state = null;
+		state = StringUtils.trimToNull(state);
 
 		String login_hint = (String) request.getParameter("login_hint");
 		if ( StringUtils.isEmpty(login_hint) ) state = null;
 
 		String nonce = (String) request.getParameter("nonce");
-		if ( StringUtils.isEmpty(nonce) ) nonce = null;
+		nonce = StringUtils.trimToNull(nonce);
 
 		if ( state == null || login_hint == null || nonce == null ) {
 			LTI13Util.return400(response, "Missing login_hint, nonce or state parameter");

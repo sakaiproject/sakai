@@ -35,7 +35,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 
 import org.tsugi.lti13.LTI13Util;
-// import org.springframework.util.StringUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -87,13 +86,13 @@ public class OIDCServlet extends HttpServlet {
 	private void handleOIDCAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		String state = (String) request.getParameter("state");
-		if ( StringUtils.isEmpty(state) ) state = null;
+		state = StringUtils.trimToNull(state);
 
 		String login_hint = (String) request.getParameter("login_hint");
 		if ( StringUtils.isEmpty(login_hint) ) state = null;
 
 		String nonce = (String) request.getParameter("nonce");
-		if ( StringUtils.isEmpty(nonce) ) nonce = null;
+		nonce = StringUtils.trimToNull(nonce);
 
 		if ( state == null || login_hint == null || nonce == null ) {
 			LTI13Util.return400(response, "Missing login_hint, nonce or state parameter");
