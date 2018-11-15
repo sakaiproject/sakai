@@ -1977,16 +1977,22 @@ user_id: admin
 		String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
 		if ( lti13_oidc_redirect != null ) launch_url = lti13_oidc_redirect;
 
-		String html = "<form action=\"" + launch_url + "\" method=\"POST\">\n"
+		String form_id = java.util.UUID.randomUUID().toString();
+		String html = "<form action=\"" + launch_url + "\" id=\""+ form_id + "\" method=\"POST\">\n"
 				+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
 
 		if ( state != null ) {
 			html += "    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n";
 		}
 
-		html += "    <input type=\"submit\" value=\"Go!\" />\n</form>\n";
+		if ( dodebug ) {
+			html += "    <input type=\"submit\" value=\"Proceed with LTI 1.3 Launch\" />\n</form>\n";
+		}
+		html += "    </form>\n";
 
-		if (dodebug) {
+		if ( ! dodebug ) {
+			html += "<script>\n document.getElementById(\"" + form_id + "\").submit();\n</script>\n";
+		} else {
 			html += "<p>\n--- Unencoded JWT:<br/>"
 					+ BasicLTIUtil.htmlspecialchars(ljs)
 					+ "</p>\n<p>\n--- State:<br/>"
