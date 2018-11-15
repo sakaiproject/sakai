@@ -198,6 +198,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
+		// TODO: Remove this after transition to new servlet is complete.
 		// /imsblis/lti13/oidc_auth?state=42&login_hint=/access/basiclti/site/92e..e8e67/content:6
 		if (parts.length == 4 && "oidc_auth".equals(parts[3]) ) {
 			handleOIDCAuthorization(request, response);
