@@ -27,9 +27,13 @@ import org.sakaiproject.site.api.SiteService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This is the top-level volume. It contains the volumes for the site.
@@ -37,6 +41,7 @@ import java.util.Map;
  * We'll have pre-hashed paths of /siteId/content/ /siteId/forums/ /siteId/
  *
  */
+@Slf4j
 public class SiteFsVolume extends ReadOnlyFsVolume {
 
     public String getSiteId() {
@@ -48,7 +53,13 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
     private SakaiFsService service;
 
     public SiteFsVolume(String siteId, SakaiFsService service) {
-        this.siteId = siteId;
+
+        try {
+            this.siteId = URLDecoder.decode(siteId, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            log.error("Failed to decode siteId as UTF-8. Original siteId will be used.");
+            this.siteId = siteId;
+        }
         this.service = service;
         this.siteService = service.getSiteService();
     }
