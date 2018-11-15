@@ -1800,9 +1800,14 @@ user_id: admin
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
 		lj.issuer = getOurServerUrl();
 		lj.audience = client_id;
-		lj.deployment_id = getLongKey(tool.get(LTIService.LTI_ID)).toString();
-		lj.subject = ltiProps.getProperty("user_id");
-		lj.user_id = (String) ltiProps.getProperty("user_id");
+		String deployment_id = ServerConfigurationService.getString("lti13.deployment_id", "1");
+		lj.deployment_id = deployment_id;
+		String subject = getOurServerUrl();
+		if ( ! "1".equals(deployment_id) ) {
+				subject += "/deployment/" + deployment_id;
+		}
+		lj.subject = subject + "/user/" + ltiProps.getProperty("user_id");
+		lj.lti1_1_user_id = (String) ltiProps.getProperty("user_id");
 		lj.name = ltiProps.getProperty("lis_person_name_full");
 		lj.nonce = toolProps.getProperty("nonce");
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");

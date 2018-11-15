@@ -60,8 +60,8 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/resource_link")
 	public ResourceLink resource_link;
 
-	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/user_id")
-	public String user_id;
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti1_1_user_id")
+	public String lti1_1_user_id;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/context")
 	public Context context;
