@@ -105,7 +105,7 @@ import org.tsugi.lti2.LTI2Constants;
 public class DeepLinkResponse {
 	
 	public static final String DEEP_LINKS = "https://purl.imsglobal.org/spec/lti-dl/claim/content_items";
-	public static final String DATA = "https://purl.imsglobal.org/spec/lti-dl/data";
+	public static final String DATA = "https://purl.imsglobal.org/spec/lti-dl/claim/data";
 	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
 	public static String MEDIA_LTILINKITEM = "application/vnd.ims.lti.v1.ltilink";
 	
