@@ -38,602 +38,257 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringEscapeUtils;
 //import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.gradebook.GradingScale;
+import org.sakaiproject.tool.gradebook.GradeMapping;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.progress.api.IGradebookService;
-import org.sakaiproject.progress.api.StudentGrades;
 import org.sakaiproject.progress.api.Template;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+
 
 public class GradebookServiceImpl implements IGradebookService, Comparable, Serializable {
 
-	protected String title;
+	protected GradebookService gradebookService;
+	protected Gradebook gradebook;
+	protected String gradebookUid;
+	protected Long gradebookId;
 
-	protected String creator;
-	
-    protected String fileReference;
-	
-	protected String creatorEid;
+	public Gradebook getGradebook(final String uid) throws GradebookNotFoundException {
+		gradebook = (Gradebook)gradebookService.getGradebook(uid);
+		gradebookUid=gradebook.getUid();
+		gradebookId=gradebook.getId();
 
-	protected Timestamp created;
-
-	protected String lastUpdater;
-	
-	protected String lastUpdaterEid;
-
-	protected DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm");
-
-	protected Timestamp lastUpdated;
-
-	protected String context;
-	
-	protected String firstUploadedUsername;
-
-	protected Set students = new TreeSet();
-
-	protected Template template;
-
-	protected List headings = new ArrayList();
-
-	protected Long id;
-
-	protected Integer lockId;
-
-	protected Boolean released = new Boolean(false);
-
-	protected Boolean releaseStatistics = new Boolean(false);
-	
-	protected List<String> usernames;
-
-	private static String units = "px";
-	
-	public static Comparator TitleAscComparator;
-	public static Comparator TitleDescComparator;
-	public static Comparator CreatorAscComparator;
-	public static Comparator CreatorDescComparator;
-	public static Comparator ModByAscComparator;
-	public static Comparator ModByDescComparator;
-	public static Comparator ModDateAscComparator;
-	public static Comparator ModDateDescComparator;
-	public static Comparator ReleasedAscComparator;
-	public static Comparator ReleasedDescComparator;
-
-	public GradebookServiceImpl() {
-
+		return gradebook;
+	}
+	@Override
+	public int compareTo(Object o) {
+		return 0;
 	}
 
-	public GradebookServiceImpl(String title, String creator, String context,
-								List headings, SortedSet students, Template template) {
-		Timestamp now = new Timestamp(new Date().getTime());
-		this.title = title;
-		this.creator = creator;
-		this.created = now;
-		this.lastUpdater = creator;
-		this.lastUpdated = now;
-		this.context = context;
-		if (headings != null) {
-			this.headings = headings;
-		} else {
-			this.headings = new ArrayList();
-		}
-		if (students != null) {
-			this.students = students;
-		} else {
-			this.students = new TreeSet();
-		}
-		this.template = template;
-	}
-
-	public Integer getLockId() {
-		return lockId;
-	}
-
-	public void setLockId(Integer lockId) {
-		this.lockId = lockId;
-	}
-
+	@Override
 	public String getTitle() {
-		return title;
+		return gradebook.getName();
 	}
 
+	@Override
 	public void setTitle(String title) {
-		this.title = title;
+
 	}
 
-	public String getFileReference() {
-		return fileReference;
-	}
-
-	public void setFileReference(String fileReference) {
-		this.fileReference = fileReference;
-	}
-
+	@Override
 	public String getCreator() {
-		return creator;
-	}
-
-	public void setCreator(String creator) {
-		this.creator = creator;
-		setCreatorEid(creator);
-
-	}
-	
-	
-	public String getCreatorEid() {
-		return creatorEid;
-	}
-	
-	public void setCreatorEid(String creatorUserId) {
-		if(creatorUserId != null) {
-			try {
-				this.creatorEid = UserDirectoryService.getUserEid(creatorUserId);		
-			} catch(UserNotDefinedException e) {
-				this.creatorEid = null;
-			}
-		}
-	}
-
-	public Timestamp getCreated() {
-		return created;
-	}
-
-	public void setCreated(Timestamp created) {
-		this.created = created;
-	}
-
-	public String getLastUpdater() {
-		return lastUpdater;
-	}
-
-	public void setLastUpdater(String lastUpdater) {
-		this.lastUpdater = lastUpdater;
-		setLastUpdaterEid(lastUpdater);
-	}
-	
-	public String getLastUpdaterEid() {
-		return lastUpdaterEid;
-	}
-	
-	public void setLastUpdaterEid(String lastUpdaterUserId) {
-		if (lastUpdaterUserId != null) {
-			try {
-				this.lastUpdaterEid = UserDirectoryService.getUserEid(lastUpdaterUserId);
-			} catch(UserNotDefinedException e) {
-				this.lastUpdaterEid = null;
-			}
-		}
-	}
-
-	public String getUpdatedDateTime() {
-		return dateFormat.format((Date) lastUpdated);
-
-	}
-
-	public Timestamp getLastUpdated() {
-		return lastUpdated;
-	}
-
-	public void setLastUpdated(Timestamp lastUpdated) {
-		this.lastUpdated = lastUpdated;
-	}
-
-	public String getContext() {
-		return context;
-	}
-
-	public void setContext(String context) {
-		this.context = context;
-	}
-
-	public Set getStudents() {
-		return students;
-	}
-
-	public void setStudents(Set students) {
-		this.students = students;
-	}
-
-	public Template getTemplate() {
-		return template;
-	}
-
-	public void setTemplate(Template template) {
-		this.template = template;
-	}
-
-	public List getHeadings() {
-		return headings;
-	}
-
-	public void setHeadings(List headings) {
-		if (headings == null) {
-			this.headings = new ArrayList();
-		} else {
-			this.headings = headings;
-		}
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Boolean getReleased() {
-		return released;
-	}
-
-	public void setReleased(Boolean released) {
-		this.released = released;
-	}
-
-	public boolean getRelease() {
-		return released.booleanValue();
-	}
-
-	public void setRelease(boolean release) {
-		this.released = new Boolean(release);
-	}
-
-	public Boolean getReleaseStatistics() {
-		return releaseStatistics;
-	}
-
-	public void setReleaseStatistics(Boolean releaseStatistics) {
-		this.releaseStatistics = releaseStatistics;
-	}
-
-	public boolean getReleaseStats() {
-		return releaseStatistics.booleanValue();
-	}
-
-	public void setReleaseStats(boolean releaseStats) {
-		this.releaseStatistics = new Boolean(releaseStats);
-	}
-	
-	public void setFirstUploadedUsername(String firstUploadedUsername) {
-		this.firstUploadedUsername = firstUploadedUsername;
-	}
-	
-	public String getFirstUploadedUsername() {
-		return firstUploadedUsername;
-	}
-	
-	public void setUsernames(List<String> usernames) {
-		this.usernames = usernames;
-	}
-	public List<String> getUsernames() {
-		return usernames;
-	}
-
-	public String getHeadingsRow() {
-		List h2 = new ArrayList(headings);
-		h2.remove(0);
-		StringBuilder headingBuffer = new StringBuilder();
-		// headingBuffer.append("<table><tr>");
-		int totalWidth = 0;
-
-		Iterator jj = h2.iterator();
-		int ii = 0;
-		while (jj.hasNext()) {
-			String current = (String) jj.next();
-			String width = getProperWidth(ii);
-			int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
-			totalWidth += iwidth;
-			/*headingBuffer.append("<th width='");
-			headingBuffer.append(width);
-			headingBuffer.append("' style='min-width: ");
-			headingBuffer.append(width);
-			headingBuffer.append("; width: ");
-			headingBuffer.append(width);
-			headingBuffer.append(";' >");
-			headingBuffer.append(current);
-			headingBuffer.append("</th>");*/
-			headingBuffer.append("<th style=\"padding: 0.6em;\" scope=\"col\">" + StringEscapeUtils.escapeHtml(current) + "</th>");
-			ii++;
-		}
-		/*StringBuilder newBuffer = new StringBuilder();
-		newBuffer.append("<table width='");
-		newBuffer.append(totalWidth);
-		newBuffer.append("px' style='min-width: ");
-		newBuffer.append(totalWidth);
-		newBuffer.append("px; width: ");
-		newBuffer.append(totalWidth);
-		newBuffer.append("px;' ><tr>");
-		newBuffer.append(headingBuffer);
-
-		newBuffer.append("</tr></table>");
-		return newBuffer.toString();*/
-		return headingBuffer.toString();
-	}
-
-	public int compareTo(Object other) {
-		if (this == other)
-			return 0;
-		final IGradebookService that = (IGradebookService) other;
-
-		return this.getTitle().compareTo(that.getTitle());
-	}
-
-	public boolean equals(Object other) {
-		if (this == other)
-			return true;
-		if (!(other instanceof IGradebookService))
-			return false;
-		final IGradebookService that = (IGradebookService) other;
-
-		return this.getTitle().equals(that.getTitle());
-	}
-
-	public int hashCode() {
-		return getTitle().hashCode();
-	}
-
-	public boolean hasStudent(String username) {
-		Iterator iter = getStudents().iterator();
-		while (iter.hasNext()) {
-			if (((StudentGrades) iter.next()).getUsername().equalsIgnoreCase(username)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public String getProperWidth(int column) {
-		int maxWidth = 50;
-		int tops = 150;
-		try {
-			List h2 = new ArrayList(headings);
-			h2.remove(0);
-			int hchars = ((String) h2.get(column)).length();
-			int hwidth = hchars * 10;
-			if (hwidth >= tops) {
-				maxWidth = tops;
-				return "" + maxWidth + units;
-			}
-			if (hwidth >= maxWidth) {
-				maxWidth = hwidth;
-			}
-		} catch (Exception exception) {
-		}
-		Iterator iter = getStudents().iterator();
-		while (iter.hasNext()) {
-			StudentGrades sg = (StudentGrades) iter.next();
-			try {
-				int chars = ((String) sg.getGrades().get(column)).length();
-				int width = chars * 10;
-				if (width >= tops) {
-					maxWidth = tops;
-					return "" + maxWidth + units;
-				}
-				if (width >= maxWidth) {
-					maxWidth = width;
-				}
-			} catch (Exception exception) {
-			}
-		}
-		return "" + maxWidth + units;
-	}
-
-	public List getRawData(int column) {
-
-		List rawData = new ArrayList();
-
-		Iterator iter = getStudents().iterator();
-		while (iter.hasNext()) {
-			StudentGrades sg = (StudentGrades) iter.next();
-			try {
-				rawData.add(new Pair(sg.getUsername(), sg.getGrades().get(column)));
-			} catch (IndexOutOfBoundsException exception) {
-				rawData.add(new Pair(sg.getUsername(), ""));
-			}
-
-		}
-
-		return rawData;
-	}
-
-	public List getAggregateData(int column) throws Exception {
-		List aggregateData = new ArrayList();
-		
-		// This code has never actually been used. The stats feature has been
-		// commented out since Postem's sakai introduction.
-		// Commenting out the implementation of this method since it
-		// deploys commons-math to shared. This method
-		// should probably not be part of the Gradebook api and should probably
-		// be moved to the GradebookManager if it is ever actually implemented.
-		
-		/*SummaryStatistics stats = SummaryStatistics.newInstance();
-		int blanks = 0;
-
-		Iterator iter = getStudents().iterator();
-		while (iter.hasNext()) {
-			StudentGrades sg = (StudentGrades) iter.next();
-			try {
-				String value = (String) sg.getGrades().get(column);
-				if ("".equals(value.trim())) {
-					// TODO: do blanks count as zeros for stats?
-					// stats.addValue(0);
-					blanks++;
-				} else {
-					stats.addValue(Double.parseDouble(value));
-				}
-			} catch (IndexOutOfBoundsException exception) {
-				blanks++;
-			}
-
-		}
-		aggregateData.add(new Pair("Average", new Double(stats.getMean())));
-		aggregateData.add(new Pair("Std. Dev.", new Double(stats
-				.getStandardDeviation())));
-		aggregateData.add(new Pair("Highest", new Double(stats.getMax())));
-		aggregateData.add(new Pair("Lowest", new Double(stats.getMin())));
-		aggregateData.add(new Pair("Range", new Double(stats.getMax()
-				- stats.getMin())));
-		aggregateData.add(new Pair("N=count(non-blank)", new Double(stats.getN())));
-		aggregateData.add(new Pair("count(blank)", new Integer(blanks)));*/
-
-		return aggregateData;
-	}
-
-	public StudentGrades studentGrades(String username) {
-		Iterator iter = getStudents().iterator();
-		while (iter.hasNext()) {
-			StudentGrades current = (StudentGrades) iter.next();
-			if (current.getUsername().equalsIgnoreCase(username)) {
-				return current;
-			}
-		}
 		return null;
 	}
 
+	@Override
+	public void setCreator(String creator) {
+
+	}
+
+	@Override
+	public String getCreatorEid() {
+		return null;
+	}
+
+	@Override
+	public void setCreatorEid(String creatorUserId) {
+
+	}
+
+	@Override
+	public Timestamp getCreated() {
+		return null;
+	}
+
+	@Override
+	public void setCreated(Timestamp created) {
+
+	}
+
+	@Override
+	public String getLastUpdater() {
+		return null;
+	}
+
+	@Override
+	public void setLastUpdater(String lastUpdater) {
+
+	}
+
+	@Override
+	public String getLastUpdaterEid() {
+		return null;
+	}
+
+	@Override
+	public void setLastUpdaterEid(String lastUpdaterUserId) {
+
+	}
+
+	@Override
+	public String getUpdatedDateTime() {
+		return null;
+	}
+
+	@Override
+	public Timestamp getLastUpdated() {
+		return null;
+	}
+
+	@Override
+	public void setLastUpdated(Timestamp lastUpdated) {
+
+	}
+
+	@Override
+	public String getContext() {
+		return null;
+	}
+
+	@Override
+	public void setContext(String context) {
+
+	}
+
+	@Override
+	public Set getStudents() {
+		return null;
+	}
+
+	@Override
+	public void setStudents(Set students) {
+
+	}
+
+	@Override
+	public Template getTemplate() {
+		return null;
+	}
+
+	@Override
+	public void setFileReference(String fileReference) {
+
+	}
+
+	@Override
+	public String getFileReference() {
+		return null;
+	}
+
+	@Override
+	public List getHeadings() {
+		return null;
+	}
+
+	@Override
+	public void setHeadings(List headings) {
+
+	}
+
+	@Override
+	public Long getId() {
+		return null;
+	}
+
+	@Override
+	public void setId(Long id) {
+
+	}
+
+	@Override
+	public Boolean getReleased() {
+		return null;
+	}
+
+	@Override
+	public void setReleased(Boolean released) {
+
+	}
+
+	@Override
+	public String getHeadingsRow() {
+		return null;
+	}
+
+	@Override
 	public TreeMap getStudentMap() {
-		TreeMap studentMap = new TreeMap();
-		studentMap.put(" ", "blank");
-
-		Iterator iter = getUsernames().iterator();
-		while (iter.hasNext()) {
-			String username = (String) iter.next();
-			studentMap.put(username, username);
-		}
-		return studentMap;
+		return null;
 	}
-	
-	private static int compareTitles(IGradebookService gradebook, IGradebookService otherGradebook) {
-		String title1 = gradebook.getTitle().toUpperCase();
-        String title2 = otherGradebook.getTitle().toUpperCase();
-		
-		int val = title1.compareTo(title2);
-        if (val != 0)
-        	return val;
-        else
-        	return 1;  //we want "Test" and "test" to appear together
+
+	@Override
+	public boolean hasStudent(String username) {
+		return false;
 	}
-	
-	static
-	  {  
-		// We have to be careful because the gradebooks use the "SortedSet" structure
-		// that will only accept one occurrence if the items being compared are equal
-		
-	    TitleAscComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {	        
-	    		return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	      }
-	    };
 
-	    TitleDescComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		return compareTitles((IGradebookService) otherGradebook, (IGradebookService)gradebook);
-	    	}
-	    };
-	    
-	    CreatorAscComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		String creator1 = ((IGradebookService) gradebook).getCreatorEid().toUpperCase();
-	    		String creator2 = ((IGradebookService) otherGradebook).getCreatorEid().toUpperCase();
-	    		
-	    		if(creator1.equals(creator2)) {
-	    			return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	    		}
+	@Override
+	public boolean getRelease() {
+		return false;
+	}
 
-	    		return creator1.compareTo(creator2);
-    	  }
-	    };
-	    
-	    CreatorDescComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		String creator1 = ((IGradebookService) gradebook).getCreatorEid().toUpperCase();
-	  	      	String creator2 = ((IGradebookService) otherGradebook).getCreatorEid().toUpperCase();
-	  	      
-	  	      	if(creator1.equals(creator2)) {
-	  	      		return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	  	      	}
-	  	      
-	  	      	return creator2.compareTo(creator1);
-	        }
-	    };
-	    
-	    ModByAscComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		String modBy1 = ((IGradebookService) gradebook).getLastUpdaterEid().toUpperCase();
-	    		String modBy2 = ((IGradebookService) otherGradebook).getLastUpdaterEid().toUpperCase();
-  	        
-	    		if(modBy1.equals(modBy2)) {
-	    			return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	    		}
-	    		
-	    		return modBy1.compareTo(modBy2);
-    	  }
-	    };
-	    
-	    ModByDescComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	  	        String modBy1 = ((IGradebookService) gradebook).getLastUpdaterEid().toUpperCase();
-	  	        String modBy2 = ((IGradebookService) otherGradebook).getLastUpdaterEid().toUpperCase();
-	  	        
-	  	        if(modBy1.equals(modBy2)) {
-	  	        	return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	    		}
-	  	        
-	            return modBy2.compareTo(modBy1);
-	    	}
-	    };
-	    
-	    ModDateAscComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		Timestamp modDate1 = ((IGradebookService) gradebook).getLastUpdated();
-	    		Timestamp modDate2 = ((IGradebookService) otherGradebook).getLastUpdated();
-  	        
-	    		if(modDate1.equals(modDate2)) {
-	    			return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-  	      		}
-  	        
-	    		return modDate1.compareTo(modDate2);
-	    	}
-	    };
-	    
-	    ModDateDescComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	  	        Timestamp modDate1 = ((IGradebookService) gradebook).getLastUpdated();
-	  	        Timestamp modDate2 = ((IGradebookService) otherGradebook).getLastUpdated();
-	  	        
-	  	        if(modDate1.equals(modDate2)) {
-	  	        	return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	  	        }
-	  	      
-	            return modDate2.compareTo(modDate1);
-	    	}
-	    };
-	    
-	    ReleasedAscComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		boolean released1 = ((IGradebookService) gradebook).getRelease();
-	    		boolean released2 = ((IGradebookService) otherGradebook).getRelease();
-  	        
-	    		if (released1 == released2)
-	    			return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	    		else if (released1 && !released2)
-	    			return -1;
-	    		else
-	    			return 1;
-	    	}
-	    };
-	    
-	    ReleasedDescComparator = new Comparator() {
-	    	public int compare(Object gradebook, Object otherGradebook) {
-	    		boolean released1 = ((IGradebookService) gradebook).getRelease();
-	  	        boolean released2 = ((IGradebookService) otherGradebook).getRelease();
-	  	        
-	  	        if (released1 == released2) {
-	  	        	return compareTitles((IGradebookService) gradebook, (IGradebookService)otherGradebook);
-	  	        }
-	  	        else if (released1 && !released2)
-	  	        	return 1;
-	  	        else
-	  	        	return -1;
-	    	}
-	    };
+	@Override
+	public void setRelease(boolean release) {
 
-	  }
+	}
+
+	@Override
+	public Boolean getReleaseStatistics() {
+		return null;
+	}
+
+	@Override
+	public void setReleaseStatistics(Boolean releaseStatistics) {
+
+	}
+
+	@Override
+	public boolean getReleaseStats() {
+		return false;
+	}
+
+	@Override
+	public void setReleaseStats(boolean releaseStats) {
+
+	}
+
+	@Override
+	public String getProperWidth(int column) {
+		return null;
+	}
+
+	@Override
+	public List getRawData(int column) {
+		return null;
+	}
+
+	@Override
+	public List getAggregateData(int column) throws Exception {
+		return null;
+	}
+
+	@Override
+	public String getFirstUploadedUsername() {
+		return null;
+	}
+
+	@Override
+	public void setFirstUploadedUsername(String username) {
+
+	}
+
+	@Override
+	public List getUsernames() {
+		return null;
+	}
+
+	@Override
+	public void setUsernames(List<String> usernames) {
+
+	}
 }
