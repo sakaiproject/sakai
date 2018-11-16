@@ -30,5 +30,4 @@
           init-method="init">
         <property name="configuration" ref="org.sakaiproject.progress.impl.persistence.Configuration"/>
     </bean>
-
 </beans>

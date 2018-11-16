@@ -5,6 +5,9 @@
 <body>
 <div class="portletBody">
     <h1>Hello World!</h1>
+    <tr th:each="student: ${students}">
+        <td th:text="${student}" />
+    </tr>
     <!--<div id="menu" th:insert="fragments/menus :: main(index)"/>-->
     <!--<h3 th:text="#{index.title}">View Widgets</h3>-->
     <!--<div th:replace="fragments/common :: widgetTable" />-->

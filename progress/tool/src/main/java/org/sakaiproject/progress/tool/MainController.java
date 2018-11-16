@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * MainController
@@ -45,7 +47,8 @@ public class MainController {
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
-	    return "index";
+
+		return "index";
 	}
 
 }

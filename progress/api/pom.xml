@@ -35,5 +35,10 @@
             <artifactId>gradebook-service-hibernate</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

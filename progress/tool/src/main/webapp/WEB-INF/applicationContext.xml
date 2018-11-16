@@ -5,10 +5,10 @@
                         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean
-            id="org.sakaiproject.progress.impl.GradebookServiceImpl"
-            class="org.sakaiproject.progress.impl.GradebookServiceImpl">
+        id="org.sakaiproject.progress.impl.GradebookServiceImpl"
+        class="org.sakaiproject.progress.impl.GradebookServiceImpl">
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     </bean>
     
 </beans>

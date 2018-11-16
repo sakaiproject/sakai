@@ -1,5 +1,8 @@
 package org.sakaiproject.progress.api;
 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.tool.gradebook.Gradebook;
+
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +18,8 @@ public interface IGradebookService {
     final String SORT_BY_MOD_BY = "modBy";
     final String SORT_BY_MOD_DATE = "modDate";
     final String SORT_BY_RELEASED = "released";
+
+    public Gradebook getGradebook(final String uid);
 
     public String getTitle();
 
@@ -52,9 +57,9 @@ public interface IGradebookService {
 
     public Set getStudents();
 
-    public void setStudents(Set students);
+    public Set getStudents(Gradebook gradebook) throws IdUnusedException;
 
-    public Template getTemplate();
+    public void setStudents(Set students);
 
     //public void setTemplate(Template template);
 

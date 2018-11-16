@@ -25,36 +25,26 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.lang.StringEscapeUtils;
 //import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
-import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.gradebook.GradingScale;
-import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.progress.api.IGradebookService;
-import org.sakaiproject.progress.api.Template;
 import lombok.Setter;
 
 
 public class GradebookServiceImpl implements IGradebookService, Comparable, Serializable {
+
+	@Setter
+	private SiteService siteService;
 
 	@Setter
 	private GradebookService gradebookService;
@@ -70,6 +60,7 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 
 		return gradebook;
 	}
+
 	@Override
 	public int compareTo(Object o) {
 		return 0;
@@ -166,13 +157,21 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	}
 
 	@Override
-	public void setStudents(Set students) {
+	public Set getStudents(Gradebook gradebook) throws IdUnusedException {
+
+		Set<String> students = new HashSet<String>();
+
+		gradebookId = gradebook.getId();
+
+		students = siteService.getSite(gradebookUid).getUsersIsAllowed("section.role.student");
+
+		return students;
 
 	}
 
 	@Override
-	public Template getTemplate() {
-		return null;
+	public void setStudents(Set students) {
+
 	}
 
 	@Override
