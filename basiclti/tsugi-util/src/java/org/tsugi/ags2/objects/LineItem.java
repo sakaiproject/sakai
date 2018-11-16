@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 		"label" : "Chapter 5 Test",
 		"resourceId" : "a-9334df-33",
 		"tag" : "grade",
-		"ltiLinkId" : "1g3k4dlk49fk"
+		"resourceLinkId" : "1g3k4dlk49fk"
 	}
  */
 // TODO: Where did the scoreUrl and resultUrl end up?
@@ -39,6 +39,6 @@ public class LineItem {
 
 	@JsonProperty("id")
 	public String id;			// Output only
-	@JsonProperty("ltiLinkId")
-	public String ltiLinkId;  // Output only
+	@JsonProperty("resourceLinkId")
+	public String resourceLinkId;  // Output only
 }

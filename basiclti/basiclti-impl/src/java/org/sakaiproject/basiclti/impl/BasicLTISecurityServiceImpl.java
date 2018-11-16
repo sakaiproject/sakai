@@ -262,15 +262,22 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		login_hint	required, Hint to the Authorization Server about the login
 					identifier the End-User might use to log in (if necessary).
 	*/
-	private void redirectOIDC(HttpServletRequest req, HttpServletResponse res, String oidc_endpoint, ResourceLoader rb)
+	private void redirectOIDC(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool, String oidc_endpoint, ResourceLoader rb)
 	{
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String login_hint = req.getRequestURI().toString();
-		// TODO: Encrypt the login hint
+		String query_string = req.getQueryString();
+		if ( StringUtils.isNotEmpty(query_string)) {
+			login_hint = login_hint + "?" + query_string;
+		}
+		String launch_url = (String) tool.get(LTIService.LTI_LAUNCH);
 		String redirect = oidc_endpoint;
 		redirect += "?iss=" + java.net.URLEncoder.encode(SakaiBLTIUtil.getOurServerUrl());
 		redirect += "&login_hint=" + java.net.URLEncoder.encode(login_hint);
+		if ( StringUtils.isNotEmpty(launch_url)) {
+			redirect += "&target_link_uri=" + java.net.URLEncoder.encode(launch_url);
+		}
 		try {
 			res.sendRedirect(redirect);
 		} catch (IOException unlikely) {
@@ -346,12 +353,16 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							tool.put(LTIService.LTI_SITE_ID, ref.getContext());
 						}
 						String state = req.getParameter("state");
+						String nonce = req.getParameter("nonce");
+
 						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
-						log.debug("State={} oidc_endpoint={}",state, oidc_endpoint);
-						if (StringUtils.isNotBlank(oidc_endpoint) && StringUtils.isEmpty(state)) {
-							redirectOIDC(req, res, oidc_endpoint, rb);
+						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
+
+						if (StringUtils.isNotBlank(oidc_endpoint) &&
+								( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
+							redirectOIDC(req, res, tool, oidc_endpoint, rb);
 						}
-						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, rb, contentReturn, propData);
+						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 					}
 				}
 				else if ( refId.startsWith("content:") && refId.length() > 8 )
@@ -402,12 +413,15 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							return;
 					}
 					String state = req.getParameter("state");
+					String nonce = req.getParameter("nonce");
+
 					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
-					log.debug("State={} oidc_endpoint={}",state, oidc_endpoint);
-					if (StringUtils.isNotBlank(oidc_endpoint) && StringUtils.isEmpty(state)) {
-						redirectOIDC(req, res, oidc_endpoint, rb);
+					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
+					if (StringUtils.isNotBlank(oidc_endpoint) &&
+							(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
+						redirectOIDC(req, res, tool, oidc_endpoint, rb);
 					}
-					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, ltiService, rb);
+					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 				}
 				else if (refId.startsWith("export:") && refId.length() > 7)
 				{

@@ -406,7 +406,7 @@ public class LineItemUtil {
 				LineItem item = getLineItem(signed_placement, gAssignment);
 
 				if ( filter != null ) {
-					if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
+					if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
 					if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
 					if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
 				}
@@ -477,7 +477,7 @@ public class LineItemUtil {
 			Map<String, Object> content = (Map) i.next();
 			LineItem item = getLineItem(content);
 			if ( filter != null ) {
-				if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
+				if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
 				if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
 				if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
 			}
@@ -497,7 +497,7 @@ public class LineItemUtil {
 		}
 		LineItem li = new LineItem();
 		li.label = (String) content.get(LTIService.LTI_TITLE);
-		li.ltiLinkId = resource_link_id;
+		li.resourceLinkId = resource_link_id;
 		if ( context_id != null && signed_placement != null ) {
 			li.id = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
 		}
