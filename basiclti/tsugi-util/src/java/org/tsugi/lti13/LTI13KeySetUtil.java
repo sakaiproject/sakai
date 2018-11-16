@@ -28,6 +28,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.nimbusds.jose.JWSAlgorithm;
+
 @Slf4j
 public class LTI13KeySetUtil {
 
@@ -42,7 +44,7 @@ public class LTI13KeySetUtil {
 
 		for (Map.Entry<String, RSAPublicKey> entry : keys.entrySet()) {
 			RSAPublicKey key = (RSAPublicKey) entry.getValue();
-			com.nimbusds.jose.jwk.RSAKey rsaKey = new com.nimbusds.jose.jwk.RSAKey.Builder(key).build();
+			com.nimbusds.jose.jwk.RSAKey rsaKey = new com.nimbusds.jose.jwk.RSAKey.Builder(key).algorithm(JWSAlgorithm.RS256).build();
 			String keyStr = rsaKey.toJSONString();
 
 			JSONObject kobj = (JSONObject) JSONValue.parse(keyStr);

@@ -106,6 +106,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 
 import net.oauth.OAuth;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
@@ -854,7 +855,8 @@ public class SakaiBLTIUtil {
 
 	// This must return an HTML message as the [0] in the array
 	// If things are successful - the launch URL is in [1]
-	public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool, String state, LTIService ltiService, ResourceLoader rb) {
+	public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool,
+			String state, String nonce, LTIService ltiService, ResourceLoader rb) {
 		if (content == null) {
 			return postError("<p>" + getRB(rb, "error.content.missing", "Content item is missing or improperly configured.") + "</p>");
 		}
@@ -1002,6 +1004,7 @@ public class SakaiBLTIUtil {
 
 		setProperty(toolProps, "launch_url", launch_url);
 		setProperty(toolProps, "state", state);  // So far LTI 1.3 only
+		setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
 
 		setProperty(toolProps, LTIService.LTI_SECRET, secret);
 		setProperty(toolProps, "key", key);
@@ -1427,7 +1430,7 @@ public class SakaiBLTIUtil {
 	 * successful - the launch URL is in [1]
 	 */
 	public static String[] postContentItemSelectionRequest(Long toolKey, Map<String, Object> tool,
-			String state, ResourceLoader rb, String contentReturn, Properties dataProps) {
+			String state, String nonce, ResourceLoader rb, String contentReturn, Properties dataProps) {
 		if (tool == null) {
 			return postError("<p>" + getRB(rb, "error.tool.missing", "Tool is missing or improperly configured.") + "</p>");
 		}
@@ -1555,6 +1558,7 @@ public class SakaiBLTIUtil {
 			Properties toolProps = new Properties();
 			toolProps.put("launch_url", launch_url);
 			setProperty(toolProps, "state", state);  // So far LTI 1.3 only
+			setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
 			toolProps.put(LTIService.LTI_DEBUG, dodebug ? "1" : "0");
 
 			Map<String, Object> content = null;
@@ -1790,16 +1794,22 @@ user_id: admin
 			lj.message_type = LaunchJWT.MESSAGE_TYPE_DEEP_LINK;
 			deepLink = true;
 		}
-		lj.launch_url = launch_url;  // The actual launch URL
+		lj.target_link_uri = launch_url;  // The actual launch URL
 		lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
 		lj.locale = ltiProps.getProperty("launch_presentation_locale");
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
 		lj.issuer = getOurServerUrl();
 		lj.audience = client_id;
-		lj.deployment_id = org_guid;
-		lj.subject = ltiProps.getProperty("user_id");
+		String deployment_id = ServerConfigurationService.getString("lti13.deployment_id", "1");
+		lj.deployment_id = deployment_id;
+		String subject = getOurServerUrl();
+		if ( ! "1".equals(deployment_id) ) {
+				subject += "/deployment/" + deployment_id;
+		}
+		lj.subject = subject + "/user/" + ltiProps.getProperty("user_id");
+		lj.lti1_1_user_id = (String) ltiProps.getProperty("user_id");
 		lj.name = ltiProps.getProperty("lis_person_name_full");
-		lj.nonce = new Long(System.currentTimeMillis()) + "_42";
+		lj.nonce = toolProps.getProperty("nonce");
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 3600L;
@@ -1899,7 +1909,7 @@ user_id: admin
 			Extra fields for DeepLink
 			lti_message_type=ContentItemSelectionRequest
 			accept_copy_advice=false
-			accept_media_types=application/vnd.ims.lti.v1.ltilink
+			accept_media_types=application/vnd.ims.lti.v1.ltiResourceLink
 			accept_multiple=false
 			accept_presentation_document_targets=iframe,window
 			accept_unsigned=true
@@ -1909,7 +1919,7 @@ user_id: admin
 			data={"remember":"always bring a towel"}
 
 		    "deep_link_return_url": "https://platform.example/deep_links",
-			"accept_types": ["link", "file", "html", "ltiLink", "image"],
+			"accept_types": ["link", "file", "html", "ltiResourceLink", "image"],
 			"accept_media_types": "image/:::asterisk:::,text/html",
 			"accept_presentation_document_targets": ["iframe", "window", "embed"],
 			"accept_multiple": true,
@@ -1922,7 +1932,12 @@ user_id: admin
 		if ( deepLink ) {
 			DeepLink ci = new DeepLink();
 			// accept_copy_advice is not in deep linking - files are to be copied - images maybe
-			ci.accept_media_types = ltiProps.getProperty("accept_media_types");
+			String accept_media_types = ltiProps.getProperty("accept_media_types");
+			if ( ContentItem.MEDIA_LTILINKITEM.equals(accept_media_types) ) {
+				ci.accept_types.add(DeepLink.ACCEPT_TYPE_LTILINK);
+			} else {
+				ci.accept_media_types = ltiProps.getProperty("accept_media_types");
+			}
 			ci.accept_multiple = "true".equals(ltiProps.getProperty("accept_multiple"));
 			String target = ltiProps.getProperty("accept_presentation_document_targets");
 			if ( target != null ) {
@@ -1931,10 +1946,11 @@ user_id: admin
 					ci.accept_presentation_document_targets.add(piece);
 				}
 			}
+
 			// Accept_unsigned is not in DeepLinking - they are signed JWTs
 			ci.auto_create = "true".equals(ltiProps.getProperty("auto_create"));
 			// can_confirm is not there
-			ci.deep_link_return_url = ltiProps.getProperty("content_item_return_url");
+			ci.deep_link_return_url = ltiProps.getProperty(BasicLTIConstants.CONTENT_ITEM_RETURN_URL);
 			ci.data = ltiProps.getProperty("data");
 			lj.deep_link = ci;
 		}
@@ -1961,21 +1977,27 @@ user_id: admin
 		}
 
 		String state = toolProps.getProperty("state");
-		if ( state != null && state.trim().length() < 1 ) state = null;
+		state = StringUtils.trimToNull(state);
 
 		String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
 		if ( lti13_oidc_redirect != null ) launch_url = lti13_oidc_redirect;
 
-		String html = "<form action=\"" + launch_url + "\" method=\"POST\">\n"
+		String form_id = java.util.UUID.randomUUID().toString();
+		String html = "<form action=\"" + launch_url + "\" id=\""+ form_id + "\" method=\"POST\">\n"
 				+ "    <input type=\"hidden\" name=\"id_token\" value=\"" + BasicLTIUtil.htmlspecialchars(jws) + "\" />\n";
 
 		if ( state != null ) {
 			html += "    <input type=\"hidden\" name=\"state\" value=\"" + BasicLTIUtil.htmlspecialchars(state) + "\" />\n";
 		}
 
-		html += "    <input type=\"submit\" value=\"Go!\" />\n</form>\n";
+		if ( dodebug ) {
+			html += "    <input type=\"submit\" value=\"Proceed with LTI 1.3 Launch\" />\n</form>\n";
+		}
+		html += "    </form>\n";
 
-		if (dodebug) {
+		if ( ! dodebug ) {
+			html += "<script>\n document.getElementById(\"" + form_id + "\").submit();\n</script>\n";
+		} else {
 			html += "<p>\n--- Unencoded JWT:<br/>"
 					+ BasicLTIUtil.htmlspecialchars(ljs)
 					+ "</p>\n<p>\n--- State:<br/>"
