@@ -27,7 +27,6 @@
                 </property>
             </activation>
             <modules>
-                <module>ckeditor-image2</module>
             </modules>
         </profile>
         <profile>
