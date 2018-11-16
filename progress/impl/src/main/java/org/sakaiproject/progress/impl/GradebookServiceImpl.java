@@ -51,11 +51,14 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.progress.api.IGradebookService;
 import org.sakaiproject.progress.api.Template;
+import lombok.Setter;
 
 
 public class GradebookServiceImpl implements IGradebookService, Comparable, Serializable {
 
-	protected GradebookService gradebookService;
+	@Setter
+	private GradebookService gradebookService;
+
 	protected Gradebook gradebook;
 	protected String gradebookUid;
 	protected Long gradebookId;
