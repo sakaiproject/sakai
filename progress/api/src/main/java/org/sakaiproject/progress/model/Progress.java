@@ -15,7 +15,7 @@ import javax.persistence.*;
 import java.time.Instant;
 
 /**
- * This is the Widget persistence POJO its mostly uses JPA annotations
+ * This is the Progress persistence POJO it mostly uses JPA annotations
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -48,7 +48,7 @@ public class Progress {
     @Getter @Setter
     private String configuration;
 
-    @Column(name = "modified_by" length = 99)
+    @Column(name = "modified_by", length = 99)
     @Getter
     private String modifiedBy;
 
@@ -59,5 +59,11 @@ public class Progress {
         DELETED     // 2
     }
 
-
+    public void update(Progress progress){
+        this.id = progress.id;
+        this.dateCreated = progress.dateCreated;
+        this.dateEdited = progress.dateEdited;
+        this.configuration = progress.configuration;
+        this.modifiedBy = progress.modifiedBy;
+    }
 }

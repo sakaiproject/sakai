@@ -15,32 +15,32 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import java.util.Date;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import org.sakaiproject.progress.model.Progress;
+import java.util.List;
+import java.time.Instant;
+import java.util.Objects;
 
 /**
- * Implementation of the persistence layer for getting and setting configurations
- * TODO: Write this
+ * Implementation of the persistence layer for getting and setting configurations and progress entities. Uses JPA
+ *
  */
 @Slf4j
 public class ProgressServiceImpl implements ProgressService {
 	
-	@Setter private Configuration configuration;
-	@Getter @Setter private long courseId;
-	@Getter private Date dateCreated;
-	@Getter @Setter private Date dateEdited;
-	@Getter private String modifiedBy;
-	private List<ProgressItem> progressItemList;
-
+	@Setter @Getter private Configuration configuration;
 
     public void init(){
         if (ServerConfigurationService.getBoolean("auto.ddl", false)) {
             initDB(ServerConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"));
-
+        }
     }
 
     @Override
@@ -53,15 +53,64 @@ public class ProgressServiceImpl implements ProgressService {
 
     }
 
-    @Override
-    public ProgressItem getProgressItemList(){
 
+    public void addProgress(Progress progress){
+        Objects.requireNonNull(progress);
+
+        if(progress.getId() != null){
+            throw new IllegalArgumentException("Can't persist a new progress with a non null id");
+        }
+
+        Instant now = Instant.now();
+        progress.setDateCreated(now);
+        progress.setDateEdited(now);
+
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("progress");
+        EntityManager em = emFactory.createEntityManager();
+        em.getTransaction().begin();
+        em.persist(progress);
+        em.getTransaction().commit();
     }
 
-    @Override
-    public ProgressItem getProgressItem(long id){
+    public void updateProgess(Progress progress){
+        Objects.requireNonNull(progress);
 
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("progress");
+        EntityManager em = emFactory.createEntityManager();
+        Progress updatedProgress = em.find(Progress.class, progress.getId());
+        Instant now = Instant.now();
+        progress.setDateEdited(now);
+
+        em.getTransaction().begin();
+        updatedProgress.update(progress);
+        em.getTransaction().commit();
     }
+
+    public Progress getProgress(String id){
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("progress");
+        EntityManager em = emFactory.createEntityManager();
+        Progress progress = em.find(Progress.class, id);
+
+        return progress;
+    }
+
+    public void deleteProgress(String id){
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("progress");
+        EntityManager em = emFactory.createEntityManager();
+        Progress progress = em.find(Progress.class, id);
+
+        em.getTransaction().begin();
+        em.remove(progress);
+        em.getTransaction().commit();
+    }
+
+
+    @Override
+    public List<Progress> getAllProgress(){
+        //TODO: Finish this method once it is understood how progress items are saved
+        return null; //Returns null until method is implemented
+    }
+
     
     private void initDB(String dbType) {
         String initFile = "db/init/" + dbType + ".sql";
