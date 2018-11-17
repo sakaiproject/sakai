@@ -29,15 +29,15 @@ public class CASATest {
 	@Test
 	public void testServiceCompare() {
 		Launch launch = new Launch();
-		launch.setLaunch_url("https://online.dr-chuck.com/sakai-api-test/tool.php");
-		launch.setRegistration_url("https://online.dr-chuck.com/sakai-api-test/tp.php");
+		launch.setLaunch_url("https://www.tsugi.org/lti-test/tool.php");
+		launch.setRegistration_url("https://www.tsugi.org/lti-test/tp.php");
 
 		String output = launch.prettyPrintLog();
 		assertNotNull(output);
 
 		assertTrue(output.contains("launch_url"));
 		assertTrue(output.contains("registration_url"));
-		assertTrue(output.contains("sakai-api-test"));
+		assertTrue(output.contains("lti-test"));
 
 		Use use = new Use(launch);
 		use.setIcon_url("http://www.dr-chuck.com/csev.jpg");
