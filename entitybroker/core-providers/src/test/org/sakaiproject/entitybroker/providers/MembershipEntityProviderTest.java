@@ -417,6 +417,84 @@ public class MembershipEntityProviderTest {
         assertEquals("user-foo::group:group.with.dots", results.get(0).getEntityId());
     }
 
+
+    @Test
+    public void getEntityDifferentUserNoRoster() {
+        Search search = new Search();
+        search.addRestriction(new Restriction(CollectionResolvable.SEARCH_USER_REFERENCE, "otherUserId"));
+
+        User user = mock(User.class);
+        when(user.getId()).thenReturn("otherUserId");
+
+        when(developerHelperService.getCurrentUserId()).thenReturn("currentUserId");
+
+        when(userEntityProvider.findAndCheckUserId("otherUserId", null)).thenReturn("otherUserId");
+
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("siteId");
+        when(siteService.getUserSites(false, "otherUserId")).thenReturn(Collections.singletonList(site));
+        when(siteService.allowViewRoster("siteId")).thenReturn(false);
+
+        List<EntityData> entities = provider.getEntities(null, search);
+        assertEquals(0, entities.size());
+    }
+
+    @Test
+    public void getEntityDifferentUserWithRoster() {
+        Search search = new Search();
+        search.addRestriction(new Restriction(CollectionResolvable.SEARCH_USER_REFERENCE, "otherUserId"));
+
+        User user = mock(User.class);
+        when(user.getId()).thenReturn("otherUserId");
+
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("otherUserId");
+        when(member.getUserEid()).thenReturn("otherUserEid");
+
+        when(developerHelperService.getCurrentUserId()).thenReturn("currentUserId");
+
+        when(userEntityProvider.findAndCheckUserId("otherUserId", null)).thenReturn("otherUserId");
+
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("siteId");
+        when(site.getReference()).thenReturn("/site/siteId");
+        when(site.getType()).thenReturn("test");
+        when(site.getMember("otherUserId")).thenReturn(member);
+        when(siteService.getUserSites(false, "otherUserId")).thenReturn(Collections.singletonList(site));
+        when(siteService.allowViewRoster("siteId")).thenReturn(true);
+
+        List<EntityData> entities = provider.getEntities(null, search);
+        assertEquals(1, entities.size());
+        assertEquals("otherUserId::site:siteId", entities.get(0).getEntityId());
+    }
+
+    @Test
+    public void getEntitySameUserNoRoster() {
+        User user = mock(User.class);
+        when(user.getId()).thenReturn("currentUserId");
+
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("currentUserId");
+        when(member.getUserEid()).thenReturn("currentUserEid");
+
+        when(developerHelperService.getCurrentUserId()).thenReturn("currentUserId");
+
+        when(userEntityProvider.findAndCheckUserId("currentUserId", null)).thenReturn("currentUserId");
+
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("siteId");
+        when(site.getReference()).thenReturn("/site/siteId");
+        when(site.getType()).thenReturn("test");
+        when(site.getMember("currentUserId")).thenReturn(member);
+        when(siteService.getUserSites(false, "currentUserId")).thenReturn(Collections.singletonList(site));
+        // Check even when you don't have permission to view roster you still can see your own membership
+        when(siteService.allowViewRoster("siteId")).thenReturn(false);
+
+        List<EntityData> entities = provider.getEntities(null, null);
+        assertEquals(1, entities.size());
+        assertEquals("currentUserId::site:siteId", entities.get(0).getEntityId());
+    }
+
     // we don't have a createEntityPreservesDotsInSiteIdQueryParams() test b/c passing a
     // org.sakaiproject.mock.domain.Member to createEntity() doesn't actually work.
 
