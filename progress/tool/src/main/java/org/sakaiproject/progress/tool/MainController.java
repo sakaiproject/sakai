@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,7 +53,8 @@ public class MainController {
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
 
-		gradebookService.getGradebook("4bcd43c7-40e5-457b-87ae-d676562ed9d1");
+		model.addAttribute("con", context);
+		gradebookService.getGradebook(context);
 		model.addAttribute("test", gradebookService.getId());
 		return "index";
 	}

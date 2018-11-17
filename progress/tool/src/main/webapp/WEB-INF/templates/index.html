@@ -4,34 +4,44 @@
 <head th:replace="fragments/common :: head"/>
 <body>
 <div class="portletBody">
-	<span th:text="${test}" />
-	<script th:inline="javascript">
-        /*<![CDATA[*/
-        var fragment = document.createDocumentFragment();
-        var listItem, progressDiv, progressBar, progressPercent;
+	<span th:text="${test}" /><br>
+	<span th:text="${con}" />
 
-        var students = test : ${test.getId()}; //make progress variable in MainController
-        for(var i = 0; i < students.length(); i++) {
-            progressPercent = students[i].progressPercent;
-            listItem = document.createElement("li");
-            progressDiv = document.createElement("div");
-            progressDiv.classList.add("progress");
-            progressBar = document.createElement("div");
-            progressBar.classList.add("progress-bar");
-            progressBar.setAttribute("role", "progressbar");
-            progressBar.setAttribute("style", "width: " + progressPercent + "%");
-            progressBar.setAttribute("aria-valuemin", "0");
-            progressBar.setAttribute("aria-valuemax", "100");
-            progressBar.setAttribute("aria-valuenow", progressPercent);
-            progressBar.appendChild(document.createTextNode(progressPercent));
-            listItem.appendChild(document.createTextNode(students[i].name));
-            listItem.appendChild(progressBar);
-            fragment.appendChild(listItem);
-        }
-        document.getElementById("student-list").appendChild(fragment);
+	<!--<table>-->
+		<!--<tr th:each="instance : ${map}">-->
+			<!--<td th:text="${instance.key}">keyvalue</td>-->
+			<!--<td th:text="${instance.value}">num</td>-->
+		<!--</tr>-->
+	<!--</table>-->
 
-        /*]]>*/
-	</script>
+
+	<!--<script th:inline="javascript">-->
+        <!--/*<![CDATA[*/-->
+        <!--var fragment = document.createDocumentFragment();-->
+        <!--var listItem, progressDiv, progressBar, progressPercent;-->
+
+        <!--var students = test : ${test.getId()}; //make progress variable in MainController-->
+        <!--for(var i = 0; i < students.length(); i++) {-->
+            <!--progressPercent = students[i].progressPercent;-->
+            <!--listItem = document.createElement("li");-->
+            <!--progressDiv = document.createElement("div");-->
+            <!--progressDiv.classList.add("progress");-->
+            <!--progressBar = document.createElement("div");-->
+            <!--progressBar.classList.add("progress-bar");-->
+            <!--progressBar.setAttribute("role", "progressbar");-->
+            <!--progressBar.setAttribute("style", "width: " + progressPercent + "%");-->
+            <!--progressBar.setAttribute("aria-valuemin", "0");-->
+            <!--progressBar.setAttribute("aria-valuemax", "100");-->
+            <!--progressBar.setAttribute("aria-valuenow", progressPercent);-->
+            <!--progressBar.appendChild(document.createTextNode(progressPercent));-->
+            <!--listItem.appendChild(document.createTextNode(students[i].name));-->
+            <!--listItem.appendChild(progressBar);-->
+            <!--fragment.appendChild(listItem);-->
+        <!--}-->
+        <!--document.getElementById("student-list").appendChild(fragment);-->
+
+        <!--/*]]>*/-->
+	<!--</script>-->
 
 	<input type="button">
 	<ul id="student-list"></ul>
