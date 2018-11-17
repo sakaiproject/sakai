@@ -1,8 +1,11 @@
 package org.sakaiproject.progress.impl;
 
+import lombok.Setter;
+
 import org.sakaiproject.progress.api.ProgressService;
 import org.sakaiproject.progress.api.ProgressServiceException;
-
+import org.sakaiproject.progress.api.persistence.Configuration;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ProgressServiceImpl implements ProgressService {
+	
+	@Setter private Configuration configuration;
 
     public void init(){
         if (ServerConfigurationService.getBoolean("auto.ddl", false)) {

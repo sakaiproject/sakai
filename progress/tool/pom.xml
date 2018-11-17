@@ -79,10 +79,5 @@
 			<artifactId>thymeleaf-extras-java8time</artifactId>
 			<version>3.0.1.RELEASE</version>
 		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.progress</groupId>
-			<artifactId>progress-api</artifactId>
-			<scope>compile</scope>
-		</dependency>
 	</dependencies>
 </project>
