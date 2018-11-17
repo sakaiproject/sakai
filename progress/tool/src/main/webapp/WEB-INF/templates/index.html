@@ -4,7 +4,7 @@
 <head th:replace="fragments/common :: head"/>
 <body>
 <div class="portletBody">
-	<span th:text="'The Gradebook Id is '${test}" /><br>
+	<span th:text="'The Gradebook Id is ' + ${test}" /><br>
 
 	<table>
 		<tr th:each="user : ${users}">
