@@ -13,7 +13,7 @@ Sakai has a unit test that we keep up-to-date with the latest LTI specifications
 test harness functions as both Consumer and Provider and exercises both standard services 
 and Sakai's particular extensions.  I make this tool available online at
 
-* https://online.dr-chuck.com/sakai-api-test
+* https://www.tsugi.org/lti-test
 
 Aditional Documentation
 
