@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.progress.api.ProgressService;
 import org.sakaiproject.progress.api.IGradebookService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,8 +55,10 @@ public class MainController {
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
 
-		model.addAttribute("con", context);
-		gradebookService.getGradebook(context);
+		gradebookService.setGradebook(context);
+		List<User> users = gradebookService.getStudents(context);
+
+		model.addAttribute("users", users);
 		model.addAttribute("test", gradebookService.getId());
 		return "index";
 	}

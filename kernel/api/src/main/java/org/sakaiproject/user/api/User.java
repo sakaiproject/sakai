@@ -113,8 +113,7 @@ public interface User extends Entity, Comparable
 
 	/**
 	 * Access the user type.
-	 * 
-	 * @return The user type.
+	 * <
 	 */
 	String getType();
 

@@ -4,15 +4,14 @@
 <head th:replace="fragments/common :: head"/>
 <body>
 <div class="portletBody">
-	<span th:text="${test}" /><br>
-	<span th:text="${con}" />
+	<span th:text="'The Gradebook Id is '${test}" /><br>
 
-	<!--<table>-->
-		<!--<tr th:each="instance : ${map}">-->
-			<!--<td th:text="${instance.key}">keyvalue</td>-->
-			<!--<td th:text="${instance.value}">num</td>-->
-		<!--</tr>-->
-	<!--</table>-->
+	<table>
+		<tr th:each="user : ${users}">
+			<td th:text="${user.getLastName()} + ', ' + ${user.getFirstName()}">user</td>
+
+		</tr>
+	</table>
 
 
 	<!--<script th:inline="javascript">-->

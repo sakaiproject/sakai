@@ -30,15 +30,19 @@ import java.util.*;
 import org.apache.commons.lang.StringEscapeUtils;
 //import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.progress.api.IGradebookService;
 import lombok.Setter;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 
 public class GradebookServiceImpl implements IGradebookService, Comparable, Serializable {
@@ -49,11 +53,15 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	@Setter
 	private GradebookService gradebookService;
 
+	@Setter
+	private UserDirectoryService userDirectoryService;
+
 	protected Gradebook gradebook;
 	protected String gradebookUid;
 	protected Long gradebookId;
 
-	public Gradebook getGradebook(final String uid) throws GradebookNotFoundException {
+
+	public Gradebook setGradebook(final String uid) throws GradebookNotFoundException {
 		gradebook = (Gradebook)gradebookService.getGradebook(uid);
 		gradebookUid=gradebook.getUid();
 		gradebookId=gradebook.getId();
@@ -157,19 +165,33 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	}
 
 	@Override
-	public Set getStudents(Gradebook gradebook) throws IdUnusedException {
+	public List<User> getStudents(String siteId) {
 
-		Set<String> students = new HashSet<String>();
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			//log.error("Site '" + siteId + "' not found. Returning null ...");
+			return null;
+		}
 
-		gradebookId = gradebook.getId();
+		List<User> students = new ArrayList<User>();
 
-		students = siteService.getSite(gradebookUid).getUsersIsAllowed("section.role.student");
+		for(User user : userDirectoryService.getUsers(site.getUsers())){
+			if(user.getEid().contains("student")){
+				students.add(user);
+			}
+		}
 
 		return students;
 	}
 
 	@Override
-	public void setStudents(Set students) {
+	public void setStudents(String siteId){
+
+	}
+	@Override
+	public void setStudents(List<User> users) {
 
 	}
 
