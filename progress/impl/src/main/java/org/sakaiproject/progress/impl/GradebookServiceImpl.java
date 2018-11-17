@@ -166,7 +166,6 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 		students = siteService.getSite(gradebookUid).getUsersIsAllowed("section.role.student");
 
 		return students;
-
 	}
 
 	@Override
@@ -196,7 +195,7 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 
 	@Override
 	public Long getId() {
-		return null;
+		return gradebookId;
 	}
 
 	@Override

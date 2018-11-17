@@ -15,6 +15,7 @@ package org.sakaiproject.progress.tool;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.progress.api.ProgressService;
+import org.sakaiproject.progress.api.IGradebookService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,8 +39,11 @@ import java.util.Set;
 @Controller
 public class MainController {
 
-	@Resource(name = "org.sakaiproject.progress.api.ProgressService")
-	private ProgressService progressService;
+	@Resource(name = "org.sakaiproject.progress.impl.GradebookServiceImpl")
+	private IGradebookService gradebookService;
+
+//	@Resource(name = "org.sakaiproject.progress.api.ProgressService")
+//	private ProgressService progressService;
 
 	@Resource(name = "org.sakaiproject.tool.api.ToolManager")
 	private ToolManager toolManager;
@@ -48,6 +52,8 @@ public class MainController {
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
 
+		gradebookService.getGradebook("4bcd43c7-40e5-457b-87ae-d676562ed9d1");
+		model.addAttribute("test", gradebookService.getId());
 		return "index";
 	}
 

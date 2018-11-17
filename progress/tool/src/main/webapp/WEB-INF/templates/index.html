@@ -1,17 +1,44 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+	  xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/common :: head"/>
 <body>
 <div class="portletBody">
-    <h1>Hello World!</h1>
-    <tr th:each="student: ${students}">
-        <td th:text="${student}" />
-    </tr>
-    <!--<div id="menu" th:insert="fragments/menus :: main(index)"/>-->
-    <!--<h3 th:text="#{index.title}">View Widgets</h3>-->
-    <!--<div th:replace="fragments/common :: widgetTable" />-->
-    <!--<a class="btn btn-default" href="index.html" th:href="@{/}" th:value="#{link.refresh}">Refresh</a>-->
+	<span th:text="${test}" />
+	<script th:inline="javascript">
+        /*<![CDATA[*/
+        var fragment = document.createDocumentFragment();
+        var listItem, progressDiv, progressBar, progressPercent;
+
+        var students = test : ${test.getId()}; //make progress variable in MainController
+        for(var i = 0; i < students.length(); i++) {
+            progressPercent = students[i].progressPercent;
+            listItem = document.createElement("li");
+            progressDiv = document.createElement("div");
+            progressDiv.classList.add("progress");
+            progressBar = document.createElement("div");
+            progressBar.classList.add("progress-bar");
+            progressBar.setAttribute("role", "progressbar");
+            progressBar.setAttribute("style", "width: " + progressPercent + "%");
+            progressBar.setAttribute("aria-valuemin", "0");
+            progressBar.setAttribute("aria-valuemax", "100");
+            progressBar.setAttribute("aria-valuenow", progressPercent);
+            progressBar.appendChild(document.createTextNode(progressPercent));
+            listItem.appendChild(document.createTextNode(students[i].name));
+            listItem.appendChild(progressBar);
+            fragment.appendChild(listItem);
+        }
+        document.getElementById("student-list").appendChild(fragment);
+
+        /*]]>*/
+	</script>
+
+	<input type="button">
+	<ul id="student-list"></ul>
+	<!--<div id="menu" th:insert="fragments/menus :: main(index)"/>-->
+	<!--<h3 th:text="#{index.title}">View Widgets</h3>-->
+	<!--<div th:replace="fragments/common :: widgetTable" />-->
+	<!--<a class="btn btn-default" href="index.html" th:href="@{/}" th:value="#{link.refresh}">Refresh</a>-->
 </div>
 </body>
 </html>

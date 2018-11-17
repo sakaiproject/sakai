@@ -25,9 +25,16 @@
        <!-- <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/> -->
     </bean>
 
-    <bean id="org.sakaiproject.progress.api.ProgressService"
-          class="org.sakaiproject.progress.impl.ProgressServiceImpl"
-          init-method="init">
-        <property name="configuration" ref="org.sakaiproject.progress.impl.persistence.Configuration"/>
+    <!--<bean id="org.sakaiproject.progress.api.ProgressService"-->
+          <!--class="org.sakaiproject.progress.impl.ProgressServiceImpl"-->
+          <!--init-method="init">-->
+        <!--<property name="configuration" ref="org.sakaiproject.progress.impl.persistence.Configuration"/>-->
+    <!--</bean>-->
+
+    <bean
+        id="org.sakaiproject.progress.impl.GradebookServiceImpl"
+        class="org.sakaiproject.progress.impl.GradebookServiceImpl">
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     </bean>
 </beans>
