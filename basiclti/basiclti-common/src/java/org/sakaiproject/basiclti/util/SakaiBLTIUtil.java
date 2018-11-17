@@ -152,6 +152,8 @@ public class SakaiBLTIUtil {
 	public static final String INCOMING_ROSTER_ENABLED = "basiclti.incoming.roster.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
 	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "basiclti.launch.session.timeout";
+	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
+	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
 
 	public static final String SVC_tc_profile = "tc_profile";
 	public static final String SVC_tc_registration = "tc_registration";
@@ -1808,7 +1810,7 @@ user_id: admin
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
 		lj.issuer = getOurServerUrl();
 		lj.audience = client_id;
-		String deployment_id = ServerConfigurationService.getString("lti13.deployment_id", "1");
+		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
 		lj.deployment_id = deployment_id;
 		String subject = getOurServerUrl();
 		if ( ! "1".equals(deployment_id) ) {
