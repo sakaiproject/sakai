@@ -31,11 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 
 import org.tsugi.lti13.LTI13Util;
 import org.apache.commons.lang.StringUtils;
+import org.tsugi.http.HttpUtil;
 
 /**
  *
@@ -46,6 +46,9 @@ public class OIDCServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	protected static LTIService ltiService = null;
+
+	// TODO: Come up with a better way to handle this in RequestFilter
+	protected String cookieName = "JSESSIONID";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -106,6 +109,34 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
+		// Check if we need a second re-direct to set the cookie
+		String tryCookie = (String) request.getParameter("try_cookie");
+		String sessionCookie = HttpUtil.getCookie(request, cookieName);
+
+		if ( StringUtils.isEmpty(tryCookie) && StringUtils.isEmpty(sessionCookie) ) {
+			String retry = request.getRequestURI() + '?';
+			retry += "state=" + java.net.URLEncoder.encode(state);
+		    retry += "&nonce=" + java.net.URLEncoder.encode(nonce);
+			retry += "&login_hint=" + java.net.URLEncoder.encode(login_hint);
+			retry += "&try_cookie=done";
+			log.debug("retry={}", retry);
+			try {
+				response.sendRedirect(retry);
+			} catch (IOException unlikely) {
+				log.error("failed redirect {}", unlikely.getMessage());
+				LTI13Util.return400(response, "Redirect failed "+unlikely.getMessage());
+			}
+			return;
+		}
+
+		// Is the user logged in?
+		if ( StringUtils.isEmpty(sessionCookie) ) {
+			LTI13Util.return400(response, "Lost session cookie");
+			log.error("Lost session cookie");
+			return;
+		}
+
+		// Looks like the redirect will work...
 		String redirect = login_hint;
 		redirect += ( redirect.contains("?") ? "&" : "?");
 		redirect += "state=" + java.net.URLEncoder.encode(state);
@@ -116,6 +147,8 @@ public class OIDCServlet extends HttpServlet {
 			response.sendRedirect(redirect);
 		} catch (IOException unlikely) {
 			log.error("failed redirect {}", unlikely.getMessage());
+			LTI13Util.return400(response, "Redirect failed "+unlikely.getMessage());
+
 		}
 	}
 

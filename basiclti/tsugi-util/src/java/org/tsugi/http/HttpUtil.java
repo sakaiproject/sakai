@@ -18,8 +18,10 @@ package org.tsugi.http;
 
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Cookie;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Some Tsugi Utility code for to make using Jackson easier to use.
@@ -47,4 +49,21 @@ public class HttpUtil {
 		}
 	}
 
+	public static String getCookie(HttpServletRequest request, String lookup) {
+		if ( request == null || lookup == null ) return null;
+
+		// https://stackoverflow.com/questions/11047548/getting-cookie-in-servlet
+		Cookie[] cookies = request.getCookies();
+		if ( cookies == null ) return null;
+		for (int i = 0; i < cookies.length; i++) {
+			Cookie cookie=cookies[i];
+			String cookieName = cookie.getName();
+			String cookieValue = cookie.getValue();
+			if ( StringUtils.isEmpty(cookieName) ) continue;
+			if ( cookieName.toLowerCase().equals(lookup.toLowerCase())) {
+				return cookieValue;
+			}
+		}
+		return null;
+	}
 }
