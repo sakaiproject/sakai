@@ -15,13 +15,19 @@ package org.sakaiproject.progress.tool;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.progress.api.ProgressService;
+import org.sakaiproject.progress.api.IGradebookService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * MainController
@@ -36,8 +42,11 @@ import javax.annotation.Resource;
 @Controller
 public class MainController {
 
-	@Resource(name = "org.sakaiproject.progress.api.ProgressService")
-	private ProgressService progressService;
+	@Resource(name = "org.sakaiproject.progress.impl.GradebookServiceImpl")
+	private IGradebookService gradebookService;
+
+//	@Resource(name = "org.sakaiproject.progress.api.ProgressService")
+//	private ProgressService progressService;
 
 	@Resource(name = "org.sakaiproject.tool.api.ToolManager")
 	private ToolManager toolManager;
@@ -45,7 +54,13 @@ public class MainController {
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
-	    return "index";
+
+		gradebookService.setGradebook(context);
+		List<User> users = gradebookService.getStudents(context);
+
+		model.addAttribute("users", users);
+		model.addAttribute("test", gradebookService.getId());
+		return "index";
 	}
 
 }

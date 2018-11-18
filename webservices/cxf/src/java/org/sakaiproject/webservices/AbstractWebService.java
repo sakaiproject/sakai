@@ -92,7 +92,6 @@ public class AbstractWebService {
     protected ActivityService activityService;
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
     protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
-
     
     @WebMethod(exclude = true)
     public void init() {
