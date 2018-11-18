@@ -363,11 +363,19 @@ public class SakaiBLTIUtil {
 	}
 
 	public static String encryptSecret(String orig) {
-		if (orig == null || orig.trim().length() < 1) {
+		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
+		return encryptSecret(orig, encryptionKey);
+	}
+
+	// For unit tests mostly
+	public static String encryptSecret(String orig, String encryptionKey) {
+		if (StringUtils.isEmpty(orig) || StringUtils.isEmpty(encryptionKey) ) {
 			return orig;
 		}
-		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
-		if (encryptionKey == null) {
+
+		// Never double encrypt
+		String check = decryptSecret(orig, encryptionKey);
+		if ( ! orig.equals(check) ) {
 			return orig;
 		}
 
@@ -377,18 +385,20 @@ public class SakaiBLTIUtil {
 	}
 
 	public static String decryptSecret(String orig) {
-		if (orig == null || orig.trim().length() < 1) {
-			return orig;
-		}
 		String encryptionKey = ServerConfigurationService.getString(BASICLTI_ENCRYPTION_KEY, null);
-		if (encryptionKey == null) {
+		return decryptSecret(orig, encryptionKey);
+	}
+
+	public static String decryptSecret(String orig, String encryptionKey) {
+		if (StringUtils.isEmpty(orig) || StringUtils.isEmpty(encryptionKey) ) {
 			return orig;
 		}
+
 		try {
 			String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
 			return newsecret;
 		} catch (RuntimeException re) {
-			log.error("Exception when decrypting secret - this is normal if the secret is unencrypted");
+			log.debug("Exception when decrypting secret - this is normal if the secret is unencrypted");
 			return orig;
 		}
 	}
@@ -1730,10 +1740,8 @@ public class SakaiBLTIUtil {
 				ServerConfigurationService.getString("serverUrl", null));
 
 		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
-		String tool_public = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
-		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
 		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
-		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
+		String platform_private = decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
 		String placement_secret = null;
 		if (content != null) {
 			placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
