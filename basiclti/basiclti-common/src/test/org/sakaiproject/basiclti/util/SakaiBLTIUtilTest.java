@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
@@ -91,5 +93,37 @@ public class SakaiBLTIUtilTest {
 
 		assertEquals(grade,"56.55");
 	}
+
+	// Something like: 4bd442a8b27e647e:2803e729800336b20a77d61b2da6db3f:790b8098f8bb4407f96304e701eeb58e:AES/CBC/PKCS5Padding
+	// But each encryption is distinct
+	public boolean goodEncrypt(String enc) {
+		String [] pieces = enc.split(":");
+		if ( pieces.length != 4 ) {
+			System.out.println("Bad encryption - too few pieces\n"+enc);
+			return false;
+		}
+		if ( ! "AES/CBC/PKCS5Padding".equals(pieces[3]) ) {
+			System.out.println("Bad encryption - must end with AES/CBC/PKCS5Padding\n"+enc);
+			return false;
+		}
+		return true;
+	}
+
+	@Test
+	public void testEncryptDecrypt() {
+		String plain = "plain";
+		String key = "bob";
+		String encrypt1 = SakaiBLTIUtil.encryptSecret(plain, key);
+		assertFalse(plain.equals(encrypt1));
+		assertTrue(goodEncrypt(encrypt1));
+System.err.println("encrypt1="+encrypt1);
+		// No double encrypt
+		String encrypt2 = SakaiBLTIUtil.encryptSecret(encrypt1, key);
+		assertTrue(goodEncrypt(encrypt2));
+		assertEquals(encrypt1, encrypt2);
+		String decrypt = SakaiBLTIUtil.decryptSecret(encrypt2, key);
+		assertEquals(plain, decrypt);
+	}
+
 }
 
