@@ -1731,6 +1731,28 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
+	public static String getIssuer(String site_id) {
+		String retval = getOurServerUrl();
+		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
+		if ( ! LTI13_DEPLOYMENT_ID_DEFAULT.equals(deployment_id) ) {
+				retval += "/deployment/" + deployment_id;
+		}
+		if ( StringUtils.isNotEmpty(site_id) ) {
+			retval = retval + "/site/" + site_id;
+		}
+		return retval;
+	}
+
+	public static String getSubject(String user_id) {
+		String retval = getOurServerUrl();
+		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
+		if ( ! LTI13_DEPLOYMENT_ID_DEFAULT.equals(deployment_id) ) {
+				retval += "/deployment/" + deployment_id;
+		}
+		retval = retval + "/user/" + user_id;
+		return retval;
+	}
+
 	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
 			Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb) {
 		String launch_url = toolProps.getProperty("secure_launch_url");
@@ -1747,6 +1769,7 @@ public class SakaiBLTIUtil {
 		String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",
 				ServerConfigurationService.getString("serverUrl", null));
 
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
 		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
 		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
 		String platform_private = decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
@@ -1808,16 +1831,10 @@ user_id: admin
 		lj.launch_presentation.css_url = ltiProps.getProperty("launch_presentation_css_url");
 		lj.locale = ltiProps.getProperty("launch_presentation_locale");
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
-		lj.issuer = getOurServerUrl();
 		lj.audience = client_id;
-		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
-		lj.deployment_id = deployment_id;
-		String subject = getOurServerUrl();
-		if ( ! "1".equals(deployment_id) ) {
-				subject += "/deployment/" + deployment_id;
-		}
-		lj.subject = subject + "/user/" + ltiProps.getProperty("user_id");
+		lj.issuer = getIssuer(site_id);
 		lj.lti1_1_user_id = (String) ltiProps.getProperty("user_id");
+		lj.subject = getSubject(lj.lti1_1_user_id);
 		lj.name = ltiProps.getProperty("lis_person_name_full");
 		lj.nonce = toolProps.getProperty("nonce");
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
