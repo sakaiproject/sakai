@@ -1970,6 +1970,11 @@ user_id: admin
 
 		Key privateKey = LTI13Util.string2PrivateKey(platform_private);
 		Key publicKey = LTI13Util.string2PublicKey(platform_public);
+
+		if ( privateKey == null | publicKey == null ) {
+			return postError("<p>" + getRB(rb, "error.no.pki", "Public and/or Private Key(s) not configured.") + "</p>");
+		}
+
 		String kid = LTI13KeySetUtil.getPublicKID(publicKey);
 
 		String jws = Jwts.builder().setHeaderParam("kid", kid).
