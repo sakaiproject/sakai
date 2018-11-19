@@ -23,6 +23,7 @@ package org.sakaiproject.lti13;
 */
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -37,6 +38,8 @@ import org.tsugi.lti13.LTI13Util;
 import org.apache.commons.lang.StringUtils;
 import org.tsugi.http.HttpUtil;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  *
  */
@@ -46,6 +49,8 @@ public class OIDCServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	protected static LTIService ltiService = null;
+
+	private static ResourceLoader rb = new ResourceLoader("oidc");
 
 	// TODO: Come up with a better way to handle this in RequestFilter
 	protected String cookieName = "JSESSIONID";
@@ -103,45 +108,40 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
-		if ( ! login_hint.startsWith("/access/basiclti/site/") ) {
+		if ( ! login_hint.startsWith("/access/basiclti/site/") || 
+			login_hint.contains("\"") || login_hint.contains("'") ||
+			login_hint.contains("<") || login_hint.contains(">") ||
+			login_hint.contains(" ") || login_hint.contains(";") )
+		{
 			LTI13Util.return400(response, "Bad format for login_hint");
 			log.error("Bad format for login_hint");
 			return;
 		}
 
-		// Check if we need a second re-direct to set the cookie
-		String tryCookie = (String) request.getParameter("try_cookie");
-		String sessionCookie = HttpUtil.getCookie(request, cookieName);
-
-		if ( StringUtils.isEmpty(tryCookie) && StringUtils.isEmpty(sessionCookie) ) {
-			String retry = request.getRequestURI() + '?';
-			retry += "state=" + java.net.URLEncoder.encode(state);
-		    retry += "&nonce=" + java.net.URLEncoder.encode(nonce);
-			retry += "&login_hint=" + java.net.URLEncoder.encode(login_hint);
-			retry += "&try_cookie=done";
-			log.debug("retry={}", retry);
-			try {
-				response.sendRedirect(retry);
-			} catch (IOException unlikely) {
-				log.error("failed redirect {}", unlikely.getMessage());
-				LTI13Util.return400(response, "Redirect failed "+unlikely.getMessage());
-			}
-			return;
-		}
-
-		// Is the user logged in?
-		if ( StringUtils.isEmpty(sessionCookie) ) {
-			LTI13Util.return400(response, "Lost session cookie");
-			log.error("Lost session cookie");
-			return;
-		}
-
-		// Looks like the redirect will work...
 		String redirect = login_hint;
 		redirect += ( redirect.contains("?") ? "&" : "?");
 		redirect += "state=" + java.net.URLEncoder.encode(state);
 		redirect += "&nonce=" + java.net.URLEncoder.encode(nonce);
 		log.debug("redirect={}", redirect);
+
+		// Check if we need to generate a page to re-grab the cookie
+		String sessionCookie = HttpUtil.getCookie(request, cookieName);
+		if ( StringUtils.isEmpty(sessionCookie) ) {
+			PrintWriter out = null;
+            		try {
+                		out = response.getWriter();
+				out.println("<script>window.location.href=\""+redirect+"\";</script>");
+				out.println("<p>...</p>");
+				out.print("<p><a href=\""+redirect+"\" style=\"display: none;\" id=\"linker\">");
+				out.print(rb.getString("oidc.continue"));
+				out.println("</a></p>");
+				out.println("<script>setTimeout(function(){ document.getElementById('linker').style.display = 'inline'}, 1000);</script>");
+            		} catch (IOException e) {
+                		log.error(e.getMessage(), e);
+            		}
+               		return;
+		}
+
 
 		try {
 			response.sendRedirect(redirect);
