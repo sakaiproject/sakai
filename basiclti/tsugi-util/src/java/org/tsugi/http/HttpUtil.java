@@ -60,7 +60,7 @@ public class HttpUtil {
 			String cookieName = cookie.getName();
 			String cookieValue = cookie.getValue();
 			if ( StringUtils.isEmpty(cookieName) ) continue;
-			if ( cookieName.toLowerCase().equals(lookup.toLowerCase())) {
+			if ( cookieName.equalsIgnoreCase(lookup) ) {
 				return cookieValue;
 			}
 		}
