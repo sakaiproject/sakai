@@ -4,7 +4,7 @@
   <parent>
     <artifactId>content-review</artifactId>
     <groupId>org.sakaiproject.contentreview</groupId>
-    <version>12.5</version>
+    <version>12-SNAPSHOT</version>
   </parent>
   <artifactId>content-review-tool</artifactId>
 	<name>Content Review Tool</name>
