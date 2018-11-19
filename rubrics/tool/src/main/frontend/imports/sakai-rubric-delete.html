@@ -4,13 +4,22 @@
     <style include="polymer-bootstrap"></style>
     <style include="sakai-rubrics-styles"></style>
 
-  
-    <iron-icon on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_rubric_[[rubric.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[rubric.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>
+    <template is="dom-if" if="[[!isCriterion(item)]]">
+      <iron-icon on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_rubric_[[rubric.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[rubric.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>
+    </template>
+    <template is="dom-if" if="[[isCriterion(item)]]">
+      <iron-icon  on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_criterion_[[criterion.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[criterion.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>
+    </template>
 
     <div id="delete_rubric_[[rubric.id]]" class="popover rubric-delete-popover left">
       <div class="arrow"></div>
       <div class="popover-title" tabindex="0">
+      <template is="dom-if" if="[[!isCriterion(item)]]">
         <sr-lang key="confirm_remove">Are you sure you want to remove </sr-lang> [[rubric.title]]?
+      </template>
+      <template is="dom-if" if="[[isCriterion(item)]]">
+        <sr-lang key="confirm_remove">Are you sure you want to remove </sr-lang> [[criterion.title]]?
+      </template>
       </div>
       <div class="popover-content">
         <div class="buttons text-right"> 
@@ -60,6 +69,13 @@
       listeners: {
         'tap': 'hostEventCatch',
         'hideToolTip': 'hideToolTip'
+      },
+      isCriterion: function(type) {
+        if(this.criterion){
+          return true;
+        } else {
+          return false;
+        }
       },
       hostEventCatch: function(e) {
         e.stopPropagation();
@@ -115,14 +131,12 @@
           this.item = this.rubric;
           this.type = "rubric";
           this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id;
-          addClass(this.$$('iron-icon'), 'rubric-delete-icon');
         } else {
           this.item = this.criterion;
           this.type = "criterion";
           this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id + '/criterions/' + this.criterion.id;
         }
         this.tt = this.$$('.popover');
-
         // console.log(this.rubric);
         // console.log(this.criterion);
         // setTimeout(function() {
