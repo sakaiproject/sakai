@@ -4,7 +4,7 @@
   <parent>
     <artifactId>edu-services</artifactId>
     <groupId>org.sakaiproject.edu-services</groupId>
-    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>12.5</version><!-- ProjectVersion -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject.edu-services.gradebook</groupId>
