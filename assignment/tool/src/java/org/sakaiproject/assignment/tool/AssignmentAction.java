@@ -6602,6 +6602,7 @@ public class AssignmentAction extends PagedResourceActionII {
 			boolean allowAddAssignment = assignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
 			boolean allowUpdateAssignment = assignmentService.allowUpdateAssignmentInContext((String) state.getAttribute(STATE_CONTEXT_STRING));
             if (allowAddAssignment && allowUpdateAssignment) {
+            	resetAssignment(state);
                 initializeAssignment(state);
 
                 state.setAttribute(ATTACHMENTS, entityManager.newReferenceList());
