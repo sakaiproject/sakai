@@ -527,10 +527,10 @@ public class SakaiScript extends AbstractWebService {
      * Gets the email address for a given user
      * <p/>
      * Differs from original above as that one uses the session to get the email address hence you must know this in advance or be logged in to the web services
-     * with that user. This uses a userid as well so we could be logged in as admin and retrieve the email address for any user.
+     * with that user. This uses a eid as well so we could be logged in as admin and retrieve the email address for any user.
      *
      * @param sessionid the id of a valid session
-     * @param userid    the login username (ie jsmith26) of the user you want the email address for
+     * @param eid    the login username (ie jsmith26) of the user you want the email address for
      * @return the email address for the user
      * @throws RuntimeException
      */
@@ -540,13 +540,13 @@ public class SakaiScript extends AbstractWebService {
     @GET
     public String getUserEmail(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
         try {
-            User user = userDirectoryService.getUserByEid(userid);
+            User user = userDirectoryService.getUserByEid(eid);
             return user.getEmail();
         } catch (Exception e) {
-            log.error("WS getUserEmail() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUserEmail() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
             return "";
         }
     }
@@ -573,10 +573,10 @@ public class SakaiScript extends AbstractWebService {
      * Gets the display name for a given user
      * <p/>
      * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
-     * with that user. This uses a userid as well so we could be logged in as admin and retrieve the display name for any user.
+     * with that user. This uses a eid as well so we could be logged in as admin and retrieve the display name for any user.
      *
      * @param sessionid the id of a valid session
-     * @param userid    the login username (ie jsmith26) of the user you want the display name for
+     * @param eid    the login username (ie jsmith26) of the user you want the display name for
      * @return the display name for the user
      * @throws RuntimeException
      */
@@ -586,19 +586,19 @@ public class SakaiScript extends AbstractWebService {
     @GET
     public String getUserDisplayName(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
         try {
-            return userDirectoryService.getUserByEid(userid).getDisplayName();
+            return userDirectoryService.getUserByEid(eid).getDisplayName();
         } catch (UserNotDefinedException unde) {
             try {
-                return userDirectoryService.getUser(userid).getDisplayName();
+                return userDirectoryService.getUser(eid).getDisplayName();
             } catch (UserNotDefinedException unde2) {
-                log.error("WS getUserDisplayName() failed for user: " + userid + " : " + unde2.getClass().getName() + " : " + unde2.getMessage());
+                log.error("WS getUserDisplayName() failed for user: " + eid + " : " + unde2.getClass().getName() + " : " + unde2.getMessage());
                 return "";
             }
         } catch (Exception e) {
-            log.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
+            log.error("WS getUserDisplayName() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
             return "";
         }
     }
@@ -1901,7 +1901,7 @@ public class SakaiScript extends AbstractWebService {
      * Return XML document listing all sites the given user has read or write access to.
      *
      * @param sessionid the session id of a super user
-     * @param userid    eid (eg jsmith26) if the user you want the list for
+     * @param eid    eid (eg jsmith26) if the user you want the list for
      * @return
      * @		if not super user or any other error occurs from main method
      */
@@ -1911,10 +1911,10 @@ public class SakaiScript extends AbstractWebService {
     @GET
     public String getSitesUserCanAccess(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
 
         //get a session for the other user, reuse if possible
-        String newsessionid = getSessionForUser(sessionid, userid, true);
+        String newsessionid = getSessionForUser(sessionid, eid, true);
 
         //might be an exception that was returned, so check session is valid.
         Session session = establishSession(newsessionid);
@@ -1980,7 +1980,7 @@ public class SakaiScript extends AbstractWebService {
      * Return XML document listing all sites user has read or write access based on their session id, including My Workspace sites
      *
      * @param sessionid the session id of a super user
-     * @param userid    eid (eg jsmith26) if the user you want the list for
+     * @param eid    eid (eg jsmith26) if the user you want the list for
      * @return
      * @		if not super user or any other error occurs from main method
      */
@@ -1990,10 +1990,10 @@ public class SakaiScript extends AbstractWebService {
     @GET
     public String getAllSitesForUser(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
 
         //get a session for the other user, reuse if possible
-        String newsessionid = getSessionForUser(sessionid, userid, true);
+        String newsessionid = getSessionForUser(sessionid, eid, true);
 
         //might be an exception that was returned, so check session is valid.
         Session session = establishSession(newsessionid);
@@ -2719,7 +2719,7 @@ public class SakaiScript extends AbstractWebService {
      *
      * @param sessionid    the id of a valid session, generally the admin user
      * @param authzgroupid the id of the authzgroup or site you want to check (if site: /site/SITEID)
-     * @param eid          the userid of the person you want to check
+     * @param eid          the user eid of the person you want to check
      * @return true if in site, false if not or error.
      * @throws RuntimeException
      */
@@ -3034,7 +3034,7 @@ public class SakaiScript extends AbstractWebService {
      * Get a user's type (for their account)
      *
      * @param sessionid the id of a valid session
-     * @param userid    the userid of the person you want the type for
+     * @param eid    the user eid of the person you want the type for
      * @return type if set or blank
      * @throws RuntimeException
      */
@@ -3044,13 +3044,13 @@ public class SakaiScript extends AbstractWebService {
     @GET
     public String getUserType(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
         try {
-            User user = userDirectoryService.getUserByEid(userid);
+            User user = userDirectoryService.getUserByEid(eid);
             return user.getType();
         } catch (Exception e) {
-            log.warn("WS getUserType() failed for user: " + userid);
+            log.warn("WS getUserType() failed for user: " + eid);
             return "";
         }
 
@@ -3404,7 +3404,7 @@ public class SakaiScript extends AbstractWebService {
      * Creates and returns the session ID for a given user.
      * <p/>
      * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
-     * The userid argument must be the EID (ie jsmith) of a valid user.
+     * The eid argument must be the EID (ie jsmith) of a valid user.
      * This new sessionid can then be used with getSitesUserCanAccess() to get the sites for the given user.
      *
      * @param sessionid the sessionid of a valid session for a super user
@@ -3781,7 +3781,7 @@ public class SakaiScript extends AbstractWebService {
      * and then get the list of pages & tools visible to that user in the site.
      *
      * @param sessionid must be a valid session for a superuser
-     * @param userid    eid, eg jsmith26
+     * @param eid    eid, eg jsmith26
      * @param siteid    site to get the list for.
      * @return
      * @
@@ -3792,11 +3792,11 @@ public class SakaiScript extends AbstractWebService {
     @GET
     public String getPagesAndToolsForSite(
             @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         //get a session for the other user, reuse if possible
-        String newsessionid = getSessionForUser(sessionid, userid, true);
+        String newsessionid = getSessionForUser(sessionid, eid, true);
 
         //might be an exception that was returned, so check session is valid.
         Session session = establishSession(newsessionid);
