@@ -18,6 +18,7 @@ import org.sakaiproject.progress.api.ProgressService;
 import org.sakaiproject.progress.api.IGradebookService;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.api.ToolManager;
+
 import org.sakaiproject.user.api.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -63,7 +64,7 @@ public class MainController {
 		
 		gradebookService.setGradebook(context);
 		List<User> users = gradebookService.getStudents(context);
-		Map<String, CourseGrade> grades = gradebookService.getCourseGrades(context, users);
+		Map<String, CourseGrade> grades = gradebookService.getCourseGrades(context);
 
 		model.addAttribute("users", users);
 		model.addAttribute("grades", grades);

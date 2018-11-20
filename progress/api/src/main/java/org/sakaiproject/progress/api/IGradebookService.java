@@ -1,11 +1,14 @@
 package org.sakaiproject.progress.api;
 
 import org.sakaiproject.exception.IdUnusedException;
+
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -43,5 +46,8 @@ public interface IGradebookService {
     public void setFirstUploadedUsername(String username);
 
     public List getUsernames();
+
     public void setUsernames(List<String> usernames);
+
+    public Map<String, CourseGrade> getCourseGrades(String siteID);
 }

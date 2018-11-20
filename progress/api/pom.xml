@@ -40,5 +40,10 @@
             <artifactId>sakai-kernel-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

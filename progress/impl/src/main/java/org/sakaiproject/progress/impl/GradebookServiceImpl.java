@@ -22,23 +22,16 @@
 package org.sakaiproject.progress.impl;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
 //import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.progress.api.IGradebookService;
 import lombok.Setter;
@@ -96,26 +89,24 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	@Override
 	public List<User> getStudents(String siteId) {
 
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			//log.error("Site '" + siteId + "' not found. Returning null ...");
-			return null;
-		}
-
-		List<User> students = new ArrayList<User>();
-
-		// should instead use site.getUsersisAllowed("section.role.student");
-		for(User user : userDirectoryService.getUsers(site.getUsers())){
-			if(user.getEid().contains("student")){
-				students.add(user);
-			}
-		}
-
-		return students;
+		return userDirectoryService.getUsers(this.getStudentsUIDs(siteId));
 	}
 
+	public List<String> getStudentsUIDs(String siteID){
+		Set<String> userUIDs = new HashSet<String>();
+		try {
+			userUIDs = siteService.getSite(siteID).getUsersIsAllowed("section.role.student");
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+		}
+		List<String> userIds = new ArrayList<String>();
+
+		for(String id: userUIDs){
+			userIds.add(id);
+		}
+
+		return userIds;
+	}
 	@Override
 	public Long getId() {
 		return gradebookId;
@@ -150,13 +141,9 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	public void setUsernames(List<String> usernames) {
 
 	}
-	
+
+	@Override
 	public Map<String, CourseGrade> getCourseGrades(String siteID) {
-	    final List<String> studentUuids = this.getStudents(siteID);
-	    return this.getCourseGrades(siteID, studentUuids);
-	}
-	
-	public Map<String, CourseGrade> getCourseGrades(String siteID, List<Users> students) {
         Map<String, CourseGrade> courseGradeMap;
         
         if(gradebook == null) {
@@ -166,15 +153,8 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
                 return null;
             }
         }
-        
-        if(students != null) {
-            List<String> studentUuids = new List<String>();
-            for(User student: students) {
-                studentUuids.add(student.getEid());
-            }
-        } else {
-            return null;
-        }
+
+		List<String> studentUuids = this.getStudentsUIDs(siteID);
         
         courseGradeMap = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
         return courseGradeMap;

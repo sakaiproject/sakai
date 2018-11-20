@@ -13,7 +13,11 @@
 		</tr>
 	</table>
 
-
+	<table>
+		<tr th:each="grade : ${grades}">
+			<td th:text="${grade.getValue().getCalculatedGrade()}"></td>
+		</tr>
+	</table>
 	<!--<script th:inline="javascript">-->
         <!--/*<![CDATA[*/-->
         <!--var fragment = document.createDocumentFragment();-->
