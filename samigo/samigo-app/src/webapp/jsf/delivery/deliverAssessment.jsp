@@ -108,17 +108,6 @@
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime(); serializeImagePoints();">
-<div class="modal fade" id="multipleTabWarning" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header"><h4></h4></div>
-      <div class="modal-body"></div>
-      <div class="modal-footer">
-        <button class="btn btn-link pull-right" type="button">I understand</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
@@ -292,7 +281,6 @@ document.links[newindex].onclick();
 	}
 
 </script>
-<%@ include file="/js/checkmultipletabs.js" %>
 
 <h:inputHidden id="partIndex" value="#{delivery.partIndex}"/>
 <h:inputHidden id="questionIndex" value="#{delivery.questionIndex}"/>
