@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
@@ -177,6 +178,7 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 
 		List<User> students = new ArrayList<User>();
 
+		// should instead use site.getUsersisAllowed("section.role.student");
 		for(User user : userDirectoryService.getUsers(site.getUsers())){
 			if(user.getEid().contains("student")){
 				students.add(user);
@@ -314,4 +316,33 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	public void setUsernames(List<String> usernames) {
 
 	}
+	
+	public Map<String, CourseGrade> getCourseGrades(String siteID) {
+	    final List<String> studentUuids = this.getStudents(siteID);
+	    return this.getCourseGrades(siteID, studentUuids);
+	}
+	
+	public Map<String, CourseGrade> getCourseGrades(String siteID, List<Users> students) {
+        Map<String, CourseGrade> courseGradeMap;
+        
+        if(gradebook == null) {
+            try {
+                this.setGradebook(siteId);
+            } catch(GradebookNotFoundException e) {
+                return null;
+            }
+        }
+        
+        if(students != null) {
+            List<String> studentUuids = new List<String>();
+            for(User student: students) {
+                studentUuids.add(student.getEid());
+            }
+        } else {
+            return null;
+        }
+        
+        courseGradeMap = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
+        return courseGradeMap;
+    }
 }
