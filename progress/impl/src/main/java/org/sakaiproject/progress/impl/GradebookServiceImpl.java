@@ -59,15 +59,17 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	protected Gradebook gradebook;
 	protected String gradebookUid;
 	protected Long gradebookId;
+	private String siteId;
 
-
-	public Gradebook setGradebook(final String uid) throws GradebookNotFoundException {
+	@Override
+	public void setGradebook(final String uid) throws GradebookNotFoundException {
 		gradebook = (Gradebook)gradebookService.getGradebook(uid);
 		gradebookUid=gradebook.getUid();
 		gradebookId=gradebook.getId();
-
-		return gradebook;
 	}
+
+	@Override
+	public Gradebook getGradebook(final String uid){ return this.gradebook;}
 
 	@Override
 	public int compareTo(Object o) {
@@ -80,88 +82,14 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	}
 
 	@Override
-	public void setTitle(String title) {
-
-	}
-
-	@Override
-	public String getCreator() {
-		return null;
-	}
-
-	@Override
-	public void setCreator(String creator) {
-
-	}
-
-	@Override
-	public String getCreatorEid() {
-		return null;
-	}
-
-	@Override
-	public void setCreatorEid(String creatorUserId) {
-
-	}
-
-	@Override
-	public Timestamp getCreated() {
-		return null;
-	}
-
-	@Override
-	public void setCreated(Timestamp created) {
-
-	}
-
-	@Override
-	public String getLastUpdater() {
-		return null;
-	}
-
-	@Override
-	public void setLastUpdater(String lastUpdater) {
-
-	}
-
-	@Override
-	public String getLastUpdaterEid() {
-		return null;
-	}
-
-	@Override
-	public void setLastUpdaterEid(String lastUpdaterUserId) {
-
-	}
-
-	@Override
-	public String getUpdatedDateTime() {
-		return null;
-	}
-
-	@Override
-	public Timestamp getLastUpdated() {
-		return null;
-	}
-
-	@Override
-	public void setLastUpdated(Timestamp lastUpdated) {
-
-	}
-
-	@Override
 	public String getContext() {
-		return null;
+		return siteId;
 	}
 
 	@Override
 	public void setContext(String context) {
-
-	}
-
-	@Override
-	public Set getStudents() {
-		return null;
+		siteId = context;
+		setGradebook(siteId);
 	}
 
 	@Override
@@ -187,57 +115,8 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	}
 
 	@Override
-	public void setStudents(String siteId){
-
-	}
-	@Override
-	public void setStudents(List<User> users) {
-
-	}
-
-	@Override
-	public void setFileReference(String fileReference) {
-
-	}
-
-	@Override
-	public String getFileReference() {
-		return null;
-	}
-
-	@Override
-	public List getHeadings() {
-		return null;
-	}
-
-	@Override
-	public void setHeadings(List headings) {
-
-	}
-
-	@Override
 	public Long getId() {
 		return gradebookId;
-	}
-
-	@Override
-	public void setId(Long id) {
-
-	}
-
-	@Override
-	public Boolean getReleased() {
-		return null;
-	}
-
-	@Override
-	public void setReleased(Boolean released) {
-
-	}
-
-	@Override
-	public String getHeadingsRow() {
-		return null;
 	}
 
 	@Override
@@ -248,51 +127,6 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	@Override
 	public boolean hasStudent(String username) {
 		return false;
-	}
-
-	@Override
-	public boolean getRelease() {
-		return false;
-	}
-
-	@Override
-	public void setRelease(boolean release) {
-
-	}
-
-	@Override
-	public Boolean getReleaseStatistics() {
-		return null;
-	}
-
-	@Override
-	public void setReleaseStatistics(Boolean releaseStatistics) {
-
-	}
-
-	@Override
-	public boolean getReleaseStats() {
-		return false;
-	}
-
-	@Override
-	public void setReleaseStats(boolean releaseStats) {
-
-	}
-
-	@Override
-	public String getProperWidth(int column) {
-		return null;
-	}
-
-	@Override
-	public List getRawData(int column) {
-		return null;
-	}
-
-	@Override
-	public List getAggregateData(int column) throws Exception {
-		return null;
 	}
 
 	@Override
