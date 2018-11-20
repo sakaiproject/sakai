@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.sakaiproject.progress.api.ProgressService;
 import org.sakaiproject.progress.api.ProgressServiceException;
 import org.sakaiproject.progress.api.persistence.Configuration;
-
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 import java.io.IOException;
 import java.io.InputStream;
