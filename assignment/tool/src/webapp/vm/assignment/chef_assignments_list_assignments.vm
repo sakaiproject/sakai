@@ -303,17 +303,20 @@
 										#else
 											## SAK-21525 START
 											## If this assignment has groups, their access controls must take precedence
-											#set($groupIds='')
-											#set($groupIds=$assignment.getGroups())
-											#if($groupIds != '' && $groupIds.size() > 0)
-												#set($allowSubmit=false)
-												## If asn.submit is set on at least one of the assignment's authz groups, set allowSubmit to true
-												#foreach($groupId in $groupIds)
-													#if($AuthzGroupService.isAllowed($user.getId(),'asn.submit',$groupId))
-														#set($allowSubmit=true)
+											#if ($assignment.TypeOfAccess.Ordinal == 1)
+												#set($groupIds='')
+												#set($groupIds=$assignment.Groups)
+												#if($groupIds != '' && $groupIds.size() > 0)
+													#set($allowSubmit=false)
+													## If asn.submit is set on at least one of the assignment's authz groups, set allowSubmit to true
+													#foreach($groupId in $groupIds)
+														#if($AuthzGroupService.isAllowed($user.getId(),'asn.submit',$groupId))
+															#set($allowSubmit=true)
+														#end
 													#end
 												#end
 											#end
+
 											## SAK-21525 END
 											#if($!allowSubmit)
 												## for those who can submit

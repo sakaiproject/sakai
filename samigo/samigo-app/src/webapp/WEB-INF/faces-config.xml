@@ -800,6 +800,10 @@
       <to-view-id>/jsf/delivery/tableOfContents.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>accessDenied</from-outcome>
+      <to-view-id>/jsf/delivery/accessDenied.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>accessError</from-outcome>
       <to-view-id>/jsf/delivery/accessError.jsp</to-view-id>
     </navigation-case>

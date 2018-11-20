@@ -194,7 +194,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                     .build();
             heartbeatMap = CacheBuilder.newBuilder()
             		//.recordStats()
-            		.expireAfterAccess(pollInterval*2, TimeUnit.MILLISECONDS)
+            		.expireAfterWrite(1, TimeUnit.HOURS)
             		.build();
             
             timezoneCache = CacheBuilder.newBuilder()
@@ -1362,7 +1362,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             ret = TransferableChatMessage.HeartBeat(channelId, sessionKey);
             heartbeatMap.get(channelId, () -> {
                 return CacheBuilder.newBuilder()
-                        .expireAfterWrite(pollInterval*2, TimeUnit.MILLISECONDS)
+                        .expireAfterWrite(1, TimeUnit.HOURS)
                         .build();
             }).put(sessionId, ret);
         } catch(Exception e){
@@ -1382,8 +1382,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             return false;
         }
 
-        //thanks to the cache auto-expiration system, not updated hearbeats will be automatically removed
-        return (heartbeatMap.getIfPresent(channelId).getIfPresent(sessionId) != null);
+        // Check to see how active the user has been
+        TransferableChatMessage userHeartbeat = heartbeatMap.getIfPresent(channelId).getIfPresent(sessionId);
+        long timeDiff = ((new Date()).getTime()) - userHeartbeat.getTimestamp();
+        log.debug("Heartbeat diff for {} is {}; interval={}", sessionId, timeDiff, pollInterval*2);
+        // Safari seems to back off on setTimeout calls when in background for 60 seconds
+        return timeDiff <= 60000 + (pollInterval*2);
     }
     
     private void sendToCluster(TransferableChatMessage message){

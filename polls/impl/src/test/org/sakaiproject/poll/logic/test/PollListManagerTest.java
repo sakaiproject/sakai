@@ -27,10 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import org.sakaiproject.id.api.IdManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import org.sakaiproject.poll.dao.PollDao;
@@ -69,6 +70,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		pollListManager.setExternalLogic(externalLogicStubb);
 		pollVoteManager.setExternalLogic(externalLogicStubb);
 		pollListManager.setPollVoteManager(pollVoteManager);
+		pollListManager.setIdManager(mock(IdManager.class));
 		
 		// preload testData
 		tdp.preloadTestData(dao);

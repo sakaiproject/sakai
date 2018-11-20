@@ -18,13 +18,22 @@
  * limitations under the License.
  *
  **********************************************************************************/
+ 
+// When user goes between tabs or back from home screen, we monitor and updateChatData
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState == 'hidden' || document.visibilityState == 'visible') {
+    chatscript.changePageVisibility(document.visibilityState);
+  }
+});
+
 var chatscript = {
 	url_submit : "/direct/chat-message/",
 	keycode_enter : 13,
 	pollInterval : 5000,
 	currentChatChannelId : null,
 	timeoutVar : null,
-	
+	pageVisibility : 'visible',
+
 	init : function(){
 		var me = this;
 		
@@ -101,6 +110,12 @@ var chatscript = {
 			});
 		});
 	},
+  changePageVisibility : function(newVisibility) {
+    this.pageVisibility = newVisibility;
+    if (newVisibility == 'visible') {
+      this.updateChatData();
+    }
+  },
 	sendMessage : function(params, textarea, submitButton) {
 		var me = this;
 		var errorSubmit = $("#errorSubmit");
@@ -143,9 +158,12 @@ var chatscript = {
 		if(this.timeoutVar != null) {
 			clearTimeout(this.timeoutVar);
 		}
-		this.timeoutVar = setTimeout(function() {
-			me.updateChatData();
-		}, this.pollInterval);
+		// If the tab is hidden, no use in firing AJAX requests for new chat data
+		if(this.pageVisibility != 'hidden') {
+			this.timeoutVar = setTimeout(function() {
+				me.updateChatData();
+			}, this.pollInterval);
+		}
 	},
 	doUpdateChatData : function() {
 		var me = this;

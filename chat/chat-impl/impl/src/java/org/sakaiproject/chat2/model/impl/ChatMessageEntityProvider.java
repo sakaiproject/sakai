@@ -318,14 +318,13 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 			log.debug("No siteId specified");
 			throw new SecurityException("You must be specify the site ID");
 		}
-		log.debug("siteId: {}", siteId);
 		
 		String channelId = (String) params.get("channelId");
 		if (StringUtils.isBlank(channelId)) {
 			log.debug("No channelId specified");
 			throw new SecurityException("You must be specify the channel ID");
 		}
-		log.debug("channelId: {}", channelId);
+		log.debug("channelId: {}, siteId: {}, sessionKey: {}", channelId, siteId, chatManager.getSessionKey());
 		
 		ChatChannel channel = chatManager.getChatChannel(channelId);
 		if (!chatManager.getCanReadMessage(channel)) {
