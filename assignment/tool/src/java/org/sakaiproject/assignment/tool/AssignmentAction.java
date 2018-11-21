@@ -5960,10 +5960,12 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             // Persist the rubric evaluations
-            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-                String submitterId = submitter.getSubmitter();
-                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
-            }
+            if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId())){
+                for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                    String submitterId = submitter.getSubmitter();
+                    rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
+                }
+            }			
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {

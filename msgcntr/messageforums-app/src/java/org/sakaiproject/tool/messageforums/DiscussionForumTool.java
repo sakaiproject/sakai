@@ -6574,15 +6574,19 @@ public class DiscussionForumTool
     } 
         
     String eventRef = "";
+    String evaluatedItemId = "";
     if(selectedMessage != null){
     	eventRef = getEventReference(selectedMessage.getMessage());
-    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId(), studentUid+"."+selectedMessage.getMessage().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	evaluatedItemId = studentUid+"."+selectedMessage.getMessage().getUuid();
     }else if(selectedTopic != null){
     	eventRef = getEventReference(selectedTopic.getTopic());
-    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId(), studentUid+"."+selectedTopic.getTopic().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	evaluatedItemId = studentUid+"."+selectedTopic.getTopic().getUuid();
     }else if(selectedForum != null){
     	eventRef = getEventReference(selectedForum.getForum());
-    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId(), studentUid+"."+selectedForum.getForum().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	evaluatedItemId = studentUid+"."+selectedForum.getForum().getUuid();
+    }
+    if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId())){
+    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId(), evaluatedItemId, studentUid, getUserId(), getRubricConfigurationParameters());
     }
     LRS_Statement statement = null;
     if (null != learningResourceStoreService) {
