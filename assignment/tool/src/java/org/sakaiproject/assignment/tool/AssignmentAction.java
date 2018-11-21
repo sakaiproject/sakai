@@ -8553,7 +8553,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 e = c.addEvent(/* TimeRange */timeService.newTimeRange(dueTime.toEpochMilli(), 0),
 						/* title */rb.getString("gen.due") + " " + title,
 						/* description */rb.getFormattedMessage("assign_due_event_desc", title, dueTime.toString()),
-						/* type */rb.getString("deadl"),
+						/* type */"Deadline",
 						/* location */"",
 						/* access */ eAccess,
 						/* groups */ eGroups,
