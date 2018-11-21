@@ -416,7 +416,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
         } catch (Exception e) {
             //TODO If we have an error here, maybe we should return say something to the user
-            log.error("Error in SaveRubricEvaluation" + e.getMessage());
+            log.error("Error in SaveRubricEvaluation " + e.getMessage());
         }
 
     }
