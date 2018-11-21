@@ -167,6 +167,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
+            "lti11_launch_type:radio:label=bl_lti11_launch_type:hidden=true:role=admin:choices=off,on",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
             "updated_at:autodate"};
