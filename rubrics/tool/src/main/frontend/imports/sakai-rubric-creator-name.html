@@ -8,7 +8,7 @@
       ready: function () {
         var self = this;
         jQuery.ajax({
-          url: '/sakai-ws/rest/sakai/getUserDisplayName?sessionid=' + sakaiSessionId + '&userid=' + this.creatorId
+          url: '/sakai-ws/rest/sakai/getUserDisplayName?sessionid=' + sakaiSessionId + '&eid=' + this.creatorId
         }).done(function (response) {
           self.innerText = response;
         }).fail(function () {

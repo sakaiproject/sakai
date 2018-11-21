@@ -1,0 +1,16 @@
+<dom-module id="modified-date">
+  <script>
+    Polymer({
+      is: "modified-date",
+      properties: {
+        modified: String
+      },
+      ready: function () {
+        var self = this;
+        if(moment(self.modified).isValid()){
+             self.innerText = moment(self.modified).locale(portal.locale).format('LLLL');
+        }
+      }
+    });
+  </script>
+</dom-module>
