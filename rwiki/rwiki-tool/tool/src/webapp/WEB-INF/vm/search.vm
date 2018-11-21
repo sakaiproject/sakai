@@ -19,7 +19,7 @@
 	      <label for="searchField">${rlb.jsp_search}:</label>
 	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.searchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
-	      <input type="text" name="search" />
+	      <input type="text" id="searchField" name="search" />
 	    </li>
 	    </ul>
 	  </form>
