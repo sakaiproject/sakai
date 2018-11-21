@@ -36,6 +36,8 @@ package org.sakaiproject.roster.api;
 
 import java.util.Comparator;
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +51,7 @@ import lombok.RequiredArgsConstructor;
 @Slf4j
 public class RosterMemberComparator implements Comparator<RosterMember> {
 	private final boolean firstNameLastName;
-	private final Collator collator = Collator.getInstance();
+	private final RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
 	
 	/**
 	 * Compares two <code>RosterMember</code> objects according to the sorting
@@ -58,11 +60,16 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
 	 * @see java.text.Collator#compare(java.lang.String, java.lang.String)
 	 */
 	public int compare(RosterMember member1, RosterMember member2) {
-
-        if (firstNameLastName) {
-            return collator.compare (member1.getDisplayName(),member2.getDisplayName());
-        } else {
-            return collator.compare (member1.getSortName(),member2.getSortName());
-        }
+		try{
+			RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			if (firstNameLastName) {
+				return collator.compare (member1.getDisplayName(),member2.getDisplayName());
+			} else {
+				return collator.compare (member1.getSortName(),member2.getSortName());
+			}
+		} catch (ParseException e) {
+			log.error("ERROR: EnrollmentTableBean had an issue parsing users: " + member1.getSortName() + " and " + member2.getSortName(),e);
+		}
+		return Collator.getInstance().compare(member1.getSortName(),member2.getSortName());
 	}
 }
