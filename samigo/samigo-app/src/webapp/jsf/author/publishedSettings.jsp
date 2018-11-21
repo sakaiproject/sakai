@@ -47,6 +47,7 @@
       <script type="text/javascript" src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script type="text/javascript">includeWebjarLibrary('momentjs');</script>
 
       <script type="text/javascript">
       if (needJQuery) {
