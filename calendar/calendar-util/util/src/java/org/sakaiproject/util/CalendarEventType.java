@@ -48,8 +48,6 @@ public enum CalendarEventType {
 	private String localizedLegend;
 	private String importType;
 	
-	private static ResourceLoader rb = new ResourceLoader("calendar");
-	
 	CalendarEventType(String type, String icon, String localizedLegend, String importType) {
 		this.eventType = type;
 		this.icon = icon;
@@ -84,7 +82,7 @@ public enum CalendarEventType {
 	public static Map<String, String> getIcons() {
 		Map<String, String> icons = new HashMap<>();
 		for (CalendarEventType et: CalendarEventType.values()) {
-			icons.put(rb.getString(et.getLocalizedLegend()).trim(), et.getIcon());
+			icons.put(et.getType(), et.getIcon());
 		}
 		return icons;
 	}
@@ -93,7 +91,7 @@ public enum CalendarEventType {
 	public static Map<String, String> getLocalizedLegends() {
 		Map<String, String> localizedLegends = new HashMap<>();
 		for (CalendarEventType et: CalendarEventType.values()) {
-			localizedLegends.put(rb.getString((et.getLocalizedLegend())).trim(), et.getLocalizedLegend());
+			localizedLegends.put(et.getType(), et.getLocalizedLegend());
 		}
 		return localizedLegends;
 	}
