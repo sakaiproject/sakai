@@ -25,7 +25,7 @@
 
       <div><site-title site-id="[[rubric.metadata.ownerId]]"></site-title></div>
       <div><creator-name creator-id="[[rubric.metadata.creatorId]]"></creator-name></div>
-      <div><span>[[rubric.metadata.modified]]</span></div>
+      <div><modified-date modified="[[rubric.metadata.modified]]"></modified-date></div>
 
       <div class="actions">
         <div class="action-container">
@@ -71,8 +71,6 @@
   </template>
 
   <script>
-    includeWebjarLibrary('momentjs');
-
     Polymer({
       is: "sakai-rubric",
       properties: {
@@ -186,7 +184,6 @@
       ready: function() {
         this.rubricExpanded = "false";
         this.handleShareLink();
-        this.set('rubric.metadata.modified', moment(this.rubric.metadata.modified).locale(portal.locale).format('LLLL'));
       }
     });
   </script>
