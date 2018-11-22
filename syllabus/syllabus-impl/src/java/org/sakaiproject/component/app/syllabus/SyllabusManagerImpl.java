@@ -386,7 +386,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
       if (returnedItem != null){
         returnedItem.getSyllabi().add(syllabusData);
-        session.merge(returnedItem);
+        returnedItem = (SyllabusItem) session.merge(returnedItem);
       }
       return null;
     };
@@ -420,7 +420,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
       if (returnedItem != null){
         returnedItem.getSyllabi().remove(syllabusData);
-        session.merge(returnedItem);
+        returnedItem = (SyllabusItem) session.merge(returnedItem);
       }
       return null;
     };
@@ -595,7 +595,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
       if (returnedData != null){
         returnedData.getAttachments().add(syllabusAttach);
-        session.merge(returnedData);
+        returnedData = (SyllabusData) session.merge(returnedData);
       }
       return null;
     };
@@ -621,7 +621,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
       if (returnedData != null){
         returnedData.getAttachments().remove(syllabusAttach);
-        session.merge(returnedData);
+        returnedData = (SyllabusData) session.merge(returnedData);
       }
       return null;
     };
