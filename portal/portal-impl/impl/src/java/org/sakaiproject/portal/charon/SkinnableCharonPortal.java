@@ -1460,6 +1460,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				} else {
 					toolContextPath = toolContextPath.replace("/~","/%7E");
 				}
+			} else if ( toolContextPath.indexOf(" ") > 0 && reqUrl.indexOf(" ") < 1 ) {
+				toolContextPath = toolContextPath.replace(" ","%20");
 			}
 		}
 		log.debug("forwardtool call {} toolPathInfo {} ctx {}", req.getRequestURL(), toolPathInfo, toolContextPath);
