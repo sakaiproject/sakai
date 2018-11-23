@@ -6,18 +6,34 @@
 <div class="portletBody">
 	<span th:text="'The Gradebook Id is ' + ${test}" /><br>
 
-	<table>
-		<tr th:each="user : ${users}">
-			<td th:text="${user.getLastName()} + ', ' + ${user.getFirstName()}">user</td>
-
-		</tr>
-	</table>
+	<table id="studentTable"></table>
 
 	<table>
 		<tr th:each="grade : ${grades}">
 			<td th:text="${grade.getValue().getCalculatedGrade()}"></td>
 		</tr>
 	</table>
+	<script th:inline="javascript">
+        var students = [];
+        var studentTable = document.getElementById("studentTable");
+	</script>
+	<script th:each="user:${users}" th:inline="javascript">
+		students.push({
+			name: [[${user.getLastName()}]] + ', ' + [[${user.getFirstName()}]]
+		});
+	</script>
+	<script th:inline="javascript">
+		function getStudents(){
+			students.forEach(function(student){
+                var row = studentTable.insertRow(0);
+                var cell = row.insertCell(0);
+
+                cell.innerHTML = student.name;
+			});
+
+			document.getElementById("displayButton").hidden = true;
+		}
+	</script>
 	<!--<script th:inline="javascript">-->
         <!--/*<![CDATA[*/-->
         <!--var fragment = document.createDocumentFragment();-->
@@ -46,7 +62,7 @@
         <!--/*]]>*/-->
 	<!--</script>-->
 
-	<input type="button">
+	<button type="button" id="displayButton" onclick="getStudents()">Get Students</button>
 	<ul id="student-list"></ul>
 	<!--<div id="menu" th:insert="fragments/menus :: main(index)"/>-->
 	<!--<h3 th:text="#{index.title}">View Widgets</h3>-->
