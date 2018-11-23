@@ -37,5 +37,6 @@
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+        <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
     </bean>
 </beans>

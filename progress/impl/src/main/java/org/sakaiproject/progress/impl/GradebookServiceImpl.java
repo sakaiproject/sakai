@@ -26,8 +26,10 @@ import java.util.*;
 
 //import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
@@ -38,7 +40,7 @@ import lombok.Setter;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-
+@Slf4j
 public class GradebookServiceImpl implements IGradebookService, Comparable, Serializable {
 
 	@Setter
@@ -50,20 +52,39 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	@Setter
 	private UserDirectoryService userDirectoryService;
 
+	@Setter
+	private GradebookFrameworkService gradebookFrameworkService;
+
 	protected Gradebook gradebook;
 	protected String gradebookUid;
 	protected Long gradebookId;
 	private String siteId;
 
+
+
 	@Override
 	public void setGradebook(final String uid) throws GradebookNotFoundException {
-		gradebook = (Gradebook)gradebookService.getGradebook(uid);
-		gradebookUid=gradebook.getUid();
-		gradebookId=gradebook.getId();
+		gradebook = this.getGradebook(uid);
+		gradebookUid = gradebook.getUid();
+		gradebookId = gradebook.getId();
 	}
 
 	@Override
-	public Gradebook getGradebook(final String uid){ return this.gradebook;}
+	public Gradebook getGradebook(final String uid){
+
+		try {
+			gradebook = (Gradebook) this.gradebookService.getGradebook(uid);
+		} catch (final GradebookNotFoundException e) {
+			//log.debug("Request made for inaccessible, adding gradebookUid={}", uid);
+			this.gradebookFrameworkService.addGradebook(uid, uid);
+			try {
+				gradebook = (Gradebook) this.gradebookService.getGradebook(uid);
+			} catch (final GradebookNotFoundException e2) {
+				log.error("Request made and could not add inaccessible gradebookUid={}", uid);
+			}
+		}
+		return gradebook;
+	}
 
 	@Override
 	public int compareTo(Object o) {
