@@ -10,24 +10,28 @@
         <version>20-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <wicket.version>6.29.0</wicket.version>
+    </properties>
     <packaging>war</packaging>
     <dependencies>
         <!-- third party dependencies -->
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket</artifactId>
-            <version>6.26.0</version>
+            <version>${wicket.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-spring</artifactId>
-            <version>6.26.0</version>
+            <version>${wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
-            <version>6.26.0</version>
+            <version>${wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
