@@ -61,7 +61,7 @@
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
         <servlet-api.version>2.5</servlet-api.version>
-        <wicket.version>7.6.0</wicket.version>
+        <wicket.version>7.10.0</wicket.version>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
 
