@@ -29,7 +29,14 @@
 
       <div class="actions">
         <div class="action-container">
-          <span class="hidden-sm hidden-xs"><sr-lang key="share_label">share_label</sr-lang> </span>
+          <span class="hidden-sm hidden-xs">
+            <template is="dom-if" if="{{!rubric.metadata.public}}">
+              <sr-lang key="share_label">share_label</sr-lang>
+            </template>
+            <template is="dom-if" if="[[rubric.metadata.public]]">
+              <sr-lang key="revoke_label">revoke_label</sr-lang>
+            </template>			
+          </span>
           <iron-icon role="button" title="[[lang(shareTitleKey, shareTitle, shareValues)]]" tabindex="0" class="share" icon$="rubrics-icons:{{shareicon}}" on-tap="sharingChange"></iron-icon>
         </div>
         <div class="action-container">
