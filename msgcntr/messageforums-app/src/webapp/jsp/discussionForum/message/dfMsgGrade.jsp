@@ -11,14 +11,13 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
-
-
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
        		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+			<script type="text/javascript">includeWebjarLibrary('ckeditor')</script>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
