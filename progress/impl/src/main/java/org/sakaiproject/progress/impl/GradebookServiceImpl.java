@@ -163,6 +163,9 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 
 	}
 
+	/**
+	 * @return a map of with student uuids as keys and a CourseGrade object corresponding to that student
+	 */
 	@Override
 	public Map<String, CourseGrade> getCourseGrades(String siteID) {
         Map<String, CourseGrade> courseGradeMap;

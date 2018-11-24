@@ -20,17 +20,35 @@
 	<script th:each="user:${users}" th:inline="javascript">
 		students.push({
 			name: [[${user.getLastName()}]] + ', ' + [[${user.getFirstName()}]]
+			grade: [[${grades[user.getUserUid()].getValue().getCalculatedGrade()}]]
 		});
 	</script>
 	<script th:inline="javascript">
 		function getStudents(){
 			students.forEach(function(student){
+				var progressPercent = student.grade;
                 var row = studentTable.insertRow(0);
                 var cell = row.insertCell(0);
 
-                cell.innerHTML = student.name;
+                progressDiv = document.createElement("div");
+				progressDiv.classList.add("progress");
+				progressBar = document.createElement("div");
+				progressBar.classList.add("progress-bar");
+				progressBar.setAttribute("role", "progressbar");
+				progressBar.setAttribute("style", "width: " + progressPercent + "%");
+				progressBar.setAttribute("aria-valuemin", "0");
+				progressBar.setAttribute("aria-valuemax", "100");
+				progressBar.setAttribute("aria-valuenow", progressPercent);
+				progressBar.appendChild(document.createTextNode(progressPercent));
+				progressDiv.appendChild(progressBar);
+				cell.appendChild(document.createTextNode(student.name));
+				cell.appendChild(progressDiv);
 			});
-
+		function getProgressBars(uuid){
+			var progressHTML;
+			
+			return progressHTML;
+		}
 			document.getElementById("displayButton").hidden = true;
 		}
 	</script>
@@ -39,9 +57,9 @@
         <!--var fragment = document.createDocumentFragment();-->
         <!--var listItem, progressDiv, progressBar, progressPercent;-->
 
-        <!--var students = test : ${test.getId()}; //make progress variable in MainController-->
+        <!--var students = grades : ${test.getId()}; //make progress variable in MainController-->
         <!--for(var i = 0; i < students.length(); i++) {-->
-            <!--progressPercent = students[i].progressPercent;-->
+            <!--progressPercent = grades[].progressPercent;-->
             <!--listItem = document.createElement("li");-->
             <!--progressDiv = document.createElement("div");-->
             <!--progressDiv.classList.add("progress");-->
@@ -53,8 +71,9 @@
             <!--progressBar.setAttribute("aria-valuemax", "100");-->
             <!--progressBar.setAttribute("aria-valuenow", progressPercent);-->
             <!--progressBar.appendChild(document.createTextNode(progressPercent));-->
+            <!--progressDiv.appendChild(progressBar);  -->
             <!--listItem.appendChild(document.createTextNode(students[i].name));-->
-            <!--listItem.appendChild(progressBar);-->
+            <!--listItem.appendChild(progressDiv);-->
             <!--fragment.appendChild(listItem);-->
         <!--}-->
         <!--document.getElementById("student-list").appendChild(fragment);-->
