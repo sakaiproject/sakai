@@ -16,7 +16,9 @@ package org.sakaiproject.progress.tool;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.progress.api.ProgressService;
 import org.sakaiproject.progress.api.IGradebookService;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.api.ToolManager;
+
 import org.sakaiproject.user.api.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,11 +61,12 @@ public class MainController {
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
 	public String pageIndex(Model model) {
 		String context = toolManager.getCurrentPlacement().getContext();
-
 		gradebookService.setGradebook(context);
 		List<User> users = gradebookService.getStudents(context);
+		Map<String, CourseGrade> grades = gradebookService.getCourseGrades(context);
 
 		model.addAttribute("users", users);
+		model.addAttribute("grades", grades);
 		model.addAttribute("test", gradebookService.getId());
 		return "index";
 	}

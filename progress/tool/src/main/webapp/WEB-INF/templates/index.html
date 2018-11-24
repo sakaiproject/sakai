@@ -5,23 +5,62 @@
 <body>
 <div class="portletBody">
 	<span th:text="'The Gradebook Id is ' + ${test}" /><br>
+	
+	<table id="studentTable"></table>
 
 	<table>
-		<tr th:each="user : ${users}">
-			<td th:text="${user.getLastName()} + ', ' + ${user.getFirstName()}">user</td>
-
+		<tr th:each="grade : ${grades}">
+			<td th:text="${grade.getValue().getCalculatedGrade()}"></td>
 		</tr>
 	</table>
+	<script th:inline="javascript">
+        var students = [];
+        var studentTable = document.getElementById("studentTable");
+	</script>
+	<script th:each="user:${users}" th:inline="javascript">
+		students.push({
+			name: [[${user.getLastName()}]] + ', ' + [[${user.getFirstName()}]]
+			grade: [[${grades[user.getUserUid()].getValue().getCalculatedGrade()}]]
+		});
+	</script>
+	<script th:inline="javascript">
+		function getStudents(){
+			students.forEach(function(student){
+				var progressPercent = student.grade;
+                var row = studentTable.insertRow(0);
+                var cell = row.insertCell(0);
 
-
+                progressDiv = document.createElement("div");
+				progressDiv.classList.add("progress");
+				progressBar = document.createElement("div");
+				progressBar.classList.add("progress-bar");
+				progressBar.setAttribute("role", "progressbar");
+				progressBar.setAttribute("style", "width: " + progressPercent + "%");
+				progressBar.setAttribute("aria-valuemin", "0");
+				progressBar.setAttribute("aria-valuemax", "100");
+				progressBar.setAttribute("aria-valuenow", progressPercent);
+				progressBar.appendChild(document.createTextNode(progressPercent));
+				progressDiv.appendChild(progressBar);
+				cell.appendChild(document.createTextNode(student.name));
+				cell.appendChild(progressDiv);
+			});
+		function getProgressBars(uuid){
+			var progressHTML;
+			
+			return progressHTML;
+		}
+			document.getElementById("displayButton").hidden = true;
+		}
+	</script>
+	
 	<!--<script th:inline="javascript">-->
         <!--/*<![CDATA[*/-->
         <!--var fragment = document.createDocumentFragment();-->
         <!--var listItem, progressDiv, progressBar, progressPercent;-->
 
-        <!--var students = test : ${test.getId()}; //make progress variable in MainController-->
+        <!--var students = grades : ${test.getId()}; //make progress variable in MainController-->
         <!--for(var i = 0; i < students.length(); i++) {-->
-            <!--progressPercent = students[i].progressPercent;-->
+            <!--progressPercent = grades[].progressPercent;-->
             <!--listItem = document.createElement("li");-->
             <!--progressDiv = document.createElement("div");-->
             <!--progressDiv.classList.add("progress");-->
@@ -33,8 +72,9 @@
             <!--progressBar.setAttribute("aria-valuemax", "100");-->
             <!--progressBar.setAttribute("aria-valuenow", progressPercent);-->
             <!--progressBar.appendChild(document.createTextNode(progressPercent));-->
+            <!--progressDiv.appendChild(progressBar);  -->
             <!--listItem.appendChild(document.createTextNode(students[i].name));-->
-            <!--listItem.appendChild(progressBar);-->
+            <!--listItem.appendChild(progressDiv);-->
             <!--fragment.appendChild(listItem);-->
         <!--}-->
         <!--document.getElementById("student-list").appendChild(fragment);-->
@@ -42,7 +82,7 @@
         <!--/*]]>*/-->
 	<!--</script>-->
 
-	<input type="button">
+	<button type="button" id="displayButton" onclick="getStudents()">Get Students</button>
 	<ul id="student-list"></ul>
 	<!--<div id="menu" th:insert="fragments/menus :: main(index)"/>-->
 	<!--<h3 th:text="#{index.title}">View Widgets</h3>-->

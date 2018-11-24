@@ -22,29 +22,25 @@
 package org.sakaiproject.progress.impl;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
 //import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Member;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.progress.api.IGradebookService;
 import lombok.Setter;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-
+@Slf4j
 public class GradebookServiceImpl implements IGradebookService, Comparable, Serializable {
 
 	@Setter
@@ -56,16 +52,37 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	@Setter
 	private UserDirectoryService userDirectoryService;
 
+	@Setter
+	private GradebookFrameworkService gradebookFrameworkService;
+
 	protected Gradebook gradebook;
 	protected String gradebookUid;
 	protected Long gradebookId;
+	private String siteId;
 
 
-	public Gradebook setGradebook(final String uid) throws GradebookNotFoundException {
-		gradebook = (Gradebook)gradebookService.getGradebook(uid);
-		gradebookUid=gradebook.getUid();
-		gradebookId=gradebook.getId();
 
+	@Override
+	public void setGradebook(final String uid) throws GradebookNotFoundException {
+		gradebook = this.getGradebook(uid);
+		gradebookUid = gradebook.getUid();
+		gradebookId = gradebook.getId();
+	}
+
+	@Override
+	public Gradebook getGradebook(final String uid){
+
+		try {
+			gradebook = (Gradebook) this.gradebookService.getGradebook(uid);
+		} catch (final GradebookNotFoundException e) {
+			//log.debug("Request made for inaccessible, adding gradebookUid={}", uid);
+			this.gradebookFrameworkService.addGradebook(uid, uid);
+			try {
+				gradebook = (Gradebook) this.gradebookService.getGradebook(uid);
+			} catch (final GradebookNotFoundException e2) {
+				log.error("Request made and could not add inaccessible gradebookUid={}", uid);
+			}
+		}
 		return gradebook;
 	}
 
@@ -80,164 +97,40 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	}
 
 	@Override
-	public void setTitle(String title) {
-
-	}
-
-	@Override
-	public String getCreator() {
-		return null;
-	}
-
-	@Override
-	public void setCreator(String creator) {
-
-	}
-
-	@Override
-	public String getCreatorEid() {
-		return null;
-	}
-
-	@Override
-	public void setCreatorEid(String creatorUserId) {
-
-	}
-
-	@Override
-	public Timestamp getCreated() {
-		return null;
-	}
-
-	@Override
-	public void setCreated(Timestamp created) {
-
-	}
-
-	@Override
-	public String getLastUpdater() {
-		return null;
-	}
-
-	@Override
-	public void setLastUpdater(String lastUpdater) {
-
-	}
-
-	@Override
-	public String getLastUpdaterEid() {
-		return null;
-	}
-
-	@Override
-	public void setLastUpdaterEid(String lastUpdaterUserId) {
-
-	}
-
-	@Override
-	public String getUpdatedDateTime() {
-		return null;
-	}
-
-	@Override
-	public Timestamp getLastUpdated() {
-		return null;
-	}
-
-	@Override
-	public void setLastUpdated(Timestamp lastUpdated) {
-
-	}
-
-	@Override
 	public String getContext() {
-		return null;
+		return siteId;
 	}
 
 	@Override
 	public void setContext(String context) {
-
-	}
-
-	@Override
-	public Set getStudents() {
-		return null;
+		siteId = context;
+		setGradebook(siteId);
 	}
 
 	@Override
 	public List<User> getStudents(String siteId) {
 
-		Site site = null;
+		return userDirectoryService.getUsers(this.getStudentsUIDs(siteId));
+	}
+
+	public List<String> getStudentsUIDs(String siteID){
+		Set<String> userUIDs = new HashSet<String>();
 		try {
-			site = siteService.getSite(siteId);
+			userUIDs = siteService.getSite(siteID).getUsersIsAllowed("section.role.student");
 		} catch (IdUnusedException e) {
-			//log.error("Site '" + siteId + "' not found. Returning null ...");
-			return null;
+			e.printStackTrace();
+		}
+		List<String> userIds = new ArrayList<String>();
+
+		for(String id: userUIDs){
+			userIds.add(id);
 		}
 
-		List<User> students = new ArrayList<User>();
-
-		for(User user : userDirectoryService.getUsers(site.getUsers())){
-			if(user.getEid().contains("student")){
-				students.add(user);
-			}
-		}
-
-		return students;
+		return userIds;
 	}
-
-	@Override
-	public void setStudents(String siteId){
-
-	}
-	@Override
-	public void setStudents(List<User> users) {
-
-	}
-
-	@Override
-	public void setFileReference(String fileReference) {
-
-	}
-
-	@Override
-	public String getFileReference() {
-		return null;
-	}
-
-	@Override
-	public List getHeadings() {
-		return null;
-	}
-
-	@Override
-	public void setHeadings(List headings) {
-
-	}
-
 	@Override
 	public Long getId() {
 		return gradebookId;
-	}
-
-	@Override
-	public void setId(Long id) {
-
-	}
-
-	@Override
-	public Boolean getReleased() {
-		return null;
-	}
-
-	@Override
-	public void setReleased(Boolean released) {
-
-	}
-
-	@Override
-	public String getHeadingsRow() {
-		return null;
 	}
 
 	@Override
@@ -248,51 +141,6 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	@Override
 	public boolean hasStudent(String username) {
 		return false;
-	}
-
-	@Override
-	public boolean getRelease() {
-		return false;
-	}
-
-	@Override
-	public void setRelease(boolean release) {
-
-	}
-
-	@Override
-	public Boolean getReleaseStatistics() {
-		return null;
-	}
-
-	@Override
-	public void setReleaseStatistics(Boolean releaseStatistics) {
-
-	}
-
-	@Override
-	public boolean getReleaseStats() {
-		return false;
-	}
-
-	@Override
-	public void setReleaseStats(boolean releaseStats) {
-
-	}
-
-	@Override
-	public String getProperWidth(int column) {
-		return null;
-	}
-
-	@Override
-	public List getRawData(int column) {
-		return null;
-	}
-
-	@Override
-	public List getAggregateData(int column) throws Exception {
-		return null;
 	}
 
 	@Override
@@ -314,4 +162,25 @@ public class GradebookServiceImpl implements IGradebookService, Comparable, Seri
 	public void setUsernames(List<String> usernames) {
 
 	}
+
+	/**
+	 * @return a map of with student uuids as keys and a CourseGrade object corresponding to that student
+	 */
+	@Override
+	public Map<String, CourseGrade> getCourseGrades(String siteID) {
+        Map<String, CourseGrade> courseGradeMap;
+        
+        if(gradebook == null) {
+            try {
+                this.setGradebook(siteId);
+            } catch(GradebookNotFoundException e) {
+                return null;
+            }
+        }
+
+		List<String> studentUuids = this.getStudentsUIDs(siteID);
+        
+        courseGradeMap = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
+        return courseGradeMap;
+    }
 }
