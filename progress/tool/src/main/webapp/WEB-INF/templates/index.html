@@ -4,6 +4,14 @@
 <head th:replace="fragments/common :: head"/>
 <body>
 <div class="portletBody">
+	<style>
+		.progress {
+			float: right;
+		    width: 100px;
+		    margin-left: 10px;
+		    background-color: lightgray;
+		}
+	</style>
 	<span th:text="'The Gradebook Id is ' + ${test}" /><br>
 	
 	<table id="studentTable"></table>
@@ -19,8 +27,8 @@
 	</script>
 	<script th:each="user:${users}" th:inline="javascript">
 		students.push({
-			name: [[${user.getLastName()}]] + ', ' + [[${user.getFirstName()}]]
-			grade: [[${grades[user.getUserUid()].getValue().getCalculatedGrade()}]]
+			name: [[${user.getLastName()}]] + ', ' + [[${user.getFirstName()}]],
+			grade: [[${grades[user.getId()].getCalculatedGrade()}]]
 		});
 	</script>
 	<script th:inline="javascript">
@@ -39,16 +47,11 @@
 				progressBar.setAttribute("aria-valuemin", "0");
 				progressBar.setAttribute("aria-valuemax", "100");
 				progressBar.setAttribute("aria-valuenow", progressPercent);
-				progressBar.appendChild(document.createTextNode(progressPercent));
+				progressBar.appendChild(document.createTextNode(progressPercent + "%"));
 				progressDiv.appendChild(progressBar);
 				cell.appendChild(document.createTextNode(student.name));
 				cell.appendChild(progressDiv);
 			});
-		function getProgressBars(uuid){
-			var progressHTML;
-			
-			return progressHTML;
-		}
 			document.getElementById("displayButton").hidden = true;
 		}
 	</script>
