@@ -61,7 +61,7 @@ public class UploadRenderer extends Renderer {
     HttpServletRequest request = (HttpServletRequest) external.getRequest();
 
     String clientId = component.getClientId(context);
-    log.debug("** encodeBegin, clientId ="+clientId);
+    log.debug("** encodeBegin, clientId = {}", clientId);
     encodeUploadField(writer, clientId, component);
   }
 
@@ -83,8 +83,8 @@ public class UploadRenderer extends Renderer {
     String clientId = component.getClientId(context);
     WrappedUpload item = wrapUpload(request, clientId + UPLOAD);
 
-    log.debug("clientId ="+ clientId);
-    log.debug("wrappedUpload ="+ item);
+    log.debug("clientId = {}", clientId);
+    log.debug("wrappedUpload = {}", item);
 
     ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     Long maxSize = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "40960"));
@@ -102,7 +102,7 @@ public class UploadRenderer extends Renderer {
     else target = component.getAttributes().get("target");
 
     String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
-    log.debug("****"+repositoryPath);
+    log.debug("****{}", repositoryPath);
     if (target != null){
       File dir = new File(repositoryPath+target.toString()); //directory where file would be saved
       if (!dir.exists())
@@ -120,7 +120,7 @@ public class UploadRenderer extends Renderer {
 	    	filename = fullname.substring(0, dot_index) + "_" + (new Date()).getTime() + fullname.substring(dot_index);
 	    }
         String filePath = dir.getPath()+"/"+filename;
-        log.debug("**1. filename="+filePath);
+        log.debug("**1. filename= {}", filePath);
         try {
           //if (mediaIsValid) item.write(file);
           item.write(filePath);
