@@ -488,9 +488,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						try {
 							Long newId = createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), a.getName(), a.getPoints(),
 									a.getDueDate(), true, false, a.isExtraCredit());
-							if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, a.getId().toString(), fromContext) != null){
-								transversalMap.put("gb/"+a.getId(),"gb/"+newId);
-							}
+							transversalMap.put("gb/"+a.getId(),"gb/"+newId);
 						} catch (final ConflictingAssignmentNameException e) {
 							// assignment already exists. Could be from a merge.
 							log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", a.getName());
@@ -522,9 +520,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		assignments.forEach(a -> {
 			try {
 				Long newId = createAssignment(gradebook.getId(), a.getName(), a.getPoints(), a.getDueDate(), true, false, a.isExtraCredit());
-				if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, a.getId().toString(), fromContext) != null){
-					transversalMap.put("gb/"+a.getId(),"gb/"+newId);
-				}
+				transversalMap.put("gb/"+a.getId(),"gb/"+newId);
 			} catch (final ConflictingAssignmentNameException e) {
 				// assignment already exists. Could be from a merge.
 				log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", a.getName());
