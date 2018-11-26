@@ -204,6 +204,9 @@
 
       },
       isOverridden: function(ovrdvl,selected) {
+        if(!this.options.fineTunePoints){
+          return '';
+        }
         if ((ovrdvl || ovrdvl === 0) && (parseInt(ovrdvl) !== parseInt(selected))) {
           return 'strike';
         } else {

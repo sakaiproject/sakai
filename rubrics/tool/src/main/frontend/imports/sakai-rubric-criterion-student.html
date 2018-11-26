@@ -38,14 +38,14 @@
             <template is="dom-if" if="[[!preview]]">
               <sakai-rubric-student-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}"></sakai-rubric-student-comment>
               
-              <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
+              <strong class$="points-display {{isOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)}}">
                 &nbsp;
                 {{criterionitem.selectedvalue}}
                 <template is="dom-if" if="[[!criterionitem.selectedRadingId]]">0</template>
                 &nbsp;
               </strong>
               
-              <template is="dom-if" if="[[options.fineTunePoints]]">
+              <template is="dom-if" if="[[showOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)]]">
                 <strong class="points-display">[[criterionitem.pointoverride]]</strong>
               </template>
             </template>
@@ -164,12 +164,18 @@
 
         this.updateTotalPoints();
       },
-      isOverridden: function(ovrdvl) {
-        if (ovrdvl || ovrdvl === 0) {
+      isOverridden: function(ovrdvl,selected) {
+        if(!this.options.fineTunePoints){
+          return '';
+        }
+        if ((ovrdvl || ovrdvl === 0) && (parseInt(ovrdvl) !== parseInt(selected))) {
           return 'strike';
         } else {
           return '';
         }        
+      },
+      showOverridden: function(ovrdvl,selected) {
+        return (this.isOverridden(ovrdvl,selected) === 'strike');
       },
       updateTotalPoints: function() {
         var total = 0;
