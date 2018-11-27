@@ -130,9 +130,13 @@ public class GradingService
   public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
-  // SAK-39922
+  // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
   public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("(?<!\\{)-" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
   public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("(?<!\\{)\\+" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
+  // SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
+  public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
+  public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
+	  
   /**
    * Get all scores for a published assessment from the back end.
    */
@@ -3061,6 +3065,20 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   
   /**
    * CALCULATED_QUESTION
+   * SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
+   * SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
+   */
+   private static String checkExpression(String expression) {
+	   expression = CALCQ_ANSWER_AVOID_DOUBLE_MINUS.matcher(expression).replaceAll("-({$1})");
+	   expression = CALCQ_ANSWER_AVOID_PLUS_MINUS.matcher(expression).replaceAll("+({$1})");
+	   expression = CALCQ_FORMULA_ALLOW_POINT_NUMBER.matcher(expression).replaceAll("$10$2$3");
+	   expression = CALCQ_FORMULA_ALLOW_NUMBER_POINT.matcher(expression).replaceAll("$1$3");
+  
+	   return expression;
+  }
+  
+  /**
+   * CALCULATED_QUESTION
    * replaceMappedVariablesWithNumbers() takes a string and substitutes any variable
    * names found with the value of the variable.  Variables look like {a}, the name of 
    * that variable is "a", and the value of that variable is in variablesWithValues
@@ -3078,8 +3096,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           expression = "";
       }
       else {
-    	  String checkDoubleMinus = CALCQ_ANSWER_AVOID_DOUBLE_MINUS.matcher(expression).replaceAll("-({$1})");
-    	  expression = CALCQ_ANSWER_AVOID_PLUS_MINUS.matcher(checkDoubleMinus).replaceAll("+({$1})");
+    	  expression = checkExpression(expression);
       }
 
       if (variables == null) {
