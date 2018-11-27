@@ -255,7 +255,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   // key needs to contain all values the cell requires for render
   // otherwise it won't rerender when those values change
   var hasComment = column.type === "assignment" ? GbGradeTable.hasComment(student, column.assignmentId) : false;
-  var isDropped = column.type === "assignment" ? student.hasDroppedScores[index] === '1' : false;
+  var isDropped = column.type === "assignment" ? GbGradeTable.hasDropped(student, column.assignmentId) : false;
   var scoreState = GbGradeTable.getCellState(row, col, instance);
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
@@ -1338,6 +1338,10 @@ GbGradeTable.hasComment = function(student, assignmentId) {
   return student.hasComments[assignmentIndex] === "1";
 };
 
+GbGradeTable.hasDropped = function(student, assignmentId) {
+  var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
+  return student.hasDroppedScores[assignmentIndex] === "1";
+};
 
 GbGradeTable.isReadOnly = function(student, assignmentId) {
   if (student.readonly == null) {
