@@ -185,7 +185,10 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         body.append(getUserFirstName(submitter.getUserId()));
         body.append(",<br />");
         body.append("<br />");
-        body.append("Reminder: An assignment of yours is due within 24 hours.");
+        int totalHours = serverConfigurationService.getInt("assignment.reminder.hours", 24);
+        String hoursMod = (totalHours % 24 == 0) ? "." : " and " + (totalHours % 24) + " hours.";
+        String timeText = (totalHours < 25) ? totalHours + " hours." : (totalHours / 24) + " days" + hoursMod;
+        body.append(String.format("Reminder: An assignment of yours is due within %s", timeText));
         body.append("<br />");
         body.append("<ul>");
         body.append("<li> Assignment : ").append(assignment.getTitle()).append("</li>");
