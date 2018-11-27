@@ -2784,7 +2784,11 @@ public class SimplePageBean {
 		if (makeNewPage) {
 		    subpage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, parent, topParent);
 		    subpage.setOwner(owner);
-		    subpage.setOwned(owner!=null);
+		    if(isStudentPage(page)){
+		        subpage.setOwned(false);
+		    } else {
+		        subpage.setOwned(owner!=null);
+		    }
 		    subpage.setGroup(group);
 		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());

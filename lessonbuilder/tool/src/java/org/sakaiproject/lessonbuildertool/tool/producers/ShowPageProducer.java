@@ -729,7 +729,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (canEditPage) {
 			// show tool bar, but not if coming from grading pane
 			if(!cameFromGradingPane) {
-				createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
+				createToolBar(tofill, currentPage);
 			}
 			
 			UIOutput.make(tofill, "title-descrip");
@@ -4145,7 +4145,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//		return ieVersion;
 	}
 
-	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
+	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 		boolean studentPage = simplePageBean.isStudentPage(currentPage);
 
