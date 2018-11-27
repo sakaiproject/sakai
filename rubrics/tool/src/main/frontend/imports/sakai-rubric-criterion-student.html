@@ -4,7 +4,6 @@
     <style include="sakai-rubrics-styles"></style>
     <style include="polymer-bootstrap"></style>
 
-
     <div class="criterion grading">
       <template is="dom-repeat" id="criterion" items="{{criterions}}" as="criterionitem">
         <div id="criterion_row_[[criterionitem.id]]" class="criterion-row">
@@ -39,14 +38,14 @@
             <template is="dom-if" if="[[!preview]]">
               <sakai-rubric-student-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}"></sakai-rubric-student-comment>
               
-              <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
+              <strong class$="points-display {{isOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)}}">
                 &nbsp;
                 {{criterionitem.selectedvalue}}
                 <template is="dom-if" if="[[!criterionitem.selectedRadingId]]">0</template>
                 &nbsp;
               </strong>
               
-              <template is="dom-if" if="[[options.fineTunePoints]]">
+              <template is="dom-if" if="[[showOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)]]">
                 <strong class="points-display">[[criterionitem.pointoverride]]</strong>
               </template>
             </template>
@@ -72,9 +71,6 @@
         rubric: {
           type: Object,
           observer: "rubricReady"
-        },
-        preview: {
-          type: Boolean,
         },
         totalPoints: {
           type: Number,
@@ -168,58 +164,18 @@
 
         this.updateTotalPoints();
       },
-      finetuneRating: function(e) {
-        var cindex = this.$.criterion.indexForElement(e.target);
-        var citem = this.$.criterion.itemForElement(e.target);
-
-        this.set('criterions.' + cindex + '.pointoverride', e.target.value);
-        if (citem.selectedvalue) {
-          this.totalPoints = this.totalPoints - citem.selectedvalue + parseInt(citem.pointoverride);
-        } else {
-          this.totalPoints = this.totalPoints + parseInt(citem.pointoverride);
+      isOverridden: function(ovrdvl,selected) {
+        if(!this.options.fineTunePoints){
+          return '';
         }
-        this.updateTotalPoints();
-
-      },
-      isOverridden: function(ovrdvl) {
-        if (ovrdvl || ovrdvl === 0) {
+        if ((ovrdvl || ovrdvl === 0) && (parseInt(ovrdvl) !== parseInt(selected))) {
           return 'strike';
         } else {
           return '';
-        }
-        
+        }        
       },
-      selectRating: function(e) {
-        var cindex = this.$.criterion.indexForElement(e.target);
-        var citem = this.$.criterion.itemForElement(e.target);
-        var critem = this.$$('#ratingitems_'+citem.id).itemForElement(e.target);
-
-        this.set('criterions.' + cindex + '.selectedvalue', critem.points);
-        this.set('criterions.' + cindex + '.selectedRadingId', critem.id);
-        
-        
-        
-        var items = this.$$('#criterion_row_'+citem.id).querySelectorAll('.rating-item');
-        var item = this.$$('#rating_item_'+critem.id);
-        if (hasClass(item, 'selected')) {
-          removeClass(item, 'selected');
-          
-          this.set('criterions.' + cindex + '.selectedvalue', "");
-          this.set('criterions.' + cindex + '.selectedRadingId', "");
-
-        } else {
-          for (var i = items.length - 1; i >= 0; i--) {
-            // if (hasClass(items[i], 'selected')) {
-            //   this.totalPoints = this.totalPoints - this.$$('#ratingitems_'+citem.id).itemForElement(items[i]).points;
-            // }
-            removeClass(items[i], 'selected');  
-          }
-          addClass(item, 'selected');
-
-          this.set('criterions.' + cindex + '.selectedvalue', critem.points);
-          this.set('criterions.' + cindex + '.selectedRadingId', critem.id);
-        }
-        this.updateTotalPoints();
+      showOverridden: function(ovrdvl,selected) {
+        return (this.isOverridden(ovrdvl,selected) === 'strike');
       },
       updateTotalPoints: function() {
         var total = 0;
@@ -231,16 +187,7 @@
           }
         }
         this.totalPoints = total;
-        this.updateGradeField();
         this.fire('state-details');
-      },
-      updateGradeField: function() {
-        setTimeout(function(){
-          var field = document.querySelector('#' + this.gradeFieldId);
-          if (this.gradeFieldId && field) {
-            field.value = this.totalPoints;
-          }
-        }.bind(this));
       },
       rubricReady: function() {
           this.options = this.rubricAssociation.parameters;

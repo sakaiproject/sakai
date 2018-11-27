@@ -3452,7 +3452,11 @@ public class DeliveryBean
   }
   
   public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer){
-	  return checkBeforeProceed(isSubmitForGrade, isFromTimer, false);
+	  boolean isViaUrlLogin = false;
+	  if(AgentFacade.getCurrentSiteId() == null){
+	    isViaUrlLogin = true;
+	  }
+	  return checkBeforeProceed(isSubmitForGrade, isFromTimer, isViaUrlLogin);
   }
 
   private boolean getHasSubmissionLeft(int numberRetake){

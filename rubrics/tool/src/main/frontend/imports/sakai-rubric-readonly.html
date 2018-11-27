@@ -18,7 +18,7 @@
 
       <div><site-title site-id="[[rubric.metadata.ownerId]]"></site-title></div>
       <div><creator-name creator-id="[[rubric.metadata.creatorId]]"></creator-name></div>
-      <div><span>[[rubric.metadata.modified]]</span></div>
+      <div><modified-date modified="[[rubric.metadata.modified]]"></modified-date></div>
 
       <div class="actions">
         <template is="dom-if" if="{{rubric.metadata.public}}">

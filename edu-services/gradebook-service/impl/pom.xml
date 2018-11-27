@@ -70,6 +70,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>gradebook-service-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-service-api</artifactId>
+        </dependency>
         <!-- Section Awareness -->
         <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>

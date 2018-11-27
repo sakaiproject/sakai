@@ -102,8 +102,6 @@
     </div>
   </div>
 
-  <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
-
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2" />

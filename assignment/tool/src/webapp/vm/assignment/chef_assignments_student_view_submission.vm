@@ -125,7 +125,7 @@ $(document).ready(function(){
 			<p class="instruction">
 				#if (($submissionType==1) || ($submissionType==3))
 					 $tlang.getString("stuviewsubm.asshasnot")
-				#elseif ($submissionType==2)
+				#elseif (($submissionType==2) || ($submissionType==5))
 				 	$tlang.getString("stuviewsubm.assattonly")
 				#end
 				#if($assignment.AllowPeerAssessment)

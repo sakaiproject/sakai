@@ -102,10 +102,10 @@
                 <configuration name="sakai:menuClass" value="icon-sakai -2 dashes- sakai-lessonbuildertool"/>
 
                 <configuration name="imsti.launch"
-                   value="http://www.dr-chuck.com/sakai-api-test/tool.php" />
+                   value="https://www.tsugi.org/lti-test/tool.php" />
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" value="secret" />
-                <configuration name="imsti.key" value="lmsng.school.edu" />
+                <configuration name="imsti.key" value="12345" />
 
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />

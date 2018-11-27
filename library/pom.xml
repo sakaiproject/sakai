@@ -14,7 +14,7 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.10.1</ckeditor.version>
+		<ckeditor.version>4.11.1</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.40.2</version>
+			<version>5.41.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -73,7 +73,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.webjars</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-image2</artifactId>
 			<version>${ckeditor.image2.version}</version>
 			<scope>runtime</scope>

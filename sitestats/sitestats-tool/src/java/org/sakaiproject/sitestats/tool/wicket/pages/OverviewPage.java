@@ -109,7 +109,21 @@ public class OverviewPage extends BasePage {
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
 		}
-        add(new LessonsWidget("lessonsWidget", siteId));
+
+		// Lessons
+		boolean lessonsVisible = false;
+		try {
+			lessonsVisible = statsManager.isEnableLessonsStats() &&
+					(Locator.getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.LESSONS_TOOLID) != null);
+		}catch (Exception e) {
+			lessonsVisible = false;
+		}
+
+		if (lessonsVisible) {
+			add(new LessonsWidget("lessonsWidget", siteId));
+		}else{
+			add(new WebMarkupContainer("lessonsWidget").setRenderBodyOnly(true));
+		}
 	}
 }
 

@@ -435,7 +435,6 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		{
 			log.debug("transfer copy mc items by transferCopyEntities");
 
-			//List fromDfList = dfManager.getDiscussionForumsByContextId(fromContext);
 			List fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			String currentUserId = sessionManager.getCurrentSessionUserId();
@@ -448,7 +447,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 					DiscussionForum newForum = forumManager.createDiscussionForum();
 					if(newForum != null){
-					
+
 						newForum.setTitle(fromForum.getTitle());
 
 						if (fromForum.getShortDescription() != null && fromForum.getShortDescription().length() > 0) {
@@ -509,29 +508,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							}
 						}   
 
-						// get/add the gradebook assignment associated with the forum settings
-						GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-						ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-						String gradebookUid;
-						// if this code is called from a quartz job, like SIS, then getCurrentPlacement() will return null.
-						// so just use the fromContext which gives the site id.
-						if (toolManager.getCurrentPlacement() != null)
-						{
-							gradebookUid = toolManager.getCurrentPlacement().getContext();
-						}
-						else
-						{
-							gradebookUid = fromContext;
-						}
-
-						if (gradebookService.isGradebookDefined(gradebookUid))
-						{
-							String fromAssignmentTitle = fromForum.getDefaultAssignName();
-							if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
-							{
-								newForum.setDefaultAssignName(fromAssignmentTitle);
-							}
-						}
+						//add the gradebook assignment associated with the forum settings
+						newForum.setDefaultAssignName(fromForum.getDefaultAssignName());
 
 						// save the forum, since this is copying over a forum, send "false" for parameter otherwise
 						//it will create a default forum as well
@@ -609,15 +587,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									}			
 								}
 
-								// get/add the gradebook assignment associated with the topic	
-								if (gradebookService.isGradebookDefined(gradebookUid))
-								{
-									String fromAssignmentTitle = fromTopic.getDefaultAssignName();
-									if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
-									{
-										newTopic.setDefaultAssignName(fromAssignmentTitle);
-									}
-								}
+								//add the gradebook assignment associated with the topic	
+								newTopic.setDefaultAssignName(fromTopic.getDefaultAssignName());
 
 								forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft(), currentUserId, false);
 								
@@ -1344,6 +1315,11 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						}
 					}
 					
+					if(fromForum.getDefaultAssignName()!=null && transversalMap.get("gb/"+fromForum.getDefaultAssignName()) != null){
+						fromForum.setDefaultAssignName(transversalMap.get("gb/"+fromForum.getDefaultAssignName()).substring(3));
+						updateForum = true;
+					}
+
 					if(updateForum){
 						//update forum
 						fromForum = dfManager.saveForum(fromForum, fromForum.getDraft(), toContext, false, currentUserId);
@@ -1366,6 +1342,11 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								}
 							}
 
+							if(topic.getDefaultAssignName()!=null && transversalMap.get("gb/"+topic.getDefaultAssignName()) != null){
+								topic.setDefaultAssignName(transversalMap.get("gb/"+topic.getDefaultAssignName()).substring(3));
+								updateTopic = true;
+							}
+
 							if(updateTopic){
 								//update forum
 								dfManager.saveTopic(topic, topic.getDraft(), false, currentUserId);
@@ -1380,7 +1361,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private String replaceAllRefs(String msgBody, Set<Entry<String, String>> entrySet){
 		if(msgBody != null){
 			msgBody = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
-			}	
+		}	
 		return msgBody;		
 	}
 

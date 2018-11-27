@@ -87,6 +87,7 @@
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService" />
         </property>
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.logic.RubricsService" />
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"
           class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"

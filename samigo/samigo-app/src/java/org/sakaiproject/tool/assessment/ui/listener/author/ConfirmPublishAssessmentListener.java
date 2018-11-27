@@ -22,10 +22,12 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -480,6 +482,15 @@ public class ConfirmPublishAssessmentListener
 
       String url = server + extContext.getRequestContextPath();
       assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
+
+      //SAK-40811 show groups on publish from action select
+      if(isFromActionSelect && "Selected Groups".equals(releaseTo) && assessmentSettings.getGroupsAuthorized() != null){
+        String[] groupsAuthorized = assessmentSettings.getGroupsAuthorized();					
+        String result = Arrays.stream(groupsAuthorized)
+			                  .map(group -> getGroupName(group, assessmentSettings))
+			                  .collect(Collectors.joining(", "));
+        assessmentSettings.setReleaseToGroupsAsString(result);
+      }
     }
    
     //#4 - before going to confirm publishing, check if the title is unique

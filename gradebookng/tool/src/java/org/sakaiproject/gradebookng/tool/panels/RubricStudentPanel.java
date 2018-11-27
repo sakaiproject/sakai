@@ -28,7 +28,8 @@ public class RubricStudentPanel extends BasePanel {
     private final ModalWindow window;
     private String assignmentId;
     private String studentUuid;
-	private String toolId;
+    private String toolId;
+    private boolean instructor = false;
 
     public RubricStudentPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
         super(id, model);
@@ -43,6 +44,7 @@ public class RubricStudentPanel extends BasePanel {
         sakaiRubricStudent.add(AttributeModifier.append("tool-id", toolId));
         sakaiRubricStudent.add(AttributeModifier.append("entity-id", assignmentId));//this only works for Assignments atm
         sakaiRubricStudent.add(AttributeModifier.append("evaluated-item-id", studentUuid));
+        sakaiRubricStudent.add(AttributeModifier.append("instructor", instructor));
         add(sakaiRubricStudent);
 
         this.window.setInitialWidth(1100);
@@ -60,5 +62,9 @@ public class RubricStudentPanel extends BasePanel {
 
     public void setToolId(String toolId) {
         this.toolId = toolId;
+    }
+
+    public void setInstructor(boolean instructor) {
+        this.instructor = instructor;
     }
 }

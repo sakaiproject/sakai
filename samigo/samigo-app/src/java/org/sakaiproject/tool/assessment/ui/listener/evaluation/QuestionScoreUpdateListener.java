@@ -243,8 +243,10 @@ import org.sakaiproject.tool.cover.SessionManager;
 		  
           // Persist the rubric evaluation
           String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + bean.getPublishedId() + "." + bean.getItemId();
-          String evaluatedItemId = ar.getAssessmentGradingId() + "." + bean.getItemId();
-          rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, evaluatedItemId, ar.getIdString(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId, evaluatedItemId));
+          if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, entityId)){
+            String evaluatedItemId = ar.getAssessmentGradingId() + "." + bean.getItemId();
+            rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, evaluatedItemId, ar.getIdString(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId, evaluatedItemId));
+          }
         }
       }
 

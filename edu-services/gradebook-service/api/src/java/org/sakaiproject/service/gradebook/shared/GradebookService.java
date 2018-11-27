@@ -305,8 +305,8 @@ public interface GradebookService {
 	 * @param assignments list of Assignments to copy
 	 * @param toGradebookUid target gradebook uid
 	 */
-	public void transferGradebook(final GradebookInformation gradebookInformation, final List<Assignment> assignments,
-			final String toGradebookUid);
+	public Map<String,String> transferGradebook(final GradebookInformation gradebookInformation, final List<Assignment> assignments,
+			final String toGradebookUid, final String fromContext);
 
 	/**
 	 *

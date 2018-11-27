@@ -56,7 +56,7 @@ public class LTI13ConstantsUtil {
 	public static final String KEY_DATA = "data";
 
 	// Deep Linking types
-	public static final String LTI_DL_TYPE_LTILINK = "ltiLink";
+	public static final String LTI_DL_TYPE_LTILINK = "ltiResourceLink";
 	public static final String LTI_DL_TYPE_LINK = "link";
 	public static final String LTI_DL_TYPE_FILE = "file";
 	public static final String LTI_DL_TYPE_HTML = "html";

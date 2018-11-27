@@ -310,6 +310,9 @@ public class GradeSummaryTablePanel extends BasePanel {
 										rubricStudentPanel.setAssignmentId(String.valueOf(assignment.getId()));
 										rubricStudentPanel.setStudentUuid(assignment.getId() + "." + studentUuid);
 									}
+									if(GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
+										rubricStudentPanel.setInstructor(true);
+									}
 									window.setContent(rubricStudentPanel);
 									window.setComponentToReturnFocusTo(this);
 									window.show(target);
@@ -328,8 +331,12 @@ public class GradeSummaryTablePanel extends BasePanel {
 									}
 									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation(tool, assignmentId);
 									if (rubricAssociation.isPresent()) {
-										boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
-										rubricIcon.setVisible(!hidePreview);
+										if(showingStudentView || !GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
+											boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
+											rubricIcon.setVisible(!hidePreview);
+										} else {
+											rubricIcon.setVisible(true);
+										}
 									} else {
 										rubricIcon.setVisible(false);
 									}

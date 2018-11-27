@@ -5960,10 +5960,12 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             // Persist the rubric evaluations
-            for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-                String submitterId = submitter.getSubmitter();
-                rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
-            }
+            if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId())){
+                for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+                    String submitterId = submitter.getSubmitter();
+                    rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, submission.getAssignment().getId(), submission.getId(), submitterId, submission.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
+                }
+            }			
         }
 
         if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -6602,6 +6604,7 @@ public class AssignmentAction extends PagedResourceActionII {
 			boolean allowAddAssignment = assignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
 			boolean allowUpdateAssignment = assignmentService.allowUpdateAssignmentInContext((String) state.getAttribute(STATE_CONTEXT_STRING));
             if (allowAddAssignment && allowUpdateAssignment) {
+            	resetAssignment(state);
                 initializeAssignment(state);
 
                 state.setAttribute(ATTACHMENTS, entityManager.newReferenceList());
@@ -8786,6 +8789,7 @@ public class AssignmentAction extends PagedResourceActionII {
         try {
             if (Assignment.Access.SITE.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.SITE);
+                a.getGroups().clear();
             } else if (Assignment.Access.GROUP.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.GROUP);
                 a.setGroups(groups.stream().map(Group::getReference).collect(Collectors.toSet()));

@@ -78,7 +78,7 @@
     <sakai.mockito.version>2.18.3</sakai.mockito.version>
     <sakai.powermock.version>2.0.0-beta.5</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.10</joda.time.version>
+    <joda.time.version>2.10.1</joda.time.version>
     <jayway.jsonpath.version>2.4.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
@@ -103,10 +103,10 @@
 
     <!-- These should only be updated when the webjars version is updated -->
     <ckeditor.autosave.version>0.18.1</ckeditor.autosave.version>
-    <ckeditor.wordcount.version>1.17.3</ckeditor.wordcount.version>
+    <ckeditor.wordcount.version>1.17.4</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.1</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.9.2</ckeditor.balloonpanel.version>
-    <ckeditor.image2.version>4.9.2</ckeditor.image2.version>
+    <ckeditor.image2.version>4.11.1</ckeditor.image2.version>
     
   </properties>
   <distributionManagement>
@@ -1799,13 +1799,13 @@
       <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.46</version>
+          <version>5.1.47</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>2.2.5</version>
+          <version>2.3.0</version>
           <scope>provided</scope>
       </dependency>
       <dependency>

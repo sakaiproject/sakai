@@ -27,6 +27,7 @@
         <module>basiclti-impl</module>
         <module>basiclti-portlet</module>
         <module>basiclti-blis</module>
+        <module>basiclti-oidc</module>
         <module>basiclti-tool</module>
         <module>portlet-util</module>
         <module>tsugi-util</module>

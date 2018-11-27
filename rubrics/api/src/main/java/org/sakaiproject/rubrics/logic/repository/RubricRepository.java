@@ -28,6 +28,7 @@ import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,4 +52,9 @@ public interface RubricRepository extends MetadataRepository<Rubric, Long> {
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     @Query("select r from Rubric r where r.metadata.shared = true order by r.title")
     List<Rubric> getAllSharedRubrics();
+
+    @RestResource(path = "rubrics-from-site", rel = "rubrics-from-site")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    @Query("select r from Rubric r where r.metadata.ownerId = :siteId ")
+    List<Rubric> getRubricsFromSite(@Param("siteId") String siteId);
 }
