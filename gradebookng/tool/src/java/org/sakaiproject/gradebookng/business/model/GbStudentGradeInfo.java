@@ -74,6 +74,7 @@ public class GbStudentGradeInfo implements Serializable {
 	public GbStudentGradeInfo(final GbUser u) {
 		studentUuid = u.getUserUuid();
 		studentEid = u.getDisplayId();
+		studentDisplayId = u.getDisplayId();
 		studentDisplayName = u.getDisplayName();
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
