@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -182,6 +183,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 		if (!questionScores(publishedId, bean, toggleSubmissionSelection)) {
 			throw new RuntimeException("failed to call questionScores.");
 		}
+
+		FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(FacesContext.getCurrentInstance(), null, "questionScores");
+
 	}
 
 	/**
