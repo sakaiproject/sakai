@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.gradebookng.business;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -763,7 +764,9 @@ public class GradebookNgBusinessService {
 		// concurrency check, if stored grade != old grade that was passed in,
 		// someone else has edited.
 		// if oldGrade == null, ignore concurrency check
-		if (oldGrade != null && !StringUtils.equals(storedGradeAdjusted, oldGradeAdjusted)) {
+		BigDecimal storedBig = storedGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(storedGradeAdjusted).setScale(2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal oldBig = oldGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(oldGradeAdjusted).setScale(2, BigDecimal.ROUND_HALF_UP);
+		if (oldGrade != null && (storedBig.compareTo(oldBig) != 0)) {
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
 
