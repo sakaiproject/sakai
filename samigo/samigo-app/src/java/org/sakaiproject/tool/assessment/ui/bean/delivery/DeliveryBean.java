@@ -23,7 +23,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
@@ -2547,21 +2556,25 @@ public class DeliveryBean
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     // 3. get the questionId (which is the PublishedItemData.itemId)
-    //int assessmentIndex = mediaLocation.indexOf("assessment");
-    int questionIndex = mediaLocation.indexOf("question");
-    int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
-    int myfileIndex = mediaLocation.lastIndexOf("/");
-    //cwen
-    if(agentIndex < 0 )
-    {
-      agentIndex = mediaLocation.indexOf("\\", questionIndex + 8);
+    String fileMediaLocation = mediaLocation.replace(File.separator.equals("/") ? "\\" : "/" , File.separator);
+    String[] mediaLocationParts = fileMediaLocation.split(Pattern.quote(File.separator));
+    int numberOfMediaLocationParts = mediaLocationParts.length;
+
+    if (numberOfMediaLocationParts < 4) {
+        reload = true;
+        return "takeAssessment";
     }
-    //String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10, questionIndex - 1);
-    String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
+
+    String fileName = mediaLocationParts[numberOfMediaLocationParts- 1];
+    String agentId = mediaLocationParts[numberOfMediaLocationParts - 2];
+    String questionId = mediaLocationParts[numberOfMediaLocationParts - 3];
+    String assessmentId = mediaLocationParts[numberOfMediaLocationParts - 4];
+    questionId = StringUtils.remove(questionId, "question");
+    assessmentId = StringUtils.remove(assessmentId, "assessment");
+
     log.debug("***3a. addMediaToItemGrading, questionId ={}", questionId);
     log.debug("***3b. addMediaToItemGrading, assessmentId ={}", assessmentId);
     if (agent == null){
-      String agentId = mediaLocation.substring(agentIndex, myfileIndex -1);
       log.debug("**** agentId={}", agentId);
       agent = agentId;
     }
