@@ -296,7 +296,7 @@ INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1);
 -- Create the !error site to be displayed when there is a problem accessing a site.
 
 INSERT INTO SAKAI_SITE VALUES('!error', 'Site Unavailable', null, null, 'The site you requested is not available.', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
-INSERT INTO SAKAI_SITE_PAGE VALUES('!error-100', '!error', 'Site Unavailable', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!error-100', '!error', 'Site Unavailable', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!error-110', '!error-100', '!error', 'sakai.iframe.site', 1, 'Site Unavailable', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!error', '!error-110', 'height', '400px' );
 
@@ -307,7 +307,7 @@ INSERT INTO SAKAI_SITE_PROPERTY VALUES ('!error', 'display-users-present', 'fals
 -- Create the !urlError site to be used when there is a problem understanding the user's request url.
 
 INSERT INTO SAKAI_SITE VALUES('!urlError', 'Invalid URL', null, null, 'The URL you entered is invalid.  SOLUTIONS: Please check for spelling errors or typos.  Make sure you are using the right URL.  Type a URL to try again.', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
-INSERT INTO SAKAI_SITE_PAGE VALUES('!urlError-100', '!urlError', 'Invalid URL', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!urlError-100', '!urlError', 'Invalid URL', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!urlError-110', '!urlError-100', '!urlError', 'sakai.iframe.site', 1, 'Invalid URL', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!urlError', '!urlError-110', 'height', '400px' );
 
