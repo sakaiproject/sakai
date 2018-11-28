@@ -18,8 +18,8 @@ package org.sakaiproject.announcement.tool;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,53 +75,53 @@ class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.Ann
             result = o1.getAnnouncementHeader().getMessage_order().compareTo(o2.getAnnouncementHeader().getMessage_order());
             break;
         case AnnouncementAction.SORT_DATE:
-            Date o1ModDate;
-            Date o2ModDate;
+            Instant o1ModDate;
+            Instant o2ModDate;
             try {
-                o1ModDate = o1.getProperties().getDateProperty(AnnouncementService.MOD_DATE);
+                o1ModDate = o1.getProperties().getInstantProperty(AnnouncementService.MOD_DATE);
             } catch (Exception e) {
                 // release date not set, use the date in header
                 // NOTE: this is an edge use case for courses with pre-existing announcements that do not yet have MOD_DATE
-                o1ModDate = new Date(o1.getHeader().getDate().getTime());
+                o1ModDate = Instant.ofEpochMilli(o1.getHeader().getDate().getTime());
             }
             try {
-                o2ModDate = o2.getProperties().getDateProperty(AnnouncementService.MOD_DATE);
+                o2ModDate = o2.getProperties().getInstantProperty(AnnouncementService.MOD_DATE);
             } catch (Exception e) {
                 // release date not set, use the date in the header
                 // NOTE: this is an edge use case for courses with pre-existing announcements that do not yet have MOD_DATE
-                o2ModDate = new Date(o2.getHeader().getDate().getTime());
+                o2ModDate = Instant.ofEpochMilli(o2.getHeader().getDate().getTime());
             }
-            result = compareDatesNullSafe(o1ModDate, o2ModDate);
+            result = compareInstantsNullSafe(o1ModDate, o2ModDate);
             break;
         case AnnouncementAction.SORT_RELEASEDATE:
-        	Date o1releaseDate;
-            Date o2releaseDate;
+        	Instant o1releaseDate;
+        	Instant o2releaseDate;
             try {
-                o1releaseDate = o1.getProperties().getDateProperty(AnnouncementService.RELEASE_DATE);
+                o1releaseDate = o1.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE);
             } catch (Exception e) {
                 o1releaseDate = null;
             }
             try {
-                o2releaseDate = o2.getProperties().getDateProperty(AnnouncementService.RELEASE_DATE);
+                o2releaseDate = o2.getProperties().getInstantProperty(AnnouncementService.RELEASE_DATE);
             } catch (Exception e) {
                 o2releaseDate = null;
             }
-            result = compareDatesNullSafe(o1releaseDate, o2releaseDate);
+            result = compareInstantsNullSafe(o1releaseDate, o2releaseDate);
             break;
         case AnnouncementAction.SORT_RETRACTDATE:
-        	Date o1retractDate;
-        	Date o2retractDate;
+        	Instant o1retractDate;
+        	Instant o2retractDate;
             try {
-                o1retractDate = o1.getProperties().getDateProperty(AnnouncementService.RETRACT_DATE);
+                o1retractDate = o1.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE);
             } catch (Exception e) {
                 o1retractDate = null;
             }
             try {
-                o2retractDate = o2.getProperties().getDateProperty(AnnouncementService.RETRACT_DATE);
+                o2retractDate = o2.getProperties().getInstantProperty(AnnouncementService.RETRACT_DATE);
             } catch (Exception e) {
                 o2retractDate = null;
             }
-            result = compareDatesNullSafe(o1retractDate, o2retractDate);
+            result = compareInstantsNullSafe(o1retractDate, o2retractDate);
             break;
         case AnnouncementAction.SORT_SUBJECT:
             result = collator.compare(o1.getAnnouncementHeader().getSubject(), o2.getAnnouncementHeader().getSubject());
@@ -166,7 +166,7 @@ class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.Ann
         return result;
     }
 
-    private int compareDatesNullSafe(Date date1, Date o2ModDate) {
+    private int compareInstantsNullSafe(Instant date1, Instant o2ModDate) {
         if (date1 == null && o2ModDate == null) {
             return 0;
         } else if (date1 == null) {
