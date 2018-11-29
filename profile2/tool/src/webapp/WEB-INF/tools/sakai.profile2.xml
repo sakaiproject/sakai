@@ -3,6 +3,7 @@
 	<tool id="sakai.profile2" 
 		title="Profile" 
 		description="Edit your profile, post status updates, search for people with common interests, view their profile and add them as connections">
+		<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
       	<category name="myworkspace" />
 

@@ -5,6 +5,7 @@
 			id="sakai.podcasts"
 			title="Podcasts"
 			description="For managing individual podcast and podcast feed information.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 			
 		<category name="course" />
 		<category name="project" />

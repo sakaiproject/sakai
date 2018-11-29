@@ -13,7 +13,9 @@
 	<tool
 			id="sakai.rwiki"
 			title="Wiki"
-		description="For collaborative editing of pages and content">
+			description="For collaborative editing of pages and content">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->		
+
 <!--
            <configuration name="experimintal" value="false" />
            <configuration name="skinning" value="true" />
@@ -23,7 +25,6 @@
            <configuration name="home-page" value="Home" />
            <configuration name="home-page-friendly-name" value="" />
 
-			
 		<category name="course" />
          	<category name="project" />
          	<category name="myworkspace" />

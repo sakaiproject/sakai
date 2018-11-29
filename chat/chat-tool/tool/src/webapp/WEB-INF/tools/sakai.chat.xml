@@ -6,6 +6,7 @@
 			id="sakai.chat"
 			title="Chat Room"
 			description="For real-time conversations in written form.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<configuration name="display-date" value="false" />
 		<configuration name="display-time" value="true" />
