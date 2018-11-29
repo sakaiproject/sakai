@@ -390,7 +390,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       }
       return null;
     };
-    getHibernateTemplate().execute(hcb);    
+    getHibernateTemplate().execute(hcb);
     updateSyllabusAttachmentsViewState(syllabusData);
     syllabusData.setSyllabusItem(syllabusItem);
     if(updateCalendar){
@@ -464,7 +464,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    */
   public void saveSyllabusItem(SyllabusItem item)
   {
-    getHibernateTemplate().merge(item);
+    getHibernateTemplate().saveOrUpdate(item);
   }
   
   /**
