@@ -103,7 +103,7 @@ public class PDFAssessmentBean implements Serializable {
 
 	private List parts = null;
 
-	private List deliveryParts = null;
+	private List<SectionContentsBean> deliveryParts = null;
 
 	private int baseFontSize = 5;
 
@@ -136,7 +136,7 @@ public class PDFAssessmentBean implements Serializable {
 	 * gets the delivery bean parts of the assessment
 	 * @return
 	 */
-	public List getDeliveryParts() {
+	public List<SectionContentsBean> getDeliveryParts() {
 		return deliveryParts;
 	}
 
@@ -160,26 +160,22 @@ public class PDFAssessmentBean implements Serializable {
 	 * sets the delivery parts
 	 * @param deliveryParts
 	 */
-	public void setDeliveryParts(List deliveryParts) {
-		List parts = new ArrayList();
+	public void setDeliveryParts(List<org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean> deliveryParts) {
+		List<SectionContentsBean> parts = new ArrayList<>();
 		int numberQuestion = 1;
-		for (int i=0; i<deliveryParts.size(); i++) {
-			SectionContentsBean section = new SectionContentsBean((org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean)deliveryParts.get(i));
-			List items = section.getItemContents();
+		for (org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean part : deliveryParts) {
+			SectionContentsBean section = new SectionContentsBean(part);
+			List<ItemContentsBean> items = section.getItemContents();
 
 			// Renumbering
-			for (int j=0; items != null && j<items.size(); j++) {
-				ItemContentsBean itemContents = (ItemContentsBean)items.get(j);
-
+			for (ItemContentsBean itemContents : items) {
 				itemContents.setNumber(numberQuestion++);
 
 				// Order answers in order (A, B, C, D)
-				List question = itemContents.getItemData().getItemTextArraySorted();
-				for (int k=0; k<question.size(); k++) {
-					PublishedItemText itemtext = (PublishedItemText)question.get(k);
-					List answers = itemtext.getAnswerArray();
-					for (int t=0; t<answers.size(); t++) {
-						PublishedAnswer answer = (PublishedAnswer)answers.get(t);
+				List<ItemTextIfc> question = itemContents.getItemData().getItemTextArraySorted();
+				for (ItemTextIfc itemtext : question) {
+					List<AnswerIfc> answers = itemtext.getAnswerArray();
+					for (AnswerIfc answer : answers) {
 						if (answer.getLabel() != null && !answer.getLabel().equals(""))
 							answer.setSequence(Long.valueOf(answer.getLabel().charAt(0) - 64));
 					}
@@ -319,7 +315,7 @@ public class PDFAssessmentBean implements Serializable {
 		for (int i = 0; i < deliveryParts.size(); i++) {
 			//get the current item
 			SectionContentsBean section = (SectionContentsBean) deliveryParts.get(i);
-			List items = section.getItemContents();
+			List<ItemContentsBean> items = section.getItemContents();
 			List resources = new ArrayList();
 
 			//create a new part and empty list to fill with items
@@ -379,11 +375,8 @@ public class PDFAssessmentBean implements Serializable {
 			List pdfItems = new ArrayList();
 
 			//for each item in a section we add a blank pdfItem to the pdfPart
-			for (int j = 0; j < items.size(); j++) {
+			for (ItemContentsBean item : items) {
 				PDFItemBean pdfItem = new PDFItemBean();
-
-				ItemContentsBean item = (ItemContentsBean) items.get(j);
-				
 				StringBuffer legacy = new StringBuffer("<h3>");
 				if (printSetting.getShowSequence().booleanValue()) {
 					legacy.append(item.getSequence());
@@ -1091,12 +1084,11 @@ public class PDFAssessmentBean implements Serializable {
 	public String getTotalQuestions() {
 
 		int items = 0;
-		for (int i=0; i<deliveryParts.size(); i++) {
-			SectionContentsBean section = (SectionContentsBean) deliveryParts.get(i);
+		for (SectionContentsBean section : deliveryParts) {
 			items += section.getItemContents().size();
 
 		}
-		return "" + items;
+		return String.valueOf(items);
 	}
 
 	/**

@@ -236,7 +236,7 @@ $(window).load( function() {
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
           <h:outputLabel for="number" value="#{authorMessages.p}" />
           <h:outputText value="&#160;" escape="false" />
-          <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{author.isEditPendingAssessmentFlow}" >
+          <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{!author.isEditPoolFlow}" >
             <f:selectItems value="#{assessmentBean.partNumbers}" />          
           </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
@@ -340,7 +340,7 @@ $(window).load( function() {
             <h:outputLabel for="number" value="#{authorMessages.q} " />
             <h:outputText value="&#160;" escape="false" />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
-            <h:selectOneMenu id="number" onchange="enableOrderUpdate()" value="#{question.number}" rendered="#{author.isEditPendingAssessmentFlow}">
+            <h:selectOneMenu id="number" onchange="enableOrderUpdate()" value="#{question.number}" rendered="#{!author.isEditPoolFlow}">
               <f:selectItems value="#{partBean.questionNumbers}" />
             </h:selectOneMenu>
           <h:outputText value="#{question.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
@@ -483,7 +483,7 @@ $(window).load( function() {
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
 <h:outputText value="&#160;" escape="false" />
-<h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="orderUpdate" rendered="#{!author.isEditPoolFlow}">
+<h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
 </h:commandButton>
 </div>

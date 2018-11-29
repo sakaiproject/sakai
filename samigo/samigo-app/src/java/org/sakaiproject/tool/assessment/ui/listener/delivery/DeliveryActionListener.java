@@ -1045,26 +1045,21 @@ public class DeliveryActionListener
     sec.setNumber("" + part.getSequence());
     sec.setMetaData(part);
 
-    Iterator iter = itemSet.iterator();
-    List itemContents = new ArrayList();
+    List<ItemContentsBean> itemContents = new ArrayList<>();
     int i = 0;
-    while (iter.hasNext())
+    for (ItemDataIfc thisItem : itemSet)
     {
-      ItemDataIfc thisitem = (ItemDataIfc) iter.next();
-      ItemContentsBean itemBean = getQuestionBean(thisitem, itemGradingHash, 
-                                                  delivery, publishedAnswerHash);
+      ItemContentsBean itemBean = getQuestionBean(thisItem, itemGradingHash, delivery, publishedAnswerHash);
 
       // Deal with numbering
       itemBean.setNumber(++i);
-      if (delivery.getSettings().getItemNumbering().equals
-          (AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
+      if (delivery.getSettings().getItemNumbering().equals(AssessmentAccessControl.RESTART_NUMBERING_BY_PART.toString()))
       {
         itemBean.setSequence(Integer.toString(itemBean.getNumber()));
       }
       else
       {
-        itemBean.setSequence( ( (Integer) itemGradingHash.get("sequence" +
-          thisitem.getItemId().toString())).toString());
+        itemBean.setSequence( ( (Integer) itemGradingHash.get("sequence" + thisItem.getItemId().toString())).toString());
       }
 
       // scoring
