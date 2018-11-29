@@ -163,7 +163,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
    
    for(int i=0;i<this.sections.size();i++){
       SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
-      List items = sectionBean.getItemContents();
+      List<ItemContentsBean> items = sectionBean.getItemContents();
 
       int itemsInThisSection =0;
       if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
@@ -177,7 +177,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
       this.questionSize += itemsInThisSection;
       for (int j=0; j<itemsInThisSection; j++){
-          ItemContentsBean item = (ItemContentsBean)items.get(j);
+          ItemContentsBean item = items.get(j);
           if (item.getItemData().getScore()!=null){
             this.totalScore += item.getItemData().getScore().doubleValue();
           }
