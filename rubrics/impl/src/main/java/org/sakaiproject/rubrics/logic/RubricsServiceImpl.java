@@ -779,7 +779,11 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
             conn.setRequestMethod("DELETE");
             conn.setRequestProperty("Accept", "application/json");
             conn.setRequestProperty("Cookie", cookie );
-            conn.setRequestProperty("Authorization", "Bearer " + generateJsonWebToken(toolId, siteId));
+            if(siteId != null) {
+                conn.setRequestProperty("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId, siteId)));
+            } else {
+                conn.setRequestProperty("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+            }
 
             if (conn.getResponseCode() != 204) {
                 throw new RuntimeException("Failed : HTTP error code : "
