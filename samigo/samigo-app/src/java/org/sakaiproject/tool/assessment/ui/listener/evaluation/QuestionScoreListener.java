@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -146,6 +147,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 	 */
 	public void processValueChange(ValueChangeEvent event) {
 		log.debug("QuestionScore CHANGE LISTENER.");
+		ResetQuestionScoreListener reset = new ResetQuestionScoreListener();
+		reset.processAction(null);
+
 		QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
 		TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 		HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
@@ -182,6 +186,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 		if (!questionScores(publishedId, bean, toggleSubmissionSelection)) {
 			throw new RuntimeException("failed to call questionScores.");
 		}
+
+		FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(FacesContext.getCurrentInstance(), null, "questionScores");
+
 	}
 
 	/**
@@ -373,7 +380,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				log.debug("questionScores(): this section has no students");
 				bean.setAgents(agents);
 				bean.setAllAgents(agents);
-				bean.setTotalPeople(Integer.toString(bean.getAgents().size()));
+				bean.setTotalPeople(Integer.toString(agents.size()));
 				bean.setAnonymous(totalBean.getAnonymous());
 				//return true;
 			}
@@ -958,12 +965,13 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			if (bean.getTypeId().equals("9")) {
 				agents = sortMatching(agents);
 			}
+
 			bean.setAgents(agents);
 			bean.setAllAgents(agents);
-			bean.setTotalPeople(Integer.valueOf(bean.getAgents().size()).toString());
+			bean.setTotalPeople(Integer.valueOf(agents.size()).toString());
 			bean.setAgentResultsByItemGradingId(agentResultsByItemGradingIdMap);
-			
-			bean.setRubricStateDetails("");			
+
+			bean.setRubricStateDetails("");
 			bean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + bean.getPublishedId() + "." + bean.getItemId()));
 		}
 
@@ -1019,7 +1027,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 		log.debug("getItemScores: itemScoresMap ==null ?" + itemScoresMap);
 		log.debug("getItemScores: isValueChange ?" + isValueChange);
 
-		if (itemScoresMap == null || isValueChange || questionScoresBean.getIsAnyItemGradingAttachmentListModified()) {
+		if (itemScoresMap == null || isValueChange || questionScoresBean.isAnyItemGradingAttachmentListModified()) {
 			log
 					.debug("getItemScores: itemScoresMap == null or isValueChange == true ");
 			log.debug("getItemScores: isValueChange = " + isValueChange);
@@ -1027,7 +1035,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			questionScoresBean.setItemScoresMap(itemScoresMap);
 			// reset this anyway (because the itemScoresMap will be refreshed as well as the 
 			// attachment list)
-			questionScoresBean.setIsAnyItemGradingAttachmentListModified(false); 
+			questionScoresBean.setAnyItemGradingAttachmentListModified(false);
 		}
 		log
 				.debug("getItemScores: itemScoresMap.size() "
