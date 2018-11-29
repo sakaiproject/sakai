@@ -269,12 +269,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	}
 
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
-           final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
+           final Boolean isReleased, final Boolean isExtraCredit, final Integer sortOrder) throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
-        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, null);
     }
 
-    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit)
+    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, 
+           final Boolean isReleased, final Boolean isExtraCredit, final Integer categorizedSortOrder)
     throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
     {
     	if(gradebookId == null || categoryId == null)
@@ -282,18 +283,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
     	}
 
-    	return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, null, categorizedSortOrder);
     }
 
     private Long createNewAssignment(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
-            final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
+            final Boolean isReleased, final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder) 
+                    throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
-        final GradebookAssignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        final GradebookAssignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit, sortOrder, categorizedSortOrder);
 
         return saveNewAssignment(gradebookId, categoryId, asn);
     }
 
-    private GradebookAssignment prepareNewAssignment(final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit)
+    private GradebookAssignment prepareNewAssignment(final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, 
+            final Boolean isExtraCredit, final Integer sortOrder, final Integer categorizedSortOrder)
     {
         final String validatedName = StringUtils.trimToNull(name);
         if (validatedName == null){
@@ -319,6 +322,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         if (isReleased != null)
         {
             asn.setReleased(isReleased.booleanValue());
+        }
+        if (sortOrder != null)
+        {
+            asn.setSortOrder(sortOrder);
+        }
+        if (categorizedSortOrder != null)
+        {
+            asn.setCategorizedSortOrder(categorizedSortOrder);
         }
 
         return asn;
