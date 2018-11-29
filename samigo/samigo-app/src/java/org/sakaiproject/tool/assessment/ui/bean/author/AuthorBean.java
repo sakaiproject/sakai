@@ -684,8 +684,8 @@ public class AuthorBean implements Serializable
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
-	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
-	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
+      boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
+      boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
 	  pendingActionList1.add(new SelectItem("select", com.getString("action_select")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
@@ -717,8 +717,8 @@ public class AuthorBean implements Serializable
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
-	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
-	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
+      boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
+      boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
 	  pendingActionList2.add(new SelectItem("select", com.getString("action_select")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {

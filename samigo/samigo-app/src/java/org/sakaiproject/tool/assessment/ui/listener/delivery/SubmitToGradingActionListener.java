@@ -317,9 +317,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		while (iter.hasNext()) {
 			SectionContentsBean part = iter.next();
 			log.debug("****1c. inside submitToGradingService, part " + part);
-			Iterator<ItemContentsBean> iter2 = part.getItemContents().iterator();
-			while (iter2.hasNext()) { // go through each item from form
-				ItemContentsBean item = iter2.next();
+			for (ItemContentsBean item : part.getItemContents()) { // go through each item from form
 				log.debug("****** before prepareItemGradingPerItem");
 				prepareItemGradingPerItem(ae, delivery, item, adds, removes);
 				log.debug("****** after prepareItemGradingPerItem");
@@ -333,13 +331,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 		StringBuilder redrawAnchorName = new StringBuilder("p");
 		String tmpAnchorName = "";
 
-		Iterator<SectionContentsBean> iterPart = delivery.getPageContents().getPartsContents().iterator();
-		while (iterPart.hasNext()) {
-			SectionContentsBean part = iterPart.next();
+		for (SectionContentsBean part : delivery.getPageContents().getPartsContents()) {
 			String partSeq = part.getNumber();
-			Iterator<ItemContentsBean> iterItem = part.getItemContents().iterator();
-			while (iterItem.hasNext()) { // go through each item from form
-				ItemContentsBean item = iterItem.next();
+			for (ItemContentsBean item : part.getItemContents()) { // go through each item from form
 				String itemSeq = item.getSequence();
 				Long itemId = item.getItemData().getItemId();
 				if (item.getItemData().getTypeId() == 5) {
@@ -351,12 +345,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 						if (tmpAnchorName.equals("") || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
 							tmpAnchorName = redrawAnchorName.toString();
 						}
-					}
-					else {
+					} else {
 						item.setIsInvalidSALengthInput(false);
 					}
-				}
-				else if (item.getItemData().getTypeId() == 11) {
+				} else if (item.getItemData().getTypeId() == 11) {
 					if (invalidFINMap.containsKey(itemId)) {
 						item.setIsInvalidFinInput(true);
 						redrawAnchorName.append(partSeq);
@@ -367,9 +359,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						}
 						List list = (List) invalidFINMap.get(itemId);
 						List<FinBean> finArray = item.getFinArray();
-						Iterator<FinBean> iterFin = finArray.iterator();
-						while (iterFin.hasNext()) {
-							FinBean finBean = iterFin.next();
+						for (FinBean finBean : finArray) {
 							if (finBean.getItemGradingData() != null) {
 								Long itemGradingId = finBean.getItemGradingData().getItemGradingId();
 								if (list.contains(itemGradingId)) {
@@ -377,8 +367,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 								}
 							}
 						}
-					}
-					else {
+					} else {
 						item.setIsInvalidFinInput(false);
 					}
 				}

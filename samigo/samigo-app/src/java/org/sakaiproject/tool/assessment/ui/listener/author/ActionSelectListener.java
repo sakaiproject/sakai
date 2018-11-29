@@ -60,8 +60,8 @@ public class ActionSelectListener implements ValueChangeListener {
 		String publishedID = ContextUtil.lookupParam( "publishedId" );
 		log.debug("**** ae.getNewValue : " + newValue);
 
-		
 		if ("edit_pending".equals(newValue)) {
+			author.setIsEditPendingAssessmentFlow(true);
 			EditAssessmentListener editAssessmentListener = new EditAssessmentListener();
 			editAssessmentListener.processAction(null);
 			author.setFirstFromPage("editAssessment");

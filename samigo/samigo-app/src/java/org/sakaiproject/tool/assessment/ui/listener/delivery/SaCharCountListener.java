@@ -51,20 +51,14 @@ public class SaCharCountListener implements ActionListener
 			delivery.setShowTimeWarning(false);
 		}
 		
-		Iterator iter = delivery.getPageContents().getPartsContents().iterator();
-		while (iter.hasNext()) {
-			SectionContentsBean part = (SectionContentsBean) iter.next();
+		for (SectionContentsBean part : delivery.getPageContents().getPartsContents()) {
 			String partSeq = part.getNumber();
 			redrawAnchorName.append(partSeq);
-			Iterator iter2 = part.getItemContents().iterator();
-			while (iter2.hasNext()) {
-				ItemContentsBean item = (ItemContentsBean) iter2.next();
+			for (ItemContentsBean item : part.getItemContents()) {
 				ItemDataIfc itemData = item.getItemData();
 				List<ItemGradingData> itemGradingDataArray = item.getItemGradingDataArray();
-				if (itemGradingDataArray != null && itemGradingDataArray.size() != 0) {
-					Iterator<ItemGradingData> iter3 = itemGradingDataArray.iterator();
-					while (iter3.hasNext()) {
-						ItemGradingData itemGrading = iter3.next();
+				if (itemGradingDataArray != null && !itemGradingDataArray.isEmpty()) {
+					for (ItemGradingData itemGrading : itemGradingDataArray) {
 						if (itemData != null) {
 							if (itemId.equals(itemData.getItemIdString()) && itemGrading.getAnswerText() != null) {
 								if (itemGrading.getAnswerText() != null) {
