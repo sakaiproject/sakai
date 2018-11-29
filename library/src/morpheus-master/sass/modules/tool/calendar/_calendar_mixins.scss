@@ -1,0 +1,10 @@
+@mixin eventIndicator() {
+	// include this mixin in an ::after with content:"";
+	position: absolute;
+	left: calc(50% - 2px);		// perfect centering: 50% minus half the width
+	bottom: 6px;
+	width: 4px;
+	height: 4px;
+	border-radius: 2px;			// half the width to make a circle/dot
+	background-color: $calendar-event-indicator-color;
+}

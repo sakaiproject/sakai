@@ -59,15 +59,16 @@
             <fo:page-sequence master-reference="mmschedule">
 
                 <fo:static-content flow-name="xsl-region-before">
-                    <fo:block font-size="18pt"
+                    <fo:block font-size="12pt"
                               font-family="DejaVuSans"
+                              font-weight="bold"
                               line-height="1cm"
                               space-after.optimum="1pt"
                               color="black"
                               text-align="center"
                               padding-top="0pt">
                         <xsl:value-of select="$sched"/>
-                        <xsl:text></xsl:text>
+                        <xsl:text> </xsl:text>
                         <xsl:value-of select="schedule/uid"/>
                         -
                         <xsl:call-template name="prMonth">
@@ -361,7 +362,7 @@
             </xsl:when>
             <xsl:otherwise></xsl:otherwise>
         </xsl:choose>
-        <xsl:text></xsl:text>
+        <xsl:text> </xsl:text>
         <xsl:value-of select="$yyyy"/>
     </xsl:template>
 </xsl:stylesheet>

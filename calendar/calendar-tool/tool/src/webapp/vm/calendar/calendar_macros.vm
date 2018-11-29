@@ -1,0 +1,40 @@
+## Macros for Calendar ##
+
+## Macro to create the Calendar View picker (to switch between Day, Week, Month, Year, List calendar views)
+#macro(calendarView)
+<!-- drop down menu for different views -->
+<form name="viewForm" method="post" action="#toolForm("CalendarAction")">
+	<div class="sakai-table-viewFilter">
+		<input type="hidden" name="eventSubmit_doView" value="view" />
+		<label for="view">$tlang.getString("view.view")</label>
+		<span class="skip">$tlang.getString("view.listnavselect")</span>
+		<select name="view" id="view" size="1" onchange="document.viewForm.submit();">
+			#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+				#if ($selectedView.equals($view))
+					<option value="$view" selected="selected" >$view</option>
+				#else
+					<option value="$view" >$view</option>
+				#end
+			#end
+		</select>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	<form name="defaultViewForm" method="post" action="#toolForm("CalendarAction")">
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="submit" name="eventSubmit_doDefaultview" value="$tlang.getString('java.default_view')" #if ($isDefaultView) disabled="disabled" #end />
+	</div>
+</form>
+#end ## end of calendarView macro
+
+
+## Macro for displaying the legend about event types
+#macro(calendarLegend)
+<div class="calendarEventTypesLegend">
+	<h2>$tlang.getString('view.legend')</h2>
+	<ul class="calendarLegend">
+		#foreach ($key in $iconsAndLocalizedEventTypes.keySet())
+			<li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
+		#end
+	</ul>
+</div>
+#end ## end of calendarLegend macro

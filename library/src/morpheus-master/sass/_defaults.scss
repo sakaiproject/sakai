@@ -5,9 +5,11 @@
 $namespace : "Mrphs-" !default;
 $skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
 
-$break-small-end: 	800px !default;
-$break-medium-end: 	1030px !default;
+$break-tiny-end:	400px;
+$break-small-end: 	800px;
+$break-medium-end: 	1030px;
 
+$smallPhone:    "only screen and (max-width : #{$break-tiny-end})";
 $phone  :       "only screen and (max-width : #{$break-small-end})" !default;
 $tablet :       "only screen and (max-width : #{$break-medium-end})" !default;
 $desktop:       "only screen and (min-width : #{$break-medium-end + 1})" !default;
@@ -27,8 +29,9 @@ $font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,500,700
 //Typography variables
 $font-family: "Open Sans",sans-serif;
 $default-font-size: 14px !default;
-$default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-font-size-small: 12px;
+$default-font-weight: 400 !default;										// 400 or 700 as you wish
+$default-line-height: 1.42857;											// 20px / 14px = 1.42857
 $header-font-family: $font-family;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 

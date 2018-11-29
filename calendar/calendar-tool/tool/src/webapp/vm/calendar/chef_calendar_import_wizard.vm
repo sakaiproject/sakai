@@ -1,7 +1,7 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_import_wizard.vm,v 1.5 2005/06/03 15:22:28 gsilver.umich.edu Exp $
 
 <script type="text/javascript">
-  focus_path = [ "textfield" ];
+	focus_path = [ "textfield" ];
 </script>
 <div class="portletBody"> 
 	#if($menu)#toolbar($menu)#end
@@ -10,26 +10,26 @@
 	</div>
 	<p class="step">
 		#if ($importWizardState == "SELECT_TYPE")
-		$tlang.getString("imp.step1")
+			$tlang.getString("imp.step1")
 		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
-		$tlang.getString("imp.step2")
-		#elseif ($importWizardState == "OTHER_SELECT_FILE")
-		$tlang.getString("imp.step2b")		
+			$tlang.getString("imp.step2")
+		#elseif ($importWizardState == "OTHER_SELECT_FILE" || $importWizardState == "ICAL_SELECT_FILE")
+			$tlang.getString("imp.step2b")
 		#elseif ($importWizardState == "CONFIRM_IMPORT")
-		$tlang.getString("imp.step3")		
+			$tlang.getString("imp.step3")
 		#end
 	</p>
 		<script type="text/javascript"> var a = document.MyCalendar; </script>
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 		#if ($importWizardState == "SELECT_TYPE")
-			<h4>$tlang.getString("imp.select")</h4>
+			<h2>$tlang.getString("imp.select")</h2>
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
-      			<p class="instruction">$tlang.getString("imp.mm.outlook")<br />
-      			$tlang.getString("import.outlook.note")<br />
+			<p class="sak-banner-info">$tlang.getString("imp.mm.outlook")<br />
+			$tlang.getString("import.outlook.note")<br />
 
 		#elseif ($importWizardState == "ICAL_SELECT_FILE")
-      			<p class="instruction">$tlang.getString("imp.ical.todo")<br />
-      
+			<p class="sak-banner-warn">$tlang.getString("imp.ical.todo")<br />
+
 		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
 			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
 				<a href="#scheduleLink("CalendarTemplate.zip")" title="CalendarTemplate.zip" target="_blank">
@@ -38,7 +38,7 @@
 				</a><br /><br />
 			</p>	
 			<p class="instruction">$tlang.getString("imp.when")</p>
-			                                                                                                                                             
+
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
 ##			$tlang.getString("imp.browse")
 		#elseif ($importWizardState == "CONFIRM_IMPORT")
@@ -48,12 +48,12 @@
 	#if ($importWizardState == "SELECT_TYPE")
 		<form name="Options" action="#toolForm("$action")" method="post">
 			<p class="checkbox">
-				<input type="radio" name="importType" id="importType_Outlook" value="Outlook" /><label for="importType_Outlook">$tlang.getString("imp.micro")</label><br />
-				<input type="radio" name="importType" id="importType_MeetingMaker" value="MeetingMaker" /><label for="importType_MeetingMaker">$tlang.getString("imp.mmaker")</label><br />
-            #if ($icalEnable == "true")
+				<input type="radio" name="importType" id="importType_Generic" value="CSV" checked="checked" /><label for="importType_Generic">$tlang.getString("imp.gcalendar")</label><br/>
+			#if ($icalEnable == "true")
 				<input type="radio" name="importType" id="importType_Icalendar" value="Icalendar" /><label for="importType_Icalendar">$tlang.getString("imp.ical")</label><br />
-            #end
-				<input type="radio" name="importType" id="importType_Generic" value="CSV" checked="checked" /><label for="importType_Generic">$tlang.getString("imp.gcalendar")</label><br />
+			#end
+				<input type="radio" name="importType" id="importType_MeetingMaker" value="MeetingMaker" /><label for="importType_MeetingMaker">$tlang.getString("imp.mmaker")</label><br />
+				<input type="radio" name="importType" id="importType_Outlook" value="Outlook" /><label for="importType_Outlook">$tlang.getString("imp.micro")</label>
 			</p>
 			<p class="act">
 				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"  accesskey="s" />
@@ -91,7 +91,7 @@
 					</tr>
 
 				#foreach($impEvent in $wizardImportedEvents)
-				  <tr>
+				<tr>
 					<td nowrap="nowrap" >$impEvent.getDisplayStartDate()</td>
 					<td nowrap="nowrap" >
 						<label for="eventSelected$impEvent.getLineNumber()">
@@ -100,12 +100,11 @@
 							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
 						</label>
 					</td>
-										<td nowrap="nowrap" ><span class="skip">$tlang.getString("imp.keep")</span><input name="eventSelected$impEvent.getLineNumber()" class="CheckAll"id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
-				  </tr>
+					<td nowrap="nowrap" ><span class="skip">$tlang.getString("imp.keep")</span><input name="eventSelected$impEvent.getLineNumber()" class="CheckAll"id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
+				</tr>
 				#end
 				</table>
-				<br />
-				
+
 ## Section awareness
 #if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
 #if ($show_group =="false")
@@ -150,28 +149,8 @@
 				<th id ="selectAllGroups" class="attach">
 					<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
 				</th>
-		 		<th id ="groupname">
-					#if (!$currentSortedBy.equals("grouptitle"))
-						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title")</a>
-					#else
-						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.titlesortasc")" /></a>
-						#else
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.titlesortdesc")" /></a>
-						#end
-					#end
-				</th>
-				<th id ="groupdescription">
-					#if (!$currentSortedBy.equals("groupdescription"))
-						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr")</a>
-					#else
-						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.descrsortasc")" /></a>
-						#else
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.descrsortdesc")" /></a>
-						#end
-					#end
-				</th>
+		 		<th id ="groupname">$tlang.getString("group.list.title")</th>
+				<th id ="groupdescription">$tlang.getString("group.list.descr")</th>
 			</tr>
 			#foreach ($group in $!groups)
 				<tr>

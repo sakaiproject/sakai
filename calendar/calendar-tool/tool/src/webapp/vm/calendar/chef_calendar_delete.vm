@@ -11,13 +11,15 @@
 </script>
 
 <div class="portletBody">
-	<h3>
-		$tlang.getString("del.deleting")
-	</h3>
+	<div class="page-header">
+		<h1>
+			$tlang.getString("del.deleting")
+		</h1>
+	</div>
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 	#end
-	<div class="sak-banner-error">$tlang.getString("del.sure")</div><
+	<div class="sak-banner-warn">$tlang.getString("del.sure")</div>
 	<form name="deleteTemplateForm" action="#toolForm("$action")" method="post">
 		<table class="itemSummary" cellspacing="0">
 			<tr>

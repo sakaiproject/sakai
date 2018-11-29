@@ -7,14 +7,14 @@
 	</div>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
-		<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
 	#end
 
-	<form name="Options" action="#toolForm("$action")" method="post" class="indnt1">
+	<form name="Options" action="#toolForm("$action")" method="post">
 	
 		#if ($institutionalSubscriptionsAvailable)
 			<br/>
-			<h4>$tlang.getString('subs.institutional')</h4>
+			<h2>$tlang.getString('subs.institutional')</h2>
 			<div class="instruction">
 				$tlang.getString('subs.institutional.instruction')
 				<ul>
@@ -47,34 +47,22 @@
 					#end
 				</table>
 		#end
-	
-		<br/>
-		<h4>$tlang.getString('subs.user')</h4>
 		<p class="instruction">
 			$tlang.getString('subs.user.instruction')
 		</p>
-			<table style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.user.instruction')">
-				<tr>
-					<td><label for="calendarName">$tlang.getString('subs.calendar.name'):</label></td>
-					<td>
-						<span class="shorttext">
-							<input type="text" name="calendarName" id="calendarName" maxlength="20" size="20" />
-						</span>
-					</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td><label for="calendarUrl">$tlang.getString('subs.calendar.url'):</label></td>
-					<td>
-						<span class="shorttext">
-							<input type="text" name="calendarUrl" id="calendarUrl" size="20" />
-						</span>
-					</td>
-					<td>
-						<span class="act"><input type="submit" name="eventSubmit_doAddSubscription" value="$tlang.getString('subs.calendar.subscribe')" /></span>
-					</td>
-				</tr>
-			</table>
+
+		<p class="shorttext">
+			<label for="calendarName">$tlang.getString('subs.calendar.name'):</label>
+			<input type="text" name="calendarName" id="calendarName" maxlength="20" size="20" />
+		</p>
+		
+		<p class="shorttext">
+			<label for="calendarUrl">$tlang.getString('subs.calendar.url'):</label>
+			<input type="text" name="calendarUrl" id="calendarUrl" size="20" />
+		</p>
+		<p><input type="submit" name="eventSubmit_doAddSubscription" value="$tlang.getString('subs.calendar.subscribe')" /></p>
+
+		#if (! $userSubscriptionsCollection.isEmpty())
 			<table class="listHier lines nolines" style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.user.summary')">
 				<tr> 
 					<th scope="col" id="subscriptionName">$tlang.getString('subs.calendar.name')</th>
@@ -99,7 +87,7 @@
 					#end
 				#end
 			</table>
-
+		#end
 
 		<p class="act">
 				<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString('gen.save')" accesskey="s" />

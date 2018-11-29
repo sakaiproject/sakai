@@ -7,12 +7,12 @@
 	<p class="instruction">
 		$tlang.getString('ical_opaqueurl_explanation')
 	</p>
-	<p class = "instruction">
+	<p class = "sak-banner-info">
 		$icalInfoStr
 	</p>
 	#if (!$isMyWorkspace)
-		<p class="instruction">
-			<em>$tlang.getString('ical_opaqueurl_myworkspace')</em>
+		<p class="sak-banner-info">
+			$tlang.getString('ical_opaqueurl_myworkspace')
 		</p>
 	#end
 	<form action="#toolForm($action)" method="post">

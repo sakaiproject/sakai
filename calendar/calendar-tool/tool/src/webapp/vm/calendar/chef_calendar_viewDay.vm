@@ -1,66 +1,43 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewDay.vm,v 1.10 2005/06/14 20:11:56 suiyy.umich.edu Exp $ -->
-
 <div class="portletBody">
 #if($menu)#toolbar($menu)#end
 
-		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
-
-		<div class="page-header">
-			<h1>$tlang.getString("view.calday")</h1>
+	<div class="page-header">
+		<h1>$tlang.getString("view.calday")</h1>
+		<div class="sakai-sideHeading">
+			<a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
 		</div>
-		<div class="alertPanel">
-			<div class="viewNav">
-				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
-					<input type="hidden" name="eventSubmit_doView" value="view" />
-					<label for="view">$tlang.getString("view.view")</label>
-					<span class="skip">$tlang.getString("view.listnavselect")</span>
-					<select name="view" id="view" size="1" tabindex="3" onchange="document.viewForm.submit();">
-					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
-						#if ($selectedView.equals($view))
-								<option value="$view" selected="selected" >$view</option>
-							#else
-								<option value="$view" >$view</option>
-							#end
-						#end
-					</select>
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			</div>
-			<div class="listNav">
-				<div class="instruction">
-					$today $timezone</div>
-				
-				#set($isToday = false)
-				#if ($date.Year == $todayYear)
-					#if ($monthInt == $todayMonth)
-						#if ($date.Day == $todayDay)
-							#set($isToday = true)
-						#end
-					#end
-				#end
+	</div>
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	<div class="sakai-table-toolBar">
+		<div class="sakai-table-filterContainer">
+			#calendarView()
+		</div>
+		<div class="sakai-table-pagerContainer">
+			<div class="sakai-table-pagerLabel">$today $timezone</div>
+				#set($isToday = ( ($date.Year == $todayYear) && ($monthInt == $todayMonth) && ($date.Day == $todayDay) ))
 				<form name="dayform" action="#toolForm("$action")" method="post">
 					<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('view.lasday')" title="$tlang.getString('view.gotopd')" />
 					<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" #if ($isToday) disabled="disabled" #end />
 					<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('view.nexday')" title="$tlang.getString('view.goto')" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-			</div>
-		</div>	
-<div class="clear"></div>
-			#toolbar($menu_PDF)
+		</div>
+	</div>	
+
 		<div class="viewLinkControl">	
 			#if ($page== "first")
-				<a href="#" onclick="location='#toolLink("$action" "doPreday")';return false;" title="$tlang.getString('view.goearlier')">
+				<button onclick="location='#toolLink("$action" "doPreday")';return false;" title="$tlang.getString('view.goearlier')">
 				$tlang.getString("view.yesterday")
 			#else
-				<a href="#" onclick="location='#toolLink("$action" "doDpagep")';return false;" title="$tlang.getString('view.goearlier')">
+				<button onclick="location='#toolLink("$action" "doDpagep")';return false;" title="$tlang.getString('view.goearlier')">
 				$tlang.getString("view.before")
 			#end
-			</a>
-		</div>	
+			</button>
+		</div>
 
-<table width="100%" cellspacing="0" cellpadding="2" class="calendar" summary="$tlang.getString("view.summary")">
-<!-- 1 section : every half an hour-->                                                                              
+<table class="calendar calendar-day" summary="$tlang.getString("view.summary")">
+<!-- 1 section : every half an hour-->
 #set($section = 1)
 #set($v = 250)
 #set ($colspan = 1)
@@ -78,15 +55,15 @@
 #end
 
 #foreach($nx in [0..$numberOfSections])
-    #set($m = $date.getEventsBerDay($nx))
+    #set($m = $date.getEventsPerDay($nx))
     #if ($m.size() > $colspan) #set ($colspan = $m.size()) #end
 #end
-#set ($v = 95 / $colspan )
+#set ($v = 90 / $colspan )
 
 #foreach($nx in [0..$numberOfSections])
-    #set($m = $date.getEventsBerDay($nx))
+    #set($m = $date.getEventsPerDay($nx))
 
-    <tr align="left" valign="top" bgcolor="#FFFFFF">
+    <tr>
     #if ($section == 1)
         #set($section = 2)
         
@@ -94,7 +71,7 @@
         #set($temp2 = $timer % 24)
         #set($timer = $temp2 % 12)
 
-        <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
+        <th class="borderWhite timeCells" rowspan="2" scope="row">
         #foreach ($format in $timeFormat)
             #if ($format == "h")
                 #if ($timer == 0) #set($timer=12) #end
@@ -113,7 +90,7 @@
         #set($timer = $timer + 1)
         #if($m.isEmpty())
             #foreach($left in [1..$colspan])
-                <td  width="$v" class="borderGrayDayWeek">&nbsp;</td>
+                <td  width="$v%" class="borderGrayDay">&nbsp;</td>
             #end
         #else
             #set($counter = 0)
@@ -121,16 +98,13 @@
                 #set($recounter = $colspan)
                 #if($counter<$colspan)
                     #if($x.getFlag() == false) ##if the title exists
-                        #if ($x.getEvent().getRange().isSingleTime())
-                            <td width="$v%" class="borderTopLeft">
-                        #else
-                            ##<td width="$v%" bgcolor="#FFFF99" class="borderTopLeft">
-                            <td width="$v%" class="borderTopLeft">
-                        #end
-                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" 
-                           title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
-                            <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())" ></span>
-                                $validator.escapeHtml($x.getEvent().getDisplayName())</a>
+                    #determineRowspan()
+                        <td width="$v%" class="borderTopLeft" rowspan="$rowspan">
+                            <div class="calendarDayView-event">
+                                <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")" 
+                                title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
+                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())" ></span>$validator.escapeHtml($x.getEvent().getDisplayName())</a>
+                            </div>
                         </td> 
                         #set($counter = $counter +1)
                     #else
@@ -139,8 +113,7 @@
                         #if($x== "")
                         <td width="$v%" class="borderTopLeftWhite">&nbsp;</td>
                         #else
-                        ##<td width="$v%" bgcolor="#FFFF99" class="borderOnlyLeftDay">&nbsp;</td>
-                        <td width="$v%"  class="borderOnlyLeftDay">&nbsp;</td>
+                            ## don't display cells because of rowspan
                         #end
                         #set($counter = $counter +1)
                     #end
@@ -166,32 +139,27 @@
             #foreach($x in $m)
                 #if($counter<$colspan)
                     #if($x.getFlag() == false)
+                        #determineRowspan()
                         #if($x== "")
                             <td width="$v%" class="borderTopLeftWhite">&nbsp;</td>
                         #else
-                            #if ($x.getEvent().getRange().isSingleTime())
-                                    <td width="$v%" class="borderTopLeft">
-                            #else
-                                    ##<td width="$v%" bgcolor="#FFFF99" class="borderTopLeft">
-                                    <td width="$v%" class="borderTopLeft">
-                            #end
+                            <td width="$v%" class="borderTopLeft" rowspan="$rowspan">
+                            <div class="calendarDayView-event">
                             <a href="#" 
                                onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($x.getEvent().getReference())")';return false;" 
                                title="$x.getEvent().getDisplayName() - $validator.escapeHtml($x.getEvent().getSiteName())">
-                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())"></span>
-                                    $validator.escapeHtml($x.getEvent().getDisplayName())
-                            </a>
+                                <span class="icon $eventIconMap.get($x.getEvent().getType())" title="$localizedEventTypes.get($x.getEvent().getType())"></span>$validator.escapeHtml($x.getEvent().getDisplayName())
+                            </a></div>
                             </td>
                         #end
                         #set($counter = $counter +1)
                     #else
-                            #if($x== "")
-                                <td width="$v%" class="borderTopLeftWhite">&nbsp;</td>
-                            #else
-                                ##<td width="$v%" bgcolor="#FFFF99" class="borderOnlyLeftDay">&nbsp;</td>
-                                <td width="$v%"  class="borderOnlyLeftDay">&nbsp;</td>
-                            #end
-                            #set($counter = $counter +1)
+                        #if($x== "")
+                            <td width="$v%" class="borderTopLeftWhite">&nbsp;</td>
+                        #else
+                            ## don't display cells because of rowspan
+                        #end
+                        #set($counter = $counter +1)
                     #end
                 #end
             #end
@@ -210,24 +178,34 @@
 </table>
 <div class="viewLinkControl">
 	#if ($page== "first")
-		<a href="#toolLink("$action" "doDpagen")" title="$tlang.getString('view.golater')">
-		$tlang.getString('view.after')</a>
+		<button onclick="location='#toolLink("$action" "doDpagen")';return false;" title="$tlang.getString('view.golater')">
+		$tlang.getString('view.after')</button>
 	#else
 		#if($page== "second")
-			<a href="#toolLink("$action" "doDpagen")" title="$tlang.getString('view.golater')">
-			$tlang.getString('view.after')</a>
+			<button onclick="location='#toolLink("$action" "doDpagen")';return false;" title="$tlang.getString('view.golater')">
+			$tlang.getString('view.after')</button>
 		#else ## --third page
-			<a href="#" onclick="location='#toolLink("$action" "doNextday")';return false;" title="$tlang.getString('view.golater')">
-			$tlang.getString('view.tomorrow')</a>
+			<button onclick="location='#toolLink("$action" "doNextday")';return false;" title="$tlang.getString('view.golater')">
+			$tlang.getString('view.tomorrow')</button>
 		#end
 	#end
 </div>	
 
-<h4>$tlang.getString('view.legend')</h4>
-<ul class="calendarLegend">
-    #foreach ($key in $iconsAndLocalizedEventTypes.keySet())
-        <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
-    #end
-</ul>
-<div class="clear"></div>
+## include the Legend:
+#calendarLegend()
+
 </div>
+
+#macro (determineRowspan) 
+    #set($rowspan = 1)
+    #set($range = $x.getEvent().getRange())
+    #if($range)
+        #set($duration = $x.getEvent().getRange().duration())
+        #if($duration)
+            #set($rowspan = (($duration / 1000 / 60) + 29) / 30) ## duration in millisecond converted to seconds then to minutes then to half-hour blocks; adds almost one block to ceiling it for a full cell for partial half-hour blocks (e.g. an 80-minute meeting equals three full blocks)
+            #if($rowspan == 0)
+                #set($rowspan = 1)
+            #end
+        #end
+    #end
+#end    ## end of #determineRowspan() macro

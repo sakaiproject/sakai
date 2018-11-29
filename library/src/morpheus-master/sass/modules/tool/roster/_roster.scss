@@ -57,7 +57,7 @@
             }
 
             /* override breakpoint inherited from _table.scss */
-            @media all and (max-width: 400px) {
+            @media #{$smallPhone} {
                 .sakai-table-viewFilter {
                     @include align-items(center);
 

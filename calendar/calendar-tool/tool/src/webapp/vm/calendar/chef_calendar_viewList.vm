@@ -13,31 +13,21 @@
 
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 	#set ($counter = 1 )
-	<div class="navPanel">
-		<div class="viewNav">
-			<div class="shorttext">
-				<form name="viewForm" class="inlineForm" action="#toolForm("$action")" method="post">
-					<input type="hidden" name="eventSubmit_doView" value="view" />
-					<label for="view">$tlang.getString('view.view')</label>
-					<select name="view" size="1"  onchange="document.viewForm.submit();" id="view">
-						#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
-							#if ($selectedView.equals($view))
-								<option value="$view" selected="selected" >$view</option>
-							#else
-								<option value="$view" >$view</option>
-							#end
-						#end
-					</select>
-					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			</div>	
-			<div class="shorttext">
-				<form name="listform2" class="inlineForm" method="post" action="#toolForm("$action")">
-					<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
+	<div class="page-header">
+		<h1>$tlang.getString("view.calList")</h1>
+		<div class="sakai-sideHeading">
+			<a href="$printableVersionUrl" title="$!tlang.getString('java.print')" target="_blank" rel="noreferrer">$!tlang.getString('java.print')</a>
+		</div>
+	</div>
+	#if ($alertMessage)<div class="sak-banner-warn">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	<div class="sakai-table-toolBar">
+		<div class="sakai-table-filterContainer">
+			#calendarView()
+			<form name="listform2" class="showListOfEvents" method="post" action="#toolForm("$action")">
+				<div class="sakai-table-viewFilter">
 					<label for="timeFilterOption">$tlang.getString('view.show')</label>
-					<select name="timeFilterOption" onchange="document.listform2.submit();" id="timeFilterOption">
+					<select name="timeFilterOption" id="timeFilterOption">
 						<option value="SHOW_FUTURE" #if ($timeFilterOption == "SHOW_FUTURE") selected="selected" #end >$tlang.getString('view.future')</option>
 						<option value="SHOW_ALL" #if ($timeFilterOption == "SHOW_ALL") selected="selected" #end >$tlang.getString('view.all')</option>
 						<option value="SHOW_DAY" #if ($timeFilterOption == "SHOW_DAY") selected="selected" #end >$tlang.getString('view.activ')</option>
@@ -47,11 +37,12 @@
 						<option value="SHOW_CUSTOM_RANGE" #if ($timeFilterOption == "SHOW_CUSTOM_RANGE") selected="selected" #end >$tlang.getString('view.custom')</option>
 					</select>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-				</form>
-			</div>	
+					<input type="submit" name="eventSubmit_doFilter" value="$tlang.getString('viewl.update')" />
+				</div>
+			</form>
 			#if ($timeFilterOption == "SHOW_CUSTOM_RANGE")
-				<form name="listform1" method="post" action="#toolForm("$action")">
-					<div class="shorttext">
+				<form name="listform1" class="customDateRange" method="post" action="#toolForm("$action")">
+					<div class="sakai-table-viewFilter">
 						<label for="customStartMonth">$tlang.getString('viewl.st')</label>
 						<input type="text" id="customStartDate" name="customStartDate" class="datepicker" value="">
 						<script type="text/javascript">
@@ -68,49 +59,38 @@
 							});
 						</script>
 					</div>	
-					<div class="shorttext">
-					<label for="customEndMonth">$tlang.getString('viewl.ed')&nbsp;</label>
-					<input type="text" id="customEndDate" name="customEndDate" class="datepicker" value="">
-					<script type="text/javascript">
-						localDatePicker({
-							input:'#customEndDate',
-							useTime:0,
-							val:"$customEndYear$H$customEndMonth$H$customEndDay",
-							parseFormat: 'YYYY-MM-DD',
-							ashidden:{
-								month:"customEndMonth",
-								day:"customEndDay",
-								year:"customEndYear"
-							}
-						});
-					</script>
-				</div>	
-				<p class="labelindnt">	<input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
+					<div class="sakai-table-viewFilter">
+						<label for="customEndMonth">$tlang.getString('viewl.ed')</label>
+						<input type="text" id="customEndDate" name="customEndDate" class="datepicker" value="">
+						<script type="text/javascript">
+							localDatePicker({
+								input:'#customEndDate',
+								useTime:0,
+								val:"$customEndYear$H$customEndMonth$H$customEndDay",
+								parseFormat: 'YYYY-MM-DD',
+								ashidden:{
+									month:"customEndMonth",
+									day:"customEndDay",
+									year:"customEndYear"
+								}
+							});
+						</script>
+					</div>	
+					<p class="act"><input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-
 			#end
 		</div>
-		<div class="listNav">
-			<form name="todayForm" action="#toolForm("$action")" method="post">
-				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			</form>
-		</div>
 	</div>
-	<div class="clear"></div>
-	#toolbar($menu_PDF)
-	
 
-
-	#set ($showLegned = "false")
+	#set ($showLegend = "false")
 	<form name="listform" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="source" value="0" />
 
 #* 		Joanne: need a check here - if messages, display, otherwise do not.
 		Not sure what was available in the context to do this. (gsilver) *#
 
-			<table class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0" summary="$tlang.getString('viewl.list.summary')">
+			<table class="calendar-list listHier lines nolines" summary="$tlang.getString('viewl.list.summary')">
 				<tr>
 					<th>
 						#if ($currentDateSortAsc)
@@ -315,38 +295,18 @@
 			<label for="groups">$tlang.getString("displayfrom.selected")</label>
 		</p>	
 		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
-			#set ($listDisplay="block")
+			#set ($listDisplay="table")
 		#else
 			#set ($listDisplay="none")
 		#end
-		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("viewl.group.list.summary")">
+		<table id="groupTable" style="display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("viewl.group.list.summary")">
 		<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 			<tr>
 				<th id ="selectAllGroups" class="attach">
 					<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
 				</th>
-		 		<th id ="groupname">
-					#if (!$currentSortedBy.equals("grouptitle"))
-						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title")</a>
-					#else
-						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortasc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.titlesortasc")" /></a>
-						#else
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortdesc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.titlesortdesc")"/></a>
-						#end
-					#end
-				</th>
-				<th id ="groupdescription">
-					#if (!$currentSortedBy.equals("groupdescription"))
-						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr")</a>
-					#else
-						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortasc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.descrsortasc")" /></a>
-						#else
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortdesc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.descrsortdesc")"/></a>
-						#end
-					#end
-				</th>
+		 		<th id ="groupname">$tlang.getString("group.list.title")</th>
+				<th id ="groupdescription">$tlang.getString("group.list.descr")</th>
 			</tr>
 			#foreach ($group in $!groups)
 				<tr>
@@ -364,7 +324,7 @@
 							$validator.escapeHtml($group.Title)
 						</label>	
 					</td>
-					<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+					<td headers="description">
 						#set($description = "")
 						#set($description = $group.Description)
 						$validator.escapeHtml($!description)
@@ -380,13 +340,7 @@
 
 ## if there is at least one event shown, then the legend should be shown too
 #if ($showLegend == "true")
-	<h4>$tlang.getString('view.legend')</h4>
-	<ul class="calendarLegend">
-		#foreach ($key in $iconsAndLocalizedEventTypes.keySet())
-            <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
-		#end
-	</ul>
-	<div class="clear"></div>
+	#calendarLegend()
 #end
 
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
