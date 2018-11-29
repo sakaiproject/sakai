@@ -3,6 +3,7 @@
 	<tool id="sakai.signup"
 		title="Sign-up"
 		description="For enabling online registration for meetings and other events.">
+		<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 		
 		<!-- <configuration name="functions.require" value="signup.view|signup.view.all" /> -->
 		<configuration name="signup.other.sites.availability" value="default" />

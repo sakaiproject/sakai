@@ -680,7 +680,7 @@ var setupCategTools = function(){
         var msg = $('#removalAlertMessage').val();
         var yesMsg = $('#removalAlertYesMessage').val();
         var noMsg = $('#removalAlertNoMessage').val();
-        $('<li id=\"alertBox\"><span style="padding:10px 2px">' + msg + '</span><span style="padding:10px 2px"><a href=\"#\" id=\"alertBoxYes\">' + yesMsg + '</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">' + noMsg + '</a></span></li>').insertAfter('#' + target);
+        $('<li id=\"alertBox\"><span>' + msg + '</span><span><a href=\"#\" id=\"alertBoxYes\">' + yesMsg + '</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">' + noMsg + '</a></span></li>').insertAfter('#' + target);
 
         $('#alertBox a#alertBoxYes').on('click', function(){
             $(this).closest('li').prev('li').remove();

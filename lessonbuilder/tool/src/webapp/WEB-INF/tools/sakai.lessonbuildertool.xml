@@ -3,6 +3,8 @@
 	<tool id="sakai.lessonbuildertool"
 		title="Lessons"
 		description="[Lessons] For creating content modules and sequences; can be organized by week or unit" >
+		<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
+
 		<category name="course" />
 		<category name="project" />
 		<!-- <category name="myworkspace" /> -->

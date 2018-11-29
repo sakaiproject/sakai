@@ -6,6 +6,7 @@
 			id="sakai.siteinfo"
 			title="Site Info"
 			description="For showing worksite information and site participants.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<!-- types are seperated by , don't forget to put corresponding type_categories.xml into the reg folder-->
 		<configuration name="siteTypes" value="course,project" />
