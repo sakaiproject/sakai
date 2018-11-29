@@ -313,29 +313,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 
 		try
 		{
-//for 2.3
-//			Site site = siteService.getSite(ref.getContext());
-//			Collection groups = site.getGroups();
-//
-//			if ((securityService.isSuperUser()))
-//			{
-//				return groups;
-//			}
-//
-//			Collection groupRefs = new Vector();
-//			for (Iterator i = groups.iterator(); i.hasNext();)
-//			{
-//				Group group = (Group) i.next();
-//				groupRefs.add(group.getReference());
-//			}
-//		
-//			for (Iterator i = groups.iterator(); i.hasNext();)
-//			{
-//				Group group = (Group) i.next();
-//				rv.add(group);
-//			}
-//			
-//			ref.addSiteContextAuthzGroup(rv);
 			if (SYLLABUS.equals(ref.getSubType()))
 			{
 				rv.add(ref.getReference());
@@ -546,19 +523,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                         if (syElement.getTagName().equals(SYLLABUS))
                         {
                           //create a page and all syllabus tool to the page
-//sakai2                          String page = addSyllabusToolToPage(siteId,pageElement
-//                              .getAttribute(PAGE_NAME));
-//                          SyllabusItem syllabusItem = syllabusManager
-//                          .createSyllabusItem(UserDirectoryService
-//                              .getCurrentUser().getId(), page, syElement
-//                              .getAttribute(SYLLABUS_REDIRECT_URL));
                           String page = addSyllabusToolToPage(siteId,siteElement
                             .getAttribute(SITE_NAME));
-//sakai2                          SyllabusItem syllabusItem = syllabusManager
-//                          .createSyllabusItem(UserDirectoryService
-//                              .getCurrentUser().getId(), page, syElement
-//                              .getAttribute(SYLLABUS_REDIRECT_URL));
-//sakai2 add--
                           SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(page);
                           if(syllabusItem == null)
                           {
@@ -1394,7 +1360,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();	  	
 
 			try
-			{				
+			{
 				String toSiteId = toContext;
 
 				SyllabusItem fromSyllabusItem = syllabusManager.getSyllabusItemByContextId(toSiteId);
@@ -1467,13 +1433,13 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 							syllabusManager.saveSyllabus(fromSyllabusData);
 						}
 					}
-				}				
+				}
 			}
 			catch (Exception e)
 			{
 				log.debug("Syllabus updateEntityReferences failed" + e);
 			}
-		}		  		  		
+		}
 	}
 	
 }

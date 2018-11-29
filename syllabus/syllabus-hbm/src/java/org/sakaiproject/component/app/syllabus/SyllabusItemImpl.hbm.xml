@@ -31,7 +31,7 @@
         </property>
 
         <set name="syllabi" lazy="true" sort="natural"
-             order-by="position_c asc" cascade="all-delete-orphan" batch-size="50">
+             order-by="position_c asc" cascade="all" batch-size="50">
             <key column="surrogateKey"/>                        
             <one-to-many class="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"/>            
         </set>                

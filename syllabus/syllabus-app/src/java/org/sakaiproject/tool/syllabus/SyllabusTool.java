@@ -1166,7 +1166,8 @@ public class SyllabusTool
 					}else if(bulkItems > 0 && bulkItems <= 100){
 						//add by bulk items
 						for(int i = 1; i <= bulkItems; i++){
-							syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", null, null, false, null, null, syllabusItem), false);
+							SyllabusData syllabusDataObj = syllabusManager.createSyllabusDataObject(bulkEntry.getTitle() + " - " + i, initPosition, null, "no", status, "none", null, null, false, null, null, syllabusItem);
+							syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syllabusDataObj, false);
 							initPosition++;
 						}
 					}
