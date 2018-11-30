@@ -801,7 +801,7 @@ public class DiscussionForumTool
 	    			 for (Iterator iterator = decoForum.getTopics().iterator(); iterator.hasNext();) {
 	    				 DiscussionTopicBean dTopicBean = (DiscussionTopicBean) iterator.next();
 	    				 //if user can read this forum topic, count the messages as well
-	    				 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){        			
+	    				 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){
 	    					 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
 	    				 }
 	    			 }
@@ -8676,16 +8676,6 @@ public class DiscussionForumTool
 		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
 		newTopic.setDefaultAssignName(fromAssignmentTitle);
 	}
-
-	//copy rubrics
-	try {
-		Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + fromTopic.getId());
-		if (rubricAssociation.isPresent()) {
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + newTopic.getId(), rubricAssociation.get().getFormattedAssociation());
-		}
-	} catch(Exception e){
-		log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
-	}
 	
 	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
@@ -8697,6 +8687,16 @@ public class DiscussionForumTool
 	newTopic.setBaseForum(forum);
 	forumManager.saveTopic(newTopic, fromTopic.getDraft(), true);
 	selectedTopic = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
+
+	//copy rubrics
+	try {
+		Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + fromTopic.getId());
+		if (rubricAssociation.isPresent()) {
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + newTopic.getId(), rubricAssociation.get().getFormattedAssociation());
+		}
+	} catch(Exception e){
+		log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+	}
 
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
@@ -8789,7 +8789,7 @@ public class DiscussionForumTool
 
 		forum = saveForumSettings(oldForum.getDraft());
 
-		//copy rubrics		
+		//copy rubrics
 		try {
 			Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + oldForum.getId());
 			if (rubricAssociation.isPresent()) {
