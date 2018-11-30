@@ -20,24 +20,38 @@ import java.util.concurrent.TimeUnit;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.scoringservice.api.ScoringAgent;
+import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.util.SiteTypeUtil;
 import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.sitemanage.api.SiteManageService;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
@@ -60,7 +74,9 @@ import org.sakaiproject.event.api.NotificationService;
 @Slf4j
 public class SiteManageServiceImpl implements SiteManageService {
 
+	@Setter private AuthzGroupService authzGroupService;
     @Setter private ContentHostingService contentHostingService;
+    @Setter private CourseManagementService courseManagementService;
     @Setter private EntityManager entityManager;
     @Setter private EventTrackingService eventTrackingService;
     @Setter private LinkMigrationHelper linkMigrationHelper;
@@ -68,6 +84,7 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Setter private SecurityService securityService;
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
+    @Setter private ScoringService scoringService;
     @Setter private ShortenedUrlService shortenedUrlService;
     @Setter private SiteService siteService;
     @Setter private ToolManager toolManager;
@@ -75,16 +92,19 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserNotificationProvider userNotificationProvider;
 
+    // Enough threads for Site imports and duplications
     @Setter private Integer siteImportThreadCount;
 
     private ExecutorService executorService;
     private Set<String> currentSiteImports;
+    private Set<String> currentSiteDuplicates;
 
     public void init() {
         // while this Set isn't cluster wide sessions are node specific
         // so this is only unsafe for more than one session performing an import on the same site
         // which is a really low percentage
         currentSiteImports = new ConcurrentSkipListSet<>();
+        currentSiteDuplicates = new ConcurrentSkipListSet<>();
         executorService = Executors.newFixedThreadPool(siteImportThreadCount);
     }
 
@@ -99,6 +119,101 @@ public class SiteManageServiceImpl implements SiteManageService {
                 executorService.shutdownNow();
             }
         }
+    }
+
+    @Override
+    public boolean duplicateSiteThread(final String oldSiteId, final String newSiteId, final String newSiteTitle, final String termId, final boolean transferScoringData) {
+        final User user = userDirectoryService.getCurrentUser();
+        final Locale locale = preferencesService.getLocale(user.getId());
+        final Session session = sessionManager.getCurrentSession();
+        final ToolSession toolSession = sessionManager.getCurrentToolSession();
+
+        Runnable siteDuplicateTask = () -> {
+            sessionManager.setCurrentSession(session);
+            sessionManager.setCurrentToolSession(toolSession);
+
+			try {
+				final Site sourceSite = siteService.getSite(oldSiteId);
+				final String sourceSiteRef = sourceSite.getReference();
+				final long oldSiteQuota = getSiteQuota(sourceSite);
+				final String siteType = sourceSite.getType();
+
+				// An event for starting the "duplicate site" action
+				eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, oldSiteId, newSiteId, false, NotificationService.NOTI_OPTIONAL));
+				
+				Site site = siteService.addSite(newSiteId, sourceSite);
+				site.setTitle(newSiteTitle);
+				if (site.getIconUrl() != null) site.setIconUrl(transferSiteResource(oldSiteId, newSiteId, site.getIconUrl()));
+				setSiteQuota(newSiteId, oldSiteQuota);
+				siteService.save(site);
+
+				// Now it's time to import the actual content from the tools
+				importToolContent(oldSiteId, site, false);
+
+				// This is off by default
+				if(transferScoringData) {
+					ScoringAgent agent = scoringService.getDefaultScoringAgent();
+					if (agent != null && agent.isEnabled(oldSiteId, null)) {
+						agent.transferScoringComponentAssociations(oldSiteId, site.getId());
+					}
+				}
+
+				// If it's a different term, look it up and set the appropriate properties
+				if (SiteTypeUtil.isCourseSite(siteType)) {
+					if (termId != null) {
+						AcademicSession term = courseManagementService.getAcademicSession(termId);
+						if (term != null) {
+							ResourcePropertiesEdit rp = site.getPropertiesEdit();
+							rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
+							rp.addProperty(Site.PROP_SITE_TERM_EID, term.getEid());
+						} else {
+							log.warn("termId={} not found", termId);
+						}
+					}
+				}
+				
+				// save again
+				siteService.save(site);
+
+				final String realm = siteService.siteReference(site.getId());
+				try {
+					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
+					// Remove the provider id attribute if any
+					realmEdit.setProviderGroupId(null);
+					// add current user as the maintainer
+					realmEdit.addMember(user.getId(), site.getMaintainRole(), true, false);
+					authzGroupService.save(realmEdit);
+				} catch (GroupNotDefinedException e) {
+					log.error(".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
+				} catch (AuthzPermissionException e) {
+					log.error(".actionForTemplate chef_siteinfo-duplicate:", e);
+				}
+
+				// An event for ending the "duplicate site" action
+				eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
+				
+	            if (serverConfigurationService.getBoolean(SiteManageConstants.SAK_PROP_IMPORT_NOTIFICATION, true)) {
+	                userNotificationProvider.notifySiteImportCompleted(user.getEmail(), locale, site.getId(), site.getTitle());
+	            }
+            } catch (Exception e) {
+                log.warn("Site Duplicate Task encountered an exception for site {}, {}", oldSiteId, e.getMessage());
+            } finally {
+            	currentSiteDuplicates.remove(oldSiteId);
+            }
+
+        };
+
+        // only if the siteId was added to the list do we start the task
+        if (currentSiteDuplicates.add(oldSiteId)) {
+            try {
+                executorService.execute(siteDuplicateTask);
+                return true;
+            } catch (RejectedExecutionException ree) {
+                log.warn("Site Duplicate Task was rejected by the executor, {}", ree.getMessage());
+                currentSiteDuplicates.remove(oldSiteId);
+            }
+        }
+        return false;
     }
 
     @Override
@@ -216,6 +331,39 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Override
     public boolean isAddMissingToolsOnImportEnabled() {
         return serverConfigurationService.getBoolean("site.setup.import.addmissingtools", true);
+    }
+
+    @Override
+    public void setSiteQuota(final String siteId, final long quota) {
+    	if (quota > 0) {
+			try {
+				String collId = contentHostingService.getSiteCollection(siteId);
+				ContentCollectionEdit col = contentHostingService.editCollection(collId);
+
+				ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
+				resourceProperties.addProperty(
+						ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
+						new Long(quota).toString());
+				contentHostingService.commitCollection(col);
+			} catch (Exception ignore) {
+				log.warn("saveQuota: unable to save site-specific quota for site : " + siteId, ignore);
+			}
+		}
+    }
+    @Override
+    public long getSiteQuota(Site site) {
+		long quota = 0;
+		try {
+			String collId = contentHostingService.getSiteCollection(site.getId());
+			ContentCollection site_collection = contentHostingService.getCollection(collId);
+			long siteSpecific = site_collection.getProperties().getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+			quota = siteSpecific;
+		}
+		catch (Exception ignore) {
+			log.warn("getQuota: reading quota property for site : " + site.getId() + " : " + ignore);
+			quota = 0;
+		}
+		return quota;
     }
 
     @Override

@@ -7,7 +7,9 @@
 		  class="org.sakaiproject.sitemanage.impl.SiteManageServiceImpl"
 		  init-method="init"
 		  destroy-method="destroy">
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
@@ -15,6 +17,7 @@
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="scoringService" ref="org.sakaiproject.scoringservice.api.ScoringService"/>
 		<property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService"/>
 		<property name="siteImportThreadCount" value="10"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>

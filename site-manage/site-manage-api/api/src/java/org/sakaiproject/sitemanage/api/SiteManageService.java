@@ -61,4 +61,18 @@ public interface SiteManageService {
      * @return the new migrated resource url
      */
     String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute);
+
+    /**
+     * Duplicate site in a thread. A thread is used to prevent a user from double duplicating
+     * or double clicking
+     */
+	boolean duplicateSiteThread(String oldSiteId, String newSiteId, String newSiteTitle, String termId, boolean transferScoringData);
+
+    /**
+     * Get quota set on the relevant site
+     * 
+     */
+	long getSiteQuota(Site site);
+
+	void setSiteQuota(String siteId, long quota);
 }

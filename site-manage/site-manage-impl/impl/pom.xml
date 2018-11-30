@@ -51,6 +51,13 @@
             <groupId>org.sakaiproject.edu-services.course-management</groupId>
             <artifactId>coursemanagement-api</artifactId>
         </dependency>
+        <!-- ScoringService integration -->
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+            <artifactId>scoring-service-api</artifactId>
+            <version>${sakai.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.emailtemplateservice</groupId>
             <artifactId>emailtemplateservice-api</artifactId>

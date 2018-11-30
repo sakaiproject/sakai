@@ -3142,7 +3142,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			// SAK-20797 - display checkboxes only if sitespecific value exists
-			long quota = getSiteSpecificQuota(site);
+			final long quota = siteManageService.getSiteQuota(site);
 			if (quota > 0) {
 				context.put("hasSiteSpecificQuota", true);
 				context.put("quotaSize", formatSize(quota*1024));		
@@ -9697,7 +9697,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 */
 			if (forward) {
 				if (state.getAttribute(SITE_DUPLICATED) == null) {
-					if ((SecurityService.isSuperUser())&& ((StringUtils.trimToNull(params.getString("newSiteId")) != null)&&(SiteService.siteExists(params.getString("newSiteId"))))){
+					if (SecurityService.isSuperUser() && StringUtils.isNotBlank(params.getString("newSiteId")) && SiteService.siteExists(params.getString("newSiteId"))) {
 					    addAlert(state, rb.getString("sitdup.idused") + " ");
 					}
 
@@ -9707,159 +9707,27 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					if (isSiteTitleValid(titleOrig, titleStripped, state)) {
 						state.setAttribute(SITE_DUPLICATED_NAME, titleStripped);
 
-						String newSiteId = null;
-						if (StringUtils.trimToNull(params.getString("newSiteId")) == null) {
+						String oldSiteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+						String newSiteId = params.getString("newSiteId");
+						String termId = StringUtils.trimToNull(params.getString("selectTerm"));
+						boolean transferScoringData = StringUtils.equals(params.getString("selectScoringData"), "transferScoringData");
+
+						if (StringUtils.isBlank(newSiteId)) {
 						    newSiteId = IdManager.createUuid();
-						} else{
-						    newSiteId = params.getString("newSiteId");
 						}
 
-						try {
-							String oldSiteId = (String) state
-									.getAttribute(STATE_SITE_INSTANCE_ID);
-							
-							// Retrieve the source site reference to be used in the EventTrackingService
-							// notification of the start/end of a site duplication.
-							String sourceSiteRef = null;
-							try {
-								Site sourceSite = SiteService.getSite(oldSiteId);
-								sourceSiteRef = sourceSite.getReference();
-								
-							} catch (IdUnusedException e) {
-								log.warn(this + ".actionForTemplate; case29: invalid source siteId: "+oldSiteId);
-								return;
-							}
-
-							// SAK-20797
-							long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
-
-							Site site = SiteService.addSite(newSiteId,
-									getStateSite(state));
-							
-							// An event for starting the "duplicate site" action
-							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
-
-							// get the new site icon url
-							if (site.getIconUrl() != null)
-							{
-								site.setIconUrl(siteManageService.transferSiteResource(oldSiteId, newSiteId, site.getIconUrl()));
-							}
-
-							// set title
-							site.setTitle(titleStripped);
-							
-							// SAK-20797 alter quota if required
-							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
-							if (duplicateQuota==true) {
-								
-								if (oldSiteQuota > 0) {
-									log.info("Saving quota");
-									try {
-										String collId = m_contentHostingService
-												.getSiteCollection(site.getId());
-
-										ContentCollectionEdit col = m_contentHostingService.editCollection(collId);
-
-										ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
-										resourceProperties.addProperty(
-												ResourceProperties.PROP_COLLECTION_BODY_QUOTA,
-												new Long(oldSiteQuota)
-														.toString());
-										m_contentHostingService.commitCollection(col);										
-										
-										
-									} catch (Exception ignore) {
-										log.warn("saveQuota: unable to duplicate site-specific quota for site : "
-												+ site.getId() + " : " + ignore);
-									}
-								}
-							} 
-							
-							try {
-								SiteService.save(site);
-
-								// import tool content
-								siteManageService.importToolContent(oldSiteId, site, false);
-								
-								String transferScoringData = params.getString("selectScoringData");
-								if(transferScoringData != null && transferScoringData.equals("transferScoringData")) {
-									ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
-									ScoringAgent agent = scoringService.getDefaultScoringAgent();
-									if (agent != null && agent.isEnabled(oldSiteId, null)) {
-										agent.transferScoringComponentAssociations(oldSiteId, site.getId());
-									}
-								}
-	
-								String siteType = site.getType();
-								if (SiteTypeUtil.isCourseSite(siteType)) {
-									// for course site, need to
-									// read in the input for
-									// term information
-									String termId = StringUtils.trimToNull(params
-											.getString("selectTerm"));
-									if (termId != null) {
-										AcademicSession term = cms.getAcademicSession(termId);
-										if (term != null) {
-											ResourcePropertiesEdit rp = site.getPropertiesEdit();
-											rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
-											rp.addProperty(Site.PROP_SITE_TERM_EID, term.getEid());
-										} else {
-											log.warn("termId=" + termId + " not found");
-										}
-									}
-								}
-								
-								// save again
-								SiteService.save(site);
-								state.setAttribute(STATE_DUPE_SITE_STATUS_ID, site.getId());
-								state.setAttribute(STATE_DUPE_SITE_URL, site.getUrl());
-								String realm = SiteService.siteReference(site.getId());
-								try 
-								{
-									AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
-									// also remove the provider id attribute if any
-									realmEdit.setProviderGroupId(null);
-									// add current user as the maintainer
-									realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
-									
-									authzGroupService.save(realmEdit);
-								} catch (GroupNotDefinedException e) {
-									log.error(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
-									addAlert(state, rb.getString("java.realm"));
-								} catch (AuthzPermissionException e) {
-									addAlert(state, this + rb.getString("java.notaccess"));
-									log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
-								}
-							} catch (IdUnusedException e) {
-								log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + newSiteId);
-							} catch (PermissionException e) {
-								log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + newSiteId);
-							}
-
-							// TODO: hard coding this frame id
-							// is fragile, portal dependent, and
-							// needs to be fixed -ggolden
-							// schedulePeerFrameRefresh("sitenav");
-							scheduleTopRefresh();
-							
-							// send site notification
-							sendSiteNotification(state, site, null);
-
-							state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
-							
-							// An event for ending the "duplicate site" action
-							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
-
-						} catch (IdInvalidException e) {
-							addAlert(state, rb.getString("java.siteinval"));
-							log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.siteinval") + " site id = " + newSiteId, e);
-						} catch (IdUsedException e) {
-							addAlert(state, rb.getString("java.sitebeenused"));
-							log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.sitebeenused") + " site id = " + newSiteId, e);
-						} catch (PermissionException e) {
-							addAlert(state, rb.getString("java.allowcreate"));
-							log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.allowcreate") + " site id = " + newSiteId, e);
+						boolean duplicateTaskStarted = siteManageService.duplicateSiteThread(oldSiteId, newSiteId, titleStripped, termId, transferScoringData);
+						if (duplicateTaskStarted) {
+							state.setAttribute(IMPORT_QUEUED, rb.get("importQueued"));
+							state.removeAttribute(STATE_IMPORT_SITE_TOOL);
+							state.removeAttribute(STATE_IMPORT_SITES);
+						} else {
+							//an existing thread is running for this site import, throw warning
+							addAlert(state, rb.getString("java.import.existing"));
 						}
+						
+						state.setAttribute(STATE_DUPE_SITE_STATUS_ID, newSiteId);
+						// state.setAttribute(STATE_DUPE_SITE_URL, site.getUrl());
 					}
 				}
 
@@ -10075,6 +9943,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 	}// actionFor Template
 	
+	private boolean checkForThread(String threadName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	/**
 	 * 
 	 */
@@ -15130,52 +15003,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		}
 		return prefLocales;
-	}
-
-	// SAK-20797
-	/**
-	 * return quota on site specified by siteId
-	 * @param siteId
-	 * @return value of site-specific quota or 0 if not found
-	 */
-	private long getSiteSpecificQuota(String siteId) {
-		long quota = 0;
-		try {
-			Site site = SiteService.getSite(siteId);
-			if (site != null) {
-				quota = getSiteSpecificQuota(site);
-			}
-		} catch (IdUnusedException e) {
-			log.error("Quota calculation could not find the site " + siteId
-					+ "for site specific quota calculation",
-					log.isDebugEnabled() ? e : null);
-		}
-		return quota;
-	}
-
-	
-	// SAK-20797
-	/**
-	 * return quota set on this specific site
-	 * @return value of site-specific quota or 0 if not found
-	 */
-	private long getSiteSpecificQuota(Site site) {
-		long quota = 0;
-		try
-		{
-			String collId = m_contentHostingService
-					.getSiteCollection(site.getId());
-			ContentCollection site_collection = m_contentHostingService.getCollection(collId);
-			long siteSpecific = site_collection.getProperties().getLongProperty(
-					ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
-			quota = siteSpecific;
-		}
-		catch (Exception ignore)
-		{
-			log.warn("getQuota: reading quota property for site : " + site.getId() + " : " + ignore);
-			quota = 0;
-		}
-		return quota;
 	}
 
 	// SAK-20797
