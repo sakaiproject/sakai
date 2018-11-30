@@ -2021,7 +2021,7 @@ $(document).ready(function() {
 			oldloc = $(this);
 			closeDropdowns();
 			$('#mm-name-section').addClass('fileTitles');
-			$("#mm-name-section").hide();
+			$("#mm-name-section").show();
 			$("#mm-name").val('');
 			$("#mm-prerequisite").prop('checked',false);
 			if ($(this).hasClass("add-at-end"))
@@ -3104,6 +3104,7 @@ $(function() {
 	    $(this).parent().parent().remove();
 	}
 	function mmFileInputChanged() {
+	    $("#mm-name-section").hide();
 	    // user has probably selected a file. 
 	    var lastInput = $(".mm-file-input").last();
 	    if (lastInput[0].files.length !== 0) {
