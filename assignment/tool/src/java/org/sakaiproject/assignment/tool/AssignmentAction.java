@@ -9918,7 +9918,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // populate grade overrides if they exist
                 for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
-                    String gradeOverride = assignmentService.getGradeForSubmitter(s, submitter.getSubmitter());
+                    String gradeOverride = assignmentService.getGradeDisplay(assignmentService.getGradeForSubmitter(s, submitter.getSubmitter()), a.getTypeOfGrade(), a.getScaleFactor());
                     if (!StringUtils.equals(grade, gradeOverride)) {
                         if (a.getIsGroup()) {
                             state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
