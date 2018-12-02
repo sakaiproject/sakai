@@ -470,7 +470,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				categoryDropHighest.setEnabled(dropKeepEnabled && categoryDropHighestEnabled);
 				if (!categoryDropHighest.isEnabled()) {
-					addDropKeepDisabledToolTip(categoryDropHighest, DropKeepUsage.CATEGORY);
+					addDropKeepDisabledToolTip(categoryDropHighest, dropKeepEnabled ? DropKeepUsage.EXCLUSIVE : DropKeepUsage.CATEGORY);
 				}
 				item.add(categoryDropHighest);
 
@@ -513,7 +513,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				categoryDropLowest.setEnabled(dropKeepEnabled && categoryDropLowestEnabled);
 				if (!categoryDropLowest.isEnabled()) {
-					addDropKeepDisabledToolTip(categoryDropLowest, DropKeepUsage.CATEGORY);
+					addDropKeepDisabledToolTip(categoryDropLowest, dropKeepEnabled ? DropKeepUsage.EXCLUSIVE : DropKeepUsage.CATEGORY);
 				}
 				item.add(categoryDropLowest);
 
@@ -556,7 +556,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				});
 				categoryKeepHighest.setEnabled(dropKeepEnabled && categoryKeepHighestEnabled);
 				if (!categoryKeepHighest.isEnabled()) {
-					addDropKeepDisabledToolTip(categoryKeepHighest, DropKeepUsage.CATEGORY);
+					addDropKeepDisabledToolTip(categoryKeepHighest, dropKeepEnabled ? DropKeepUsage.EXCLUSIVE : DropKeepUsage.CATEGORY);
 				}
 				item.add(categoryKeepHighest);
 
