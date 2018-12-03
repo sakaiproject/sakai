@@ -43,7 +43,7 @@
 			</tr>
 			<tr> 
 				<th>
-					$tlang.getString("gen.due")
+					$tlang.getString("gen.due.header")
 				</th>
 				<td>
                     #if (!$assignment.HideDueDate || $!allowUpdateAssignment)

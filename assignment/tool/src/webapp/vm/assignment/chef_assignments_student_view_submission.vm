@@ -160,7 +160,7 @@ $(document).ready(function(){
 			</div>
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-xs-12">
-					<div class="itemSummaryHeader">$tlang.getString("gen.due")</div>
+					<div class="itemSummaryHeader">$tlang.getString("gen.due.header")</div>
 				</div>
 				#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
 				<div class="col-lg-4 col-sm-6 col-xs-12">
