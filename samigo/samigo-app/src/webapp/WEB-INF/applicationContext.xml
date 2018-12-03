@@ -1,29 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
-		<property name="baseDirectory" value="templates/" />
-	</bean>
-
-	<bean parent="requestAddressibleParent">
-		<property name="value" value="beginAssessmentDeliveryBean" />
-	</bean>
-
-	<bean id="messageSource"
-		class="org.sakaiproject.util.ResourceLoaderMessageSource"
-		depends-on="TLABPostProcessorLoader">
-		<property name="basename" value="classpath:org/sakaiproject/tool/assessment/bundle/DeliveryMessages"/>
-	</bean>
-
-	<bean class="org.sakaiproject.tool.assessment.rsf.bean.PublishedAssessmentVPInferrer">
-	  <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
-	</bean>
-	
-	<bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
-    	<property name="value" value="true" />
-  	</bean>
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	    				   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 </beans>
  
