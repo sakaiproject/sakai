@@ -34,6 +34,7 @@
 
 package org.sakaiproject.signup.model;
 
+import java.time.Instant;
 
 /**
  * <p>
@@ -41,7 +42,7 @@ package org.sakaiproject.signup.model;
  * the DB storage by Hibernate
  * </p>
  */
-public class SignupAttendee implements Comparable{
+public class SignupAttendee implements Comparable<SignupAttendee>{
 
 	/* sakai user id */
 	private String attendeeUserId;
@@ -58,6 +59,7 @@ public class SignupAttendee implements Comparable{
 	
 	private boolean attended;
 
+	private Instant inscriptionTime;
 	
 	/**
 	 * Constructor
@@ -199,28 +201,27 @@ public class SignupAttendee implements Comparable{
 		this.displayName = displayName;
 	}
 	
+	public Instant getInscriptionTime() {
+		return inscriptionTime;
+	}
+
+	public void setInscriptionTime(Instant inscriptionTime) {
+		this.inscriptionTime = inscriptionTime;
+	}
+	
 	/**
 	 * for sorting purpose. It's according to string alphabetic order. Last name
 	 * comes first
 	 */
-	public int compareTo(Object o) {
-		if (o == null)
+	@Override
+	public int compareTo(SignupAttendee signupAttendeeToCompare) {
+		if (signupAttendeeToCompare == null)
 			return -1;
-		if (!(o instanceof SignupAttendee))
-			throw new ClassCastException("Not type of SignupAttendee");
-
-		SignupAttendee other = (SignupAttendee) o;
 
 		if (displayName == null)
 			return -1;
 
-		int value = displayName.compareTo(other.getDisplayName());
-		if (value != 0)
-			return value;
-
-
-		return 0;
-
+		return displayName.compareTo(signupAttendeeToCompare.getDisplayName());
 	}
 
 }

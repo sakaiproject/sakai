@@ -76,8 +76,7 @@ public class RemoveWaiter implements SignupBeanConstants {
 	}
 
 	private SignupMeeting reloadMeeting(Long meetingId) {
-		SignupMeeting m = signupMeetingService.loadSignupMeeting(meetingId, currentUserId, currentSiteId);
-		return m;
+		return signupMeetingService.loadSignupMeeting(meetingId, currentUserId, currentSiteId);
 	}
 
 	/**
@@ -97,7 +96,6 @@ public class RemoveWaiter implements SignupBeanConstants {
 	public SignupMeeting removeFromWaitingList(SignupMeeting meeting, SignupTimeslot timeslot, SignupAttendee waiter)
 			throws Exception {
 		try {
-
 			handleVersion(meeting, timeslot, waiter);
 			if (ToolManager.getCurrentPlacement() != null) {
 				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_L

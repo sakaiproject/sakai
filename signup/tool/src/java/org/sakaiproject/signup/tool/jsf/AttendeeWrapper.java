@@ -25,13 +25,15 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import org.apache.commons.lang3.StringUtils;
+
 
 /**
  * <p>
  * This class is a wrapper class for SignupAttendee for UI purpose
  * </P>
  */
-public class AttendeeWrapper implements Comparable{
+public class AttendeeWrapper implements Comparable<AttendeeWrapper>{
 
 	private SignupAttendee signupAttendee;
 
@@ -119,10 +121,7 @@ public class AttendeeWrapper implements Comparable{
 
 	public boolean isComment(){
 		String comment = this.signupAttendee.getComments();
-		if (comment != null && comment.trim().length() > 0)
-			return true;
-		
-		return false;
+		return StringUtils.isNotEmpty(comment);
 	}
 	
 	/**
@@ -162,24 +161,19 @@ public class AttendeeWrapper implements Comparable{
 	 * for sorting purpose. It's according to string alphabetic order. Last name
 	 * comes first 
 	 */
-	public int compareTo(Object o) {
-		if (o == null)
+	@Override
+	public int compareTo(AttendeeWrapper attendeeWrapperToCompare) {
+		if (attendeeWrapperToCompare == null) {
 			return -1;
-		if (!(o instanceof AttendeeWrapper))
-			throw new ClassCastException("Not type of SignupUser");
-
-		AttendeeWrapper other = (AttendeeWrapper) o;
-
-		if (displayName == null)
+		}
+		if (displayName == null) {
 			return -1;
-
-		int value = displayName.compareTo(other.getDisplayName());
-		if (value != 0)
+		}
+		int value = displayName.compareTo(attendeeWrapperToCompare.getDisplayName());
+		if (value != 0) {
 			return value;
-
-
+		}
 		return 0;
-
 	}
 
 }
