@@ -132,7 +132,7 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("Removing ExtendedTime entry id: " + e.getId());
 
        try {
-           getHibernateTemplate().delete(e);
+           getHibernateTemplate().delete(getHibernateTemplate().merge(e));
            return true;
        } catch (DataAccessException de) {
            log.error("Failed to delete extendedTime entry, id: " + e.getId() + ".", de);
