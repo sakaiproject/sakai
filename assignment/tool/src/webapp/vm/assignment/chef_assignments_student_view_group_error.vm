@@ -20,7 +20,7 @@
 				</tr>
 				<tr>
 					<th>
-						$tlang.getString("gen.due")
+						$tlang.getString("gen.due.header")
 					</th>
 					<td>
 						$!service.getUsersLocalDateTimeString($!assignment.DueDate)
