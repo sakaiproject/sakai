@@ -169,6 +169,10 @@ $(document).ready(function() {
        $("#gradeMenuTooltip").html().trim().toString()),
     gradeHeaderMenuTooltip: TrimPath.parseTemplate(
        $("#gradeHeaderMenuTooltip").html().trim().toString()),
+    newGradeItemPopoverTitle: TrimPath.parseTemplate(
+       $("#newGradeItemPopoverTitle").html().trim().toString()),
+    newGradeItemPopoverMessage: TrimPath.parseTemplate(
+       $("#newGradeItemPopoverMessage").html().trim().toString()),
   };
 
 });
@@ -3146,13 +3150,32 @@ GbGradeTable.addReadyCallback = function(callback) {
 };
 
 
-GbGradeTable.focusColumnForAssignmentId = function(assignmentId) {
-    if (assignmentId) {
-        GbGradeTable.addReadyCallback(function() {
-            var col = GbGradeTable.colForAssignment(assignmentId);
-            GbGradeTable.instance.selectCell(0, col);
-        });
-    }
+GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNewItem) {
+  if (assignmentId) {
+      GbGradeTable.addReadyCallback(function() {
+          var col = GbGradeTable.colForAssignment(assignmentId);
+          GbGradeTable.instance.selectCell(0, col);
+          if(showPopupForNewItem === true){
+            
+            var $selectedField = $('.current.highlight .relative');
+          
+            $selectedField.attr('data-toggle','popover');
+            $selectedField.attr('data-placement','top');
+            $selectedField.attr('data-container','body');
+            $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
+            $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+
+            $('body').on('click', function (e) {
+              if ($(e.target).data('toggle') !== 'popover'
+                  && $(e.target).parents('.popover.in').length === 0) { 
+                  $('[data-toggle="popover"]').popover('hide');
+              }
+            });
+            $selectedField.popover();
+            $selectedField.popover('show');
+          }
+      });
+  }
 };
 
 
