@@ -79,7 +79,8 @@ $(document).ready(function() {
 </f:subview>
 
 <h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="specialLink" border="0">
-    <h:column rendered="#{! forum.nonePermission}">
+    <h:column>
+        <h:panelGroup layout="block" rendered="#{! forum.nonePermission}">
 		<h:panelGrid columns="1" styleClass="forumHeader"  border="0">
   	    <h:panelGroup>
 				<%-- link to forum and decorations --%>
@@ -218,7 +219,8 @@ $(document).ready(function() {
 		</h:panelGrid> 
 
 		<h:dataTable id="topics" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic"  width="100%"   cellspacing="0" cellpadding="0" border="0">
-		   <h:column rendered="#{! topic.nonePermission}">
+		   <h:column>
+                        <h:panelGroup layout="block" rendered="#{! topic.nonePermission}">
 					<h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
 		      	<h:panelGroup>
 							
@@ -366,7 +368,9 @@ $(document).ready(function() {
 						</h:panelGroup>
 					
 					</h:panelGrid>
+            </h:panelGroup>
 	 </h:column>
       </h:dataTable>			
+        </h:panelGroup>
 	  </h:column>
   </h:dataTable>
