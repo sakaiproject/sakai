@@ -101,7 +101,8 @@
 		 <h:outputText value="#{msgs.cdfm_no_topics}" rendered="#{empty ForumTool.selectedForum.topics}"    styleClass="instruction" style="display:block"/>
 		  
 		<h:dataTable id="topics"  rendered="#{!empty ForumTool.selectedForum.topics}" value="#{ForumTool.selectedForum.topics}" var="topic" width="100%"  cellspacing="0" cellpadding="0">
-			<h:column rendered="#{! topic.nonePermission}">
+			<h:column>
+				<h:panelGroup layout="block" rendered="#{! topic.nonePermission}">
 				<h:panelGrid columns="1" width="100%"  styleClass="topicBloc specialLink"  cellspacing="0" cellpadding="0">
           <h:panelGroup>
 
@@ -209,6 +210,7 @@
 			</f:subview>
 					</h:panelGroup>
 				</h:panelGrid>
+				</h:panelGroup>
 			</h:column>
 			</h:dataTable>
 		<h:inputHidden id="mainOrForumOrTopic" value="dfForumDetail" />

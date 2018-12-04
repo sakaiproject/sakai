@@ -66,7 +66,8 @@
 			  <f:verbatim></h3></div></f:verbatim>
   
   		<h:dataTable id="subjectBody" value="#{mfStatisticsBean.userSubjectMsgBody}" var="stat" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
-   			<h:column rendered="#{!stat.msgDeleted}">
+   			<h:column>
+				<h:panelGroup rendered="#{!stat.msgDeleted}" layout="block">
    				<f:verbatim>
   					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
   				</f:verbatim>
@@ -111,9 +112,9 @@
 						</h:column>
 					</h:dataTable>
 				</h:panelGroup>
-  			</h:column>
-  			
-  			<h:column rendered="#{stat.msgDeleted}">
+				</h:panelGroup>
+
+  				<h:panelGroup rendered="#{stat.msgDeleted}" layout="block"> 
    				<f:verbatim><div class="hierItemBlock"></f:verbatim>
 				<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
 				<f:verbatim><div class="specialLink" style="width:65%;float:left;text-align:left"></f:verbatim>
@@ -140,6 +141,7 @@
 				<f:verbatim></h4></f:verbatim>
 				<mf:htmlShowArea value="" hideBorder="true" />
 				<f:verbatim></div></f:verbatim>
+				</h:panelGroup>
   			</h:column>
   			
   		</h:dataTable>
