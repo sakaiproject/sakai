@@ -131,7 +131,6 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>jstl</artifactId>
 				<version>1.1.2</version>
-				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>taglibs</groupId>
