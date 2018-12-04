@@ -1171,7 +1171,11 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   public String getImageMapSrc() {
 	  return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_SRC);
   }
-  
+
+  public String getImageMapAltText() {
+      return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT);
+  }
+
 	public List getEmiAnswerOptions() {
 		try {
 			this.data = (ItemDataIfc) item.getData();

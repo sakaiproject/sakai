@@ -37,7 +37,10 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.math3.util.Precision;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -102,6 +105,8 @@ public class ItemBean
   
   private String requireAllOk = "false";
   private String imageMapSrc="";
+  @Getter @Setter
+  private String imageMapAltText="";
   
   private boolean[] choiceCorrectArray;
   private String maxRecordingTime;
