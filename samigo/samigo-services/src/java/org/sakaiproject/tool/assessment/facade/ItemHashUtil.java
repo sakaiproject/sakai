@@ -461,7 +461,8 @@ class ItemHashUtil {
                 .append(normalizeMetadataUrl(ItemMetaDataIfc.TIMEALLOWED,item.getItemMetaDataByLabel(ItemMetaDataIfc.TIMEALLOWED)))
                 .append(normalizeMetadataUrl(ItemMetaDataIfc.NUMATTEMPTS,item.getItemMetaDataByLabel(ItemMetaDataIfc.NUMATTEMPTS)))
                 .append(normalizeMetadataUrl(ItemMetaDataIfc.SCALENAME,item.getItemMetaDataByLabel(ItemMetaDataIfc.SCALENAME)))
-                .append(normalizeMetadataUrl(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX,item.getItemMetaDataByLabel(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX)));
+                .append(normalizeMetadataUrl(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX,item.getItemMetaDataByLabel(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX)))
+                .append(normalizeMetadataUrl(ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT,item.getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT)));
 
     }
 

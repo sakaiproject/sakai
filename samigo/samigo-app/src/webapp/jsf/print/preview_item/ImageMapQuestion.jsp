@@ -46,11 +46,9 @@ should be included in file importing DeliveryMessages
     
     <%-- image --%>
     <h:panelGroup>
-     	<f:verbatim>  
-			<div class='studentImageContainer'>
-				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' />
-			</div>
-		</f:verbatim>
+    <div class='studentImageContainer'>
+        <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'/>
+    </div>
     </h:panelGroup>
   </h:panelGrid>
 
@@ -69,12 +67,9 @@ should be included in file importing DeliveryMessages
 			</h:column>
 		</h:dataTable>
 
-		<f:verbatim> 
-			<div id="answerImageMapContainer_</f:verbatim><h:outputText value="#{part.number}_#{question.sequence}"/><f:verbatim>" class='authorImageContainer'>
-				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' />
-			</div>
-		</f:verbatim>
-    	
+    <div id="answerImageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='authorImageContainer'>
+        <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />' />
+    </div>
 
     <h:outputText value="<br />" escape="false" />
   </h:panelGroup>
