@@ -180,6 +180,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    @Transactional
     @SuppressWarnings("unchecked")
     public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
         List<AssignmentSubmission> submissions = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
