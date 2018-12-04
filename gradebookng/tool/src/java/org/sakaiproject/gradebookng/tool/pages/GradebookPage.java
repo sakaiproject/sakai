@@ -94,6 +94,7 @@ public class GradebookPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String FOCUS_ASSIGNMENT_ID_PARAM = "focusAssignmentId";
+	public static final String NEW_GBITEM_POPOVER_PARAM = "newItem";
 
 	// flag to indicate a category is uncategorised
 	// doubles as a translation key
@@ -593,11 +594,13 @@ public class GradebookPage extends BasePage {
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
-		if (!focusAssignmentId.isNull()) {
+		final StringValue showPopupForNewItem = getPageParameters().get(NEW_GBITEM_POPOVER_PARAM);
+		if(!showPopupForNewItem.isNull() && !focusAssignmentId.isNull()){
 			getPageParameters().remove(FOCUS_ASSIGNMENT_ID_PARAM);
+			getPageParameters().remove(NEW_GBITEM_POPOVER_PARAM);
 			response.render(JavaScriptHeaderItem
 					.forScript(
-							String.format("GbGradeTable.focusColumnForAssignmentId(%s)", focusAssignmentId.toString()),
+							String.format("GbGradeTable.focusColumnForAssignmentId(%s,%s)", focusAssignmentId.toString(),showPopupForNewItem),
 							null));
 		}
 	}
