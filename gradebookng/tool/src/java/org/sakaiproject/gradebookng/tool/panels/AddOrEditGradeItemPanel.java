@@ -284,8 +284,10 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 						});
 						target.add(newFormPanel);
 					} else {
-						setResponsePage(getPage().getPageClass(),
-								new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
+						PageParameters params = new PageParameters();
+						params.add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId);
+						params.add(GradebookPage.NEW_GBITEM_POPOVER_PARAM, true);
+						setResponsePage(getPage().getPageClass(),params);
 					}
 				} else {
 					target.addChildren(form, FeedbackPanel.class);
