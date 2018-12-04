@@ -145,7 +145,7 @@
 					</th>
 					<th id="dueDate">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
-							$tlang.getString("gen.due")
+							$tlang.getString("gen.due.header")
 							#if ($sortedBy.equals("duedate"))
 								#if ($sortedAsc.equals("true"))
 									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
