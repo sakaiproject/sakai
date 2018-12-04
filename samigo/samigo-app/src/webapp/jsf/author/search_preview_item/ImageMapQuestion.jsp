@@ -32,11 +32,9 @@ should be included in file searchPreview
 <%@ include file="/jsf/author/search_preview_item/attachment.jsp" %>
 <h:outputText escape="false" value="#{itemValue.instruction}" /></br>
 
-<f:verbatim>
-	<div id="imageMapContainer" class="authorImageContainer">
-	<img id='img' src='</f:verbatim><h:outputText value="#{item.imageMapSrc}" /><f:verbatim>' />
-	</div>
-</f:verbatim>
+<div id="imageMapContainer" class="authorImageContainer">
+    <img id='img' src='<h:outputText value="#{item.imageMapSrc}"/>' alt='<h:outputText value="#{item.imageMapAltText}"/>' />
+</div>
 
 <h:dataTable id="items" value="#{item.itemTextArraySorted}" var="itemText">
 	<h:column>

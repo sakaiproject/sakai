@@ -34,8 +34,11 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
+
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
@@ -172,6 +175,8 @@ public class ItemContentsBean implements Serializable {
 	private String studentComment;
 	
 	private String imageSrc = "";
+	@Getter @Setter
+	private String imageAltText = "";
 
 	private Set<ItemTagIfc> tagsList;
 	private String tagsListToJson;

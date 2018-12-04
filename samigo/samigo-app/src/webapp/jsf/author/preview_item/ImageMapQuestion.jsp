@@ -79,12 +79,10 @@ should be included in file importing DeliveryMessages
       <%-- answer key --%>
  <h:panelGroup>
       <h:outputLabel value="#{authorMessages.answerKey}: "/>
-     <f:verbatim>  
-	<div id="imageMapContainer_</f:verbatim><h:outputText value="#{partBean.number}_#{question.number}"/><f:verbatim>" class='authorImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{question.itemData.imageMapSrc}" /><f:verbatim>' />
-	</div>
-</f:verbatim>
-<f:verbatim><br/></f:verbatim>
+    <div id="imageMapContainer_<h:outputText value="#{partBean.number}_#{question.number}"/>" class='authorImageContainer'>
+        <img id='img' src='<h:outputText value="#{question.itemData.imageMapSrc}"/>' alt='<h:outputText value="#{question.itemData.imageMapAltText}"/>'/>
+    </div>
+    <br/>
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
       <h:outputLabel value="#{authorMessages.correct}:"/>
