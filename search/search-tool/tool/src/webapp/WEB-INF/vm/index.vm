@@ -52,9 +52,9 @@
 				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="${searchModel.search}"/>
 				<input type="submit" name="sb" value="${rlb.jsp_search}" />
 				<br/>
-				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end "/>
+				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end />
 				<label for="searchSite">${rlb.jsp_current_site}</label>
-				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end "/>
+				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end />
 				<label for="searchMine">${rlb.jsp_all_my_sites}</label>
 			</form>
 			#if (${searchModel.hasSuggestion()})
