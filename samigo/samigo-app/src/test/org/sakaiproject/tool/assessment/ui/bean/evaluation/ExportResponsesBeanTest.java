@@ -22,25 +22,53 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import javax.annotation.Resource;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.SamigoAppTestConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * Tests for the spreadsheet export, SAK-16560
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class ExportResponsesBeanTest extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration("src/webapp")
+@ContextConfiguration(classes = {SamigoAppTestConfiguration.class})
+public class ExportResponsesBeanTest extends AbstractJUnit4SpringContextTests {
 
+    @Autowired
+    private WebApplicationContext wac;
+
+    @Resource(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    private ServerConfigurationService serverConfigurationService;
+
+    @Before
+    public void setup() {
+        when(serverConfigurationService.getString("spreadsheet.font")).thenReturn("");
+    }
+
+    @Test
     public void testGetAsWorkbook() {
-        ExportResponsesBean bean = new ExportResponsesBean();
+        ExportResponsesBean bean = new ExportResponsesBean(wac);
         byte[] xlsData = null;
         List<List<Object>> spreadsheetData = null;
         Workbook wb = null;
@@ -56,10 +84,10 @@ public class ExportResponsesBeanTest extends TestCase {
         addSheetHeader(spreadsheetData);
 
         wb = bean.getAsWorkbook(spreadsheetData);
-        assertNotNull(wb);
-        assertNotNull(wb.getSheet("responses"));
+        Assert.assertNotNull(wb);
+        Assert.assertNotNull(wb.getSheet("responses"));
         xlsData = wbToBytes(wb);
-        assertNotNull(xlsData);
+        Assert.assertNotNull(xlsData);
 
         // medium test (100 columns x 200 rows)
         spreadsheetData = new ArrayList<List<Object>>();
@@ -73,14 +101,15 @@ public class ExportResponsesBeanTest extends TestCase {
         addSheetHeader(spreadsheetData);
 
         wb = bean.getAsWorkbook(spreadsheetData);
-        assertNotNull(wb);
-        assertNotNull(wb.getSheet("responses"));
+        Assert.assertNotNull(wb);
+        Assert.assertNotNull(wb.getSheet("responses"));
         xlsData = wbToBytes(wb);
-        assertNotNull(xlsData);
+        Assert.assertNotNull(xlsData);
     }
 
+    @Test
     public void testGetAsWorkbookWide() {
-        ExportResponsesBean bean = new ExportResponsesBean();
+        ExportResponsesBean bean = new ExportResponsesBean(wac);
         byte[] xlsData = null;
         List<List<Object>> spreadsheetData = null;
         Workbook wb = null;
@@ -97,10 +126,10 @@ public class ExportResponsesBeanTest extends TestCase {
         addSheetHeader(spreadsheetData);
 
         wb = bean.getAsWorkbook(spreadsheetData);
-        assertNotNull(wb);
-        assertNotNull(wb.getSheet("responses"));
+        Assert.assertNotNull(wb);
+        Assert.assertNotNull(wb.getSheet("responses"));
         xlsData = wbToBytes(wb);
-        assertNotNull(xlsData);
+        Assert.assertNotNull(xlsData);
     }
 
     private void addSheetHeader(List<List<Object>> spreadsheetData) {

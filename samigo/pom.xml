@@ -127,26 +127,4 @@
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
     </dependencies>
-    
-    <reporting>
-        <plugins>
-            <!-- Retest this plugin; currently causes release plugin to fail -->
-            <!--
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>1.1</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>dependency-updates-report</report>
-                            <report>plugin-updates-report</report>
-                            <report>property-updates-report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            -->
-        </plugins>
-    </reporting>
 </project>
