@@ -25,5 +25,6 @@
     	<property name="value" value="true" />
   	</bean>
 
+	<context:component-scan base-package="org.sakaiproject.tool.assessment"/>
 </beans>
  
