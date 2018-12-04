@@ -1058,6 +1058,10 @@ public class PublishedItemData
 	  return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_SRC);
   }
 
+  public String getImageMapAltText() {
+      return getItemMetaDataByLabel(ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT);
+  }
+
  public Double getMinScore() {
          return minScore;
  }

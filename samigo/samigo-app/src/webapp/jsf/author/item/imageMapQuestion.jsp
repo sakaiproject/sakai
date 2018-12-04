@@ -200,6 +200,10 @@
                 valueChangeListener="#{itemauthor.addImageToQuestion}" />
             <h:commandButton id="upl" action="imageMapItem" value="#{deliveryMessages.upload}" onclick='resetList()'/>
         </div>
+        <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-control-label"/>
+         <div class="col-md-10">
+            <h:inputText id="imageMapAltText" value="#{itemauthor.currentItem.imageMapAltText}" styleClass="form-control"/>
+        </div>
     </div>
   
     <!-- 3 ANSWER -->
@@ -227,7 +231,7 @@
   
  
     <div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
-        <img id='img' src='<h:outputText value="#{itemauthor.currentItem.imageMapSrc}" />' />
+        <img id='img' src='<h:outputText value="#{itemauthor.currentItem.imageMapSrc}" />' alt='<h:outputText value="#{itemauthor.currentItem.imageMapAltText}" />'/>
     </div>
 
     <!-- Match FEEDBACK -->

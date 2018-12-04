@@ -56,13 +56,10 @@ should be included in file importing DeliveryMessages
 		</div> 
 	</f:verbatim>
 </h:panelGroup>
-<f:verbatim> 
-	<div id="imageMapContainer_</f:verbatim><h:outputText value="#{part.number}_#{question.sequence}"/><f:verbatim>" class='studentImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' />
-	</div>
-</f:verbatim>
-
-<f:verbatim><br /></f:verbatim>
+    <div id="imageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='studentImageContainer'>
+        <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'>
+    </div>
+    <br />
 <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
                 || delivery.actionString=='takeAssessmentViaUrl')
@@ -106,11 +103,9 @@ should be included in file importing DeliveryMessages
 			</h:column>
 		</h:dataTable>
 
-		<f:verbatim> 
-			<div id="answerImageMapContainer_</f:verbatim><h:outputText value="#{part.number}_#{question.sequence}"/><f:verbatim>" class='authorImageContainer'>
-				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' />
-			</div>
-		</f:verbatim>
+        <div id="answerImageMapContainer_<h:outputText value="#{part.number}_#{question.sequence}"/>" class='authorImageContainer'>
+            <img id='img' src='<h:outputText value="#{question.imageSrc}" />' alt='<h:outputText value="#{question.imageAltText}" />'/>
+         </div>
     </h:panelGroup>
     <h:outputText value=" "/>
   </h:panelGrid>

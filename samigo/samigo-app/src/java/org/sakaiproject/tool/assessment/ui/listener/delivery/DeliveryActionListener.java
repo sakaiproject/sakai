@@ -2449,7 +2449,8 @@ public class DeliveryActionListener
   public void populateImageMapQuestion(ItemDataIfc item, ItemContentsBean bean, Map publishedAnswerHash)
   {	
 	bean.setImageSrc(item.getImageMapSrc());
-	
+	bean.setImageAltText(item.getImageMapAltText());
+
 	Iterator iter = item.getItemTextArraySorted().iterator();
     int j = 1;
     List beans = new ArrayList();
