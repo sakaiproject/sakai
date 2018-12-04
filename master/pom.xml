@@ -871,7 +871,6 @@
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>
         <version>${sakai.jstl.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>javax.transaction</groupId>
