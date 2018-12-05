@@ -31,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
@@ -60,7 +62,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 public class ItemService
 {
   private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
-
+  private RubricsService rubricsService = ComponentManager.get(RubricsService.class);
 
   /**
    * Creates a new ItemService object.
@@ -98,28 +100,20 @@ public class ItemService
   /**
    * Delete a item
    */
-  public void deleteItem(Long itemId, String agentId)
-  {
-    try
-    {
-      //ItemFacade item= PersistenceService.getInstance().
-        //getItemFacadeQueries().getItem(itemId, agentId);
-
-/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
-      // you are not allowed to delete item if you are not the owner
-      if (!item.getData().getCreatedBy().equals(agentId))
-        throw new RuntimeException("you are not allowed to delete item if you are not the owner");
-*/
-      PersistenceService.getInstance().getItemFacadeQueries().
-        deleteItem(itemId, agentId);
-    }
-    catch(Exception e)
-    {
+  public void deleteItem(Long itemId, String agentId) {
+    try {
+      // delete rubric association
+      String associationId = getAssessmentId(itemId) + "." + itemId;
+      rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);
+	  
+      // do not check for owner, anyone who has maintain role can modify items see SAK-2214
+      PersistenceService.getInstance().getItemFacadeQueries().deleteItem(itemId, agentId);
+	  
+    } catch(Exception e) {
       log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }
   }
-
 
   /**
    * Delete itemtextset for an item, used for modify
@@ -128,14 +122,7 @@ public class ItemService
   {
     try
     {
-      //ItemFacade item= PersistenceService.getInstance().
-        //getItemFacadeQueries().getItem(itemId, agentId);
-
-/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
-      // you are not allowed to delete item if you are not the owner
-      if (!item.getData().getCreatedBy().equals(agentId))
-        throw new RuntimeException("you are not allowed to delete item if you are not the owner");
-*/
+      // do not check for owner, anyone who has maintain role can modify items see SAK-2214
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItemContent(itemId, agentId);
     }
@@ -155,14 +142,7 @@ public class ItemService
   {
     try
     {
-      //ItemFacade item= PersistenceService.getInstance().
-        //getItemFacadeQueries().getItem(itemId, agentId);
-
-/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
-      // you are not allowed to delete item if you are not the owner
-      if (!item.getData().getCreatedBy().equals(agentId))
-        throw new Error(new Exception());
-*/
+      // do not check for owner, anyone who has maintain role can modify items see SAK-2214
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItemMetaData(itemId, label);
     }
@@ -181,14 +161,7 @@ public class ItemService
   {
     try
     {
-      //ItemFacade item= PersistenceService.getInstance().
-        //getItemFacadeQueries().getItem(itemId, agentId);
-
-/*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
-      // you are not allowed to delete item if you are not the owner
-      if (!item.getData().getCreatedBy().equals(agentId))
-        throw new Error(new Exception());
-*/
+      // do not check for owner, anyone who has maintain role can modify items see SAK-2214
       PersistenceService.getInstance().getItemFacadeQueries().
         addItemMetaData(itemId, label, value);
     }

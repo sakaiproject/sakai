@@ -1147,32 +1147,32 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public String processActionDeleteForum()
-  {
-    if (uiPermissionsManager == null)
-    {
+  public String processActionDeleteForum() {
+    if (uiPermissionsManager == null) {
       throw new IllegalStateException("uiPermissionsManager == null");
     }
-    if (selectedForum == null)
-    {
+    if (selectedForum == null) {
       throw new IllegalStateException("selectedForum == null");
     }
-    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
-    {
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum())) {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
       return gotoMain();
-   }
+    }
     HashMap<String, Integer> beforeChangeHM = null;    
     Long forumId = selectedForum.getForum().getId();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
-	  forumManager.deleteForum(selectedForum.getForum());
+    forumManager.deleteForum(selectedForum.getForum());
 
-	  if(beforeChangeHM != null)
-		  updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    // remove rubric association if there is one
+    rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forumId);
 
-	  reset();
-	  return gotoMain();
+    if(beforeChangeHM != null){
+        updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    }
+
+    reset();
+    return gotoMain();
   }
   
   public void updateSynopticMessagesForForumComparingOldMessagesCount(String siteId, Long forumId, Long topicId, HashMap<String, Integer> beforeChangeHM, int numOfAttempts) {
@@ -1297,38 +1297,6 @@ public class DiscussionForumTool
     return FORUM_SETTING_REVISE;
 
   }
-
-  /**
-   * @return
-   */
-  /*public String processActionReviseForumSettings()
-  {
-    log.debug("processActionReviseForumSettings()");    
-    setEditMode(true);
-    setPermissionMode(PERMISSION_MODE_FORUM);
-    if ((selectedForum) == null)
-    {
-      setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
-      return gotoMain();
-    }
-    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
-    {
-      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return gotoMain();
-    }
-    List attachList = selectedForum.getForum().getAttachments();
-    if (attachList != null)
-    {
-      for (int i = 0; i < attachList.size(); i++)
-      {
-        attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
-      }
-    }
-    
-    setFromMainOrForumOrTopic();
-
-    return FORUM_SETTING_REVISE; //
-  }*/
 
   /**
    * @return
@@ -2166,16 +2134,13 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public String processActionDeleteTopic()
-  {   
+  public String processActionDeleteTopic() {   
     log.debug("processActionDeleteTopic()");
-    if (selectedTopic == null)
-    {
+    if (selectedTopic == null) {
       log.debug("There is no topic selected for deletion");
       return gotoMain();
     }
-    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
-    {
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum())) {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
@@ -2184,13 +2149,16 @@ public class DiscussionForumTool
     Long forumId = selectedTopic.getTopic().getBaseForum().getId();
     Long topicId = selectedTopic.getTopic().getId();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, topicId);
-    
+
     forumManager.deleteTopic(selectedTopic.getTopic());
-    
-    if(beforeChangeHM != null)
-    	updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-    
-    
+
+    // remove rubric association if there is one
+    rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + topicId);
+
+    if(beforeChangeHM != null){
+        updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    }
+
     reset();
     return gotoMain();
   }
