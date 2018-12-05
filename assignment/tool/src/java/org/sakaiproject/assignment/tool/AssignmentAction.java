@@ -8333,7 +8333,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (!message.getAnnouncementHeader().getSubject().contains(title))/*whether title has been changed*/ {
                             updatedTitle = true;
                         }
-                        if (!message.getBody().contains(openTime.toString())) /*whether open date has been changed*/ {
+                        if (!message.getBody().contains(assignmentService.getUsersLocalDateTimeString(openTime))) /*whether open date has been changed*/ {
                             updatedOpenDate = true;
                         }
                         if ((message.getAnnouncementHeader().getAccess().equals(MessageHeader.MessageAccess.CHANNEL) && !a.getTypeOfAccess().equals(Assignment.Access.SITE))
@@ -8381,12 +8381,13 @@ public class AssignmentAction extends PagedResourceActionII {
                                 header.setSubject(/* subject */rb.getFormattedMessage("assig5", title));
                             }
 
+			    String formattedOpenDate = assignmentService.getUsersLocalDateTimeString(openTime);
                             if (updatedOpenDate) {
                                 // revised assignment open date
-                                message.setBody(/* body */rb.getFormattedMessage("newope", formattedText.convertPlaintextToFormattedText(title), openTime.toString()));
+                                message.setBody(/* body */ "<p>" + rb.getFormattedMessage("newope", formattedText.convertPlaintextToFormattedText(title), formattedOpenDate) + "</p>");
                             } else {
                                 // assignment open date
-                                message.setBody(/* body */rb.getFormattedMessage("opedat", formattedText.convertPlaintextToFormattedText(title), openTime.toString()));
+                                message.setBody(/* body */ "<p>" + rb.getFormattedMessage("opedat", formattedText.convertPlaintextToFormattedText(title), formattedOpenDate) + "</p>");
                             }
 
                             // group information
@@ -8552,7 +8553,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 e = c.addEvent(/* TimeRange */timeService.newTimeRange(dueTime.toEpochMilli(), 0),
 						/* title */rb.getString("gen.due") + " " + title,
-						/* description */rb.getFormattedMessage("assign_due_event_desc", title, dueTime.toString()),
+			       /* description */rb.getFormattedMessage("assign_due_event_desc", title, assignmentService.getUsersLocalDateTimeString(dueTime)),
 						/* type */"Deadline",
 						/* location */"",
 						/* access */ eAccess,
