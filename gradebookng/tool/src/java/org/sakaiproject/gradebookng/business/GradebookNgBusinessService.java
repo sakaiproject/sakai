@@ -888,8 +888,9 @@ public class GradebookNgBusinessService {
 	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
 		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
 		for (Assignment assignment : assignments) {
-			if(assignment.getExternalAppName()!=null){
-				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(assignment.getExternalAppName(), assignment.getExternalId());
+			String externalAppName = assignment.getExternalAppName();
+			if(externalAppName!=null) {
+				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, toolManager.getLocalizedToolProperty("sakai.assignment", "title")) ? rubricsService.hasAssociatedRubric(externalAppName, assignment.getExternalId()) : false;
 				map.put(assignment.getExternalId(), hasAssociatedRubric);
 			} else {
 				Long assignmentId = assignment.getId();
@@ -2380,6 +2381,7 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the id of the assignment to remove
 	 */
 	public void removeAssignment(final Long assignmentId) {
+		rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
 		this.gradebookService.removeAssignment(assignmentId);
 
 		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());
