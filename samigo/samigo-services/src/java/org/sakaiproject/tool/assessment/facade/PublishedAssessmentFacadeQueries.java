@@ -46,6 +46,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -1060,6 +1062,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
 			try {
 				saveOrUpdate(assessment);
+				RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+				rubricsService.deleteRubricAssociationsByItemIdPrefix(RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
 			} catch (Exception e) {
 				log.warn(e.getMessage());
 			}			

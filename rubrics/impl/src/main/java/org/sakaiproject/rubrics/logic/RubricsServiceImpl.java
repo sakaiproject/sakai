@@ -761,7 +761,49 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
-    //TODO generate a public String deleteRubricAssociation(String tool, String id)
+    /**
+     * Delete all the rubric associations starting with itemId.
+     * @param itemId The formatted item id.
+     */
+	public void deleteRubricAssociationsByItemIdPrefix(String itemId, String toolId) {
+		try{
+			TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>> resourceParameterizedTypeReference =
+					new TypeReferences.ResourcesType<Resource<ToolItemRubricAssociation>>() {};
+
+			URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+			Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
+
+			Traverson.TraversalBuilder builder = traverson.follow("rubric-associations", "search", "by-item-id-prefix");
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
+			builder.withHeaders(headers);
+
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put("toolId", toolId);
+			parameters.put("itemId", itemId);
+
+			Resources<Resource<ToolItemRubricAssociation>> associationResources = builder.withTemplateParameters(
+					parameters).toObject(resourceParameterizedTypeReference);
+
+			for (Resource<ToolItemRubricAssociation> associationResource : associationResources) {
+				deleteRubricAssociation(associationResource.getLink(Link.REL_SELF).getHref(), toolId, null);
+			}
+        } catch (Exception e) {
+            log.warn("Error deleting rubric association for id {} : {}", itemId, e.getMessage());
+        }
+    }
+	
+    public void deleteRubricAssociation(String tool, String id){
+        try{
+            Optional<Resource<ToolItemRubricAssociation>> associationResource = getRubricAssociationResource(tool, id, null);
+            if (associationResource.isPresent()) {
+                deleteRubricAssociation(associationResource.get().getLink(Link.REL_SELF).getHref(), tool, null);
+            }
+        } catch (Exception e) {
+            log.warn("Error deleting rubric association for tool {} and id {} : {}", tool, id, e.getMessage());
+        }
+    }
 
     /**
      * Delete the rubric association.
@@ -790,6 +832,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                         + conn.getResponseCode());
             }
 
+            log.debug("Deleted rubric association for tool {} and url {}", toolId, query);
 
         } catch (MalformedURLException e) {
 

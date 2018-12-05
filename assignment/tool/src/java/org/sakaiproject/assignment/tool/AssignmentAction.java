@@ -9646,6 +9646,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 // remove related announcement if there is one
                 removeAnnouncement(state, properties);
 
+                // remove rubric association if there is one
+                rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
+				
                 // remove from Gradebook
                 integrateGradebook(state, ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
 
