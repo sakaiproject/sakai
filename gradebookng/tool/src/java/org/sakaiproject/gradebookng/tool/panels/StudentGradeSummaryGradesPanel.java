@@ -131,7 +131,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				if (!catItems.isEmpty()) {
 					Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						businessService.getCategoryScoreForStudent(catId, userId)
+						businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
 							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
