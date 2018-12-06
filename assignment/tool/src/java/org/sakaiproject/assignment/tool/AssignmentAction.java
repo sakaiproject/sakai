@@ -13127,13 +13127,25 @@ public class AssignmentAction extends PagedResourceActionII {
                         associateGradebookAssignment = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                         submissions = assignmentService.getSubmissions(assignment);
                         for (AssignmentSubmission s : submissions) {
-                            String eid = s.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter();
-                            List<Reference> attachments = entityManager.newReferenceList();
-                            attachments.addAll(s.getAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
-                            List<Reference> feedbackAttachments = entityManager.newReferenceList();
-                            feedbackAttachments.addAll(s.getFeedbackAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
-                            submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment ? new ArrayList() : attachments, hasFeedbackAttachment ? new ArrayList() : feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null) ? Long.toString(s.getDateSubmitted().toEpochMilli()) : "", s.getFeedbackText()));
-                            anonymousSubmissionAndEidTable.put(s.getId(), eid);
+                            String eid = null;
+                            if (assignment.getIsGroup()) {
+                                eid = s.getGroupId();
+                            } else {
+                                Optional<AssignmentSubmissionSubmitter> submitter = s.getSubmitters().stream().findAny();
+                                if (submitter.isPresent()) {
+                                    eid = submitter.get().getSubmitter();
+                                }
+                            }
+                            if (eid != null) {
+                                List<Reference> attachments = entityManager.newReferenceList();
+                                attachments.addAll(s.getAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
+                                List<Reference> feedbackAttachments = entityManager.newReferenceList();
+                                feedbackAttachments.addAll(s.getFeedbackAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
+                                submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment ? new ArrayList() : attachments, hasFeedbackAttachment ? new ArrayList() : feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null) ? Long.toString(s.getDateSubmitted().toEpochMilli()) : "", s.getFeedbackText()));
+                                anonymousSubmissionAndEidTable.put(s.getId(), eid);
+                            } else {
+                                log.warn("Upload missing submitter for submission {}", s.getId());
+                            }
                         }
                     }
 
@@ -13554,10 +13566,20 @@ public class AssignmentAction extends PagedResourceActionII {
                                              Map<String, UploadGradeWrapper> submissionTable, Set<AssignmentSubmission> submissions, Assignment assignment) {
         if (assignment != null && submissions != null) {
             for (AssignmentSubmission submission : submissions) {
-                if (submissionTable.containsKey(submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter())) {
-                    // update the AssignmetnSubmission record
-                    UploadGradeWrapper w = submissionTable.get(submission.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter());
-
+                String eid;
+                if (assignment.getIsGroup()) {
+                    eid = submission.getGroupId();
+                } else {
+                    Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().findAny();
+                    if (submitter.isPresent()) {
+                        eid = submitter.get().getSubmitter();
+                    } else {
+                        log.warn("Upload while updating submission missing submitter for submission {}", submission.getId());
+                        continue;
+                    }
+                }
+                UploadGradeWrapper w = submissionTable.get(eid);
+                if (w != null) {
                     // the submission text
                     if (hasSubmissionText) {
                         submission.setSubmittedText(w.getText());
