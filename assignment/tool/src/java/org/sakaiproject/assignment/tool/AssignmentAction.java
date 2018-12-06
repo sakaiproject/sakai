@@ -8381,13 +8381,13 @@ public class AssignmentAction extends PagedResourceActionII {
                                 header.setSubject(/* subject */rb.getFormattedMessage("assig5", title));
                             }
 
-			    String formattedOpenDate = assignmentService.getUsersLocalDateTimeString(openTime);
+			    String formattedOpenTime = assignmentService.getUsersLocalDateTimeString(openTime);
                             if (updatedOpenDate) {
                                 // revised assignment open date
-                                message.setBody(/* body */ "<p>" + rb.getFormattedMessage("newope", formattedText.convertPlaintextToFormattedText(title), formattedOpenDate) + "</p>");
+                                message.setBody(/* body */ "<p>" + rb.getFormattedMessage("newope", formattedText.convertPlaintextToFormattedText(title), formattedOpenTime) + "</p>");
                             } else {
                                 // assignment open date
-                                message.setBody(/* body */ "<p>" + rb.getFormattedMessage("opedat", formattedText.convertPlaintextToFormattedText(title), formattedOpenDate) + "</p>");
+                                message.setBody(/* body */ "<p>" + rb.getFormattedMessage("opedat", formattedText.convertPlaintextToFormattedText(title), formattedOpenTime) + "</p>");
                             }
 
                             // group information
@@ -8551,9 +8551,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (group != null) eGroups.add(group);
                     }
                 }
+		String formattedDueTime = assignmentService.getUsersLocalDateTimeString(dueTime);
                 e = c.addEvent(/* TimeRange */timeService.newTimeRange(dueTime.toEpochMilli(), 0),
 						/* title */rb.getString("gen.due") + " " + title,
-			       /* description */rb.getFormattedMessage("assign_due_event_desc", title, assignmentService.getUsersLocalDateTimeString(dueTime)),
+			       /* description */rb.getFormattedMessage("assign_due_event_desc", title, formattedDueTime),
 						/* type */"Deadline",
 						/* location */"",
 						/* access */ eAccess,

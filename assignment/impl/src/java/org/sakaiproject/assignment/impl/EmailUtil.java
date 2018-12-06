@@ -159,7 +159,8 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // assignment title and due date
         buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(assignmentService.getUsersLocalDateTimeString(assignment.getDueDate())).append(NEW_LINE).append(NEW_LINE);
+	String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
+        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
         // submitter name and id
         String submitterNames = "";
         String submitterIds = "";
@@ -186,7 +187,8 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("submission.id")).append(" ").append(submission.getId()).append(NEW_LINE);
 
         // submit time
-        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted())).append(NEW_LINE).append(NEW_LINE);
+	String formattedSubDate = assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted());
+        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(formattedSubDate).append(NEW_LINE).append(NEW_LINE);
 
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());
