@@ -3,6 +3,7 @@
     <tool id="sakai.feedback" 
     	title="Contact Us"
     	description="A site content and functionality reporting tool">
+    	<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
     
     	<category name="course" />
         <category name="project" />

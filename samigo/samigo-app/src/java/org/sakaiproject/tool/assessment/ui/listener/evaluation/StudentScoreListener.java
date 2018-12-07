@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -129,20 +130,15 @@ import org.sakaiproject.util.FormattedText;
       
       // Added for SAK-13930
       DeliveryBean updatedDeliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-      List parts = updatedDeliveryBean.getPageContents().getPartsContents();
-      Iterator iter = parts.iterator();
-      while (iter.hasNext())
-      {
-          List items = ((SectionContentsBean) iter.next()).getItemContents();
-          Iterator iter2 = items.iterator();
-          while (iter2.hasNext())
-          {
-        	  ItemContentsBean question = (ItemContentsBean) iter2.next();
-        	  question.setRubricStateDetails("");
-        	  if (question.getGradingComment() != null && !question.getGradingComment().equals("")) {
-        		  question.setGradingComment(FormattedText.convertFormattedTextToPlaintext(question.getGradingComment()));
-        	  }
+      List<SectionContentsBean> parts = updatedDeliveryBean.getPageContents().getPartsContents();
+      for (SectionContentsBean part : parts) {
+        List<ItemContentsBean> items = part.getItemContents();
+        for (ItemContentsBean question : items) {
+          question.setRubricStateDetails("");
+          if (question.getGradingComment() != null && !question.getGradingComment().equals("")) {
+            question.setGradingComment(FormattedText.convertFormattedTextToPlaintext(question.getGradingComment()));
           }
+        }
       } // End of SAK-13930
 
       GradingService service = new GradingService();
@@ -158,31 +154,18 @@ import org.sakaiproject.util.FormattedText;
   }
   
   private void buildItemContentsMap(DeliveryBean dbean, String publishedId) {
-	  Map itemContentsMap = new HashMap();
-	  List partsContents = dbean.getPageContents().getPartsContents();
-	  if (partsContents != null) {
-		  Iterator iter = partsContents.iterator();
-		  while (iter.hasNext()) {
-			  SectionContentsBean sectionContentsBean = (SectionContentsBean) iter.next();
-			  if (sectionContentsBean != null) {
-				  List itemContents = sectionContentsBean.getItemContents();
-				  Iterator iter2 = itemContents.iterator();
-				  while (iter2.hasNext()) {
-					  ItemContentsBean itemContentsBean = (ItemContentsBean) iter2.next();
-					  itemContentsBean.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + itemContentsBean.getItemData().getItemId()));
+	  Map<Long, ItemContentsBean> itemContentsMap = new HashMap<>();
 
-					  if (itemContentsBean != null) {
-						  List<ItemGradingData> itemGradingDataArray = itemContentsBean.getItemGradingDataArray();
-						  Iterator<ItemGradingData> iter3 = itemGradingDataArray.iterator();
-						  while (iter3.hasNext()) {
-							  ItemGradingData itemGradingData = iter3.next();
-							  itemContentsMap.put(itemGradingData.getItemGradingId(), itemContentsBean);
-						  }
-					  }
-				  }
-			  }
-		  }  
-	  }
+      dbean.getPageContents().getPartsContents().stream()
+              .filter(Objects::nonNull)
+              .forEach(p -> p.getItemContents().stream()
+                      .filter(Objects::nonNull)
+                      .forEach(i -> {
+                          i.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + i.getItemData().getItemId()));
+                          i.getItemGradingDataArray()
+                                  .forEach(d -> itemContentsMap.put(d.getItemGradingId(), i));
+                      }));
+
 	  dbean.setItemContentsMap(itemContentsMap);
   }
 }

@@ -6,6 +6,8 @@
 		id="sakai.forums"
 		title="Forums"
 		description="Display forums and topics of a particular site">
+		<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
+
 		<category name="course" />
 		<category name="project" />	
 

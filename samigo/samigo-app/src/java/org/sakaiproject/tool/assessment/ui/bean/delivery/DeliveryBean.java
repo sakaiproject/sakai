@@ -23,7 +23,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
@@ -2547,21 +2556,25 @@ public class DeliveryBean
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     // 3. get the questionId (which is the PublishedItemData.itemId)
-    //int assessmentIndex = mediaLocation.indexOf("assessment");
-    int questionIndex = mediaLocation.indexOf("question");
-    int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
-    int myfileIndex = mediaLocation.lastIndexOf("/");
-    //cwen
-    if(agentIndex < 0 )
-    {
-      agentIndex = mediaLocation.indexOf("\\", questionIndex + 8);
+    String fileMediaLocation = mediaLocation.replace(File.separator.equals("/") ? "\\" : "/" , File.separator);
+    String[] mediaLocationParts = fileMediaLocation.split(Pattern.quote(File.separator));
+    int numberOfMediaLocationParts = mediaLocationParts.length;
+
+    if (numberOfMediaLocationParts < 4) {
+        reload = true;
+        return "takeAssessment";
     }
-    //String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10, questionIndex - 1);
-    String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
+
+    String fileName = mediaLocationParts[numberOfMediaLocationParts- 1];
+    String agentId = mediaLocationParts[numberOfMediaLocationParts - 2];
+    String questionId = mediaLocationParts[numberOfMediaLocationParts - 3];
+    String assessmentId = mediaLocationParts[numberOfMediaLocationParts - 4];
+    questionId = StringUtils.remove(questionId, "question");
+    assessmentId = StringUtils.remove(assessmentId, "assessment");
+
     log.debug("***3a. addMediaToItemGrading, questionId ={}", questionId);
     log.debug("***3b. addMediaToItemGrading, assessmentId ={}", assessmentId);
     if (agent == null){
-      String agentId = mediaLocation.substring(agentIndex, myfileIndex -1);
       log.debug("**** agentId={}", agentId);
       agent = agentId;
     }
@@ -2980,7 +2993,7 @@ public class DeliveryBean
   }
 
   public void attachToItemContentBean(ItemGradingData itemGradingData, String questionId){
-    List list = new ArrayList();
+    List<ItemGradingData> list = new ArrayList<>();
     list.add(itemGradingData);
     //find out sectionId from questionId
     log.debug("**** attachToItemContentBean, questionId={}", questionId);
@@ -2996,23 +3009,21 @@ public class DeliveryBean
     SectionContentsBean partSelected = null;
 
     //get all partContents
-    List parts = getPageContents().getPartsContents();
-    for (int i=0; i<parts.size(); i++){
-      SectionContentsBean part = (SectionContentsBean)parts.get(i);
+    List<SectionContentsBean> parts = getPageContents().getPartsContents();
+    for (SectionContentsBean part : parts) {
       log.debug("**** question's sectionId{}", sectionId);
       log.debug("**** partId{}", part.getSectionId());
-      if (sectionId.equals(part.getSectionId())){
+      if (sectionId.equals(part.getSectionId())) {
         partSelected = part;
         break;
       }
     }
     //locate the itemContentBean - the hard way, sigh...
-    List items = new ArrayList();
+    List<ItemContentsBean> items = new ArrayList<>();
     if (partSelected!=null)
       items = partSelected.getItemContents();
-    for (int j=0; j<items.size(); j++){
-      ItemContentsBean item = (ItemContentsBean)items.get(j);
-      if ((publishedItem.getItemId()).equals(item.getItemData().getItemId())){ // comparing itemId not object
+    for (ItemContentsBean item : items) {
+      if ((publishedItem.getItemId()).equals(item.getItemData().getItemId())) { // comparing itemId not object
         item.setItemGradingDataArray(list);
         break;
       }
@@ -3870,68 +3881,60 @@ public class DeliveryBean
 		  String radioId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("radioId");
 		  StringBuilder redrawAnchorName = new StringBuilder("p");
 		  String tmpAnchorName = "";
-		  List parts = this.pageContents.getPartsContents();
+		  List<SectionContentsBean> parts = this.pageContents.getPartsContents();
 
-		  for (int i=0; i<parts.size(); i++) {
-			  SectionContentsBean sectionContentsBean = (SectionContentsBean) parts.get(i);
-			  String partSeq = sectionContentsBean.getNumber();
-			  
-			  List items = sectionContentsBean.getItemContents();
-			  for (int j=0; j<items.size(); j++) {
-				  ItemContentsBean item = (ItemContentsBean)items.get(j);
-				  
-				  //Just delete the checkbox of the current question
-				  if (!item.getItemData().getItemId().toString().equals(radioId)) continue;
+        for (SectionContentsBean part : parts) {
+          String partSeq = part.getNumber();
 
-				  String itemSeq = item.getItemData().getSequence().toString();
-				  redrawAnchorName.append(partSeq);
-				  redrawAnchorName.append("q");
-				  redrawAnchorName.append(itemSeq);
-				  if (tmpAnchorName.equals("") || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
-					  tmpAnchorName = redrawAnchorName.toString();
-				  }
-				  
-				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() || 
-						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue() ||
-						  item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()) {
-					  item.setUnanswered(true);
-					  if(item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()){
-						  for (int k=0; k<item.getMatrixArray().size(); k++) {
-							  MatrixSurveyBean selection = (MatrixSurveyBean)item.getMatrixArray().get(k);
-							  selection.setResponseFromCleanRadioButton();
-						  }
-					  }else{
-						  for (int k=0; k<item.getSelectionArray().size(); k++) {
-							  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
-							  //selection.setResponse(false);
-							  selection.setResponseFromCleanRadioButton();
-						  }
-					  }
-					  
-					  List itemGradingData = new ArrayList();
-					  for( ItemGradingData itemgrading : item.getItemGradingDataArray() ){
-						  if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
-							  itemGradingData.add(itemgrading);
-							  itemgrading.setPublishedAnswerId(null);
-						  }
-					  }
-					  item.setItemGradingDataArray(itemGradingData);
-				  }
+          List<ItemContentsBean> items = part.getItemContents();
+          for (ItemContentsBean item : items) {
+            //Just delete the checkbox of the current question
+            if (!item.getItemData().getItemId().toString().equals(radioId)) continue;
 
-				  if (item.getItemData().getTypeId().longValue() == TypeIfc.TRUE_FALSE.longValue()) {
-					  item.setResponseId(null);
-					  Iterator iter = item.getItemGradingDataArray().iterator();
-					  if (iter.hasNext())
-					  {
-						  ItemGradingData data = (ItemGradingData) iter.next();
-						  data.setPublishedAnswerId(null);
-					  }
-				  }
-				  item.setReview(false);
-				  item.setRationale("");
-			  }
-		  }
+            String itemSeq = item.getItemData().getSequence().toString();
+            redrawAnchorName.append(partSeq);
+            redrawAnchorName.append("q");
+            redrawAnchorName.append(itemSeq);
+            if (tmpAnchorName.equals("") || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
+              tmpAnchorName = redrawAnchorName.toString();
+            }
+
+            if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() ||
+                    item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+                    item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue() ||
+                    item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()) {
+              item.setUnanswered(true);
+              if (item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()) {
+                for (int k = 0; k < item.getMatrixArray().size(); k++) {
+                  MatrixSurveyBean selection = (MatrixSurveyBean) item.getMatrixArray().get(k);
+                  selection.setResponseFromCleanRadioButton();
+                }
+              } else {
+                for (int k = 0; k < item.getSelectionArray().size(); k++) {
+                  SelectionBean selection = (SelectionBean) item.getSelectionArray().get(k);
+                  //selection.setResponse(false);
+                  selection.setResponseFromCleanRadioButton();
+                }
+              }
+
+              List<ItemGradingData> itemGradingData = new ArrayList<>();
+              for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
+                if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
+                  itemGradingData.add(itemgrading);
+                  itemgrading.setPublishedAnswerId(null);
+                }
+              }
+              item.setItemGradingDataArray(itemGradingData);
+            }
+
+            if (item.getItemData().getTypeId().longValue() == TypeIfc.TRUE_FALSE.longValue()) {
+              item.setResponseId(null);
+              item.getItemGradingDataArray().stream().findAny().ifPresent(d -> d.setPublishedAnswerId(null));
+            }
+            item.setReview(false);
+            item.setRationale("");
+          }
+        }
 
 		  syncTimeElapsedWithServer();
 		  

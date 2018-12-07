@@ -6,6 +6,7 @@
 			id="sakai.dropbox"
 			title="Drop Box"
 			description="For private file sharing between instructor and student.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<configuration name="resources_mode" value="dropbox" type="final" />
 

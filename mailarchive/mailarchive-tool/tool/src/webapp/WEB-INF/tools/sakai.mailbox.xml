@@ -6,6 +6,7 @@
 			id="sakai.mailbox"
 			title="Email Archive"
 			description="For viewing email sent to the site.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<configuration name="channel" value="" />
 		<configuration name="pagesize" value="20" />

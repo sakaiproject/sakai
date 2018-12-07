@@ -74,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -334,7 +335,7 @@ public class ItemAddListener
 		if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
 			String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
 			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null, null));
-		} else {
+		} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
 			String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
 			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null, null));
 		}
@@ -2566,6 +2567,11 @@ public class ItemAddListener
 		if (bean.getImageMapSrc() != null) {
 		set.add(new ItemMetaData(item.getData(),
 					ItemMetaDataIfc.IMAGE_MAP_SRC, bean.getImageMapSrc()));
+		}
+		// The imageMap Image Alt Text added in Metadata
+		if (StringUtils.isNotEmpty(bean.getImageMapAltText())) {
+		set.add(new ItemMetaData(item.getData(),
+					ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, bean.getImageMapAltText()));
 		}
 		// MSMC property got left out, added in metadata
 		if (bean.getMcmsPartialCredit() != null) {

@@ -2784,7 +2784,11 @@ public class SimplePageBean {
 		if (makeNewPage) {
 		    subpage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, parent, topParent);
 		    subpage.setOwner(owner);
-		    subpage.setOwned(owner!=null);
+		    if(isStudentPage(page)){
+		        subpage.setOwned(false);
+		    } else {
+		        subpage.setOwned(owner!=null);
+		    }
 		    subpage.setGroup(group);
 		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());
@@ -6258,7 +6262,6 @@ public class SimplePageBean {
 
 			if (multipartMap.size() > 0) {
 				// 	user specified a file, create it
-				boolean first = true;
 				String[] fnames = new String[0];
 				// names always gets sent. Only use it if there is something there
 				if (names.length() > 0)
@@ -6272,8 +6275,7 @@ public class SimplePageBean {
 					if (fnames.length > fileindex)
 					    fname = fnames[fileindex].trim();
 					name = null;  // don't reuse name
-					addMultimediaFile(file, first, fname);
-					first = false;
+					addMultimediaFile(file, fname);
 					fileindex++;
 				}
 			}
@@ -6285,7 +6287,7 @@ public class SimplePageBean {
 		
 	}
 
-	public void addMultimediaFile(MultipartFile file, boolean first, String name){
+	public void addMultimediaFile(MultipartFile file, String name){
 		try{
 			
 			String sakaiId = null;
@@ -6377,26 +6379,16 @@ public class SimplePageBean {
 				// if user supplied name use it, else the filename
 				// if multiple files, the user supplied name is for first only, or we'd
 				// have several links with the same name
-				if (name == null || name.trim().equals(""))
+				if (StringUtils.isBlank(name)) {
 				    name = fname;
+				}
 			} else if (mmUrl != null && !mmUrl.trim().equals("") && multimediaDisplayType != 1 && multimediaDisplayType != 3) {
 				// 	user specified a URL, create the item
 				String url = normUrl(mmUrl);
 				
 				// generate name if user didn't supply one
-				if (!first || name == null || name.trim().equals("")) {
-				    URI uri = new URI(url);
-				    String host = uri.getHost();
-
-				    if (host != null && !host.equals(""))
-					name = host;
-				    String path = uri.getPath();
-				    if (path != null && !path.equals("")) {
-					if (name == null)
-					    name = path;
-					else
-					    name = name + path;
-				    }
+				if (StringUtils.isBlank(name)) {
+				    name = url;
 				}
 
 				// default name should be "web page". But this is late enough that I don't

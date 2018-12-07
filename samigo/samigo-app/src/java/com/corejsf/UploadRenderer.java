@@ -37,6 +37,7 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
 import org.apache.commons.fileupload.FileItem;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class UploadRenderer extends Renderer {
     HttpServletRequest request = (HttpServletRequest) external.getRequest();
 
     String clientId = component.getClientId(context);
-    log.debug("** encodeBegin, clientId ="+clientId);
+    log.debug("** encodeBegin, clientId = {}", clientId);
     encodeUploadField(writer, clientId, component);
   }
 
@@ -80,15 +81,16 @@ public class UploadRenderer extends Renderer {
     ExternalContext external = context.getExternalContext();
     HttpServletRequest request = (HttpServletRequest) external.getRequest();
     String clientId = component.getClientId(context);
-    FileItem item = (FileItem) request.getAttribute(clientId+UPLOAD);
-    // check if file > maxSize allowed
-    log.debug("clientId ="+ clientId);
-    log.debug("fileItem ="+ item);
+    WrappedUpload item = wrapUpload(request, clientId + UPLOAD);
+
+    log.debug("clientId = {}", clientId);
+    log.debug("wrappedUpload = {}", item);
 
     ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
     Long maxSize = Long.valueOf(serverConfigurationService.getString("samigo.sizeMax", "40960"));
 
-    if (item!=null && item.getSize()/1000 > maxSize.intValue()){
+    // Check if file > maxSize allowed
+    if (item != null && item.getSize()/1000 > maxSize.intValue()){
       ((ServletContext)external.getContext()).setAttribute("TEMP_FILEUPLOAD_SIZE", Long.valueOf(item.getSize()/1000));
       ((EditableValueHolder) component).setSubmittedValue("SizeTooBig:" + item.getName());
       return;
@@ -100,12 +102,12 @@ public class UploadRenderer extends Renderer {
     else target = component.getAttributes().get("target");
 
     String repositoryPath = serverConfigurationService.getString("samigo.answerUploadRepositoryPath", "${sakai.home}/samigo/answerUploadRepositoryPath/");
-    log.debug("****"+repositoryPath);
+    log.debug("****{}", repositoryPath);
     if (target != null){
       File dir = new File(repositoryPath+target.toString()); //directory where file would be saved
       if (!dir.exists())
         dir.mkdirs();
-      if (item!= null && !("").equals(item.getName())){
+      if (item != null && !("").equals(item.getName())){
         String fullname = item.getName();
         fullname = fullname.replace('\\','/'); // replace c:\fullname to c:/fullname
         fullname = fullname.substring(fullname.lastIndexOf("/")+1);
@@ -117,13 +119,13 @@ public class UploadRenderer extends Renderer {
 	    else {
 	    	filename = fullname.substring(0, dot_index) + "_" + (new Date()).getTime() + fullname.substring(dot_index);
 	    }
-        File file = new File(dir.getPath()+"/"+filename);
-        log.debug("**1. filename="+file.getPath());
+        String filePath = dir.getPath()+"/"+filename;
+        log.debug("**1. filename= {}", filePath);
         try {
           //if (mediaIsValid) item.write(file);
-        	item.write(file);
+          item.write(filePath);
           // change value so we can evoke the listener
-          ((EditableValueHolder) component).setSubmittedValue(file.getPath());
+          ((EditableValueHolder) component).setSubmittedValue(filePath);
         }
         catch (Exception ex){
           throw new FacesException(ex);
@@ -131,4 +133,61 @@ public class UploadRenderer extends Renderer {
       }
     }
   }
+
+    /**
+     * Unify FileItem and Part instances behind one interface
+     */
+    private WrappedUpload wrapUpload(HttpServletRequest request, String name) {
+
+        FileItem item = (FileItem) request.getAttribute(name);
+        if (item != null) {
+            return new WrappedUpload(item);
+        }
+
+        try {
+            Part part = request.getPart(name);
+            if (part != null) return new WrappedUpload(part);
+        } catch (Exception e) {
+            log.error("Failed to get upload part from request. Null will be returned.", e);
+        }
+        return null;
+    }
+
+    /**
+     * Unify file items and parts in a single interface. The faces servlet digests multipart uploads
+     * into the new Servlet 3 Part interface, whereas the RequestFilter digests as FileItem instances.
+     */
+    private class WrappedUpload {
+
+        private Part part;
+        private FileItem fileItem;
+
+        private WrappedUpload(Object upload) {
+
+            if (upload instanceof Part) this.part = (Part) upload;
+            if (upload instanceof FileItem) this.fileItem = (FileItem) upload;
+        }
+
+        public long getSize() {
+
+            if (part != null) return part.getSize();
+            if (fileItem != null) return fileItem.getSize();
+            return 0L;
+        }
+
+        public String getName() {
+
+            if (part != null) return part.getSubmittedFileName();
+            if (fileItem != null) return fileItem.getName();
+            return "";
+        }
+
+        public void write(String filePath) throws Exception {
+
+            if (part != null) part.write(filePath);
+            if (fileItem != null) {
+                fileItem.write(new File(filePath));
+            }
+        }
+    }
 }

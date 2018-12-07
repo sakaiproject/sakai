@@ -717,27 +717,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public void removeMediaById(Long mediaId, Long itemGradingId) {
         String mediaLocation = null;
-        Session session = null;
-        try {
-            session = getSessionFactory().openSession();
-            String query0 = "select LOCATION from SAM_MEDIA_T where MEDIAID = :id";
-            mediaLocation = (String) session.createSQLQuery(query0).setLong("id", mediaId).uniqueResult();
-            log.debug("****mediaLocation=" + mediaLocation);
-
-            String query = "delete from SAM_MEDIA_T where MEDIAID = :id";
-            session.createSQLQuery(query).setLong("id", mediaId).executeUpdate();
-        } catch (HibernateException e) {
-            log.warn(e.getMessage());
-        } finally {
-            if (session != null) {
-                try {
-                    session.flush();
-                    session.close();
-                } catch (Exception e1) {
-                    log.warn(e1.getMessage(), e1);
-                }
+        int retryCount = persistenceHelper.getRetryCount();
+        while (retryCount > 0) {
+            try {
+                MediaData mediaData = this.getMedia(mediaId);
+                mediaLocation = mediaData.getLocation();
+                getHibernateTemplate().delete(mediaData);
+                retryCount = 0;
+            } catch (Exception e) {
+                log.warn("Problem deleting media with Id {}",  mediaId);
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
+
         if (mediaLocation != null) {
             File mediaFile = new File(mediaLocation);
             if (mediaFile.delete()) {
