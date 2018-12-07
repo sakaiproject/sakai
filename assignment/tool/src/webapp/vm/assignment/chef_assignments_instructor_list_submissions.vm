@@ -852,7 +852,7 @@ function printView(url) {
 		</tr>
 	</table>	
 	
-	#if ($assignment.Instructions.length() > 0)
+	#if ($assignment.Instructions && $assignment.Instructions.length() > 0)
 		<h4>$tlang.getString("gen.assinf")</h4>
 		<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
 	#end
