@@ -46,6 +46,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -1194,9 +1195,6 @@ public class AssignmentAction extends PagedResourceActionII {
             // disable auto-updates while leaving the list view
             justDelivered(state);
 
-            if (MODE_STUDENT_VIEW_GRADE_PRIVATE.equals(mode)) {
-                context.put("privateView", true);
-            }
             // build the context for showing one graded submission
             template = build_student_view_grade_context(portlet, context, data, state);
         } else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode)) {
@@ -1978,6 +1976,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
                 context.put("grade", grade);
                 context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
+            }
+
+            if (assignment.getIsGroup() && state.getAttribute(VIEW_SUBMISSION_GROUP) != null) {
+                context.put(VIEW_SUBMISSION_GROUP, (String) state.getAttribute(VIEW_SUBMISSION_GROUP));
             }
 
             setScoringAgentProperties(context, assignment, submission, false);
@@ -5243,6 +5245,11 @@ public class AssignmentAction extends PagedResourceActionII {
         state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, aReference);
         Assignment a = getAssignment(aReference, "doPreview_submission", state);
 
+        String[] groupChoice = params.getStrings("selectedGroups");
+        if (groupChoice != null && ArrayUtils.isNotEmpty(groupChoice)) {
+            state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
+        }
+
         saveSubmitInputs(state, params);
 
         // retrieve the submission text (as formatted text)
@@ -6928,12 +6935,9 @@ public class AssignmentAction extends PagedResourceActionII {
         if (groupAssignment) {
             Collection<String> users = usersInMultipleGroups(state, Assignment.Access.GROUP.toString().equals(range), (Assignment.Access.GROUP.toString().equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
             if (!users.isEmpty()) {
-                StringBuilder sb = new StringBuilder(rb.getString("group.user.multiple.warning") + " ");
-                for (String user : users) {
-                    sb.append(", " + user);
-                }
-                log.warn("{}", sb.toString());
-                addAlert(state, sb.toString());
+                String usersString = rb.getString("group.user.multiple.warning") + " " + String.join(",", users);
+                log.warn("{}", usersString);
+                addAlert(state, usersString);
             }
         }
 
