@@ -56,6 +56,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
@@ -1265,7 +1266,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Event event = (Event) arg;
             String eventName = event.getEvent();
             if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventName)
-                    || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)) {
+                    || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)
+                    || AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP.equals(eventName)) {
                 log.debug("Site membership or groups updated. Clearing caches ...");
                 String siteId = event.getContext();
 
