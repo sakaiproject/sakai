@@ -656,9 +656,7 @@
         if (!roster.currentUserPermissions.rosterExport) {
             button.hide();
         } else {
-            button.show();
-
-            $('#roster-export-button').click(function (e) {
+            button.show().click(function (e) {
 
                 e.preventDefault();
 
