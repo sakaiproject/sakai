@@ -41,7 +41,9 @@
 	</bean>
 
     <!-- Just handles preloading of the institional calendars -->
-	<bean class="org.sakaiproject.calendar.impl.Preloader" init-method="init">
+	<bean class="org.sakaiproject.calendar.impl.Preloader"
+		  init-method="init"
+		  destroy-method="destroy">
 		<constructor-arg ref="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/>
 	</bean>
 	
