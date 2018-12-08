@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -716,6 +717,16 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			Category persistedCategory = null;
 			if (categoryId != null) {
 				persistedCategory = getCategory(categoryId);
+				if (persistedCategory.isDropScores()) {
+					List<GradebookAssignment> thisCategoryAssignments = getAssignmentsForCategory(categoryId);
+					for (GradebookAssignment thisAssignment : thisCategoryAssignments) {
+						if (!Objects.equals(thisAssignment.getPointsPossible(), points)) {
+							String errorMessage = "Assignment points mismatch the selected Gradebook Category ("
+								+ thisAssignment.getPointsPossible().toString() + ") and cannot be added to Gradebook )";
+							throw new InvalidCategoryException(errorMessage);
+						}
+					}
+				}
 				if (persistedCategory == null || persistedCategory.isRemoved() ||
 						!persistedCategory.getGradebook().getId().equals(gradebook.getId())) {
 					throw new InvalidCategoryException("The category with id " + categoryId +
