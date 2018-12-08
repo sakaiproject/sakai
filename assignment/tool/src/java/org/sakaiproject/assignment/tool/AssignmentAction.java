@@ -6974,6 +6974,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // only when choose to associate with assignment in Gradebook
         String associateAssignment = params.getString(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
+        Double droppedCategoryPoints = -1D;
         if (grading != null) {
             if (grading.equals(GRADEBOOK_INTEGRATION_ASSOCIATE)) {
                 state.setAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateAssignment);
@@ -6990,6 +6991,33 @@ public class AssignmentAction extends PagedResourceActionII {
                 // if chosen as "associate", have to choose one assignment from Gradebook
                 if (grading.equals(GRADEBOOK_INTEGRATION_ASSOCIATE) && StringUtils.trimToNull(associateAssignment) == null) {
                     addAlert(state, rb.getString("grading.associate.alert"));
+                } else {
+                    Long thisCatRef = -1L;
+                    String gradebookUid = toolManager.getCurrentPlacement().getContext();
+                    List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+                    if (catInt != -1) {
+                      thisCatRef = catInt;
+                    } else if (assignmentRef.isEmpty()) {
+                      thisCatRef = catInt;
+                    } else {
+                        for (CategoryDefinition thisCategoryDefinition : categoryDefinitions) {
+                            if (thisCategoryDefinition.isAssignmentInThisCategory(assignmentRef)) {
+                                thisCatRef = thisCategoryDefinition.getId();
+                            }
+                        }
+                    }
+                    if (thisCatRef != -1) {
+                        for(CategoryDefinition thisCategoryDefinition : categoryDefinitions) {
+                            if (Objects.equals(thisCategoryDefinition.getId(), thisCatRef)) {
+                                if (thisCategoryDefinition.getIsDropped()) {
+                                    Double thisCategoryPoints = thisCategoryDefinition.getPointsForCategory();
+                                    if (thisCategoryPoints != null) {
+                                        droppedCategoryPoints = thisCategoryPoints;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -7115,6 +7143,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     // when scale is points, grade must be integer and less than maximum value
                     gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+                    if (droppedCategoryPoints != -1) {
+                        int factor = assignmentService.getScaleFactor();
+                        Double enteredPoints = new Double(displayGrade(state, gradePoints, factor));
+                        if (enteredPoints != droppedCategoryPoints) {
+                          addAlert(state, rb.getFormattedMessage("pleasee6", new Object[] {droppedCategoryPoints.toString()}));
+                        }
+                    }
                 }
             }
         }
@@ -12424,7 +12459,8 @@ public class AssignmentAction extends PagedResourceActionII {
     }
 
     private String displayGrade(SessionState state, String grade, Integer factor) {
-        if (state.getAttribute(STATE_MESSAGE) == null) {
+        String currentStateMessage = (String) state.getAttribute(STATE_MESSAGE);
+        if (currentStateMessage == null || currentStateMessage.startsWith(rb.getString("pleasee6"))) {
             if (StringUtils.isNotBlank(grade)) {
                 grade = assignmentService.getGradeDisplay(grade, Assignment.GradeType.SCORE_GRADE_TYPE, factor);
             } else {

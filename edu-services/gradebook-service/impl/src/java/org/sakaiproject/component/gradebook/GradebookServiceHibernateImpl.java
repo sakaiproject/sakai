@@ -49,7 +49,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -2503,6 +2502,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			categoryDef.setDropHighest(category.getDropHighest());
 			categoryDef.setKeepHighest(category.getKeepHighest());
 			categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
+			categoryDef.setIsDropped(category.isDropScores());
 			categoryDef.setExtraCredit(category.isExtraCredit());
 			categoryDef.setCategoryOrder(category.getCategoryOrder());
 		}
