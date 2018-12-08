@@ -41,6 +41,7 @@ public class CategoryDefinition implements Serializable {
     private Integer keepHighest;
     private Boolean extraCredit;
     private Integer categoryOrder;
+    private Boolean isDropped;
     
     public static Comparator<CategoryDefinition> orderComparator;
 
@@ -204,5 +205,38 @@ public class CategoryDefinition implements Serializable {
 			}
 		}
 		return totalPoints.doubleValue();
+	}
+
+	public Boolean getIsDropped() {
+		return isDropped;
+	}
+
+	public void setIsDropped(Boolean isDropped) {
+		this.isDropped = isDropped;
+	}
+
+	public boolean isAssignmentInThisCategory(String assignmentId) {
+		for (Assignment thisAssignment : this.assignmentList) {
+			if (thisAssignment.getExternalId() == null) {
+				continue;
+			}
+			if (thisAssignment.getExternalId().equalsIgnoreCase(assignmentId)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public Double getPointsForCategory() {
+		if (!this.isDropped) {
+			return null;
+		}
+
+		for (Assignment thisAssignment : this.assignmentList) {
+			return thisAssignment.getPoints();
+		}
+
+		return null;
 	}
 }
