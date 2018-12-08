@@ -397,6 +397,22 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		return sectionRoleMap;
 	}
 
+	public Map<String, String> findSectionRoles(final String userEid, final String academicSessionEid) {
+		HibernateCallback hc = session -> {
+			Query q = session.getNamedQuery("findSectionRolesByAcademicSession");
+			q.setParameter("userEid", userEid);
+			q.setParameter("academicSessionEid", academicSessionEid);
+			return q.list();
+		};
+
+		List<Object[]> results = new ArrayList<>((List<Object[]>) getHibernateTemplate().execute(hc));
+		Map<String, String> sectionRoleMap = new HashMap<>();
+		for(Object[] oa : results) {
+			sectionRoleMap.put((String) oa[0], (String) oa[1]);
+		}
+
+		return sectionRoleMap;
+	}
 
 	public Set<CourseOffering> getCourseOfferingsInCanonicalCourse(final String canonicalCourseEid) throws IdNotFoundException {
 		if(!isCanonicalCourseDefined(canonicalCourseEid)) {

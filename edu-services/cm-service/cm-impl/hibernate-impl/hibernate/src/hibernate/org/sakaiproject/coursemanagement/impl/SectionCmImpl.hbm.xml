@@ -54,6 +54,15 @@
         ]]>
     </query>
 
+    <query name="findSectionRolesByAcademicSession">
+        <![CDATA[
+        select section.eid, mbr.role from SectionCmImpl as section, MembershipCmImpl as mbr
+            where mbr.userId=:userEid and
+            mbr.memberContainer=section and
+            section.courseOffering.academicSession.eid=:academicSessionEid
+        ]]>
+    </query>
+
 	<query name="findInstructingSections">
         <![CDATA[
         select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es join es.officialInstructors as instructor
