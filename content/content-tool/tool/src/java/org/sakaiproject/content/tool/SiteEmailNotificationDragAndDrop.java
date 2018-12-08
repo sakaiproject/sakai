@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.util.api.FormattedText;
@@ -146,7 +147,51 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		String[] args = {title, folderName};
 		if (this.isDropboxFolder())
 		{
-			return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new.dnd" : "db.subj.upd-dnd"), args);
+			String dropboxId = contentHostingService.getIndividualDropboxId(ref.getId());
+			boolean toplevel = false;
+			if (dropboxId == null || "".equals(dropboxId))
+			{
+				toplevel = true;
+			}
+			else
+			{
+				try
+				{
+					contentHostingService.getProperties(dropboxId);
+					// checking for valid INDIVIDUAL dropboxId. results not needed.
+				}
+				catch (PermissionException e)
+				{
+					log.warn("PermissionException trying to get title for individual dropbox: {}", dropboxId);
+				}
+				catch (IdUnusedException e)
+				{
+					String[] parts = dropboxId.split(Entity.SEPARATOR);
+					if (parts.length == 4)
+					{
+						toplevel = true;
+					}
+					else
+					{
+						log.warn("IdUnusedException trying to get title for individual dropbox: {}", dropboxId);
+					}
+				}
+			}
+			if (toplevel)
+			{
+				// toplevel templates here don't use final array item args[1] == folderName
+				return rb.getFormattedMessage(
+						(ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function)
+						? "db.subj.new.dnd.toplevel"
+						: "db.subj.upd.dnd.toplevel"), (Object[]) args);
+			}
+			else
+			{
+				return rb.getFormattedMessage(
+						(ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function)
+						? "db.subj.new.dnd"
+						: "db.subj.upd.dnd"), (Object[]) args);
+			}
 		}
 		else return "[ " + title + " - "
 		+ ((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))||(contentHostingService.EVENT_RESOURCE_ADD.equals(function)) ? rb.getString("newDnD") : rb.getString("chan")) + " "
@@ -226,8 +271,14 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 			String parts[] = resourceRef.split("/");
 			if(parts.length >= 4)
 			{
-				String dropboxOwnerId = parts[4];
-				if(modifiedBy != null && modifiedBy.equals(dropboxOwnerId))
+				String dropboxOwnerId = "";
+				if (parts.length >= 5)
+				{
+					dropboxOwnerId = parts[4];
+				}
+				if (StringUtils.isBlank(dropboxOwnerId) // notify on change made in common top-level dropbox
+					|| StringUtils.equals(modifiedBy, dropboxOwnerId)) // notify on change made by member/student in individual
+				// dropbox
 				{
 					// notify instructor(s)
 					StringBuilder buf = new StringBuilder();
@@ -245,7 +296,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 					
 					refineToSiteMembers(recipients, site);
 				}
-				else
+				else // notify on change made by owner/instructor in individual dropbox
 				{
 					// notify student
 					try
@@ -525,37 +576,40 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		}
 		buf.append(blankLine);
 
-		for (int i=0;i<this.fileList.size();i++)
+		if (this.fileList != null)
 		{
-			ref2 = entityManager.newReference((String)this.getFileList().get(i));
-			url = ref2.getUrl();
-			props = ref2.getProperties();
-			resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-
-			// add location
-			String path = constructPath(ref2.getReference());
-			buf.append(rb.getString("locsit") + " \"" + title + "\" > " + rb.getString("reso") + " " + path + " > ");
-			if ( doHtml ) 
+			for (int i=0;i<this.fileList.size();i++)
 			{
-				buf.append("<a href=\"");
-				buf.append(url);
-				buf.append("\">");
-				buf.append(resourceName);
-				buf.append("</a>");
-			}
-			else
-			{
-				buf.append(resourceName);
-			}
+				ref2 = entityManager.newReference((String)this.getFileList().get(i));
+				url = ref2.getUrl();
+				props = ref2.getProperties();
+				resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 
-			buf.append(blankLine);
+				// add location
+				String path = constructPath(ref2.getReference());
+				buf.append(rb.getString("locsit") + " \"" + title + "\" > " + rb.getString("reso") + " " + path + " > ");
+				if ( doHtml )
+				{
+					buf.append("<a href=\"");
+					buf.append(url);
+					buf.append("\">");
+					buf.append(resourceName);
+					buf.append("</a>");
+				}
+				else
+				{
+					buf.append(resourceName);
+				}
 
-			// add a reference to the resource for non-HTML
-			if ( ! doHtml )
-			{
-				buf.append("\n" + rb.getString("resour") + " " + resourceName);
-				buf.append(" " + url);
-				buf.append("\n\n");  // End on a blank line
+				buf.append(blankLine);
+
+				// add a reference to the resource for non-HTML
+				if ( ! doHtml )
+				{
+					buf.append("\n" + rb.getString("resour") + " " + resourceName);
+					buf.append(" " + url);
+					buf.append("\n\n");  // End on a blank line
+				}
 			}
 		}
 
@@ -587,19 +641,35 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		String newLine = "\n";
 
 		String dropboxId = contentHostingService.getIndividualDropboxId(ref.getId());
-		String dropboxTitle = null;
-		try 
+		String dropboxTitle = "";
+		boolean toplevel = false;
+		if (StringUtils.isBlank(dropboxId))
 		{
-			ResourceProperties dbProps = contentHostingService.getProperties(dropboxId);
-			dropboxTitle = dbProps.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-		} 
-		catch (PermissionException e) 
+			toplevel = true;
+		}
+		else
 		{
-			log.warn("PermissionException trying to get title for individual dropbox: {}", dropboxId);
-		} 
-		catch (IdUnusedException e) 
-		{
-			log.warn("IdUnusedException trying to get title for individual dropbox: {}", dropboxId);
+			try
+			{
+				ResourceProperties dbProps = contentHostingService.getProperties(dropboxId);
+				dropboxTitle = dbProps.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+			}
+			catch (PermissionException e)
+			{
+				log.warn("PermissionException trying to get title for individual dropbox: {}", dropboxId);
+			}
+			catch (IdUnusedException e)
+			{
+				String[] parts = dropboxId.split(Entity.SEPARATOR);
+				if (parts.length == 4)
+				{
+					toplevel = true;
+				}
+				else
+				{
+					log.warn("IdUnusedException trying to get title for individual dropbox: {}", dropboxId);
+				}
+			}
 		}
 
 		if ( doHtml ) 
@@ -624,43 +694,58 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		}
 		if (contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
-			buf.append(rb.getFormattedMessage("db.text.new.dnd", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
+			if (toplevel)
+			{
+				buf.append(rb.getFormattedMessage("db.text.new.dnd.toplevel", new Object[] {siteTitle, portalName, portalUrl}));
+			}
+			else
+			{
+				buf.append(rb.getFormattedMessage("db.text.new.dnd", new Object[] {dropboxTitle, siteTitle, portalName, portalUrl}));
+			}
 		}
 		else
 		{
-			buf.append(rb.getFormattedMessage("db.text.upd.dnd", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
+			if (toplevel)
+			{
+				buf.append(rb.getFormattedMessage("db.text.upd.dnd.toplevel", new Object[] {siteTitle, portalName, portalUrl}));
+			}
+			else
+			{
+				buf.append(rb.getFormattedMessage("db.text.upd.dnd", new Object[] {dropboxTitle, siteTitle, portalName, portalUrl}));
+			}
 		}
 		buf.append(blankLine);
 
-		//FOR
-		for (int i=0;i<this.fileList.size();i++)
+		if (this.fileList != null)
 		{
-			ref2 = entityManager.newReference((String)this.getFileList().get(i));
-			url = ref2.getUrl();
-			props = ref2.getProperties();
-			resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-
-			// add location
-			String path = constructPath(ref2.getReference());
-			String item = resourceName;
-
-			if(doHtml)
+			for (int i=0;i<this.fileList.size();i++)
 			{
-				item = "<a href=\"" + url + "\">" + item + "</a>";
-			}
-			buf.append(rb.getFormattedMessage("db.text.location", new String[]{siteTitle, path, item}));
+				ref2 = entityManager.newReference((String)this.getFileList().get(i));
+				url = ref2.getUrl();
+				props = ref2.getProperties();
+				resourceName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 
-			buf.append(blankLine);
+				// add location
+				String path = constructPath(ref2.getReference());
+				String item = resourceName;
 
-			// add a reference to the resource for non-HTML
-			if ( ! doHtml )
-			{
-				buf.append("\n" + rb.getString("resour") + " " + resourceName);
-				buf.append(" " + url);
-				buf.append("\n\n");  // End on a blank line
+				if(doHtml)
+				{
+					item = "<a href=\"" + url + "\">" + item + "</a>";
+				}
+				buf.append(rb.getFormattedMessage("db.text.location", new String[]{siteTitle, path, item}));
+
+				buf.append(blankLine);
+
+				// add a reference to the resource for non-HTML
+				if ( ! doHtml )
+				{
+					buf.append("\n" + rb.getString("resour") + " " + resourceName);
+					buf.append(" " + url);
+					buf.append("\n\n");  // End on a blank line
+				}
 			}
 		}
-		//END FOR
 
 		// Add the tag
 		if (doHtml) 
