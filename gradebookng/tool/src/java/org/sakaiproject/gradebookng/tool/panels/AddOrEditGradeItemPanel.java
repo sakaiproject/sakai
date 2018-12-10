@@ -219,6 +219,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				if (mismatched != null) {
 					validated = false;
 					error(MessageFormat.format(getString("error.addeditgradeitem.categorypoints"), mismatched.getPoints()));
+					if (assignment.isExternallyMaintained()) {
+						error(MessageFormat.format(getString("info.edit_assignment_external_items"), assignment.getExternalAppName()));
+					}
 					target.addChildren(form, FeedbackPanel.class);
 				}
 			}
