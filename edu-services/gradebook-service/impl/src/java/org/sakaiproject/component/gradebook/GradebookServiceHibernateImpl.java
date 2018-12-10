@@ -3451,7 +3451,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			courseGradeRecord = new CourseGradeRecord(courseGrade, studentUuid);
 			courseGradeRecord.setGraderId(getUserUid());
-			courseGradeRecord.setDateRecorded(new Date());
 
 		} else {
 			// if passed in grade override is same as existing grade override, nothing to do
@@ -3462,6 +3461,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// set the grade override
 		courseGradeRecord.setEnteredGrade(grade);
+		// record the last grade override date
+		courseGradeRecord.setDateRecorded(new Date());
 
 		// create a grading event
 		final GradingEvent gradingEvent = new GradingEvent();
