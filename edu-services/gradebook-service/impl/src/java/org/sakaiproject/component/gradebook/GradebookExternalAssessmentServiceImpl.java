@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -239,7 +240,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				asn.setName(title);
 				asn.setDueDate(dueDate);
 				// support selective release
-				asn.setReleased(true);
+				asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));
 				asn.setPointsPossible(Double.valueOf(points));
 				session.update(asn);
 				log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId,
@@ -788,7 +789,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			asn.setName(title);
 			asn.setDueDate(dueDate);
 			// support selective release
-			asn.setReleased(true);
+			asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));
 			asn.setPointsPossible(points);
 			if (ungraded != null) {
 				asn.setUngraded(ungraded.booleanValue());
