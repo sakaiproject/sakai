@@ -323,7 +323,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 				// checkbox
 				final CategoryDefinition category = categoryMap.get(selected);
 
-				if (category != null && category.isExtraCredit()) {
+				if (category != null && category.getExtraCredit()) {
 					extraCredit.setModelObject(false);
 					extraCredit.setEnabled(false);
 				} else {
