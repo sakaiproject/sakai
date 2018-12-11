@@ -118,6 +118,54 @@ public class SectionRoleResolver extends BaseRoleResolver {
 		return userRoleMap;
 	}
 
+	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid, String academicSessionEid) {
+		Map<String, String> groupRoleMap = new HashMap<>();
+
+		// Start with the sectionEid->role map
+		if (roleMap != null && roleMap.size() > 0) {
+			// limit search further to those academic terms for this userEid
+			Map<String, String> sectionRoles = cmService.findSectionRoles(userEid, academicSessionEid);
+
+			// Convert these roles to Sakai roles
+			for (String key : sectionRoles.keySet()) {
+				groupRoleMap.put(key, convertRole((String) sectionRoles.get(key)));
+			}
+		}
+
+		// Next add all enrollments to the sectionEid->role map, overriding memberships
+		if (enrollmentStatusRoleMap != null && enrollmentStatusRoleMap.size() > 0) {
+			Set<Section> enrolledSections = cmService.findEnrolledSections(userEid);
+			log.debug("Found {} currently enrolled sections for user {}", enrolledSections.size(), userEid);
+			for (Section section : enrolledSections) {
+				log.debug("{} is enrolled in an enrollment set attached to section {}", userEid, section.getEid());
+
+				Enrollment enr = cmService.findEnrollment(userEid, section.getEnrollmentSet().getEid());
+				String roleFromEnrollmentStatus = enrollmentStatusRoleMap.get(enr.getEnrollmentStatus());
+
+				// Only add the enrollment if it's not dropped and it has an enrollment role mapping
+				if (roleFromEnrollmentStatus != null && !enr.isDropped()) {
+					groupRoleMap.put(section.getEid(), roleFromEnrollmentStatus);
+				}
+			}
+		}
+
+		// Finally, add the official instructors, overriding any other roles if necessary
+		if (officialInstructorRole != null && officialInstructorRole.length() > 0) {
+			Set<Section> instructingSections = cmService.findInstructingSections(userEid, academicSessionEid);
+			for (Section instructingSection : instructingSections) {
+				groupRoleMap.put(instructingSection.getEid(), officialInstructorRole);
+			}
+		}
+
+		if (log.isDebugEnabled()) {
+			for (String sectionEid : groupRoleMap.keySet()) {
+				log.debug("User {} has role {} in {}", userEid, groupRoleMap.get(sectionEid), sectionEid);
+			}
+		}
+
+		return groupRoleMap;
+	}
+
 	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid) {
 		Map<String, String> groupRoleMap = new HashMap<String, String>();
 		

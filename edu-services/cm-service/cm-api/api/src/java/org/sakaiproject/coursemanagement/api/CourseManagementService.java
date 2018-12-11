@@ -445,6 +445,16 @@ public interface CourseManagementService {
 	public Map<String, String> findSectionRoles(String userEid);
 
 	/**
+	 * Finds the Sections (and roles) for which a user is a member and which are part of a
+	 * CourseOffering in a given AcademicSession.
+	 *
+	 * @param userEid
+	 * @param academicSessionEid
+	 * @return A Map of Section EIDs to roles for the user
+	 */
+	public Map<String, String> findSectionRoles(String userEid, String academicSessionEid);
+
+	/**
 	 * Finds the CourseOfferings (and roles) for which a user is a member.
 	 * 
 	 * @param userEid

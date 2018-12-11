@@ -13609,7 +13609,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			return;
 		}
 		
-		Map map = groupProvider.getGroupRolesForUser(userId);
+		Map<String, String> map = groupProvider.getGroupRolesForUser(userId, academicSessionEid);
 		if (map == null)
 			return;
 
