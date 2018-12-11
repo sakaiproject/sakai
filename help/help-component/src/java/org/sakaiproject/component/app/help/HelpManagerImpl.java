@@ -171,7 +171,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#setServerConfigurationService(org.sakaiproject.service.framework.config.ServerConfigurationService)
+	 * @see org.sakaiproject.api.app.help.HelpManager#setServerConfigurationService(org.sakaiproject.component.api.ServerConfigurationService)
 	 */
 	public void setServerConfigurationService(ServerConfigurationService s)
 	{
@@ -229,7 +229,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 	/**
 	 * Store resource
-	 * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.help.Entity)
+	 * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.app.help.Resource)
 	 */
 	public void storeResource(Resource resource)
 	{
@@ -272,7 +272,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#storeSource(org.sakaiproject.api.help.Source)
+	 * @see org.sakaiproject.api.app.help.HelpManager#storeSource(org.sakaiproject.api.app.help.Source)
 	 */
 	public void storeSource(Source source)
 	{
@@ -307,7 +307,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#storeContext(org.sakaiproject.api.help.Context)
+	 * @see org.sakaiproject.api.app.help.HelpManager#storeContext(org.sakaiproject.api.app.help.Context)
 	 */
 	public void storeContext(Context context)
 	{
@@ -380,7 +380,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#setTableOfContents(org.sakaiproject.api.help.TableOfContents)
+	 * @see org.sakaiproject.api.app.help.HelpManager#setTableOfContents(org.sakaiproject.api.app.help.TableOfContents)
 	 */
 	public void setTableOfContents(TableOfContents toc)
 	{
@@ -681,7 +681,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	}
 
 	/**
-	 * @see org.sakaiproject.api.app.help.HelpManager#storeCategory(org.sakaiproject.api.help.Category)
+	 * @see org.sakaiproject.api.app.help.HelpManager#storeCategory(org.sakaiproject.api.app.help.Category)
 	 */
 	public void storeCategory(Category category)
 	{
@@ -980,8 +980,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 	/**
 	 * Returns the user locale
-	 * @param prefLocales
-	 *            The prefLocales to set.
 	 */
 	private Locale getSelectedLocale() {
 
@@ -1060,7 +1058,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	/**
 	 * register external help content
 	 * build document from external reg file
-	 * @param externalHelpReg
+	 * @param helpFile The helpfile to register
 	 */
 	public void registerExternalHelpContent(String helpFile)
 	{
