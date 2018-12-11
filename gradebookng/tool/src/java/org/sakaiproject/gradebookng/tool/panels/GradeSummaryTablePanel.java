@@ -90,7 +90,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		}
 
 		this.rubricStudentWindow = new GbModalWindow("rubricStudentWindow");
-		add(this.rubricStudentWindow);
+		addOrReplace(this.rubricStudentWindow);
 
 		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
 		toggleActions.setVisible(categoriesEnabled);
