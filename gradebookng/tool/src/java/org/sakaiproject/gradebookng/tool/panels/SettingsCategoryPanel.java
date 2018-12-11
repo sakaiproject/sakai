@@ -762,7 +762,7 @@ public class SettingsCategoryPanel extends BasePanel {
 				weight = BigDecimal.ZERO;
 			}
 
-			if (!categoryDefinition.isExtraCredit()) {
+			if (!categoryDefinition.getExtraCredit()) {
 				total = total.add(weight);
 			}
 		}

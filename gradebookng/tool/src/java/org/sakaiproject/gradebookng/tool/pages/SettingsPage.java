@@ -131,7 +131,7 @@ public class SettingsPage extends BasePage {
 							error(getString("settingspage.update.failure.categorymissingweight"));
 						} else {
 							// extra credit items do not participate in the weightings, so exclude from the tally
-							if (!cat.isExtraCredit()) {
+							if (!cat.getExtraCredit()) {
 								totalWeight = totalWeight.add(BigDecimal.valueOf(cat.getWeight()));
 							}
 						}

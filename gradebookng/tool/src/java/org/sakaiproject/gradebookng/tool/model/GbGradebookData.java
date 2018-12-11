@@ -573,7 +573,7 @@ public class GbGradebookData {
 									.getString(),
 							nullable(categoryWeight),
 							category.getTotalPoints(),
-							category.isExtraCredit(),
+							category.getExtraCredit(),
 							userSettings.getCategoryColor(category.getName(), category.getId()),
 							!this.uiSettings.isCategoryScoreVisible(category.getName()),
 							FormatHelper.formatCategoryDropInfo(category)));

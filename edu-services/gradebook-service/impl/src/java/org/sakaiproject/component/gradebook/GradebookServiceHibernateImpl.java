@@ -466,7 +466,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							Long categoryId = null;
 							try {
 								categoryId = createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDropLowest(),
-										c.getDropHighest(), c.getKeepHighest(), c.isExtraCredit(), c.getCategoryOrder());
+										c.getDropHighest(), c.getKeepHighest(), c.getExtraCredit(), c.getCategoryOrder());
 							} catch (final ConflictingCategoryNameException e) {
 								// category already exists. Could be from a merge.
 								log.info("Category: {} already exists in target site. Skipping creation.", c.getName());
@@ -506,7 +506,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			categories.forEach(c -> {
 				try {
 					createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDropLowest(), c.getDropHighest(), c.getKeepHighest(),
-							c.isExtraCredit(), c.getCategoryOrder());
+							c.getExtraCredit(), c.getCategoryOrder());
 				} catch (final ConflictingCategoryNameException e) {
 					// category already exists. Could be from a merge.
 					log.info("Category: {} already exists in target site. Skipping creation.", c.getName());
@@ -2502,7 +2502,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			categoryDef.setDropHighest(category.getDropHighest());
 			categoryDef.setKeepHighest(category.getKeepHighest());
 			categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
-			categoryDef.setIsDropped(category.isDropScores());
+			categoryDef.setDropKeepEnabled(category.isDropScores());
 			categoryDef.setExtraCredit(category.isExtraCredit());
 			categoryDef.setCategoryOrder(category.getCategoryOrder());
 		}
@@ -3344,7 +3344,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				existing.setDropLowest(newDef.getDropLowest());
 				existing.setDropHighest(newDef.getDropHighest());
 				existing.setKeepHighest(newDef.getKeepHighest());
-				existing.setExtraCredit(newDef.isExtraCredit());
+				existing.setExtraCredit(newDef.getExtraCredit());
 				existing.setCategoryOrder(categoryIndex);
 				updateCategory(existing);
 
@@ -3366,7 +3366,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for (final Entry<CategoryDefinition, Integer> entry : newCategories.entrySet()) {
 			final CategoryDefinition newCat = entry.getKey();
 			this.createCategory(gradebook.getId(), newCat.getName(), newCat.getWeight(), newCat.getDropLowest(),
-					newCat.getDropHighest(), newCat.getKeepHighest(), newCat.isExtraCredit(), entry.getValue());
+					newCat.getDropHighest(), newCat.getKeepHighest(), newCat.getExtraCredit(), entry.getValue());
 		}
 
 		// if weighted categories, all uncategorised assignments are to be removed from course grade calcs
