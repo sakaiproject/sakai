@@ -112,32 +112,27 @@
 					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				</p>
 				<%-- link to open and close long desc. --%>
-				<p>
-					<h:commandLink immediate="true" 
-							action="#{ForumTool.processDfComposeToggle}" 
-							onmousedown="document.forms[0].onsubmit();"
-							rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
-							title="#{msgs.cdfm_full_description}"
-							styleClass="show">
-						<f:param value="dfViewMessage" name="redirectToProcessAction"/>
-						<f:param value="true" name="composeExpand"/>
-						<h:graphicImage url="/images/collapse.gif" />
-						<h:outputText value="#{msgs.cdfm_read_full_description}" />
-					</h:commandLink>
-					<h:commandLink immediate="true" 
-							action="#{ForumTool.processDfComposeToggle}" 
-							onmousedown="document.forms[0].onsubmit();"
-							rendered="#{ForumTool.selectedTopic.readFullDesciption}"
-							title="#{msgs.cdfm_full_description}"
-							styleClass="hide">
-						<f:param value="dfViewMessage" name="redirectToProcessAction"/>
-						<h:graphicImage url="/images/expand.gif"/>
-						<h:outputText value="#{msgs.cdfm_hide_full_description}" />
-					</h:commandLink>
-				</p>
-				<mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-					rendered="#{ForumTool.selectedTopic.readFullDesciption}" 
-					hideBorder="true"/>
+				<h:outputText value="#{ForumTool.selectedForum.forum.title} /  #{ForumTool.selectedTopic.topic.title}"  styleClass="title"/> 
+				<div class="textPanel">
+					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
+				</div>
+				<div>
+					<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
+						<a href="#" id="showMessage" class="toggle show">
+							<h:graphicImage url="/images/expand.gif" alt=""/>
+							<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
+						</a>
+					</p>
+					<p id="hideLinkBlock" class="toggleParent hideLinkBlock">
+						<a href="#" id="hideMessage" class="toggle show">
+							<h:graphicImage url="/images/collapse.gif" alt="" />
+							<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
+						</a>
+					</p>
+					<div id="fullTopicDescription" class="textPanel fullTopicDescription">
+						<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
+					</div>
+				</div>
 			</div>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<f:subview id="wordCountView" rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">

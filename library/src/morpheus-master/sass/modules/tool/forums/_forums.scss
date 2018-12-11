@@ -246,5 +246,24 @@
 		}
 	}
 
+	.openLinkBlock, .hideLinkBlock {
+		padding: 0;
+		margin: 0.5em 0;
+		&.display-none {
+			display: none;
+		}
+	}
 
+	.fullTopicDescription {
+		display: none;
+		&.display-block {
+			display: block;
+		}
+	}
+
+	.attachListTable {
+		font-size: 0.9em;
+		width: auto;
+		margin-left: 1em;
+	}
 }
