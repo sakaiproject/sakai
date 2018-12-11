@@ -131,8 +131,8 @@ public class GradingService
   public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
   // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
-  public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("(?<!\\{)-" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
-  public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("(?<!\\{)\\+" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
+  public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("--");
+  public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("\\+-");
   // SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
   public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
   public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
@@ -3069,8 +3069,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
    */
    private static String checkExpression(String expression) {
-	   expression = CALCQ_ANSWER_AVOID_DOUBLE_MINUS.matcher(expression).replaceAll("-({$1})");
-	   expression = CALCQ_ANSWER_AVOID_PLUS_MINUS.matcher(expression).replaceAll("+({$1})");
+	   expression = CALCQ_ANSWER_AVOID_DOUBLE_MINUS.matcher(expression).replaceAll("+");
+	   expression = CALCQ_ANSWER_AVOID_PLUS_MINUS.matcher(expression).replaceAll("-");
 	   expression = CALCQ_FORMULA_ALLOW_POINT_NUMBER.matcher(expression).replaceAll("$10$2$3");
 	   expression = CALCQ_FORMULA_ALLOW_NUMBER_POINT.matcher(expression).replaceAll("$1$3");
   
@@ -3095,10 +3095,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       if (expression == null) {
           expression = "";
       }
-      else {
-    	  expression = checkExpression(expression);
-      }
-
+      
       if (variables == null) {
           variables = new HashMap<>();
       }
@@ -3189,7 +3186,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           if (decimalPlaces < 0) {
               decimalPlaces = 0;
           }
-          formula = cleanFormula(formula);
+          formula = checkExpression(cleanFormula(formula));
           SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
           String numericString = parser.parse(formula, decimalPlaces+1);
           if (this.isAnswerValid(numericString)) {
