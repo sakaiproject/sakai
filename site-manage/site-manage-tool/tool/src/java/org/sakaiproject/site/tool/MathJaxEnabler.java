@@ -56,7 +56,7 @@ public class MathJaxEnabler
     private static final boolean ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !SRC_PATH.trim().isEmpty();
     private static final boolean ENABLED_AT_NEW_SITE_CREATION_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP_NEW_SITE, ENABLED_SAKAI_NEW_SITE_DEFAULT) && ENABLED_AT_SYSTEM_LEVEL;
     private static final String SAKAI_SERVICE = ServerConfigurationService.getString(VERSION_SERVICE_SAKAI_PROP, VERSION_SERVICE_DEFAULT);
-    private static final String HELP_URL = ServerConfigurationService.getString(HELP_URL_SAKAI_PROP, "https://sakai.screenstepslive.com/s/sakai_help/m/68426/l/728838-how-do-i-add-latex-language-to-my-course-site");
+    private static final String HELP_URL = ServerConfigurationService.getString(HELP_URL_SAKAI_PROP, "/portal/help/TOCDisplay/content.hlp?docId=howdoiaddlatexlanguagetomycoursesite");
     
     /**
      * Add MathJax settings to the context for the edit tools page
