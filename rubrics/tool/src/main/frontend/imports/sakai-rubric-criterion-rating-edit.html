@@ -23,17 +23,19 @@
         </div>
       </div>
       <div class="popover-content form">
-        <div class="form-group title">
-          <label for="">
-            <sr-lang key="rating_title">Rating Title</sr-lang>
-          </label>
-          <input type="text" class="form-control" value="{{ratingDataClone.title::input}}">
-        </div>
-        <div class="form-group points">
-          <label for="">
-            <sr-lang key="points">Points</sr-lang>
-          </label>
-          <input type="number" class="form-control hide-input-arrows" name="quantity" value="{{ratingDataClone.points::input}}" min="[[minpoints]]" max="[[maxpoints]]">
+        <div class="first-row">
+            <div class="form-group title">
+              <label for="rating-title">
+                <sr-lang key="rating_title">Rating Title</sr-lang>
+              </label>
+              <input type="text" id="rating-title" class="form-control" value="{{ratingDataClone.title::input}}">
+            </div>
+            <div class="form-group points">
+              <label for="rating-points">
+                <sr-lang key="points">Points</sr-lang>
+              </label>
+              <input type="number" id="rating-points" class="form-control hide-input-arrows" name="quantity" value="{{ratingDataClone.points::input}}" min="[[minpoints]]" max="[[maxpoints]]">
+            </div>
         </div>
         <div class="form-group">
           <label for="">

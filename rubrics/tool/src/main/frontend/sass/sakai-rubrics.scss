@@ -150,6 +150,10 @@ iron-icon.comment-icon {
             margin-left: 10px;
         }
     }
+  .first-row{
+    display: flex;
+    justify-content: space-between;
+  }
 }
 
 .btn.add-rubric {
