@@ -63,6 +63,17 @@ public interface GroupProvider
 	Map<String, String> getGroupRolesForUser(String userId);
 
 	/**
+	 * Access the external group id - role name map for this user in the given acadEid.
+	 *
+	 * @param userId
+	 *        The user id.
+	 * @param acadEid
+	 *        The acad EID
+	 * @return the the external group id - role name map for this users in the given acadEid. (may be empty).
+	 */
+	Map<String, String> getGroupRolesForUser(String userId, String acadEid);
+
+	/**
 	 * Packs any number of simple ids into a compound id.
 	 * @param ids
 	 * 		The external group ids

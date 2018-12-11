@@ -144,6 +144,15 @@ public class AllHandsGroupProvider implements GroupProvider
 		return rv;
 	}
 
+	// This signature was added to the interface to support speedup of displaying the list of available rosters,
+	// but implemented this method signature only for the implementations currently in use.
+	// Some implementations -- including this one -- do not implement this method signature.
+	// This signature was added here merely to complete the maven build (it ignores the added parameter).
+	// You must edit to specify processing if you actually use this class.
+	public Map getGroupRolesForUser(String userId, String academicSessionEid) {
+		return getGroupRolesForUser(userId);
+	}
+
 	public String[] unpackId(String id)
 	{
 		String[] rv = null;
