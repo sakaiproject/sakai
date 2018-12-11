@@ -116,6 +116,7 @@ import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -876,9 +877,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 
-			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
-			   needupdate = true;
-			   item.setGradebookId(s);
+			   try {
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
+			       needupdate = true;
+			       item.setGradebookId(s);
+			   } catch(ConflictingAssignmentNameException cane){
+			       log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "gradebookId");
+			   }
 		   }
 		   
 		   s = itemElement.getAttribute("altGradebook");
@@ -897,10 +902,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   if (false) {
 			       ii = title.lastIndexOf(":");
 			       title = title.substring(0, ii+1) + item.getId() + ")";
-			   }			       
-			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
-			   needupdate = true;
-			   item.setAltGradebook(s);
+			   }
+			   try {
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
+			       needupdate = true;
+			       item.setAltGradebook(s);
+			   } catch(ConflictingAssignmentNameException cane){
+			       log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "altGradebook");
+			   }
 		   }
 
 		   // have to save again, I believe
@@ -1063,8 +1072,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
 		     simplePageToolDao.quickSaveItem(page);
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
-			 gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+		       try {
+			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
 							    title, Double.valueOf(gradebookPoints), null, "Lesson Builder");
+			   } catch(ConflictingAssignmentNameException cane){
+			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);
+			   }
 		     }
 		     pageMap.put(oldPageId, page.getPageId());
 		 }
