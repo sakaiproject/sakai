@@ -142,6 +142,7 @@
     <div class="mathJaxToggleArea">
       <label class="onoffswitch-label" for="isMathJaxEnabledForSite">
           $tlang.getString("sinfo.mathjax.allowForSite")
+          <a href="$mathJaxHelpURL" target="_blank">$tlang.getString("sinfo.mathjax.allowForSite.learnmore")</a>.
       </label>
       <div class="onoffswitch">
           <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
