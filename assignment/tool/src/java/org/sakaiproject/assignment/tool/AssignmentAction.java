@@ -528,6 +528,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String ALLOW_RESUBMIT_CLOSEHOUR = "allow_resubmit_closeHour";
     private static final String ALLOW_RESUBMIT_CLOSEMIN = "allow_resubmit_closeMin";
     private static final String ATTACHMENTS_MODIFIED = "attachments_modified";
+    private static final String NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED = "new_assignment_previously_associated";
     /**
      * *************************** instructor's view student submission *****************
      */
@@ -7018,6 +7019,27 @@ public class AssignmentAction extends PagedResourceActionII {
                 // if chosen as "associate", have to choose one assignment from Gradebook
                 if (grading.equals(GRADEBOOK_INTEGRATION_ASSOCIATE) && StringUtils.trimToNull(associateAssignment) == null) {
                     addAlert(state, rb.getString("grading.associate.alert"));
+                }
+
+                // check if chosen a previously associated object
+                String contextString = toolManager.getCurrentPlacement().getContext();
+                Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
+                String associatedAssignmentTitles = "";
+                // check assignments from the site
+                for (Assignment a : assignments) {
+                    String gradebookItem = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    if(associateAssignment.equals(gradebookItem)){
+                        associatedAssignmentTitles += a.getTitle();
+                    }
+                }
+                if (StringUtils.isNotBlank(associatedAssignmentTitles) && !title.equals(associatedAssignmentTitles) && state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) == null) {
+                    state.setAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED, Boolean.TRUE);
+                } else {
+                    // clean the attribute after user confirm
+                    state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
+                }
+                if (state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) != null && validify) {
+                    addAlert(state, rb.getString("addtogradebook.previouslyAssoc"));
                 }
             }
         }
