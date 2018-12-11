@@ -17,9 +17,6 @@
 	<p class="indnt3">
 		#if (($oldSelectedHome) && (!$check_home))
 			$tlang.getString("java.home")
-			#if ($!allowPageOrderHelper)
-				($validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
-			#end
 			<br />
 			<script type="text/javascript">
 				document.getElementById('removedInstruction').style.display='block'
@@ -67,9 +64,6 @@
 					#else
 						$!oldToolTitle
 					#end
-					#if ($!allowPageOrderHelper)
-						($validator.escapeHtml($!toolRegistrationTitleList.get($!oldTool)))
-					#end
 					<br />
 				#end
 			#end
@@ -96,9 +90,6 @@
 				<span class="highlight">
 			#end
 			$tlang.getString("java.home")
-			#if ($!allowPageOrderHelper)
-				($validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
-			#end
 			#if (!$oldSelectedHome)
 				</span>
 			#end
@@ -126,17 +117,10 @@
 					<span class="highlight">
 				#end
 				#if ($newTool == "sakai.mailbox")
-					$!newToolTitle 
-					#if ($!allowPageOrderHelper)
-						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
-					#end
-					: $!emailId@$serverName
+					$!newToolTitle : $!emailId@$serverName
 				#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
 					## show tool title
 					$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
-					#if ($!allowPageOrderHelper)
-						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
-					#end
 					## show tool configuration
 					#if ($!multipleToolIdTitleMap.containsKey($toolId))
 						#set($properties = $!multipleToolConfiguration.get($toolId))
@@ -161,9 +145,6 @@
 				#else
 					$!newToolTitle
 					## exclude Home tool 
-					#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
-						($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
-					#end
 				#end
 				#if (!$found)
 					</span>
