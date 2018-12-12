@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.help.model;
+package org.sakaiproject.component.app.help;
 
 import org.sakaiproject.api.app.help.GlossaryEntry;
 

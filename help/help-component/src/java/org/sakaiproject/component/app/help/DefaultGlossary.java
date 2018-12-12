@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.api.app.help.Glossary;
 import org.sakaiproject.api.app.help.GlossaryEntry;
-import org.sakaiproject.component.app.help.model.GlossaryEntryBean;
 
 /**
  * default glossary
