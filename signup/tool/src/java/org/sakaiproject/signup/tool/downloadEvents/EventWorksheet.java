@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
@@ -59,6 +61,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
@@ -82,6 +85,10 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
+	private static final int COLUMNS_NOT_GROUPING_BY_SLOT = 8;
+
+	private static final int COLUMNS_GROUPING_BY_SLOT = 7;
+
 	private ResourceLoader rb = new ResourceLoader("messages");
 
 	private String[] tabTitles_Organizor;
@@ -103,6 +110,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	CreationHelper createHelper = null;
 
 	private SakaiFacade sakaiFacade;
+	
+	@Getter @Setter
+	private SignupMeetingService signupMeetingService;
 
 	/**
 	 * Constructor
@@ -645,13 +655,23 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 			return;
 		}
+		
+		int numberOfColumns = 0;
+		boolean groupBySlot = sakaiFacade.getServerConfigurationService().getBoolean("signup.export.group.participants.by.slot", true);
 
+		if(groupBySlot) {
+			numberOfColumns = COLUMNS_GROUPING_BY_SLOT;
+		}
+		else {
+			numberOfColumns = COLUMNS_NOT_GROUPING_BY_SLOT;
+		}
+		
 		/* Case: for group and individual events */
 		// Table titles row
 		cur_rowNum = cur_rowNum + 2;
 		row = sheet.createRow(cur_rowNum);
 		row.setHeightInPoints(rowHigh);
-		for (int i = 2; i <= 7; i++) {
+		for (int i = 2; i <= numberOfColumns; i++) {
 			row.createCell(i).setCellStyle(styles.get("tabColNames"));
 		}
 		cell = row.getCell(2);
@@ -660,20 +680,16 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		cell.setCellValue(currentTabTitles[0]);
 		sheet.addMergedRegion(CellRangeAddress.valueOf("$C$" + (cur_rowNum + 1) + ":$D$"
 				+ (cur_rowNum + 1)));
-		cell = row.getCell(4);
-		cell.setCellValue(currentTabTitles[1]);
-		cell = row.getCell(5);
-		cell.setCellValue(currentTabTitles[2]);
-		cell = row.getCell(6);
-		cell.setCellValue(currentTabTitles[3]);
-		cell = row.getCell(7);
-		cell.setCellValue(currentTabTitles[4]);
+		
+		for (int i = 4; i <= numberOfColumns && (i-3<currentTabTitles.length); i++) {
+			cell = row.getCell(i);
+			cell.setCellValue(currentTabTitles[i-3]);
+		}
 
 		// Table schedule Info
 		int rowNum = cur_rowNum;
 		final List<SignupTimeslot> tsItems = wrapper.getMeeting().getSignupTimeSlots();
-				
-		boolean groupBySlot = sakaiFacade.getServerConfigurationService().getBoolean("signup.export.group.participants.by.slot", true);
+		
 		if(groupBySlot) {
 			rowNum = getTableScheduleInfoStudentsGroupBySlot(wrapper, sheet, rowNum, tsItems);
 		}
@@ -683,7 +699,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		
 		// end of table line
 		row = sheet.createRow(rowNum);
-		for (int i = 2; i <= 7; i++) {
+		for (int i = 2; i <= numberOfColumns; i++) {
 			row.createCell(i).setCellStyle(styles.get("tab_endline"));
 		}
 
@@ -692,7 +708,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		// Comment Title row
 		Row commentsRow = sheet.createRow(rowNum);
 		commentsRow.setHeightInPoints(25);
-		for (int i = 1; i <= 7; i++) {
+		for (int i = 1; i <= numberOfColumns; i++) {
 			commentsRow.createCell(i).setCellStyle(styles.get("commentTitle"));
 		}
 		Cell commentsCell = commentsRow.getCell(2);
@@ -719,7 +735,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 							String comment = att.getComments();
 							if (comment != null && comment.trim().length() > 0) {
 								row = sheet.createRow(rowNum++);
-								for (int i = 1; i <= 7; i++) {
+								for (int i = 1; i <= numberOfColumns; i++) {
 									row.createCell(i);
 								}
 								cell = row.getCell(2);
@@ -758,7 +774,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		sheet.setColumnWidth(0, 3 * 256);
 		sheet.setColumnWidth(1, 3 * 256);
 		
-		for (int i = 2; i <= 7; i++) {
+		for (int i = 2; i <= numberOfColumns; i++) {
 			sheet.autoSizeColumn(i);
 		}
 
@@ -896,7 +912,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	private void fillAttendeeRow(final SignupMeetingWrapper wrapper, final Sheet sheet, int rowNum, final SignupTimeslot tsItem,
 			final List<SignupAttendee> attendees, final SignupAttendee signupAttendee, boolean isWaiting) {
 		final Row row = sheet.createRow(rowNum);
-		for (int i = 1; i <= 7; i++) {
+		for (int i = 1; i <= COLUMNS_NOT_GROUPING_BY_SLOT; i++) {
 			row.createCell(i).setCellStyle(styles.get("tabItem_fields"));
 		}
 		// timeslot period
@@ -968,6 +984,12 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				cell.setCellValue(fieldValue);
 				cell.setCellStyle(styles.get("attendee_layout"));
 			}
+			
+			// Inscription date and time
+			cell = row.getCell(8);
+			String fieldValue = signupMeetingService.getUsersLocalDateTimeString(signupAttendee.getInscriptionTime());
+			cell.setCellValue(fieldValue);
+			cell.setCellStyle(styles.get("attendee_layout"));
 		}
 		// set row high
 		row.setHeightInPoints(rowHigh * rowHighNum);
@@ -1045,7 +1067,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 			Collections.sort(attendees);
 		
 		for (SignupAttendee att : attendees) {
-			sb.append(att.getDisplayName());
+			sb.append(att.getDisplayName() + " - " + signupMeetingService.getUsersLocalDateTimeString(att.getInscriptionTime()));
 			sb.append("\n");
 		}
 		/* remove the last'\n' one */
@@ -1208,12 +1230,13 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	}
 
 	private void initTableThRow() {
-		tabTitles_Organizor = new String[5];
+		tabTitles_Organizor = new String[6];
 		tabTitles_Organizor[0] = rb.getString("tab_time_slot", "Time Slot");
 		tabTitles_Organizor[1] = rb.getString("tab_max_attendee", "Max # of Participants");
 		tabTitles_Organizor[2] = rb.getString("tab_attendees", "Participants");
 		tabTitles_Organizor[3] = rb.getString("tab_attendees_eids", "Participants User IDs");
 		tabTitles_Organizor[4] = rb.getString("tab_waiting_list", "Wait List");
+		tabTitles_Organizor[5] = rb.getString("tab_date_inscription", "Date of Inscription");
 
 		tabTitles_Participant = new String[5];
 		tabTitles_Participant[0] = rb.getString("tab_time_slot", "Time Slot");

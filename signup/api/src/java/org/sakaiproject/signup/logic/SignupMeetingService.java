@@ -34,6 +34,7 @@
 
 package org.sakaiproject.signup.logic;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -465,5 +466,12 @@ public interface SignupMeetingService {
 	 * @throws Exception
 	 */
 	List<String> getAllCategories(String siteId) throws Exception;
+	
+	/**
+	 * 
+	 * @param instant - The Instant that is going to be converted to display to the user, based on the locale
+	 * @return a string with the converted instant to display, based on the locale
+	 */
+	String getUsersLocalDateTimeString(Instant instant);
 
 }
