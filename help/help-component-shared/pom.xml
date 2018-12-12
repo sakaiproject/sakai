@@ -35,17 +35,4 @@
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
   </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-        <excludes>
-          <exclude>ehcache.xml</exclude>
-        </excludes>
-      </resource>
-    </resources>
-  </build>
 </project>
