@@ -42,7 +42,10 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -13229,7 +13232,8 @@ public class AssignmentAction extends PagedResourceActionII {
                             // read grades.cvs from zip
 
                             String csvSep = assignmentService.getCsvSeparator();
-                            CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)), csvSep.charAt(0));
+                            CSVParser parser = new CSVParserBuilder().withSeparator(csvSep.charAt(0)).build();
+                            CSVReader reader = new CSVReaderBuilder(new InputStreamReader(zipFile.getInputStream(entry))).withCSVParser(parser).build();
 
                             List<String[]> lines = reader.readAll();
 
