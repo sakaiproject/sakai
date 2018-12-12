@@ -19,7 +19,12 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-  <dependencies />
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-comp-shared-help</artifactId>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>
