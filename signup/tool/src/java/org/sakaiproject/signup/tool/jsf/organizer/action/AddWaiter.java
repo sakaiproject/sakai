@@ -19,6 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +83,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 	public SignupMeeting addToWaitingList(SignupMeeting meeting, SignupTimeslot timeSlot, SignupAttendee newWaiter)
 			throws Exception {
 		try {
+			newWaiter.setInscriptionTime(Instant.now());
 			handleVersion(meeting, timeSlot, newWaiter);
 			if (ToolManager.getCurrentPlacement() != null) {
 				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_L
