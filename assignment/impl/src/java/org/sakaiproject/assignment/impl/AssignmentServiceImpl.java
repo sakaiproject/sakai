@@ -3883,8 +3883,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getUsersLocalDateTimeString(Instant date) {
-	if (date == null)
-	    return "";
+	if (date == null) return "";
         ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
         DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
                                                 .withZone(zone)
