@@ -144,7 +144,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
     private String getCategoryScore(String categoryId, String studentId) {
         if (categoryId != null) {
-            final Optional<CategoryScoreData> averageData = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId);
+            final Optional<CategoryScoreData> averageData = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId, true);
             if (averageData.isPresent()) {
                 double average = averageData.get().score;
                 return FormatHelper.formatDoubleToDecimal(average);
@@ -155,7 +155,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
     private List<Long> getDroppedItems(String categoryId, String studentId){
         Optional<CategoryScoreData> catData = categoryId == null ?
-                Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId);
+                Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentId, true);
         return catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
     }
 }

@@ -777,10 +777,11 @@ public interface GradebookService {
 	 * @param gradebookId Id of the gradebook
 	 * @param studentUuid uuid of the student
 	 * @param categoryId id of category
+	 * @param isInstructor will determine whether category score includes non-released items
 	 * @return percentage and dropped items, or empty if no calculations were made
 	 *
 	 */
-	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
+	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems);
 
 	/**
 	 * Calculate the category score for the given gradebook, category, assignments in the category and grade map. This doesn't do any
@@ -795,7 +796,7 @@ public interface GradebookService {
 	 * @return percentage and dropped items, or empty if no calculations were made
 	 */
 	Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
-			final List<Assignment> categoryAssignments, Map<Long, String> gradeMap);
+			final List<Assignment> categoryAssignments, Map<Long, String> gradeMap, boolean includeNonReleasedItems);
 
 	/**
 	 * Get the course grade for a student

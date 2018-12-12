@@ -1215,7 +1215,7 @@ public class GradebookNgBusinessService {
 					}
 
 					final Optional<CategoryScoreData> categoryScore = gradebookService.calculateCategoryScore(gradebook,
-							student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
+							student.getUserUuid(), category, category.getAssignmentList(), gradeMap, (role == GbRole.TA || role == GbRole.INSTRUCTOR));
 					categoryScore.ifPresent(data -> {
 						for (Long item : gradeMap.keySet())	{
 							if (data.droppedItems.contains(item)) {
@@ -2316,18 +2316,19 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the category score for the given student. Safe to call when logged in as a student.
+	 * Get the category score for the given student.
 	 *
 	 * @param categoryId id of category
 	 * @param studentUuid uuid of student
+	 * @param isInstructor will calculate the category score with non-released items for instructors but not for students
 	 * @return
 	 */
-	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor) {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
-		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor);
+		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
 		return result;
 	}
