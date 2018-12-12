@@ -2188,7 +2188,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	
 	public Set<AssessmentAttachment> prepareAssessmentAttachmentSet(AssessmentData newAssessment,
 			Set<AssessmentAttachment> assessmentAttachmentSet, String protocol, String toContext) {
-		HashSet<AssessmentAttachment> h = new HashSet<>();
+		Set<AssessmentAttachment> h = new HashSet<>();
 
 		for (AssessmentAttachment assessmentAttachment : assessmentAttachmentSet) {
 			// create a copy of the resource
