@@ -51,8 +51,8 @@ public class GradebookIfc {
 	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
 	} catch (ConflictingAssignmentNameException cane) {
 	    // already exists
-		log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane);
-		throw cane;
+	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
+	    throw cane;
 	} catch (Exception e) {
 	    log.info("failed add " + e);
 	    return false;
