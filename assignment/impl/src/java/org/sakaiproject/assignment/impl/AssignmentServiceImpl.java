@@ -3002,7 +3002,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     htmlString += "<div>" + resourceLoader.getString("assignment.additional.notes.export.header") + "</div><br/>";
                     htmlString += "<table border=\"1\"  style=\"border-collapse:collapse;\"><tr><th>" + resourceLoader.getString("gen.student") + "</th><th>" + resourceLoader.getString("gen.notes") + "</th>" + submittersAdditionalNotesHtml + "</table>";
                     htmlString += "<br/><div>" + resourceLoader.getString("assignment.additional.notes.export.footer") + "</div>";
-                    htmlString += emailUtil.htmlEnd();
+                    htmlString += EmailUtil.HTML_END;
                     log.debug("Additional information html: " + htmlString);
 
                     final byte[] wes = htmlString.getBytes();

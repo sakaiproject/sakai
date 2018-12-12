@@ -33,7 +33,17 @@ import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
 public class EmailUtil {
-    private static final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+    private static final String A_HREF = "<a href=\"";
+	private static final String CANNOTFIN_SITE = "cannotfin_site";
+	private static final String CANT_GET_SITE_WITH_ID = "Can't get site with id = {}, {}";
+	private static final String NOTI_SITE_URL = "noti.site.url";
+	private static final String NOTI_SITE_TITLE = "noti.site.title";
+	private static final String RELEASEGRADE = "releasegrade";
+	private static final String SUBMISSION = "submission";
+	private static final String HTML_HEADERS = "Content-Type: text/html\n\n";
+	private static final String PLAIN_TEXT_HEADERS = "Content-Type: text/plain\n\n";
+	public static final String HTML_END = "\n  </body>\n</html>\n";
+	private static final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
     private static final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
     private static final String BOUNDARY_LINE = "\n\n--" + MULTIPART_BOUNDARY + "\n";
     private static final String TERMINATION_LINE = "\n\n--" + MULTIPART_BOUNDARY + "--\n\n";
@@ -70,12 +80,16 @@ public class EmailUtil {
 
     public String getSubject(String submissionOrReleaseGrade) {
         String subject;
-        if ("submission".equals(submissionOrReleaseGrade)) {
+        switch (submissionOrReleaseGrade) {
+        case SUBMISSION:
             subject = resourceLoader.getString("noti.subject.content");
-        } else if ("releasegrade".equals(submissionOrReleaseGrade)) {
+            break;
+        case RELEASEGRADE:
             subject = resourceLoader.getString("noti.releasegrade.subject.content");
-        } else {
+            break;
+        default:
             subject = resourceLoader.getString("noti.releaseresubmission.subject.content");
+            break;
         }
         return "Subject: " + subject;
     }
@@ -88,39 +102,38 @@ public class EmailUtil {
         StringBuilder message = new StringBuilder();
         message.append(MIME_ADVISORY);
         message.append(BOUNDARY_LINE);
-        message.append(plainTextHeaders());
+        message.append(PLAIN_TEXT_HEADERS);
         message.append(plainTextContent(s, submissionOrReleaseGrade));
         message.append(formattedText.convertFormattedTextToPlaintext(htmlContentAttachments(s)));
         message.append(BOUNDARY_LINE);
-        message.append(htmlHeaders());
+        message.append(HTML_HEADERS);
         message.append(htmlPreamble(submissionOrReleaseGrade));
-        if ("submission".equals(submissionOrReleaseGrade))
+        switch (submissionOrReleaseGrade) {
+        case SUBMISSION:
             message.append(htmlContent(s));
-        else if ("releasegrade".equals(submissionOrReleaseGrade))
+            break;
+        case RELEASEGRADE:
             message.append(htmlContentReleaseGrade(s));
-        else
+            break;
+        default:
             message.append(htmlContentReleaseResubmission(s));
+            break;
+        }
         message.append(htmlContentAttachments(s));
-        message.append(htmlEnd());
+        message.append(HTML_END);
         message.append(TERMINATION_LINE);
         return message.toString();
     }
 
-    public String plainTextHeaders() {
-        return "Content-Type: text/plain\n\n";
-    }
-
     public String plainTextContent(AssignmentSubmission s, String submissionOrReleaseGrade) {
-        if ("submission".equals(submissionOrReleaseGrade))
+    	switch (submissionOrReleaseGrade) {
+        case SUBMISSION:
             return formattedText.convertFormattedTextToPlaintext(htmlContent(s));
-        else if ("releasegrade".equals(submissionOrReleaseGrade))
+        case RELEASEGRADE:
             return formattedText.convertFormattedTextToPlaintext(htmlContentReleaseGrade(s));
-        else
+        default:
             return formattedText.convertFormattedTextToPlaintext(htmlContentReleaseResubmission(s));
-    }
-
-    public String htmlHeaders() {
-        return "Content-Type: text/html\n\n";
+        }
     }
 
     public String htmlPreamble(String submissionOrReleaseGrade) {
@@ -135,10 +148,6 @@ public class EmailUtil {
         return buf.toString();
     }
 
-    public String htmlEnd() {
-        return "\n  </body>\n</html>\n";
-    }
-
     public String htmlContent(AssignmentSubmission submission) {
         Assignment assignment = submission.getAssignment();
         String context = assignment.getContext();
@@ -151,38 +160,20 @@ public class EmailUtil {
             siteTitle = site.getTitle();
             siteUrl = site.getUrl();
         } catch (Exception e) {
-            log.warn("Can't get site with id = {}, {}", context, e.getMessage());
-            siteTitle = resourceLoader.getFormattedMessage("cannotfin_site", context);
+            log.warn(CANT_GET_SITE_WITH_ID, context, e.getMessage());
+            siteTitle = resourceLoader.getFormattedMessage(CANNOTFIN_SITE, context);
             siteUrl = "";
         }
 
         StringBuilder buffer = new StringBuilder();
         // site title and id
-        buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
+        buffer.append(resourceLoader.getString(NOTI_SITE_TITLE)).append(" ").append(siteTitle).append(NEW_LINE);
+        buffer.append(resourceLoader.getString(NOTI_SITE_URL)).append(A_HREF).append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // assignment title and due date
         buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
+
         buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(assignment.getDueDate())).append(NEW_LINE).append(NEW_LINE);
-        // submitter name and id
-        String submitterNames = "";
-        String submitterIds = "";
-        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
-            try {
-                User user = userDirectoryService.getUser(submitter.getSubmitter());
-                if (!submitterNames.isEmpty()) {
-                    submitterNames = submitterNames.concat("; ");
-                    submitterIds = submitterIds.concat("; ");
-                }
-                submitterNames = submitterNames.concat((isAnon ? submission.getId() + " " + resourceLoader.getString("grading.anonymous.title") : user.getDisplayName()));
-                submitterIds = submitterIds.concat(user.getDisplayId());
-            } catch (UserNotDefinedException e) {
-                log.warn("User not found with id = {}, {}", submitter.getSubmitter());
-            }
-        }
-        buffer.append(resourceLoader.getString("noti.student")).append(" ").append(submitterNames);
-        if (submitterIds.length() != 0 && !isAnon) {
-            buffer.append("( ").append(submitterIds).append(" )");
-        }
+        submittersContent(submission, isAnon, buffer);
         buffer.append(NEW_LINE).append(NEW_LINE);
 
         // submit time
@@ -226,6 +217,29 @@ public class EmailUtil {
 
         return buffer.toString();
     }
+    
+    private void submittersContent(AssignmentSubmission submission, boolean isAnon, StringBuilder buffer) {
+		// submitter name and id
+        String submitterNames = "";
+        String submitterIds = "";
+        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+            try {
+                User user = userDirectoryService.getUser(submitter.getSubmitter());
+                if (!submitterNames.isEmpty()) {
+                    submitterNames = submitterNames.concat("; ");
+                    submitterIds = submitterIds.concat("; ");
+                }
+                submitterNames = submitterNames.concat((isAnon ? submission.getId() + " " + resourceLoader.getString("grading.anonymous.title") : user.getDisplayName()));
+                submitterIds = submitterIds.concat(user.getDisplayId());
+            } catch (UserNotDefinedException e) {
+                log.warn("User not found with id = {}, {}", submitter.getSubmitter());
+            }
+        }
+        buffer.append(resourceLoader.getString("noti.student")).append(" ").append(submitterNames);
+        if (submitterIds.length() != 0 && !isAnon) {
+            buffer.append("( ").append(submitterIds).append(" )");
+        }
+	}
 
     public String htmlContentReleaseGrade(AssignmentSubmission submission) {
         Assignment assignment = submission.getAssignment();
@@ -238,17 +252,17 @@ public class EmailUtil {
             siteTitle = site.getTitle();
             siteUrl = site.getUrl();
         } catch (Exception e) {
-            log.warn("Can't get site with id = {}, {}", context, e.getMessage());
-            siteTitle = resourceLoader.getFormattedMessage("cannotfin_site", context);
+        	log.warn(CANT_GET_SITE_WITH_ID, context, e.getMessage());
+            siteTitle = resourceLoader.getFormattedMessage(CANNOTFIN_SITE, context);
             siteUrl = "";
         }
 
         StringBuilder buffer = new StringBuilder();
         // site title and id
-        buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
+        buffer.append(resourceLoader.getString(NOTI_SITE_TITLE)).append(" ").append(siteTitle).append(NEW_LINE);
+        buffer.append(resourceLoader.getString(NOTI_SITE_URL)).append(A_HREF).append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // notification text
-        String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
+        String linkToToolInSite = A_HREF + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
         buffer.append(resourceLoader.getFormattedMessage("noti.releasegrade.text", assignment.getTitle(), linkToToolInSite));
 
         return buffer.toString();
@@ -265,15 +279,15 @@ public class EmailUtil {
             siteTitle = site.getTitle();
             siteUrl = site.getUrl();
         } catch (Exception e) {
-            log.warn("Can't get site with id = {}, {}", context, e.getMessage());
-            siteTitle = resourceLoader.getFormattedMessage("cannotfin_site", context);
+        	log.warn(CANT_GET_SITE_WITH_ID, context, e.getMessage());
+            siteTitle = resourceLoader.getFormattedMessage(CANNOTFIN_SITE, context);
             siteUrl = "";
         }
 
         StringBuilder buffer = new StringBuilder();
         // site title and id
-        buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
+        buffer.append(resourceLoader.getString(NOTI_SITE_TITLE)).append(" ").append(siteTitle).append(NEW_LINE);
+        buffer.append(resourceLoader.getString(NOTI_SITE_URL)).append(" ").append(A_HREF).append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // notification text
         //Get the actual person that submitted, for a group submission just get the first person from that group (This is why the array is used)
         String userId = null;
@@ -283,7 +297,7 @@ public class EmailUtil {
             }
         }
 
-        String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
+        String linkToToolInSite = A_HREF + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
         if (assignmentService.canSubmit(assignment, userId)) {
             buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.text", assignment.getTitle(), linkToToolInSite));
         } else {
@@ -309,7 +323,7 @@ public class EmailUtil {
                 ResourceProperties properties = reference.getProperties();
                 String attachmentName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
                 String attachmentSize = properties.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
-                body.append("<a href=\"").append(reference.getUrl()).append("\">").append(attachmentName).append(" (").append(attachmentSize).append(")").append("</a>");
+                body.append(A_HREF).append(reference.getUrl()).append("\">").append(attachmentName).append(" (").append(attachmentSize).append(")").append("</a>");
                 body.append(NEW_LINE);
             });
         }
@@ -365,8 +379,7 @@ public class EmailUtil {
         ResourceProperties resourceProperties = reference.getProperties();
         String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
         if (fileName.contains(".")) {
-            String extension = fileName.substring(fileName.lastIndexOf("."));
-            return extension;
+        	return fileName.substring(fileName.lastIndexOf('.'));
         }
         return null;
     }
