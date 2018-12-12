@@ -32,7 +32,5 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-help-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
   </dependencies>
 </project>
