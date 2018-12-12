@@ -159,7 +159,8 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // assignment title and due date
         buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(assignment.getDueDate().toString()).append(NEW_LINE).append(NEW_LINE);
+	String formattedDueDate = assignmentService.getUsersLocalDateTimeString(assignment.getDueDate());
+        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(formattedDueDate).append(NEW_LINE).append(NEW_LINE);
         // submitter name and id
         String submitterNames = "";
         String submitterIds = "";
@@ -178,7 +179,7 @@ public class EmailUtil {
         }
         buffer.append(resourceLoader.getString("noti.student")).append(" ").append(submitterNames);
         if (submitterIds.length() != 0 && !isAnon) {
-            buffer.append("( ").append(submitterIds).append(" )");
+            buffer.append(" ( ").append(submitterIds).append(" )");
         }
         buffer.append(NEW_LINE).append(NEW_LINE);
 
@@ -186,7 +187,8 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("submission.id")).append(" ").append(submission.getId()).append(NEW_LINE);
 
         // submit time
-        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(submission.getDateSubmitted().toString()).append(NEW_LINE).append(NEW_LINE);
+	String formattedSubDate = assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted());
+        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(formattedSubDate).append(NEW_LINE).append(NEW_LINE);
 
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());
@@ -243,7 +245,7 @@ public class EmailUtil {
         StringBuilder buffer = new StringBuilder();
         // site title and id
         buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE).append(NEW_LINE);
         // notification text
         String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null) + "\">" + siteTitle + "</a>";
         buffer.append(resourceLoader.getFormattedMessage("noti.releasegrade.text", assignment.getTitle(), linkToToolInSite));
@@ -270,7 +272,7 @@ public class EmailUtil {
         StringBuilder buffer = new StringBuilder();
         // site title and id
         buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE).append(NEW_LINE);
         // notification text
         //Get the actual person that submitted, for a group submission just get the first person from that group (This is why the array is used)
         String userId = null;
