@@ -1,6 +1,9 @@
 package org.sakaiproject.assignment.impl;
 
 import java.text.DecimalFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +162,7 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE);
         // assignment title and due date
         buffer.append(resourceLoader.getString("assignment.title")).append(" ").append(assignment.getTitle()).append(NEW_LINE);
-        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(assignment.getDueDate().toString()).append(NEW_LINE).append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.assignment.duedate")).append(" ").append(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(assignment.getDueDate())).append(NEW_LINE).append(NEW_LINE);
         // submitter name and id
         String submitterNames = "";
         String submitterIds = "";
@@ -186,7 +189,7 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("submission.id")).append(" ").append(submission.getId()).append(NEW_LINE);
 
         // submit time
-        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(submission.getDateSubmitted().toString()).append(NEW_LINE).append(NEW_LINE);
+        buffer.append(resourceLoader.getString("noti.submit.time")).append(" ").append(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.systemDefault()).format(submission.getDateSubmitted())).append(NEW_LINE).append(NEW_LINE);
 
         // submit text
         String text = StringUtils.trimToNull(submission.getSubmittedText());
