@@ -105,6 +105,13 @@
 		}
 	}
 
+	div.specialLink{
+		max-width: calc(100% - 260px);
+		@media #{$phone} {
+			max-width: unset;
+		}
+	}
+
 	.allMessages{
 		border: 1px solid #ddd;
 		border-collapse: collapse;
