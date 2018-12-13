@@ -12,8 +12,8 @@ The other branches are currently or previously supported releases. See below for
 
 This is the "Mini Quick Start" for more complete steps to get Sakai configured please look at [this guide on the wiki](https://github.com/sakaiproject/sakai/wiki/Quick-Start-from-Source).
 
-To build Sakai you need Java 1.8 and Maven 3.2. Once you have clone a copy of this repository you can
-build it by running:
+To build Sakai you need Java 1.8. Once you have clone a copy of this repository you can
+build it by running (or `./mvnw install` if you don't have Maven installed):
 ```
 mvn install
 ```
