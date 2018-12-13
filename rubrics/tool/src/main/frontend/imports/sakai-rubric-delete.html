@@ -1,7 +1,7 @@
 <dom-module id="sakai-rubric-delete">
   <template>
     <!-- Styling -->
-    <style include="polymer-bootstrap"></style>
+    <style include="granite-bootstrap"></style>
     <style include="sakai-rubrics-styles"></style>
 
     <template is="dom-if" if="[[!isCriterion(item)]]">
@@ -130,11 +130,15 @@
         if (!this.criterion) {
           this.item = this.rubric;
           this.type = "rubric";
-          this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id;
+          if(this.rubric != null) {
+            this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id;
+          }
         } else {
           this.item = this.criterion;
           this.type = "criterion";
-          this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id + '/criterions/' + this.criterion.id;
+          if(this.rubric != null && this.criterion != null) {
+            this.$.deleteItem.url = this.$.deleteItem.url + 'rubrics/' + this.rubric.id + '/criterions/' + this.criterion.id;
+          }
         }
         this.tt = this.$$('.popover');
         // console.log(this.rubric);
