@@ -54,7 +54,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   
   <!-- The default font to use when rendering -->
   <!-- This should be supplied but keep a default to make the xslt easier to test. -->
-  <xsl:param name="default-font">Helvetica</xsl:param>
+  <xsl:param name="default-font">DEFAULT_FONT</xsl:param>
   
 
 
