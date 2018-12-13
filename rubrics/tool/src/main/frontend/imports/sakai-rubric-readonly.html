@@ -1,11 +1,11 @@
-<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html"/>
+<link rel="import" href="/library/webjars/iron-a11y-keys/iron-a11y-keys.html"/>
 <link rel="import" href="sakai-rubric-criterion-readonly.html">
 
 <dom-module id="sakai-rubric-readonly">
   <template id="sakai-rubric-readonly-template">
 
     <style include="sakai-rubrics-styles"></style>
-    <style include="polymer-bootstrap"></style>
+    <style include="granite-bootstrap"></style>
 
     <div class="rubric-title" on-focus="activate" on-tap="toggleRubric" >
       <iron-a11y-keys id="a11y" target="[[getNode('.rubric-title')]]" keys="space" on-keys-pressed="toggleRubric"></iron-a11y-keys>
