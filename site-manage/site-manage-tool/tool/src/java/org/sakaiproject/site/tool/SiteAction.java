@@ -9942,11 +9942,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 	}// actionFor Template
-	
-	private boolean checkForThread(String threadName) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	/**
 	 * 

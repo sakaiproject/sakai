@@ -97,14 +97,12 @@ public class SiteManageServiceImpl implements SiteManageService {
 
     private ExecutorService executorService;
     private Set<String> currentSiteImports;
-    private Set<String> currentSiteDuplicates;
 
     public void init() {
         // while this Set isn't cluster wide sessions are node specific
         // so this is only unsafe for more than one session performing an import on the same site
         // which is a really low percentage
         currentSiteImports = new ConcurrentSkipListSet<>();
-        currentSiteDuplicates = new ConcurrentSkipListSet<>();
         executorService = Executors.newFixedThreadPool(siteImportThreadCount);
     }
 
@@ -198,19 +196,19 @@ public class SiteManageServiceImpl implements SiteManageService {
             } catch (Exception e) {
                 log.warn("Site Duplicate Task encountered an exception for site {}, {}", oldSiteId, e.getMessage());
             } finally {
-            	currentSiteDuplicates.remove(oldSiteId);
+            	currentSiteImports.remove(oldSiteId);
             }
 
         };
 
         // only if the siteId was added to the list do we start the task
-        if (currentSiteDuplicates.add(oldSiteId)) {
+        if (currentSiteImports.add(oldSiteId)) {
             try {
                 executorService.execute(siteDuplicateTask);
                 return true;
             } catch (RejectedExecutionException ree) {
                 log.warn("Site Duplicate Task was rejected by the executor, {}", ree.getMessage());
-                currentSiteDuplicates.remove(oldSiteId);
+                currentSiteImports.remove(oldSiteId);
             }
         }
         return false;
