@@ -1,26 +1,38 @@
 <!-- start:  chef_assignments_student_view_assignment_honor_pledge.vm  -->
 <div class="portletBody">
-    <h3>
-        $tlang.getString('assignment.title')
-        #assignmentTitleIcon($assignment)
-        $validator.escapeHtml($!assignment.Title)
-    </h3>
-    <div class="jumbotron" id="honor-pledge-agreement">
-        <h4>$tlang.getString("gen.hpa.title")</h4>
-        <p>$!honorPledgeText</p>
-    </div>
+    #if ($alertMessage)
+        <div class="alertMessage">
+            <strong>$tlang.getString("gen.alert")</strong>
+            $alertMessage
+        </div>
+        <div class="clear"></div>
+    #else
+        <h3>
+            $tlang.getString('assignment.title')
+            #assignmentTitleIcon($assignment)
+            $validator.escapeHtml($!assignment.Title)
+        </h3>
+        <div class="jumbotron" id="honor-pledge-agreement">
+            <h4>$tlang.getString("gen.hpa.title")</h4>
+            <p>$!honorPledgeText</p>
+        </div>
+    #end
     <form name="assignmentHonorPledgeForm" action="#toolForm($action)" method="post">
         <p class="act">
-            <input type="submit"
-                   accesskey="s"
-                   name="eventSubmit_doAccept_assignment_honor_pledge"
-                   value="$tlang.getString("gen.accept")"
-                   onclick="SPNR.disableControlsAndSpin( this, null );"
-                   class="active"/>
+            #if (!$alertMessage)
+                <input type="submit"
+                       accesskey="s"
+                       name="eventSubmit_doAccept_assignment_honor_pledge"
+                       value="$tlang.getString("gen.accept")"
+                       aria-label="$tlang.getString("gen.accept")"
+                       onclick="SPNR.disableControlsAndSpin( this, null );"
+                       class="active"/>
+            #end
             <input type="submit"
                    accesskey="x"
                    name="eventSubmit_doCancel_assignment_honor_pledge"
                    value="$tlang.getString('gen.backtolist')"
+                   aria-label="$tlang.getString('gen.backtolist')"
                    onclick="SPNR.disableControlsAndSpin( this, null );"/>
         </p>
         <input type="hidden" name="assignmentReference" value="$validator.escapeUrl($assignmentReference)"/>
