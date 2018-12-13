@@ -1338,18 +1338,21 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private Assignment getAssignment(String assignmentReference, String callingFunctionName, SessionState state) {
         Assignment rv = null;
+        SecurityAdvisor secAdv = null;
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+        Session session = sessionManager.getCurrentSession();
+
         try {
-            Session session = sessionManager.getCurrentSession();
-            SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.security.advisor", false);
-            String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
+            secAdv = pushSecurityAdvisor(session, "assignment.security.advisor", false);
             rv = assignmentService.getAssignment(assignmentId);
-            securityService.popAdvisor(secAdv);
         } catch (IdUnusedException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + assignmentReference);
             addAlert(state, rb.getFormattedMessage("cannotfin_assignment", assignmentReference));
         } catch (PermissionException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + assignmentReference);
             addAlert(state, rb.getFormattedMessage("youarenot_viewAssignment", assignmentReference));
+        } finally {
+            securityService.popAdvisor(secAdv);
         }
 
         return rv;
@@ -1366,18 +1369,21 @@ public class AssignmentAction extends PagedResourceActionII {
     private AssignmentSubmission getSubmission(String submissionReference, String callingFunctionName, SessionState state) {
         log.debug("function {} requesting submission with reference = {}", callingFunctionName, submissionReference);
         AssignmentSubmission rv = null;
+        SecurityAdvisor secAdv = null;
         String submissionId = AssignmentReferenceReckoner.reckoner().reference(submissionReference).reckon().getId();
+        Session session = sessionManager.getCurrentSession();
+
         try {
-            Session session = sessionManager.getCurrentSession();
-            SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.grade.security.advisor", false);
+            secAdv = pushSecurityAdvisor(session, "assignment.grade.security.advisor", false);
             rv = assignmentService.getSubmission(submissionId);
-            securityService.popAdvisor(secAdv);
         } catch (IdUnusedException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + submissionId);
             addAlert(state, rb.getFormattedMessage("cannotfin_submission", submissionId));
         } catch (PermissionException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + submissionId);
             addAlert(state, rb.getFormattedMessage("youarenot_viewSubmission", submissionId));
+        } finally {
+            securityService.popAdvisor(secAdv);
         }
 
         return rv;
@@ -1982,7 +1988,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String template = getContext(data).get("template");
 
         Assignment a = getAssignment(assignmentReference, "build_student_view_assignment_honorPledge_context", state);
-        if (assignmentService.canSubmit(a)) {
+        if (a != null) {
             context.put("assignment", a);
             context.put("assignmentReference", assignmentReference);
             context.put("honorPledgeText", serverConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.hpa.text")));
@@ -5425,29 +5431,42 @@ public class AssignmentAction extends PagedResourceActionII {
         String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
         User user = (User) state.getAttribute(STATE_USER);
 
-        AssignmentSubmission submission = getSubmission(assignmentReference, user, "build_student_view_assignment_honorPledge_context", state);
-
-        if (submission == null) {
-            Assignment assignment = getAssignment(assignmentReference, "doView_assignment_honorPledge", state);
-            try {
-                submission = assignmentService.addSubmission(assignment.getId(), user.getId());
-            } catch (PermissionException pe) {
+        Assignment assignment = getAssignment(assignmentReference, "doView_assignment_honorPledge", state);
+        boolean isVisibleDateEnabled = serverConfigurationService.getBoolean("assignment.visible.date.enabled", false);
+        Instant now = Instant.now();
+        if (now.isBefore(assignment.getOpenDate())) {
+            if (isVisibleDateEnabled && assignment.getVisibleDate() != null && now.isAfter(assignment.getVisibleDate())) {
+                state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentReference);
+                doView_submission(data);
+            } else {
                 addAlert(state, rb.getString("notpermis4"));
-                log.warn("User {} could not add submission {}", user.getId(), submission.getId(), pe);
-                return;
+                state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+            }
+        } else {
+            if (assignmentService.canSubmit(assignment)) {
+                AssignmentSubmission submission = getSubmission(assignmentReference, user, "build_student_view_assignment_honorPledge_context", state);
+                if (submission == null) {
+                    try {
+                        submission = assignmentService.addSubmission(assignment.getId(), user.getId());
+                    } catch (PermissionException pe) {
+                        addAlert(state, rb.getString("notpermis4"));
+                        log.warn("User {} could not add submission {}", user.getId(), submission.getId(), pe);
+                        doView_assignment_honorPledge(data);
+                        return;
+                    }
+                }
+
+                try {
+                    submission.setHonorPledge(Boolean.TRUE);
+                    assignmentService.updateSubmission(submission);
+                    doView_submission(data);
+                } catch (PermissionException pe) {
+                    addAlert(state, rb.getString("notpermis4"));
+                    log.warn("User {} could not update submission {}", user.getId(), submission.getId(), pe);
+                    doView_assignment_honorPledge(data);
+                }
             }
         }
-
-        try {
-            submission.setHonorPledge(Boolean.TRUE);
-            assignmentService.updateSubmission(submission);
-        } catch (PermissionException pe) {
-            addAlert(state, rb.getString("notpermis4"));
-            log.warn("User {} could not update submission {}", user.getId(), submission.getId(), pe);
-            return;
-        }
-
-        doView_submission(data);
     }
 
     public void doCancel_assignment_honor_pledge(RunData data) {
