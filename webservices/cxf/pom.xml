@@ -195,7 +195,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <scope>compile</scope>
+            <scope>inherited</scope>
         </dependency>
     </dependencies>
 
