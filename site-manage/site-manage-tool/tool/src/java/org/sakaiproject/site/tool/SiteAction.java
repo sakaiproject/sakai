@@ -7544,7 +7544,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String term_name = "";
 		if (state.getAttribute(STATE_TERM_SELECTED) != null) {
 			term_name = ((AcademicSession) state
-					.getAttribute(STATE_TERM_SELECTED)).getEid();
+					.getAttribute(STATE_TERM_SELECTED)).getTitle();
 		}
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -9807,6 +9807,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 											ResourcePropertiesEdit rp = site.getPropertiesEdit();
 											rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
 											rp.addProperty(Site.PROP_SITE_TERM_EID, term.getEid());
+
+											// Need to set STATE_TERM_SELECTED so it shows in the notification email
+											state.setAttribute(STATE_TERM_SELECTED, term);
 										} else {
 											log.warn("termId=" + termId + " not found");
 										}
