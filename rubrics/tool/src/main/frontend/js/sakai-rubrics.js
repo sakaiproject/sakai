@@ -229,7 +229,7 @@ var rubrics = {
 
     if (!webComponentsSupported) {
       var wcPoly = document.createElement('script');
-      wcPoly.src = '/rubrics-service/bower_components/webcomponentsjs/webcomponents-lite.min.js';//
+      wcPoly.src = '/library/webjars/webcomponentsjs/webcomponents-lite.min.js';//TODO use includewebjars
       wcPoly.onload = lazyLoadPolymerAndElements;
       document.head.appendChild(wcPoly);
     } else {

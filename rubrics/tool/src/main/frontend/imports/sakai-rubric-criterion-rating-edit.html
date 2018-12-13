@@ -1,7 +1,7 @@
 <dom-module id="sakai-rubric-criterion-rating-edit">
   <template>
     <!-- Styling -->
-    <style include="polymer-bootstrap"></style>
+    <style include="granite-bootstrap"></style>
     <style include="sakai-rubrics-styles"></style>
 
   
@@ -132,7 +132,7 @@
       ready: function(e) {
         this.tt = this.$$('.popover');
         this.ratingDataClone = cloneObject(this.rating);
-        if (this.rating.new) {
+        if (this.rating != null && this.rating.new) {
           setTimeout(function() {
             this.$$('.edit').click();
           }.bind(this),99);
