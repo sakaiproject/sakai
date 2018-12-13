@@ -21,18 +21,19 @@
 
 package org.sakaiproject.component.app.help.model;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Resource;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * category bean
  * @version $Id$
  */
-public class CategoryBean implements Category, Comparable<CategoryBean>
+public class CategoryBean implements Category
 {
   private Long id;
   private String name;
@@ -136,16 +137,6 @@ public class CategoryBean implements Category, Comparable<CategoryBean>
     return name.hashCode();
   }
 
-  public int compareTo(CategoryBean cb)
-  {;
-    
-    if (!"".equals(ServerConfigurationService.getString("help.location"))){
-      return id.compareTo(cb.id);	
-    }
-    else{
-      return name.compareTo(cb.name);
-    }   
-  }
 }
 
 
