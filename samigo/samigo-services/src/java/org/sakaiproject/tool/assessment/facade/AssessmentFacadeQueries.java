@@ -2182,38 +2182,37 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return h;
 	}
 
-	public Set prepareSectionAttachmentSet(SectionData newSection,
-			Set sectionAttachmentSet, String protocol) {
+	public Set<AssessmentAttachment> prepareSectionAttachmentSet(SectionData newSection, Set sectionAttachmentSet, String protocol) {
 		return prepareSectionAttachmentSet(newSection, sectionAttachmentSet, protocol, null);
 	}
 	
-	public Set prepareAssessmentAttachmentSet(AssessmentData newAssessment,
-			Set assessmentAttachmentSet, String protocol, String toContext) {
-		HashSet h = new HashSet();
-		Iterator o = assessmentAttachmentSet.iterator();
-		while (o.hasNext()) {
-			AssessmentAttachment assessmentAttachment = (AssessmentAttachment) o
-					.next();
+	public Set<AssessmentAttachment> prepareAssessmentAttachmentSet(AssessmentData newAssessment,
+			Set<AssessmentAttachment> assessmentAttachmentSet, String protocol, String toContext) {
+		Set<AssessmentAttachment> h = new HashSet<>();
+
+		for (AssessmentAttachment assessmentAttachment : assessmentAttachmentSet) {
 			// create a copy of the resource
 			AssessmentService service = new AssessmentService();
 			ContentResource cr_copy = service.createCopyOfContentResource(
 					assessmentAttachment.getResourceId(), assessmentAttachment
 							.getFilename(), toContext);
 
-			// get relative path
-			String url = getRelativePath(cr_copy.getUrl(), protocol);
+			if (cr_copy != null) {
+				// get relative path
+				String url = getRelativePath(cr_copy.getUrl(), protocol);
 
-			AssessmentAttachment newAssessmentAttachment = new AssessmentAttachment(
-					null, newAssessment, cr_copy.getId(), assessmentAttachment
-							.getFilename(), assessmentAttachment.getMimeType(),
-					assessmentAttachment.getFileSize(), assessmentAttachment
-							.getDescription(), url, assessmentAttachment
-							.getIsLink(), assessmentAttachment.getStatus(),
-					assessmentAttachment.getCreatedBy(), assessmentAttachment
-							.getCreatedDate(), assessmentAttachment
-							.getLastModifiedBy(), assessmentAttachment
-							.getLastModifiedDate());
-			h.add(newAssessmentAttachment);
+				AssessmentAttachment newAssessmentAttachment = new AssessmentAttachment(
+						null, newAssessment, cr_copy.getId(), assessmentAttachment
+						.getFilename(), assessmentAttachment.getMimeType(),
+						assessmentAttachment.getFileSize(), assessmentAttachment
+						.getDescription(), url, assessmentAttachment
+						.getIsLink(), assessmentAttachment.getStatus(),
+						assessmentAttachment.getCreatedBy(), assessmentAttachment
+						.getCreatedDate(), assessmentAttachment
+						.getLastModifiedBy(), assessmentAttachment
+						.getLastModifiedDate());
+				h.add(newAssessmentAttachment);
+			}
 		}
 		return h;
 	}
