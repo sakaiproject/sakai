@@ -34,16 +34,16 @@ import org.sakaiproject.util.api.FormattedText;
 @Slf4j
 public class EmailUtil {
     private static final String A_HREF = "<a href=\"";
-	private static final String CANNOTFIN_SITE = "cannotfin_site";
-	private static final String CANT_GET_SITE_WITH_ID = "Can't get site with id = {}, {}";
-	private static final String NOTI_SITE_URL = "noti.site.url";
-	private static final String NOTI_SITE_TITLE = "noti.site.title";
-	private static final String RELEASEGRADE = "releasegrade";
-	private static final String SUBMISSION = "submission";
-	private static final String HTML_HEADERS = "Content-Type: text/html\n\n";
-	private static final String PLAIN_TEXT_HEADERS = "Content-Type: text/plain\n\n";
-	public static final String HTML_END = "\n  </body>\n</html>\n";
-	private static final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+    private static final String CANNOTFIN_SITE = "cannotfin_site";
+    private static final String CANT_GET_SITE_WITH_ID = "Can't get site with id = {}, {}";
+    private static final String NOTI_SITE_URL = "noti.site.url";
+    private static final String NOTI_SITE_TITLE = "noti.site.title";
+    private static final String RELEASEGRADE = "releasegrade";
+    private static final String SUBMISSION = "submission";
+    private static final String HTML_HEADERS = "Content-Type: text/html\n\n";
+    private static final String PLAIN_TEXT_HEADERS = "Content-Type: text/plain\n\n";
+    public static final String HTML_END = "\n  </body>\n</html>\n";
+    private static final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
     private static final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
     private static final String BOUNDARY_LINE = "\n\n--" + MULTIPART_BOUNDARY + "\n";
     private static final String TERMINATION_LINE = "\n\n--" + MULTIPART_BOUNDARY + "--\n\n";
@@ -220,21 +220,22 @@ public class EmailUtil {
     
     private void submittersContent(AssignmentSubmission submission, boolean isAnon, StringBuilder buffer) {
 		// submitter name and id
-        String submitterNames = "";
-        String submitterIds = "";
-        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+        final StringBuilder submitterNames = new StringBuilder();
+        final StringBuilder submitterIds = new StringBuilder();
+
+        submission.getSubmitters().stream().forEach(s -> {
             try {
-                User user = userDirectoryService.getUser(submitter.getSubmitter());
-                if (!submitterNames.isEmpty()) {
-                    submitterNames = submitterNames.concat("; ");
-                    submitterIds = submitterIds.concat("; ");
+                User user = userDirectoryService.getUser(s.getSubmitter());
+                if (submitterNames.length() != 0) {
+                    submitterNames.append("; ");
+                    submitterIds.append("; ");
                 }
-                submitterNames = submitterNames.concat((isAnon ? submission.getId() + " " + resourceLoader.getString("grading.anonymous.title") : user.getDisplayName()));
-                submitterIds = submitterIds.concat(user.getDisplayId());
+                submitterNames.append((isAnon ? submission.getId() + " " + resourceLoader.getString("grading.anonymous.title") : user.getDisplayName()));
+                submitterIds.append(user.getDisplayId());
             } catch (UserNotDefinedException e) {
-                log.warn("User not found with id = {}, {}", submitter.getSubmitter());
+                log.warn("User not found with id = {}, {}", s.getSubmitter());
             }
-        }
+        });
         buffer.append(resourceLoader.getString("noti.student")).append(" ").append(submitterNames);
         if (submitterIds.length() != 0 && !isAnon) {
             buffer.append("( ").append(submitterIds).append(" )");
