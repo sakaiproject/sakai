@@ -6,7 +6,6 @@
 <link rel="import" href="/library/webjars/iron-iconset-svg/iron-iconset-svg.html">
 
 <!-- Sakai Rubrics Imports -->
-<link rel="import" href="sakai-rubrics-styles.html">
 <link rel="import" href="sakai-rubrics-icons.html">
 <link rel="import" href="sakai-rubric-criterion-student.html">
 <link rel="import" href="sakai-rubric-student-comment.html">
@@ -17,9 +16,8 @@
   <template>
     
     <template is="dom-if" if="[[canViewContent(options.hideStudentPreview)]]">
-      <style include="sakai-rubrics-styles"></style>
       <style include="granite-bootstrap"></style>
-      
+
       <hr class="itemSeparator" />
 
       <h3>[[rubric.title]]</h3>
