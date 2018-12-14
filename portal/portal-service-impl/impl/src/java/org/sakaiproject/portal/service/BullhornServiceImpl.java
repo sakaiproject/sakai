@@ -413,7 +413,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setRef(ref);
                 ba.setTitle(title);
                 ba.setSiteId(siteId);
-                ba.setEventDate(eventDate);
+                ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
 
                 boolean deferred = false;
@@ -443,7 +443,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setRef(ref);
                 ba.setTitle("");
                 ba.setSiteId("");
-                ba.setEventDate(eventDate);
+                ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
                 ba.setDeferred(false);
 
