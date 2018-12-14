@@ -2,7 +2,6 @@
   <template>
     <!-- Styling -->
     <style include="granite-bootstrap"></style>
-    <style include="sakai-rubrics-styles"></style>
 
     <template is="dom-if" if="[[!isCriterion(item)]]">
       <iron-icon on-focus="activate" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls$="delete_rubric_[[rubric.id]]" tabindex="0" title="[[lang('remove', 'Remove')]] [[lang(type, type)]] [[rubric.title]]" class="delete" icon="rubrics-icons:clear" on-tap="deleteItem"></iron-icon>

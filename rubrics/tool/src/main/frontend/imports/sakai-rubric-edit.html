@@ -2,8 +2,7 @@
   <template>
     <!-- Styling -->
     <style include="granite-bootstrap"></style>
-    <style include="sakai-rubrics-styles"></style>
-  
+
     <iron-icon class="edit" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls="edit_rubric_[[rubric.id]]" tabindex="0" icon="rubrics-icons:edit" on-tap="editRubric" title="[[lang('edit_rubric', 'Edit')]] {{rubric.title}}" ></iron-icon>
 
     <div id="edit_rubric_[[rubric.id]]" class="popover rubric-edit-popover bottom">
