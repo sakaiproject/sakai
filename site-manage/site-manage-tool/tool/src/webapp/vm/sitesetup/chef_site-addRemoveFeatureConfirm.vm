@@ -14,9 +14,17 @@
 	<p class="instruction" id="removedInstruction" style="display:none">
 		$tlang.getString("addrc.youhave")
 	</p>
+
+	#set($homeToolTitle = $tlang.getString("java.home"))
 	<p class="indnt3">
 		#if (($oldSelectedHome) && (!$check_home))
-			$tlang.getString("java.home")
+			$homeToolTitle
+			#if ($!allowPageOrderHelper)
+				#set($customToolTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
+				#if (!$!homeToolTitle.equals($customToolTitle))
+					($customToolTitle)
+				#end
+			#end
 			<br />
 			<script type="text/javascript">
 				document.getElementById('removedInstruction').style.display='block'
@@ -64,6 +72,12 @@
 					#else
 						$!oldToolTitle
 					#end
+					#if ($!allowPageOrderHelper)
+						#set($customToolTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($!oldTool)))
+						#if (!$!oldToolTitle.equals($customToolTitle))
+							($customToolTitle)
+						#end
+					#end
 					<br />
 				#end
 			#end
@@ -89,7 +103,13 @@
 			#if (!$oldSelectedHome)
 				<span class="highlight">
 			#end
-			$tlang.getString("java.home")
+			$homeToolTitle
+			#if ($!allowPageOrderHelper)
+				#set($customToolTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
+				#if(!$!homeToolTitle.equals($customToolTitle))
+					($customToolTitle)
+				#end
+			#end
 			#if (!$oldSelectedHome)
 				</span>
 			#end
@@ -117,10 +137,23 @@
 					<span class="highlight">
 				#end
 				#if ($newTool == "sakai.mailbox")
-					$!newToolTitle : $!emailId@$serverName
+					$!newToolTitle 
+					#if ($!allowPageOrderHelper)
+						#set($customToolTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+						#if (!$!newToolTitle.equals($customToolTitle))
+							($customToolTitle)
+						#end
+					#end
+					: $!emailId@$serverName
 				#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
 					## show tool title
-					$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+					$!newToolTitle
+					#if ($!allowPageOrderHelper)
+						#set($customToolTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+						#if (!$!newToolTitle.equals($customToolTitle))
+							($customToolTitle)
+						#end
+					#end
 					## show tool configuration
 					#if ($!multipleToolIdTitleMap.containsKey($toolId))
 						#set($properties = $!multipleToolConfiguration.get($toolId))
@@ -145,6 +178,12 @@
 				#else
 					$!newToolTitle
 					## exclude Home tool 
+					#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
+						#set($customToolTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+						#if (!$!newToolTitle.equals($customToolTitle))
+							($customToolTitle)
+						#end
+					#end
 				#end
 				#if (!$found)
 					</span>
