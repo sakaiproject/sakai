@@ -213,7 +213,9 @@
 		}
 		.messageInstruction{
 			@extend .bs-callout-danger;
-			display: inline;
+			display: inline-block;
+			margin: 0 $standard-spacing;
+			padding: 5px $standard-spacing;
 			@media #{$phone}{
 				display: inline-block;
 			    margin: 0 0 0 0;
@@ -265,5 +267,14 @@
 		font-size: 0.9em;
 		width: auto;
 		margin-left: 1em;
+	}
+
+	#revise p.anonTopic.checkbox {
+		@include display-flex;
+
+		input[type=checkbox] {
+			min-width: 16px;
+			align-self: center;
+		}
 	}
 }
