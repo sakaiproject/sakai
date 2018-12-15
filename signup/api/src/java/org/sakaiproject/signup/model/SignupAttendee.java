@@ -66,6 +66,7 @@ public class SignupAttendee implements Comparable<SignupAttendee>{
 	 * 
 	 */
 	public SignupAttendee() {
+		this.inscriptionTime = Instant.now();
 	}
 
 	/**
@@ -79,6 +80,7 @@ public class SignupAttendee implements Comparable<SignupAttendee>{
 	public SignupAttendee(String attendeeUserId, String signupSiteId) {
 		this.attendeeUserId = attendeeUserId;
 		this.signupSiteId = signupSiteId;
+		this.inscriptionTime = Instant.now();
 	}
 
 	/**

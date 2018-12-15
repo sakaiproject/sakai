@@ -1180,6 +1180,10 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	
 	@Override
 	public String getUsersLocalDateTimeString(final Instant date) {
+		if (date == null) {
+			log.warn("Date was null, returning empty string");
+			return "";
+		}
 		final ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
 		final DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
 	                                            .withZone(zone)
