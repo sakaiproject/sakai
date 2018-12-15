@@ -20,20 +20,16 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Date;
-import java.util.HashMap;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -224,7 +220,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail) {
+	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail, boolean sendToRequestEmail, boolean sendToUser) {
 		// send emails
 		String id = site.getId();
 		String title = site.getTitle();
@@ -278,17 +274,23 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 				buf.append(rb.getString("java.course2") + " " + course + "\n");
 			}
 		}
-		emailService.send(from, to, message_subject, buf.toString(), headerTo, replyTo, null);
-		
-		// send a confirmation email to site creator
-		from = requestEmail;
-		to = currentUserEmail;
-		headerTo = currentUserEmail;
-		replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
-		String content = rb.getFormattedMessage("java.siteCreation.confirmation", new Object[]{title, serverConfigurationService.getServerName()});
-		content += "\n\n" + buf.toString();
-		emailService.send(from, to, message_subject, content, headerTo, replyTo, null);
-		
+
+		if (sendToRequestEmail)
+		{
+			emailService.send(from, to, message_subject, buf.toString(), headerTo, replyTo, null);
+		}
+
+		if (sendToUser)
+		{
+			// send a confirmation email to site creator
+			from = requestEmail;
+			to = currentUserEmail;
+			headerTo = currentUserEmail;
+			replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+			String content = rb.getFormattedMessage("java.siteCreation.confirmation", new Object[]{title, serverConfigurationService.getServerName()});
+			content += "\n\n" + buf.toString();
+			emailService.send(from, to, message_subject, content, headerTo, replyTo, null);
+		}
 	}
 	
 	/**

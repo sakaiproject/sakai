@@ -7546,9 +7546,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String requestEmail = getSetupRequestEmailAddress();
 		User currentUser = UserDirectoryService.getCurrentUser();
 		// read from configuration whether to send out site notification emails, which defaults to be true
-		boolean sendSiteNotificationChoice = ServerConfigurationService.getBoolean("site.setup.creation.notification", true);
-		if (requestEmail != null && currentUser != null && sendSiteNotificationChoice) {
-			userNotificationProvider.notifySiteCreation(site, notifySites, courseSite, term_name, requestEmail);
+		boolean sendToRequestEmail = ServerConfigurationService.getBoolean("site.setup.creation.notification", true);
+		boolean sendToUser = ServerConfigurationService.getBoolean("site.setup.creation.notification.user", true);
+		if (requestEmail != null && currentUser != null && (sendToRequestEmail || sendToUser)) {
+			userNotificationProvider.notifySiteCreation(site, notifySites, courseSite, term_name, requestEmail, sendToRequestEmail, sendToUser);
 		} // if
 
 		// reset locale to user default
