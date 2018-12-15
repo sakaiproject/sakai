@@ -79,7 +79,6 @@ public class AddAttendee extends SignupAction {
 			throws Exception {
 		boolean hasException = false;
 		try {
-			newAttendee.setInscriptionTime(Instant.now());
 			handleVersion(meeting, currentTimeslot, newAttendee);
 			/* check if it comes from RESTful case */
 			if (ToolManager.getCurrentPlacement() != null) {
