@@ -8,10 +8,8 @@
         <link href="/lessonbuilder-tool/css/Simplepagetool.css" rel="stylesheet" media="all" />
         <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
         <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-        <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">
-        </script>
-        <script type="text/javascript" src="$context/js/reorder.js">
-        </script>
+        <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+        <script type="text/javascript" src="$context/js/reorder.js"></script>
         <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
         <title rsf:id="msg=simplepage.reorder_header"></title>
     </head>
@@ -29,7 +27,7 @@
                 <div class="columnSetup2 fluid-vertical-order">
                     <!-- invalid drag n drop message template --><!-- Column #1 -->
                     <div class="flc-reorderer-column col1" id="reorderCol1">
-                        <div>
+                        <div class="reorderItemsContainer">
                             <div rsf:id="item:" class="flc-reorderer-module layoutReorderer-module">
                                 <div class="reordSeqContainer">
                                     <div rsf:id="seq" class="reorderSeq">
@@ -51,7 +49,8 @@
                         </div><!-- Column #2 -->
                     </div>
                     <div class="flc-reorderer-column col2" id="reorderCol2">
-                        <div class="deleteListMessageEmpty" id="deleteListHead"><span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span></div>
+                        <span rsf:id="msg=simplepage.reorder_delebox">Drop off here</span>
+                        <div class="deleteListMessageEmpty reorderItemsContainer" id="deleteListHead"></div>
                     </div>
                 </div>
             </div>
@@ -69,8 +68,5 @@
                 </p>
             </form>
         </div>
-        <script type="text/javascript">
-            initlayoutReorderer();
-        </script>
     </body>
 </html>

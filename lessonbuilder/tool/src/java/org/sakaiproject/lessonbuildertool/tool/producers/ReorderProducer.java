@@ -160,11 +160,6 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			for (SimplePageItem i : items) {
 
 				if (i == null) {
-				    // marker between used and not used
-				    UIContainer row = UIBranchContainer.make(tofill, "item:");
-				    UIOutput.make(row, "seq", "---").decorate(new UIFreeAttributeDecorator("class", "marker"));
-				    UIOutput.make(row, "text-snippet", messageLocator.getMessage(secondPageId == null ? "simplepage.reorder-belowdelete" : "simplepage.reorder-aboveuse"));
-				    second = true;
 				    continue;
 				}
 

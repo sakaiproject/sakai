@@ -660,6 +660,12 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .flc-reorderer-module:hover {
     border:1px solid #000;
 }
+.reorderItemsContainer {
+    min-height: 60px;
+}
+.ui-sortable-handle {
+    cursor: move;
+}
 .reordSeqContainer {
     position: absolute;
     width:50px;
