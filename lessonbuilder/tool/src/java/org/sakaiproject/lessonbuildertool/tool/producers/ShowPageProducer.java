@@ -1316,7 +1316,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
-				    } else if ("colunn".equals(i.getFormat()))
+				    } else if ("column".equals(i.getFormat()))
 					colnum++;
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
@@ -1361,6 +1361,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    // for first item, if wasn't break, process it
 				}
 				
+				if (!simplePageBean.isItemVisible(i, currentPage)) {
+					continue;
+				}
+
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
 						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
 				{
@@ -1394,9 +1398,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
-				if (!simplePageBean.isItemVisible(i, currentPage)) {
-					continue;
-				}
 				// break isn't a real item. probably don't want to count it
 				if (i.getType() != SimplePageItem.BREAK)
 				    anyItemVisible[0] = true;
