@@ -30,6 +30,7 @@ import java.text.NumberFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -654,23 +655,25 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void gradeDisplay() {
-        Character ds = DecimalFormatSymbols.getInstance().getDecimalSeparator();
-        when(formattedText.getDecimalSeparator()).thenReturn(ds.toString());
+        for(Locale locale : Arrays.asList(Locale.ENGLISH, Locale.FRANCE)) {
+            Character ds = DecimalFormatSymbols.getInstance(locale).getDecimalSeparator();
+            when(formattedText.getDecimalSeparator()).thenReturn(ds.toString());
 
-        Assert.assertEquals("0", assignmentService.getGradeDisplay("0", Assignment.GradeType.SCORE_GRADE_TYPE, null));
+            Assert.assertEquals("0", assignmentService.getGradeDisplay("0", Assignment.GradeType.SCORE_GRADE_TYPE, null));
 
-        configureScale(10);
-        Assert.assertEquals(/*"0.5"*/"0"+ds+"5", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 10));
-        Assert.assertEquals(/*"10.0"*/"10"+ds+"0", assignmentService.getGradeDisplay("100", Assignment.GradeType.SCORE_GRADE_TYPE, 10));
+            configureScale(10, locale);
+            Assert.assertEquals(/*"0.5 or 0,5"*/"0"+ds+"5", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 10));
+            Assert.assertEquals(/*"10.0 or 10,0"*/"10"+ds+"0", assignmentService.getGradeDisplay("100", Assignment.GradeType.SCORE_GRADE_TYPE, 10));
 
-        configureScale(100);
-        Assert.assertEquals(/*"0.05"*/"0"+ds+"05", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
-        Assert.assertEquals(/*"5.00"*/"5"+ds+"00", assignmentService.getGradeDisplay("500", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
-        Assert.assertEquals(/*"100.00"*/"100"+ds+"00", assignmentService.getGradeDisplay("10000", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
+            configureScale(100, locale);
+            Assert.assertEquals(/*"0.05 or 0,05"*/"0"+ds+"05", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
+            Assert.assertEquals(/*"5.00 or 5,00"*/"5"+ds+"00", assignmentService.getGradeDisplay("500", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
+            Assert.assertEquals(/*"100.00 or 100,0"*/"100"+ds+"00", assignmentService.getGradeDisplay("10000", Assignment.GradeType.SCORE_GRADE_TYPE, 100));
 
-        configureScale(1000);
-        Assert.assertEquals(/*"0.005"*/"0"+ds+"005", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
-        Assert.assertEquals(/*"50.000"*/"50"+ds+"000", assignmentService.getGradeDisplay("50000", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
+            configureScale(1000, locale);
+            Assert.assertEquals(/*"0.005 or 0,005"*/"0"+ds+"005", assignmentService.getGradeDisplay("5", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
+            Assert.assertEquals(/*"50.000 or 50,000"*/"50"+ds+"000", assignmentService.getGradeDisplay("50000", Assignment.GradeType.SCORE_GRADE_TYPE, 1000));
+        }
 
         Assert.assertEquals("", assignmentService.getGradeDisplay("", Assignment.GradeType.UNGRADED_GRADE_TYPE, null));
         Assert.assertEquals("No Grade", assignmentService.getGradeDisplay("gen.nograd", Assignment.GradeType.UNGRADED_GRADE_TYPE, null));
@@ -936,9 +939,9 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         return assignment;
     }
 
-    private void configureScale(int scale) {
+    private void configureScale(int scale, Locale locale) {
         int dec = new Double(Math.log10(scale)).intValue();
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = NumberFormat.getInstance(locale);
         nf.setMaximumFractionDigits(dec);
         nf.setMinimumFractionDigits(dec);
         nf.setGroupingUsed(false);
