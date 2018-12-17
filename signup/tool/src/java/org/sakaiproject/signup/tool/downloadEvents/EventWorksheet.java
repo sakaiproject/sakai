@@ -75,6 +75,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.apache.commons.lang3.StringUtils;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -1067,7 +1068,11 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 			Collections.sort(attendees);
 		
 		for (SignupAttendee att : attendees) {
-			sb.append(att.getDisplayName() + " - " + signupMeetingService.getUsersLocalDateTimeString(att.getInscriptionTime()));
+			sb.append(att.getDisplayName());
+			final String dateInscription = signupMeetingService.getUsersLocalDateTimeString(att.getInscriptionTime());
+			if(StringUtils.isNotEmpty(dateInscription)) {
+				sb.append(" - " + dateInscription);
+			}
 			sb.append("\n");
 		}
 		/* remove the last'\n' one */
