@@ -78,9 +78,6 @@
       },
       activate: function(e) {
         addClass(e.target, 'active');
-        // setTimeout(function(){
-        //   console.log(Polymer.dom(this.root).activeElement);
-        // }.bind(this));
         this.fire('active-title', this.rubric.id);
       },
       toggleRubric: function(e){

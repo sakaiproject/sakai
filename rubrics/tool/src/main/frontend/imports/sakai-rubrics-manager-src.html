@@ -77,11 +77,9 @@
       },
       behaviors: [rubrics.behaviors],
       handleSharingChange: function(e) {
-        console.log('handleSharingChange');
         if (!this.$$('#shared_rubrics').opened) {
           this.showSharedRubrics();
         } else {
-          console.log('refresh');
           this.$$('sakai-rubrics-shared-list').refresh();
         }
       },
