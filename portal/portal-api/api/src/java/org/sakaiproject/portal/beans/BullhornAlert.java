@@ -1,15 +1,15 @@
 package org.sakaiproject.portal.beans;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Type;
 
 import lombok.Data;
 
@@ -47,9 +47,9 @@ public class BullhornAlert {
     @Column(name="URL", length=2048, nullable=false)
     private String url;
 
-    @Column(name="EVENT_DATE", columnDefinition="DATETIME", nullable=false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date eventDate;
+    @Column(name="EVENT_DATE", nullable=false)
+    @Type(type = "org.sakaiproject.springframework.orm.hibernate.type.InstantType")
+    private Instant eventDate;
 
     @Column(name="DEFERRED", nullable=false)
     private Boolean deferred;
