@@ -105,7 +105,6 @@
 	String entityId = "top." + forumTool.getSelectedTopic().getTopic().getId();
 %>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 <!-- END RUBRICS JAVASCRIPT -->
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->

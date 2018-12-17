@@ -110,7 +110,6 @@
 		</script>
 
 		<script src="/rubrics-service/js/sakai-rubrics.js"></script>
-		<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 		<!-- END RUBRICS JAVASCRIPT -->
 
 		<span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
