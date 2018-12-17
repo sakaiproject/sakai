@@ -2358,7 +2358,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (!returnGrade.isEmpty() && !"0".equals(returnGrade)) {
                     int dec = new Double(Math.log10(scaleFactor)).intValue();
                     String decSeparator = formattedText.getDecimalSeparator();
-                    String decimalGradePoint = null;
+                    String decimalGradePoint = returnGrade;
                     try {
                         Integer.parseInt(returnGrade);
                         // if point grade, display the grade with factor decimal place
