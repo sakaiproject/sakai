@@ -704,7 +704,8 @@
 							   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
 							   							</h:commandLink>
 							   							<br />
-							   							<h:outputText id="attendeeInscriptionTime"  style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
+							   							<h:outputText id="attendeeInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime) != ''}" 
+							   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
 						   							</h:panelGroup>
 						   							
 						   						</h:panelGrid>
@@ -860,7 +861,8 @@
 									   						<h:panelGroup>
 									   							<h:outputText value="#{waiterWrapper.displayName}" escape="false"/>
 									   							<br />
-									   							<h:outputText id="waiterInscriptionTime" style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
+									   							<h:outputText id="waiterInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime) != ''}"
+									   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
 									   						</h:panelGroup>
 									   					</h:panelGrid>		  
 									   				</h:column>				   		
