@@ -591,8 +591,6 @@ public class GradebookPage extends BasePage {
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-sorter.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
-		response.render(CssHeaderItem
-				.forUrl(String.format("/rubrics-service/css/sakai-rubrics-associate.css?version=%s", version)));
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		if (!focusAssignmentId.isNull()) {

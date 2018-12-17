@@ -7,7 +7,6 @@
     var rbcstoken = <h:outputText value="'#{itemauthor.rbcsToken}'"/>;
 </script>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 
 <div class="form-group row">
     <div class="col-sm-12">
