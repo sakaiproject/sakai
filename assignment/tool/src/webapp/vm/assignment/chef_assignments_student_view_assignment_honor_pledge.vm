@@ -23,8 +23,8 @@
                 <input type="submit"
                        accesskey="s"
                        name="eventSubmit_doAccept_assignment_honor_pledge"
-                       value="$tlang.getString("gen.accept")"
-                       aria-label="$tlang.getString("gen.accept")"
+                       value="$tlang.getString("gen.agree")"
+                       aria-label="$tlang.getString("gen.agree")"
                        onclick="SPNR.disableControlsAndSpin( this, null );"
                        class="active"/>
             #end
