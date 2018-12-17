@@ -137,7 +137,6 @@ function downloadAll(url){
   });
 </script>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 
 <!-- content... -->
 <div class="portletBody container-fluid">
