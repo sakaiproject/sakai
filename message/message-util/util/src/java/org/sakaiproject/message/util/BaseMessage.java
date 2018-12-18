@@ -3919,8 +3919,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		@Override
 		public Instant getInstant() {
-			Instant i = Instant.ofEpochMilli(m_date.getTime());
-			return i;
+			return Instant.ofEpochMilli(m_date.getTime());
 		}
 		/**
 		 * Access the message order the message was sent to the channel.
@@ -4173,8 +4172,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		@Override
 		public void setInstant(Instant instant) {
-			Time time = m_timeService.newTime(instant.toEpochMilli());
-			setDate(time);
+			setDate(m_timeService.newTime(instant.toEpochMilli()));
 		}
 		
 		/**
