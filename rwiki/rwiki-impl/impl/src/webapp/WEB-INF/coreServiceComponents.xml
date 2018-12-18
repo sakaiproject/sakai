@@ -64,7 +64,7 @@
   <!-- Used to pull in the default font to use when rendering PDFs -->
   <bean id="rwikiDefaultFont" factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getString">
     <constructor-arg value="pdf.default.font"/>
-    <constructor-arg value="Helvetica"/>
+    <constructor-arg value="DejaVuSans"/>
   </bean>
 
   <!-- The base level radeox render engine -->
