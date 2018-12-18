@@ -309,8 +309,8 @@ public class ToolPortal extends HttpServlet
                     if (mathJaxAllowedForSite)
                     {
                         // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
-                        headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
-                        headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n";
+                        headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\nmessageStyle: \"none\",\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
+                        headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\" type=\"text/javascript\"></script>\n";
                     }
                 }
             }
