@@ -183,8 +183,6 @@
                     } else {
                         roster.renderGroupMembership(this.value);
                     }
-                    
-                    roster.updateUserFilter();
                 });
 
                 $('#roster-roles-selector').change(function (e) {
