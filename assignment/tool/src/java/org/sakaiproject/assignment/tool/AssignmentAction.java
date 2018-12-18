@@ -489,6 +489,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_PAST_DUE_DATE = "new_assignment_past_due_date";
     // close date
     private static final String NEW_ASSIGNMENT_ENABLECLOSEDATE = "new_assignment_enableclosedate";
+    private static final String NEW_ASSIGNMENT_REMINDER_EMAIL = "student_reminder_email";
     private static final String NEW_ASSIGNMENT_CLOSEMONTH = "new_assignment_closemonth";
     private static final String NEW_ASSIGNMENT_CLOSEDAY = "new_assignment_closeday";
     private static final String NEW_ASSIGNMENT_CLOSEYEAR = "new_assignment_closeyear";
@@ -2707,6 +2708,9 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("value_opendate_notification_low", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
             context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         }
+        context.put("name_CheckEmailReminder",NEW_ASSIGNMENT_REMINDER_EMAIL);
+        context.put("value_CheckEmailReminder",state.getAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL));
+        context.put("value_reminder_hours", serverConfigurationService.getInt("assignment.reminder.hours", 24));
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
@@ -6752,6 +6756,11 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
+        if(params.getBoolean(NEW_ASSIGNMENT_REMINDER_EMAIL)){
+            state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.TRUE);
+        }else{
+            state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.FALSE);
+        }
 
         // close time
         Instant closeTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, "date.closedate");
@@ -7696,6 +7705,8 @@ public class AssignmentAction extends PagedResourceActionII {
             // due time
             Instant dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN);
 
+            boolean emailReminder = (Boolean) state.getAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL);
+            
             // close time
             Instant closeTime = dueTime;
             boolean enableCloseDate = (Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
@@ -7863,7 +7874,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // persist the Assignment changes
                 commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
                         gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, range,
-                        visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, isGroupSubmit, groups,
+                        visibleTime, openTime, dueTime, closeTime, hideDueDate, enableCloseDate, emailReminder, isGroupSubmit, groups,
                         usePeerAssessment, peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions,
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue);
 
@@ -8729,6 +8740,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                   Instant closeTime,
                                   boolean hideDueDate,
                                   boolean enableCloseDate,
+                                  boolean emailReminder,
                                   boolean isGroupSubmit,
                                   Collection<Group> groups,
                                   // Peer Assessment options
@@ -8784,6 +8796,7 @@ public class AssignmentAction extends PagedResourceActionII {
         p.put(NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW, Boolean.toString(studentPreview));
         p.put(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE, Integer.toString(excludeType));
         p.put(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE, Integer.toString(excludeValue));
+        p.put(NEW_ASSIGNMENT_REMINDER_EMAIL,Boolean.toString(emailReminder));
 
         if (!enableCloseDate) {
             // remove close date
@@ -8873,7 +8886,7 @@ public class AssignmentAction extends PagedResourceActionII {
             assignmentPeerAssessmentService.removeScheduledPeerReview(a.getId());
         }
 
-        if (!a.getDraft()) {
+        if (!a.getDraft() && emailReminder) {
             assignmentDueReminderService.scheduleDueDateReminder(a.getId());
         } else {
             assignmentDueReminderService.removeScheduledReminder(a.getId());
@@ -9303,6 +9316,9 @@ public class AssignmentAction extends PagedResourceActionII {
                     state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
                 } else {
                     state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+                }
+                if(properties.get(NEW_ASSIGNMENT_REMINDER_EMAIL) != null){
+                    state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_REMINDER_EMAIL).toString()));
                 }
 
                 state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, a.getHonorPledge());
@@ -11452,6 +11468,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
+        state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.TRUE);
 
         // Accept until date is shifted forward by the offset
         Instant tAccept = t.plusSeconds(acceptUntilDateOffset);
@@ -11593,6 +11610,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE);
 
         state.removeAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
+        state.removeAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL);
         state.removeAttribute(NEW_ASSIGNMENT_CLOSEMONTH);
         state.removeAttribute(NEW_ASSIGNMENT_CLOSEDAY);
         state.removeAttribute(NEW_ASSIGNMENT_CLOSEYEAR);
