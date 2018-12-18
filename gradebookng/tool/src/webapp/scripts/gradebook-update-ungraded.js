@@ -5,9 +5,10 @@
 /**************************************************************************************
  * A GradebookUpdateUngraded to encapsulate all the update ungraded form behaviours 
  */
-function GradebookUpdateUngraded($content) {
-  this.$content = $content;
+function GradebookUpdateUngraded($content, dontDisableInputs) {
 
+  this.$content = $content;
+  this.dontDisableInputs = dontDisableInputs;
   this.setupConfirmation();
 };
 
@@ -58,7 +59,9 @@ GradebookUpdateUngraded.prototype.setupConfirmation = function(){
 
   function performRealSubmit() {
     self.$content.find(".gb-update-ungraded-real-submit").trigger("click");
-    self.$content.find(":input").prop("disabled", true);
+    if (!self.dontDisableInputs) {
+      self.$content.find(":input").prop("disabled", true);
+    }
   };
 
 
