@@ -23,6 +23,7 @@ package org.sakaiproject.site.impl;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Iterator;
@@ -129,8 +130,11 @@ public class BaseGroup implements Group, Identifiable
 		if (site == null) log.warn("BaseGroup(other, site...) created with null site");
 
 		BaseGroup bOther = (BaseGroup) other;
+		BaseResourceProperties bOtherProperties = (BaseResourceProperties) other.getProperties();
 
-		m_site = (Site) site;
+		m_site = site;
+		BaseResourcePropertiesEdit properties = new BaseResourcePropertiesEdit();
+		properties.addAll(other.getProperties());
 
 		if (exact)
 		{
@@ -139,14 +143,14 @@ public class BaseGroup implements Group, Identifiable
 		else
 		{
 			m_id = siteService.idManager().createUuid();
+			// since locks contain references we need to remove all locks if this is not an exact copy
+			properties.removeProperty(GROUP_PROP_LOCKED_BY);
 		}
 
+		properties.setLazy(bOtherProperties.isLazy());
+		m_properties = properties;
 		m_title = bOther.m_title;
 		m_description = bOther.m_description;
-
-		m_properties = new BaseResourcePropertiesEdit();
-		m_properties.addAll(other.getProperties());
-		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 	}
 
 	/**
