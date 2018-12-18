@@ -43,7 +43,8 @@ public class TestContext {
     public ActiveToolManager activeToolManager() {
         ActiveToolManager toolManager = Mockito.mock(ActiveToolManager.class);
         Tool tool = mock(Tool.class);
-        when(tool.getId()).thenReturn("help/toolId");
+        // The tool ID gets lowercased when looking for files
+        when(tool.getId()).thenReturn("help/toolid");
         Properties properties = new Properties();
         when(tool.getRegisteredConfig()).thenReturn(properties);
         when(toolManager.findTools(null, null)).thenReturn(Collections.singleton(tool));
@@ -56,7 +57,7 @@ public class TestContext {
         ServerConfigurationService serverConfigurationService = Mockito.mock(ServerConfigurationService.class);
         when(serverConfigurationService.getString("help.location")).thenReturn("");
         when(serverConfigurationService.getString("help.localpath", "/help/")).thenReturn("/help/");
-        when(serverConfigurationService.getString(eq("help.indexpath"), anyString())).thenReturn("target/index/");
+        when(serverConfigurationService.getString(eq("help.indexpath"), anyString())).thenReturn("target/index");
         when(serverConfigurationService.getSakaiLocales()).thenReturn(new Locale[]{Locale.ENGLISH});
         when(serverConfigurationService.getString("help.hide")).thenReturn("");
         when(serverConfigurationService.getLocaleFromString(Locale.ENGLISH.toString())).thenReturn(Locale.ENGLISH);
