@@ -2716,7 +2716,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// Put here since need to store uuid for notification just in case need to
 				// delete/modify
 				Instant now = Instant.now();
-				Instant date = Instant.ofEpochMilli(edit.getHeader().getDate().getTime());
+				Instant date = edit.getHeader().getInstant();
 
 				if (now.isBefore(date) && priority != NotificationService.NOTI_NONE)
 				{
