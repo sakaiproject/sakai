@@ -42,6 +42,9 @@ import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.fonts.substitute.FontQualifier;
+import org.apache.fop.fonts.substitute.FontSubstitution;
+import org.apache.fop.fonts.substitute.FontSubstitutions;
 import org.apache.xml.serializer.DOMSerializer;
 import org.apache.xml.serializer.ToXMLSAXHandler;
 import org.apache.xml.serializer.ToSAXHandler;
@@ -127,6 +130,20 @@ public class BaseFOPSerializer extends ToSAXHandler implements ContentHandler
 	}
 
 	/**
+	 * If a font is set in global properties, then replace the default font.
+	 */
+	private FontSubstitutions getFontSubstitutions()
+	{
+		FontQualifier fromQualifier = new FontQualifier();
+		fromQualifier.setFontFamily("DEFAULT_FONT");
+		FontQualifier toQualifier = new FontQualifier();
+		toQualifier.setFontFamily(ServerConfigurationService.getString("pdf.default.font", "Helvetica"));
+		FontSubstitutions result = new FontSubstitutions();
+		result.add(new FontSubstitution(fromQualifier, toQualifier));
+		return result;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public ContentHandler asContentHandler() throws IOException
@@ -142,6 +159,8 @@ public class BaseFOPSerializer extends ToSAXHandler implements ContentHandler
 				Configuration cfg = cfgBuild.build(stream);
 				final FopFactory ff = FopFactory.newInstance();
 				ff.setUserConfig(cfg);
+				ff.getFontManager().setFontBaseURL("classpath:///fonts");
+				ff.getFontManager().setFontSubstitutions(getFontSubstitutions());
 				FOUserAgent userAgent = ff.newFOUserAgent();
 
 				userAgent.setURIResolver(new URIResolver()
