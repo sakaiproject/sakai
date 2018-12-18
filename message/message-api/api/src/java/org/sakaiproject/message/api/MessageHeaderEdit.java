@@ -21,6 +21,7 @@
 
 package org.sakaiproject.message.api;
 
+import java.time.Instant;
 import java.util.Collection;
 
 import org.sakaiproject.entity.api.AttachmentContainerEdit;
@@ -42,8 +43,18 @@ public interface MessageHeaderEdit extends MessageHeader, AttachmentContainerEdi
 	 * 
 	 * @param date
 	 *        The date/time the message was sent to the channel.
+	 *@deprecated {@link #setInstant()}
 	 */
 	void setDate(Time date);
+	
+	/**
+	 * Set the date/time the message was sent to the channel.
+	 * 
+	 * @param date
+	 *        The Instant the message was sent to the channel.
+	 *
+	 */
+	void setInstant(Instant instant);
 	
 	/**
 	 * Set the message order the message was sent to the channel.
