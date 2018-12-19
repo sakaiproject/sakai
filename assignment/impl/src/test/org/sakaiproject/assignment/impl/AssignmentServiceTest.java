@@ -764,6 +764,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertTrue(assignmentService.allowAddSubmissionCheckGroups(assignment));
 
         // test with a groups
+        assignment.setTypeOfAccess(Assignment.Access.GROUP);
         String groupA = UUID.randomUUID().toString();
         String groupB = UUID.randomUUID().toString();
         String groupRefA = "/site/" + context + "/group/" + groupA;
