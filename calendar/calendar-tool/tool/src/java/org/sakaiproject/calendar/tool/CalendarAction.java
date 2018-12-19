@@ -4139,7 +4139,7 @@ extends VelocityPortletStateAction
 					// Each monthObj contains dayObjs for the number of the days in the month.
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					eventList = CalendarEventVectorObj.getEvents(TimeService.newTimeRange(startTime,endTime,true,true));
@@ -4157,7 +4157,7 @@ extends VelocityPortletStateAction
 					// fill empty spaces for the first days in the first week in the month before reach the first day of the month
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
@@ -4186,7 +4186,7 @@ extends VelocityPortletStateAction
 						dateObj.setFlag(1);
 					
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					
@@ -4211,7 +4211,7 @@ extends VelocityPortletStateAction
 						m_calObj.nextDate();
 						dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 						
-						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 						endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 						
 						timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
