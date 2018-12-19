@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Vector;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,6 +47,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -122,39 +124,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	private DocumentBuilder docBuilder = null;
 	private Transformer docTransformer = null;
 	
-	private ContentHostingService contentHostingService;
-	private SiteEmailNotificationAnnc siteEmailNotificationAnnc;
+	@Setter private ContentHostingService contentHostingService;
+	@Setter private SiteEmailNotificationAnnc siteEmailNotificationAnnc;
+	@Setter private FunctionManager functionManager;
+	@Setter private AliasService aliasService;
+	@Setter private ToolManager toolManager;
 
-	/**
-	 * Dependency: contentHostingService.
-	 * 
-	 * @param service
-	 *        The NotificationService.
-	 */
-	public void setContentHostingService(ContentHostingService service)
-	{
-		contentHostingService = service;
-	}
-
-	public void setSiteEmailNotificationAnnc(SiteEmailNotificationAnnc siteEmailNotificationAnnc) {
-		this.siteEmailNotificationAnnc = siteEmailNotificationAnnc;
-	}
-
-	private FunctionManager functionManager;
-	public void setFunctionManager(FunctionManager functionManager) {
-		this.functionManager = functionManager;
-	}
-	
-	private AliasService aliasService;	
-	public void setAliasService(AliasService aliasService) {
-		this.aliasService = aliasService;
-	}
-
-	private ToolManager toolManager;
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-		
-	}
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -730,12 +705,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	{
 		final ResourceProperties messageProps = message.getProperties();
 
-		final Time now = m_timeService.newTime();
+		final Instant now =  Instant.now();
 		try 
 		{
-			final Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
+			final Instant releaseDate = message.getProperties().getInstantProperty(RELEASE_DATE);
 
-			if (now.before(releaseDate)) 
+			if (now.isBefore(releaseDate)) 
 			{
 				return false;
 			}
@@ -747,9 +722,9 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		try 
 		{
-			final Time retractDate = message.getProperties().getTimeProperty(RETRACT_DATE);
+			final Instant retractDate = message.getProperties().getInstantProperty(RETRACT_DATE);
 			
-			if (now.after(retractDate)) 
+			if (now.isAfter(retractDate)) 
 			{
 				return false;
 			}
