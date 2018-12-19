@@ -21,12 +21,12 @@
 
 package org.sakaiproject.mailarchive.api;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.MessageChannel;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -90,7 +90,7 @@ public interface MailArchiveChannel extends MessageChannel
 	 * @exception PermissionException
 	 *            If the user does not have write permission to the channel.
 	 */
-	public MailArchiveMessage addMailArchiveMessage(String subject, String fromAddress, Time dateSent, List mailHeaders,
+	public MailArchiveMessage addMailArchiveMessage(String subject, String fromAddress, Instant dateSent, List mailHeaders,
 			List attachments, String[] body) throws PermissionException;
 
 	/** @return true if the channel enabled, false if not. */

@@ -34,7 +34,6 @@ import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -76,9 +75,6 @@ public class SakaiMessageHandlerTest {
     private SiteService siteService;
 
     @Mock
-    private TimeService timeService;
-
-    @Mock
     private ThreadLocalManager threadLocalManager;
 
     @Mock
@@ -104,7 +100,6 @@ public class SakaiMessageHandlerTest {
         messageHandlerFactory.setAliasService(aliasService);
         messageHandlerFactory.setUserDirectoryService(userDirectoryService);
         messageHandlerFactory.setSiteService(siteService);
-        messageHandlerFactory.setTimeService(timeService);
         messageHandlerFactory.setThreadLocalManager(threadLocalManager);
         messageHandlerFactory.setContentHostingService(contentHostingService);
         messageHandlerFactory.setMailArchiveService(mailArchiveService);

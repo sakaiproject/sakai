@@ -825,7 +825,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 * @exception PermissionException
 		 *            If the user does not have write permission to the channel.
 		 */
-		public MailArchiveMessage addMailArchiveMessage(String subject, String fromAddress, Time dateSent, List mailHeaders,
+		public MailArchiveMessage addMailArchiveMessage(String subject, String fromAddress, Instant dateSent, List mailHeaders,
 				List attachments, String[] body) throws PermissionException
 		{
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
@@ -835,7 +835,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			archiveHeaders.replaceAttachments(attachments);
 			archiveHeaders.setSubject(subject);
 			archiveHeaders.setFromAddress(fromAddress);
-			archiveHeaders.setDateSent(dateSent);
+			archiveHeaders.setInstantSent(dateSent);
 			archiveHeaders.setMailHeaders(mailHeaders);
 
 			// lets make sure that folks who have signed up for email get it
