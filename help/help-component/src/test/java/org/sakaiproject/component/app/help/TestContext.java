@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +32,7 @@ public class TestContext {
     @Bean("org.sakaiproject.user.api.UserDirectoryService")
     @Primary
     public UserDirectoryService userDirectoryService() {
-        UserDirectoryService userDirectoryService =  Mockito.mock(UserDirectoryService.class);
+        UserDirectoryService userDirectoryService =  mock(UserDirectoryService.class);
         User user = mock(User.class);
         when(user.getId()).thenReturn("userId");
         when(userDirectoryService.getCurrentUser()).thenReturn(user);
@@ -41,7 +42,7 @@ public class TestContext {
     @Bean("org.sakaiproject.tool.api.ActiveToolManager")
     @Primary
     public ActiveToolManager activeToolManager() {
-        ActiveToolManager toolManager = Mockito.mock(ActiveToolManager.class);
+        ActiveToolManager toolManager = mock(ActiveToolManager.class);
         Tool tool = mock(Tool.class);
         // The tool ID gets lowercased when looking for files
         when(tool.getId()).thenReturn("help/toolid");
@@ -54,7 +55,7 @@ public class TestContext {
     @Bean("org.sakaiproject.component.api.ServerConfigurationService")
     @Primary
     public ServerConfigurationService serverConfigurationService() {
-        ServerConfigurationService serverConfigurationService = Mockito.mock(ServerConfigurationService.class);
+        ServerConfigurationService serverConfigurationService = mock(ServerConfigurationService.class);
         when(serverConfigurationService.getString("help.location")).thenReturn("");
         when(serverConfigurationService.getString("help.localpath", "/help/")).thenReturn("/help/");
         when(serverConfigurationService.getString(eq("help.indexpath"), anyString())).thenReturn("target/index");
@@ -67,7 +68,7 @@ public class TestContext {
     @Bean("org.sakaiproject.user.api.PreferencesService")
     @Primary
     public PreferencesService preferencesService() {
-        PreferencesService preferencesService =  Mockito.mock(PreferencesService.class);
+        PreferencesService preferencesService =  mock(PreferencesService.class);
         when(preferencesService.getLocale("userId")).thenReturn(Locale.ENGLISH);
         return preferencesService;
     }

@@ -21,13 +21,11 @@
 
 package org.sakaiproject.component.app.help.model;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Resource;
-import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * category bean
