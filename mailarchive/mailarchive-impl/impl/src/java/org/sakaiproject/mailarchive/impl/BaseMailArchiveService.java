@@ -1365,7 +1365,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 
 		@Override
 		public void setInstantSent(Instant sent) {
-			m_dateSent = timeService.newTime(sent.getNano());
+			m_dateSent = timeService.newTime(sent.toEpochMilli());
 		}
 
 
