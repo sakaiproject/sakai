@@ -47,6 +47,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -3294,8 +3295,15 @@ public class AssignmentAction extends PagedResourceActionII {
         // SAK-17606
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
 
-        // format to show one decimal place in grade
-        context.put("value_grade", assignmentService.getGradeDisplay((String) state.getAttribute(GRADE_SUBMISSION_GRADE), gradeType, assignment.isPresent() ? assignment.get().getScaleFactor() : null));
+        // SAK-40938 If we're in grading review mode and the grade entered is bigger than the max, we
+        // should show the grade as entered, not a scaled and formatted version. In other words, the value in
+        // the text input should match the value in the alert message.
+        if (BooleanUtils.isTrue((Boolean) state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT))) {
+            context.put("value_grade", (String) state.getAttribute(GRADE_SUBMISSION_GRADE));
+        } else {
+            // format to show one decimal place in grade
+            context.put("value_grade", assignmentService.getGradeDisplay((String) state.getAttribute(GRADE_SUBMISSION_GRADE), gradeType, assignment.isPresent() ? assignment.get().getScaleFactor() : null));
+        }
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
@@ -10482,7 +10490,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 } else {
                                     int factor = a.getScaleFactor();
                                     int dec = (int) Math.log10(factor);
-                                    g= validPointGrade(state, g, factor);
+                                    validPointGrade(state, g, factor);
                                     if (state.getAttribute(STATE_MESSAGE) == null) {
 	                                    NumberFormat nbFormat = formattedText.getNumberFormat(dec, dec, false);
 	                                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
@@ -12144,10 +12152,10 @@ public class AssignmentAction extends PagedResourceActionII {
     } // add2ndToolbarFields
 
     /**
-     * valid grade for point based type
-     * returns a double value in a string from the localized input
+     * Tests the format of the supplied grade and sets alert messages in the
+     * state as required.
      */
-    private String validPointGrade(SessionState state, String grade, int factor) {
+    private void validPointGrade(SessionState state, final String grade, int factor) {
         if (grade != null && !"".equals(grade)) {
             if (grade.startsWith("-")) {
                 // check for negative sign
@@ -12163,7 +12171,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         || (".".equals(decSeparator) && grade.contains(","))
                         || grade.contains(" ")) {
                     addAlert(state, rb.getString("plesuse1"));
-                    return grade;
+                    return;
                 }
 
                 // parse grade from localized number format
@@ -12223,8 +12231,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             }
         }
-        return grade;
-
     }
 
     /**
@@ -12338,7 +12344,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String decSeparator = formattedText.getDecimalSeparator();
         int dec = (int) Math.log10(factor);
 
-        point = validPointGrade(state, point, factor);
+        validPointGrade(state, point, factor);
 
         if (point != null && (point.length() >= 1)) {
             // when there is decimal points inside the grade, scale the number by "factor"
