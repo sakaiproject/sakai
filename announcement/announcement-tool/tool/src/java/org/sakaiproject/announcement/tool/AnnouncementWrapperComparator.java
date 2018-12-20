@@ -159,6 +159,10 @@ class AnnouncementWrapperComparator implements Comparator<AnnouncementAction.Ann
         int result;
         if (sortName1 == null && sortName2 == null) {
             result = 0;
+        } else if (sortName1 == null) {
+            return -1;
+        } else if (sortName2 == null) {
+            return 1;
         }
         else {
             result = collator.compare(sortName1, sortName2);
