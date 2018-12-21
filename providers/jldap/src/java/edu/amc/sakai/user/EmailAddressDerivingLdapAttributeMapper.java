@@ -23,7 +23,7 @@ package edu.amc.sakai.user;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.novell.ldap.LDAPEntry;
 

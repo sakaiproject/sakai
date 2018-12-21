@@ -21,6 +21,7 @@
 
 package org.sakaiproject.unboundid;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,14 +29,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.security.GeneralSecurityException;
+
 import javax.net.ssl.SSLSocketFactory;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
@@ -62,6 +59,10 @@ import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPConnection;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPException;
 import com.unboundid.util.ssl.SSLUtil;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -99,6 +100,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	/** Default LDAP maximum number of connections in the pool */
 	public static final int DEFAULT_POOL_MAX_CONNS = 10;
 	
+	public static final boolean DEFAULT_RETRY_FAILED_OPERATIONS_DUE_TO_INVALID_CONNECTIONS = false;
+
 	/** Default LDAP maximum number of objects in a result */
 	public static final int DEFAULT_MAX_RESULT_SIZE = 1000;
 
@@ -147,6 +150,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	/** Maximum number of physical connections in the pool */
 	private int poolMaxConns = DEFAULT_POOL_MAX_CONNS;
 	
+	private boolean retryFailedOperationsDueToInvalidConnections = DEFAULT_RETRY_FAILED_OPERATIONS_DUE_TO_INVALID_CONNECTIONS;
+
 	/** Maximum number of results from one LDAP query */
 	private int maxResultSize = DEFAULT_MAX_RESULT_SIZE;
 
@@ -289,6 +294,7 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		try {
 			log.info("Creating LDAP connection pool of size " + poolMaxConns);
 			connectionPool = new LDAPConnectionPool(serverSet, bindRequest, poolMaxConns);
+			connectionPool.setRetryFailedOperationsDueToInvalidConnections(retryFailedOperationsDueToInvalidConnections);
 		} catch (com.unboundid.ldap.sdk.LDAPException e) {
 			log.error("Could not init LDAP pool", e);
 		}
@@ -1175,6 +1181,20 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		this.poolMaxConns = poolMaxConns;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean getRetryFailedOperationsDueToInvalidConnections() {
+		return retryFailedOperationsDueToInvalidConnections;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setRetryFailedOperationsDueToInvalidConnections(boolean retryFailedOperationsDueToInvalidConnections) {
+		this.retryFailedOperationsDueToInvalidConnections = retryFailedOperationsDueToInvalidConnections;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
