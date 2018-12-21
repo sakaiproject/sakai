@@ -7238,7 +7238,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (droppedCategoryPoints != -1) {
                         int factor = assignmentService.getScaleFactor();
                         Double enteredPoints = new Double(displayGrade(state, gradePoints, factor));
-                        if (enteredPoints != droppedCategoryPoints) {
+                        if (!enteredPoints.equals(droppedCategoryPoints)) {
                           addAlert(state, rb.getFormattedMessage("pleasee6", new Object[] {droppedCategoryPoints.toString()}));
                         }
                     }
