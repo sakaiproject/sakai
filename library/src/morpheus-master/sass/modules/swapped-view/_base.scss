@@ -5,6 +5,10 @@
 			.#{$namespace}topHeader{
 				background: $swapped-view-primary;
 			}
+			.#{$namespace}headerLogo{
+				background: $swapped-view-primary;
+			}
+/*
 			.#{$namespace}siteHierarchy{
 				background: $background-color-secondary;
 				color: $background-color;
@@ -12,6 +16,7 @@
 					color: $background-color;
 				}
 			}
+*/
 			.#{$namespace}mainHeader.is-maximized .siteNavWrap{
 				background: $swapped-view-sites-nav-background;
 			}
