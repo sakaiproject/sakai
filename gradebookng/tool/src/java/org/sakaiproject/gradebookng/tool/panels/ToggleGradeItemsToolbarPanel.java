@@ -83,8 +83,7 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 			@Override
 			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
-				final Long categoryID = categoryNameToIdMap.get(categoryName);
-				final String categoryColor = settings.getCategoryColor(categoryName, categoryID);
+				final String categoryColor = settings.getCategoryColor(categoryName);
 
 				WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
 				if (!categoriesEnabled) {

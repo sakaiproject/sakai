@@ -67,7 +67,7 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 				Collections.sort(assignments, new CategorizedAssignmentComparator());
 
 				categoryItem.add(new AttributeModifier("style",
-						String.format("border-left-color: %s", settings.getCategoryColor(category.getName(), category.getId()))));
+						String.format("border-left-color: %s", settings.getCategoryColor(category.getName()))));
 				categoryItem.add(new Label("name", category.getName()));
 				categoryItem.add(new ListView<Assignment>("gradeItemList", assignments) {
 					@Override
