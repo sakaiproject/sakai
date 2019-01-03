@@ -197,7 +197,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				} else if (SimplePageItem.ANNOUNCEMENTS == i.getType()) {
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.announcements-snippet"));
 				} else if (SimplePageItem.FORUM_SUMMARY == i.getType()) {
-					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forums-snippet"));
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forum-header-title"));
 				} else if (SimplePageItem.TWITTER == i.getType()) {
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.twitter-snippet"));
 				} else if (SimplePageItem.RESOURCE_FOLDER == i.getType()) {
