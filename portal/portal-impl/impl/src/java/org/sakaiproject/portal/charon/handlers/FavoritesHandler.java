@@ -285,7 +285,17 @@ public class FavoritesHandler extends BasePortalHandler
 			JSONObject obj = (JSONObject)parser.parse(json);
 
 			UserFavorites result = new UserFavorites();
-			result.favoriteSiteIds = new LinkedHashSet<String>((List<String>)obj.get("favoriteSiteIds"));
+			result.favoriteSiteIds = new LinkedHashSet<String>();
+
+			if (obj.get("favoriteSiteIds") != null) {
+			    // Site IDs might be numeric, so coerce everything to strings.
+			    for (Object siteId : (List<String>)obj.get("favoriteSiteIds")) {
+				if (siteId != null) {
+				    result.favoriteSiteIds.add(siteId.toString());
+				}
+			    }
+			}
+
 			result.autoFavoritesEnabled = (Boolean)obj.get("autoFavoritesEnabled");
 
 			return result;
