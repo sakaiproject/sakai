@@ -7012,20 +7012,22 @@ public class AssignmentAction extends PagedResourceActionII {
                 && params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE)
                 .equalsIgnoreCase(Boolean.TRUE.toString())) {
             state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+            if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
+                if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION)
+                        .equalsIgnoreCase(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE)) {
+                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+                } else if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION)
+                        .equalsIgnoreCase(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW)) {
+                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
+                } else if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION)
+                        .equalsIgnoreCase(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH)) {
+                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
+                }
+            }
         } else {
             state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
-        }
-
-        if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
-            if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION)
-                    .equalsIgnoreCase(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE)) {
+            if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
                 state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
-            } else if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION)
-                    .equalsIgnoreCase(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW)) {
-                state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
-            } else if (params.getString(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION)
-                    .equalsIgnoreCase(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH)) {
-                state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
             }
         }
 
@@ -7925,6 +7927,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aProperties, post, resubmitCloseTime, checkAnonymousGrading);
 
                 //TODO: ADD_DUE_DATE
+                if (state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
+                    aProperties.put(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION));
+                }
+
                 // the notification option
                 if (state.getAttribute(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null) {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
@@ -9377,14 +9383,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 
-                String defaultNotification = serverConfigurationService.getString("announcement.default.notification", "n");
-                if (defaultNotification.equalsIgnoreCase("r")) {
-                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
-                } else if (defaultNotification.equalsIgnoreCase("o")) {
-                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW);
-                } else {
-                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_NONE);
+                if (properties.get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION) != null) {
+                    state.setAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION, properties.get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION));
                 }
+
                 if(properties.get(NEW_ASSIGNMENT_REMINDER_EMAIL) != null){
                     state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.valueOf(properties.get(NEW_ASSIGNMENT_REMINDER_EMAIL).toString()));
                 }
