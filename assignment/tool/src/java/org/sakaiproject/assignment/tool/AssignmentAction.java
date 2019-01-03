@@ -13267,8 +13267,9 @@ public class AssignmentAction extends PagedResourceActionII {
                                     userEid = userEid.substring(0, userEid.indexOf("/"));
                                 }
                                 // SAK-17606 - get the eid part
-                                if ((userEid.contains("(")) && !userEid.contains(anonTitle)) {
-                                    userEid = userEid.substring(userEid.indexOf("(") + 1, userEid.indexOf(")"));
+                                if (userEid.contains("(") && userEid.endsWith(")") && !userEid.contains(anonTitle)) {
+                                    //The user will be at the end, grab this last set of parenthesis
+                                    userEid = userEid.substring(userEid.lastIndexOf("(") + 1, userEid.lastIndexOf(")"));
                                 }
                                 if (userEid.contains(anonTitle)) { // anonymous grading so we have to figure out the eid
                                     //get eid out of this slick table we made earlier
