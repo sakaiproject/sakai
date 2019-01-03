@@ -51,6 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import org.sakaiproject.roster.api.SakaiProxy;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -111,6 +112,7 @@ public class RosterTool extends HttpServlet {
         }
 
         String language = locale.getLanguage();
+
         String country = locale.getCountry();
             
         if (country != null && !country.equals("")) {
