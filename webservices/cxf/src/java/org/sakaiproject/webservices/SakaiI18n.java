@@ -70,6 +70,10 @@ public class SakaiI18n extends AbstractWebService {
 
         try {
             ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+            if (rb == null) {
+                // Try and load the resources directly using the class, not via Spring.
+                rb = new ResourceLoader(resourceBundle, Class.forName(resourceClass).getClassLoader());
+            }
             rb.setContextLocale(Locale.forLanguageTag(locale));
             Iterator keys = rb.keySet().iterator();
             StringBuilder lines = new StringBuilder();
