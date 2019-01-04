@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -717,7 +718,7 @@ public class PublishedAssessmentFacade
   }
 
   public Double getTotalScore(){
-    double total = 0;
+    BigDecimal total = BigDecimal.valueOf(0);
     Iterator iter = this.publishedSectionSet.iterator();
     while (iter.hasNext()){
       SectionDataIfc s = (SectionDataIfc) iter.next();
@@ -744,10 +745,10 @@ public class PublishedAssessmentFacade
 
       while (iter2.hasNext()){
         ItemDataIfc item = (ItemDataIfc)iter2.next();
-        total= total + item.getScore().doubleValue();
+        total = total.add(BigDecimal.valueOf(item.getScore().doubleValue()));
       }
     }
-    return  Double.valueOf(total);
+    return  Double.valueOf(total.doubleValue());
   }
 
   public PublishedAssessmentFacade clonePublishedAssessment(){
