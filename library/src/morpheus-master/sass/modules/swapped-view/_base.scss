@@ -2,10 +2,7 @@
 	.#{$namespace}portalWrapper{
 		color: $swapped-view-text-color;
 		&.swapped-view{
-			.#{$namespace}topHeader{
-				background: $swapped-view-primary;
-			}
-			.#{$namespace}headerLogo{
+			.#{$namespace}topHeader, .#{$namespace}headerLogo {
 				background: $swapped-view-primary;
 			}
 /*
