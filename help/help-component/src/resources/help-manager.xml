@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="org.sakaiproject.api.app.help.HelpManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="helpTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean
+                    class="org.sakaiproject.component.app.help.HelpManagerImpl">
+                <property name="restConfiguration">
+                    <ref bean="org.sakaiproject.api.app.help.RestConfiguration"/>
+                </property>
+                <property name="sessionFactory">
+                    <ref bean="helpSessionFactory"/>
+                </property>
+                <property name="toolManager">
+                    <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+                </property>
+                <property name="serverConfigurationService">
+                    <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+                </property>
+                <property name="txManager">
+                    <ref bean="helpTransactionManager"/>
+                </property>
+                <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+                <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.help.RestConfiguration"
+          class="org.sakaiproject.component.app.help.RestConfigurationImpl">
+        <property name="organization">
+            <value>sakai</value>
+        </property>
+        <property name="restCredentials">
+            <value>user:pass</value>
+        </property>
+        <property name="restUrl">
+            <value>http://</value>
+        </property>
+        <property name="restDomain">
+            <value>sakaihelp</value>
+        </property>
+        <property name="cacheInterval">
+            <value>7200000</value>
+        </property>
+    </bean>
+
+</beans>
