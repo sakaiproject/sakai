@@ -731,6 +731,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         attr("role", "columnheader").
         attr("scope", "col");
 
+      if (col >= GbGradeTable.FIXED_COLUMN_OFFSET) {
+        th.classList.add("gb-item");
+      }
+
       if (GbGradeTable.settings.isGroupedByCategory) {
         th.classList.add('gb-categorized');
       }
@@ -907,7 +911,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     $(window).trigger('resize');
   });
 
-
   // append all dropdown menus to body to avoid overflows on table
   var $dropdownMenu;
   var $link;
@@ -927,6 +930,17 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     $dropdownMenu.width($dropdownMenu.outerWidth());
 
     $('body').append($dropdownMenu.detach());
+
+    // SAK-40644 Hide move left for the leftmost, move right for the rightmost.
+    var $header = $link.closest("th.gb-item");
+    if ($header.length) {
+      if (!$header.prev("th.gb-item").length) {
+        $dropdownMenu.find(".gb-move-left").hide();
+      }
+      if (!$header.next("th.gb-item").length) {
+        $dropdownMenu.find(".gb-move-right").hide();
+      }
+    }
 
     var linkOffset = $link.offset();
 
