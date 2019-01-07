@@ -89,6 +89,7 @@ public class GradebookPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String FOCUS_ASSIGNMENT_ID_PARAM = "focusAssignmentId";
+	public static final String NEW_GBITEM_POPOVER_PARAM = "newItem";
 
 	// flag to indicate a category is uncategorised
 	// doubles as a translation key
@@ -106,7 +107,7 @@ public class GradebookPage extends BasePage {
 	GbModalWindow courseGradeStatisticsWindow;
 
 	Label liveGradingFeedback;
-	boolean hasAssignmentsAndGrades;
+	boolean hasGradebookItems, hasStudents;
 	private static final AttributeModifier DISPLAY_NONE = new AttributeModifier("style", "display: none");
 
 	Form<Void> form;
@@ -114,6 +115,8 @@ public class GradebookPage extends BasePage {
 	List<PermissionDefinition> permissions = new ArrayList<>();
 	boolean showGroupFilter = true;
 	private GbGradeTable gradeTable;
+
+	private final WebMarkupContainer tableArea;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
@@ -195,25 +198,6 @@ public class GradebookPage extends BasePage {
 		this.courseGradeStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.courseGradeStatisticsWindow);
 
-		final GbAjaxButton addGradeItem = new GbAjaxButton("addGradeItem") {
-			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form form) {
-				final GbModalWindow window = getAddOrEditGradeItemWindow();
-				window.setTitle(getString("heading.addgradeitem"));
-				window.setComponentToReturnFocusTo(this);
-				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
-				window.show(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return GradebookPage.this.role == GbRole.INSTRUCTOR;
-			}
-		};
-		addGradeItem.setDefaultFormProcessing(false);
-		addGradeItem.setOutputMarkupId(true);
-		this.form.add(addGradeItem);
-
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
@@ -227,28 +211,52 @@ public class GradebookPage extends BasePage {
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 		final List<String> students = this.businessService.getGradeableUsers();
 
-		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !students.isEmpty();
-
+		hasGradebookItems = !assignments.isEmpty();
+		hasStudents = !students.isEmpty();
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// grading type?
 		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
+		tableArea = new WebMarkupContainer("gradeTableArea");
+		if (!hasGradebookItems) {
+			tableArea.add(AttributeAppender.append("class", "gradeTableArea"));
+		}
+		form.add(tableArea);
+
+		final GbAddButton addGradeItem = new GbAddButton("addGradeItem");
+		addGradeItem.setDefaultFormProcessing(false);
+		addGradeItem.setOutputMarkupId(true);
+		tableArea.add(addGradeItem);
+
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
 		noAssignments.setVisible(assignments.isEmpty());
-		this.form.add(noAssignments);
+		tableArea.add(noAssignments);
+		final GbAddButton addGradeItem2 = new GbAddButton("addGradeItem2") {
+			@Override
+			public boolean isVisible() {
+				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+			}
+		};
+		addGradeItem2.setDefaultFormProcessing(false);
+		addGradeItem2.setOutputMarkupId(true);
+		noAssignments.add(addGradeItem2);
 
 		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
 		noStudents.setVisible(students.isEmpty());
-		this.form.add(noStudents);
+		tableArea.add(noStudents);
 
 		// Populate the toolbar
 		final WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
-		this.form.add(toolbar);
+		tableArea.add(toolbar);
+
+		final WebMarkupContainer toolbarColumnTools = new WebMarkupContainer("gbToolbarColumnTools");
+		toolbarColumnTools.setVisible(hasGradebookItems);
+		toolbar.add(toolbarColumnTools);
 
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
-		toolbar.add(toggleGradeItemsToolbarItem);
+		toolbarColumnTools.add(toggleGradeItemsToolbarItem);
 
 		this.gradeTable = new GbGradeTable("gradeTable",
 				new LoadableDetachableModel() {
@@ -276,7 +284,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
 
 
-		this.form.add(this.gradeTable);
+		tableArea.add(this.gradeTable);
 
 		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
 			@Override
@@ -302,7 +310,7 @@ public class GradebookPage extends BasePage {
 				return categoriesEnabled;
 			}
 		};
-		toolbar.add(toggleCategoriesToolbarItem);
+		toolbarColumnTools.add(toggleCategoriesToolbarItem);
 
 		final GbAjaxLink sortGradeItemsToolbarItem = new GbAjaxLink("sortGradeItemsToolbarItem") {
 			@Override
@@ -321,10 +329,10 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			public boolean isVisible() {
-				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+				return (businessService.isUserAbleToEditAssessments());
 			}
 		};
-		toolbar.add(sortGradeItemsToolbarItem);
+		toolbarColumnTools.add(sortGradeItemsToolbarItem);
 
 		// section and group dropdown
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
@@ -405,15 +413,13 @@ public class GradebookPage extends BasePage {
 		groupFilter.setNullValid(false);
 
 		// if only one item, hide the dropdown
-		if (groups.size() == 1 || !this.hasAssignmentsAndGrades) {
-			groupFilter.setVisible(false);
-		}
+		groupFilter.setVisible(groups.size() > 1 && hasStudents);
 
 		final WebMarkupContainer studentFilter = new WebMarkupContainer("studentFilter");
-		studentFilter.setVisible(this.hasAssignmentsAndGrades);
+		studentFilter.setVisible(hasStudents);
 		toolbar.add(studentFilter);
 
-		this.form.add(groupFilter);
+		tableArea.add(groupFilter);
 
 		final Map<String, Object> togglePanelModel = new HashMap<>();
 		togglePanelModel.put("assignments", this.businessService.getGradebookAssignments(sortBy));
@@ -424,17 +430,9 @@ public class GradebookPage extends BasePage {
 			new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", Model.ofMap(togglePanelModel));
 		add(gradeItemsTogglePanel);
 
-		this.form.add(new WebMarkupContainer("captionToggle").setVisible(this.hasAssignmentsAndGrades));
+		tableArea.add(new WebMarkupContainer("captionToggle").setVisible(hasStudents));
 
-		//
-		// hide/show components
-		//
-
-		// Only show the toolbar if there are students and grade items
-		toolbar.setVisible(!assignments.isEmpty());
-
-		// Show the table if there are grade items
-		this.gradeTable.setVisible(!assignments.isEmpty());
+		toolbar.setVisible(hasStudents || hasGradebookItems);
 
 		stopwatch.time("Gradebook page done", stopwatch.getTime());
 	}
@@ -548,11 +546,13 @@ public class GradebookPage extends BasePage {
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
-		if (!focusAssignmentId.isNull()) {
+		final StringValue showPopupForNewItem = getPageParameters().get(NEW_GBITEM_POPOVER_PARAM);
+		if(!showPopupForNewItem.isNull() && !focusAssignmentId.isNull()){
 			getPageParameters().remove(FOCUS_ASSIGNMENT_ID_PARAM);
+			getPageParameters().remove(NEW_GBITEM_POPOVER_PARAM);
 			response.render(JavaScriptHeaderItem
 					.forScript(
-							String.format("GbGradeTable.focusColumnForAssignmentId(%s)", focusAssignmentId.toString()),
+							String.format("GbGradeTable.focusColumnForAssignmentId(%s,%s)", focusAssignmentId.toString(),showPopupForNewItem),
 							null));
 		}
 	}
@@ -564,7 +564,7 @@ public class GradebookPage extends BasePage {
 		// add simple feedback nofication to sit above the table
 		// which is reset every time the page renders
 		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
-		this.liveGradingFeedback.setVisible(this.hasAssignmentsAndGrades);
+		this.liveGradingFeedback.setVisible(hasGradebookItems && hasStudents);
 		this.liveGradingFeedback.setOutputMarkupId(true);
 		this.liveGradingFeedback.add(DISPLAY_NONE);
 
@@ -572,7 +572,7 @@ public class GradebookPage extends BasePage {
 		// need to be the one that displays this message (Wicket will handle
 		// the 'saved' and 'error' messages when a grade is changed
 		this.liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
-		this.form.addOrReplace(this.liveGradingFeedback);
+		tableArea.addOrReplace(this.liveGradingFeedback);
 	}
 
 	public Component updateLiveGradingMessage(final String message) {
@@ -581,5 +581,30 @@ public class GradebookPage extends BasePage {
 			this.liveGradingFeedback.remove(DISPLAY_NONE);
 		}
 		return this.liveGradingFeedback;
+	}
+
+	private class GbAddButton extends GbAjaxButton	{
+
+		public GbAddButton(String id) {
+			super(id);
+		}
+
+		public GbAddButton(String id, Form<?> form) {
+			super(id, form);
+		}
+
+		@Override
+		public void onSubmit(final AjaxRequestTarget target, final Form form) {
+			final GbModalWindow window = getAddOrEditGradeItemWindow();
+			window.setTitle(getString("heading.addgradeitem"));
+			window.setComponentToReturnFocusTo(this);
+			window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
+			window.show(target);
+		}
+
+		@Override
+		public boolean isVisible() {
+			return GradebookPage.this.role == GbRole.INSTRUCTOR && hasGradebookItems;
+		}
 	}
 }

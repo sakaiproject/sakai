@@ -18,6 +18,7 @@ package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +56,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 	}
 
 	public String getName() {
-		return getGradingScale().getName();
+		return (getGradingScale() != null) ? getGradingScale().getName() : null;
 	}
 
 	/**
@@ -90,7 +91,7 @@ public class GradeMapping implements Serializable, Comparable<Object> {
 	 * @return An (ordered) collection of the available grade values
 	 */
 	public Collection<String> getGrades() {
-		return getGradingScale().getGrades();
+		return (getGradingScale() != null) ? getGradingScale().getGrades() : Collections.emptyList();
 	}
 
 	/**

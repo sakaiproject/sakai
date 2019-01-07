@@ -72,8 +72,8 @@ public class HtmlPageFilter implements ContentFilter {
 "</html>\n";
 
 	private String mathjaxTemplate =
-"    <script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config('{'\ntex2jax: '{' inlineMath: [[''\\\\('',''\\\\)'']] '}'\n'}');\n</script>\n" +
-"    <script src=\"{0}\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n" ;
+"    <script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config('{'\nmessageStyle: \"none\",\ntex2jax: '{' inlineMath: [[''\\\\('',''\\\\)'']] '}'\n'}');\n</script>\n" +
+"    <script src=\"{0}\" type=\"text/javascript\"></script>\n" ;
 
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;

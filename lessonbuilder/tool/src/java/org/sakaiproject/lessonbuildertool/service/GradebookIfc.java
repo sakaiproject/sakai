@@ -47,7 +47,7 @@ public class GradebookIfc {
     public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
-	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription);
+	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
 	} catch (org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException e) {
 	    // already exists. Say it worked
 	    return true;
@@ -61,7 +61,7 @@ public class GradebookIfc {
     public boolean updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					    final String title, final double points, final Date dueDate) {
 	try {
-	    gbExternalService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate);
+	    gbExternalService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
 	} catch (Exception e) {
 	    return false;
 	}

@@ -553,7 +553,7 @@ body.is-logged-out{
 				}
 			}
 		}
-		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
+		.#{$namespace}userNav__submenuitem--username span.textlink, .#{$namespace}userNav__submenuitem--userid span.textlink {
 			@media #{$phone}{
 				display: none;
 			}
