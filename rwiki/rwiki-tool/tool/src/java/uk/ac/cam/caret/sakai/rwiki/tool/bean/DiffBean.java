@@ -104,13 +104,13 @@ public class DiffBean
 
 	private void setLeftVersionNumber(String versionString)
 	{
-		if (versionString != null && !"".equals(versionString))
-		{
-			leftVersionNumber = Integer.parseInt(versionString);
-		}
-
 		try
 		{
+			if (versionString != null && !"".equals(versionString))
+			{
+				leftVersionNumber = Integer.parseInt(versionString);
+			}
+
 			if (rwo.getRevision().intValue() == leftVersionNumber)
 			{
 				left = rwo;
@@ -123,32 +123,33 @@ public class DiffBean
 		}
 		catch (IllegalArgumentException e)
 		{
-			throw new IllegalArgumentException(
-					"Invalid version number for left revision");
+			// Default to current revision
+			left = rwo;
 		}
-
 	}
 
 	private void setRightVersionNumber(String versionString)
 	{
 		if (versionString != null && !"".equals(versionString))
 		{
-			rightVersionNumber = Integer.parseInt(versionString);
-
 			try
 			{
+				rightVersionNumber = Integer.parseInt(versionString);
+
 				if (rwo.getRevision().intValue() == rightVersionNumber)
 				{
 					right = rwo;
 				}
 				else
+				{
 					right = rwikiObjectService.getRWikiHistoryObject(rwo,
 							rightVersionNumber);
+				}
 			}
 			catch (IllegalArgumentException e)
 			{
-				throw new IllegalArgumentException(
-						"Invalid version number for right revision");
+				// Default to current revision
+				right = rwo;
 			}
 		}
 		else
@@ -218,6 +219,12 @@ public class DiffBean
 	{
 		if (db == null)
 		{
+			if (left == null) {
+				left = rwo;
+			}
+			if (right == null) {
+				right = rwo;
+			}
 			db = new GenericDiffBean(left.getContent(), right.getContent());
 		}
 		return db;
