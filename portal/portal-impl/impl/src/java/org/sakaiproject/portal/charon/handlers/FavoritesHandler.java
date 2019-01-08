@@ -46,6 +46,8 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -66,12 +68,14 @@ public class FavoritesHandler extends BasePortalHandler
 	private static final String SEEN_SITES_PROPERTY = "autoFavoritesSeenSites";
 	private static final String FIRST_TIME_PROPERTY = "firstTime";
 	private ServerConfigurationService serverConfigurationService;
+	private UserDirectoryService userDirectoryService;
 
 	public FavoritesHandler()
 	{
 		setUrlFragment(URL_FRAGMENT);
 		serverConfigurationService = (ServerConfigurationService) 
 				ComponentManager.get(ServerConfigurationService.class);
+		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 	}
 
 
@@ -130,11 +134,23 @@ public class FavoritesHandler extends BasePortalHandler
 		// Find any sites that this user was added to since we last looked
 		boolean autoFavorite = serverConfigurationService.getBoolean("portal.autofavorite", true);
 
+		List<String> autofavoritableUserTypes
+			= serverConfigurationService.getStringList("portal.autofavoritableUserTypes", Collections.<String>emptyList());
+
+		try {
+			if (autofavoritableUserTypes.size() > 0) {
+				autoFavorite = autofavoritableUserTypes.contains(userDirectoryService.getUser(userId).getType());
+
+				// This needs setting to false, otherwise existing sites won't be favorited on first login.
+				if (autoFavorite) props.addProperty(FIRST_TIME_PROPERTY, String.valueOf(false));
+			}
+		} catch (UserNotDefinedException e) {
+			log.error("Failed to find user for " + userId, e);
+		}
+
 		try {
 			autoFavorite = props.getBooleanProperty(AUTO_FAVORITE_ENABLED_PROPERTY);
-		} catch (EntityPropertyNotDefinedException e) {
-			// Take the default
-		}  catch (EntityPropertyTypeException e) {
+		} catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
 			// Take the default
 		}
 
