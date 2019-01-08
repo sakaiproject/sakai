@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -676,7 +677,7 @@ public class PublishedAssessmentData
   }
 
   public Double getTotalScore(){
-    double total = 0;
+    BigDecimal total = BigDecimal.valueOf(0);
     Iterator iter = this.sectionSet.iterator();
     while (iter.hasNext()){
       PublishedSectionData s = (PublishedSectionData) iter.next();
@@ -702,10 +703,10 @@ public class PublishedAssessmentData
 
       while (iter2.hasNext()){
         PublishedItemData item = (PublishedItemData)iter2.next();
-        total= total + item.getScore().doubleValue();
+        total = total.add(BigDecimal.valueOf(item.getScore().doubleValue()));
       }
     }
-    return  Double.valueOf(total);
+    return  Double.valueOf(total.doubleValue());
   }
 
   public Set getAssessmentAttachmentSet() {
