@@ -83,10 +83,9 @@
 	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
 	String stateDetails = forumTool.getRbcsStateDetails();
-	String entityId = forumTool.getSelectedForum().getForum().getUuid();
+	String entityId = "for." + forumTool.getSelectedForum().getForum().getId();
 %>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 <!-- END RUBRICS JAVASCRIPT -->
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->

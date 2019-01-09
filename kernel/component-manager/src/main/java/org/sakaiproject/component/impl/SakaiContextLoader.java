@@ -22,26 +22,20 @@
 package org.sakaiproject.component.impl;
 
 import java.io.File;
+import java.util.Arrays;
 
 import javax.servlet.ServletContext;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoader;
 
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -68,18 +62,11 @@ public class SakaiContextLoader extends ContextLoader
 			final String servletName = sc.getServletContextName();
 			String location = getHomeBeanDefinitionIfExists(servletName);
 			if (StringUtils.isNotBlank(location)) {
-				log.debug("Servlet " + servletName + " is attempting to load bean definition [" + location + "]");
-				XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((BeanDefinitionRegistry) wac.getBeanFactory());
-				try {
-					int loaded = reader.loadBeanDefinitions(new FileSystemResource(location));
-					log.info("Servlet " + servletName + " loaded " + loaded + " beans from [" + location + "]");
-					// AnnotationConfigUtils.registerAnnotationConfigProcessors(reader.getRegistry());
-					// wac.getBeanFactory().preInstantiateSingletons();
-				} catch (BeanDefinitionStoreException bdse) {
-					log.warn("Failure loading beans from [" + location + "]", bdse);
-				} catch (BeanCreationException bce) {
-					log.warn("Failure instantiating beans from [" + location + "]", bce);
-				}
+				String[] configLocations = wac.getConfigLocations();
+				String[] newLocations = Arrays.copyOf(configLocations, configLocations.length + 1);
+				newLocations[configLocations.length] = "file:" + location;
+				wac.setConfigLocations(newLocations);
+				log.info("Servlet {} added an additional bean config location [{}]", servletName, location);
 			}
 		}
 	}

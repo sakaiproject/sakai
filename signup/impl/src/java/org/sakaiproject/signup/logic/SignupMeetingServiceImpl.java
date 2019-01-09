@@ -35,6 +35,10 @@
 package org.sakaiproject.signup.logic;
 
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -70,6 +74,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -96,6 +101,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 	@Getter @Setter
 	private SignupEmailFacade signupEmailFacade;
+	
+	@Setter
+	private UserTimeService userTimeService;
 	
 	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
 
@@ -1170,6 +1178,17 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	}
 	
 	
-
+	@Override
+	public String getUsersLocalDateTimeString(final Instant date) {
+		if (date == null) {
+			log.warn("Date was null, returning empty string");
+			return "";
+		}
+		final ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
+		final DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+	                                            .withZone(zone)
+	                                            .withLocale(rb.getLocale());
+	    return df.format(date);
+	}
 
 }

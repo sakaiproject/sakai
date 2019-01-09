@@ -234,8 +234,8 @@
 					</h:commandLink>
 			  <f:verbatim></div></f:verbatim>					            
   			<h:dataTable id="staticAllMessages" value="#{mfStatisticsBean.userAuthoredStatistics2}" var="stat" styleClass="" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
-   				<h:column rendered="#{!stat.msgDeleted}">
-   				
+   				<h:column>
+				<h:panelGroup rendered="#{!stat.msgDeleted}" layout="block"> 
 				<h:panelGroup>
 					<f:verbatim>
 	  					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
@@ -294,7 +294,7 @@
 					</h:column>
 					</h:dataTable>
 				</h:panelGroup>
-					
+				</h:panelGroup>
   			</h:column>
 
   			<%-- deleted messages  - not implemented

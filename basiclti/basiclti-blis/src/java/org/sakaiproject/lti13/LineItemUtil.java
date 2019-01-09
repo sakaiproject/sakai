@@ -40,6 +40,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.tsugi.ags2.objects.LineItem;
+import org.tsugi.ags2.objects.Result;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the
@@ -307,6 +308,45 @@ public class LineItemUtil {
 	 * @param assignment_id
 	 * @return
 	 */
+	protected static Assignment getAssignmentByLabelDAO(String context_id, Long tool_id, String assignment_label)
+	{
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+		Assignment retval = null;
+
+		pushAdvisor();
+		try {
+			List gradebookAssignments = g.getAssignments(context_id);
+			for (Iterator i = gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if (gAssignment.isExternallyMaintained()) {
+					continue;
+				}
+				if (assignment_label.equals(gAssignment.getName())) {
+					retval = gAssignment;
+					break;
+				}
+			}
+		} catch (GradebookNotFoundException e) {
+			log.error("Gradebook not found context_id={}", context_id);
+			retval = null;
+		} catch (Throwable e) {
+			log.error("Unexpected Throwable", e.getMessage());
+			e.printStackTrace();
+			retval = null;
+		} finally {
+			popAdvisor();
+		}
+		return retval;
+	}
+
+	/**
+	 * Load a particular assignment by its internal Sakai GB key
+	 * @param context_id
+	 * @param tool_id
+	 * @param assignment_id
+	 * @return
+	 */
 	protected static boolean deleteAssignmentByKeyDAO(String context_id, Long tool_id, Long assignment_id)
 	{
 		// Make sure it belongs to us
@@ -366,7 +406,7 @@ public class LineItemUtil {
 				LineItem item = getLineItem(signed_placement, gAssignment);
 
 				if ( filter != null ) {
-					if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
+					if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
 					if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
 					if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
 				}
@@ -437,7 +477,7 @@ public class LineItemUtil {
 			Map<String, Object> content = (Map) i.next();
 			LineItem item = getLineItem(content);
 			if ( filter != null ) {
-				if ( filter.ltiLinkId != null && ! filter.ltiLinkId.equals(item.ltiLinkId)) continue;
+				if ( filter.resourceLinkId != null && ! filter.resourceLinkId.equals(item.resourceLinkId)) continue;
 				if ( filter.resourceId != null && ! filter.resourceId.equals(item.resourceId)) continue;
 				if ( filter.tag != null && ! filter.tag.equals(item.tag)) continue;
 			}
@@ -457,7 +497,7 @@ public class LineItemUtil {
 		}
 		LineItem li = new LineItem();
 		li.label = (String) content.get(LTIService.LTI_TITLE);
-		li.ltiLinkId = resource_link_id;
+		li.resourceLinkId = resource_link_id;
 		if ( context_id != null && signed_placement != null ) {
 			li.id = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
 		}

@@ -38,4 +38,6 @@ public class Result { // This is all output-only
 	public Double resultScore;
 	@JsonProperty("resultMaximum")
 	public Double resultMaximum;
+	@JsonProperty("comment")
+	public String comment;
 }

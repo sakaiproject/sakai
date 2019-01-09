@@ -79,10 +79,28 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 
 	}
 
+	@Test
+	public void testSiteIdWithSpaces() {
+
+		SiteService siteService = getService(SiteService.class);
+		workAsAdmin();
+
+		try {
+			siteService.addSite("abc def ghi", "other");
+			Assert.fail();
+		} catch (IdInvalidException e) {
+			log.info("when passed a null id the test correctly responded with an IdInvalidException");
+		} catch (IdUsedException e) {
+			log.error(e.getMessage(), e);
+		} catch (PermissionException e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+
 	private void workAsAdmin() {
 		workAsUser("admin", "admin");
 	}
-	
+
 	private void workAsUser(String eid, String id) {
 		SessionManager sessionManager = getService(SessionManager.class);
 		Session session = sessionManager.getCurrentSession();

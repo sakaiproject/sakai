@@ -94,7 +94,7 @@
 				</p>	
 			#end
 			#if ($assignment_expand_flag)
-				#if ($assignment.Instructions.length()>0)
+				#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
 					<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
 				#else
 				#end
@@ -189,7 +189,7 @@
 			#end
 			
 			<h3>$tlang.getString("gen.subm")</h3>
-				#if($!value_feedback_text.length() >0 )
+				#if ($value_feedback_text && !$value_feedback_text.isEmpty())
 					<table border="0"><tr><td>
 					$value_feedback_text
 					</td></tr></table>

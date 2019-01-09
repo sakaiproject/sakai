@@ -290,16 +290,18 @@ document.links[newindex].onclick();
   <div class="tier1">
   <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
-     <!-- f:subview id="parts" -->
-      <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
-       <h:panelGroup>
-      <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-      <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
-         </h:panelGroup>
-
-        <h:outputText value="#{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-      </h:panelGrid>
-      <h:outputText value="#{part.description}" escape="false"/>
+    <h4 class="part-header">
+        <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
+        <small class="part-text">
+            <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
+        </small>
+        <span class="badge"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
+    </h4>
+    <h4 class="tier1">
+        <small class="part-text">
+            <h:outputText value="#{part.description}" escape="false"/>
+        </small>
+    </h4>
 
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
@@ -309,22 +311,26 @@ document.links[newindex].onclick();
 
    <h:dataTable width="100%" value="#{part.itemContents}" var="question">
      <h:column>
-       <h:panelGroup styleClass="row" layout="block">
-         <h:panelGroup styleClass="col-md-6" layout="block">
-           <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
-           <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-         </h:panelGroup>
-         <h:panelGroup styleClass="col-md-6 pull-right" layout="block">
-          <h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-          <h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
-			<f:convertNumber maxFractionDigits="2"/>
-          </h:outputText>
-		  <h:outputText value=" #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
-          <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
-			<f:convertNumber maxFractionDigits="2"/>
-          </h:outputText>
-         </h:panelGroup>
-       </h:panelGroup>
+		<h:panelGroup layout="block" styleClass="input-group col-sm-6">
+			<span class="input-group-addon">
+				<h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
+				<h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
+			</span>
+			<%-- REVIEW ASSESSMENT --%>
+			<h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+			<span class="input-group-addon">
+				<%-- REVIEW ASSESSMENT --%>
+				<h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+				<%-- DELIVER ASSESSMENT --%>
+				<h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
+					<f:convertNumber maxFractionDigits="2"/>
+				</h:outputText>
+				<h:outputText value="#{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
+				<h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
+					<f:convertNumber maxFractionDigits="2"/>
+				</h:outputText>
+			</span>
+		</h:panelGroup>
 
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student

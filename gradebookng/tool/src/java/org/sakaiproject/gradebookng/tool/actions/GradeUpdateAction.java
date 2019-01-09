@@ -198,7 +198,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		}
 
 		Optional<CategoryScoreData> catData = categoryId == null ?
-				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
+				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid, true);
 		String categoryScore = catData.map(c -> String.valueOf(c.score)).orElse("-");
 		List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
 

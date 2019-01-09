@@ -26,11 +26,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
@@ -239,7 +241,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				asn.setName(title);
 				asn.setDueDate(dueDate);
 				// support selective release
-				asn.setReleased(true);
+				asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));
 				asn.setPointsPossible(Double.valueOf(points));
 				session.update(asn);
 				log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId,
@@ -715,6 +717,16 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			Category persistedCategory = null;
 			if (categoryId != null) {
 				persistedCategory = getCategory(categoryId);
+				if (persistedCategory.isDropScores()) {
+					List<GradebookAssignment> thisCategoryAssignments = getAssignmentsForCategory(categoryId);
+					for (GradebookAssignment thisAssignment : thisCategoryAssignments) {
+						if (!Objects.equals(thisAssignment.getPointsPossible(), points)) {
+							String errorMessage = "Assignment points mismatch the selected Gradebook Category ("
+								+ thisAssignment.getPointsPossible().toString() + ") and cannot be added to Gradebook )";
+							throw new InvalidCategoryException(errorMessage);
+						}
+					}
+				}
 				if (persistedCategory == null || persistedCategory.isRemoved() ||
 						!persistedCategory.getGradebook().getId().equals(gradebook.getId())) {
 					throw new InvalidCategoryException("The category with id " + categoryId +
@@ -780,7 +792,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			asn.setName(title);
 			asn.setDueDate(dueDate);
 			// support selective release
-			asn.setReleased(true);
+			asn.setReleased(BooleanUtils.isTrue(asn.getReleased()));
 			asn.setPointsPossible(points);
 			if (ungraded != null) {
 				asn.setUngraded(ungraded.booleanValue());

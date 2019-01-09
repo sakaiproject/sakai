@@ -152,4 +152,12 @@ public class CourseOfferingRoleResolver extends BaseRoleResolver {
 		return sectionRoles;
 	}
 
+	// This signature was added to the interface to support speedup of displaying the list of available rosters,
+	// but implemented this method signature only for certain implementations.
+	// Some implementations -- including this one -- do not implement this method signature.
+	// This signature is here merely to complete the maven build (it ignores the added parameter).
+	// You must edit to specify processing if you actually use this class.
+	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid, String academicSessionEid) {
+		return getGroupRoles(cmService, userEid);
+	}
 }

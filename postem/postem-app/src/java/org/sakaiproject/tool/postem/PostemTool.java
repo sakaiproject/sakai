@@ -33,8 +33,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.zip.DataFormatException;
 
-import javax.faces.FactoryFinder;
-import javax.faces.application.ApplicationFactory;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
 import javax.faces.context.ExternalContext;
@@ -580,6 +578,12 @@ public class PostemTool {
 					}
 				}
 				else {
+					// check that file is actually a CSV file
+					if (!cr.getContentType().equalsIgnoreCase("text/csv")) {
+						PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "invalid_ext", new Object[] {getAttachmentTitle()});
+						return "create_gradebook";
+					}
+
 					csv = new String(cr.getContent());
 					if (log.isDebugEnabled()) {
 						log.debug(csv);

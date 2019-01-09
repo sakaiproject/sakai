@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.gradebookng.business;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -763,7 +764,9 @@ public class GradebookNgBusinessService {
 		// concurrency check, if stored grade != old grade that was passed in,
 		// someone else has edited.
 		// if oldGrade == null, ignore concurrency check
-		if (oldGrade != null && !StringUtils.equals(storedGradeAdjusted, oldGradeAdjusted)) {
+		BigDecimal storedBig = storedGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(storedGradeAdjusted).setScale(2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal oldBig = oldGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(oldGradeAdjusted).setScale(2, BigDecimal.ROUND_HALF_UP);
+		if (oldGrade != null && (storedBig.compareTo(oldBig) != 0)) {
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
 
@@ -885,8 +888,9 @@ public class GradebookNgBusinessService {
 	public HashMap<String, Boolean> buildHasAssociatedRubricMap(final List<Assignment> assignments) {
 		HashMap<String, Boolean> map = new HashMap<String, Boolean>();
 		for (Assignment assignment : assignments) {
-			if(assignment.getExternalAppName()!=null){
-				boolean hasAssociatedRubric = rubricsService.hasAssociatedRubric(assignment.getExternalAppName(), assignment.getExternalId());
+			String externalAppName = assignment.getExternalAppName();
+			if(externalAppName!=null) {
+				boolean hasAssociatedRubric = StringUtils.equals(externalAppName, toolManager.getLocalizedToolProperty("sakai.assignment", "title")) ? rubricsService.hasAssociatedRubric(externalAppName, assignment.getExternalId()) : false;
 				map.put(assignment.getExternalId(), hasAssociatedRubric);
 			} else {
 				Long assignmentId = assignment.getId();
@@ -1214,7 +1218,7 @@ public class GradebookNgBusinessService {
 					}
 
 					final Optional<CategoryScoreData> categoryScore = gradebookService.calculateCategoryScore(gradebook,
-							student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
+							student.getUserUuid(), category, category.getAssignmentList(), gradeMap, (role == GbRole.TA || role == GbRole.INSTRUCTOR));
 					categoryScore.ifPresent(data -> {
 						for (Long item : gradeMap.keySet())	{
 							if (data.droppedItems.contains(item)) {
@@ -2315,18 +2319,19 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the category score for the given student. Safe to call when logged in as a student.
+	 * Get the category score for the given student.
 	 *
 	 * @param categoryId id of category
 	 * @param studentUuid uuid of student
+	 * @param isInstructor will calculate the category score with non-released items for instructors but not for students
 	 * @return
 	 */
-	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor) {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
-		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor);
+		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
 		return result;
 	}
@@ -2376,6 +2381,7 @@ public class GradebookNgBusinessService {
 	 * @param assignmentId the id of the assignment to remove
 	 */
 	public void removeAssignment(final Long assignmentId) {
+		rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString());
 		this.gradebookService.removeAssignment(assignmentId);
 
 		EventHelper.postDeleteAssignmentEvent(getGradebook(), assignmentId, getUserRoleOrNone());

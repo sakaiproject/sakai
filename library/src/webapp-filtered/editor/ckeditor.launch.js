@@ -218,6 +218,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 	ckconfig.baseFloatZIndex = config.baseFloatZIndex;
     }
 
+    if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
+        ckconfig.toolbar = config.toolbarSet;
+    }
+
     //To add extra plugins outside the plugins directory, add them here! (And in the variable)
     (function() {
         // SAK-30370 present a nice and simple editor without plugins to the user on a tiny screen.
@@ -249,7 +253,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
         CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
         
-        CKEDITOR.plugins.addExternal('image2',webJars+'image2/${ckeditor.image2.version}/', 'plugin.js');
+        CKEDITOR.plugins.addExternal('image2',webJars+'ckeditor-image2/${ckeditor.image2.version}/', 'plugin.js');
 
         //Autosave has a dependency on notification
         CKEDITOR.plugins.addExternal('autosave',webJars+'ckeditor-autosave/${ckeditor.autosave.version}/', 'plugin.js');

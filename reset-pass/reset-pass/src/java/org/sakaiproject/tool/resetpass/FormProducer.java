@@ -147,7 +147,9 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 		}
 		UIForm form = UIForm.make(tofill,"form");
 		int expirationTime = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
-		UIOutput.make( form, "output", messageLocator.getMessage("explanation", new Object[]{getFormattedMinutes(expirationTime)} ));
+		if(tml!=null && tml.size() == 0) {
+			UIOutput.make( form, "output", messageLocator.getMessage("explanation", new Object[]{getFormattedMinutes(expirationTime)} ));
+		}
 
 		UIInput.make(form,"input","#{userBean.email}");
 

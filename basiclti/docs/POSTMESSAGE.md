@@ -52,7 +52,7 @@ Test Harness
 
 To test this in Sakai or in Canvas, you can use this:
 
-https://online.dr-chuck.com/sakai-api-test/resize.htm
+https://www.tsugi.org/lti-test/resize.htm
 
 Use any key/secret. You press a button and this tool resizes itself
 randomly each time the button is presed.  Watch the console

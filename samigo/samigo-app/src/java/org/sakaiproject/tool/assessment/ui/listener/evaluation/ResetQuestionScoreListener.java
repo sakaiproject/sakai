@@ -54,6 +54,7 @@ public class ResetQuestionScoreListener implements ActionListener
     AbortProcessingException
   {
     QuestionScoresBean bean = (QuestionScoresBean) cu.lookupBean("questionScores");
+    bean.setAgents(null);
     bean.setItemScoresMap(new HashMap());
     bean.setPublishedAssessment(null);
   }

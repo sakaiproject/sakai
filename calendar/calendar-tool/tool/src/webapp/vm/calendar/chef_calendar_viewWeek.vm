@@ -89,7 +89,7 @@
                             ## to calculate how many rows should be spanned
                             #rowspans($event)
                             #set ($heightPct = 5 * $rowspan)
-                            #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                            #set ($divHeight = ($numberOfSections - 1) * $rowspan)
 
                             #if ($event.getRange().isSingleTime())
                                     <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
@@ -108,7 +108,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -198,7 +198,7 @@
                                                 #rowspans($event)
                                                 #set ($heightPct = 5 * $rowspan)
                                                 <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else
@@ -253,7 +253,7 @@
                                     ## to calculate how many rows should be spanned
                                     #rowspans($event)
                                     #set ($heightPct = 5 * $rowspan)
-                                    #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                    #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                     <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
                                     <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -266,7 +266,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -327,13 +327,18 @@
         #set ($startTime = $dStart.get($n))
 	#end
 
+    ## This is a fudged endtime it will not include work if the endtime is intended to be included
     #set ($endTime = $event.getRange().lastTime(0))
+    #set ($endTimeActual = $event.getRange().lastTime())
+
     #if ($endTime.after($dEnd.get($n)))
         ## use the page end time as event's first time temporarily
         #set ($endTime = $dEnd.get($n))
 	#end
 
     #set ($du = $endTime.getTime().intValue() - $startTime.getTime().intValue())
+    ## The Real non-fudged endtime
+    #set ($dureal = $endTime.getTime().intValue() - $startTime.getTime().intValue())
     #set($dhour = $helper.getduration($du.longValue(),3600000))
     #set($dminute = $helper.getFractionIn($du.longValue(),$dhour))
 
@@ -353,6 +358,7 @@
 
     #set ($rowspan = 1)
     #set ($startMinInt = $startTime.breakdownLocal().getMin())
+	## $event.getDisplayName():$startTime:$endTime:$startMinInt:$duMin<br>
     #if ($startMinInt <30)
     #set ($rowspan = $rowspan + (($duMin - (30 - $startMinInt))/30))
     #set ($oneMore = ($duMin - (30 - $startMinInt))%30)
@@ -363,8 +369,13 @@
     #end
     ###set ($oneMore = ($duMin - (30 - $startMinInt))%30)
     #if ($oneMore > 0)
-    #set ($rowspan = $rowspan + 1)
+    	#set ($rowspan = $rowspan + 1)
     #end
+    ## This endtime may have been fudged, if so it will need an extra row as it's being returned from getNewEvents
+    #if ($endTime != $endTimeActual)
+    	#set ($rowspan = $rowspan + 1)
+    #end
+    
 #end    ## endof macro-rowspan
 
 
@@ -561,7 +572,7 @@
                             ## to calculate how many rows should be spanned
                             #rowspans($event)
                             #set ($heightPct = 5 * $rowspan)
-                            #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                            #set ($divHeight = ($numberOfSections - 1) * $rowspan)
 
                             #if ($event.getRange().isSingleTime())
                                     <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
@@ -580,7 +591,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -670,7 +681,7 @@
                                                 #rowspans($event)
                                                 #set ($heightPct = 5 * $rowspan)
                                                 <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
-                                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
                                             #end  ## if ($event.getRange().isSingleTime())
                                         #else
@@ -725,7 +736,7 @@
                                     ## to calculate how many rows should be spanned
                                     #rowspans($event)
                                     #set ($heightPct = 5 * $rowspan)
-                                    #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                    #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                     <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
                                     <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
                             #end
@@ -738,7 +749,7 @@
                                 ## to calculate how many rows should be spanned
                                 #rowspans($event)
                                 #set ($heightPct = 5 * $rowspan)
-                                #set ($divHeight = ($numberOfSections-1) * $rowspan)
+                                #set ($divHeight = ($numberOfSections - 1) * $rowspan)
                                 <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
                                 ##<td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center" class="borderGrayBackground">
                                 <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">

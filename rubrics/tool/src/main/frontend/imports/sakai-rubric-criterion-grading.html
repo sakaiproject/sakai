@@ -1,9 +1,6 @@
 <dom-module id="sakai-rubric-criterion-grading">
   <template>
-
-    <style include="sakai-rubrics-styles"></style>
-    <style include="polymer-bootstrap"></style>
-
+    <style include="granite-bootstrap"></style>
 
     <div class="criterion grading">
       <template is="dom-repeat" id="criterion" items="{{criterions}}" as="criterionitem">
@@ -36,32 +33,30 @@
             </div>
           </div>
           <div class="criterion-actions">
-              <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}" entity-id="{{entityId}}"></sakai-rubric-grading-comment>
+              <sakai-rubric-grading-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}" evaluated-item-id="{{evaluatedItemId}}" entity-id="{{entityId}}"></sakai-rubric-grading-comment>
               
-              <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
+              <strong class$="points-display {{isOverridden(criterionitem.pointoverride,criterionitem.selectedvalue)}}">
                 &nbsp;
                 {{criterionitem.selectedvalue}}
                 &nbsp;
-              </strong>
-
-              
+              </strong>              
               
               <template is="dom-if" if="[[options.fineTunePoints]]">
-                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control" id="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.selectedvalue}}">
+                <input type="number" min="0" max="{{criterionitem.pointrange.high}}" onkeypress="allowOnlyNumbersAndTab(event)" oninput="restrictValuesRange(event,this)" title="[[lang('point_override_details','Fine tune points by entering a number and overriding the selected rating points')]]" class="fine-tune-points form-control hide-input-arrows" id="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-override-[[criterionitem.id]]" name="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-override-[[criterionitem.id]]" on-input="finetuneRating" value="{{criterionitem.pointoverride::input}}">
               </template>
-              <input type="hidden" id="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
+              <input aria-labelledby="[[lang('points','Points')]]" type="hidden" id="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-[[criterionitem.id]]" name="rbcs-[[evaluatedItemId]]-[[entityId]]-criterion-[[criterionitem.id]]" value="{{criterionitem.selectedvalue}}">
           </div>
         </div>
       </template>
     </div>
     <div class="rubric-totals">
-      <input type="hidden" id="rbcs-[[entityId]]-totalpoints" name="rbcs-[[entityId]]-totalpoints" value="{{totalPoints}}">
+      <input type="hidden" aria-labelledby="[[lang('total','Total')]]" id="rbcs-[[evaluatedItemId]]-[[entityId]]-totalpoints" name="rbcs-[[evaluatedItemId]]-[[entityId]]-totalpoints" value="{{totalPoints}}">
       <div class="total-points">
         <sr-lang key="total">Total</sr-lang>: <strong>{{totalPoints}}</strong>
       </div>
     </div>
 
-    <input name="rbcs-[[entityId]]-state-details" id="rbcs-[[entityId]]-state-details" type="hidden" value="[[stateDetails]]">
+    <input aria-labelledby="[[lang('rubric','rubric')]]" name="rbcs-[[evaluatedItemId]]-[[entityId]]-state-details" id="rbcs-[[evaluatedItemId]]-[[entityId]]-state-details" type="hidden" value="[[stateDetails]]">
 
   </template>
     
@@ -118,6 +113,9 @@
         },
         entityId: {
           type: String,
+        },
+        evaluatedItemId: {
+          type: String,
         }
       },
       behaviors: [rubrics.behaviors],
@@ -137,8 +135,6 @@
         }
 
         this.stateDetails = escape(JSON.stringify(stateDetails));
-        // this.stateDetailsJson = JSON.stringify(stateDetails);
-        // console.log(this.stateDetails);
       },
       handleStateDetails: function() {
         var stateDetails = JSON.parse(unescape(this.stateDetails));
@@ -161,7 +157,6 @@
         for (var i = this.evaluationDetails.length - 1; i >= 0; i--) {
           for (var c = this.criterions.length - 1; c >= 0; c--) {
             if (this.evaluationDetails[i].criterionId === this.criterions[c].id) {
-              // console.log(this.$.criterion);
               var ratingItem = this.$$('#ratingitems_'+this.evaluationDetails[i].criterionId).itemForElement(this.$$('#rating_item_'+this.evaluationDetails[i].selectedRatingId));
 
               this.set('criterions.' + c + '.selectedRadingId', this.evaluationDetails[i].selectedRatingId);
@@ -202,13 +197,15 @@
         this.updateTotalPoints();
 
       },
-      isOverridden: function(ovrdvl) {
-        if (ovrdvl || ovrdvl === 0) {
+      isOverridden: function(ovrdvl,selected) {
+        if(!this.options.fineTunePoints){
+          return '';
+        }
+        if ((ovrdvl || ovrdvl === 0) && (parseInt(ovrdvl) !== parseInt(selected))) {
           return 'strike';
         } else {
           return '';
         }
-        
       },
       selectRating: function(e) {
         var cindex = this.$.criterion.indexForElement(e.target);
@@ -217,9 +214,8 @@
 
         this.set('criterions.' + cindex + '.selectedvalue', critem.points);
         this.set('criterions.' + cindex + '.selectedRadingId', critem.id);
-        
-        
-        
+        this.set('criterions.' + cindex + '.pointoverride', critem.points.toString());
+
         var items = this.$$('#criterion_row_'+citem.id).querySelectorAll('.rating-item');
         var item = this.$$('#rating_item_'+critem.id);
         if (hasClass(item, 'selected')) {

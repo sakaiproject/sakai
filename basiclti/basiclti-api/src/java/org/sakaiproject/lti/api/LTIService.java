@@ -154,17 +154,20 @@ public interface LTIService extends LTISubstitutionsFilter {
             "lti13:radio:label=bl_lti13:choices=off,on:role=admin",
             "lti13_client_id:text:hide=insert:label=bl_lti13_client_id:maxlength=1024:role=admin",
             "lti13_tool_public:textarea:hide=insert:label=bl_lti13_tool_public:maxlength=1M:role=admin",
-            "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
-            "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
-            "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
-            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
             // The tool keyset is a future feature - we can unhide it in the UI when Sakai supports this
             "lti13_tool_keyset:textarea:hidden=true:label=bl_lti13_tool_keyset:maxlength=1M:role=admin",
             // The tool kid is internal (comes through on launch and we store it and cache the public key)
             "lti13_tool_kid:text:hidden=true:label=bl_lti13_tool_kid:maxlength=1024:role=admin",
+            "lti13_tool_private:textarea:hide=insert:label=bl_lti13_tool_private:maxlength=1M:role=admin",
+            "lti13_platform_public:textarea:hide=insert:label=bl_lti13_platform_public:maxlength=1M:role=admin",
+            "lti13_platform_private:textarea:hidden=true:label=bl_lti13_platform_private:maxlength=1M:role=admin",
+            "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin",
+            "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin",
+            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
+            "lti11_launch_type:radio:label=bl_lti11_launch_type:hidden=true:role=admin:choices=off,on",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
             "updated_at:autodate"};
@@ -311,6 +314,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI13_TOOL_PRIVATE = "lti13_tool_private";
     String LTI13_PLATFORM_PUBLIC = "lti13_platform_public";
     String LTI13_PLATFORM_PRIVATE = "lti13_platform_private";
+    String LTI13_OIDC_ENDPOINT = "lti13_oidc_endpoint";
+    String LTI13_OIDC_REDIRECT = "lti13_oidc_redirect";
 
     // For Instructors, this model is filtered down dynamically based on
     // Tool settings

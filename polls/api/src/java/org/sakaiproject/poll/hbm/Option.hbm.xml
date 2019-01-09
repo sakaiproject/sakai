@@ -25,7 +25,7 @@
 		<property name="optionText" type="materialized_clob" length="255" not-null="true">
             <column name="OPTION_TEXT"/>
         </property>
-        <property name="UUId" type="string" length="255" not-null="true">
+        <property name="Uuid" type="string" length="255" not-null="true">
         	<column name="OPTION_UUID" />
         </property>
         <property name="deleted" type="java.lang.Boolean">

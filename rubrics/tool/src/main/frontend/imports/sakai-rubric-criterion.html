@@ -5,9 +5,7 @@
 
 <dom-module id="sakai-rubric-criterion">
   <template>
-
-    <style include="sakai-rubrics-styles"></style>
-    <style include="polymer-bootstrap"></style>
+    <style include="granite-bootstrap"></style>
 
     <div class="criterion">
       <sortable-js id="sort-criterion" draggable=".criterion-row" handle=".reorder-icon" on-update="handleSortedCriterion" animation="200">
@@ -207,7 +205,6 @@
         this.fire('sharing-change');
       },
       letShareKnow: function() {
-        console.log('letShareKnow');
         this.fire('sharing-change');
       },
       handleSortedCriterionRatings: function(e) {
@@ -281,7 +278,6 @@
         }.bind(this));
 
         this.fire('sharing-change');
-        // console.log(citem);
       },
       deleteCriterionRating: function(e, detail, sender) {
         e.stopPropagation();

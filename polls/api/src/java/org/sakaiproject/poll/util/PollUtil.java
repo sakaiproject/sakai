@@ -50,7 +50,7 @@ public class PollUtil {
 
         stack.push(element);
 
-        element.setAttribute("id", option.getUUId());
+        element.setAttribute("id", option.getUuid());
         element.setAttribute("optionid", option.getOptionId().toString());
         element.setAttribute("title", option.getOptionText());
         element.setAttribute("deleted", option.getDeleted().toString());
@@ -61,7 +61,7 @@ public class PollUtil {
 
     public static Option xmlToOption(Element element) {
         Option option = new Option();
-        option.setUUId(element.getAttribute(UUID));
+        option.setUuid(element.getAttribute(UUID));
         if (!"".equals(element.getAttribute(OPTION_ID))) {
             try {
                 option.setOptionId(Long.parseLong(element.getAttribute(OPTION_ID)));

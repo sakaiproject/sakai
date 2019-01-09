@@ -151,8 +151,15 @@ var rubrics = {
     }
   },
   behaviors: {
-    lang: function(key, backup) {
-      return rubrics.i18n(key, backup);
+    lang: function(key, backup, values) {
+      var translation = rubrics.i18n(key, backup);
+
+      if(translation && values !== undefined ){
+        for (var i in values) {
+          translation = translation.replace("{}", typeof values[i] === "string" ? values[i] : "" );
+        }
+      }
+      return translation;
     },
     checkForEnter: function (e) {
         // check if 'enter' was pressed
@@ -222,7 +229,7 @@ var rubrics = {
 
     if (!webComponentsSupported) {
       var wcPoly = document.createElement('script');
-      wcPoly.src = '/rubrics-service/bower_components/webcomponentsjs/webcomponents-lite.min.js';//
+      wcPoly.src = '/library/webjars/webcomponentsjs/webcomponents-lite.min.js';//TODO use includewebjars
       wcPoly.onload = lazyLoadPolymerAndElements;
       document.head.appendChild(wcPoly);
     } else {

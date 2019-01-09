@@ -615,6 +615,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
 		tool.put(LTIService.LTI_CONSUMERKEY, LTIService.SECRET_HIDDEN);
+
+		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
+		if ( tool_private != null ) {
+			tool_private = SakaiBLTIUtil.decryptSecret(tool_private);
+			tool.put(LTIService.LTI13_TOOL_PRIVATE, tool_private);
+		}
+		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
+		if ( platform_private != null ) {
+			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
+			tool.put(LTIService.LTI13_PLATFORM_PRIVATE, platform_private);
+		}
+
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 
@@ -622,6 +634,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("keySetUrl", keySetUrl);
 		String tokenUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool.get(LTIService.LTI_ID);
 		context.put("tokenUrl", tokenUrl);
+		String authOIDC = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti13/oidc_auth";
+		context.put("authOIDC", authOIDC);
+
+		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		String issuerURL = SakaiBLTIUtil.getIssuer(site_id);
+		context.put("issuerURL", issuerURL);
 
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_view";
@@ -678,6 +696,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (!isLTI1 && !ltiService.isAdmin(getSiteId(state))) {
 			mappingForm = foorm.filterForm(mappingForm, null, "^launch:.*|^consumerkey:.*|^secret:.*");
 		}
+
+		// Decrypt secrets for display
+		String tool_private = (String) tool.get(LTIService.LTI13_TOOL_PRIVATE);
+		if ( tool_private != null ) {
+			tool_private = SakaiBLTIUtil.decryptSecret(tool_private);
+			tool.put(LTIService.LTI13_TOOL_PRIVATE, tool_private);
+		}
+		String platform_private = (String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE);
+		if ( platform_private != null ) {
+			platform_private = SakaiBLTIUtil.decryptSecret(platform_private);
+			tool.put(LTIService.LTI13_PLATFORM_PRIVATE, platform_private);
+		}
+
 		String formInput = ltiService.formInput(tool, mappingForm);
 
 		context.put("formInput", formInput);
@@ -867,6 +898,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 				reqProps.setProperty("lti13_tool_public", LTI13Util.getPublicEncoded(kp));
 				reqProps.setProperty("lti13_tool_private", LTI13Util.getPrivateEncoded(kp));
 			}
+		}
+
+		// Encrypt secrets - conveniently, encryptSecret won't double encrypt
+		String check_platform_private = reqProps.getProperty("lti13_platform_private");
+		if ( check_platform_private == null ) check_platform_private = old_lti13_platform_private;
+		if ( check_platform_private != null ) {
+			check_platform_private = SakaiBLTIUtil.encryptSecret(check_platform_private);
+			reqProps.setProperty("lti13_platform_private", check_platform_private);
+		}
+		String check_tool_private = reqProps.getProperty("lti13_tool_private");
+		if ( check_tool_private != null ) {
+			check_tool_private = SakaiBLTIUtil.encryptSecret(check_tool_private);
+			reqProps.setProperty("lti13_tool_private", check_tool_private);
 		}
 
 		String success = null;
@@ -1953,7 +1997,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Come up with the new content item from the DeepLinkRespons or ContentItem
 		Properties reqProps;
 
-		String id_token = data.getParameters().getString(LTI13JwtUtil.ID_TOKEN);
+		String id_token = data.getParameters().getString(LTI13JwtUtil.JWT);
 		if ( DeepLinkResponse.isRequest(id_token) ) {
 			// Parse and validate the incoming DeepLink
 			String pubkey = (String) tool.get(LTIService.LTI13_TOOL_PUBLIC);
@@ -2250,7 +2294,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 
 		// Parse the returned information to insert a Content Item from a Deep Link
 		/* {
-                "type": "ltiLink",
+                "type": "ltiResourceLink",
                 "title": "Breakout",
                 "url": "http:\/\/localhost:8888\/tsugi\/mod\/breakout\/",
                 "presentation": {

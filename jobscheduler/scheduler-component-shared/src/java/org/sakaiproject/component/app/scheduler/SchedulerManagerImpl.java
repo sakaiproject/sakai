@@ -503,7 +503,8 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
    */
   public void destroy()
   {
-
+      this.stop();
+      log.info("destroy()");
   }
 
 

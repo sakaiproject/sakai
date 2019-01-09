@@ -800,7 +800,7 @@ function printView(url) {
 		</tr>
 		<tr> 
 			<th>
-					$tlang.getString("gen.due")
+					$tlang.getString("gen.due.header")
 			</th>
 			<td>
 				$!service.getUsersLocalDateTimeString($assignment.DueDate)
@@ -852,7 +852,7 @@ function printView(url) {
 		</tr>
 	</table>	
 	
-	#if ($assignment.Instructions.length() > 0)
+	#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
 		<h4>$tlang.getString("gen.assinf")</h4>
 		<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
 	#end

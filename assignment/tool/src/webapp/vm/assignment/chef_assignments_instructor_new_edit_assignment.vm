@@ -138,10 +138,7 @@
 </script>
 
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 <!-- END RUBRICS JAVASCRIPT -->
-
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
 <div class="portletBody container-fluid">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
@@ -437,7 +434,16 @@
 				</select>
 			#end
 		</div>
-
+		<div class="checkbox">
+			<label for="$name_CheckEmailReminder">
+				<input type="checkbox" name="$name_CheckEmailReminder" id="$name_CheckEmailReminder" value="true" 
+				#if ($!value_CheckEmailReminder)
+					checked="checked"
+				#end
+				/>
+				$tlang.getFormattedMessage("gen.ass.remind", $value_reminder_hours)
+			</label>
+		</div>
 		<div class="checkbox">
 			<label for="$name_CheckHideDueDate">
 				<input id="$name_CheckHideDueDate" name="$name_CheckHideDueDate" type="checkbox" value="true"

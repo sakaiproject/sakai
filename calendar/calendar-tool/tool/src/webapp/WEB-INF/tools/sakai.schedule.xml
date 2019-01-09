@@ -6,6 +6,7 @@
 			id="sakai.schedule"
 			title="Calendar"
 			description="For posting and viewing deadlines, events, etc.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<configuration name="calendar" value="" />
 

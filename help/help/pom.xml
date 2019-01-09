@@ -4,7 +4,7 @@
   <parent>
     <artifactId>help-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>19-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-help-content</name>
@@ -19,7 +19,12 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-  <dependencies />
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-comp-shared-help</artifactId>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>

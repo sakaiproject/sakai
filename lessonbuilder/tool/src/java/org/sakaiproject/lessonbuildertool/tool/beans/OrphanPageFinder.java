@@ -68,7 +68,11 @@ public class OrphanPageFinder {
 
 	private void loadOrphanedPages() {
 		log.debug("loadOrphanedPages for site:" +siteId);
-		Map<Long,SimplePage> allPagesInSite = new HashMap<Long,SimplePage>();
+		List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
+
+		if (sitePages == null || sitePages.isEmpty()) {
+			return;
+		}
 
 		// Load our map of all pages
 		//
@@ -76,7 +80,8 @@ public class OrphanPageFinder {
 		// really need the pages at all (it just uses the keys
 		// of this map as a set).  Could probably refactor this
 		// not to pull all the pages into memory if needed.
-		for (SimplePage p: simplePageToolDao.getSitePages(siteId)) {
+		Map<Long,SimplePage> allPagesInSite = new HashMap<Long,SimplePage>();
+		for (SimplePage p: sitePages) {
 			allPagesInSite.put(p.getPageId(), p);
 		}
 
@@ -111,7 +116,5 @@ public class OrphanPageFinder {
 				log.debug(String.valueOf(pageId));
 			}
 		}
-
-
 	}
 }

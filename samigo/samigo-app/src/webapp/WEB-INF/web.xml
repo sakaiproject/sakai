@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app
-  xmlns="http://java.sun.com/xml/ns/javaee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-  version="3.0">
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
 
   <!-- $Id: web.xml,v 1.8 2005/06/08 03:06:41 daisyf.stanford.edu Exp $ -->
   <display-name>SAM</display-name>
@@ -63,58 +63,15 @@
       <param-name>remote.user</param-name>
       <param-value>true</param-value>
     </init-param>
-    <!--
-         Don't use Sakai's built-in upload handling.
-         Samigo has its own upload filter below.
-    -->
     <init-param>
       <param-name>upload.enabled</param-name>
-      <param-value>false</param-value>
+      <param-value>true</param-value>
     </init-param>
-  </filter>
-
-  <filter>
-    <filter-name>Upload Filter</filter-name>
-    <filter-class>com.corejsf.UploadFilter</filter-class>
   </filter>
 
   <filter-mapping>
     <filter-name>sakai.request</filter-name>
     <url-pattern>/*</url-pattern>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>Upload Filter</filter-name>
-    <url-pattern>/jsf/delivery/*</url-pattern>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>Upload Filter</filter-name>
-    <url-pattern>/jsf/qti/*</url-pattern>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
-
-<!--
-  <filter-mapping>
-    <filter-name>Set Character Encoding</filter-name>
-    <url-pattern>/*</url-pattern>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
--->
-
-  <filter-mapping>
-    <filter-name>Upload Filter</filter-name>
-    <url-pattern>/jsf/author/item/*</url-pattern>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
@@ -128,25 +85,11 @@
     <listener-class>org.sakaiproject.util.ToolListener</listener-class>
   </listener>
 
-  <!-- PathInfo -->
-<!--
-  <listener>
-    <listener-class>org.sakaiproject.tool.assessment.settings.PathInfoInitListener</listener-class>
-  </listener>
--->
-
   <!-- Spring Locator -->
   <!--  Don't use Spring's, use Sakai's!  This allows sharing of Spring across webapps -->
   <listener>
     <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
   </listener>
-
-  <!-- OKI OSID -->
-<!--
-  <listener>
-    <listener-class>org.sakaiproject.tool.assessment.settings.OkiOsidConfigListener</listener-class>
-  </listener>
--->
 
   <!-- *******************************************************************  -->
 
@@ -319,7 +262,7 @@
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
-
+  
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>/faces/*</url-pattern>
@@ -330,60 +273,6 @@
     <url-pattern>*.xml</url-pattern>
   </servlet-mapping>
 
-  <!-- BEGIN APACHE AXIS SECTION-->
-  <!-- 
-
-  <servlet>
-    <display-name>Apache-Axis Servlet</display-name>
-    <servlet-name>AxisServlet</servlet-name>
-    <servlet-class>
-        org.apache.axis.transport.http.AxisServlet
-    </servlet-class>
-  </servlet>
-
-  <servlet>
-    <display-name>Axis Admin Servlet</display-name>
-    <servlet-name>AdminServlet</servlet-name>
-    <servlet-class>
-        org.apache.axis.transport.http.AdminServlet
-    </servlet-class>
-    <load-on-startup>100</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <display-name>SOAPMonitorService</display-name>
-    <servlet-name>SOAPMonitorService</servlet-name>
-    <servlet-class>
-        org.apache.axis.monitor.SOAPMonitorService
-    </servlet-class>
-    <init-param>
-      <param-name>SOAPMonitorPort</param-name>
-      <param-value>5001</param-value>
-    </init-param>
-    <load-on-startup>100</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/servlet/AxisServlet</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>*.jws</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/services/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>SOAPMonitorService</servlet-name>
-    <url-pattern>/SOAPMonitor</url-pattern>
-  </servlet-mapping>
-
--->
   <!-- BEGIN SAMIGO JSF SECTION-->
 
   <!-- JSF TAGLIBS -->

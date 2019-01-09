@@ -5,7 +5,7 @@
     <parent>
         <artifactId>portal</artifactId>
         <groupId>org.sakaiproject.portal</groupId>
-        <version>19-SNAPSHOT</version>
+        <version>20-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 

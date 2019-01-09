@@ -23,6 +23,7 @@ package org.sakaiproject.site.impl;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Iterator;
@@ -129,8 +130,11 @@ public class BaseGroup implements Group, Identifiable
 		if (site == null) log.warn("BaseGroup(other, site...) created with null site");
 
 		BaseGroup bOther = (BaseGroup) other;
+		BaseResourceProperties bOtherProperties = (BaseResourceProperties) other.getProperties();
 
-		m_site = (Site) site;
+		m_site = site;
+		BaseResourcePropertiesEdit properties = new BaseResourcePropertiesEdit();
+		properties.addAll(other.getProperties());
 
 		if (exact)
 		{
@@ -139,14 +143,14 @@ public class BaseGroup implements Group, Identifiable
 		else
 		{
 			m_id = siteService.idManager().createUuid();
+			// since locks contain references we need to remove all locks if this is not an exact copy
+			Arrays.stream(LockMode.values()).map(this::getGroupLockProperty).filter(Objects::nonNull).forEach(properties::removeProperty);
 		}
 
+		properties.setLazy(bOtherProperties.isLazy());
+		m_properties = properties;
 		m_title = bOther.m_title;
 		m_description = bOther.m_description;
-
-		m_properties = new BaseResourcePropertiesEdit();
-		m_properties.addAll(other.getProperties());
-		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 	}
 
 	/**
@@ -415,7 +419,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void addMember(String userId, String roleId, boolean active, boolean provided)
 	{
-		if(this.isLocked()) {
+		if(this.isLocked(Group.LockMode.MODIFY)) {
 			log.error("Error, cannot add {} with role {} into a locked group", userId, roleId);
 			return;
 		}
@@ -425,7 +429,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws IllegalStateException
 	{
-		if(this.isLocked()) {
+		if(this.isLocked(Group.LockMode.MODIFY)) {
 			throw new IllegalStateException("Error, cannot add " + userId + " with role " + roleId + " into a locked group");
 		}
 		m_azgChanged = true;
@@ -571,7 +575,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMember(String userId)
 	{
-		if(this.isLocked()) {
+		if(this.isLocked(Group.LockMode.MODIFY)) {
 			log.error("Error, can not remove a member from a locked group");
 			return;
 		}
@@ -581,7 +585,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void deleteMember(String userId) throws IllegalStateException
 	{
-		if(this.isLocked()) {
+		if(this.isLocked(Group.LockMode.MODIFY)) {
 			throw new IllegalStateException("Error, can not remove a member from a locked group");
 		}
 		m_azgChanged = true;
@@ -590,7 +594,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMembers()
 	{
-		if(this.isLocked()) {
+		if(this.isLocked(Group.LockMode.MODIFY)) {
 			log.error("Error, can not remove members from a locked group");
 			return;
 		}
@@ -600,7 +604,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void deleteMembers() throws IllegalStateException
 	{
-		if(this.isLocked()) {
+		if(this.isLocked(Group.LockMode.MODIFY)) {
 			throw new IllegalStateException("Error, can not remove members from a locked group");
 		}
 		m_azgChanged = true;
@@ -638,54 +642,87 @@ public class BaseGroup implements Group, Identifiable
 		return changed;
 	}
 
-	public void lockGroup(Entity entity) {
-		lockGroup(entity.getReference());
-	}
-
-	public void lockGroup(String lock) {
+	public void lockGroup(String lock, LockMode lockMode) {
 		if(StringUtils.isBlank(lock)) {
 			log.warn("lockGroup: null or empty lock");
 			return;
 		}
-		//TODO : this should be changed by addPropertyToList (When implemented in Kernel)
-		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
+
+		String groupLockProperty = getGroupLockProperty(lockMode);
+		if(StringUtils.isEmpty(groupLockProperty)){
+			log.warn("The groupLockMode is not supported, the group will not be locked.");
+			return;
+		}
+
+		String prop = m_properties.getProperty(groupLockProperty);
 		if(StringUtils.isNotBlank(prop)) {
 			prop += GROUP_PROP_SEPARATOR + lock;
 		} else {
 			prop = lock;
 		}
-		this.getProperties().addProperty(GROUP_PROP_LOCKED_BY, prop);
+		m_properties.addProperty(groupLockProperty, prop);
 	}
 
-	public void unlockGroup(Entity entity) {
-		unlockGroup(entity.getReference());
-	}
-
-	public void unlockGroup(String lock) {
+	public void unlockGroup(String lock, LockMode lockMode) {
 		if(StringUtils.isBlank(lock)) {
 			log.warn("unlockGroup: null or empty lock");
 			return;
 		}
-		//TODO : this should be changed by addPropertyToList (When implemented in Kernel)
-		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
-		if(StringUtils.isNotBlank(prop)) {           
-			this.getProperties().addProperty(GROUP_PROP_LOCKED_BY, Arrays.stream(prop.split(GROUP_PROP_SEPARATOR)).filter(s -> !lock.equals(s)).collect(Collectors.joining(GROUP_PROP_SEPARATOR)));
+
+		String groupLockProperty = getGroupLockProperty(lockMode);
+		if(StringUtils.isEmpty(groupLockProperty)){
+			log.warn("The groupLockMode is not supported, the group will not be unlocked.");
+			return;
+		}
+
+		String prop = m_properties.getProperty(groupLockProperty);
+		if(StringUtils.isNotBlank(prop)) {
+			m_properties.addProperty(groupLockProperty, Arrays.stream(prop.split(GROUP_PROP_SEPARATOR)).filter(s -> !lock.equals(s)).collect(Collectors.joining(GROUP_PROP_SEPARATOR)));
 		}
 	}
 
-	public void unlockGroup() {
-		this.getProperties().removeProperty(GROUP_PROP_LOCKED_BY);
-	}
+	public boolean isLocked(String lock, LockMode lockMode) {
+		if(StringUtils.isEmpty(lock)){
+			return isLocked(lockMode);
+		}
 
-	public boolean isLocked() {
-		return (StringUtils.isNotBlank(this.getProperties().getProperty(GROUP_PROP_LOCKED_BY)));
-	}
+		String groupLockProperty = getGroupLockProperty(lockMode);
+		if(StringUtils.isEmpty(groupLockProperty)){
+			return false;
+		}
 
-	public boolean isLocked(String lock) {
-		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
+		String prop = m_properties.getProperty(groupLockProperty);
 		if (StringUtils.contains(prop, lock)) {
 			return true;
 		}
+
 		return false;
 	}
+
+	public boolean isLocked(LockMode lockMode) {
+		String groupLockProperty = getGroupLockProperty(lockMode);
+		if(StringUtils.isEmpty(groupLockProperty)){
+			return false;
+		}else{
+			return (StringUtils.isNotBlank(m_properties.getProperty(groupLockProperty)));
+		}
+	}
+
+	private String getGroupLockProperty(LockMode lockMode){
+		String groupLockProperty = null;
+		switch(lockMode){
+			case DELETE:
+				groupLockProperty = GROUP_PROP_LOCKED_FOR_DELETION_BY;
+				break;
+			case MODIFY:
+			case ALL:
+				groupLockProperty = GROUP_PROP_LOCKED_BY;
+				break;
+			case NONE:
+			default:
+				break;
+		}
+		return groupLockProperty;
+	}
+
 }

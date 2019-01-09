@@ -1,8 +1,6 @@
 <dom-module id="sakai-rubric-criterion-readonly">
   <template>
-
-    <style include="sakai-rubrics-styles"></style>
-    <style include="polymer-bootstrap"></style>
+    <style include="granite-bootstrap"></style>
 
     <div class="criterion">
       <div id="sort-criterion">
@@ -42,79 +40,6 @@
         </template>
       </div>
     </div>
-
-    <iron-ajax
-         id="createCriterion"
-         url="/rubrics-service/rest/criterions/"
-         headers$='{"Content-Type": "application/json", "x-copy-source": "default", "authorization": "[[token]]"}'
-         method="POST"
-         body="{}"
-         handle-as="json"
-         on-response="createCriterionResponse"
-         debounce-duration="300">
-    </iron-ajax>
-
-    <iron-ajax
-         id="cloneCriterion"
-         url="/rubrics-service/rest/criterions/"
-         headers$='{"authorization": "[[token]]"}'
-         method="POST"
-         contentType=""
-         handle-as="json"
-         on-response="createCriterionResponse"
-         debounce-duration="300">
-    </iron-ajax>
-
-    <iron-ajax
-         id="updateCriterion"
-         url="/rubrics-service/rest/rubrics/[[rubric.id]]/criterions"
-         headers$='{"authorization": "[[token]]"}'
-         handle-as="text"
-         content-type="text/uri-list"
-         method="PUT"
-         debounce-duration="300">
-    </iron-ajax>
-
-    <iron-ajax
-         id="addCriterionToRubric"
-         url="/rubrics-service/rest/rubrics/[[rubric.id]]/criterions"
-         headers$='{"authorization": "[[token]]"}'
-         handle-as="text"
-         content-type="text/uri-list"
-         method="POST"
-         debounce-duration="300">
-    </iron-ajax>
-
-    <iron-ajax
-         id="updateRatings"
-         url="/rubrics-service/rest/criterions/"
-         headers$='{"authorization": "[[token]]"}'
-         handle-as="json"
-         content-type="text/uri-list"
-         method="PUT"
-         debounce-duration="300">
-    </iron-ajax>
-
-    <iron-ajax
-         id="updateRating"
-         url="/rubrics-service/rest/rating/"
-         headers$='{"authorization": "[[token]]"}'
-         handle-as="json"
-         content-type="application/json"
-         method="PATCH"
-         debounce-duration="300">
-    </iron-ajax>
-
-    <iron-ajax
-         id="addRating"
-         url="/rubrics-service/rest/ratings"
-         headers$='{"authorization": "[[token]]"}'
-         on-response="addRatingResponse"
-         handle-as="json"
-         content-type="application/json"
-         method="POST"
-         debounce-duration="300">
-    </iron-ajax>
 
   </template>
 

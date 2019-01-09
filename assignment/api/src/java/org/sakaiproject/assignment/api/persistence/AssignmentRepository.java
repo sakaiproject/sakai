@@ -55,8 +55,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     boolean existsSubmission(String submissionId);
 
-    void newSubmission(Assignment assignment,
-                       AssignmentSubmission submission,
+    AssignmentSubmission newSubmission(String assignmentId,
+                       Optional<String> groupId,
                        Optional<Set<AssignmentSubmissionSubmitter>> submitters,
                        Optional<Set<String>> feedbackAttachments,
                        Optional<Set<String>> submittedAttachments,

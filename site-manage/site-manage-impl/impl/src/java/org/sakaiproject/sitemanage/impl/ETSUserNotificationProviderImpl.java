@@ -308,7 +308,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		emailTemplateServiceSend(NOTIFY_COURSE_REQUEST_REQUESTER, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
 	}
 	
-	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail) {
+	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail, boolean sendToRequestEmail, boolean sendToUser) {
 		User currentUser = userDirectoryService.getCurrentUser();
 		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
 		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
@@ -348,16 +348,21 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			replacementValues.put("numSections", "0");
 		}
 		replacementValues.put("sections", buf.toString());
-		
-		emailTemplateServiceSend(NOTIFY_SITE_CREATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
-		
-		// send a confirmation email to site creator
-		from = requestEmail;
-		to = currentUserEmail;
-		headerTo = currentUserEmail;
-		replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
-		emailTemplateServiceSend(NOTIFY_SITE_CREATION_CONFIRMATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
-		
+
+		if (sendToRequestEmail)
+		{
+			emailTemplateServiceSend(NOTIFY_SITE_CREATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+		}
+
+		if (sendToUser)
+		{
+			// send a confirmation email to site creator
+			from = requestEmail;
+			to = currentUserEmail;
+			headerTo = currentUserEmail;
+			replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
+			emailTemplateServiceSend(NOTIFY_SITE_CREATION_CONFIRMATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+		}
 	}
 	
 	/*

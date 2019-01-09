@@ -16,7 +16,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -815,9 +815,10 @@ public class ItemHashUtilTest {
         final ItemMetaDataIfc metaData14 = newItemMetaData(item, ItemMetaDataIfc.NUMATTEMPTS, 13);
         final ItemMetaDataIfc metaData15 = newItemMetaData(item, ItemMetaDataIfc.SCALENAME, 14);
         final ItemMetaDataIfc metaData16 = newItemMetaData(item, ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX, 15);
+        final ItemMetaDataIfc metaData17 = newItemMetaData(item, ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, 16);
         item.setItemMetaDataSet(Sets.newSet(metaData1,metaData2,metaData3,metaData4,metaData5,metaData6,metaData7,
                 metaData8,metaData9,metaData10,metaData11,metaData12,metaData12,metaData13,metaData14,metaData15,
-                metaData16));
+                metaData16, metaData17));
 
         expectServerUrlLookup();
         IntStream.rangeClosed(0, 15).forEach(
@@ -840,7 +841,8 @@ public class ItemHashUtilTest {
                 .append(labeled(ItemMetaDataIfc.TIMEALLOWED,resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[12]))))
                 .append(labeled(ItemMetaDataIfc.NUMATTEMPTS,resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[13]))))
                 .append(labeled(ItemMetaDataIfc.SCALENAME,resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[14]))))
-                .append(labeled(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX,resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[15]))));
+                .append(labeled(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX,resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[15]))))
+                .append(labeled(ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT,resourceDocTemplate1(fullUrlForContentResource(CONTENT_RESOURCES[16]))));
 
 
         final StringBuilder actualHashBase = new StringBuilder();

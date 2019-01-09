@@ -1,11 +1,11 @@
 $PBJQ(document).ready(function(){
-    if ($PBJQ("#reorder-list li").size() - 1 > 15) {
+    if ($PBJQ('[id$="reorder-list"] .reorder-element').size() - 1 > 15) {
         $PBJQ('.grabHandle').show();
         $PBJQ('#inputFieldMessage').show();
         $PBJQ('#inputKbdMessage').remove();
     }
     //get the initial order TODO - make an  array instead of putting the values in a span
-    $PBJQ('#reorder-list li').each(function(n){
+    $PBJQ('[id$="reorder-list"] .reorder-element').each(function(n){
         $PBJQ('#lastMoveArrayInit').append($PBJQ(this).attr('id') + ' ');
         $PBJQ('#lastMoveArray').append($PBJQ(this).attr('id') + ' ');
     });
@@ -25,7 +25,7 @@ $PBJQ(document).ready(function(){
         initOrder = $PBJQ.trim($PBJQ('#lastMoveArrayInit').text()).split(" ");
         for (z in initOrder) {
             thisRow = document.getElementById(initOrder[z]);
-            $PBJQ(thisRow).appendTo('#reorder-list');
+            $PBJQ(thisRow).appendTo('[id$="reorder-list"]');
         }
         
         event.preventDefault();
@@ -42,10 +42,10 @@ $PBJQ(document).ready(function(){
         prevOrder = $PBJQ.trim($PBJQ('#lastMoveArray').text()).split(" ");
         for (z in prevOrder) {
             thisRow = document.getElementById(prevOrder[z]);
-            $PBJQ(thisRow).appendTo('#reorder-list');
+            $PBJQ(thisRow).appendTo('[id$="reorder-list"]');
         }
         lastMovedT = $PBJQ.trim($PBJQ('#lastItemMoved').text());
-        lastMoved = $PBJQ('li:eq(' + lastMovedT.substr(20) + ')');
+        lastMoved = $PBJQ('.reorder-element:eq(' + lastMovedT.substr(20) + ')');
         $PBJQ(lastMoved).addClass('recentMove');
         event.preventDefault();
         registerChange('notfluid', lastMoved);
@@ -86,7 +86,7 @@ $PBJQ(document).ready(function(){
                 that.select();
             });
             $PBJQ("#messageHolder").fadeOut('slow');
-            $PBJQ(this).parents('li').addClass('orderable-selected');
+            $PBJQ(this).parents('.reorder-element').addClass('orderable-selected');
             return (null);
         }
         
@@ -100,26 +100,26 @@ $PBJQ(document).ready(function(){
         //insert the row in new location - if new value is 1, insert before, if it is the last possible
         // insert after, otherwise insert before or after depending on if it is going up or down
         if (newVal === '1') {
-            $PBJQ($PBJQ(this).parents('li')).insertBefore($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+            $PBJQ($PBJQ(this).parents('.reorder-element')).insertBefore($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
         }
         else 
             if (newVal == inputs.length) {
-                $PBJQ($PBJQ(this).parents('li')).insertAfter($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+                $PBJQ($PBJQ(this).parents('.reorder-element')).insertAfter($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
             }
             else {
                 if (newVal > oldVal) {
-                    $PBJQ($PBJQ(this).parents('li')).insertAfter($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+                    $PBJQ($PBJQ(this).parents('.reorder-element')).insertAfter($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
                 }
                 else {
-                    $PBJQ($PBJQ(this).parents('li')).insertBefore($PBJQ(this).parents('li').siblings('li').children('span').children('input[value=' + newVal + ']').parents('li'));
+                    $PBJQ($PBJQ(this).parents('.reorder-element')).insertBefore($PBJQ(this).parents('.reorder-element').siblings('.reorder-element').children('span').children('input[value=' + newVal + ']').parents('.reorder-element'));
                 }
             }
-        registerChange('notfluid', $PBJQ(this).parents('li'));
+        registerChange('notfluid', $PBJQ(this).parents('.reorder-element'));
     });
 
     // the jquery-ui sortable initialization
-    return $PBJQ("#reorder-list").keyboardSortable({
-      items: 'li:not(.notsortable)',
+    return $PBJQ('[id$="reorder-list"]').keyboardSortable({
+      items: '.reorder-element:not(.notsortable)',
       start: function( event, ui ) {
         preserveStatus(ui);
       },
@@ -133,16 +133,16 @@ $PBJQ(document).ready(function(){
 // handle things that happen after a move
 var registerChange = function(originEvent, movedEl){
 
-    var rows = $PBJQ("#reorder-list li").size();
+    var rows = $PBJQ('[id$="reorder-list"] .reorder-element').size();
     if (originEvent !== 'notfluid') {
-        movedEl = $PBJQ("li[aria-selected='true']");
+        movedEl = $PBJQ(document.activeElement).closest('[id^="ui-id-"]');
     }
     
-    $PBJQ('#lastItemMoved').text($PBJQ(movedEl).attr('id'));
+    $PBJQ('#lastItemMoved').text($PBJQ(movedEl).attr('id')).trigger('change');
     
     $PBJQ(movedEl).addClass('recentMove');
     var newVal = 0;
-    newVal = $PBJQ((movedEl).prevAll('li').length + 1);
+    newVal = $PBJQ((movedEl).prevAll('.reorder-element').length + 1);
     // change the value of all the text fields (and value holders) to reflect new order
     var inputsX = $PBJQ('input[id^="index"]');
     var holderinputs = $PBJQ('input[id^="holder"]');
@@ -174,7 +174,7 @@ var registerChange = function(originEvent, movedEl){
 
 var preserveStatus = function(item){
     $PBJQ('#lastMoveArray').text('');
-    $PBJQ('#reorder-list li').each(function(n){
+    $PBJQ('[id$="reorder-list"] .reorder-element').each(function(n){
         if ($PBJQ(this).attr('id') !== undefined && $PBJQ(this).attr('id') !== 'undefined_avatar') {
             $PBJQ('#lastMoveArray').append($PBJQ(this).attr('id') + ' ');
         }

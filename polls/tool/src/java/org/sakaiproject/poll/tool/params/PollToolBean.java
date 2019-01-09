@@ -57,7 +57,6 @@ public class PollToolBean {
 	//public Poll newPoll = new Poll();
 	public String siteID;
 
-
 	public Option option;
 
 	private VoteCollection voteCollection;
@@ -371,7 +370,7 @@ public class PollToolBean {
 	private void sendOptionDeletedNotification(String[] userEids) {
 		Poll poll = manager.getPollById(option.getPollId());
 		String siteTitle = externalLogic.getSiteTile(poll.getSiteId());
-		externalLogic.notifyDeletedOption(Arrays.asList(userEids), siteTitle, poll.getPollText());
+		externalLogic.notifyDeletedOption(Arrays.asList(userEids), siteTitle, poll.getText());
 	}
 
 }

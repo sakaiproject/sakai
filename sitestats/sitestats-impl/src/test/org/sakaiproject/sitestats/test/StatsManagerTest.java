@@ -283,6 +283,14 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		Assert.assertEquals(false, M_sm.isEnableResourceStats());
 		smi.setEnableResourceStats(true);
 		Assert.assertEquals(true, M_sm.isEnableResourceStats());
+		// isEnableLessonsStats
+		smi.setEnableLessonsStats(null);
+		smi.checkAndSetDefaultPropertiesIfNotSet();
+		Assert.assertEquals(true, M_sm.isEnableLessonsStats());
+		smi.setEnableLessonsStats(false);
+		Assert.assertEquals(false, M_sm.isEnableLessonsStats());
+		smi.setEnableLessonsStats(true);
+		Assert.assertEquals(true, M_sm.isEnableLessonsStats());
 		// isServerWideStatsEnabled
 		smi.setServerWideStatsEnabled(false);
 		Assert.assertEquals(false, M_sm.isServerWideStatsEnabled());

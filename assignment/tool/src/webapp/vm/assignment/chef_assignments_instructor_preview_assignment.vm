@@ -53,7 +53,7 @@
 								</tr>
 								<tr>
 									<th>
-										$tlang.getString("gen.due")
+										$tlang.getString("gen.due.header")
 									</th>
 									<td>
 										$!service.getUsersLocalDateTimeString($value_DueDate)
@@ -196,7 +196,7 @@
 					<table class="itemSummary" summary="$tlang.getString("gen.viewasstablesummary")">
 						<tr>
 							<th>
-								$tlang.getString("gen.due")
+								$tlang.getString("gen.due.header")
 							</th>
 							<td>
 								$!service.getUsersLocalDateTimeString($value_DueDate)<br />

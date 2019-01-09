@@ -55,4 +55,15 @@ public interface RoleResolver {
 	 * @return The user's roles, or null if the user has no role in this CM object
 	 */
 	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid);
+
+	  /**
+	 * Gets a single user's roles in all sections with which s/he is associated and which are part of
+	 * a CourseOffering in a given AcademicSession.
+	 *
+	 * @param userEid The user's enterprise ID
+	 * @param academicSessionEid the selected academic session enterprise ID
+	 * @param cmService The CM service impl. We pass this in rather than injecting it into every RoleResolver
+	 * @return The user's roles, or null if the user has no role in this CM object
+	 */
+	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid, String academicSessionEid);
 }

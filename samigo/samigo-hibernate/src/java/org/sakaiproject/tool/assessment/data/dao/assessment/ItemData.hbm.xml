@@ -57,16 +57,15 @@
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback"/>
     </set>
-    <set name="itemAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment"/>
     </set>
-    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" >
+    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all" inverse="true" lazy="false" batch-size="50" >
         <key column="ITEMID"/>
         <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag" />
     </set>
   </class>
-
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemText" table="SAM_ITEMTEXT_T">
     <id name="id" column="ITEMTEXTID" type="java.lang.Long" unsaved-value="0">
@@ -83,7 +82,7 @@
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.Answer"/>
     </set>
-    <set name="itemTextAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemTextAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment"/>
     </set>

@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
@@ -53,6 +54,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -207,6 +209,36 @@ public class PublishAssessmentListener
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
       pub = publishedAssessmentService.publishAssessment(assessment);
+
+      //Lock the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
+      boolean groupRelease = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(assessmentSettings.getReleaseTo());
+
+      if (groupRelease) {
+        try{
+            String publishedAssessmentId = String.valueOf(pub.getPublishedAssessmentId());
+            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId, true);
+            Map<String, String> selectedGroups = publishedAssessment.getReleaseToGroups();
+
+            log.debug("Locking groups for deletion by the published assessment with id {}.", publishedAssessmentId);
+            log.debug("Locking for deletion the following groups {}.", selectedGroups);
+
+            Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+            Collection<Group> groups = site.getGroups();
+
+            for(Group group : groups){
+                if(selectedGroups.keySet().contains(group.getId())){
+                    log.debug("Locking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), publishedAssessmentId);
+                    group.lockGroup(publishedAssessmentId, Group.LockMode.DELETE);
+                }
+            }
+
+            log.debug("Saving the site after locking the groups for deletion.");
+            SiteService.save(site);
+        }catch(Exception e){
+            log.error("Fatal error locking the groups for deletion {}.", e);
+        }
+      }
+
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       boolean sendNotification = publishRepublishNotification.getSendNotification();
       String subject = publishRepublishNotification.getNotificationSubject();

@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
 import org.springframework.dao.DataAccessException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -61,37 +62,16 @@ import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
 
 @Slf4j
+@Data
 public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
 
     private EntityManager entityManager;
-    public void setEntityManager(EntityManager em) {
-        entityManager = em;
-    }
-
-
     private IdManager idManager;
-    public void setIdManager(IdManager idm) {
-        idManager = idm;
-    }
-
     private PollDao dao;
-    public void setDao(PollDao dao) {
-		this.dao = dao;
-	}
-    
-    
     private PollVoteManager pollVoteManager;    
-    public void setPollVoteManager(PollVoteManager pollVoteManager) {
-		this.pollVoteManager = pollVoteManager;
-	}
-
-
 	private ExternalLogic externalLogic;    
-    public void setExternalLogic(ExternalLogic externalLogic) {
-		this.externalLogic = externalLogic;
-	}
 
 	public void init() {
         try {
@@ -107,14 +87,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         externalLogic.registerFunction(PERMISSION_EDIT_ANY);
         externalLogic.registerFunction(PERMISSION_EDIT_OWN);
         log.info(this + " init()");
-
     }
-
-    public void destroy() {
-
-    }
-
-
 
     public List<Poll> findAllPollsForUserAndSitesAndPermission(String userId, String[] siteIds,
             String permissionConstant) {
@@ -154,8 +127,6 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         return polls;
     }
-
-
 
     public boolean savePoll(Poll t) throws SecurityException, IllegalArgumentException {
         boolean newPoll = false;
@@ -217,20 +188,19 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     	//Delete the Votes
     	List<Vote> vote = t.getVotes();
-    	
+
     	//We could have a partially populate item
     	if (vote == null || vote.isEmpty()) {
     		log.debug("getting votes as they where null");
     		vote = pollVoteManager.getAllVotesForPoll(t);
     		log.debug("got " + vote.size() + " vote");
     	}
-    	
-    	
+
     	Set<Vote> voteSet = new HashSet<Vote>(vote);
     	dao.deleteSet(voteSet);
 
     	//Delete the Options
-    	List<Option> options = t.getPollOptions();
+    	List<Option> options = t.getOptions();
     	//as above we could have a partialy populate item
     	if (options ==  null || options.isEmpty()) {
     		options = getOptionsForPoll(t);
@@ -347,8 +317,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         search.addRestriction(new Restriction("optionId", optionId));
         Option option = dao.findOneBySearch(Option.class, search);
         // if the id is null set it
-        if (option != null && option.getUUId() == null) {
-            option.setUUId( UUID.randomUUID().toString() );
+        if (option != null && option.getUuid() == null) {
+            option.setUuid( UUID.randomUUID().toString() );
             saveOption(option);
         }
         return option;
@@ -381,9 +351,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 	}
 
     public boolean saveOption(Option t) {
-        if (t.getUUId() == null 
-                || t.getUUId().trim().length() == 0) {
-            t.setUUId( UUID.randomUUID().toString() );
+        if (t.getUuid() == null 
+                || t.getUuid().trim().length() == 0) {
+            t.setUuid( UUID.randomUUID().toString() );
         }
 
         try {

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>edu-services</artifactId>
         <groupId>org.sakaiproject.edu-services</groupId>
-        <version>19-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>20-SNAPSHOT</version><!-- ProjectVersion -->
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>org.sakaiproject.edu-services.gradebook</groupId>
@@ -70,6 +70,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>gradebook-service-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-service-api</artifactId>
+        </dependency>
         <!-- Section Awareness -->
         <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>
@@ -111,9 +115,8 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>

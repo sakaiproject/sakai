@@ -22,7 +22,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -104,6 +103,11 @@ public class SaveAssessmentSettingsListener
     	error=true;
     }
 
+    // check if RetractDate needs to be nulled
+    if ("2".equals(assessmentSettings.getLateHandling())){
+        assessmentSettings.setRetractDateString(null);
+    }
+
     if(assessmentSettings.getDueDate() == null && assessmentSettings.getRetractDate() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
         String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_null_with_retract_date");
         context.addMessage(null,new FacesMessage(dueDateErr));
@@ -116,7 +120,14 @@ public class SaveAssessmentSettingsListener
     	context.addMessage(null,new FacesMessage(retractDateErr));
     	error=true;
     }
-    
+
+    // check that retract is after due and due is not null
+    if (!assessmentSettings.getIsRetractAfterDue()) {
+    	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "retract_earlier_than_due");
+    	context.addMessage(null, new FacesMessage(retractDateErr));
+    	error = true;
+    }
+
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
     	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
     	if (groupsAuthorized == null || groupsAuthorized.length == 0) {

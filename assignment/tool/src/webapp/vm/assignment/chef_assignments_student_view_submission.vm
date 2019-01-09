@@ -125,7 +125,7 @@ $(document).ready(function(){
 			<p class="instruction">
 				#if (($submissionType==1) || ($submissionType==3))
 					 $tlang.getString("stuviewsubm.asshasnot")
-				#elseif ($submissionType==2)
+				#elseif (($submissionType==2) || ($submissionType==5))
 				 	$tlang.getString("stuviewsubm.assattonly")
 				#end
 				#if($assignment.AllowPeerAssessment)
@@ -160,7 +160,7 @@ $(document).ready(function(){
 			</div>
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-xs-12">
-					<div class="itemSummaryHeader">$tlang.getString("gen.due")</div>
+					<div class="itemSummaryHeader">$tlang.getString("gen.due.header")</div>
 				</div>
 				#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
 				<div class="col-lg-4 col-sm-6 col-xs-12">

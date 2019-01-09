@@ -27,6 +27,7 @@ import org.json.simple.JSONValue;
 public class LTI13JwtUtil {
 
 	public static final String ID_TOKEN = "id_token";
+	public static final String JWT = "JWT";
 	/**
 	 *
 	 */

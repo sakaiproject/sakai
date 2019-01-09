@@ -42,7 +42,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -74,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -333,10 +334,10 @@ public class ItemAddListener
 		// RUBRICS, save the binding between the assignment and the rubric
 		if (assessmentBean.getAssessment() instanceof AssessmentFacade) {
 			String associationId = assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null));
-		} else {
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, paramUtil.getRubricConfigurationParameters(null, null));
+		} else if (assessmentBean.getAssessment() instanceof PublishedAssessmentFacade) {
 			String pubAssociationId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentBean.getAssessmentId().toString() + "." + itemauthorbean.getItemId();
-			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null));
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, pubAssociationId, paramUtil.getRubricConfigurationParameters(null, null));
 		}
 	}
 	catch (FinFormatException e) {
@@ -874,7 +875,6 @@ public class ItemAddListener
 	    	  else {  //Other Types
 	    		  item.setItemTextSet(prepareText(item, bean, itemauthor));
 	    	  }
-
     	  	
             // prepare MetaData
             item.setItemMetaDataSet(prepareMetaData(item, bean));
@@ -894,7 +894,7 @@ public class ItemAddListener
       	  	}
       }
 
-	  updateAttachments(itemauthor.getAttachmentList(), item);
+	  updateAttachments(itemauthor.getAttachmentList(), item, delegate);
 
 	  //Manage the tags.
 	  String[] tagsFromForm= FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap().get("tag_selector[]");
@@ -938,7 +938,6 @@ public class ItemAddListener
 	  }
       itemauthor.setTagsList(item.getItemTagSet());//To avoid add extra labels when refreshing the page manually.
 
-
 	  if (isFromQuestionPool) {
         // Came from Pool manager
 		  if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
@@ -953,10 +952,7 @@ public class ItemAddListener
 
         delegate.saveItem(item);
 
-
-
        item = delegate.getItem(item.getItemId().toString());
-
 
         QuestionPoolService qpdelegate = new QuestionPoolService();
 
@@ -1030,7 +1026,6 @@ public class ItemAddListener
               // reorder the sequences of items in the OrigSection
     	      SectionFacade origsect= assessdelegate.getSection(bean.getOrigSection());
 	      shiftItemsInOrigSection(delegate, origsect, oldSeq);
-
 
             }
             else {
@@ -2573,6 +2568,11 @@ public class ItemAddListener
 		set.add(new ItemMetaData(item.getData(),
 					ItemMetaDataIfc.IMAGE_MAP_SRC, bean.getImageMapSrc()));
 		}
+		// The imageMap Image Alt Text added in Metadata
+		if (StringUtils.isNotEmpty(bean.getImageMapAltText())) {
+		set.add(new ItemMetaData(item.getData(),
+					ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT, bean.getImageMapAltText()));
+		}
 		// MSMC property got left out, added in metadata
 		if (bean.getMcmsPartialCredit() != null) {
 		set.add(new ItemMetaData(item.getData(),
@@ -3061,7 +3061,7 @@ public class ItemAddListener
 	  }
   }
 
-	private void updateAttachments(List newList, ItemFacade targetItem) {
+	private void updateAttachments(List newList, ItemFacade targetItem, ItemService delegate) {
 		final Map<Long, ItemAttachmentIfc> oldIds = targetItem.getItemAttachmentMap();
 		if ( newList != null && !(newList.isEmpty()) ) {
 			for (Object o : newList) {
@@ -3078,6 +3078,7 @@ public class ItemAddListener
 		// any "oldIds" left over must be orphans. delete them.
 		for ( Map.Entry<Long, ItemAttachmentIfc> e : oldIds.entrySet() ) {
 			targetItem.removeItemAttachment(e.getValue());
+			delegate.removeItemAttachment(e.getKey());
 		}
 	}
 

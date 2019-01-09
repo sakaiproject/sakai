@@ -120,7 +120,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						// InvalidGradeException
 						error(getString("grade.notifications.invalid"));
 						target.addChildren(form, FeedbackPanel.class);
-						target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + getParent().getMarkupId() + "\"));");
+						target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + getParent().getMarkupId() + "\", /* dontDisableInputs = */ true));");
 					}
 				} catch (final NumberFormatException e) {
 					// InvalidGradeException

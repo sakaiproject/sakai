@@ -35,7 +35,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -737,8 +737,6 @@ public class AuthorBean implements Serializable
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
-	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
-	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList1.add(new SelectItem("edit_pending", com.getString("edit_action")));
@@ -766,8 +764,6 @@ public class AuthorBean implements Serializable
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
-	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
-	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList2.add(new SelectItem("edit_pending", com.getString("edit_action")));

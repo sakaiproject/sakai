@@ -37,6 +37,7 @@
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
 		<property name="signupCacheService" ref="org.sakaiproject.signup.logic.signupCacheService" />
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 	
 	<bean id="org.sakaiproject.signup.logic.SignupCalendarHelper" class="org.sakaiproject.signup.logic.SignupCalendarHelperImpl">

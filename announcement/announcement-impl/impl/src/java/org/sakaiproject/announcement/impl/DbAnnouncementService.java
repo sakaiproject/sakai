@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Stack;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.w3c.dom.Document;
@@ -77,18 +78,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-
-	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
-	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	@Setter protected SqlService sqlService = null;
 
 	/**
 	 * Configuration: set the table name for the container.
@@ -179,7 +169,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_announcement");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_announcement");
 			}
 
 			super.init();
@@ -237,7 +227,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		public DbStorage(DoubleStorageUser user)
 		{
 			super(m_cTableName, "CHANNEL_ID", m_rTableName, "MESSAGE_ID", "CHANNEL_ID", "MESSAGE_DATE", "OWNER", "DRAFT",
-					"PUBVIEW", FIELDS, m_locksInDb, "channel", "message", user, m_sqlService);
+					"PUBVIEW", FIELDS, m_locksInDb, "channel", "message", user, sqlService);
 
 		} // DbStorage
 
@@ -362,13 +352,13 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		try
 		{
 			// get a connection
-			final Connection connection = m_sqlService.borrowConnection();
+			final Connection connection = sqlService.borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			// read all message records that need conversion
 			String sql = "select CHANNEL_ID, MESSAGE_ID, XML from " + m_rTableName /* + " where OWNER is null" */;
-			m_sqlService.dbRead(connection, sql, null, new SqlReader()
+			sqlService.dbRead(connection, sql, null, new SqlReader()
 			{
 				private int count = 0;
 
@@ -405,7 +395,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 						fields[1] = (draft ? "1" : "0");
 						fields[2] = channelId;
 						fields[3] = messageId;
-						boolean ok = m_sqlService.dbWrite(connection, update, fields);
+						boolean ok = sqlService.dbWrite(connection, update, fields);
 
 						if (!ok)
 							log.info("convertToDraft: channel: {} message: {} owner: {} draft: {} ok: {}", channelId, messageId, owner, draft, ok);
@@ -426,7 +416,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			sqlService.returnConnection(connection);
 		}
 		catch (Throwable t)
 		{
@@ -446,13 +436,13 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		try
 		{
 			// get a connection
-			final Connection connection = m_sqlService.borrowConnection();
+			final Connection connection = sqlService.borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			// read all message records that need conversion
 			String sql = "select CHANNEL_ID, MESSAGE_ID, XML, PUBVIEW from " + m_rTableName;
-			m_sqlService.dbRead(connection, sql, null, new SqlReader()
+			sqlService.dbRead(connection, sql, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -513,7 +503,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 							fields[0] = "0";
 							fields[1] = channelId;
 							fields[2] = messageId;
-							boolean ok = m_sqlService.dbWrite(connection, update, fields);
+							boolean ok = sqlService.dbWrite(connection, update, fields);
 
 							if (!ok)
 								log.info("convertToPubView: channel: {} message: {} pubview: {} ok: {}", channelId, messageId, pubview, ok);
@@ -537,7 +527,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 							fields[1] = xml;
 							fields[2] = channelId;
 							fields[3] = messageId;
-							boolean ok = m_sqlService.dbWrite(connection, update, fields);
+							boolean ok = sqlService.dbWrite(connection, update, fields);
 
 							if (!ok)
 								log.info("convertToPubView: channel: {} message: {} pubview: {} ok: {}", channelId, messageId, pubview, ok);
@@ -554,7 +544,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			sqlService.returnConnection(connection);
 		}
 		catch (Throwable t)
 		{

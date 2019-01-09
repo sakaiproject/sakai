@@ -102,10 +102,9 @@
 	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
 	String stateDetails = forumTool.getRbcsStateDetails();
-	String entityId = forumTool.getSelectedTopic().getTopic().getUuid();
+	String entityId = "top." + forumTool.getSelectedTopic().getTopic().getId();
 %>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 <!-- END RUBRICS JAVASCRIPT -->
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
@@ -253,7 +252,7 @@
 						id="topic_postFirst">
 					</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>	
-				<t:htmlTag value="p" styleClass="checkbox" rendered="#{ForumTool.anonymousEnabled}">
+				<t:htmlTag value="p" styleClass="checkbox anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 					<h:selectBooleanCheckbox
 						title="postAnonymous" value="#{ForumTool.selectedTopic.topicPostAnonymous}"
 						id="topic_postAnonymous"
@@ -266,7 +265,7 @@
 						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="messageInstruction" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 					</h:outputLabel>
 				</t:htmlTag>
-				<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1" rendered="#{ForumTool.anonymousEnabled}">
+				<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 					<h:selectBooleanCheckbox
 						title="revealIDsToRoles" value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}"
 						id="topic_revealIDsToRoles"

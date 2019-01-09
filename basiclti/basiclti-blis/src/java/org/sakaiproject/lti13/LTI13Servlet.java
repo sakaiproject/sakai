@@ -17,7 +17,6 @@
  */
 package org.sakaiproject.lti13;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Jws;
 
 import java.io.IOException;
@@ -54,7 +53,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -64,11 +62,8 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getInt;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getLongKey;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getRB;
-import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.postError;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.LTI13_PATH;
 import static org.sakaiproject.basiclti.util.SakaiBLTIUtil.getOurServerUrl;
@@ -78,7 +73,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
 import static org.sakaiproject.lti13.LineItemUtil.getLineItem;
 
-import org.tsugi.http.HttpUtil;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.LTI13KeySetUtil;
@@ -89,14 +83,21 @@ import org.tsugi.oauth2.objects.AccessToken;
 import org.tsugi.lti13.objects.Endpoint;
 
 import org.sakaiproject.lti13.util.SakaiAccessToken;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.apache.commons.lang.StringUtils;
 import org.tsugi.ags2.objects.LineItem;
-import org.tsugi.basiclti.XMLMap;
+import org.tsugi.ags2.objects.Result;
 import org.tsugi.lti13.objects.LaunchLIS;
 
 /**
@@ -172,8 +173,15 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// Handle lineitems created by the tool
+		// /imsblis/lti13/lineitem/{signed-placement}/results
+		if (parts.length == 6 && "lineitem".equals(parts[3]) && "results".equals(parts[5]) ) {
+			String signed_placement = parts[4];
+			String lineItem = null;
+			handleLineItemsDetail(signed_placement, lineItem, true /*results */, request, response);
+			return;
+		}
 
+		// Handle lineitems created by the tool
 		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}
 		if (parts.length == 6 && "lineitems".equals(parts[3])) {
 			String signed_placement = parts[4];
@@ -187,6 +195,13 @@ public class LTI13Servlet extends HttpServlet {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
 			handleLineItemsDetail(signed_placement, lineItem, true /*results */, request, response);
+			return;
+		}
+
+		// TODO: Remove this after transition to new servlet is complete.
+		// /imsblis/lti13/oidc_auth?state=42&login_hint=/access/basiclti/site/92e..e8e67/content:6
+		if (parts.length == 4 && "oidc_auth".equals(parts[3]) ) {
+			handleOIDCAuthorization(request, response);
 			return;
 		}
 
@@ -691,94 +706,96 @@ public class LTI13Servlet extends HttpServlet {
 		out.println(" \"members\": [");
 
 		SakaiBLTIUtil.pushAdvisor();
-		boolean success = false;
+		try {
+			boolean success = false;
 
-		List<Map<String, Object>> lm = new ArrayList<>();
+			List<Map<String, Object>> lm = new ArrayList<>();
 
-		// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
-		Set<Member> members = site.getMembers();
-		Map<String, Member> memberMap = new HashMap<>();
-		List<String> userIds = new ArrayList<>();
-		for (Member member : members) {
-			userIds.add(member.getUserId());
-			memberMap.put(member.getUserId(), member);
-		}
-
-		List<User> users = UserDirectoryService.getUsers(userIds);
-		boolean first = true;
-
-		// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
-		String roleMapProp = (String) tool.get("rolemap");
-		roleMapProp = "maintain:Dude";
-
-		Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
-		for (User user : users) {
-			JSONObject jo = new JSONObject();
-			jo.put("status", "Active");
-			jo.put("context_id", site.getId());
-			jo.put("context_title", site.getTitle());
-			jo.put("user_id", user.getId());
-			jo.put("lis_person_sourcedid", user.getEid());
-
-			if (releaseName != 0) {
-				jo.put("name", user.getDisplayName());
-			}
-			if (releaseEmail != 0) {
-				jo.put("email", user.getEmail());
+			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
+			Set<Member> members = site.getMembers();
+			Map<String, Member> memberMap = new HashMap<>();
+			List<String> userIds = new ArrayList<>();
+			for (Member member : members) {
+				userIds.add(member.getUserId());
+				memberMap.put(member.getUserId(), member);
 			}
 
-			Member member = memberMap.get(user.getId());
-			Map<String, Object> mm = new TreeMap<>();
-			Role role = member.getRole();
-			String ims_user_id = member.getUserId();
+			List<User> users = UserDirectoryService.getUsers(userIds);
+			boolean first = true;
 
-			JSONArray roles = new JSONArray();
+			// TODO: Use LTISERVICE.LTI_ROLEMAP after SAK-40632 is completed and merged
+			String roleMapProp = (String) tool.get("rolemap");
+			roleMapProp = "maintain:Dude";
 
-			// If there is a role mapping, it has precedence over site.update
-			if ( roleMap.containsKey(role.getId()) ) {
-				roles.add(roleMap.get(role.getId()));
-			} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
-				roles.add("Instructor");
-			} else {
-				roles.add("Learner");
-			}
-			jo.put("roles", roles);
+			Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
+			for (User user : users) {
+				JSONObject jo = new JSONObject();
+				jo.put("status", "Active");
+				jo.put("context_id", site.getId());
+				jo.put("context_title", site.getTitle());
+				jo.put("user_id", user.getId());
+				jo.put("lis_person_sourcedid", user.getEid());
 
-			JSONObject sakai_ext = new JSONObject();
-			if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment_name != null ) {
-				String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-				String placement_id = getPlacementId(signed_placement);
-				String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
-				if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
-			}
-
-			Collection groups = site.getGroupsWithMember(ims_user_id);
-
-			if (groups.size() > 0) {
-				JSONArray lgm = new JSONArray();
-				for (Iterator i = groups.iterator();i.hasNext();) {
-					Group group = (Group) i.next();
-					JSONObject groupObj = new JSONObject();
-					groupObj.put("id", group.getId());
-					groupObj.put("title", group.getTitle());
-					lgm.add(groupObj);
+				if (releaseName != 0) {
+					jo.put("name", user.getDisplayName());
 				}
-				sakai_ext.put("sakai_groups", lgm);
+				if (releaseEmail != 0) {
+					jo.put("email", user.getEmail());
+				}
+
+				Member member = memberMap.get(user.getId());
+				Map<String, Object> mm = new TreeMap<>();
+				Role role = member.getRole();
+				String ims_user_id = member.getUserId();
+
+				JSONArray roles = new JSONArray();
+
+				// If there is a role mapping, it has precedence over site.update
+				if ( roleMap.containsKey(role.getId()) ) {
+					roles.add(roleMap.get(role.getId()));
+				} else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + site.getId())) {
+					roles.add("Instructor");
+				} else {
+					roles.add("Learner");
+				}
+				jo.put("roles", roles);
+
+				JSONObject sakai_ext = new JSONObject();
+				if ( sat.hasScope(SakaiAccessToken.SCOPE_BASICOUTCOME)  && assignment_name != null ) {
+					String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+					String placement_id = getPlacementId(signed_placement);
+					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement_id, placement_secret);
+					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
+				}
+
+				Collection groups = site.getGroupsWithMember(ims_user_id);
+
+				if (groups.size() > 0) {
+					JSONArray lgm = new JSONArray();
+					for (Iterator i = groups.iterator();i.hasNext();) {
+						Group group = (Group) i.next();
+						JSONObject groupObj = new JSONObject();
+						groupObj.put("id", group.getId());
+						groupObj.put("title", group.getTitle());
+						lgm.add(groupObj);
+					}
+					sakai_ext.put("sakai_groups", lgm);
+				}
+
+				jo.put("sakai_ext", sakai_ext);
+
+				if (!first) {
+					out.println(",");
+				}
+				first = false;
+				out.print(JacksonUtil.prettyPrint(jo));
+
 			}
-
-			jo.put("sakai_ext", sakai_ext);
-
-			if (!first) {
-				out.println(",");
-			}
-			first = false;
-			out.print(JacksonUtil.prettyPrint(jo));
-
+			out.println("");
+			out.println(" ] }");
+		} finally {
+			SakaiBLTIUtil.popAdvisor();
 		}
-		out.println("");
-		out.println(" ] }");
-
-		SakaiBLTIUtil.popAdvisor();
 
 	}
 
@@ -1039,7 +1056,7 @@ public class LTI13Servlet extends HttpServlet {
 		String lti_link_id = request.getParameter("lti_link_id");
 		if ( lti_link_id != null && lti_link_id.length() > 0 ) {
 			found = true;
-			retval.ltiLinkId = lti_link_id;
+			retval.resourceLinkId = lti_link_id;
 		}
 		String resource_id = request.getParameter("resource_id");
 		if ( resource_id != null && resource_id.length() > 0 ) {
@@ -1271,7 +1288,7 @@ public class LTI13Servlet extends HttpServlet {
 	/**
 	 * Provide the detail or results for a tool created lineitem
 	 * @param signed_placement
-	 * @param lineItem
+	 * @param lineItem - Can be null
 	 * @param results
 	 * @param request
 	 * @param response
@@ -1280,13 +1297,15 @@ public class LTI13Servlet extends HttpServlet {
 		log.debug("signed_placement={}", signed_placement);
 
 		// Make sure the lineItem id is a long
-		Long assignment_id;
-		try {
-			assignment_id = Long.parseLong(lineItem);
-		} catch (NumberFormatException e) {
-			LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
-			log.error("Bad value for assignment_id "+lineItem);
-			return;
+		Long assignment_id = null;
+		if ( lineItem != null ) {
+			try {
+				assignment_id = Long.parseLong(lineItem);
+			} catch (NumberFormatException e) {
+				LTI13Util.return400(response, "Bad value for assignment_id "+lineItem);
+				log.error("Bad value for assignment_id "+lineItem);
+				return;
+			}
 		}
 
 		// Load the access token, checking the the secret
@@ -1314,6 +1333,7 @@ public class LTI13Servlet extends HttpServlet {
 			log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
 			return;
 		}
+		String context_id = site.getId();
 
 		Map<String, Object> tool = loadToolForContent(content, site, sat.tool_id, response);
 		if (tool == null) {
@@ -1321,8 +1341,20 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String context_id = site.getId();
-		Assignment a = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
+		Assignment a;
+
+		if ( assignment_id != null ) {
+			a = LineItemUtil.getAssignmentByKeyDAO(context_id, sat.tool_id, assignment_id);
+		} else {
+			String assignment_label = (String) content.get(LTIService.LTI_TITLE);
+			a = LineItemUtil.getAssignmentByLabelDAO(context_id, sat.tool_id, assignment_label);
+		}
+
+		if ( a == null ) {
+			LTI13Util.return400(response, "Could not load assignment");
+			log.error("Could not load assignment");
+			return;
+		}
 
 		// Return the line item metadata
 		if ( ! results ) {
@@ -1334,9 +1366,108 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		// TODO support results
-		LTI13Util.return400(response, "results not implemented");
-		return;
+		resultsForAssignment(signed_placement, site, a, assignment_id, request, response);
+
+	}
+
+	private void resultsForAssignment(String signed_placement, Site site, Assignment a,
+			Long assignment_id, HttpServletRequest request, HttpServletResponse response)
+	{
+		// TODO: Is the outer container an array or an object - the spec and swagger doc disagree
+		/*
+			[{
+			  "id": "https://lms.example.com/context/2923/lineitems/1/results/5323497",
+			  "scoreOf": "https://lms.example.com/context/2923/lineitems/1",
+			  "userId": "5323497",
+			  "resultScore": 0.83,
+			  "resultMaximum": 1,
+			  "comment": "This is exceptional work."
+			}]
+		*/
+		response.setContentType(Result.MIME_TYPE_CONTAINER);
+
+		// Look up the assignment so we can find the max points
+		GradebookService g = (GradebookService) ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+		Session sess = SessionManager.getCurrentSession();
+
+		// Indicate "who" is reading this grade - needs to be a real user account
+		String gb_user_id = ServerConfigurationService.getString(
+				"basiclti.outcomes.userid", "admin");
+		String gb_user_eid = ServerConfigurationService.getString(
+				"basiclti.outcomes.usereid", gb_user_id);
+		sess.setUserId(gb_user_id);
+		sess.setUserEid(gb_user_eid);
+
+		String context_id = site.getId();
+
+		SakaiBLTIUtil.pushAdvisor();
+		try {
+			boolean success = false;
+
+			List<Map<String, Object>> lm = new ArrayList<>();
+
+			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
+			Set<Member> members = site.getMembers();
+			Map<String, Member> memberMap = new HashMap<>();
+			List<String> userIds = new ArrayList<>();
+			for (Member member : members) {
+				userIds.add(member.getUserId());
+				memberMap.put(member.getUserId(), member);
+			}
+
+			List<User> users = UserDirectoryService.getUsers(userIds);
+			boolean first = true;
+			PrintWriter out = response.getWriter();
+
+			out.println("{ \"results\" : [");
+			for (User user : users) {
+				Result result = new Result();
+				result.userId = user.getId();
+				result.resultMaximum = a.getPoints();
+
+				if ( signed_placement != null ) {
+					if ( assignment_id != null ) {
+						result.id = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + assignment_id + "/results/" + user.getId();
+						result.scoreOf = getOurServerUrl() + LTI13_PATH + "lineitems/" + signed_placement + "/" + assignment_id;
+					}  else {
+						result.id = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement + "/results/" + user.getId();
+						result.scoreOf = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
+					}
+				}
+
+				try {
+					CommentDefinition commentDef = g.getAssignmentScoreComment(context_id, a.getId(), user.getId());
+					if (commentDef != null) {
+						result.comment = commentDef.getCommentText();
+					}
+				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
+					e.printStackTrace();  // Unexpected
+					break;
+				}
+
+				try {
+					String actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
+					Double dGrade = new Double(actualGrade);
+					result.resultScore = dGrade;
+				} catch(NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
+					result.resultScore = null;
+				}
+
+				if (!first) {
+					out.println(",");
+				}
+				first = false;
+				out.print(JacksonUtil.prettyPrint(result));
+
+			}
+			out.println("");
+			out.println("] }");
+		} catch (Throwable t) {
+			t.printStackTrace();
+		} finally {
+			SakaiBLTIUtil.popAdvisor();
+		}
 	}
 
 	/**
@@ -1400,4 +1531,50 @@ public class LTI13Servlet extends HttpServlet {
 		LTI13Util.return400(response, "Could not delete assignment "+assignment_id);
 		log.error("Could delete assignment={}", assignment_id);
 	}
+
+	/**
+	 * Process the returned OIDC Authorization request
+	 * @param signed_placement
+	 * @param lineItem - Can be null
+	 * @param results
+	 * @param request
+	 * @param response
+	 */
+	private void handleOIDCAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		String state = (String) request.getParameter("state");
+		state = StringUtils.trimToNull(state);
+
+		String login_hint = (String) request.getParameter("login_hint");
+		if ( StringUtils.isEmpty(login_hint) ) state = null;
+
+		String nonce = (String) request.getParameter("nonce");
+		nonce = StringUtils.trimToNull(nonce);
+
+		if ( state == null || login_hint == null || nonce == null ) {
+			LTI13Util.return400(response, "Missing login_hint, nonce or state parameter");
+			log.error("Missing login_hint or state parameter");
+			return;
+		}
+
+		if ( ! login_hint.startsWith("/access/basiclti/site/") ) {
+			LTI13Util.return400(response, "Bad format for login_hint");
+			log.error("Bad format for login_hint");
+			return;
+		}
+
+		String redirect = login_hint;
+		redirect += ( redirect.contains("?") ? "&" : "?");
+		redirect += "state=" + java.net.URLEncoder.encode(state);
+		redirect += "&nonce=" + java.net.URLEncoder.encode(nonce);
+		log.debug("redirect={}", redirect);
+
+		try {
+			response.sendRedirect(redirect);
+		} catch (IOException unlikely) {
+			log.error("failed redirect {}", unlikely.getMessage());
+		}
+
+	}
+
 }

@@ -89,9 +89,7 @@ include file for displaying fill in the numeric questions
  </h:column>
 </h:dataTable>
 
-<f:verbatim>  
-	<div id="imageMapContainer" class='authorImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{question.imageMapSrc}" /><f:verbatim>' />
-	</div>
-</f:verbatim>
+<div id="imageMapContainer" class='authorImageContainer'>
+    <img id='img' src='<h:outputText value="#{question.imageMapSrc}"/>' alt='<h:outputText value="#{question.imageMapAltText}"/>'/>
+</div>
 <%@ include file="/jsf/evaluation/item/displayTags.jsp" %>

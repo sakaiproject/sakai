@@ -4,6 +4,19 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   <display-name>Sakai IFrame Portlet</display-name>
 
+  <filter>
+    <filter-name>sakai.request</filter-name>
+    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>sakai.request</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
   <servlet>
     <servlet-name>SakaiIFrame</servlet-name>
     <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>

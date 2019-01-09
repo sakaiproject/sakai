@@ -5,7 +5,7 @@
 	var signupMeetingType=INDIVIDUAL_TYPE;
 	function initialLayoutsSetup(){	
 
-		if (document.getElementById("meeting:radioUnlimitedAttendee").checked) {
+		if (document.getElementById("meeting:radioUnlimitedAttendee") && document.getElementById("meeting:radioUnlimitedAttendee").checked) {
 		  	document.getElementById("meeting:maxAttendee").style.display="none";
 		}
 		//init repeat Calendar

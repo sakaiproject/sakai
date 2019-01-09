@@ -169,6 +169,10 @@ $(document).ready(function() {
        $("#gradeMenuTooltip").html().trim().toString()),
     gradeHeaderMenuTooltip: TrimPath.parseTemplate(
        $("#gradeHeaderMenuTooltip").html().trim().toString()),
+    newGradeItemPopoverTitle: TrimPath.parseTemplate(
+       $("#newGradeItemPopoverTitle").html().trim().toString()),
+    newGradeItemPopoverMessage: TrimPath.parseTemplate(
+       $("#newGradeItemPopoverMessage").html().trim().toString()),
   };
 
 });
@@ -255,7 +259,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   // key needs to contain all values the cell requires for render
   // otherwise it won't rerender when those values change
   var hasComment = column.type === "assignment" ? GbGradeTable.hasComment(student, column.assignmentId) : false;
-  var isDropped = column.type === "assignment" ? student.hasDroppedScores[index] === '1' : false;
+  var isDropped = column.type === "assignment" ? GbGradeTable.hasDropped(student, column.assignmentId) : false;
   var scoreState = GbGradeTable.getCellState(row, col, instance);
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
@@ -614,6 +618,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   }
 
   GbGradeTable.FIXED_COLUMN_OFFSET = GbGradeTable.getFixedColumns().length;
+  GbGradeTable.COURSE_GRADE_COLUMN_INDEX = GbGradeTable.FIXED_COLUMN_OFFSET - 1; // course grade is always the last fixed column
   GbGradeTable.domElement.addClass('gb-fixed-columns-' + GbGradeTable.FIXED_COLUMN_OFFSET);
 
   GbGradeTable.grades = GbGradeTable.mergeColumns(GbGradeTable.unpack(tableData.serializedGrades,
@@ -718,6 +723,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       $th.
         attr("role", "columnheader").
         attr("scope", "col");
+
+      if (col >= GbGradeTable.FIXED_COLUMN_OFFSET) {
+        th.classList.add("gb-item");
+      }
 
       if (GbGradeTable.settings.isGroupedByCategory) {
         th.classList.add('gb-categorized');
@@ -895,7 +904,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     $(window).trigger('resize');
   });
 
-
   // append all dropdown menus to body to avoid overflows on table
   var $dropdownMenu;
   var $link;
@@ -915,6 +923,17 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     $dropdownMenu.width($dropdownMenu.outerWidth());
 
     $('body').append($dropdownMenu.detach());
+
+    // SAK-40644 Hide move left for the leftmost, move right for the rightmost.
+    var $header = $link.closest("th.gb-item");
+    if ($header.length) {
+      if (!$header.prev("th.gb-item").length) {
+        $dropdownMenu.find(".gb-move-left").hide();
+      }
+      if (!$header.next("th.gb-item").length) {
+        $dropdownMenu.find(".gb-move-right").hide();
+      }
+    }
 
     var linkOffset = $link.offset();
 
@@ -1338,6 +1357,10 @@ GbGradeTable.hasComment = function(student, assignmentId) {
   return student.hasComments[assignmentIndex] === "1";
 };
 
+GbGradeTable.hasDropped = function(student, assignmentId) {
+  var assignmentIndex = $.inArray(GbGradeTable.colModelForAssignment(assignmentId), GbGradeTable.columns);
+  return student.hasDroppedScores[assignmentIndex] === "1";
+};
 
 GbGradeTable.isReadOnly = function(student, assignmentId) {
   if (student.readonly == null) {
@@ -3141,13 +3164,32 @@ GbGradeTable.addReadyCallback = function(callback) {
 };
 
 
-GbGradeTable.focusColumnForAssignmentId = function(assignmentId) {
-    if (assignmentId) {
-        GbGradeTable.addReadyCallback(function() {
-            var col = GbGradeTable.colForAssignment(assignmentId);
-            GbGradeTable.instance.selectCell(0, col);
-        });
-    }
+GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNewItem) {
+  if (assignmentId) {
+      GbGradeTable.addReadyCallback(function() {
+          var col = GbGradeTable.colForAssignment(assignmentId);
+          GbGradeTable.instance.selectCell(0, col);
+          if(showPopupForNewItem === true){
+            
+            var $selectedField = $('.current.highlight .relative');
+          
+            $selectedField.attr('data-toggle','popover');
+            $selectedField.attr('data-placement','top');
+            $selectedField.attr('data-container','body');
+            $selectedField.attr('data-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
+            $selectedField.attr('data-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+
+            $('body').on('click', function (e) {
+              if ($(e.target).data('toggle') !== 'popover'
+                  && $(e.target).parents('.popover.in').length === 0) { 
+                  $('[data-toggle="popover"]').popover('hide');
+              }
+            });
+            $selectedField.popover();
+            $selectedField.popover('show');
+          }
+      });
+  }
 };
 
 

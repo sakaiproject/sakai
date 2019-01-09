@@ -46,7 +46,10 @@ import au.edu.anu.portal.portlets.rss.utils.Messages;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -236,6 +239,26 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			//only do this if we know its not locked, ie this is not a preconfigured portlet
 			if(!portletTitleIsLocked) {
 				prefs.setValue(PREF_PORTLET_TITLE, portletTitle);
+
+				//Save the page and tool title
+				try{
+					Placement placement = toolMan.getCurrentPlacement();
+					Site siteEdit = siteServ.getSite(placement.getContext());
+					for (SitePage sitePage : siteEdit.getPages()) {
+						for(ToolConfiguration toolConfiguration : sitePage.getTools()){
+							if (toolConfiguration.getId().equals(placement.getId())) {
+								sitePage.setTitle(portletTitle);
+								toolConfiguration.setTitle(portletTitle);
+							}
+						}
+					}
+
+					siteServ.save(siteEdit);
+
+				}catch(Exception ex){
+					log.error("Error saving the news title.", ex);
+				}
+
 			}
 			
 			//only do this if we know its not locked, ie this is not a preconfigured portlet

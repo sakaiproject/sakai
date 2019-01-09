@@ -98,6 +98,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
+import org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -360,13 +361,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	public AssessmentFacade getAssessment(Long assessmentId) {
 		try {
-			AssessmentData assessment = (AssessmentData) getHibernateTemplate()
-			.load(AssessmentData.class, assessmentId);
-			assessment.setSectionSet(getSectionSetForAssessment(assessment));
-			return new AssessmentFacade(assessment);
-		}
-		catch (DataAccessException e) {
-			log.warn("error retieving assemement: " + assessmentId.toString() + " " +  e.getMessage());
+			AssessmentData assessment = getHibernateTemplate().get(AssessmentData.class, assessmentId);
+			if (assessment != null) {
+				assessment.setSectionSet(getSectionSetForAssessment(assessment));
+				return new AssessmentFacade(assessment);
+			}
+		} catch (DataAccessException dae) {
+			log.warn("Could not retrieve assessment: {}", assessmentId, dae);
 		}
 		return null;
 	}
@@ -393,7 +394,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			if (log.isDebugEnabled()) log.debug("*** we have no. of resource in assessment=" + resourceIdList.size());
 			s.deleteResources(resourceIdList);
 		}
-		
+
+		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+		rubricsService.deleteRubricAssociationsByItemIdPrefix(assessmentId + ".", RubricsConstants.RBCS_TOOL_SAMIGO);
+	
 		final String softDeleteQuery = "update AssessmentData set status = :status WHERE assessmentBaseId = :id";
 
 		getHibernateTemplate().execute(session -> {
@@ -974,6 +978,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			assessment.setLastModifiedBy(AgentFacade.getAgentString());
 			assessment.setLastModifiedDate(new Date());
 
+			Set itemSet = section.getItemSet();
+			Iterator iter1 = itemSet.iterator();
+			RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+			while (iter1.hasNext()) {
+				ItemDataIfc item = (ItemDataIfc) iter1.next();
+				// delete rubric association
+				String associationId = assessment.getAssessmentId() + "." + item.getItemId();
+				rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);	
+			}
+
 			// lazy loading on sectionSet, so need to initialize it
 			Set sectionSet = getSectionSetForAssessment(assessment);
 			assessment.setSectionSet(sectionSet);
@@ -1008,7 +1022,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					.getSectionResourceIdList(section);
 			service.deleteResources(sectionAttachmentList);
 
-			// remove assessment
+			// remove section
 			retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 			while (retryCount > 0) {
 				try {
@@ -1588,7 +1602,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		List<AssessmentData> list = getAllActiveAssessmentsByAgent(fromContext);
 		List<AssessmentData> newList = new ArrayList<>();
 		Map<AssessmentData, String> assessmentMap = new HashMap<>();
-
+		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
 		for (AssessmentData a : list) {
 			log.debug("****protocol:" + ServerConfigurationService.getServerUrl());
 			AssessmentData new_a = prepareAssessment(a, ServerConfigurationService.getServerUrl(), toContext);
@@ -1622,6 +1636,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					ItemData item = (ItemData) itemIter.next();
 					//We use this place to add the saveItem Events used by the search index to index all the new questions
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+					String oldRef = assessmentMap.get(a);
+					String associationId = oldRef.substring(CoreAssessmentEntityProvider.ENTITY_PREFIX.length() + 1) + "." + item.getOriginalItemId();
+
+					try{
+						if(rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId, fromContext).isPresent()) {
+							transversalMap.put(ItemEntityProvider.ENTITY_PREFIX + "/" + associationId, ItemEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId() + "." + item.getItemId());
+						}
+					} catch(Exception e){
+						log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+					}
 					Set itemMetaDataSet = item.getItemMetaDataSet();
 					Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 					while (itemMetaDataIter.hasNext()) {
@@ -1634,10 +1658,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				}
 			}
 		}
-		for (AssessmentData assessmentData : newList) {
-		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
-		}
-		for (AssessmentData data: newList) {
+		for (AssessmentData data : newList) {
+		    getHibernateTemplate().saveOrUpdate(data);
 		    String oldRef = assessmentMap.get(data);
 		    if (oldRef != null && data.getAssessmentBaseId() != null)
 			transversalMap.put(oldRef, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentBaseId());
@@ -1648,7 +1670,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	public void copyAssessment(String assessmentId, String appendCopyTitle) {
 		AssessmentData assessmentData = loadAssessment(Long.valueOf(assessmentId));
 		assessmentData.setSectionSet(getSectionSetForAssessment(assessmentData));
-		
+		RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
 		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId());
 		updateTitleForCopy(newAssessmentData, appendCopyTitle);
 		getHibernateTemplate().saveOrUpdate(newAssessmentData);
@@ -1670,7 +1692,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				//copy rubrics
 				try {
 					String associationId = assessmentId + "." + item.getOriginalItemId();
-					RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+					
 					Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, associationId);
 					if (rubricAssociation.isPresent()) {
 						rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, newAssessmentData.getAssessmentId()+ "." + item.getItemId(), rubricAssociation.get().getFormattedAssociation());
@@ -2173,38 +2195,37 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return h;
 	}
 
-	public Set prepareSectionAttachmentSet(SectionData newSection,
-			Set sectionAttachmentSet, String protocol) {
+	public Set<AssessmentAttachment> prepareSectionAttachmentSet(SectionData newSection, Set sectionAttachmentSet, String protocol) {
 		return prepareSectionAttachmentSet(newSection, sectionAttachmentSet, protocol, null);
 	}
 	
-	public Set prepareAssessmentAttachmentSet(AssessmentData newAssessment,
-			Set assessmentAttachmentSet, String protocol, String toContext) {
-		HashSet h = new HashSet();
-		Iterator o = assessmentAttachmentSet.iterator();
-		while (o.hasNext()) {
-			AssessmentAttachment assessmentAttachment = (AssessmentAttachment) o
-					.next();
+	public Set<AssessmentAttachment> prepareAssessmentAttachmentSet(AssessmentData newAssessment,
+			Set<AssessmentAttachment> assessmentAttachmentSet, String protocol, String toContext) {
+		Set<AssessmentAttachment> h = new HashSet<>();
+
+		for (AssessmentAttachment assessmentAttachment : assessmentAttachmentSet) {
 			// create a copy of the resource
 			AssessmentService service = new AssessmentService();
 			ContentResource cr_copy = service.createCopyOfContentResource(
 					assessmentAttachment.getResourceId(), assessmentAttachment
 							.getFilename(), toContext);
 
-			// get relative path
-			String url = getRelativePath(cr_copy.getUrl(), protocol);
+			if (cr_copy != null) {
+				// get relative path
+				String url = getRelativePath(cr_copy.getUrl(), protocol);
 
-			AssessmentAttachment newAssessmentAttachment = new AssessmentAttachment(
-					null, newAssessment, cr_copy.getId(), assessmentAttachment
-							.getFilename(), assessmentAttachment.getMimeType(),
-					assessmentAttachment.getFileSize(), assessmentAttachment
-							.getDescription(), url, assessmentAttachment
-							.getIsLink(), assessmentAttachment.getStatus(),
-					assessmentAttachment.getCreatedBy(), assessmentAttachment
-							.getCreatedDate(), assessmentAttachment
-							.getLastModifiedBy(), assessmentAttachment
-							.getLastModifiedDate());
-			h.add(newAssessmentAttachment);
+				AssessmentAttachment newAssessmentAttachment = new AssessmentAttachment(
+						null, newAssessment, cr_copy.getId(), assessmentAttachment
+						.getFilename(), assessmentAttachment.getMimeType(),
+						assessmentAttachment.getFileSize(), assessmentAttachment
+						.getDescription(), url, assessmentAttachment
+						.getIsLink(), assessmentAttachment.getStatus(),
+						assessmentAttachment.getCreatedBy(), assessmentAttachment
+						.getCreatedDate(), assessmentAttachment
+						.getLastModifiedBy(), assessmentAttachment
+						.getLastModifiedDate());
+				h.add(newAssessmentAttachment);
+			}
 		}
 		return h;
 	}

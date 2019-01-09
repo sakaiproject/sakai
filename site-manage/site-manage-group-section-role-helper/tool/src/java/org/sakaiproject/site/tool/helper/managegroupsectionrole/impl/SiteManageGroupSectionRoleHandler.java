@@ -36,6 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -698,8 +700,8 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
-			log.debug("Check if the group is locked : {}", group.isLocked());
-			if(group.isLocked()) {
+			log.debug("Check if the group is locked : {}", group.isLocked(Group.LockMode.MODIFY));
+			if(group.isLocked(Group.LockMode.MODIFY)) {
 				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 				return null;
 			}
@@ -1558,7 +1560,13 @@ public class SiteManageGroupSectionRoleHandler {
                         lines = new ArrayList<>();
 
                         try {
-                            reader = new CSVReader(new InputStreamReader(usersFileItem.getInputStream()));
+                            reader = new CSVReader(new InputStreamReader(new BOMInputStream(
+                                        usersFileItem.getInputStream(),
+                                        ByteOrderMark.UTF_8,
+                                        ByteOrderMark.UTF_16BE,
+                                        ByteOrderMark.UTF_16LE,
+                                        ByteOrderMark.UTF_32BE,
+                                        ByteOrderMark.UTF_32LE)));
                             lines = reader.readAll();
                         } catch (IOException ioe) {
                             log.error(ioe.getClass() + " : " + ioe.getMessage());

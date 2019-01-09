@@ -243,7 +243,7 @@
         $tlang.getString("gen.instr")
     </h4>
 
-    #if ($!assignment.Instructions.length() > 0)
+    #if ($assignment.Instructions && $!assignment.Instructions.length() > 0)
         <div class="textPanel borderPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
     #end
 

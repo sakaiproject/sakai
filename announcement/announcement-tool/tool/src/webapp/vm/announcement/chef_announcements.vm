@@ -20,7 +20,7 @@
 	#end
 
 	#if ($reorder)
-		#set($rowClass = "row")
+		#set($rowClass = "row reorder-element")
 	#end 
 	
 	## message marked as hidden, current date is before release date, or current date is after retract date

@@ -1349,6 +1349,6 @@ public class DiscussionTopicBean
 		topic.setRestrictPermissionsForGroups(Boolean.parseBoolean(restrictPermissionsForGroups));
 	}
 	public String getHasRubric(){
-		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, topic.getUuid()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
+		return rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + topic.getId()) ? Boolean.TRUE.toString() : Boolean.FALSE.toString();
 	}
 }

@@ -4,7 +4,7 @@
   <parent>
     <artifactId>help-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>19-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-comp-help</name>
@@ -109,28 +109,52 @@
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-  
+
   <build>
     <resources>
       <resource>
-        <directory>src/java</directory>
+        <directory>src/bundle</directory>
         <includes>
-          <include>**/*.xml</include>
+          <include>**/*.properties</include>
         </includes>
-      </resource>
-      <resource>
-	<directory>src/bundle</directory>
-	<includes>
-		<include>**/*.properties</include>
-	</includes>
       </resource>
       <resource>
         <directory>src/tutorial</directory>
         <includes>
-                <include>**/*.config</include>
+          <include>**/*.config</include>
         </includes>
       </resource>
+      <resource>
+        <directory>src/resources</directory>
+      </resource>
     </resources>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
   </build>
 </project>

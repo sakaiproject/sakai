@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -664,9 +663,6 @@ public class SiteAction extends PagedResourceActionII {
 	public static final String STATE_SITE_PARTICIPANT_FILTER = "site_participant_filter";
 
 	private boolean warnedNoSubjectCategory = false;
-
-	// the string marks the protocol part in url
-	private static final String PROTOCOL_STRING = "://";
 	
 	/**
 	 * {@link org.sakaiproject.component.api.ServerConfigurationService} property.
@@ -2879,20 +2875,27 @@ public class SiteAction extends PagedResourceActionII {
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = siteManageService.isAddMissingToolsOnImportEnabled();
 			
-			//helper var to hold the list we use for the selectedTools context variable, as we use it for the alternate toolnames too
-			List<String> selectedTools = new ArrayList<>();
-			
+			List<String> toolsToInclude;
 			if(addMissingTools) {
-				selectedTools = allImportableToolIdsInOriginalSites;
-				context.put("selectedTools", selectedTools);
+				toolsToInclude = allImportableToolIdsInOriginalSites;
 				//set tools in destination site into context so we can markup the lists and show which ones are new
 				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 			} else {
 				//just just the ones in the destination site
-				selectedTools = importableToolsIdsInDestinationSite;
-				context.put("selectedTools", selectedTools);
+				toolsToInclude = importableToolsIdsInDestinationSite;
 			}
-			
+
+			List<String> selectedTools = new ArrayList<>();
+			List<String> filteredTools = new ArrayList<>();
+			for (String toolId : toolsToInclude) {
+				if (!filteredTools.contains(toolId)) {
+					filteredTools.add(toolId);
+				}
+
+				selectedTools.add(toolId);
+			}
+			context.put("selectedTools", filteredTools);
+
 			// SAK-33335
 			//
 			// If the old site has either Gradebook or GradebookNG,
@@ -2921,27 +2924,6 @@ public class SiteAction extends PagedResourceActionII {
 					sourceSiteToolIds.add(targetSiteGradebook);
 				}
 			}
-
-
-			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
-			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
-			
-			//filter this list so its just the alternate ones and turn it into a string for the UI
-			Map<String,String> alternateToolTitles = new HashMap<>();
-			for(MyTool myTool : allTools) {
-				String toolId = myTool.getId();
-				String toolTitle = myTool.getTitle();
-				Set<String> allToolNames = toolNames.get(toolId);
-				if(allToolNames != null) {
-					allToolNames.remove(toolTitle);
-				
-					//if we have something left then we have alternates, so process them
-					if(!allToolNames.isEmpty()) {
-						alternateToolTitles.put(toolId, StringUtils.join(allToolNames, ", "));
-					}
-				}
-			}
-			context.put("alternateToolTitlesMap", alternateToolTitles);
 			
 			//build a map of sites and tools in those sites that have content
 			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
@@ -3060,26 +3042,6 @@ public class SiteAction extends PagedResourceActionII {
 				//just just the ones in the destination site
 				context.put("selectedTools", selectedTools); 
 			}
-			
-			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
-			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
-			
-			//filter this list so its just the alternate ones and turn it into a string for the UI
-			Map<String,String> alternateToolTitles = new HashMap<>();
-			for(MyTool myTool : allTools) {
-				String toolId = myTool.getId();
-				String toolTitle = myTool.getTitle();
-				Set<String> allToolNames = toolNames.get(toolId);
-				if(allToolNames != null) {
-					allToolNames.remove(toolTitle);
-				
-					//if we have something left then we have alternates, so process them
-					if(!allToolNames.isEmpty()) {
-						alternateToolTitles.put(toolId, StringUtils.join(allToolNames, ", "));
-					}
-				}
-			}
-			context.put("alternateToolTitlesMap", alternateToolTitles);
 			
 			//build a map of sites and tools in those sites that have content
 			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
@@ -7578,15 +7540,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String term_name = "";
 		if (state.getAttribute(STATE_TERM_SELECTED) != null) {
 			term_name = ((AcademicSession) state
-					.getAttribute(STATE_TERM_SELECTED)).getEid();
+					.getAttribute(STATE_TERM_SELECTED)).getTitle();
 		}
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
 		User currentUser = UserDirectoryService.getCurrentUser();
 		// read from configuration whether to send out site notification emails, which defaults to be true
-		boolean sendSiteNotificationChoice = ServerConfigurationService.getBoolean("site.setup.creation.notification", true);
-		if (requestEmail != null && currentUser != null && sendSiteNotificationChoice) {
-			userNotificationProvider.notifySiteCreation(site, notifySites, courseSite, term_name, requestEmail);
+		boolean sendToRequestEmail = ServerConfigurationService.getBoolean("site.setup.creation.notification", true);
+		boolean sendToUser = ServerConfigurationService.getBoolean("site.setup.creation.notification.user", true);
+		if (requestEmail != null && currentUser != null && (sendToRequestEmail || sendToUser)) {
+			userNotificationProvider.notifySiteCreation(site, notifySites, courseSite, term_name, requestEmail, sendToRequestEmail, sendToUser);
 		} // if
 
 		// reset locale to user default
@@ -9841,6 +9804,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 											ResourcePropertiesEdit rp = site.getPropertiesEdit();
 											rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
 											rp.addProperty(Site.PROP_SITE_TERM_EID, term.getEid());
+
+											// Need to set STATE_TERM_SELECTED so it shows in the notification email
+											state.setAttribute(STATE_TERM_SELECTED, term);
 										} else {
 											log.warn("termId=" + termId + " not found");
 										}
@@ -10655,28 +10621,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");
 		}
-		String skin = params.getString("skin"); 	 
-		if (skin != null) { 	 
-			// if there is a skin input for course site 	 
-			skin = StringUtils.trimToNull(skin);
-			siteInfo.iconUrl = skin; 	 
-		} else { 	 
-			// if ther is a icon input for non-course site 	 
-			String icon = StringUtils.trimToNull(params.getString("icon")); 	 
-			if (icon != null) { 	 
-				if (icon.endsWith(PROTOCOL_STRING)) { 	 
-					addAlert(state, rb.getString("alert.protocol")); 	 
-				} 	 
-				siteInfo.iconUrl = icon; 	 
-			} else { 	 
-				siteInfo.iconUrl = "";
-			} 	 
-		} 	 
 		if (params.getString("additional") != null) {
 			siteInfo.additional = params.getString("additional");
 		}
-		if (params.getString("iconUrl") != null) {
-			siteInfo.iconUrl = params.getString("iconUrl");
+		String icon = params.getString("iconUrl");
+		if (icon != null) {
+			if (!(icon.isEmpty() || FormattedText.validateURL(icon))) {
+				addAlert(state, rb.getString("alert.protocol"));
+			}
+			siteInfo.iconUrl = icon;
 		} else if (params.getString("skin") != null) {
 			siteInfo.iconUrl = params.getString("skin");
 		}
@@ -13614,7 +13567,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			return;
 		}
 		
-		Map map = groupProvider.getGroupRolesForUser(userId);
+		Map<String, String> map = groupProvider.getGroupRolesForUser(userId, academicSessionEid);
 		if (map == null)
 			return;
 
@@ -15455,40 +15408,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 		return importToolsInSites;
 	}
-	
-	/**
-	 * Get a map of all names for the given list of tools in the given sites. For example if a tool with id sakai.mytool
-	 * is called My Tool in one site and An Amazing Tool in another site, the set will contain both for that tool id.
-	 * @param toolIds
-	 * @param sites
-	 * @return
-	 */
-	private Map<String,Set<String>> getToolNames(List<String> toolIds, List<Site> sites) {
-		Map<String,Set<String>> rval = new HashMap<>();
-		
-		//foreach toolid
-		for(String toolId : toolIds){
-			
-			//init a set
-			Set<String> toolNames = new HashSet<>();
-			
-			//for each site
-			for(Site s: sites) {
-				
-				//get the name of this tool in the site for the page it is on, if it exists, add to the list
-				List<ToolConfiguration> toolConfigs = (List<ToolConfiguration>)s.getTools(toolId);
-				for(ToolConfiguration config: toolConfigs){
-					toolNames.add(config.getContainingPage().getTitle());
-				}
-			}
-			
-			rval.put(toolId, toolNames);			
-		}
-		
-		return rval;
-	}
-	
-	
 	
 	/**
 	 * Get a map of tools in each site that have content.

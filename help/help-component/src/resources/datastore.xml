@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="helpDataSourceConfig"
+          class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="helpCP" />
+        <property name="connectionTestQuery" value="select 1 from INFORMATION_SCHEMA.SYSTEM_USERS" />
+        <property name="dataSourceClassName" value="org.hsqldb.jdbc.JDBCDataSource"/>
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">jdbc:hsqldb:mem:help</prop>
+                <prop key="user">sa</prop>
+                <prop key="password"></prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="helpDataSource"
+          class="com.zaxxer.hikari.HikariDataSource"
+          destroy-method="close">
+        <constructor-arg ref="helpDataSourceConfig" />
+    </bean>
+
+
+    <bean id="helpSessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="helpDataSource"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
+                <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+            </props>
+        </property>
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/component/app/help/model/ResourceBean.hbm.xml</value>
+                <value>org/sakaiproject/component/app/help/model/CategoryBean.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="helpTransactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory">
+            <ref bean="helpSessionFactory" />
+        </property>
+    </bean>
+
+</beans>

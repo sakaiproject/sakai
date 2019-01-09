@@ -195,7 +195,7 @@ function toPoint(id)
   <t:dataList styleClass="part-wrapper" value="#{delivery.tableOfContents.partsContents}" var="part">
     <h:panelGroup styleClass="toc-part">
       <samigo:hideDivision id="part" title=" #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash}
-       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
+       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <t:dataList layout="unorderedList" itemStyleClass="list-group-item" styleClass="list-group question-wrapper" value="#{part.itemContents}" var="question">
                 <span class="badge">
                   <h:outputText escape="false" value="#{question.roundedMaxPoints}">

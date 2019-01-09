@@ -974,6 +974,9 @@ public class ItemModifyListener implements ActionListener
     	       if (meta.getLabel().equals(ItemMetaDataIfc.IMAGE_MAP_SRC)){
     	    		 bean.setImageMapSrc(meta.getEntry());
     	       }
+       if (ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT.equals(meta.getLabel())){
+           bean.setImageMapAltText(meta.getEntry());
+       }
        if (meta.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
     	   bean.setMcmsPartialCredit(meta.getEntry());
        }

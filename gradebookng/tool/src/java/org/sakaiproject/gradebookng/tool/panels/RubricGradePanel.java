@@ -20,15 +20,22 @@ import java.util.Map;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 
 public class RubricGradePanel extends BasePanel {
+
+    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+    private GradebookNgBusinessService businessService;
 
     private final ModalWindow window;
 
@@ -45,6 +52,7 @@ public class RubricGradePanel extends BasePanel {
         final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
         final Long assignmentId = (Long) modelData.get("assignmentId");
         final String studentUuid = (String) modelData.get("studentUuid");
+        final GbUser student = businessService.getUser(studentUuid);
 
         final Form form = new Form("sakaiRubricGradingForm");
 
@@ -77,6 +85,6 @@ public class RubricGradePanel extends BasePanel {
         add(form);
 
         this.window.setInitialWidth(1100);
-        RubricGradePanel.this.window.setTitle(new ResourceModel("rubrics.option.graderubric"));
+        RubricGradePanel.this.window.setTitle(new StringResourceModel("rubrics.option.graderubric.for", null, new Object[] { student.getDisplayName(), student.getDisplayId() }));
     }
 }

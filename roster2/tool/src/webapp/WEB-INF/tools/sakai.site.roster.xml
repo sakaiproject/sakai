@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.site.roster2" title="Roster" description="For viewing the site participants list">
+    <!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
+
+        <category name="course" />
+		<category name="project" />
+       <category name="portfolio" />
+    </tool>
+</registration>

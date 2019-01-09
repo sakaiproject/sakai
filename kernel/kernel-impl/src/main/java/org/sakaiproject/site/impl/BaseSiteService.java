@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,6 +94,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 	private static final String RESOURCECLASS = "resource.class.siteimpl";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
 	private static final String ORIGINAL_SITE_ID_PROPERTY = "original-site-id";
+
+	private final UrlValidator siteIdValidator
+		= new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS | UrlValidator.ALLOW_2_SLASHES);
 
 	private ResourceLoader rb = null;
 	// protected ResourceLoader rb = new ResourceLoader("site-impl");
@@ -1267,6 +1271,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		id = Validator.escapeResourceName(id);
+
+		if (!serverConfigurationService().getBoolean("site.api.allow_malformed_ids", false)
+				&& !siteIdValidator.isValid("http://localhost/portal/site/" + id)) {
+			String message
+				= "Id " + id + " is not a valid id format. It can only contain url friendly characters";
+			log.warn(".addSite(): " + message);
+			throw new IdInvalidException(message);
+		}
 
 		// check for a valid site type
 		if (!Validator.checkSiteType(type)) {

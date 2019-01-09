@@ -30,7 +30,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
+import lombok.AccessLevel;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Data;
+import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,40 +43,34 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 @Slf4j
+@Data
 public class Poll implements Entity  {
 
-    private static final long serialVersionUID = 2L;
-    private static final String ISO8601_DATE_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(ISO8601_DATE_FORMAT_STRING);
-    private Long id;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+    private Long pollId;
     private String owner;
     private String siteId;
     private Date creationDate;
-    private String pollText;
+    private String text;
     private String description;
-
     private int minOptions = 1;
     private int maxOptions = 1;
-
     private Date voteOpen;
     private Date voteClose;
-
-    private List<Option> options;
     private List<Vote> votes;
-
     private String displayResult = "open";
-    private boolean limitVoting = true;
-
+    private Boolean limitVoting = true;
     private boolean currentUserVoted = false;
-    private List<Vote> currentUserVotes = null;
+    private List<Option> options;
+    private Boolean isPublic = false;
 
-    private String entityID;
-    
-    private boolean isPublic = false;
+    @Getter(AccessLevel.NONE)
+    private String id;
 
     public Poll() {
         //set the defaults
-        this.pollText = "";
+        this.text = "";
         this.description = "";
         this.minOptions = 1;
         this.maxOptions = 1;
@@ -88,79 +85,6 @@ public class Poll implements Entity  {
 
 		this.options = new ArrayList<Option>();
 		this.votes = new ArrayList<Vote>();
-    }
-
-    /**
-     * Get the id of the poll
-     * @return the polls ID
-     */
-    public Long getPollId() {
-        return id;
-    }
-
-    public void setPollId(Long id) {
-        this.id = id;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public String getSiteId() {
-        return siteId;
-    }
-
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public String getText() {
-        return pollText;
-    }
-
-    public void setText(String poll) {
-        this.pollText = poll;
-    }
-
-
-    public void setMinOptions(int value) {
-        this.minOptions = value;
-    }
-
-    /**
-     * Get the minimum number of  options that must be selected to vote 
-     * @return
-     */
-    public int getMinOptions() {
-        return this.minOptions;
-    }
-
-    public void setMaxOptions(int value) {
-        this.maxOptions = value;
-    }
-
-    public int getMaxOptions() {
-        return this.maxOptions;
-    }
-
-    public void setVoteOpen(Date value) {
-        this.voteOpen = value;
-    }
-
-    public Date getVoteOpen() {
-        return this.voteOpen;
     }
 
     public void setVoteOpenStr(String value) {
@@ -178,14 +102,6 @@ public class Poll implements Entity  {
         return DATE_FORMAT.format(voteOpen);
     }
 
-    public void setVoteClose(Date value) {
-        this.voteClose = value;
-    }
-
-    public Date getVoteClose() {
-        return this.voteClose;
-    }
-
     public void setVoteCloseStr(String value) {
 		try {
             Date parsedDate = DATE_FORMAT.parse(value);
@@ -201,74 +117,6 @@ public class Poll implements Entity  {
         return DATE_FORMAT.format(voteClose);
     }
 
-    public String getPollText() {
-        return pollText;
-    }
-
-    public void setPollText(String pollText) {
-        this.pollText = pollText;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isCurrentUserVoted() {
-        return currentUserVoted;
-    }
-
-    public void setCurrentUserVoted(boolean currentUserVoted) {
-        this.currentUserVoted = currentUserVoted;
-    }
-    
-    public List<Vote> getCurrentUserVotes() {
-        if (currentUserVotes == null) {
-            return new ArrayList<Vote>();
-        }
-        return currentUserVotes;
-    }
-    
-    public void setCurrentUserVotes(List<Vote> currentUserVotes) {
-        this.currentUserVotes = currentUserVotes;
-    }
-
-    /**
-     * Set when to display the results
-     * 
-     * @param display
-     * 	String which can be:
-     * 	open - can be viewd at any time
-     * 	never - not diplayed
-     * 	afterVoting - after user has voted
-     * 	afterClosing - once the vote has closed
-     */
-    public void setDisplayResult(String value) {
-        this.displayResult = value;
-    }
-
-    public String getDisplayResult() {
-        return this.displayResult;
-    }
-    /**
-     * Options and operators for votes and options
-     */
-
-    /**
-     * Set the votes list for this poll
-     * @param votes
-     */
-    public void setVotes(List<Vote> value) {
-        this.votes = value;
-    }
-
-    public List<Vote> getVotes() {
-        return this.votes;
-    }
-
     /**
      * Attach a vote to the list of votes for this poll
      * @param vote
@@ -278,25 +126,8 @@ public class Poll implements Entity  {
 
     }
 
-    public void setOptions(List<Option> value) {
-        this.options = value;
-    }
-
-    public List<Option> getPollOptions(){
-        return this.options;
-    }
-
     public void addOption(Option option) {
         this.options.add(option);
-
-    }
-
-    public void setLimitVoting(boolean value){
-        this.limitVoting = value;
-    }
-
-    public boolean getLimitVoting(){
-        return this.limitVoting;
 
     }
 
@@ -320,7 +151,7 @@ public class Poll implements Entity  {
         .append(this.owner)
         .append(this.siteId)
         .append(this.creationDate)
-        .append(this.pollText)
+        .append(this.text)
         .toString();
     }
 
@@ -347,23 +178,11 @@ public class Poll implements Entity  {
     }
 
     public String getId() {
-        if (entityID == null) {
-            entityID = id + "";
+        if (id == null) {
+            id = pollId + "";
         }
-        return entityID;
+        return id;
     }
-
-    public void setId(String s) {
-        entityID = s;
-    }
-
-    public boolean getIsPublic() {
-		return isPublic;
-	}
-
-	public void setIsPublic(boolean isPublic) {
-		this.isPublic = isPublic;
-	}
 
 	public ResourceProperties getProperties() {
         // TODO Auto-generated method stub
@@ -424,7 +243,7 @@ public class Poll implements Entity  {
         Poll poll = new Poll();
         poll.setId(element.getAttribute(ID));
         poll.setText(element.getAttribute(POLL_TEXT));
-        poll.setDescription(element.getAttribute(DESCRIPTION));
+        poll.setDetails(element.getAttribute(DESCRIPTION));
         DateFormat dformat  = getDateFormatForXML();
         if (!"".equals(element.getAttribute(VOTE_OPEN))) {
             try {

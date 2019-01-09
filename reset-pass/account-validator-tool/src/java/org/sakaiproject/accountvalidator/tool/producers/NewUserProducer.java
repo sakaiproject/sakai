@@ -174,11 +174,12 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 		String otp = "accountValidationLocator." + va.getValidationToken();
 		UIBranchContainer firstNameContainer = UIBranchContainer.make(detailsForm, "firstNameContainer:");
 		UIMessage.make(firstNameContainer, "lblFirstName", "firstname");
-		UIInput.make(detailsForm, "firstName", otp + ".firstName", u.getFirstName());
+		UIInput.make(detailsForm, "firstName", otp + ".firstName");
+
 		UIBranchContainer lastNameContainer = UIBranchContainer.make(detailsForm, "lastNameContainer:");
 		UIMessage.make(lastNameContainer, "lblLastName", "lastname");
-		UIInput.make(detailsForm, "surName", otp + ".surname", u.getLastName());
-		
+		UIInput.make(detailsForm, "surName", otp + ".surname");
+
 		// In terms of using UIVerbatim, we would gladly accept an alternate method of doing this, however
 		// this seems to be the only way to pass the enabled, disabled value from the server into the JavaScript
 		boolean passwordPolicyEnabled = (userDirectoryService.getPasswordPolicy() != null);

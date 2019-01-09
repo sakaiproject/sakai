@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>19-SNAPSHOT</version>
+		<version>20-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
@@ -14,7 +14,7 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.10.1</ckeditor.version>
+		<ckeditor.version>4.11.1</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>codemirror</artifactId>
-			<version>5.40.2</version>
+			<version>5.41.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -73,7 +73,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.webjars</groupId>
+			<groupId>org.webjars</groupId>
 			<artifactId>ckeditor-image2</artifactId>
 			<version>${ckeditor.image2.version}</version>
 			<scope>runtime</scope>
@@ -218,6 +218,54 @@
 			<groupId>org.webjars.bowergithub.noelboss</groupId>
 			<artifactId>featherlight</artifactId>
 			<version>1.7.13</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.polymer</groupId>
+			<artifactId>polymer</artifactId>
+			<version>1.7.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.polymerelements</groupId>
+			<artifactId>iron-ajax</artifactId>
+			<version>1.4.4</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.polymerelements</groupId>
+			<artifactId>iron-icons</artifactId>
+			<version>1.1.3</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.polymerelements</groupId>
+			<artifactId>iron-collapse</artifactId>		
+			<version>1.3.0</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.lostinbrittany</groupId>
+			<artifactId>granite-bootstrap</artifactId>
+			<version>3.3.7-5</version>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.webjars.bowergithub.polymer</groupId>
+					<artifactId>polymer</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.bowergithub.polymerelements</groupId>
+			<artifactId>iron-a11y-keys</artifactId>
+			<version>1.0.9</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>sortablejs</artifactId>
+			<version>1.7.0</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>

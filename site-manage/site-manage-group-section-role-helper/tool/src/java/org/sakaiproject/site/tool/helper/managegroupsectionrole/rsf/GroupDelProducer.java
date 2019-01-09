@@ -116,7 +116,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
         {
             for (Iterator<Group> it=groups.iterator(); it.hasNext(); ) {
             	Group group = it.next();
-                if (group.isLocked()) {
+                if (group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
                     notDeletable.add(group.getTitle());
                 } else {
                     String groupId = group.getId();

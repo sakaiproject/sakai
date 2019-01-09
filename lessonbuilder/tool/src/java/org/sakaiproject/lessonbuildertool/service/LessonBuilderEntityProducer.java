@@ -116,6 +116,7 @@ import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -580,14 +581,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		 addAttr(doc, element, "toolid", config.getPageId());
 		 addAttr(doc, element, "name" , config.getContainingPage().getTitle());
+		 addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
 
 		 Properties props = config.getPlacementConfig();
-
-		 String roleList = props.getProperty("functions.require");
-		 if (roleList == null)
-		     roleList = "";
+		 String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
+		 String pageVisibility = StringUtils.trimToEmpty(props.getProperty("sakai-portal:visible"));
 
 		 addAttr(doc, element, "functions.require", roleList);
+		 addAttr(doc, element, "pageVisibility" , pageVisibility);
 		 
 		 // should be impossible for these nulls, but we've seen it
 		 if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
@@ -876,9 +877,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			       title = title.substring(0, ii+1) + item.getId() + ")";
 			   }
 
-			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
-			   needupdate = true;
-			   item.setGradebookId(s);
+			   try {
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
+			       needupdate = true;
+			       item.setGradebookId(s);
+			   } catch(ConflictingAssignmentNameException cane){
+			       log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "gradebookId");
+			   }
 		   }
 		   
 		   s = itemElement.getAttribute("altGradebook");
@@ -897,10 +902,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			   if (false) {
 			       ii = title.lastIndexOf(":");
 			       title = title.substring(0, ii+1) + item.getId() + ")";
-			   }			       
-			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
-			   needupdate = true;
-			   item.setAltGradebook(s);
+			   }
+			   try {
+			       gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
+			       needupdate = true;
+			       item.setAltGradebook(s);
+			   } catch(ConflictingAssignmentNameException cane){
+			       log.error("ConflictingAssignmentNameException for title {} and attribute {}.", title, "altGradebook");
+			   }
 		   }
 
 		   // have to save again, I believe
@@ -1063,8 +1072,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
 		     simplePageToolDao.quickSaveItem(page);
 		     if (StringUtils.isNotEmpty(gradebookPoints)) {
-			 gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+		       try {
+			     gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
 							    title, Double.valueOf(gradebookPoints), null, "Lesson Builder");
+			   } catch(ConflictingAssignmentNameException cane){
+			     log.error("merge: ConflictingAssignmentNameException for title {}.", title);
+			   }
 		     }
 		     pageMap.put(oldPageId, page.getPageId());
 		 }
@@ -1115,6 +1128,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			 String toolTitle = trimToNull(element.getAttribute("name"));
 			 String rolelist = element.getAttribute("functions.require");
+			 String pagePosition = element.getAttribute("pagePosition");
+			 String pageVisibility = element.getAttribute("pageVisibility");
 
 			 if(toolTitle != null) {
 			     Tool tr = toolManager.getTool(LESSONBUILDER_ID);
@@ -1143,8 +1158,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     // if we alrady have an appropriate blank page from the template, page and tool are set
 
 			     if (page == null) {
-				 page = site.addPage(); 
-				 tool = page.addTool(LESSONBUILDER_ID);
+			    	 page = site.addPage(); 
+			    	 tool = page.addTool(LESSONBUILDER_ID);
+			    	 if (StringUtils.isNotBlank(pagePosition)) {
+			    		 int integerPosition = Integer.parseInt(pagePosition);
+			    		 page.setPosition(integerPosition);
+			    	 }
 			     }
 
 			     String toolId = tool.getPageId();
@@ -1153,13 +1172,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				 continue;
 			     }
 
+			     if (StringUtils.isNotBlank(rolelist)) {
+				     tool.getPlacementConfig().setProperty("functions.require", rolelist);
+			     }
+			     if (StringUtils.isNotBlank(pageVisibility)) {
+				     tool.getPlacementConfig().setProperty("sakai-portal:visible", pageVisibility);
+			     }
 			     tool.setTitle(toolTitle);
-			     if (rolelist != null)
-				 tool.getPlacementConfig().setProperty("functions.require", rolelist);
-			     count++;
 			     page.setTitle(toolTitle);
 			     page.setTitleCustom(true);
 			     siteService.save(site);
+			     count++;
 				      
 			     // now fix up the page. new format has it as attribute
 			     String pageId = trimToNull(element.getAttribute("pageId"));
@@ -1325,32 +1348,23 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		if(cleanup == true) {
 		    Site toSite = siteService.getSite(toContext);
 				
-		    List toSitePages = toSite.getPages();
+		    List<SitePage> toSitePages = toSite.getPages();
 		    if (toSitePages != null && !toSitePages.isEmpty()) {
-			Vector removePageIds = new Vector();
-			Iterator pageIter = toSitePages.iterator();
-			while (pageIter.hasNext()) {
-			    SitePage currPage = (SitePage) pageIter.next();
+		    	Vector<String> removePageIds = new Vector<>();
+		    	for (SitePage currPage : toSitePages) {
+		    		List<String> toolIds = myToolList();
+		    		List<ToolConfiguration> toolList = currPage.getTools();
+		    		for (ToolConfiguration toolConfig : toolList) {
+		    			if (toolIds.contains(toolConfig.getToolId())) {
+		    				removePageIds.add(toolConfig.getPageId());
+		    			}
+		    		}
+		    	}
+		    	for (String removeId : removePageIds) {
+		    		SitePage sitePage = toSite.getPage(removeId);
+		    		toSite.removePage(sitePage);
+		    	}
 
-			    List<String> toolIds = myToolList();
-
-			    List toolList = currPage.getTools();
-			    Iterator toolIter = toolList.iterator();
-			    while (toolIter.hasNext()) {
-				
-				ToolConfiguration toolConfig = (ToolConfiguration)toolIter.next();
-
-				if (toolIds.contains(toolConfig.getToolId())) {
-				    removePageIds.add(toolConfig.getPageId());
-				}
-			    }
-			}
-			for (int i = 0; i < removePageIds.size(); i++) {
-			    String removeId = (String) removePageIds.get(i);
-			    SitePage sitePage = toSite.getPage(removeId);
-			    toSite.removePage(sitePage);
-			}
-				
 		    }
 		    siteService.save(toSite);
 		    ToolSession session = sessionManager.getCurrentToolSession();

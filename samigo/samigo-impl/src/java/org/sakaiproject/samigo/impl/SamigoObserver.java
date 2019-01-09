@@ -23,7 +23,7 @@ import java.util.Observer;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;

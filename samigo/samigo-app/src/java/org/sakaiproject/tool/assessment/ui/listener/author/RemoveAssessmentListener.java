@@ -22,8 +22,10 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -37,7 +39,11 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -108,7 +114,7 @@ public class RemoveAssessmentListener implements ActionListener
 
             if (assessment instanceof PublishedAssessmentFacade) {
                 final String assessmentId = ((PublishedAssessmentFacade) assessment).getPublishedAssessmentId().toString();
-                PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(assessmentId);
+                PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(assessmentId, true);
 
                 if (((PublishedAssessmentFacade) assessment).isSelected()) {
                     if (this.isUserAllowedToDeletePublishedAssessment(author, publishedAssessmentService, publishedAssessment) && authorizationBean.isUserAllowedToDeleteAssessment(assessmentId, publishedAssessment.getCreatedBy(), true)) { 
@@ -155,6 +161,35 @@ public class RemoveAssessmentListener implements ActionListener
 
                     pubAssessmentService.removeAssessment(assessmentId, "remove");
                     removeFromGradebook(assessmentId);
+
+                    //Block the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
+                    boolean groupRelease = publishedAssessment.getReleaseToGroups() != null ? !publishedAssessment.getReleaseToGroups().isEmpty() : false;
+
+                    if(groupRelease){
+                        try{
+                            Map<String,String> selectedGroups = publishedAssessment.getReleaseToGroups();
+                            log.debug("Unlocking groups for deletion by the published assessment with id {}.", assessmentId);
+                            log.debug("Unlocking for deletion the following groups {}.", selectedGroups);
+
+                            SiteService siteService = (SiteService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.site.api.SiteService");
+                            ToolManager toolManager = (ToolManager) SpringBeanLocator.getInstance().getBean("org.sakaiproject.tool.api.ToolManager");
+
+                            Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+                            Collection<Group> groups = site.getGroups();
+
+                            for(Group group : groups){
+                                if(selectedGroups.keySet().contains(group.getId())){
+                                    log.debug("Unlocking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), assessmentId);
+                                    group.unlockGroup(assessmentId, Group.LockMode.DELETE);
+                                }
+                            }
+
+                            log.debug("Saving the site after unlocking the groups for deletion.");
+                            siteService.save(site);
+                        }catch(Exception e){
+                            log.error("Fatal error unlocking the groups for deletion {}.", e);
+                        }
+                    }
 
                     String calendarDueDateEventId = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID);
                     if (calendarDueDateEventId != null) {

@@ -36,8 +36,14 @@ public class Preloader {
 
     public void init() {
         if (service.isEnabled()) {
-            m_timer = new Timer("External calendar preloading"); // init timer
+            m_timer = new Timer("External calendar preloading", true); // init timer
             preloadCalendars(cacheRefreshRate);
+        }
+    }
+
+    public void destroy() {
+        if (service.isEnabled()) {
+            m_timer.cancel();
         }
     }
 

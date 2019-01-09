@@ -48,11 +48,11 @@
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback"/>
     </set>
-    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment"/>
     </set>
-    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" >
+    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all" inverse="true" lazy="false" batch-size="50" >
       <key column="ITEMID"/>
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag" />
     </set>
@@ -74,7 +74,7 @@
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"/>
     </set>
-    <set name="itemTextAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemTextAttachmentSet" table="SAM_PUBLISHEDATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTextAttachment"/>
     </set>

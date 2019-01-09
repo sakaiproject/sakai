@@ -243,6 +243,10 @@
                   <option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>$clang.getString("sh.2day")</option>
                   <option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>$clang.getString("sh.3day")</option>
                   <option value="7"#if("$!dropboxHighlight" == "7") selected="selected"#end>$clang.getString("sh.1week")</option>
+                  <option value="14"#if("$!dropboxHighlight" == "14") selected="selected"#end>$clang.getString("sh.2week")</option>
+                  <option value="21"#if("$!dropboxHighlight" == "21") selected="selected"#end>$clang.getString("sh.3week")</option>
+                  <option value="28"#if("$!dropboxHighlight" == "28") selected="selected"#end>$clang.getString("sh.4week")</option>
+                  <option value="35"#if("$!dropboxHighlight" == "35") selected="selected"#end>$clang.getString("sh.5week")</option>
               </select>
             #end
             #if (!$dropboxMode)

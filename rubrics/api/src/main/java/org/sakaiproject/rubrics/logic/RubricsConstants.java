@@ -24,6 +24,7 @@ package org.sakaiproject.rubrics.logic;
 
 public interface RubricsConstants {
 
+	public static final String RBCS_TOOL = "sakai.rubrics";
 	public static final String RBCS_TOOL_ASSIGNMENT = "sakai.assignment";
 	public static final String RBCS_TOOL_FORUMS = "sakai.forums";
 	public static final String RBCS_TOOL_GRADEBOOKNG = "sakai.gradebookng";
@@ -40,5 +41,10 @@ public interface RubricsConstants {
 
 	//samigo custom props
 	public static final	String RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX = "pub.";
+
+	//forums custom props
+	public static final	String RBCS_FORUM_ENTITY_PREFIX = "for.";
+	public static final	String RBCS_TOPIC_ENTITY_PREFIX = "top.";
+	public static final	String RBCS_MSG_ENTITY_PREFIX = "msg.";
 	
 }

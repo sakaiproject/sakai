@@ -795,6 +795,15 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	float: left;
 	width: 70%;
 	border-right: solid 1px $all-sites-tab-border-color;
+
+	#favoritesToShow {
+		margin-top: 1em;
+
+		.fa-bars {
+			margin: 0 4px;
+			color: #777777;
+		}
+	}
 }
 
 #favorite-settings-pane {

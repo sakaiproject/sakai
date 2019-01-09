@@ -292,6 +292,15 @@ div.wicket-modal div.w_content_container > div > form > h2:first-child {
   margin: 0 0 20px;
   border-bottom: 1px solid #EEE;
 }
+/* override Bootstrap for the date picker */
+div.wicket-modal div.w_content_container .input-group-btn button {
+  font-size: 12px;
+  height: 30px;
+}
+div.wicket-modal div.w_content_container .input-group-btn button > .glyphicon {
+  top: -1px;
+}
+
 div.wicket-modal .w_topLeft,
 div.wicket-modal .w_top,
 div.wicket-modal .w_topRight,

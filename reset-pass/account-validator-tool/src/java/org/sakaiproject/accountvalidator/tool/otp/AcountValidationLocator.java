@@ -129,7 +129,9 @@ public class AcountValidationLocator implements BeanLocator  {
 			}else {
 				//find the bean
 				// always look up by token to prevent sequential guessing
-				togo = validationLogic.getVaLidationAcountBytoken(name);
+				ValidationAccount va = validationLogic.getVaLidationAcountBytoken(name);
+				updateWithUserDefaults(va);
+				togo = va;
 			}
 			if (togo != null)
 			{
@@ -138,6 +140,28 @@ public class AcountValidationLocator implements BeanLocator  {
 			delivered.put(name, togo);
 		}
 		return togo;
+	}
+
+	/**
+	 * If the user object has defaults that aren't set on the Validation Account use them.
+	 * @param va The ValidationAccount.
+	 */
+	protected void updateWithUserDefaults(ValidationAccount va) {
+		if (va != null) {
+			try {
+				// If someone has set default values on the user object use those as fallbacks
+				// The getters never return null so check if they are empty.
+				User u = userDirectoryService.getUser(EntityReference.getIdFromRef(va.getUserId()));
+				if (StringUtils.isBlank(va.getFirstName())) {
+					va.setFirstName(u.getFirstName());
+				}
+				if (StringUtils.isBlank(va.getSurname())) {
+					va.setSurname(u.getLastName());
+				}
+			} catch (UserNotDefinedException e) {
+				// Ignore
+			}
+		}
 	}
 
 	public void saveAll() {

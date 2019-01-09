@@ -34,7 +34,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.entity.api.serialize.EntityParseException;

@@ -555,56 +555,33 @@ public class EntityGroup implements Group {
         throw new UnsupportedOperationException();
     }
 
-    public void lockGroup(Entity entity) {
+    public void lockGroup(String lock, LockMode lockMode) {
         if (group != null) {
-            group.lockGroup(entity);
+            group.lockGroup(lock, lockMode);
             return;
         }
         throw new UnsupportedOperationException();
     }
 
-    public void lockGroup(String lock) {
+
+    public void unlockGroup(String lock, LockMode lockMode) {
         if (group != null) {
-            group.lockGroup(lock);
+            group.unlockGroup(lock, lockMode);
             return;
         }
         throw new UnsupportedOperationException();
     }
 
-    public void unlockGroup(Entity entity) {
+    public boolean isLocked(String lock, LockMode lockMode) {
         if (group != null) {
-            group.unlockGroup(entity);
-            return;
+            return group.isLocked(lock, lockMode);
         }
         throw new UnsupportedOperationException();
     }
 
-    public void unlockGroup(String lock) {
+    public boolean isLocked(LockMode lockMode) {
         if (group != null) {
-            group.unlockGroup(lock);
-            return;
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public void unlockGroup() {
-        if (group != null) {
-            group.unlockGroup();
-            return;
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean isLocked(String lock) {
-        if (group != null) {
-            return group.isLocked(lock);
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean isLocked() {
-        if (group != null) {
-            return group.isLocked();
+            return group.isLocked(lockMode);
         }
         throw new UnsupportedOperationException();
     }

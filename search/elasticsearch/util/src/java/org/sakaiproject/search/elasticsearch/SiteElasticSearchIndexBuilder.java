@@ -245,8 +245,9 @@ public class SiteElasticSearchIndexBuilder extends BaseElasticSearchIndexBuilder
             BulkRequestBuilder bulkRequest = client.prepareBulk();
 
             for (final EntityContentProducer ecp : producers) {
+            	Iterator<String> i = ecp.getSiteContentIterator(siteId);
 
-                for (Iterator<String> i = ecp.getSiteContentIterator(siteId); i.hasNext(); ) {
+                while ( i != null && i.hasNext() ) {
 
                     if (bulkRequest.numberOfActions() < bulkRequestSize) {
                         String reference = i.next();

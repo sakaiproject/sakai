@@ -48,7 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
@@ -108,28 +108,35 @@ public class GradingService
   public static final String ANSWER_TYPE_REAL = "REAL";
 
   // CALCULATED_QUESTION
-  final String OPEN_BRACKET = "\\{";
-  final String CLOSE_BRACKET = "\\}";
-  final String CALCULATION_OPEN = "[["; // not regex safe
-  final String CALCULATION_CLOSE = "]]"; // not regex safe
-  final String FORMAT_MASK = "0E0";
-  final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
-  final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
+  public static final String OPEN_BRACKET = "\\{";
+  public static final String CLOSE_BRACKET = "\\}";
+  public static final String CALCULATION_OPEN = "[["; // not regex safe
+  public static final String CALCULATION_CLOSE = "]]"; // not regex safe
+  public static final String FORMAT_MASK = "0E0";
+  public static final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
+  public static final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
    * NOTE: Old regex: ([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#`~&:;|,/<>\\[\\]\\\\\\'\"]+?)
    * was way too complicated.
    */
-  final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
-  final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
+  public static final String CALCQ_VAR_FORM_NAME = "[a-zA-Z][^\\{\\}]*?"; // non-greedy (must start wtih alpha)
+  public static final String CALCQ_VAR_FORM_NAME_EXPRESSION = "("+CALCQ_VAR_FORM_NAME+")";
+  public static final String CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED = OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET;
 
   // variable match - (?<!\{)\{([^\{\}]+?)\}(?!\}) - means any sequence inside braces without a braces before or after
-  final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + "(?!\\})");
-  final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION + CLOSE_BRACKET + CLOSE_BRACKET);
-  final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
-  final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
-
+  public static final Pattern CALCQ_ANSWER_PATTERN = Pattern.compile("(?<!\\{)" + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + "(?!\\})");
+  public static final Pattern CALCQ_FORMULA_PATTERN = Pattern.compile(OPEN_BRACKET + CALCQ_VAR_FORM_NAME_EXPRESSION_FORMATTED + CLOSE_BRACKET);
+  public static final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
+  public static final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
+  // SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
+  public static final Pattern CALCQ_ANSWER_AVOID_DOUBLE_MINUS = Pattern.compile("--");
+  public static final Pattern CALCQ_ANSWER_AVOID_PLUS_MINUS = Pattern.compile("\\+-");
+  // SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
+  public static final Pattern CALCQ_FORMULA_ALLOW_POINT_NUMBER = Pattern.compile("([^\\d]|^)([\\.])([\\d])");
+  public static final Pattern CALCQ_FORMULA_ALLOW_NUMBER_POINT = Pattern.compile("([\\d])([\\.])([^\\d]|$)");
+	  
   /**
    * Get all scores for a published assessment from the back end.
    */
@@ -3058,6 +3065,20 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   
   /**
    * CALCULATED_QUESTION
+   * SAK-39922 - Support (or at least watch for support) for binary/unary calculated question (-1--1)
+   * SAK-40942 - Error in calculated questions: the decimal representation .n or n. (where n is a number) does not work
+   */
+   private static String checkExpression(String expression) {
+	   expression = CALCQ_ANSWER_AVOID_DOUBLE_MINUS.matcher(expression).replaceAll("+");
+	   expression = CALCQ_ANSWER_AVOID_PLUS_MINUS.matcher(expression).replaceAll("-");
+	   expression = CALCQ_FORMULA_ALLOW_POINT_NUMBER.matcher(expression).replaceAll("$10$2$3");
+	   expression = CALCQ_FORMULA_ALLOW_NUMBER_POINT.matcher(expression).replaceAll("$1$3");
+  
+	   return expression;
+  }
+  
+  /**
+   * CALCULATED_QUESTION
    * replaceMappedVariablesWithNumbers() takes a string and substitutes any variable
    * names found with the value of the variable.  Variables look like {a}, the name of 
    * that variable is "a", and the value of that variable is in variablesWithValues
@@ -3074,7 +3095,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       if (expression == null) {
           expression = "";
       }
-
+      
       if (variables == null) {
           variables = new HashMap<>();
       }
@@ -3165,7 +3186,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           if (decimalPlaces < 0) {
               decimalPlaces = 0;
           }
-          formula = cleanFormula(formula);
+          formula = checkExpression(cleanFormula(formula));
           SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
           String numericString = parser.parse(formula, decimalPlaces+1);
           if (this.isAnswerValid(numericString)) {

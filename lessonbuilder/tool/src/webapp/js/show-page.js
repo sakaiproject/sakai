@@ -2021,7 +2021,7 @@ $(document).ready(function() {
 			oldloc = $(this);
 			closeDropdowns();
 			$('#mm-name-section').addClass('fileTitles');
-			$("#mm-name-section").hide();
+			$("#mm-name-section").show();
 			$("#mm-name").val('');
 			$("#mm-prerequisite").prop('checked',false);
 			if ($(this).hasClass("add-at-end"))
@@ -3104,6 +3104,9 @@ $(function() {
 	    $(this).parent().parent().remove();
 	}
 	function mmFileInputChanged() {
+	    var previousTitle = $("#mm-name").val();
+	    $("#mm-name").val('');
+	    $("#mm-name-section").hide();
 	    // user has probably selected a file. 
 	    var lastInput = $(".mm-file-input").last();
 	    if (lastInput[0].files.length !== 0) {
@@ -3125,7 +3128,11 @@ $(function() {
 		for (i = lastInput[0].files.length-1; i >= 0; i--) {
 			var newStuff = '<p><span class="mm-file-input-name">' + lastInput[0].files[i].name + '</span><span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
 			if (doingNames) {
-					newStuff = newStuff + '<label for="link-title">Link title</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255"/></p>';
+				var valueContent = '';
+				if(i === 0 && previousTitle){
+					valueContent = 'value="' + previousTitle + '"';
+				}
+				newStuff = newStuff + '<label for="link-title">Link title</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255" ' + valueContent + '/></p>';
 			} else {
 				newStuff = newStuff + '</p>';
 			}
@@ -3142,8 +3149,6 @@ $(function() {
 	};
 
 	$(".mm-file-input").on("change", mmFileInputChanged);
-
-
 
 });
 
@@ -3532,7 +3537,11 @@ function printViewWithParameter(url) {
     var j = url.indexOf("/tool/");
     if (j < 0)
 	return url;
+    var z = url.indexOf("ShowPage");
+    if (z < 0)
     return url.substring(0, i) + url.substring(j) + '?printall=true';
+    else
+    return url.substring(0, i) + url.substring(j) + '&printall=true';
 }
 
 // make columns in a section the same height. Is there a better place to trigger this?

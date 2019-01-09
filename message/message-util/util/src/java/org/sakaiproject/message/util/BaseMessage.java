@@ -2716,7 +2716,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// Put here since need to store uuid for notification just in case need to
 				// delete/modify
 				Instant now = Instant.now();
-				Instant date = Instant.ofEpochMilli(edit.getHeader().getDate().getTime());
+				Instant date = edit.getHeader().getInstant();
 
 				if (now.isBefore(date) && priority != NotificationService.NOTI_NONE)
 				{
@@ -3916,6 +3916,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		} // getDate
 		
+
+		@Override
+		public Instant getInstant() {
+			return Instant.ofEpochMilli(m_date.getTime());
+		}
 		/**
 		 * Access the message order the message was sent to the channel.
 		 * 
@@ -4163,6 +4168,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			}
 
 		} // setDate
+		
+
+		@Override
+		public void setInstant(Instant instant) {
+			setDate(m_timeService.newTime(instant.toEpochMilli()));
+		}
 		
 		/**
 		 * Set the message_order the message was sent to the channel.

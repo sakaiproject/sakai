@@ -17,7 +17,15 @@ package org.sakaiproject.samigo.impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +33,8 @@ import javax.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -46,7 +55,11 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.user.api.*;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -156,7 +169,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             // Format dates
             DateFormat dfIn                         = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
             DateFormat dfIn2                        = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-            DateFormat dfOut                        = DateFormat.getDateInstance(DateFormat.DEFAULT, getUserLocale(user.getId()));
+            DateFormat dfOut                        = new SimpleDateFormat("yyyy-MMM-dd hh:mm a", getUserLocale(user.getId()));
             String formattedDueDate                 = (pubAssFac.getDueDate() == null) ? "" : dfOut.format(pubAssFac.getDueDate());
             Date submissionDate                     = null;
             String inSubmissionDateStr              = (notificationValues.get("submissionDate") == null) ? "" : notificationValues.get("submissionDate").toString();
@@ -272,20 +285,20 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     }
     
     private Set<String> extractInstructorsFromGroups(Site site,String allGroups){
-    	
-    	Set<String> usersWithRole = new HashSet<String>();
-    	
-    	List<String> groups = Stream.of(allGroups)
-				.map(s -> s.split(";")).flatMap(Arrays::stream)
-				.collect(Collectors.toList());
-    	
-    	for (String groupId : groups){
-    		Group group = site.getGroup(groupId);
-    		Set <String> groupUsersWithRole = group.getUsersHasRole(group.getMaintainRole());
-    		usersWithRole.addAll(groupUsersWithRole);
-    	}
-    	
-    	return usersWithRole;
+
+        Set<String> usersWithRole = new HashSet<>();
+
+        List<String> groups = Stream.of(allGroups)
+                .map(s -> s.split(";")).flatMap(Arrays::stream)
+                .collect(Collectors.toList());
+
+        for (String groupId : groups){
+            Group group = site.getGroup(groupId);
+            Set <String> groupUsersWithRole = group.getUsersHasRole(group.getMaintainRole());
+            usersWithRole.addAll(groupUsersWithRole);
+        }
+
+        return usersWithRole;
     }
 
     private     void                notifyStudent                       (User user, String priStr, int assessmentSubmittedType,

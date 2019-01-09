@@ -542,6 +542,7 @@
 					 columnClasses="orgTimeslotCol,orgMaxAttsCol,orgSlotStatusCol,orgGroupSync,orgWaiterStatusCol"	
 					 rowClasses="oddRow,evenRow"
 					 styleClass="signupTable" style="width:98%">
+							<!-- TS start and end times -->
 							<h:column>		   
 								<f:facet name="header">
 									<h:outputText value="#{msgs.tab_time_slot}" style="padding-left:15px;"/>
@@ -623,6 +624,7 @@
 									</h:panelGrid>
 					   		</h:column>
 					   		
+					   		<!-- TS max no attendee -->
 					   		<h:column>		   
 								<f:facet name="header">
 									<h:outputText value="#{msgs.tab_max_attendee}"/>
@@ -631,6 +633,7 @@
 						   		<h:outputText value="#{msgs.event_unlimited}" rendered="#{timeSlotWrapper.timeSlot.unlimitedAttendee}"/>
 					   		</h:column>
 					   		
+					   		<!-- TS attendee list -->
 					   		<h:column>		   
 								<f:facet name="header">
 									<h:panelGroup>
@@ -691,6 +694,8 @@
 																rendered="#{attendeeWrapper.attendeeEmail==null}"/>
 							   							<h:outputText value="&nbsp;" escape="false" />
 						   							</h:panelGroup>
+						   							
+						   							<!-- Attendee Name & Comment -->
 						   							<h:panelGroup>
 							   							<h:commandLink id="view_comment" action="#{OrganizerSignupMBean.viewAttendeeComment}">
 							   								<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>
@@ -698,7 +703,11 @@
 							   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
 							   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
 							   							</h:commandLink>
+							   							<br />
+							   							<h:outputText id="attendeeInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime) != ''}" 
+							   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(attendeeWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
 						   							</h:panelGroup>
+						   							
 						   						</h:panelGrid>
 						   						
 								   				<h:panelGroup id="editPanel" style="display: none;">
@@ -815,6 +824,8 @@
 							   		<h:outputText value="#{msgs.event_add_attendee} #{msgs.event_action_disabled}" title="#{msgs.event_tool_tips_action_option_disabled_label}" escape="false" styleClass="disabledAddAttendee" />
 								</h:panelGroup>
 							</h:column>  						   						   		
+					   		
+					   		<!-- TS waiting list -->
 					   		<h:column rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
 								<f:facet name="header">
 									<h:outputText value="#{msgs.tab_waiting_list}" escape="false"/>
@@ -846,10 +857,13 @@
 																	styleClass="openCloseImageIcon"
 																	rendered="#{waiterWrapper.attendeeEmail ==null}"/>
 																	<h:outputText value="&nbsp;" escape="false"/>
-															</h:panelGroup>	
+															</h:panelGroup>
 									   						<h:panelGroup>
 									   							<h:outputText value="#{waiterWrapper.displayName}" escape="false"/>
-									   						</h:panelGroup>				   					
+									   							<br />
+									   							<h:outputText id="waiterInscriptionTime" rendered="#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime) != ''}"
+									   								style="font-size: 90%;" value="(#{OrganizerSignupMBean.getDisplayTimeFromInstant(waiterWrapper.signupAttendee.inscriptionTime)})" escape="false"/>
+									   						</h:panelGroup>
 									   					</h:panelGrid>		  
 									   				</h:column>				   		
 									   			</h:dataTable>

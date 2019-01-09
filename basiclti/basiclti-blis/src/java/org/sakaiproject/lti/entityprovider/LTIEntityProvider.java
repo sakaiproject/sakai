@@ -188,6 +188,9 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 			if (key.contains("secret")) {
 				thing.put(key, LTIService.SECRET_HIDDEN);
 			}
+			if (key.contains("private")) {
+				thing.put(key, LTIService.SECRET_HIDDEN);
+			}
 			if (key.contains("password")) {
 				thing.put(key, LTIService.SECRET_HIDDEN);
 			}
