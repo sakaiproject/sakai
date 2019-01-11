@@ -956,27 +956,6 @@ public class AuthorBean implements Serializable
     this.groupFilterEnabled = groupFilterEnabled;
   }
 
-	public Boolean assessmentHasRubric(Long assessmentId, boolean isPublished) {
-		List<Long> assessmentQuestionIdsList  = null;
-		if(!isPublished){
-			assessmentQuestionIdsList = assessmentService.getQuestionsIdList(assessmentId);
-		}else{
-			assessmentQuestionIdsList = publishedAssessmentService.getQuestionsIdList(assessmentId);
-		}
-		if(assessmentQuestionIdsList == null){
-			return Boolean.FALSE;
-		}
-		for(Long questionId : assessmentQuestionIdsList){
-			if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
-				return Boolean.TRUE;
-			}
-			if(isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO,RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + assessmentId + "." + questionId)){
-				return Boolean.TRUE;
-			}
-		}
-		return Boolean.FALSE;
-	}
-
 	public Boolean questionHasRubric(Long assessmentId, Long questionId, boolean isPublished) {
 		if(!isPublished && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentId + "." + questionId)){
 			return Boolean.TRUE;
