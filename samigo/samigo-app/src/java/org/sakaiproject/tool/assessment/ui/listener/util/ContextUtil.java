@@ -336,6 +336,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
   public static String getRoundedValue(Double orig, int maxdigit) {
       Locale loc = new ResourceLoader().getLocale();
       NumberFormat nf = NumberFormat.getInstance(loc);
+      nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(maxdigit);
       String newscore = nf.format(orig);
       return newscore;
