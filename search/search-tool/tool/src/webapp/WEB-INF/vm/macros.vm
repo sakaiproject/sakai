@@ -20,7 +20,7 @@
            href="${searchModel.openSearchUrl}"
            title="${rlb.jsp_worksite_search}" />
     ${includeLatestJQuery}
-    <script src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
+    <script type="text/javascript">includeLatestJQuery('search');</script>
 
     <script type="text/javascript" >
         function searchLocalAddSherlock() {
