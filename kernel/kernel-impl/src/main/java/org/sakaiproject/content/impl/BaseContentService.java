@@ -2485,7 +2485,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	{
 		List<ContentResource> rv = new ArrayList<ContentResource>();
 
-		if (isRootCollection(id))
+		if (StringUtils.isBlank(id))
+		{
+			return rv;
+		}
+		else if (isRootCollection(id))
 		{
 			// There are performance issues with returning every single resources in one collection as well
 			// as issues in Sakai where actions incorrectly happen for the whole of the content service
@@ -8088,6 +8092,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void updateEntityReferences(String toContext, Map transversalMap){
 		//TODO: is there any content that needs reference updates?
 		String fromContext = (String) transversalMap.get("/fromContext");
+		if (StringUtils.isBlank(fromContext)) return;
+
 		String thisKey = null;
 		try {
 			List thisTargetResourceList = getAllResources(fromContext);

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="org.sakaiproject.api.app.help.TableOfContents"
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <ref bean="rootCategories"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="rootCategories" class="org.sakaiproject.component.app.help.model.CategoryBean">
+        <property name="name">
+            <value>1st Category</value>
+        </property>
+        <property name="categories">
+            <list>
+                <ref bean="sampleCategory"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sampleCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+        <property name="name">
+            <value>Sample Category</value>
+        </property>
+        <property name="resources">
+            <list>
+                <ref bean="sampleResource"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sampleResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>resourceDocId</value>
+        </property>
+        <property name="name">
+            <value>Sample Resource Name</value>
+        </property>
+        <property name="location">
+            <value>/sample.html</value>
+        </property>
+        <property name="defaultForTool">
+            <value>toolId</value>
+        </property>
+    </bean>
+
+
+</beans>

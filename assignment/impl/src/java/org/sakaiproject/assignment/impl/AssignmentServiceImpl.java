@@ -1800,7 +1800,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return false;
         }
 
-        // return false if not allowed to submit at all
+        // return false only if the user is not allowed to submit and not allowed to add to the assignment
         if (!allowAddSubmissionCheckGroups(a) && !allowAddAssignment(a.getContext())) return false;
 
         //If userId is not defined look it up
@@ -1808,11 +1808,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             userId = sessionManager.getCurrentSessionUserId();
         }
 
-        // if user can submit to this assignment
-        Collection visibleAssignments = getAssignmentsForContext(a.getContext()); // , userId); // TODO need to come up with a generic method for getting assignments for everyone
-        if (visibleAssignments == null || !visibleAssignments.contains(a)) return false;
-
         try {
+            // if user the user can access this assignment
+            checkAssignmentAccessibleForUser(a, userId);
+
             // get user
             User u = userDirectoryService.getUser(userId);
 
@@ -1824,56 +1823,50 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 return false;
             }
 
-            // return false if the current time has passed the assignment close time
-            Instant closeTime = a.getCloseDate();
+            // whether the current time is after the assignment close date inclusive
+            boolean isBeforeAssignmentCloseDate = !currentTime.isAfter(a.getCloseDate());
 
             // get user's submission
-            AssignmentSubmission submission = null;
+            AssignmentSubmission submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getId(), u);
 
-            submission = getSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getId(), u);
-
-            // check for allow resubmission or not first
-            // return true if resubmission is allowed and current time is before resubmission close time
-            // get the resubmit settings from submission object first
-            String allowResubmitNumString = submission != null ? submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) : null;
-            if (allowResubmitNumString != null && submission.getDateSubmitted() != null && submission.getSubmitted()) {
-                try {
-                    int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
+            if (submission != null) {
+                // check for allow resubmission or not first
+                // return true if resubmission is allowed and current time is before resubmission close time
+                // get the resubmit settings from submission object first
+                String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
+                if (NumberUtils.isParsable(allowResubmitNumString) && submission.getSubmitted() && submission.getDateSubmitted() != null) {
                     String allowResubmitCloseTime = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                    Instant resubmitCloseTime = null;
+                    try {
+                        int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
 
-                    if (allowResubmitCloseTime != null) {
-                        // see if a resubmission close time is set on submission level
-                        resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
-                    } else {
-                        // otherwise, use assignment close time as the resubmission close time
-                        resubmitCloseTime = a.getCloseDate();
+                        Instant resubmitCloseTime;
+                        if (NumberUtils.isParsable(allowResubmitCloseTime)) {
+                            // see if a resubmission close time is set on submission level
+                            resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitCloseTime));
+                        } else {
+                            // otherwise, use assignment close time as the resubmission close time
+                            resubmitCloseTime = a.getCloseDate();
+                        }
+                        return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && !currentTime.isAfter(resubmitCloseTime);
+                    } catch (NumberFormatException e) {
+                        log.warn("allowResubmitNumString = {}, allowResubmitCloseTime = {}", allowResubmitNumString, allowResubmitCloseTime, e);
                     }
-                    return (allowResubmitNumber > 0 || allowResubmitNumber == -1) && currentTime.isBefore(resubmitCloseTime);
-                } catch (NumberFormatException e) {
-                    log.warn("allowResubmitNumString = {}", allowResubmitNumString, e);
                 }
-            }
 
-            if (submission == null || submission.getDateSubmitted() == null) {
-                // if there is no submission yet
-                if (currentTime.isAfter(closeTime)) {
-                    return false;
-                } else {
+                if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) {
+                    // before the assignment close date
+                    // and if no date then a submission was never never submitted
+                    // or if there is a submitted date and its a not submitted then it is considered a draft
                     return true;
                 }
             } else {
-                if (!submission.getSubmitted() && !currentTime.isAfter(closeTime)) {
-                    // return true for drafted submissions
-                    return true;
-                } else
-                    return false;
+                // there is no submission yet so only check if before assignment close date
+                return isBeforeAssignmentCloseDate;
             }
         } catch (UserNotDefinedException e) {
-            // cannot find user
-            log.warn("Unknown user for assignment ref = {}", AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
+            log.warn("The user {} could not be found while checking if they can submit to assignment {}, {}", userId, a.getId(), e.getMessage());
         } catch (PermissionException e) {
-            log.warn("User does not have permission, {}", e.getMessage());
+            log.warn("The user {} cannot submit to assignment {}, {}", userId, a.getId(), e.getMessage());
         }
         return false;
     }
@@ -2365,7 +2358,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (!returnGrade.isEmpty() && !"0".equals(returnGrade)) {
                     int dec = new Double(Math.log10(scaleFactor)).intValue();
                     String decSeparator = formattedText.getDecimalSeparator();
-                    String decimalGradePoint = null;
+                    String decimalGradePoint = returnGrade;
                     try {
                         Integer.parseInt(returnGrade);
                         // if point grade, display the grade with factor decimal place
@@ -2587,12 +2580,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     private boolean permissionCheckWithGroups(String permission, Assignment assignment) {
-        Collection<String> groupIds = assignment.getGroups();
-        if (groupIds.isEmpty()) {
-            return securityService.unlock(permission, siteService.siteReference(assignment.getContext()));
-        } else {
+        if (GROUP == assignment.getTypeOfAccess()) {
             // check the permission in the groups
-            for (String groupId : groupIds) {
+            for (String groupId : assignment.getGroups()) {
                 if (securityService.unlock(permission, groupId)) {
                     return true;
                 }
@@ -2601,6 +2591,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (allowAllGroups(assignment.getContext()) && securityService.unlock(permission, siteService.siteReference(assignment.getContext()))) {
                 return true;
             }
+        } else {
+            return permissionCheck(permission, siteService.siteReference(assignment.getContext()), null);
         }
         return false;
     }

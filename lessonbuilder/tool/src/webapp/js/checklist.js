@@ -182,7 +182,7 @@
             return;
         }
         var obj = $.parseJSON(attributeString);
-        if (obj) {
+        if (obj && obj.checklistItems !== null) {
             $.each(obj.checklistItems, function (index, el) {
                 var id = el.id;
                 var name = el.name;

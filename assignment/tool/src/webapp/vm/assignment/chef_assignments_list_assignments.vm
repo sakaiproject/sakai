@@ -331,9 +331,9 @@
 										#end
 
 										## SAK-21525 END
-										#if($!allowSubmit)
+										#if($allowSubmit)
 											## for those who can submit
-											#if ($!submission && ($submitTime || $!submissionReturned))
+											#if ($submission)
 												## is there a submission already?
 												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 												#if(!$!allowResubmitNumber.equals("0"))
