@@ -928,13 +928,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public boolean allowAddMessage(User user)
 		{
-			if (!securityService.unlock(user, eventId(SECURE_ADD), getReference()))
-			{
-				return false;
-			}
-
-			return true;
-
+			return (!securityService.unlock(user, eventId(SECURE_ADD), getReference()));
 		}
 
 		/*
