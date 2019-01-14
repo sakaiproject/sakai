@@ -1223,10 +1223,6 @@
       <from-outcome>studentScores</from-outcome>
       <to-view-id>/jsf/evaluation/gradeStudentResult.jsp</to-view-id>
     </navigation-case>
-     <navigation-case>
-		<from-outcome>gradeStudentResultFromSectionActivity</from-outcome>
-		<to-view-id>/jsf/evaluation/gradeStudentResultFromSectionActivity.jsp</to-view-id>
-	 </navigation-case>
     <navigation-case>
       <from-outcome>totalScores</from-outcome>
       <to-view-id>/jsf/evaluation/totalScores.jsp</to-view-id>
