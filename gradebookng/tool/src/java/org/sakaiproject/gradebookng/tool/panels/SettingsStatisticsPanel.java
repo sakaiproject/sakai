@@ -68,7 +68,7 @@ public class SettingsStatisticsPanel extends BasePanel {
 
 		// display assignment stats to students
 		final AjaxCheckBox displayAssignmentStats = new AjaxCheckBox("displayAssignmentStats",
-				new PropertyModel<Boolean>(this.model, "gradebookInformation.displayReleasedGradeItemsToStudents")) {
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.assignmentStatsDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -81,7 +81,7 @@ public class SettingsStatisticsPanel extends BasePanel {
 
 		// display course grade stats to students
 		final AjaxCheckBox displayCourseGradeStats = new AjaxCheckBox("displayCourseGradeStats",
-				new PropertyModel<Boolean>(this.model, "gradebookInformation.displayReleasedGradeItemsToStudents")) {
+				new PropertyModel<Boolean>(this.model, "gradebookInformation.courseGradeStatsDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

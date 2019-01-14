@@ -23,6 +23,9 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Represents the settings for the gradebook
  *
@@ -30,158 +33,95 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class GradebookInformation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@Getter
+	@Setter
 	private String selectedGradingScaleUid;
 
 	/**
 	 * The ID of the GradeMapping that should be used for this gradebook
 	 */
+	@Getter
+	@Setter
 	private String selectedGradeMappingId;
 
 	/**
 	 * The list of GradeMappings defined for this gradebook but as a DTO representation
 	 */
+	@Getter
+	@Setter
 	private List<GradeMappingDefinition> gradeMappings;
 
 	/**
 	 * The grading schema map currently in use for the this gradebook. For example A+ = 100 etc.
 	 */
+	@Getter
+	@Setter
 	private Map<String, Double> selectedGradingScaleBottomPercents;
 
+	@Getter
+	@Setter
 	private boolean displayReleasedGradeItemsToStudents;
+
+	@Getter
+	@Setter
 	private int gradeType;
+
+	@Getter
+	@Setter
 	private int categoryType;
+
+	@Getter
+	@Setter
 	private List<CategoryDefinition> categories;
 
 	/**
 	 * The name of the grading scale, e.g. Pass / Not Pass
 	 */
+	@Getter
+	@Setter
 	private String gradeScale;
 
 	/**
 	 * Is the course grade to be shown at all?
 	 */
+	@Getter
+	@Setter
 	private boolean courseGradeDisplayed;
 
 	/**
 	 * If the course grade is displayed, should the letter grade be displayed?
 	 */
+	@Getter
+	@Setter
 	private boolean courseLetterGradeDisplayed;
 
 	/**
 	 * If the course grade is displayed, should the total points be displayed?
 	 */
+	@Getter
+	@Setter
 	private boolean coursePointsDisplayed;
 
 	/**
 	 * If the course grade is displayed, should the percentage be displayed?
 	 */
+	@Getter
+	@Setter
 	private boolean courseAverageDisplayed;
 
-	public String getSelectedGradingScaleUid() {
-		return this.selectedGradingScaleUid;
-	}
+	/**
+	 * Are assignment stats to be shown to students?
+	 */
+	@Getter
+	@Setter
+	private boolean assignmentStatsDisplayed;
 
-	public void setSelectedGradingScaleUid(final String selectedGradingScaleUid) {
-		this.selectedGradingScaleUid = selectedGradingScaleUid;
-	}
-
-	public String getSelectedGradeMappingId() {
-		return this.selectedGradeMappingId;
-	}
-
-	public void setSelectedGradeMappingId(final String selectedGradeMappingId) {
-		this.selectedGradeMappingId = selectedGradeMappingId;
-	}
-
-	public List<GradeMappingDefinition> getGradeMappings() {
-		return this.gradeMappings;
-	}
-
-	public void setGradeMappings(final List<GradeMappingDefinition> gradeMappings) {
-		this.gradeMappings = gradeMappings;
-	}
-
-	public Map<String, Double> getSelectedGradingScaleBottomPercents() {
-		return this.selectedGradingScaleBottomPercents;
-	}
-
-	public void setSelectedGradingScaleBottomPercents(
-			final Map<String, Double> selectedGradingScaleBottomPercents) {
-		this.selectedGradingScaleBottomPercents = selectedGradingScaleBottomPercents;
-	}
-
-	public boolean isDisplayReleasedGradeItemsToStudents() {
-		return this.displayReleasedGradeItemsToStudents;
-	}
-
-	public void setDisplayReleasedGradeItemsToStudents(
-			final boolean displayReleasedGradeItemsToStudents) {
-		this.displayReleasedGradeItemsToStudents = displayReleasedGradeItemsToStudents;
-	}
-
-	public int getGradeType() {
-		return this.gradeType;
-	}
-
-	public void setGradeType(final int gradeType) {
-		this.gradeType = gradeType;
-	}
-
-	public int getCategoryType() {
-		return this.categoryType;
-	}
-
-	public void setCategoryType(final int categoryType) {
-		this.categoryType = categoryType;
-	}
-
-	public String getGradeScale() {
-		return this.gradeScale;
-	}
-
-	public void setGradeScale(final String gradeScale) {
-		this.gradeScale = gradeScale;
-	}
-
-	public boolean isCourseGradeDisplayed() {
-		return this.courseGradeDisplayed;
-	}
-
-	public void setCourseGradeDisplayed(final boolean courseGradeDisplayed) {
-		this.courseGradeDisplayed = courseGradeDisplayed;
-	}
-
-	public List<CategoryDefinition> getCategories() {
-		return this.categories;
-	}
-
-	public void setCategories(final List<CategoryDefinition> categories) {
-		this.categories = categories;
-	}
-
-	public boolean isCourseLetterGradeDisplayed() {
-		return this.courseLetterGradeDisplayed;
-	}
-
-	public void setCourseLetterGradeDisplayed(final boolean courseLetterGradeDisplayed) {
-		this.courseLetterGradeDisplayed = courseLetterGradeDisplayed;
-	}
-
-	public boolean isCoursePointsDisplayed() {
-		return this.coursePointsDisplayed;
-	}
-
-	public void setCoursePointsDisplayed(final boolean coursePointsDisplayed) {
-		this.coursePointsDisplayed = coursePointsDisplayed;
-	}
-
-	public boolean isCourseAverageDisplayed() {
-		return this.courseAverageDisplayed;
-	}
-
-	public void setCourseAverageDisplayed(final boolean courseAverageDisplayed) {
-		this.courseAverageDisplayed = courseAverageDisplayed;
-	}
+	/**
+	 * Are course grade stats to be shown to students?
+	 */
+	@Getter
+	@Setter
+	private boolean courseGradeStatsDisplayed;
 
 	@Override
 	public String toString() {

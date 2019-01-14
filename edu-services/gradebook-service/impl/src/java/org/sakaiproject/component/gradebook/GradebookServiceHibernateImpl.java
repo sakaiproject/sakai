@@ -92,9 +92,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
-import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -422,6 +422,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
+
+		// add in stats display settings
+		rval.setAssignmentStatsDisplayed(gradebook.isAssignmentStatsDisplayed());
+		rval.setCourseGradeStatsDisplayed(gradebook.isCourseGradeStatsDisplayed());
 
 		return rval;
 	}
@@ -3283,6 +3287,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebook.setCourseLetterGradeDisplayed(gbInfo.isCourseLetterGradeDisplayed());
 		gradebook.setCoursePointsDisplayed(gbInfo.isCoursePointsDisplayed());
 		gradebook.setCourseAverageDisplayed(gbInfo.isCourseAverageDisplayed());
+
+		// set stats display settings
+		gradebook.setAssignmentStatsDisplayed(gbInfo.isAssignmentStatsDisplayed());
+		gradebook.setCourseGradeStatsDisplayed(gbInfo.isCourseGradeStatsDisplayed());
 
 		final List<CategoryDefinition> newCategoryDefinitions = gbInfo.getCategories();
 
