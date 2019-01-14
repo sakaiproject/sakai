@@ -72,7 +72,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             // templates, so if for some reason none have been defined yet,
             // do that now.
             if (gradingScales.isEmpty()) {
-                if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+                if (log.isInfoEnabled()) {
+					log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+				}
                 gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
             }
 
@@ -118,7 +120,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             // Check for null default.
             if (defaultGradeMapping == null) {
                 defaultGradeMapping = (GradeMapping)gradeMappings.iterator().next();
-                if (log.isWarnEnabled()) log.warn("No default GradeMapping found for new Gradebook=" + gradebook.getUid() + "; will set default to " + defaultGradeMapping.getName());
+                if (log.isWarnEnabled()) {
+					log.warn("No default GradeMapping found for new Gradebook=" + gradebook.getUid() + "; will set default to " + defaultGradeMapping.getName());
+				}
             }
             gradebook.setSelectedGradeMapping(defaultGradeMapping);
 
@@ -134,8 +138,11 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 
             //SAK-29740 make backwards compatible
             gradebook.setCourseLetterGradeDisplayed(true);
-
             gradebook.setCourseAverageDisplayed(true);
+
+			// SAK-33855 turn on stats for new gradebooks
+			gradebook.setAssignmentStatsDisplayed(true);
+			gradebook.setCourseGradeStatsDisplayed(true);
 
             // Update the gradebook with the new selected grade mapping
             session.update(gradebook);
@@ -169,7 +176,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			gradingScale.setGrades(new ArrayList(sampleMapping.getGrades()));
 			gradingScale.setDefaultBottomPercents(new HashMap(sampleMapping.getGradeMap()));
 			session.save(gradingScale);
-			if (log.isInfoEnabled()) log.info("Added Grade Mapping " + gradingScale.getUid());
+			if (log.isInfoEnabled()) {
+				log.info("Added Grade Mapping " + gradingScale.getUid());
+			}
 			gradingScales.add(gradingScale);
 		}
 		setDefaultGradingScale("LetterGradePlusMinusMapping");
@@ -177,6 +186,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 		return gradingScales;
 	}
 
+	@Override
 	public void setAvailableGradingScales(final Collection gradingScaleDefinitions) {
         getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
             mergeGradeMappings(gradingScaleDefinitions, session);
@@ -217,48 +227,51 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             // templates, so if for some reason none have been defined yet,
             // do that now.
             if (gradingScales.isEmpty()) {
-                if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+                if (log.isInfoEnabled()) {
+					log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+				}
                 gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
             }
             return gradingScales;
         });
 	}
-	
+
 	@Override
 	public List<GradingScaleDefinition> getAvailableGradingScaleDefinitions() {
-		List<GradingScale> gradingScales = this.getAvailableGradingScales();
-		
-		List<GradingScaleDefinition> rval = new ArrayList<>();
-		for(GradingScale gradingScale: gradingScales) {
+		final List<GradingScale> gradingScales = getAvailableGradingScales();
+
+		final List<GradingScaleDefinition> rval = new ArrayList<>();
+		for(final GradingScale gradingScale: gradingScales) {
 			rval.add(gradingScale.toGradingScaleDefinition());
 		}
 		return rval;
 	}
 
-	public void setDefaultGradingScale(String uid) {
+	@Override
+	public void setDefaultGradingScale(final String uid) {
 		setPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY, uid);
 	}
 
-	private void copyDefinitionToScale(GradingScaleDefinition bean, GradingScale gradingScale) {
+	private void copyDefinitionToScale(final GradingScaleDefinition bean, final GradingScale gradingScale) {
 		gradingScale.setUnavailable(false);
 		gradingScale.setName(bean.getName());
 		gradingScale.setGrades(bean.getGrades());
-		Map defaultBottomPercents = new HashMap();
-		Iterator gradesIter = bean.getGrades().iterator();
-		Iterator defaultBottomPercentsIter = bean.getDefaultBottomPercentsAsList().iterator();
+		final Map defaultBottomPercents = new HashMap();
+		final Iterator gradesIter = bean.getGrades().iterator();
+		final Iterator defaultBottomPercentsIter = bean.getDefaultBottomPercentsAsList().iterator();
 		while (gradesIter.hasNext() && defaultBottomPercentsIter.hasNext()) {
-			String grade = (String)gradesIter.next();
-			Double value = (Double)defaultBottomPercentsIter.next();
+			final String grade = (String)gradesIter.next();
+			final Double value = (Double)defaultBottomPercentsIter.next();
 			defaultBottomPercents.put(grade, value);
 		}
 		gradingScale.setDefaultBottomPercents(defaultBottomPercents);
 	}
 
-	private void mergeGradeMappings(Collection gradingScaleDefinitions, Session session) throws HibernateException {
-		Map newMappingDefinitionsMap = new HashMap();
-		HashSet uidsToSet = new HashSet();
-		for (Iterator iter = gradingScaleDefinitions.iterator(); iter.hasNext(); ) {
-			GradingScaleDefinition bean = (GradingScaleDefinition)iter.next();
+	private void mergeGradeMappings(final Collection gradingScaleDefinitions, final Session session) throws HibernateException {
+		final Map newMappingDefinitionsMap = new HashMap();
+		final HashSet uidsToSet = new HashSet();
+		for (final Iterator iter = gradingScaleDefinitions.iterator(); iter.hasNext(); ) {
+			final GradingScaleDefinition bean = (GradingScaleDefinition)iter.next();
 			newMappingDefinitionsMap.put(bean.getUid(), bean);
 			uidsToSet.add(bean.getUid());
 		}
@@ -275,7 +288,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			GradingScale gradingScale = (GradingScale)iter.next();
 			gradingScale.setUnavailable(true);
 			session.update(gradingScale);
-			if (log.isInfoEnabled()) log.info("Set Grading Scale " + gradingScale.getUid() + " unavailable");
+			if (log.isInfoEnabled()) {
+				log.info("Set Grading Scale " + gradingScale.getUid() + " unavailable");
+			}
 		}
 
 		// Modify any specified scales that already exist.
@@ -287,7 +302,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			copyDefinitionToScale((GradingScaleDefinition)newMappingDefinitionsMap.get(gradingScale.getUid()), gradingScale);
 			uidsToSet.remove(gradingScale.getUid());
 			session.update(gradingScale);
-			if (log.isInfoEnabled()) log.info("Updated Grading Scale " + gradingScale.getUid());
+			if (log.isInfoEnabled()) {
+				log.info("Updated Grading Scale " + gradingScale.getUid());
+			}
 		}
 
 		// Add any new scales.
@@ -298,15 +315,20 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			GradingScaleDefinition bean = (GradingScaleDefinition)newMappingDefinitionsMap.get(uid);
 			copyDefinitionToScale(bean, gradingScale);
 			session.save(gradingScale);
-			if (log.isInfoEnabled()) log.info("Added Grading Scale " + gradingScale.getUid());
+			if (log.isInfoEnabled()) {
+				log.info("Added Grading Scale " + gradingScale.getUid());
+			}
 		}
 		session.flush();
 	}
 
 
+	@Override
 	public void deleteGradebook(final String uid)
 		throws GradebookNotFoundException {
-        if (log.isDebugEnabled()) log.debug("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
+        if (log.isDebugEnabled()) {
+			log.debug("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
+		}
         final Long gradebookId = getGradebook(uid).getId();
 
         // Worse of both worlds code ahead. We've been quick-marched
@@ -325,17 +347,23 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         toBeDeleted = hibTempl.findByNamedParam("from GradingEvent as ge where ge.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grading events");
+        if (log.isDebugEnabled()) {
+			log.debug("Deleted " + numberDeleted + " grading events");
+		}
 
         toBeDeleted = hibTempl.findByNamedParam("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade records");
+        if (log.isDebugEnabled()) {
+			log.debug("Deleted " + numberDeleted + " grade records");
+		}
 
         toBeDeleted = hibTempl.findByNamedParam("from GradableObject as go where go.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " gradable objects");
+        if (log.isDebugEnabled()) {
+			log.debug("Deleted " + numberDeleted + " gradable objects");
+		}
 
         Gradebook gradebook = (Gradebook)hibTempl.load(Gradebook.class, gradebookId);
         gradebook.setSelectedGradeMapping(null);
@@ -343,7 +371,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         toBeDeleted = hibTempl.findByNamedParam("from GradeMapping as gm where gm.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade mappings");
+        if (log.isDebugEnabled()) {
+			log.debug("Deleted " + numberDeleted + " grade mappings");
+		}
 
         hibTempl.delete(gradebook);
         hibTempl.flush();

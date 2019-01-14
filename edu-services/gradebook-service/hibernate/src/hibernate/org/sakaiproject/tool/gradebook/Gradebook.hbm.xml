@@ -60,9 +60,9 @@
 		
 		<property name="courseLetterGradeDisplayed" column="COURSE_LETTER_GRADE_DISPLAYED" type="boolean" not-null="true"/>
 		
-		<property name="assignmentStatsDisplayed" column="ASSIGNMENT_STATS_DISPLAYED" type="boolean" not-null="false"/>
+		<property name="assignmentStatsDisplayed" column="ASSIGNMENT_STATS_DISPLAYED" type="boolean" not-null="true"/>
 		
-		<property name="courseGradeStatsDisplayed" column="COURSE_GRADE_STATS_DISPLAYED" type="boolean" not-null="false"/>	
+		<property name="courseGradeStatsDisplayed" column="COURSE_GRADE_STATS_DISPLAYED" type="boolean" not-null="true"/>	
 		
 	</class>
 </hibernate-mapping>
