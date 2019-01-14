@@ -2781,4 +2781,24 @@ public class GradebookNgBusinessService {
 	private CandidateDetailProvider getCandidateDetailProvider() {
 		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
 	}
+
+	/**
+	 * Set advisor as allowed.
+	 *
+	 * @return
+	 */
+	public SecurityAdvisor setSecurityAdvisor() {
+		final SecurityAdvisor advisor = (final String userId, final String function, final String reference) -> SecurityAdvice.ALLOWED;
+		this.securityService.pushAdvisor(advisor);
+		return advisor;
+	}
+
+	/**
+	 * Remove advisor
+	 *
+	 * @param advisor
+	 */
+	public void unsetSecurityAdvisor(final SecurityAdvisor advisor) {
+		this.securityService.popAdvisor(advisor);
+	}
 }

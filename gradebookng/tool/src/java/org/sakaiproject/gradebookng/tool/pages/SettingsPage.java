@@ -36,6 +36,7 @@ import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
+import org.sakaiproject.gradebookng.tool.panels.SettingsStatisticsPanel;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -53,6 +54,7 @@ public class SettingsPage extends BasePage {
 
 	private boolean gradeEntryExpanded = false;
 	private boolean gradeReleaseExpanded = false;
+	private boolean statisticsExpanded = false;
 	private boolean categoryExpanded = false;
 	private boolean gradingSchemaExpanded = false;
 
@@ -62,6 +64,7 @@ public class SettingsPage extends BasePage {
 
 	SettingsGradeEntryPanel gradeEntryPanel;
 	SettingsGradeReleasePanel gradeReleasePanel;
+	SettingsStatisticsPanel statisticsPanel;
 	SettingsCategoryPanel categoryPanel;
 	SettingsGradingSchemaPanel gradingSchemaPanel;
 
@@ -73,13 +76,14 @@ public class SettingsPage extends BasePage {
 		setShowGradeEntryToNonAdmins();
 	}
 
-	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
+	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded, final boolean statisticsExpanded,
 			final boolean categoryExpanded, final boolean gradingSchemaExpanded) {
 
 		this();
 
 		this.gradeEntryExpanded = gradeEntryExpanded;
 		this.gradeReleaseExpanded = gradeReleaseExpanded;
+		this.statisticsExpanded = statisticsExpanded;
 		this.categoryExpanded = categoryExpanded;
 		this.gradingSchemaExpanded = gradingSchemaExpanded;
 	}
@@ -101,6 +105,7 @@ public class SettingsPage extends BasePage {
 
 		this.gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, this.gradeEntryExpanded);
 		this.gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, this.gradeReleaseExpanded);
+		this.statisticsPanel = new SettingsStatisticsPanel("statisticsPanel", formModel, this.statisticsExpanded);
 		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
 		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
 
@@ -199,7 +204,8 @@ public class SettingsPage extends BasePage {
 				final GbSettings model = (GbSettings) f.getModelObject();
 
 				Page responsePage = new SettingsPage(SettingsPage.this.gradeEntryPanel.isExpanded(),
-						SettingsPage.this.gradeReleasePanel.isExpanded(), SettingsPage.this.categoryPanel.isExpanded(),
+						SettingsPage.this.gradeReleasePanel.isExpanded(), SettingsPage.this.statisticsPanel.isExpanded(),
+						SettingsPage.this.categoryPanel.isExpanded(),
 						SettingsPage.this.gradingSchemaPanel.isExpanded());
 
 				// update settings
@@ -244,6 +250,7 @@ public class SettingsPage extends BasePage {
 		// panels
 		form.add(this.gradeEntryPanel);
 		form.add(this.gradeReleasePanel);
+		form.add(this.statisticsPanel);
 		form.add(this.categoryPanel);
 		form.add(this.gradingSchemaPanel);
 
