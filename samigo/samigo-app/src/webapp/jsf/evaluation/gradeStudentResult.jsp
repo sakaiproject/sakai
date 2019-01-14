@@ -110,7 +110,7 @@ function toPoint(id)
   <h:inputHidden id="studentid" value="#{studentScores.studentId}" />
   <h:inputHidden id="studentName" value="#{studentScores.studentName}" />
   <h:inputHidden id="gradingData" value="#{studentScores.assessmentGradingId}" />
-  <h:inputHidden id="itemId" value="#{studentScores.itemId}" />
+  <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
