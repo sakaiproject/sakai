@@ -15,6 +15,7 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="groupLockService" ref="org.sakaiproject.site.api.GroupLockService" />
   </bean>
    
   <bean id="GroupEditProducer" 
@@ -26,6 +27,7 @@
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="groupLockService" ref="org.sakaiproject.site.api.GroupLockService" />
   </bean>
   
   <bean id="GroupAutoCreateProducer" 
@@ -55,6 +57,7 @@
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
     <property name="messageLocator" ref="messageLocator"/>
+    <property name="groupLockService" ref="org.sakaiproject.site.api.GroupLockService" />
   </bean>
   
     <bean id="GroupDelProducer" 
@@ -64,6 +67,7 @@
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="groupLockService" ref="org.sakaiproject.site.api.GroupLockService" />
   </bean>
   
   <bean id="GroupImportStep1Producer"

@@ -58,6 +58,8 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import org.sakaiproject.rsf.util.SakaiURLUtil;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
 import org.sakaiproject.tool.api.SessionManager;
@@ -78,6 +80,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
     public SiteManageGroupSectionRoleHandler handler;
     public FrameAdjustingProducer frameAdjustingProducer;
     public AuthzGroupService authzGroupService;
+    public GroupLockService groupLockService;
     
     public String getViewID() {    
         return VIEW_ID;
@@ -116,7 +119,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
         {
             for (Iterator<Group> it=groups.iterator(); it.hasNext(); ) {
             	Group group = it.next();
-                if (group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
+                if (groupLockService.isLocked(group.getId(), GroupLock.LockMode.ALL)) {//ALL acts like 'any' = checks all cases
                     notDeletable.add(group.getTitle());
                 } else {
                     String groupId = group.getId();

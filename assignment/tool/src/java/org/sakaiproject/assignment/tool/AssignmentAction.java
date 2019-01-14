@@ -94,6 +94,8 @@ import org.sakaiproject.scoringservice.api.ScoringComponent;
 import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.service.gradebook.shared.*;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -950,6 +952,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private FormattedText formattedText;
     private GradebookService gradebookService;
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+    private GroupLockService groupLockService;
     private LearningResourceStoreService learningResourceStoreService;
     private NotificationService notificationService;
 	private RubricsService rubricsService;
@@ -982,6 +985,7 @@ public class AssignmentAction extends PagedResourceActionII {
         formattedText = ComponentManager.get(FormattedText.class);
         gradebookExternalAssessmentService = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
         gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+        groupLockService = ComponentManager.get(GroupLockService.class);
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
         notificationService = ComponentManager.get(NotificationService.class);
 		rubricsService  = ComponentManager.get(RubricsService.class);
@@ -7967,21 +7971,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         log.debug("Getting groups from reference: {}", groupAssignmentReference);
                         lockedGroupsReferences.add(group.getReference());
                         log.debug("Adding group: {}", group.getReference());
-
-                        if (!aOldGroups.contains(group.getReference()) || !group.isLocked(groupAssignmentReference, Group.LockMode.ALL)) {
+                        if (!aOldGroups.contains(group.getReference()) || !groupLockService.isLockedByItem(group.getId(), groupAssignmentReference)) {
                             log.debug("locking group: {}", group.getReference());
-                            group.lockGroup(groupAssignmentReference, Group.LockMode.ALL);
+                            groupLockService.lockGroup(group.getId(), groupAssignmentReference, GroupLock.LockMode.ALL);
                             log.debug("locked group: {}", group.getReference());
-
-                            try {
-                                siteService.save(group.getContainingSite());
-                            } catch (IdUnusedException e) {
-                                log.warn(".post_save_assignment: Cannot find site with id {}", siteId);
-                                addAlert(state, rb.getFormattedMessage("options_cannotFindSite", siteId));
-                            } catch (PermissionException e) {
-                                log.warn(".post_save_assignment: Do not have permission to edit site with id {}", siteId);
-                                addAlert(state, rb.getFormattedMessage("options_cannotEditSite", siteId));
-                            }
                         }
                     }
                 }
@@ -7995,18 +7988,14 @@ public class AssignmentAction extends PagedResourceActionII {
                                 log.debug("Not contains: {}", reference);
                                 Group group = site.getGroup(reference);
                                 if (group != null) {
-                                    String groupReferenceAssignment = group.getReference() + "/assignment/" + a.getId();
-                                    group.unlockGroup(groupReferenceAssignment, Group.LockMode.ALL);
-                                    siteService.save(group.getContainingSite());
+                                    String groupAssignmentReference = group.getReference() + "/assignment/" + a.getId();
+                                    groupLockService.unlockGroup(group.getId(), groupAssignmentReference, GroupLock.LockMode.ALL);
                                 }
                             }
                         }
                     } catch (IdUnusedException e) {
                         log.warn(".post_save_assignment: Cannot find site with id {}", siteId);
                         addAlert(state, rb.getFormattedMessage("options_cannotFindSite", siteId));
-                    } catch (PermissionException e) {
-                        log.warn(".post_save_assignment: Do not have permission to edit site with id {}", siteId);
-                        addAlert(state, rb.getFormattedMessage("options_cannotEditSite", siteId));
                     }
                 }
 
@@ -9749,8 +9738,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 for (String reference : groups) {
                     Group group = site.getGroup(reference);
                     if (group != null) {
-                        group.unlockGroup(group.getReference() + "/assignment/" + assignment.getId(), Group.LockMode.ALL);
-                        siteService.save(group.getContainingSite());
+                        groupLockService.unlockGroup(group.getId(), group.getReference() + "/assignment/" + assignment.getId(), GroupLock.LockMode.ALL);
                     }
                 }
             } catch (IdUnusedException e) {

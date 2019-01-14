@@ -60,6 +60,8 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
 import org.sakaiproject.site.util.Participant;
@@ -83,6 +85,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     public MessageLocator messageLocator;
     public FrameAdjustingProducer frameAdjustingProducer;
     public SiteService siteService = null;
+    public GroupLockService groupLockService;
 
     public String getViewID() {
         return VIEW_ID;
@@ -188,15 +191,14 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          UIOutput.make(groupForm, "prompt", headerText);
          UIOutput.make(groupForm, "emptyGroupTitleAlert", messageLocator.getMessage("editgroup.titlemissing"));
          
-         if (g != null && g.isLocked(Group.LockMode.MODIFY)) {
+         if (g != null && groupLockService.isLocked(g.getId(), GroupLock.LockMode.MODIFY)) {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null)); 
          } else {
             UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
          }
          
          UIOutput.make(groupForm, "group_title_label", messageLocator.getMessage("group.title"));
-         UIInput groupTitleInput = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);     
-		 
+         UIInput groupTitleInput = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
 		
 		 UIMessage groupDescrLabel = UIMessage.make(groupForm, "group_description_label", "group.description"); 
 		 UIInput groupDescr = UIInput.make(groupForm, "group_description", "#{SiteManageGroupSectionRoleHandler.description}", groupDescription); 
@@ -460,7 +462,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
             UILabelTargetDecorator.targetLabel(filterSetLabel, filterSetSelect);
          }
          
-         if (g != null && g.isLocked(Group.LockMode.MODIFY)) {
+         if (g != null && groupLockService.isLocked(g.getId(), GroupLock.LockMode.MODIFY)) {
             UIDisabledDecorator disable = new UIDisabledDecorator(true);
             groupTitleInput.decorate(disable);
             groupDescr.decorate(disable);

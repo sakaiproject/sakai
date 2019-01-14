@@ -54,6 +54,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -188,6 +190,8 @@ public class BaseSite implements Site
 	private SessionManager sessionManager;
 
 	private UserDirectoryService userDirectoryService;
+
+	private GroupLockService groupLockService;
 
 	/** Softly deleted data */
 	protected boolean m_isSoftlyDeleted = false;
@@ -593,6 +597,12 @@ public class BaseSite implements Site
 			this.userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 			if (this.userDirectoryService == null) {
 				throw new IllegalStateException("Cannot get the UserDirectoryService when constructing BaseSite");
+			}
+		}
+		if (this.groupLockService == null) {
+			this.groupLockService = (GroupLockService) ComponentManager.get(GroupLockService.class);
+			if (this.groupLockService == null) {
+				throw new IllegalStateException("Cannot get the GroupLockService when constructing BaseSite");
 			}
 		}
 	}
@@ -1729,7 +1739,7 @@ public class BaseSite implements Site
 	 */
 	public void removeGroup(Group group)
 	{
-		if(group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
+		if(groupLockService.isLocked(group.getId(), GroupLock.LockMode.ALL)) {//ALL acts like 'any' = checks all cases
 			log.error("Error, cannot remove a locked group");
 			return;
 		}
@@ -1745,7 +1755,7 @@ public class BaseSite implements Site
 	 */
 	public void deleteGroup(Group group) throws IllegalStateException
 	{
-		if(group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
+		if(groupLockService.isLocked(group.getId(), GroupLock.LockMode.ALL)) {//ALL acts like 'any' = checks all cases
 			throw new IllegalStateException("Error, cannot remove group: " + group.getId() + " because it is locked");
 		}
 		// remove it

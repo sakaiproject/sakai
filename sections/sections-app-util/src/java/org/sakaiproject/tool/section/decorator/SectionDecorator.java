@@ -40,6 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.RowGroupable;
 import org.sakaiproject.util.ResourceLoader;
@@ -104,9 +106,12 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
                 }
             }
         }
-        this.readOnly = readOnlyCategories.contains(section.getCategory()) || section.isLocked();  
+        GroupLockService groupLockService = (GroupLockService) ComponentManager.get(GroupLockService.class);
+        String sectionUuid = getUuid();
+        boolean isGroupLocked = sectionUuid == null ? false : groupLockService.isLocked(sectionUuid.substring(sectionUuid.lastIndexOf("/")+1), GroupLock.LockMode.ALL);
+        this.readOnly = readOnlyCategories.contains(section.getCategory()) || isGroupLocked;
         this.isReadOnlyCategory = readOnlyCategories.contains(section.getCategory());
-        this.lockedForDeletion = section.isLockedForDeletion();  
+        this.lockedForDeletion = groupLockService.isLocked(sectionUuid, GroupLock.LockMode.DELETE);
     }
 
     /**

@@ -40,6 +40,8 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -75,6 +77,8 @@ public class RemoveAssessmentListener implements ActionListener
     private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
     private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+
+    private GroupLockService groupLockService = (GroupLockService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.site.api.GroupLockService");
 
     public RemoveAssessmentListener()
     {
@@ -180,7 +184,7 @@ public class RemoveAssessmentListener implements ActionListener
                             for(Group group : groups){
                                 if(selectedGroups.keySet().contains(group.getId())){
                                     log.debug("Unlocking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), assessmentId);
-                                    group.unlockGroup(assessmentId, Group.LockMode.DELETE);
+                                    groupLockService.unlockGroup(group.getId(), assessmentId, GroupLock.LockMode.DELETE);
                                 }
                             }
 

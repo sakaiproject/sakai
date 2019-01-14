@@ -60,6 +60,8 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
@@ -99,6 +101,7 @@ public class SiteManageGroupSectionRoleHandler {
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
     public CourseManagementService cms = null;
+    public GroupLockService groupLockService;
     private List<Group> groups = null;
     public String memberList = "";
     public boolean update = false;
@@ -700,8 +703,9 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
-			log.debug("Check if the group is locked : {}", group.isLocked(Group.LockMode.MODIFY));
-			if(group.isLocked(Group.LockMode.MODIFY)) {
+			boolean groupLocked = groupLockService.isLocked(group.getId(), GroupLock.LockMode.MODIFY);
+			log.debug("Check if the group is locked : {}", groupLocked);
+			if(groupLocked) {
 				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 				return null;
 			}

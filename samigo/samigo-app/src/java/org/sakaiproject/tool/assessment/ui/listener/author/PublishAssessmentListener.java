@@ -46,7 +46,6 @@ import javax.mail.internet.InternetAddress;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -55,6 +54,8 @@ import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -109,10 +110,10 @@ public class PublishAssessmentListener
   private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
   private ResourceLoader rl= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 
-  private RubricsService rubricsService;
+  private RubricsService rubricsService = (RubricsService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.rubrics.logic.RubricsService");
+  private GroupLockService groupLockService = (GroupLockService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.site.api.GroupLockService");;
 
   public PublishAssessmentListener() {
-    rubricsService = ComponentManager.get(RubricsService.class);
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -228,7 +229,7 @@ public class PublishAssessmentListener
             for(Group group : groups){
                 if(selectedGroups.keySet().contains(group.getId())){
                     log.debug("Locking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), publishedAssessmentId);
-                    group.lockGroup(publishedAssessmentId, Group.LockMode.DELETE);
+                    groupLockService.lockGroup(group.getId(), publishedAssessmentId, GroupLock.LockMode.DELETE);
                 }
             }
 

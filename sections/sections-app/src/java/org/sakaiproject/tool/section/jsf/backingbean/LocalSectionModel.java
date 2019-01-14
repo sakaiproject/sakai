@@ -41,8 +41,6 @@ public class LocalSectionModel implements CourseSection, Serializable {
 	private String title;
 	private String category;
 	private Integer maxEnrollments;
-	private boolean isLocked;
-	private boolean isLockedForDeletion;
 
 	// We need a string to represent size limit due to this JSF bug: http://issues.apache.org/jira/browse/MYFACES-570
 	private String limitSize;
@@ -74,8 +72,6 @@ public class LocalSectionModel implements CourseSection, Serializable {
 			Meeting meeting = (Meeting)iter.next();
 			meetings.add(new LocalMeetingModel(meeting));
 		}
-		this.isLocked = section.isLocked();
-		this.isLockedForDeletion = section.isLockedForDeletion();
 	}
     
     public Integer getMaxEnrollments() {
@@ -100,14 +96,6 @@ public class LocalSectionModel implements CourseSection, Serializable {
 
 	public void setMeetings(List<Meeting> meetings) {
 		this.meetings = meetings;
-	}
-
-    public boolean isLocked() {
-		return isLocked;
-	}
-
-	public boolean isLockedForDeletion() {
-		return isLockedForDeletion;
 	}
 
 	public String toString() {

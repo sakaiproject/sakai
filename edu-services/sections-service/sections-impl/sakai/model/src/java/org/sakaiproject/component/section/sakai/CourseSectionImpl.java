@@ -86,7 +86,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 
     // To get the time zone from user. 
     private static final TimeService timeService = (TimeService)ComponentManager.get("org.sakaiproject.time.api.TimeService");
-    
+
     /**
      * Convenience constructor to create a CourseSection with a single meeting.
      * 
@@ -128,8 +128,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 		this.course = new CourseImpl(group.getContainingSite());
 		this.title = group.getTitle();
 		this.description = group.getDescription();
-		this.isLocked = group.isLocked(Group.LockMode.ALL);
-		this.isLockedForDeletion = group.isLocked(Group.LockMode.DELETE);
 
 		ResourceProperties props = group.getProperties();
 		this.category = props.getProperty(CourseSectionImpl.CATEGORY);
@@ -616,14 +614,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 
 	public void setMeetings(List<Meeting> meetings) {
 		this.meetings = meetings;
-	}
-
-	public boolean isLocked(){
-		return isLocked;
-	}
-
-	public boolean isLockedForDeletion(){
-		return isLockedForDeletion;
 	}
 
 	public Integer getMaxEnrollments() {

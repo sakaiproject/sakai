@@ -41,10 +41,13 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.GroupLock;
+import org.sakaiproject.site.api.GroupLockService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
@@ -84,6 +87,7 @@ public class BaseGroup implements Group, Identifiable
 	protected boolean m_azgChanged = false;
 
 	private BaseSiteService siteService;
+	private GroupLockService groupLockService;
 
 	/**
 	 * Construct. Auto-generate the id.
@@ -97,6 +101,8 @@ public class BaseGroup implements Group, Identifiable
 
 		if (site == null) log.warn("BaseGroup(site) created with null site");
 
+		setupServices();
+		
 		m_site = site;
 		m_id = siteService.idManager().createUuid();
 		m_properties = new BaseResourcePropertiesEdit();
@@ -107,6 +113,8 @@ public class BaseGroup implements Group, Identifiable
 		this.siteService = siteService;
 		if (site == null) log.warn("BaseGroup(..., site) created with null site");
 
+		setupServices();
+		
 		m_id = id;
 		m_title = title;
 		m_description = description;
@@ -143,8 +151,6 @@ public class BaseGroup implements Group, Identifiable
 		else
 		{
 			m_id = siteService.idManager().createUuid();
-			// since locks contain references we need to remove all locks if this is not an exact copy
-			Arrays.stream(LockMode.values()).map(this::getGroupLockProperty).filter(Objects::nonNull).forEach(properties::removeProperty);
 		}
 
 		properties.setLazy(bOtherProperties.isLazy());
@@ -419,7 +425,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void addMember(String userId, String roleId, boolean active, boolean provided)
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
+		if(groupLockService.isLocked(m_id, GroupLock.LockMode.MODIFY)) {
 			log.error("Error, cannot add {} with role {} into a locked group", userId, roleId);
 			return;
 		}
@@ -429,7 +435,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws IllegalStateException
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
+		if(groupLockService.isLocked(m_id, GroupLock.LockMode.MODIFY)) {
 			throw new IllegalStateException("Error, cannot add " + userId + " with role " + roleId + " into a locked group");
 		}
 		m_azgChanged = true;
@@ -575,7 +581,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMember(String userId)
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
+		if(groupLockService.isLocked(m_id, GroupLock.LockMode.MODIFY)) {
 			log.error("Error, can not remove a member from a locked group");
 			return;
 		}
@@ -585,7 +591,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void deleteMember(String userId) throws IllegalStateException
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
+		if(groupLockService.isLocked(m_id, GroupLock.LockMode.MODIFY)) {
 			throw new IllegalStateException("Error, can not remove a member from a locked group");
 		}
 		m_azgChanged = true;
@@ -594,7 +600,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMembers()
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
+		if(groupLockService.isLocked(m_id, GroupLock.LockMode.MODIFY)) {
 			log.error("Error, can not remove members from a locked group");
 			return;
 		}
@@ -604,7 +610,7 @@ public class BaseGroup implements Group, Identifiable
 
 	public void deleteMembers() throws IllegalStateException
 	{
-		if(this.isLocked(Group.LockMode.MODIFY)) {
+		if(groupLockService.isLocked(m_id, GroupLock.LockMode.MODIFY)) {
 			throw new IllegalStateException("Error, can not remove members from a locked group");
 		}
 		m_azgChanged = true;
@@ -642,87 +648,10 @@ public class BaseGroup implements Group, Identifiable
 		return changed;
 	}
 
-	public void lockGroup(String lock, LockMode lockMode) {
-		if(StringUtils.isBlank(lock)) {
-			log.warn("lockGroup: null or empty lock");
-			return;
-		}
-
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			log.warn("The groupLockMode is not supported, the group will not be locked.");
-			return;
-		}
-
-		String prop = m_properties.getProperty(groupLockProperty);
-		if(StringUtils.isNotBlank(prop)) {
-			prop += GROUP_PROP_SEPARATOR + lock;
-		} else {
-			prop = lock;
-		}
-		m_properties.addProperty(groupLockProperty, prop);
-	}
-
-	public void unlockGroup(String lock, LockMode lockMode) {
-		if(StringUtils.isBlank(lock)) {
-			log.warn("unlockGroup: null or empty lock");
-			return;
-		}
-
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			log.warn("The groupLockMode is not supported, the group will not be unlocked.");
-			return;
-		}
-
-		String prop = m_properties.getProperty(groupLockProperty);
-		if(StringUtils.isNotBlank(prop)) {
-			m_properties.addProperty(groupLockProperty, Arrays.stream(prop.split(GROUP_PROP_SEPARATOR)).filter(s -> !lock.equals(s)).collect(Collectors.joining(GROUP_PROP_SEPARATOR)));
+	private void setupServices(){
+		this.groupLockService = (GroupLockService) ComponentManager.get(GroupLockService.class);
+		if (this.groupLockService == null) {
+			throw new IllegalStateException("Cannot get the GroupLockService when constructing BaseGroup");
 		}
 	}
-
-	public boolean isLocked(String lock, LockMode lockMode) {
-		if(StringUtils.isEmpty(lock)){
-			return isLocked(lockMode);
-		}
-
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			return false;
-		}
-
-		String prop = m_properties.getProperty(groupLockProperty);
-		if (StringUtils.contains(prop, lock)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public boolean isLocked(LockMode lockMode) {
-		String groupLockProperty = getGroupLockProperty(lockMode);
-		if(StringUtils.isEmpty(groupLockProperty)){
-			return false;
-		}else{
-			return (StringUtils.isNotBlank(m_properties.getProperty(groupLockProperty)));
-		}
-	}
-
-	private String getGroupLockProperty(LockMode lockMode){
-		String groupLockProperty = null;
-		switch(lockMode){
-			case DELETE:
-				groupLockProperty = GROUP_PROP_LOCKED_FOR_DELETION_BY;
-				break;
-			case MODIFY:
-			case ALL:
-				groupLockProperty = GROUP_PROP_LOCKED_BY;
-				break;
-			case NONE:
-			default:
-				break;
-		}
-		return groupLockProperty;
-	}
-
 }
