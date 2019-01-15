@@ -39,6 +39,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 
+import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.PrePopulateBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
@@ -194,12 +195,14 @@ public class RWikiServlet extends HttpServlet
 		RequestScopeSuperBean rssb = RequestScopeSuperBean.createAndAttach(
 				request, wac);
 		
-		
-		
 
 		PrePopulateBean ppBean = rssb.getPrePopulateBean();
 
-		ppBean.doPrepopulate();
+		try {
+			ppBean.doPrepopulate();
+		} catch (PermissionException pe) {
+			log.debug("No permission to create subspace default pages");
+		}
 	}
 
 	public void addWikiStylesheet(HttpServletRequest request)
