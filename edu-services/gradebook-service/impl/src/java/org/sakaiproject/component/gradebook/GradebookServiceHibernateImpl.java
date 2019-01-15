@@ -17,6 +17,7 @@
 package org.sakaiproject.component.gradebook;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -3198,9 +3199,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 					// calculated grade
 					// may be null if no grade entries to calculate
-					final Double calculatedGrade = gr.getAutoCalculatedGrade();
+					Double calculatedGrade = gr.getAutoCalculatedGrade();
 					if (calculatedGrade != null) {
 						cg.setCalculatedGrade(calculatedGrade.toString());
+
+						// SAK-33997 Adjust the rounding of the calculated grade so we get the appropriate
+						// grade mapping
+						BigDecimal bd = new BigDecimal(calculatedGrade)
+								.setScale(10, RoundingMode.HALF_UP)
+								.setScale(2, RoundingMode.HALF_UP);
+						calculatedGrade = bd.doubleValue();
 					}
 
 					// mapped grade
