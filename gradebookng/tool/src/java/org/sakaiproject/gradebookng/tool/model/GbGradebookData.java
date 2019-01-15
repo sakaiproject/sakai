@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.wicket.Component;
 import org.apache.wicket.model.StringResourceModel;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -53,6 +55,9 @@ import lombok.Value;
 public class GbGradebookData {
 
 	private final int NULL_SENTINEL = 127;
+
+	private static final String SAK_PROP_SHOW_SET_ZERO_SCORE = "gradebookng.showSetZeroScore";
+	private static final boolean SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT = true;
 
 	@Data
 	private class StudentDefinition {
@@ -386,6 +391,7 @@ public class GbGradebookData {
 		result.put("showPoints", this.uiSettings.getShowPoints());
 		result.put("isUserAbleToEditAssessments", isUserAbleToEditAssessments());
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
+		result.put("isSetUngradedToZeroEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SET_ZERO_SCORE, SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT));
 
 		return result;
 	};

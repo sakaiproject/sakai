@@ -42,7 +42,9 @@
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                            <li><a href="javascript:void(0);" class="gb-set-zero-score" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+                            {if settings.isSetUngradedToZeroEnabled}
+                                <li><a href="javascript:void(0);" class="gb-set-zero-score" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+                            {/if}
                             {if !settings.isCategoryTypeWeighted}
                                 <li>
                                     <a href="javascript:void(0);" class="gb-toggle-points" role="menuitem">
