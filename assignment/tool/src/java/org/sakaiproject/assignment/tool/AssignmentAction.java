@@ -7100,7 +7100,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // check assignments from the site
                 for (Assignment a : assignments) {
                     String gradebookItem = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                    if(associateAssignment.equals(gradebookItem)){
+                    if (gradebookItem != null && StringUtils.equals(associateAssignment, gradebookItem)) {
                         associatedAssignmentTitles += a.getTitle();
                     }
                 }
