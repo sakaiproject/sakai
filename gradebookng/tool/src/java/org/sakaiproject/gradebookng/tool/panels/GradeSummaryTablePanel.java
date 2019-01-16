@@ -25,14 +25,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -82,6 +83,8 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
+		final ModalWindow statsWindow = new ModalWindow("statsWindow");
+		add(statsWindow);
 
 		if (getPage() instanceof GradebookPage) {
 			final GradebookPage page = (GradebookPage) getPage();
@@ -230,6 +233,27 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 						final BasePage page = (BasePage) getPage();
 
+						final GbAjaxLink gradeStatsLink = new GbAjaxLink(
+								"gradeStatsLink") {
+
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick(
+									final AjaxRequestTarget target) {
+
+								statsWindow.setContent(
+										new StudentAssignmentStatisticsPanel(
+												statsWindow.getContentId(),
+												Model.of(Long.valueOf(1)),
+												statsWindow));
+								statsWindow.show(target);
+
+							}
+						};
+
+						assignmentItem.add(gradeStatsLink);
+
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
@@ -280,7 +304,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 								}
 							});
 							gradeScore.add(new Label("outOf").setVisible(false));
-							Label rubricIcon = new Label("rubricIcon");
+							final Label rubricIcon = new Label("rubricIcon");
 							rubricIcon.setVisible(false);
 							gradeScore.add(rubricIcon);
 						} else {
@@ -294,7 +318,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 									final GbModalWindow window = GradeSummaryTablePanel.this.getRubricStudentWindow();
 
 									window.setTitle(new ResourceModel("rubrics.option.graderubric"));
-									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);									
+									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);
 									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
 										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_ASSIGNMENT);
 										final String[] bits = assignment.getExternalId().split("/");
@@ -332,7 +356,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation(tool, assignmentId);
 									if (rubricAssociation.isPresent()) {
 										if(showingStudentView || !GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
-											boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
+											final boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
 											rubricIcon.setVisible(!hidePreview);
 										} else {
 											rubricIcon.setVisible(true);
@@ -347,19 +371,19 @@ public class GradeSummaryTablePanel extends BasePanel {
 							gradeScore.add(rubricIcon);
 						}
 						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore()) {
-							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-dropped"));
+							gradeScore.add(AttributeModifier.append("class", "gb-summary-grade-score-dropped"));
 						}
 						if(gradeInfo != null && excused){
-							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-excused"));
+							gradeScore.add(AttributeModifier.append("class", "gb-summary-grade-score-excused"));
 						}
 						assignmentItem.add(gradeScore);
 
 						assignmentItem.add(new Label("comments", comment));
 
-						WebMarkupContainer catCon = new WebMarkupContainer("category");
-						catCon.setVisible(categoriesEnabled && !isGroupedByCategory);
+						final WebMarkupContainer catCon = new WebMarkupContainer("category");
+						catCon.setVisible(categoriesEnabled && !GradeSummaryTablePanel.this.isGroupedByCategory);
 						catCon.add(new Label("categoryName", assignment.getCategoryName()));
-						DropInfoPair pair = getDropInfo(assignment.getCategoryName(), categoriesMap);
+						final DropInfoPair pair = getDropInfo(assignment.getCategoryName(), categoriesMap);
 						catCon.add(new Label("categoryDropInfo", pair.first).setVisible(!pair.first.isEmpty()));
 						catCon.add(new Label("categoryDropInfo2", pair.second).setVisible(!pair.second.isEmpty()));
 						assignmentItem.add(catCon);
@@ -375,10 +399,10 @@ public class GradeSummaryTablePanel extends BasePanel {
 		public String second = "";
 	}
 
-	private DropInfoPair getDropInfo(String categoryName, Map<String, CategoryDefinition> categoriesMap) {
-		DropInfoPair pair = new DropInfoPair();
+	private DropInfoPair getDropInfo(final String categoryName, final Map<String, CategoryDefinition> categoriesMap) {
+		final DropInfoPair pair = new DropInfoPair();
 		if (categoryName != null && !categoryName.equals(getString(GradebookPage.UNCATEGORISED))) {
-			List<String> info = FormatHelper.formatCategoryDropInfo(categoriesMap.get(categoryName));
+			final List<String> info = FormatHelper.formatCategoryDropInfo(categoriesMap.get(categoryName));
 			if (info.size() > 0) {
 				pair.first = info.get(0);
 			}
