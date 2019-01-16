@@ -68,6 +68,8 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -100,9 +102,13 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	// Site property to enable or disable use of Turnitin for the site
 	private static final String TURNITIN_SITE_PROPERTY = "turnitin";
 
+	private static final String INST_ROLE = "section.role.instructor";
+
 	final static long LOCK_PERIOD = 12000000;
 
 	private boolean studentAccountNotified = true;
+
+	private Cache<String, Map<String, String>> instructorInfoCache;
 
 	private int sendSubmissionNotification = 0;
 
@@ -250,6 +256,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	@Setter
 	ContentReviewQueueService crqs;
 
+	@Setter
+	private MemoryService memoryService;
+
 	public void init() {
 
 		studentAccountNotified = turnitinConn.isStudentAccountNotified();
@@ -276,6 +285,8 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			if (serverConfigurationService.getBoolean("turnitin.updateAssingments", false))
 				doAssignments();
 		}
+
+		instructorInfoCache = memoryService.getCache("com.turnitin.TurnitinReviewServiceImpl.instructorInfoCache");
 	}
 
 	@Override
@@ -772,11 +783,11 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 */
 	public Map getAllEnrollmentInfo(String siteId) {
 		Map params = new HashMap();
-		Map<String, String> enrollmentInfo = new HashMap();
+		Map<String, String> enrollmentInfo = new HashMap<>();
 		String tiiExternalId = "";// the ID sakai stores
 		String tiiInternalId = "";// Turnitin internal ID
 		User user = null;
-		Map instructorInfo = getInstructorInfo(siteId, true);
+		Map<String, String> instructorInfo = getInstructorInfo(siteId, true);
 		try {
 			user = userDirectoryService.getUser(instructorInfo.get("uid").toString());
 		} catch (UserNotDefinedException e) {
@@ -2280,6 +2291,10 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		}
 	}
 
+	public Map<String, String> getInstructorInfo(final String siteId) {
+		return getInstructorInfo(siteId, true);
+	}
+
 	/**
 	 * This will return a map of the information for the instructor such as uem,
 	 * username, ufn, etc. If the system is configured to use src9 provisioning,
@@ -2289,38 +2304,39 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 *
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId) {
+	public Map<String, String> getInstructorInfo(final String siteId, final boolean ignoreUseSource) {
+		log.debug("Getting instructor info for site {}", siteId);
 
-		log.debug("Getting instructor info for site " + siteId);
+		Map<String, String> togo = new HashMap<>();
 
-		Map togo = new HashMap();
-		if (!turnitinConn.isUseSourceParameter()) {
+		// Check cache to avoid hitting database
+		if (instructorInfoCache.containsKey(siteId)) {
+			return instructorInfoCache.get(siteId);
+		}
+
+		if (!turnitinConn.isUseSourceParameter() && !ignoreUseSource) {
 			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
 			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
 			togo.put("uln", turnitinConn.getDefaultInstructorLName());
 			togo.put("uid", turnitinConn.getDefaultInstructorId());
 		} else {
-			String INST_ROLE = "section.role.instructor";
 			User inst = null;
 			try {
 				Site site = siteService.getSite(siteId);
 				User user = userDirectoryService.getCurrentUser();
 
-				log.debug("Current user: " + user.getId());
+				log.debug("Current user: {}", user.getId());
 
 				if (site.isAllowed(user.getId(), INST_ROLE)) {
 					inst = user;
 				} else {
-					Set<String> instIds = getActiveInstructorIds(INST_ROLE, site);
-					if (instIds.size() > 0) {
-						inst = userDirectoryService.getUser((String) instIds.toArray()[0]);
+					Set<User> insts = getActiveInstructorIds(INST_ROLE, site);
+					if (!insts.isEmpty()) {
+						inst = insts.stream().findFirst().get();
 					}
 				}
 			} catch (IdUnusedException e) {
 				log.error("Unable to fetch site in getAbsoluteInstructorInfo: " + siteId, e);
-			} catch (UserNotDefinedException e) {
-				log.error("Unable to fetch user in getAbsoluteInstructorInfo", e);
 			}
 
 			if (inst == null) {
@@ -2334,68 +2350,26 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			}
 		}
 
+		instructorInfoCache.put(siteId,  togo);
 		return togo;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId, boolean ignoreUseSource) {
-		Map togo = new HashMap();
-		if (!turnitinConn.isUseSourceParameter() && ignoreUseSource == false) {
-			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
-			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
-			togo.put("uln", turnitinConn.getDefaultInstructorLName());
-			togo.put("uid", turnitinConn.getDefaultInstructorId());
-		} else {
-			String INST_ROLE = "section.role.instructor";
-			User inst = null;
-			try {
-				Site site = siteService.getSite(siteId);
-				User user = userDirectoryService.getCurrentUser();
-				if (site.isAllowed(user.getId(), INST_ROLE)) {
-					inst = user;
-				} else {
-					Set<String> instIds = getActiveInstructorIds(INST_ROLE, site);
-					if (instIds.size() > 0) {
-						inst = userDirectoryService.getUser((String) instIds.toArray()[0]);
-					}
-				}
-			} catch (IdUnusedException e) {
-				log.error("Unable to fetch site in getAbsoluteInstructorInfo: " + siteId, e);
-			} catch (UserNotDefinedException e) {
-				log.error("Unable to fetch user in getAbsoluteInstructorInfo", e);
-			}
+	private Set<User> getActiveInstructorIds(String instRole, Site site) {
 
-			if (inst == null) {
-				log.error("Instructor is null in getAbsoluteInstructorInfo");
-			} else {
-				togo.put("uem", getEmail(inst));
-				togo.put("ufn", inst.getFirstName());
-				togo.put("uln", inst.getLastName());
-				togo.put("uid", inst.getId());
-				togo.put("username", inst.getDisplayName());
-			}
-		}
+		log.debug("Getting active instructor IDs for permission {} in site {}", instRole, site.getId());
 
-		return togo;
-	}
-
-	private Set<String> getActiveInstructorIds(String INST_ROLE, Site site) {
-
-		log.debug("Getting active instructor IDs for permission " + INST_ROLE + " in site " + site.getId());
-
-		Set<String> instIds = site.getUsersIsAllowed(INST_ROLE);
+		Set<String> instIds = site.getUsersIsAllowed(instRole);
 
 		// the site could contain references to deleted users
 		List<User> activeUsers = userDirectoryService.getUsers(instIds);
-		Set<String> ret = new HashSet<String>();
-		for (int i = 0; i < activeUsers.size(); i++) {
-			User user = activeUsers.get(i);
+		Set<User> ret = new HashSet<>();
+		for (User user : activeUsers) {
 			// Ignore users who do not have a first and/or last name set or do
 			// not have
 			// a valid email address, as this will cause a TII API call to fail
 			if (user.getFirstName() != null && !user.getFirstName().trim().isEmpty() && user.getLastName() != null
 					&& !user.getLastName().trim().isEmpty() && getEmail(user) != null) {
-				ret.add(user.getId());
+				ret.add(user);
 			}
 		}
 
