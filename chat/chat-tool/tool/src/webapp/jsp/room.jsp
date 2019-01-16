@@ -42,7 +42,7 @@
                         </h:panelGroup>
                         <h:panelGroup styleClass="submit-grp">
                             <h:outputText value=" " />
-                            <h:commandButton type="button" id="submit" value="#{msgs['control.submit']}" styleClass="active" />
+                            <h:commandButton type="submit" id="submit" value="#{msgs['control.submit']}" styleClass="active" />
                         </h:panelGroup>
                     </h:panelGroup>
                 </div>
