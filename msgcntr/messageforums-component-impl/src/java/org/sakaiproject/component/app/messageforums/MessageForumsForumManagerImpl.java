@@ -35,6 +35,7 @@ import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
 import org.hibernate.collection.internal.PersistentSet;
+import org.sakaiproject.hibernate.HibernateUtils;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
