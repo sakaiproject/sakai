@@ -2335,7 +2335,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 
-		if (score == null) {
+		if (score == null && !isAssignmentDefined(gradebookUid, assignmentName)) {
 			// Try to get the assignment by id
 			if (NumberUtils.isCreatable(assignmentName)) {
 				final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
