@@ -173,10 +173,21 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		};
 		addOrReplace(noAssignments);
 
+		// course grade panel
+		final WebMarkupContainer courseGradePanel = new WebMarkupContainer("course-grade-panel") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return businessService.isDisplayCourseGradeToStudenEnabled();
+			}
+		};
+		addOrReplace(courseGradePanel);
+
 		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
