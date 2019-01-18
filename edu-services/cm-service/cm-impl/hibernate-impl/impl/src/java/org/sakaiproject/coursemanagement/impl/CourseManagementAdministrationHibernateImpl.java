@@ -415,7 +415,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public boolean removeCourseSetMembership(String userId, String courseSetEid) {
-		StringUtils.lowerCase(userId);
+		userId = StringUtils.lowerCase(userId);
 		MembershipCmImpl member = getMembership(userId, (CourseSetCmImpl)getObjectByEid(courseSetEid, CourseSetCmImpl.class.getName()));
 		if(member == null) {
 			return false;
