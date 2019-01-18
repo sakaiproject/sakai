@@ -106,8 +106,6 @@ public class SakaiIFrame extends GenericPortlet {
 	protected final String POPUP = "popup";
 	protected final String MAXIMIZE = "sakai:maximize";
 
-	protected final static String TITLE = "title";
-
 	private static final String FORM_PAGE_TITLE = "title-of-page";
 
 	private static final String FORM_TOOL_TITLE = "title-of-tool";
@@ -409,29 +407,38 @@ public class SakaiIFrame extends GenericPortlet {
 		}
 
 	public void processActionEdit(ActionRequest request, ActionResponse response)
-		throws PortletException, IOException 
-		{
+		throws PortletException, IOException {
+
 			// TODO: Check Role
 
 			// Stay in EDIT mode unless we are successful
 			response.setPortletMode(PortletMode.EDIT);
 
-			Placement placement = ToolManager.getCurrentPlacement();
-			// get the site toolConfiguration, if this is part of a site.
-			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
 			String id = request.getParameter(LTIService.LTI_ID);
 			String toolId = request.getParameter(LTIService.LTI_TOOL_ID);
 			Properties reqProps = new Properties();
 			Enumeration names = request.getParameterNames();
-			while (names.hasMoreElements())
-			{
+			while (names.hasMoreElements()) {
 				String name = (String) names.nextElement();
 				reqProps.setProperty(name, request.getParameter(name));
 			}
-			Object retval = m_ltiService.updateContent(Long.parseLong(id), reqProps, placement.getContext());
-			String fa_icon = (String)request.getParameter(LTIService.LTI_FA_ICON);
+			Placement placement = ToolManager.getCurrentPlacement();
+			m_ltiService.updateContent(Long.parseLong(id), reqProps, placement.getContext());
+			String fa_icon = (String) request.getParameter(LTIService.LTI_FA_ICON);
 			if ( fa_icon != null && fa_icon.length() > 0 ) {
 				placement.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
+			}
+
+			// get the site toolConfiguration, if this is part of a site.
+			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
+
+			// Set the title for the page
+			toolConfig.getContainingPage().setTitle(reqProps.getProperty("title"));
+
+			try {
+				SiteService.save(SiteService.getSite(toolConfig.getSiteId()));
+			} catch(Exception e) {
+				log.error("Failed to save site", e);
 			}
 
 			placement.save();
