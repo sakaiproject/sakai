@@ -11767,6 +11767,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.removeAttribute(RUBRIC_STATE_DETAILS);
 
+        state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
     } // resetNewAssignment
 
     /**
