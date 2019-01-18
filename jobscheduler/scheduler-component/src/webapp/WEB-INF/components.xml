@@ -214,7 +214,7 @@
                    <property name="defaultValue" value="org.sakaiproject.component.app.scheduler.jobs.logmessage.LogMessageJob"/>
                </bean>
                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
-                   <property name="required" value="true"/>
+                   <property name="required" value="false"/>
                    <property name="labelResourceKey" value="stacktrace"/>
                    <property name="descriptionResourceKey" value="stacktrace.description"/>
                    <property name="defaultValue" value="false"/>
