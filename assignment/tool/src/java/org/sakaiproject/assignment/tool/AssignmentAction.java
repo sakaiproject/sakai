@@ -7102,12 +7102,15 @@ public class AssignmentAction extends PagedResourceActionII {
                 String associatedAssignmentTitles = "";
                 // check assignments from the site
                 for (Assignment a : assignments) {
+                    if (assignmentId.equals(a.getId())) {
+                        continue;
+                    }
                     String gradebookItem = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                     if (gradebookItem != null && StringUtils.equals(associateAssignment, gradebookItem)) {
                         associatedAssignmentTitles += a.getTitle();
                     }
                 }
-                if (StringUtils.isNotBlank(associatedAssignmentTitles) && !title.equals(associatedAssignmentTitles) && state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) == null) {
+                if (StringUtils.isNotBlank(associatedAssignmentTitles) && state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) == null) {
                     state.setAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED, Boolean.TRUE);
                 } else {
                     // clean the attribute after user confirm
