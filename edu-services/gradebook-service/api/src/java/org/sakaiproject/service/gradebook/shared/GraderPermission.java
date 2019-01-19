@@ -25,7 +25,8 @@ public enum GraderPermission {
 
 	VIEW,
 	GRADE,
-	VIEW_COURSE_GRADE;
+	VIEW_COURSE_GRADE,
+	NONE;
 	
 	/**
 	 * Return a lowercase version of the enum

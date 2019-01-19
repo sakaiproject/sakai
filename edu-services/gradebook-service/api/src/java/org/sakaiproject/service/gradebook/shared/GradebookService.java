@@ -67,6 +67,8 @@ public interface GradebookService {
 	public static final String gradePermission = GraderPermission.GRADE.toString();
 	@Deprecated
 	public static final String viewPermission = GraderPermission.VIEW.toString();
+	@Deprecated
+	public static final String noPermission = GraderPermission.NONE.toString();
 
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 
