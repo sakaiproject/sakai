@@ -206,10 +206,9 @@ public class PermissionsPage extends BasePage {
 				}
 			}
 
-			// if we have no permissions, set the viewCourseGrade to true for a new permission set
-			// its only saved if we have permissions defined though
-			if (permissions.isEmpty()) {
-				pageModel.setViewCourseGrade(true);
+			// Clear all permissions if the only one on the stack is "none"
+			if (permissions.size() == 1 && StringUtils.equals(permissions.get(0).getFunction(), GraderPermission.NONE.toString())) {
+				permissions.clear();
 			}
 
 			pageModel.setPermissions(permissions);
@@ -281,9 +280,7 @@ public class PermissionsPage extends BasePage {
 					getSession().success(getString("permissionspage.update.dupes"));
 				}
 
-				final PageParameters pageParameters = new PageParameters();
-				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
-				setResponsePage(PermissionsPage.class, pageParameters);
+				refreshPage(PermissionsPage.this.taSelected.getUserUuid());
 			}
 
 			@Override
@@ -299,9 +296,7 @@ public class PermissionsPage extends BasePage {
 
 			@Override
 			public void onSubmit() {
-				final PageParameters pageParameters = new PageParameters();
-				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
-				setResponsePage(PermissionsPage.class, pageParameters);
+				refreshPage(PermissionsPage.this.taSelected.getUserUuid());
 			}
 
 			@Override
@@ -311,6 +306,29 @@ public class PermissionsPage extends BasePage {
 		};
 		clear.setDefaultFormProcessing(false);
 		form.add(clear);
+
+		// reset to defaults button
+		final Button defaults = new Button("defaults") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				String userUUID = PermissionsPage.this.taSelected.getUserUuid();
+				businessService.clearPermissionsForUser(userUUID);
+
+				getSession().success(getString("permissionspage.update.success"));
+
+				// refresh page
+				refreshPage(userUUID);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return (PermissionsPage.this.taSelected != null);
+			}
+		};
+		defaults.setDefaultFormProcessing(false);
+		form.add(defaults);
 
 		// coursegrade checkbox
 		form.add(new CheckBox("viewCourseGrade", new PropertyModel<Boolean>(pageModel, "viewCourseGrade")) {
@@ -462,6 +480,16 @@ public class PermissionsPage extends BasePage {
 		add(form);
 		// save changes
 
+	}
+
+	/**
+	 * Adds the selected user to the page params and refreshes the page.
+	 * @param userUUID the UUID of the currently selected TA
+	 */
+	private void refreshPage(String userUUID) {
+		final PageParameters pageParameters = new PageParameters();
+		pageParameters.add("selected", userUUID);
+		setResponsePage(PermissionsPage.class, pageParameters);
 	}
 
 	/**
