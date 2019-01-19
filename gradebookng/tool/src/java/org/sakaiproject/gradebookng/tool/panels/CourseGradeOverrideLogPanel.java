@@ -121,7 +121,7 @@ public class CourseGradeOverrideLogPanel extends BasePanel {
 		final String grade = gradeLog.getGrade();
 
 		final GbUser grader = CourseGradeOverrideLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());
-		final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
+		final String graderDisplayId = (grader != null) ? grader.getDisplayName() + " (" +  grader.getDisplayId() + ")" : getString("unknown.user.id");
 
 		String rval;
 
