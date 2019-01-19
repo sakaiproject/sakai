@@ -337,8 +337,6 @@
 	#end
 
     #set ($du = $endTime.getTime().intValue() - $startTime.getTime().intValue())
-    ## The Real non-fudged endtime
-    #set ($dureal = $endTime.getTime().intValue() - $startTime.getTime().intValue())
     #set($dhour = $helper.getduration($du.longValue(),3600000))
     #set($dminute = $helper.getFractionIn($du.longValue(),$dhour))
 
@@ -372,7 +370,7 @@
     	#set ($rowspan = $rowspan + 1)
     #end
     ## This endtime may have been fudged, if so it will need an extra row as it's being returned from getNewEvents
-    #if ($endTime != $endTimeActual)
+    #if ($endTime == $endTimeActual)
     	#set ($rowspan = $rowspan + 1)
     #end
     
