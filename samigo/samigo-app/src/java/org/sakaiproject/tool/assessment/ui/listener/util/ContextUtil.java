@@ -283,14 +283,12 @@ public static ArrayList paramArrayValueLike(String paramPart)
   * @param key The key to look up the localized string
   */
   public static String getLocalizedString(String bundleName, String key) {
-	  //Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
 	  ResourceLoader rb = new ResourceLoader(bundleName);
     return rb.getString(key);
   }
 
   public static String getLocalizedString(HttpServletRequest request,
                                           String bundleName, String key) {
-	  //Locale locale = request.getLocale();
 	  ResourceLoader rb = new ResourceLoader(bundleName);
     return rb.getString(key);
   }
@@ -332,11 +330,13 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
 
   public static String getRoundedValue(String orig, int maxdigit) {
-    Double origdouble = new Double(orig); 
+    Double origdouble = new Double(orig);
     return getRoundedValue(origdouble, maxdigit);
   }
   public static String getRoundedValue(Double orig, int maxdigit) {
-      NumberFormat nf = NumberFormat.getInstance();
+      Locale loc = new ResourceLoader().getLocale();
+      NumberFormat nf = NumberFormat.getInstance(loc);
+      nf.setGroupingUsed(false);
       nf.setMaximumFractionDigits(maxdigit);
       String newscore = nf.format(orig);
       return newscore;

@@ -28,6 +28,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 /**
@@ -48,9 +49,10 @@ public class GradebookIfc {
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
 	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
-	} catch (org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException e) {
-	    // already exists. Say it worked
-	    return true;
+	} catch (ConflictingAssignmentNameException cane) {
+	    // already exists
+	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
+	    throw cane;
 	} catch (Exception e) {
 	    log.info("failed add " + e);
 	    return false;
@@ -67,7 +69,6 @@ public class GradebookIfc {
 	}
 	return true;
     }
-
 
 
     public boolean removeExternalAssessment(final String gradebookUid, final String externalId) {

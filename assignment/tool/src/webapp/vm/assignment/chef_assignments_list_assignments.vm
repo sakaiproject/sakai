@@ -514,8 +514,8 @@
 									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($assignment.Title)</strong>
 									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
-								#if ($!groups && $!allowGradeSubmission)
-									<!-- groups col -->
+								#if ($!allowGradeSubmission)
+									<!-- scope col -->
 									<td></td>
 								#end
 								<!-- status col -->
@@ -617,8 +617,8 @@
 												#end
 											</span>
 										</td>
-										#if ($!groups && $!allowGradeSubmission)
-											<!-- groups col -->
+										#if ($!allowGradeSubmission)
+											<!-- scope col -->
 											<td></td>
 										#end
 										<!-- status col -->

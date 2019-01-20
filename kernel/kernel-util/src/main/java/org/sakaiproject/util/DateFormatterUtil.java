@@ -76,7 +76,7 @@ public final class DateFormatterUtil {
 			LocalDateTime ldt = LocalDateTime.parse(inputDate, isoFormatter);
 			convertedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 		} catch (Exception  e) {
-			log.error(e.getMessage(), e);
+			log.warn("Error parsing the date {} using the ISO_ZONED_DATE_TIME format", inputDate);
 		}
 
 		return convertedDate;
