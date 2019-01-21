@@ -306,15 +306,15 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public Enrollment addOrUpdateEnrollment(String userId, String enrollmentSetEid, String enrollmentStatus, String credits, String gradingScheme, Date dropDate) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		EnrollmentCmImpl enrollment = null;
 		
 		List enrollments = getHibernateTemplate().findByNamedQueryAndNamedParam("findEnrollment",
 				new String[] {"enrollmentSetEid", "userId"},
-				new Object[] {enrollmentSetEid, userId});
+				new Object[] {enrollmentSetEid, lcUserId});
 		if(enrollments.isEmpty()) {
 			EnrollmentSet enrollmentSet = (EnrollmentSet)getObjectByEid(enrollmentSetEid, EnrollmentSetCmImpl.class.getName());
-			enrollment = new EnrollmentCmImpl(userId, enrollmentSet, enrollmentStatus, credits, gradingScheme, dropDate);
+			enrollment = new EnrollmentCmImpl(lcUserId, enrollmentSet, enrollmentStatus, credits, gradingScheme, dropDate);
 			enrollment.setCreatedBy(authn.getUserEid());
 			enrollment.setCreatedDate(new Date());
 			getHibernateTemplate().save(enrollment);
@@ -334,10 +334,10 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public boolean removeEnrollment(String userId, String enrollmentSetEid) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		List enrollments = getHibernateTemplate().findByNamedQueryAndNamedParam("findEnrollment",
 				new String[] {"enrollmentSetEid", "userId"},
-				new Object[] {enrollmentSetEid, userId});
+				new Object[] {enrollmentSetEid, lcUserId});
 		
 		if(enrollments.isEmpty()) {
 			return false;
@@ -393,13 +393,13 @@ public class CourseManagementAdministrationHibernateImpl extends
 		getHibernateTemplate().update(sec);
 	}
 	
-    public Membership addOrUpdateCourseSetMembership(String userId, String role, final String courseSetEid, final String status) throws IdNotFoundException {
-		userId = StringUtils.lowerCase(userId);
+    public Membership addOrUpdateCourseSetMembership(final String userId, String role, final String courseSetEid, final String status) throws IdNotFoundException {
+		String lcUserId = StringUtils.lowerCase(userId);
 		CourseSetCmImpl cs = (CourseSetCmImpl)getObjectByEid(courseSetEid, CourseSetCmImpl.class.getName());
-		MembershipCmImpl member =getMembership(userId, cs);
+		MembershipCmImpl member =getMembership(lcUserId, cs);
 		if(member == null) {
 			// Add the new member
-		    member = new MembershipCmImpl(userId, role, cs, status);
+		    member = new MembershipCmImpl(lcUserId, role, cs, status);
 		    member.setCreatedBy(authn.getUserEid());
 		    member.setCreatedDate(new Date());
 			getHibernateTemplate().save(member);
@@ -415,8 +415,8 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public boolean removeCourseSetMembership(String userId, String courseSetEid) {
-		userId = StringUtils.lowerCase(userId);
-		MembershipCmImpl member = getMembership(userId, (CourseSetCmImpl)getObjectByEid(courseSetEid, CourseSetCmImpl.class.getName()));
+		String lcUserId = StringUtils.lowerCase(userId);
+		MembershipCmImpl member = getMembership(lcUserId, (CourseSetCmImpl)getObjectByEid(courseSetEid, CourseSetCmImpl.class.getName()));
 		if(member == null) {
 			return false;
 		} else {
@@ -426,12 +426,12 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
     public Membership addOrUpdateCourseOfferingMembership(String userId, String role, String courseOfferingEid, String status) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		CourseOfferingCmImpl co = (CourseOfferingCmImpl)getObjectByEid(courseOfferingEid, CourseOfferingCmImpl.class.getName());
-		MembershipCmImpl member =getMembership(userId, co);
+		MembershipCmImpl member =getMembership(lcUserId, co);
 		if(member == null) {
 			// Add the new member
-		    member = new MembershipCmImpl(userId, role, co, status);
+		    member = new MembershipCmImpl(lcUserId, role, co, status);
 		    member.setCreatedBy(authn.getUserEid());
 		    member.setCreatedDate(new Date());
 			getHibernateTemplate().save(member);
@@ -447,9 +447,9 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public boolean removeCourseOfferingMembership(String userId, String courseOfferingEid) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		CourseOfferingCmImpl courseOffering = (CourseOfferingCmImpl)getObjectByEid(courseOfferingEid, CourseOfferingCmImpl.class.getName());
-		MembershipCmImpl member = getMembership(userId, courseOffering);
+		MembershipCmImpl member = getMembership(lcUserId, courseOffering);
 		if(member == null) {
 			return false;
 		} else {
@@ -459,18 +459,18 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 	
 	public Membership addOrUpdateSectionMembership(String userId, String role, String sectionEid, String status) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		Section section = (Section)getObjectByEid(sectionEid, SectionCmImpl.class.getName());
-		return addOrUpdateSectionMembership(userId, role, section, status);
+		return addOrUpdateSectionMembership(lcUserId, role, section, status);
 	}
 
 	public Membership addOrUpdateSectionMembership(String userId, String role, Section section, String status) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		SectionCmImpl sec = (SectionCmImpl) section;
-		MembershipCmImpl member =getMembership(userId, sec);
+		MembershipCmImpl member =getMembership(lcUserId, sec);
 		if(member == null) {
 			// Add the new member
-		    member = new MembershipCmImpl(userId, role, sec, status);
+		    member = new MembershipCmImpl(lcUserId, role, sec, status);
 		    member.setCreatedBy(authn.getUserEid());
 		    member.setCreatedDate(new Date());
 			getHibernateTemplate().save(member);
@@ -486,9 +486,9 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public boolean removeSectionMembership(String userId, String sectionEid) {
-		userId = StringUtils.lowerCase(userId);
+		String lcUserId = StringUtils.lowerCase(userId);
 		SectionCmImpl sec = (SectionCmImpl)getObjectByEid(sectionEid, SectionCmImpl.class.getName());
-		MembershipCmImpl member = getMembership(userId, sec);
+		MembershipCmImpl member = getMembership(lcUserId, sec);
 		if(member == null) {
 			return false;
 		} else {
@@ -497,8 +497,8 @@ public class CourseManagementAdministrationHibernateImpl extends
 		}
 	}
 	
-	private MembershipCmImpl getMembership(String userId, final AbstractMembershipContainerCmImpl container) {
-		final String lcaseUserId = StringUtils.lowerCase(userId);
+	private MembershipCmImpl getMembership(final String userId, final AbstractMembershipContainerCmImpl container) {
+		final String lcUserId = StringUtils.lowerCase(userId);
 		// This may be a dynamic proxy.  In that case, make sure we're using the class
 		// that hibernate understands.
 		final String className = Hibernate.getClass(container).getName();
@@ -513,7 +513,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 			public Object doInHibernate(Session session) throws HibernateException {
 				Query q = session.createQuery(sb.toString());
 				q.setParameter("eid", container.getEid());
-				q.setParameter("userId", lcaseUserId);
+				q.setParameter("userId", lcUserId);
 				return q.uniqueResult();
 			}
 		};
