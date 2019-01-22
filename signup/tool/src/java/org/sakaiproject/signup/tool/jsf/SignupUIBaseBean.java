@@ -971,6 +971,10 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	public void setIframeId(String iframeId) {
 		this.iframeId = iframeId;
 	}
+	
+	public void setIframeId(String iframeId) {
+
+	}
 
 	public String getCustomLocation() {
 		return customLocation;
