@@ -16,11 +16,16 @@
 package org.sakaiproject.gradebookng.tool.component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.wicket.Component;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.head.CssHeaderItem;
@@ -28,23 +33,19 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
-
 import org.apache.wicket.model.IModel;
-import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.Map;
-import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.tool.actions.Action;
-import java.util.HashMap;
 import org.sakaiproject.gradebookng.tool.actions.ActionResponse;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
+import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
 
 public class GbGradeTable extends Panel implements IHeaderContributor {
+
+	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	protected ServerConfigurationService serverConfigService;
 
 	private Component component;
 
@@ -106,7 +107,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 	public void renderHead(final IHeaderResponse response) {
 		final GbGradeTableData gbGradeTableData = (GbGradeTableData) getDefaultModelObject();
 
-		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+		final String version = serverConfigService.getString("portal.cdn.version", "");
 
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js?version=%s", version)));

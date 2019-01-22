@@ -42,6 +42,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
@@ -118,6 +119,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private ServerConfigurationService serverConfigService;
 
 	@Setter
 	private ToolManager toolManager;

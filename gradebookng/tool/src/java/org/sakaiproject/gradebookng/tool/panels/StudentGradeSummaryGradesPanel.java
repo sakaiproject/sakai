@@ -173,10 +173,21 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		};
 		addOrReplace(noAssignments);
 
+		// course grade panel
+		final WebMarkupContainer courseGradePanel = new WebMarkupContainer("course-grade-panel") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+			}
+		};
+		addOrReplace(courseGradePanel);
+
 		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
