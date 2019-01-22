@@ -452,6 +452,7 @@ div.wicket-modal div.w_right > div {
   content: '\f080';
   text-decoration: none;
   float: right;
+  font-weight: normal;
 }
 
 .gb-summary-grade-panel .gb-summary-category-toggle:before {

@@ -56,7 +56,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 	private boolean isGroupedByCategory;
 	private boolean assignmentStatsEnabled;
-	private boolean courseGradeStatsEnabled;
 
 	public GradeSummaryTablePanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -71,7 +70,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 		// settings for stats display
 		final GradebookInformation settings = getSettings();
 		this.assignmentStatsEnabled = settings.isAssignmentStatsDisplayed();
-		this.courseGradeStatsEnabled = settings.isCourseGradeStatsDisplayed();
 
 	}
 
@@ -93,8 +91,9 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
-		final ModalWindow statsWindow = new ModalWindow("statsWindow");
-		add(statsWindow);
+		final ModalWindow assignmentStatsWindow = new ModalWindow(
+				"assignmentStatsWindow");
+		add(assignmentStatsWindow);
 
 		if (getPage() instanceof GradebookPage) {
 			final GradebookPage page = (GradebookPage) getPage();
@@ -253,12 +252,13 @@ public class GradeSummaryTablePanel extends BasePanel {
 							public void onClick(
 									final AjaxRequestTarget target) {
 
-								statsWindow.setContent(
+								assignmentStatsWindow.setContent(
 										new StudentAssignmentStatisticsPanel(
-												statsWindow.getContentId(),
+												assignmentStatsWindow
+														.getContentId(),
 												Model.of(assignment),
-												statsWindow));
-								statsWindow.show(target);
+												assignmentStatsWindow));
+								assignmentStatsWindow.show(target);
 
 							}
 

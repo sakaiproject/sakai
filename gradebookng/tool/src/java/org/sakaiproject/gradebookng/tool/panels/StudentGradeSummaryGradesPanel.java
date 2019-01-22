@@ -24,19 +24,24 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -55,6 +60,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	boolean isGroupedByCategory = false;
 	boolean categoriesEnabled = false;
 	boolean isAssignmentsDisplayed = false;
+	private boolean courseGradeStatsEnabled;
 
 	public StudentGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -73,6 +79,9 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
+
+		final GradebookInformation settings = getSettings();
+		this.courseGradeStatsEnabled = settings.isCourseGradeStatsDisplayed();
 
 		setOutputMarkupId(true);
 	}
@@ -102,6 +111,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 		final Map<Long, Double> categoryAverages = new HashMap<>();
 		Map<String, CategoryDefinition> categoriesMap = Collections.emptyMap();
+		final ModalWindow statsWindow = new ModalWindow("statsWindow");
+		add(statsWindow);
 
 		// if gradebook release setting disabled, no work to do
 		if (this.isAssignmentsDisplayed) {
@@ -177,6 +188,32 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
 		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+
+		final GbAjaxLink courseGradeStatsLink = new GbAjaxLink(
+				"courseGradeStatsLink") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+
+				statsWindow.setContent(new CourseGradeStatisticsPanel(
+						statsWindow.getContentId(),
+						Model.of(StudentGradeSummaryGradesPanel.this
+								.getCurrentSiteId()),
+						statsWindow));
+				statsWindow.show(target);
+
+			}
+
+			@Override
+			public boolean isVisible() {
+				return StudentGradeSummaryGradesPanel.this.courseGradeStatsEnabled
+						&& courseGrade != null;
+			}
+		};
+
+		add(courseGradeStatsLink);
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
