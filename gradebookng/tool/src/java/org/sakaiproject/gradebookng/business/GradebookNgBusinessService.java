@@ -2337,7 +2337,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the settings for this gradebook. Note that this CANNOT be called by a student nor by an entityprovider
+	 * Get the settings for this gradebook. Note that this CANNOT be called by an
+	 * entityprovider
 	 *
 	 * @return
 	 */
@@ -2346,22 +2347,27 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the settings for this gradebook. Note that this CANNOT be called by a student. Safe to use from an entityprovider.
-	 * 
+	 * Get the settings for this gradebook. Safe to use from an entityprovider.
+	 *
 	 * @return
 	 */
 	public GradebookInformation getGradebookSettings(final String siteId) {
 		final Gradebook gradebook = getGradebook(siteId);
 
-		final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
-
-		Collections.sort(settings.getCategories(), CategoryDefinition.orderComparator);
-
-		return settings;
+		SecurityAdvisor advisor = null;
+		try {
+			advisor = addSecurityAdvisor();
+			final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+			Collections.sort(settings.getCategories(), CategoryDefinition.orderComparator);
+			return settings;
+		} finally {
+			removeSecurityAdvisor(advisor);
+		}
 	}
 
 	/**
-	 * Update the settings for this gradebook
+	 * Update the settings for this gradebook. Note that this CANNOT be called by a
+	 * student.
 	 *
 	 * @param settings GradebookInformation settings
 	 */
@@ -2783,11 +2789,11 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Set advisor as allowed.
+	 * Add advisor as allowed.
 	 *
 	 * @return
 	 */
-	public SecurityAdvisor setSecurityAdvisor() {
+	public SecurityAdvisor addSecurityAdvisor() {
 		final SecurityAdvisor advisor = (final String userId, final String function, final String reference) -> SecurityAdvice.ALLOWED;
 		this.securityService.pushAdvisor(advisor);
 		return advisor;
@@ -2798,7 +2804,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param advisor
 	 */
-	public void unsetSecurityAdvisor(final SecurityAdvisor advisor) {
+	public void removeSecurityAdvisor(final SecurityAdvisor advisor) {
 		this.securityService.popAdvisor(advisor);
 	}
 }

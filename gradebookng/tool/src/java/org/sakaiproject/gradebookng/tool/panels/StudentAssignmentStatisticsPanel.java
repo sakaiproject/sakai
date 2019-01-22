@@ -15,15 +15,12 @@
  */
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.tool.chart.AssignmentGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -33,7 +30,7 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 
 	private final ModalWindow window;
 
-	public StudentAssignmentStatisticsPanel(final String id, final IModel<Long> model, final ModalWindow window) {
+	public StudentAssignmentStatisticsPanel(final String id, final IModel<Assignment> model, final ModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}
@@ -42,8 +39,7 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		// final Long assignmentId = ((Model<Long>)
-		// getDefaultModel()).getObject();
+		final Assignment assignment = ((Model<Assignment>) getDefaultModel()).getObject();
 
 		// Add this back in when the wrapper is written
 		// final Assignment assignment =
@@ -51,11 +47,10 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 
 		StudentAssignmentStatisticsPanel.this.window.setTitle(
 				new StringResourceModel("label.statistics.title.assignment",
-						getDefaultModel(), null, "Testing 123").getString());
+						getDefaultModel(), null, assignment.getName()).getString());
 
-		// final AssignmentGradeChart chart = new
-		// AssignmentGradeChart("gradingSchemaChart", assignmentId);
-		// add(chart);
+		final AssignmentGradeChart chart = new AssignmentGradeChart("chart", assignment.getId());
+		add(chart);
 
 		// final AssignmentStatistics stats = new AssignmentStatistics("stats",
 		// getData(assignment));
@@ -72,17 +67,6 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 
 	}
 
-	/**
-	 * Get the grade data for the assignment and wrap it
-	 *
-	 * @param assignment assignment to get data for
-	 * @return
-	 */
-	private IModel<Map<String, Object>> getData(final Assignment assignment) {
-		final Map<String, Object> data = new HashMap<>();
-		data.put("gradeInfo", this.businessService.buildGradeMatrix(Arrays.asList(assignment)));
-		data.put("assignmentId", assignment.getId());
-		return Model.ofMap(data);
-	}
+
 
 }

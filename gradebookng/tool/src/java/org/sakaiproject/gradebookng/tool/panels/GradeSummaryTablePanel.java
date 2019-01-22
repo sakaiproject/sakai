@@ -45,14 +45,18 @@ import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class GradeSummaryTablePanel extends BasePanel {
 
+	private static final long serialVersionUID = 1L;
+
 	private GbModalWindow rubricStudentWindow;
 
-	private static final long serialVersionUID = 1L;
-	boolean isGroupedByCategory;
+	private boolean isGroupedByCategory;
+	private boolean assignmentStatsEnabled;
+	private boolean courseGradeStatsEnabled;
 
 	public GradeSummaryTablePanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -63,6 +67,12 @@ public class GradeSummaryTablePanel extends BasePanel {
 		super.onInitialize();
 
 		setOutputMarkupId(true);
+
+		// settings for stats display
+		final GradebookInformation settings = getSettings();
+		this.assignmentStatsEnabled = settings.isAssignmentStatsDisplayed();
+		this.courseGradeStatsEnabled = settings.isCourseGradeStatsDisplayed();
+
 	}
 
 	@Override
@@ -134,11 +144,12 @@ public class GradeSummaryTablePanel extends BasePanel {
 		addOrReplace(new WebMarkupContainer("weightColumnHeader")
 				.setVisible(categoriesEnabled && isCategoryWeightEnabled && this.isGroupedByCategory));
 
-		boolean catColVisible = categoriesEnabled && !isGroupedByCategory;
+		final boolean catColVisible = categoriesEnabled && !this.isGroupedByCategory;
 		addOrReplace(new WebMarkupContainer("categoryColumnHeader").setVisible(catColVisible));
 
+		// steal width from date column to give to category column
 		addOrReplace(new WebMarkupContainer("dateColumnHeader")
-				.add(AttributeAppender.append("class", catColVisible ? "col-md-1" : "col-md-2"))); // steal width from date column to give to category column
+				.add(AttributeModifier.append("class", catColVisible ? "col-md-1" : "col-md-2")));
 
 		// output all of the categories
 		// within each we then add the assignments in each category
@@ -168,11 +179,11 @@ public class GradeSummaryTablePanel extends BasePanel {
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
 
-				DropInfoPair pair = getDropInfo(categoryName, categoriesMap);
+				final DropInfoPair pair = getDropInfo(categoryName, categoriesMap);
 				if (!pair.second.isEmpty()) {
 					pair.first += " " + getString("label.category.dropSeparator") + " ";
 				}
-				WebMarkupContainer dropInfo = new WebMarkupContainer("categoryDropInfo");
+				final WebMarkupContainer dropInfo = new WebMarkupContainer("categoryDropInfo");
 				dropInfo.setVisible(!pair.first.isEmpty());
 				dropInfo.add(new Label("categoryDropInfo1", pair.first));
 				dropInfo.add(new Label("categoryDropInfo2", pair.second).setVisible(!pair.second.isEmpty()));
@@ -245,10 +256,15 @@ public class GradeSummaryTablePanel extends BasePanel {
 								statsWindow.setContent(
 										new StudentAssignmentStatisticsPanel(
 												statsWindow.getContentId(),
-												Model.of(Long.valueOf(1)),
+												Model.of(assignment),
 												statsWindow));
 								statsWindow.show(target);
 
+							}
+
+							@Override
+							public boolean isVisible() {
+								return GradeSummaryTablePanel.this.assignmentStatsEnabled;
 							}
 						};
 
