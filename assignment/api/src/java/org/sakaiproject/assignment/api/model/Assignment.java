@@ -181,14 +181,14 @@ public class Assignment {
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
-    @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
+    @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"), indexes = @Index(columnList = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
     @Column(name = "GROUP_ID")
     private Set<String> groups = new HashSet<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
-    @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
+    @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"), indexes = @Index(columnList = "ASSIGNMENT_ID"))
     @Fetch(FetchMode.SUBSELECT)
     @Column(name = "ATTACHMENT", length = 1024)
     private Set<String> attachments = new HashSet<>();
