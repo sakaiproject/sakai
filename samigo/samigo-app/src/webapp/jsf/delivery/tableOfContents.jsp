@@ -134,7 +134,7 @@ function saveTime()
     <h:outputText value="#{delivery.tableOfContents.maxScore}">
       <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
     </h:outputText>
-    <h:outputText value="#{deliveryMessages.pt}" />
+    <h:outputText value=" #{deliveryMessages.pt}" />
   </h4>
  
 </div>
