@@ -346,9 +346,6 @@
 <!-- end content -->
 </div>
 
-<script type="text/javascript">
-applyMenuListener("controllingSequence");
-</script>
     </body>
   </html>
 </f:view>
