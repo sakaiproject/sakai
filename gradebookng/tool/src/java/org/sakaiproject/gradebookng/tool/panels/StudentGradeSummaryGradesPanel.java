@@ -179,7 +179,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 			@Override
 			public boolean isVisible() {
-				return businessService.isDisplayCourseGradeToStudenEnabled();
+				return serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
 			}
 		};
 		addOrReplace(courseGradePanel);

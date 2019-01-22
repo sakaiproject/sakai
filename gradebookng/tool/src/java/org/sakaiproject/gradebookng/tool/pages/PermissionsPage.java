@@ -42,7 +42,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
@@ -489,7 +488,7 @@ public class PermissionsPage extends BasePage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+		final String version = serverConfigService.getString("portal.cdn.version", "");
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-permissions.css?version=%s", version)));
 	}

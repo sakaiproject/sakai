@@ -24,6 +24,7 @@ import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -47,6 +48,12 @@ public abstract class BasePanel extends Panel {
 
 	@SpringBean(name = "org.sakaiproject.rubrics.logic.RubricsService")
 	protected RubricsService rubricsService;
+
+	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	protected ServerConfigurationService serverConfigService;
+
+	protected static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
+	protected static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = Boolean.TRUE;
 
 	public BasePanel(final String id) {
 		super(id);

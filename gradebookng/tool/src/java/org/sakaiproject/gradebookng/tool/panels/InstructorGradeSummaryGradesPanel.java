@@ -179,7 +179,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 	private boolean showDisplayCourseGradeToStudent(Gradebook gradebook,GbRole userRole, boolean isCourseGradeVisible) {
 		return !gradebook.isCourseGradeDisplayed()
 						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible)
-						&& businessService.isDisplayCourseGradeToStudenEnabled();
+						&& serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
 	}
 
 	/**

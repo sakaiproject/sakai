@@ -5,7 +5,8 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
 
@@ -24,6 +25,9 @@ public abstract class BaseChart extends WebComponent {
 
 	private static final long serialVersionUID = 1L;
 
+	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	protected ServerConfigurationService serverConfigService;
+
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected transient GradebookNgBusinessService businessService;
 
@@ -34,7 +38,7 @@ public abstract class BaseChart extends WebComponent {
 
 	@Override
 	public void renderHead(final IHeaderResponse response) {
-		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+		final String version = serverConfigService.getString("portal.cdn.version", "");
 
 		// chart requires ChartJS
 		response.render(
