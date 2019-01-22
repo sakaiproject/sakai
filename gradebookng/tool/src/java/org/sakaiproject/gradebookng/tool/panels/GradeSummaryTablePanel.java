@@ -244,8 +244,8 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 						final BasePage page = (BasePage) getPage();
 
-						final GbAjaxLink gradeStatsLink = new GbAjaxLink(
-								"gradeStatsLink") {
+						final GbAjaxLink assignmentStatsLink = new GbAjaxLink(
+								"assignmentStatsLink") {
 
 							private static final long serialVersionUID = 1L;
 
@@ -268,7 +268,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							}
 						};
 
-						assignmentItem.add(gradeStatsLink);
+						assignmentItem.add(assignmentStatsLink);
 
 						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");

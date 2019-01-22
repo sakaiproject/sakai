@@ -447,7 +447,7 @@ div.wicket-modal div.w_right > div {
   font-weight: normal;
 }
 
-.gb-summary-grade-stats {
+.gb-summary-grade-panel .gb-summary-grade-stats:before {
   font-family: 'gradebook-icons';
   content: '\f080';
   text-decoration: none;
