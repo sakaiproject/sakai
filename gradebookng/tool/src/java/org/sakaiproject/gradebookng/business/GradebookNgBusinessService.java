@@ -42,6 +42,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
@@ -86,7 +87,6 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
@@ -119,6 +119,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
+
+	@Setter
+	private ServerConfigurationService serverConfigService;
 
 	@Setter
 	private ToolManager toolManager;
@@ -1571,6 +1574,7 @@ public class GradebookNgBusinessService {
 		if (role == GbRole.TA) {
 			final Gradebook gradebook = this.getGradebook(siteId);
 			final User user = getCurrentUser();
+			boolean canGradeAll = false;
 
 			// need list of all groups as REFERENCES (not ids)
 			final List<String> allGroupIds = new ArrayList<>();
@@ -1591,17 +1595,21 @@ public class GradebookNgBusinessService {
 					for(PermissionDefinition permDef : realmsPerms){
 						if(permDef.getGroupReference()!=null){
 							viewableGroupIds.add(permDef.getGroupReference());
+						} else {
+							canGradeAll = true;
 						}
 					}
 				}
 			}
 
-			// remove the ones that the user can't view
-			final Iterator<GbGroup> iter = rval.iterator();
-			while (iter.hasNext()) {
-				final GbGroup group = iter.next();
-				if (!viewableGroupIds.contains(group.getReference())) {
-					iter.remove();
+			if (!canGradeAll) {
+				// remove the ones that the user can't view
+				final Iterator<GbGroup> iter = rval.iterator();
+				while (iter.hasNext()) {
+					final GbGroup group = iter.next();
+					if (!viewableGroupIds.contains(group.getReference())) {
+						iter.remove();
+					}
 				}
 			}
 
@@ -2466,6 +2474,17 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		this.gradebookPermissionService.updatePermissionsForUser(gradebook.getUid(), userUuid, permissions);
+	}
+
+	/**
+	 * Remove all permissions for the user. Note: These are currently only defined/used for users with the Teaching Assistant role.
+	 *
+	 * @param userUuid
+	 */
+	public void clearPermissionsForUser(final String userUuid) {
+		final String siteId = getCurrentSiteId();
+		final Gradebook gradebook = getGradebook(siteId);
+		this.gradebookPermissionService.clearPermissionsForUser(gradebook.getUid(), userUuid);
 	}
 
 	/**

@@ -85,7 +85,8 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 		// get the count of items that are selectable
 		GradeItemImportSelectionStep.this.selectableItems = importWizardModel.getProcessedGradeItems().stream()
-				.filter(item -> item.getStatus() != Status.SKIP).collect(Collectors.toList()).size();
+				.filter(item -> item.getStatus() != Status.SKIP && item.getStatus() != Status.EXTERNAL)
+				.collect(Collectors.toList()).size();
 
 		omissionsPanel = new GradeItemImportOmissionsPanel("omissionsPanel", model);
 		add(omissionsPanel);
@@ -126,6 +127,7 @@ public class GradeItemImportSelectionStep extends BasePanel {
 
 				// toggle elements
 				target.appendJavaScript("$('.no_changes').toggle();");
+				target.appendJavaScript("$('.external').toggle();");
 				if (GradeItemImportSelectionStep.this.selectableItems == 0) {
 					target.appendJavaScript("$('.selection_form').toggle();");
 					// TODO show a message

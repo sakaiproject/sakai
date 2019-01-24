@@ -882,8 +882,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         if (gradebookId == null || userId == null || function == null) {
             throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.addPermission");
         }
-        if (!function.equalsIgnoreCase(GradebookService.gradePermission) && !function.equalsIgnoreCase(GradebookService.viewPermission)) {
-            throw new IllegalArgumentException("Function is not grade or view in BaseHibernateManager.addPermission");
+        if (!function.equalsIgnoreCase(GradebookService.gradePermission)
+                && !function.equalsIgnoreCase(GradebookService.viewPermission)
+                && !function.equalsIgnoreCase(GradebookService.noPermission)) {
+            throw new IllegalArgumentException("Function is not grade, view or none in BaseHibernateManager.addPermission");
         }
     	final HibernateCallback<Long> hc = session -> {
             final Permission permission = new Permission();

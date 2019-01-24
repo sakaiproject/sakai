@@ -18,8 +18,9 @@ package org.sakaiproject.gradebookng.business.importExport;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.ImportedCell;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn.Type;
@@ -32,11 +33,14 @@ import org.sakaiproject.gradebookng.business.model.ImportedRow;
  */
 public class CommentValidator
 {
+    @SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+    protected static ServerConfigurationService serverConfigService;
+
     private CommentValidationReport report;
 
     private static final String SAK_PROP_MAX_COMMENT_LENGTH = "gradebookng.maxCommentLength";
     private static final int SAK_PROP_MAX_COMMENT_LENGTH_DEFAULT = 20000;
-    public static final int MAX_COMMENT_LENGTH = ServerConfigurationService.getInt(SAK_PROP_MAX_COMMENT_LENGTH, SAK_PROP_MAX_COMMENT_LENGTH_DEFAULT);
+    public static final int MAX_COMMENT_LENGTH = serverConfigService.getInt(SAK_PROP_MAX_COMMENT_LENGTH, SAK_PROP_MAX_COMMENT_LENGTH_DEFAULT);
 
     /**
      * Validate the comments contained within the list of imported rows.
