@@ -874,6 +874,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String OW_FEEDBACK = "feedback_overwritten";
     private static final String SAVED_FEEDBACK = "feedback_saved";
     private static final int INPUT_BUFFER_SIZE = 102400;
+    private static final long MEGABYTE = 1024L * 1024L;
     private static final String INVOKE = "invoke_via";
     private static final String INVOKE_BY_LINK = "link";
     private static final String INVOKE_BY_PORTAL = "portal";
@@ -932,6 +933,9 @@ public class AssignmentAction extends PagedResourceActionII {
     private String prevWithSubmissionRef = "";
     private String nextUngradedWithSubmissionRef = "";
     private String prevUngradedWithSubmissionRef = "";
+
+    // Content providers names
+    private static final String CONTENT_PROVIDER_URKUND = "Urkund";
 
     private AnnouncementService announcementService;
     private AssignmentActivityProducer assignmentActivityProducer;
@@ -1465,6 +1469,17 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment)) {
                 		state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage())); 
                     context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+
+                    String reviewServiceName = contentReviewService.getServiceName();
+                    switch(reviewServiceName) {
+                        case CONTENT_PROVIDER_URKUND:
+                            long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
+                            String plagiarismFileSize = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
+                            state.setAttribute("plagiarismFileSize", plagiarismFileSize); 
+                            context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                            break;
+                        default:
+                    }
 
                     // SAK-31649 commenting this out to remove file picker filters, as the results vary depending on OS and browser.
                     // If in the future browser support for the 'accept' attribute on a file picker becomes more robust and
@@ -2063,6 +2078,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if(assignment.getContentReview()) {
 	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
 	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
 	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
 	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
 	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
@@ -2628,7 +2644,18 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_UseReviewService", state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
         if (!contentReviewService.allowAllContent()) {
             String fileTypesMessage = getContentReviewAcceptedFileTypesMessage();
-            String contentReviewNote = rb.getFormattedMessage("content_review.note", new Object[]{fileTypesMessage});
+            String reviewServiceName = contentReviewService.getServiceName();
+            Object[] params = new Object[2];
+            params[0] = fileTypesMessage;
+            params[1] = "";
+            switch(reviewServiceName) {
+                case CONTENT_PROVIDER_URKUND:
+                    long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
+                    params[1] = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
+                    break;
+                default:
+            }
+            String contentReviewNote = rb.getFormattedMessage("content_review.note", params);
             context.put("content_review_note", contentReviewNote);
         }
         context.put("turnitin_forceSingleAttachment", serverConfigurationService.getBoolean("turnitin.forceSingleAttachment", false));
