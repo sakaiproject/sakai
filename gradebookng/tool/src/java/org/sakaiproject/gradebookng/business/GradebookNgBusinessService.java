@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -120,7 +121,7 @@ public class GradebookNgBusinessService {
 	@Setter
 	private UserDirectoryService userDirectoryService;
 
-	@Setter
+	@Setter @Getter
 	private ServerConfigurationService serverConfigService;
 
 	@Setter
@@ -749,8 +750,8 @@ public class GradebookNgBusinessService {
 
 		// if comment longer than MAX_COMMENT_LENGTH chars, error.
 		// SAK-33836 - MAX_COMMENT_LENGTH controlled by sakai.property 'gradebookng.maxCommentLength'; defaults to 20,000
-		if (CommentValidator.isCommentInvalid(comment)) {
-			log.error("Comment too long. Maximum {} characters.", CommentValidator.MAX_COMMENT_LENGTH);
+		if (CommentValidator.isCommentInvalid(comment, serverConfigService)) {
+			log.error("Comment too long. Maximum {} characters.", CommentValidator.getMaxCommentLength(serverConfigService));
 			return GradeSaveResponse.ERROR;
 		}
 
