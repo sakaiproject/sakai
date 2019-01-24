@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2003-2017 The Apereo Foundation
+ * Copyright (c) 2003-2018 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,34 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.tool.chart.AssignmentGradeChart;
+import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 
-public class StudentAssignmentStatisticsPanel extends BasePanel {
+/**
+ * Renders the course grade graph in a modal window
+ */
+public class StudentCourseGradeStatisticsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
 
-	public StudentAssignmentStatisticsPanel(final String id, final IModel<Assignment> model, final ModalWindow window) {
+	public StudentCourseGradeStatisticsPanel(final String id, final IModel<String> model, final ModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		final Assignment assignment = ((Model<Assignment>) getDefaultModel()).getObject();
+		final String siteId = ((Model<String>) getDefaultModel()).getObject();
 
-		StudentAssignmentStatisticsPanel.this.window.setTitle(
-				new StringResourceModel("label.statistics.title.assignment",
-						getDefaultModel(), null, assignment.getName()).getString());
+		StudentCourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final AssignmentGradeChart chart = new AssignmentGradeChart("chart", assignment.getId());
+		final CourseGradeChart chart = new CourseGradeChart("chart", siteId);
 		add(chart);
 
 		add(new GbAjaxLink<Void>("done") {
@@ -53,9 +54,8 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
-				StudentAssignmentStatisticsPanel.this.window.close(target);
+				StudentCourseGradeStatisticsPanel.this.window.close(target);
 			}
 		});
-
 	}
 }

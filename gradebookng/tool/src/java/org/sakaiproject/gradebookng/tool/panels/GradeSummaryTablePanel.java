@@ -264,7 +264,8 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 							@Override
 							public boolean isVisible() {
-								return GradeSummaryTablePanel.this.assignmentStatsEnabled;
+								return showingStudentView
+										&& GradeSummaryTablePanel.this.assignmentStatsEnabled;
 							}
 						};
 

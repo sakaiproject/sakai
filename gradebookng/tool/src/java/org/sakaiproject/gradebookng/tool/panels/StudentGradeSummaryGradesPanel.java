@@ -197,13 +197,12 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 
-				statsWindow.setContent(new CourseGradeStatisticsPanel(
+				statsWindow.setContent(new StudentCourseGradeStatisticsPanel(
 						statsWindow.getContentId(),
 						Model.of(StudentGradeSummaryGradesPanel.this
 								.getCurrentSiteId()),
 						statsWindow));
 				statsWindow.show(target);
-
 			}
 
 			@Override
