@@ -3417,6 +3417,7 @@ public class SiteAction extends PagedResourceActionII {
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
+			context.put("allowAddSite", SiteService.allowAddSite(site.getId()));
 			context.put("siteTitle", site.getTitle());
 			coursesIntoContext(state, context, site);
 
@@ -10275,7 +10276,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				{
 					// if after the removal, there is no provider id, and there is no maintain role user anymore, show alert message and don't save the update
 					addAlert(state, rb.getString("sitegen.siteinfolist.nomaintainuser")
-							+ maintainRoleString + ".");
+							+ " " + maintainRoleString + ".");
 				}
 				else
 				{
