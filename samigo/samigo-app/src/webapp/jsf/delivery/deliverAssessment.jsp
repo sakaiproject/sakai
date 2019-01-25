@@ -320,11 +320,11 @@ document.links[newindex].onclick();
 				<h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 				<%-- DELIVER ASSESSMENT --%>
 				<h:outputText value="#{question.roundedMaxPoints}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  >
-					<f:convertNumber maxFractionDigits="2"/>
+					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
 				</h:outputText>
-				<h:outputText value="#{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
+				<h:outputText value=" #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
 				<h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  >
-					<f:convertNumber maxFractionDigits="2"/>
+					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
 				</h:outputText>
 			</span>
 		</h:panelGroup>
