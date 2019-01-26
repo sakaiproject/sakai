@@ -34,6 +34,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
@@ -85,9 +86,24 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 
 		List filteredHeaders = super.getHeaders(event);
 
+		String title = (getSite() != null) ? getSite() : ref.getContext();
+		try
+		{
+			Site site = SiteService.getSite(title);
+			title = site.getTitle();
+		}
+		catch (Exception ignore) {}
+
 		for (int i = 0; i < headers.size(); i++)
 		{
 			String headerStr = (String) headers.get(i);
+
+			if (headerStr.startsWith(MailArchiveService.HEADER_SUBJECT))
+			{
+				StringBuilder sb = new StringBuilder(headerStr);
+				sb.replace(0, 8, MailArchiveService.HEADER_SUBJECT + ": [" + title + "] "); // 0, 8 is the length of "Subject:"
+				headerStr = sb.toString();
+			}
 
 			if (headerStr.regionMatches(true, 0, MailArchiveService.HEADER_RETURN_PATH, 0, MailArchiveService.HEADER_RETURN_PATH.length())) 
 				continue;
