@@ -138,22 +138,24 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
 
-		// if html isn't available, convert plain-text into html
-		buf.append( msg.getFormattedBody() );
-
 		// add any attachments
 		List attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
-			buf.append("<br/>" + "Attachments:<br/>");
+			buf.append("Attachments:<br/>");
 			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 			{
 				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append("<br/><a href=\"" + attachment.getUrl() + "\" >" + attachmentTitle + "</a><br/>");
+				buf.append("<a href=\"").append(attachment.getUrl()).append("\" >").append(attachmentTitle).append("</a><br/>");
 			}
+
+			buf.append("<br/>");
 		}
-		
+
+		// if html isn't available, convert plain-text into html
+		buf.append(msg.getFormattedBody());
+
 		return buf.toString();
 	}
 
@@ -171,24 +173,30 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
 
-		// if plain-text isn't available, convert html into plain text
-		if ( msg.getBody() != null && msg.getBody().length() > 0 )
-			buf.append( msg.getBody() );
-		else
-			buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getHtmlBody()));
-
 		// add any attachments
 		List attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
-			buf.append("\n\n" + "Attachments:\n");
+			buf.append("Attachments:\n");
 			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 			{
 				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append("\n" + attachmentTitle);
+				buf.append(attachmentTitle);
 				buf.append("\n" + attachment.getUrl() + "\n");
 			}
+
+			buf.append("\n");
+		}
+
+		// if plain-text isn't available, convert html into plain text
+		if (msg.getBody() != null && msg.getBody().length() > 0)
+		{
+			buf.append(msg.getBody());
+		}
+		else
+		{
+			buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getHtmlBody()));
 		}
 
 		return buf.toString();
