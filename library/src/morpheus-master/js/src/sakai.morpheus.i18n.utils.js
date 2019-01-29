@@ -1,5 +1,9 @@
 (function ($) {
 
+    if (!portal.loggedIn) {
+        return;
+    }
+
     portal.i18n = portal.i18n || {};
     portal.i18n.translations = portal.i18n.translations || {};
 
@@ -18,34 +22,44 @@
 
         portal.i18n.translations[options.namespace] = portal.i18n.translations[options.namespace] || {};
 
-        $PBJQ.ajax({
-            url: '/sakai-ws/rest/i18n/getI18nProperties',
-            cache: true,
-            dataType: "text",
-            data: {locale: portal.locale,
-                    resourceclass: options.resourceClass,
-                    resourcebundle: options.resourceBundle},
-            })
-            .done(function (data, textStatus, jqXHR) {
+        if (sessionStorage.getItem(portal.locale + options.resourceClass + options.resourceBundle) !== null) {
+            portal.i18n.translations[options.namespace] = JSON.parse(sessionStorage[portal.locale + options.resourceClass + options.resourceBundle]);
+            if (options.callback) {
+                options.callback();
+            }
+        } else {
+            $PBJQ.ajax({
+                url: '/sakai-ws/rest/i18n/getI18nProperties' + portal.portalCDNQuery,
+                cache: true,
+                contentType: 'application/json',
+                data: {locale: portal.locale,
+                        resourceclass: options.resourceClass,
+                        resourcebundle: options.resourceBundle},
+                })
+                .done(function (data, textStatus, jqXHR) {
 
-                data.split("\n").forEach(function (pair) {
+                    data.split("\n").forEach(function (pair) {
 
-                    var keyValue = pair.split('=');
-                    if (keyValue.length == 2) {
-                        portal.i18n.translations[options.namespace][keyValue[0]] = keyValue[1];
+                        var keyValue = pair.split('=');
+                        if (keyValue.length == 2) {
+                            portal.i18n.translations[options.namespace][keyValue[0]] = keyValue[1];
+                        }
+
+                        if (options.debug) {
+                            console.log('Updated translations: ');
+                            console.log(portal.i18n.translations[options.namespace]);
+                        }
+                    });
+                    sessionStorage[portal.locale + options.resourceClass + options.resourceBundle] = JSON.stringify(portal.i18n.translations[options.namespace]);
+
+                    if (options.callback) {
+                        options.callback();
                     }
-
-                    if (options.debug) {
-                        console.log('Updated translations: ');
-                        console.log(portal.i18n.translations[options.namespace]);
-                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
                 });
-
-                if (options.callback) options.callback();
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(errorThrown);
-            });
+        }
     };
 
     portal.i18n.tr = function (namespace, key, options) {
