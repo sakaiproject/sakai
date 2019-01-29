@@ -617,6 +617,10 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTable.setupStudentNumberColumn();
   }
 
+  if (GbGradeTable.settings.isSectionsVisible) {
+    GbGradeTable.setupSectionsColumn();
+  }
+
   GbGradeTable.FIXED_COLUMN_OFFSET = GbGradeTable.getFixedColumns().length;
   GbGradeTable.COURSE_GRADE_COLUMN_INDEX = GbGradeTable.FIXED_COLUMN_OFFSET - 1; // course grade is always the last fixed column
   GbGradeTable.domElement.addClass('gb-fixed-columns-' + GbGradeTable.FIXED_COLUMN_OFFSET);
@@ -3067,8 +3071,9 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
 
 
 GbGradeTable.STUDENT_COLUMN_INDEX = 0;
-GbGradeTable.COURSE_GRADE_COLUMN_INDEX = 1;
-GbGradeTable.FIXED_COLUMN_OFFSET = 2;
+GbGradeTable.SECTIONS_COLUMN_INDEX = 1;
+GbGradeTable.COURSE_GRADE_COLUMN_INDEX = 2;
+GbGradeTable.FIXED_COLUMN_OFFSET = 3;
 
 // If an entered score is invalid, we keep track of the last good value here
 GbGradeTable.lastValidGrades = {};
@@ -3246,6 +3251,53 @@ GbGradeTable.setupStudentNumberColumn = function() {
     });
 };
 
+GbGradeTable.setupSectionsColumn = function () {
+
+    GbGradeTable.templates['sectionsCell'] = new TrimPathFragmentCache(
+        'sectionsCell',
+        TrimPath.parseTemplate($("#sectionsCellTemplate").html().trim().toString()));
+
+    GbGradeTable.templates['sectionsHeader'] = TrimPath.parseTemplate($("#sectionsHeaderTemplate").html().trim().toString());
+
+    GbGradeTable.sectionsCellRenderer =  function(instance, td, row, col, prop, value, cellProperties) {
+
+        if (value === null) {
+            return;
+        }
+
+        var $td = $(td);
+
+        $td.attr("scope", "row").attr("role", "rowHeader");
+
+        var cellKey = (row + '_' + col);
+
+        var data = {
+            settings: GbGradeTable.settings,
+            sections: value
+        };
+
+        var html = GbGradeTable.templates.sectionsCell.setHTML(td, data);
+
+        $.data(td, 'cell-initialised', cellKey);
+        //$.data(td, "studentid", value.userId);
+        $.data(td, "metadata", {
+            id: cellKey,
+            sections: value
+        });
+
+        $td.removeAttr('aria-describedby');
+    };
+
+    GbGradeTable._fixedColumns.splice(1, 0, {
+      renderer: GbGradeTable.sectionsCellRenderer,
+      headerTemplate: GbGradeTable.templates.sectionsHeader,
+      _data_: GbGradeTable.students.map(function(student) {
+        return student.sections || "";
+      }),
+      editor: false,
+      width: 140,
+    });
+};
 
 GbGradeTable.findIndex = function(array, predicateFunction) {
     if (Array.prototype.findIndex) {
