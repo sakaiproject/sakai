@@ -40,8 +40,8 @@
 		<property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 	
 	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.announcement"

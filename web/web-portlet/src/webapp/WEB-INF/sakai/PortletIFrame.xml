@@ -5,6 +5,7 @@
 			id="sakai.iframe"
 			title="Web Content"
 			description="For accessing internal resources or an external website within the site.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
 		<configuration name="source" value="" />
 		<configuration name="height" value="600px" />
@@ -93,6 +94,8 @@
         <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
         <configuration name="webcontent.revise" value="webcontent.site.revise" />
 
+		<category name="widget" />
+		
     </tool>
 
 </registration>

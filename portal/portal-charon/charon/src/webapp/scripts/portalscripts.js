@@ -197,25 +197,6 @@ function show_timeout_alert(min) {
 	}
 }
 
-function updatePresence() {
-	$PBJQ.ajax( {
-		url: sakaiPresenceFragment,
-		cache: false,
-		success: function(frag){
-			var whereHead = frag.indexOf('<head>');
-			if ( whereHead > 0 ) {
-			 	location.reload();
-			} else {
-				$PBJQ("#presenceIframe").html(frag);
-			}
-		},
-		// If we get an error, wait 60 seconds before retry
-		error: function(request, strError){
-			sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 60000);
-		}
-	});
-}
-
 function f_scrollTop() {
 	return f_filterResults (
 		window.pageYOffset ? window.pageYOffset : 0,

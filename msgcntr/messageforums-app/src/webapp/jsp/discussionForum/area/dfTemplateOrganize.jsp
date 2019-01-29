@@ -131,7 +131,8 @@
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_organize_instruction}"/>
 				</div>
 			<h:dataTable id="forums" binding="#{ForumTool.forumTable}" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" >
-    <h:column rendered="#{! forum.nonePermission}">
+    <h:column>
+        <h:panelGroup rendered="#{! forum.nonePermission}" layout="block">
 					<h:panelGroup style="display:block;width:90%;padding:.5em" styleClass="forumHeader">
 					<h:selectOneMenu id="forumIndex" value="#{forum.forum.sortIndex}" onchange="updateForums(this);" style="margin-right:1em">
 	            <f:selectItems value="#{ForumTool.forumSelectItems}"/>
@@ -148,7 +149,8 @@
 								<h:outputText id="topicTitle" value="#{topic.title}" style="font-weight:bold;font-size:1.2em;"/>
 							</h:panelGroup>
 		   </h:column>
-        </h:dataTable>			
+        </h:dataTable>	
+        </h:panelGroup>
    </h:column>
  </h:dataTable>
 		

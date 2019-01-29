@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
@@ -50,8 +51,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -206,6 +209,36 @@ public class PublishAssessmentListener
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
       pub = publishedAssessmentService.publishAssessment(assessment);
+
+      //Lock the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
+      boolean groupRelease = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(assessmentSettings.getReleaseTo());
+
+      if (groupRelease) {
+        try{
+            String publishedAssessmentId = String.valueOf(pub.getPublishedAssessmentId());
+            PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId, true);
+            Map<String, String> selectedGroups = publishedAssessment.getReleaseToGroups();
+
+            log.debug("Locking groups for deletion by the published assessment with id {}.", publishedAssessmentId);
+            log.debug("Locking for deletion the following groups {}.", selectedGroups);
+
+            Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+            Collection<Group> groups = site.getGroups();
+
+            for(Group group : groups){
+                if(selectedGroups.keySet().contains(group.getId())){
+                    log.debug("Locking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), publishedAssessmentId);
+                    group.lockGroup(publishedAssessmentId, Group.LockMode.DELETE);
+                }
+            }
+
+            log.debug("Saving the site after locking the groups for deletion.");
+            SiteService.save(site);
+        }catch(Exception e){
+            log.error("Fatal error locking the groups for deletion {}.", e);
+        }
+      }
+
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       boolean sendNotification = publishRepublishNotification.getSendNotification();
       String subject = publishRepublishNotification.getNotificationSubject();
@@ -229,20 +262,9 @@ public class PublishAssessmentListener
           PublishedItemData itemData = (PublishedItemData) itemObj;
           EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemData.getItemIdString(), true));
 
-          Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(SamigoConstants.RBCS_TOOL_ID, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
-          HashMap<String,String> parametersHash = new HashMap<>();
+          Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, assessmentSettings.getAssessmentId().toString() + "." + itemData.getOriginalItemId().toString());
           if (rubricAssociation.isPresent()) {
-            parametersHash.put("rbcs-associate", "1");
-            parametersHash.put("rbcs-rubricslist", rubricAssociation.get().getRubricId().toString());
-            for (Entry entry : rubricAssociation.get().getParameters().entrySet()) {
-              boolean entryValue = (boolean) entry.getValue();
-              if ("hideStudentPreview".equals(entry.getKey())) {
-                parametersHash.put("rbcs-config-hideStudentPreview", (entryValue) ? "1" : "0");
-              } else if ("fineTunePoints".equals(entry.getKey())) {
-                parametersHash.put("rbcs-config-fineTunePoints", (entryValue) ? "1" : "0");
-              }
-            }
-            rubricsService.saveRubricAssociation("sakai.samigo", SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), parametersHash);
+            rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + pub.getPublishedAssessmentId().toString() + "." + itemData.getItemIdString(), rubricAssociation.get().getFormattedAssociation());
           }
         }
       }

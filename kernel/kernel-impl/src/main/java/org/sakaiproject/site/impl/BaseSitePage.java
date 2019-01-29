@@ -535,6 +535,10 @@ public class BaseSitePage implements SitePage, Identifiable
 		return rv;
 	}
 
+	public void setTools(List tools){
+		this.m_tools = new ResourceVector(tools);
+	}
+
 	/**
 	 * @inheritDoc
 	 */

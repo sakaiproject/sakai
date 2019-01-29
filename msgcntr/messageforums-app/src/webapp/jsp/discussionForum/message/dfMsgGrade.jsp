@@ -11,14 +11,13 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
-
-
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
        		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+			<script type="text/javascript">includeWebjarLibrary('ckeditor')</script>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -69,14 +68,14 @@
 		
 		String stateDetails = forumTool.getRbcsStateDetails();
 		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
-		String entityId = forumTool.getRubricAssociationUuid();
-		String rbcsEvaluationId = "";
+		String entityId = forumTool.getRubricAssociationId();
+		String rbcsEvaluationId = userId+".";
 		if (forumTool.getSelectedMessage() != null) {
-			rbcsEvaluationId = forumTool.getSelectedMessage().getMessage().getUuid();
+			rbcsEvaluationId += forumTool.getSelectedMessage().getMessage().getUuid();
 		} else if (forumTool.getSelectedTopic() != null) {
-			rbcsEvaluationId = forumTool.getSelectedTopic().getTopic().getUuid();
+			rbcsEvaluationId += forumTool.getSelectedTopic().getTopic().getUuid();
 		} else {
-			rbcsEvaluationId = forumTool.getSelectedForum().getForum().getUuid();
+			rbcsEvaluationId += forumTool.getSelectedForum().getForum().getUuid();
 		}
 		%>
 		
@@ -111,10 +110,9 @@
 		</script>
 
 		<script src="/rubrics-service/js/sakai-rubrics.js"></script>
-		<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 		<!-- END RUBRICS JAVASCRIPT -->
 
-		<span class="close-button fa fa-times" onClick="clearFormHiddenParams_msgForum('msgForum');SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
+		<span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
 		<h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
 			<h4>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title}" />

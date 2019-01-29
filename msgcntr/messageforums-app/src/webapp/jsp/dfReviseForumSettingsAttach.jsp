@@ -43,6 +43,19 @@
 			NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');
 	}
 
+	function updateGradeAssignment(){
+		var elems = document.getElementsByTagName('sakai-rubric-association');
+		if( document.getElementById("revise:forum_assignments").value != null && document.getElementById("revise:forum_assignments").value != 'Default_0'){
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'inline';
+			}
+		} else {
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'none';
+			}
+		}
+	}
+
 	function setAutoCreatePanel(radioButton) {
 		$(".createOneForumPanel").slideToggle("fast");
 		$(".createForumsForGroupsPanel").slideToggle("fast", function() {
@@ -70,10 +83,9 @@
 	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
 	String stateDetails = forumTool.getRbcsStateDetails();
-	String entityId = forumTool.getSelectedForum().getForum().getUuid();
+	String entityId = "for." + forumTool.getSelectedForum().getForum().getId();
 %>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 <!-- END RUBRICS JAVASCRIPT -->
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
@@ -102,6 +114,7 @@
 					container: ".charsRemaining",
 					format: charRemFormat
 				 });
+				 updateGradeAssignment();
 			 });				 
         </script>
         <h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
@@ -298,7 +311,7 @@
 					<div class="col-md-10 col-sm-10">
 						<div class="row">
 				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-							<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+							<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
 			   	    			<f:selectItems value="#{ForumTool.assignments}" />
 			      			</h:selectOneMenu>
 							<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
@@ -315,7 +328,7 @@
 					</div>
 				</div>
 			
-		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px"
+		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none;"
 
 			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
 			dont-associate-value="0"
@@ -401,7 +414,7 @@
                            accesskey="d"  styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
-          <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
           <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
 	 </h:form>

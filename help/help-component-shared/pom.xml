@@ -4,7 +4,7 @@
   <parent>
     <artifactId>help-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>19-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-comp-shared-help</name>
@@ -32,20 +32,5 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-help-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
   </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-        <excludes>
-          <exclude>ehcache.xml</exclude>
-        </excludes>
-      </resource>
-    </resources>
-  </build>
 </project>

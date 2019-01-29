@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -1015,10 +1015,10 @@ public class AssessmentService {
 		}
 	}
 	
-	public void copyAssessment(String assessmentId, String apepndCopyTitle) {
+	public void copyAssessment(String assessmentId, String appendCopyTitle) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
-					.copyAssessment(assessmentId, apepndCopyTitle);
+					.copyAssessment(assessmentId, appendCopyTitle);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);

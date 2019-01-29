@@ -15,17 +15,19 @@
  */
 package org.sakaiproject.commons.api.datamodel;
 
-import java.util.*;
+import java.time.Instant;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Stack;
+import java.util.TimeZone;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.commons.api.datamodel.Comment;
-import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.PostReferenceFactory;
 import org.sakaiproject.commons.api.XmlDefs;
 import org.sakaiproject.entity.api.Entity;
@@ -41,7 +43,7 @@ public class Post implements Entity {
     private static final String CDATA_SUFFIX = "]]>";
     private static final String CDATA_PREFIX = "<![CDATA[";
 
-    private List<Comment> comments = new ArrayList();
+    private List<Comment> comments = new ArrayList<>();
     private String content = "";
     private long createdDate = -1L;
     private String creatorDisplayName = null;
@@ -57,7 +59,7 @@ public class Post implements Entity {
 
     public Post() {
 
-        long now = new Date().getTime();
+        long now = Instant.now().toEpochMilli();
         createdDate = now;
         modifiedDate = now;
         releaseDate = now;
@@ -70,10 +72,12 @@ public class Post implements Entity {
         this.setCommonsId(rs.getString("COMMONS_ID"));
         this.setSiteId(rs.getString("SITE_ID"));
         this.setContent(rs.getString("CONTENT"));
-        this.setCreatedDate(rs.getTimestamp("CREATED_DATE").getTime());
-        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE").getTime());
-        this.setReleaseDate(rs.getTimestamp("RELEASE_DATE").getTime());
         this.setCreatorId(rs.getString("CREATOR_ID"));
+
+        // retrieve time's in UTC since that's how it's stored
+        this.setCreatedDate(rs.getTimestamp("CREATED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
+        this.setModifiedDate(rs.getTimestamp("MODIFIED_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
+        this.setReleaseDate(rs.getTimestamp("RELEASE_DATE", Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("UTC")))).getTime());
     }
 
     public void addComment(Comment comment) {
@@ -255,6 +259,6 @@ public class Post implements Entity {
 
         content = "";
         numberOfComments = comments.size();
-        comments = new ArrayList<Comment>();
+        comments = new ArrayList<>();
     }
 }

@@ -36,7 +36,7 @@
 <body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
-    <script src="/library/webjars/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
     <script type="text/JavaScript">includeWebjarLibrary('bootstrap-multiselect');</script>
     <script type="text/javascript" src="/samigo-app/js/info.js"></script>
     <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
@@ -289,14 +289,6 @@
                         </h:panelGroup>
 
                         <h:outputText styleClass="spanValue" value="#{assessment.title}" />
-
-                        <!--Rubrics icon-->
-                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
-                            <h:outputText styleClass="fa fa-table" id="rubrics-assessment-icon" rendered="#{author.assessmentHasRubric(assessment.assessmentBaseId, false)}" title="#{authorFrontDoorMessages.assessment_use_rubric}" style="margin-left:0.5em"/>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
-                            <h:outputText styleClass="fa fa-table" id="rubrics-published-assessment-icon" rendered="#{author.assessmentHasRubric(assessment.publishedAssessmentId, true)}" title="#{authorFrontDoorMessages.assessment_use_rubric}" style="margin-left:0.5em"/>
-                        </h:panelGroup>
                     </strong>
 
                 </t:column>

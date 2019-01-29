@@ -15,9 +15,7 @@
  */
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -27,13 +25,11 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedSectionFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -44,47 +40,38 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class UpdateAssessmentQuestionsOrder implements ActionListener {
 
-	ItemService delegate;
-	AssessmentService assessdelegate;
-	PublishedAssessmentService publisheddelegate;
+	private ItemService itemService;
+	private AssessmentService assessmentService;
+	private AssessmentBean assessmentBean;
 
-	int controlP = 1;
-	int controlQ = 1;
+	private int controlP = 1;
+	private int controlQ = 1;
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 
 		FacesContext context = FacesContext.getCurrentInstance();
-
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-		delegate = new ItemService();
+		assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
-		boolean isEditPendingAssessmentFlow = author
-				.getIsEditPendingAssessmentFlow();
+		boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
 
-		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-
-
-		boolean published = isEditPendingAssessmentFlow ? false : true;
-
-		if(published) {
-			publisheddelegate = new PublishedAssessmentService();
+		if (isEditPendingAssessmentFlow) {
+			assessmentService = new AssessmentService();
+			itemService = new ItemService();
 		} else {
-			assessdelegate = new AssessmentService();
+			assessmentService = new PublishedAssessmentService();
+			itemService = new PublishedItemService();
 		}
 
-		if(reorderItems(published)){
-			String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "edit_order_warning");
-			context.addMessage(null,new FacesMessage(err));
+		if(reorderItems()){
+			String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "edit_order_warning");
+			context.addMessage(null, new FacesMessage(err));
 		}
 
-		assessmentBean.setAssessment(published ? publisheddelegate.getAssessment(assessmentBean.getAssessmentId())
-				: assessdelegate.getAssessment(assessmentBean.getAssessmentId()));
+		assessmentBean.setAssessment(assessmentService.getAssessment(Long.valueOf(assessmentBean.getAssessmentId())));
 	}
 
-	public boolean reorderItems(boolean published) {
-		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
-				.lookupBean("assessmentBean");
-
+	private boolean reorderItems() {
 		Map<Integer,SectionFacade> sections = new HashMap<>();
 		Map<Integer,Long> changedSections = new HashMap<>();
 		int sectionsNum = assessmentBean.getSections().size();
@@ -93,9 +80,7 @@ public class UpdateAssessmentQuestionsOrder implements ActionListener {
 		//first loop, update parts changed by the instructor
 		for(SectionContentsBean curSection : assessmentBean.getSections()) {
 			
-			SectionFacade sectFc = 	published ? 
-						(PublishedSectionFacade) publisheddelegate.getSection(curSection.getSectionId()) :
-						(SectionFacade) assessdelegate.getSection(curSection.getSectionId());
+			SectionFacade sectFc = assessmentService.getSection(curSection.getSectionId());
 
 			Integer sectionNumber = Integer.valueOf(curSection.getNumber());
 			if(sectionNumber != sectFc.getSequence()) {
@@ -107,11 +92,7 @@ public class UpdateAssessmentQuestionsOrder implements ActionListener {
 					//position has changed, prioritize this value
 					sectFc.setSequence(sectionNumber);
 					changedSections.put(sectionNumber, sectFc.getSectionId());
-					if(published) { 
-						publisheddelegate.saveOrUpdateSection(sectFc);
-					} else {
-						assessdelegate.saveOrUpdateSection(sectFc);
-					}
+					assessmentService.saveOrUpdateSection(sectFc);
 				}
 			} else {
 				//position not changed, adding to aux map
@@ -130,11 +111,7 @@ public class UpdateAssessmentQuestionsOrder implements ActionListener {
 							sectFc = sections.get(i);
 							sectFc.setSequence(nbr);
 							controlP = i+1;
-							if(published) {
-								publisheddelegate.saveOrUpdateSection(sectFc);
-							} else {
-								assessdelegate.saveOrUpdateSection(sectFc);
-							}
+							assessmentService.saveOrUpdateSection(sectFc);
 							break;
 						}
 					}
@@ -158,12 +135,12 @@ public class UpdateAssessmentQuestionsOrder implements ActionListener {
 			Map<Integer,Long> changedItems = new HashMap<>();
 			Map<Integer,ItemFacade> sectionItems = new HashMap<>();
 			
-			for(ItemContentsBean icb : (List<ItemContentsBean>)curSection.getItemContents()) {
-				ItemData curItem = (ItemData) (icb).getItemData();
-				ItemFacade itemFc = delegate.getItem(String.valueOf(curItem.getItemId()));
+			for(ItemContentsBean icb : curSection.getItemContents()) {
+				ItemDataIfc curItem = icb.getItemData();
+				ItemFacade itemFc = itemService.getItem(String.valueOf(curItem.getItemId()));
 
 				Integer curSequence = curItem.getSequence();
-				if(curSequence != itemFc.getData().getSequence()) {
+				if(!curSequence.equals(itemFc.getData().getSequence())) {
 					if(changedItems.get(curSequence) != null){
 						//there are several items with the same new section number, change only the first
 						duplicated = true;
@@ -173,7 +150,7 @@ public class UpdateAssessmentQuestionsOrder implements ActionListener {
 						itemFc.getData().setSequence(curSequence);
 						itemFc.setSequence(curSequence);
 						changedItems.put(curSequence, itemFc.getItemId());
-						delegate.saveItem(itemFc);
+						itemService.saveItem(itemFc);
 					}
 				} else {
 					//position not changed, adding to aux map
@@ -192,7 +169,7 @@ public class UpdateAssessmentQuestionsOrder implements ActionListener {
 								itemFc = sectionItems.get(i);
 								itemFc.setSequence(nbr);
 								controlQ = i+1;
-								delegate.saveItem(itemFc);
+								itemService.saveItem(itemFc);
 								break;
 							}
 						}

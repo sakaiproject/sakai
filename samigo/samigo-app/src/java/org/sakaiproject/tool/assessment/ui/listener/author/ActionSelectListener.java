@@ -61,6 +61,7 @@ public class ActionSelectListener implements ActionListener {
 		log.debug("**** action : " + action);
 
 		if ("edit_pending".equals(action)) {
+			author.setIsEditPendingAssessmentFlow(true);
 			EditAssessmentListener editAssessmentListener = new EditAssessmentListener();
 			editAssessmentListener.processAction(null);
 			author.setFirstFromPage("editAssessment");

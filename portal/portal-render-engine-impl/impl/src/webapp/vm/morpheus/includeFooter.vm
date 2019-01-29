@@ -4,54 +4,60 @@
 
         <footer id="footer" role="contentinfo" class="Mrphs-footer">
 
-            <ul id="footer-links" class="Mrphs-footer--nav Mrphs-footer--nav__main">
+            <ul id="footer-links" class="Mrphs-footer--nav">
 
-                #foreach ( $bn in $bottomNav )
+            #foreach ( $bn in $bottomNav )
 
-                    <li>
-                        <span>${bn}</span>
-                    </li>
+                <li><span>${bn}</span></li>
 
-                #end ## END of FOREACH ( $bn in $bottomNav )
+            #end ## END of FOREACH ( $bn in $bottomNav )
 
+                <li class="Mrphs-footer--details">
+                    <a id="Mrphs-footer--details__info" class="fa fa-info-circle" href="#" aria-haspopup="true"></a>
+                    <div id="Mrphs-footer--details__panel" role="dialog" aria-label="${rloader.footer_details_panel_label}" aria-describedby="Mrphs-footer--details__description">
+                        <div class="Mrphs-footer--details__heading">
+                            <p id="Mrphs-footer--details__title">${bottomNavService} ${bottomNavSakaiVersion}</p>
+                            <p id="Mrphs-footer--details__description" class="sr-only">${rloader.footer_details_panel_description}</p>
+                            <a id="Mrphs-footer--details__close" role="menuitem" href="#\closeInfoPanel"><span class="sr-only">${rloader.footer_details_panel_close}</span><span class="fa fa-times" aria-hidden="true"></span></a>
+                        </div>
+                        <dl>
+                            #if ($showServerTime == "true")
+                                <dt class="Mrphs-footer--details__server-time">${rloader.site_servertime_label}</dt>
+                                <dd id="serverTime" class="Mrphs-footer--server-time" data-servertzdisplay="${serverTzDisplay}" data-serverdateandgmtoffset="${serverTzGMTOffset}"></dd>
+
+                                #if ($showPreferredTzTime == "true")
+
+                                <dt class="Mrphs-footer--details__preferred-time">${rloader.site_preferredtime_label}</dt>
+                                <dd id="preferredTime" class="Mrphs-footer--server-time__preferred" data-preferredtzdisplay="${preferredTzDisplay}" data-preferredserverdateandgmtoffset="${preferredTzGMTOffset}"></dd>
+
+                                #end ## END of IF ($showPreferredTzTime == "true")
+
+                            #end ## END of IF ($showServerTime == "true")
+
+                            <dt>${rloader.site_server_label}</dt>
+                            <dd>${bottomNavServer}</dd>
+
+                            <dt>${rloader.site_buildinfo_label}</dt>
+                            <dd>${bottomNavServiceVersion}</dd>
+                        </dl>
+                    </div>
+                </li>
             </ul>
 
-            <ul class="Mrphs-footer--nav Mrphs-footer--nav__project">
-                <li id="Mrphs-footer--nav__project--sakai">
+            <div class="Mrphs-footer--project">
+                <p class="Mrphs-footer--copyright">${bottomNavCopyright}</p>
+                <ul id="Mrphs-footer--poweredBy">
 
                     #foreach ( $pb in $bottomNavPoweredBy )
-
-                        <a href="${pb.poweredByUrl}" target="_blank" class="external__link"><span class="Mrphs-footer--nav__project--poweredby">${pb.poweredByAltText}</span><span class="skip external">(${rloader.site_newwindow})</span>
+                    <li>
+                        <a href="${pb.poweredByUrl}" target="_blank" class="external__link">
+                            <img class="Mrphs-footer--poweredby__image" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /><span class="skip external">(${rloader.site_newwindow})</span>
                         </a>
-
+                    </li>
                     #end ## END of FOREACH ( $pb in $bottomNavPoweredBy )
 
-                </li>
-                <li class="Mrphs-footer--nav__project--copyright">${bottomNavCopyright}</li>
-            </ul>
-
-            <details class="Mrphs-footer--details Mrphs-footer--details__build-info">
-                <summary>${rloader.site_buildinfo_label}</summary>
-                <p class="Mrphs-footer--nav__build__panel">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} - Server ${bottomNavServer}</p>
-            </details>
-
-            #if ($showServerTime == "true")
-
-                <details class="Mrphs-footer--details Mrphs-footer--details__server-time" aria-live="off">
-                <summary>${rloader.site_servertime_label}</summary>
-
-                    #if ($showPreferredTzTime == "true")
-
-                        ${rloader.site_preferredtime_label}
-                        <span id="preferredTime" class="Mrphs-footer--server-time__preferred" data-preferredtzdisplay="${preferredTzDisplay}" data-preferredserverdateandgmtoffset="${preferredTzGMTOffset}"></span>
-
-                    #end
-
-                    <span id="serverTime" class="Mrphs-footer--server-time" data-servertzdisplay="${serverTzDisplay}" data-serverdateandgmtoffset="${serverTzGMTOffset}"></span>
-                </details>
-
-            #end ## END of IF ($showServerTime == "true")
-
+                </ul>
+            </div>
         </footer>
         
         <div class="Mrphs-container Mrphs-container--extras">

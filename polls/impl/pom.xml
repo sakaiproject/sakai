@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.polls</groupId>
         <artifactId>polls</artifactId>
-        <version>19-SNAPSHOT</version>
+        <version>20-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Polls Implementation Module (polls-impl)</name>
@@ -34,6 +34,10 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-storage-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
@@ -59,13 +63,8 @@
            <artifactId>commons-lang3</artifactId>
        </dependency>
         <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

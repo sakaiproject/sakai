@@ -1,0 +1,465 @@
+@import "_rubrics_variables";
+
+.#{$namespace}sakai-rubrics {
+    .manager-collapse-title {
+        cursor: pointer;
+        padding: $standard-spacing;
+        background: $rubrics-manager-bg;
+        border: 1px solid $rubrics-manager-border-color;
+        border-width: 1px 0;
+        margin: $standard-spacing 0;
+    }
+
+    .rubric-item {
+        position: relative;
+    }
+
+    .rubric-title {
+        background: $rubrics-title-bg;
+        padding: 20px;
+        border: $rubrics-title-border-size solid $rubrics-title-border-color;
+        border-width: $rubrics-title-border-size 0px;
+        font-weight: bold;
+        @include display-flex;
+        @include justify-content(space-between);
+
+        div {
+            font-weight: normal;
+            flex: 1;
+        }
+
+        .rubric-name {
+            cursor: default;
+            color: $rubrics-link-color;
+        }
+
+        &:hover, &.active, &:focus {
+            background: $rubrics-title-active-bg;
+        }
+
+        iron-icon.locked {
+            display: inline-block;
+        }
+
+        .actions {
+            width: 100px;
+            float: right;
+
+            .action-container {
+                display: inline-block;
+
+                @media #{$desktop} {
+                    padding-left: 6px;
+                    padding-right: $standard-spacing;
+                    border-right: 2px solid $rubrics-title-border-color;
+
+                    > span {
+                        font-weight: normal;
+                    }
+
+                    &:last-of-type {
+                        padding-right: 0;
+                        border-right: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    #site-rubrics-title {
+        @include display-flex;
+        @include justify-content(space-between);
+
+        div {
+            font-weight: bold;
+            flex: 1;
+        }
+    }
+
+    #shared-rubrics-title {
+        @include display-flex;
+        @include justify-content(space-between);
+
+        div {
+            font-weight: bold;
+            flex: 1;
+        }
+    }
+
+    iron-icon:not(.collpase-icon):not(.reorder-icon):not(.comment-icon) {
+        background: $rubrics-icon-bg;
+        color: $rubrics-icon-color;
+        border-radius: 50px;
+        padding: 5px;
+        cursor: pointer;
+        height: 20px;
+        width: 20px;
+
+        &:hover {
+            background: $rubrics-icon-active-bg;
+            color: $rubrics-icon-bg;
+        }
+
+        &.add {
+            color: $rubrics-empty-bg;
+            background: $rubrics-link-color;
+        }
+    }
+
+    iron-icon.sideways {
+        transform: rotate(90deg);
+    }
+
+    iron-icon.comment-icon {
+        height: 15px;
+        width: 15px;
+        margin: 5px auto;
+        display: block;
+
+        &.active {
+            fill: orange;
+        }
+    }
+
+    .btn.add-rubric {
+        color: $rubrics-link-color;
+    }
+
+    .rubric-details {
+        padding: $standard-spacing;
+    }
+}
+
+/** External to the tool **/
+.sakai-rubric-association {
+    .disabled {
+        label {
+            color: $rubrics-disabled-label-color;
+        }
+    }
+
+    .rubrics-list {
+        padding-left: 20px;
+    }
+
+    select.form-control {
+        -webkit-appearance: menulist;
+        width: auto;
+        display: inline-block;
+        margin: 0 20px 10px 0;
+
+        #rubricslist {
+            display: inline-block;
+        }
+    }
+}
+
+.rubrics-lightbox {
+    position: absolute;
+    z-index: 999;
+    background: rgba(0,0,0,0.5);
+
+    sakai-rubric-criterion-preview {
+        display: block;
+        padding-bottom: 20px;
+    }
+
+    .container {
+        background: $rubrics-lightbox-bg;
+        margin: 80px auto;
+        position: relative;
+
+        > a {
+            text-decoration: none;
+            padding: 1px 7px 6px;
+            font-weight: bold;
+            font-size: 18px;
+            background: $rubrics-empty-bg;
+            border: $rubrics-lightbox-border-size solid $rubrics-lightbox-border-color;
+            border-radius: 30px;
+            display: block;
+            line-height: 1;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+        }
+    }
+}
+
+.criterion {
+    &.sakai-rubric-criterion,
+    &.sakai-rubric-criterion-preview,
+    &.sakai-rubric-criterion-grading,
+    &.sakai-rubric-criterion-student,
+    &.sakai-rubric-criterion-readonly {
+        width: 100%;
+        border-bottom: $rubrics-crit-border-size solid $rubrics-crit-border-color;
+
+        .criterion-row {
+            width: 100%;
+            height: 100%;
+            display: table;
+            border: $rubrics-crit-border-size solid $rubrics-crit-border-color;
+            border-width: $rubrics-crit-border-size 0 0 0;
+
+            &.sortable-ghost, .sortable-ghost {
+                opacity: 0.25;
+            }
+
+            &.sortable-drag, .sortable-drag {
+                cursor: grabbing;
+                cursor: -webkit-grabbing;
+                cursor: -moz-grabbing;
+            }
+
+            .criterion-detail {
+                position: relative;
+                padding: $standard-spacing;
+                display: table-cell;
+                vertical-align: top;
+                background: $rubrics-crit-detail-bg;
+                width: 20%;
+                border-right: $rubrics-crit-border-size solid $rubrics-crit-border-color;
+
+                p {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 11px;
+                    color: $rubrics-crit-detail-color;
+                }
+            }
+
+            .reorder-icon {
+                cursor: grab;
+                cursor: -webkit-grab;
+                cursor: -moz-grab;
+
+                &:active {
+                    cursor: grabbing;
+                    cursor: -webkit-grabbing;
+                    cursor: -moz-grabbing;
+                }
+            }
+            .criterion-ratings {
+                .rating-item {
+                    sakai-rubric-criterion-rating-edit {
+                        visibility: hidden;
+                    }
+
+                    &:hover sakai-rubric-criterion-rating-edit, &.active sakai-rubric-criterion-rating-edit {
+                        visibility: visible;
+                    }
+                }
+            }
+
+            .add-criterion-item {
+                display: none;
+                opacity: 0.5;
+                position: absolute;
+                padding-top: 5px;
+                right: -10px;
+                top: 0;
+                bottom: 0;
+                width: 20px;
+                z-index: 5;
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
+
+            &:hover, &.active {
+                .add-criterion-item {
+                    display: block;
+                }
+
+                sakai-rubric-criterion-edit {
+                    display: inline-block;
+                }
+
+                .criterion-ratings {
+                    .rating-item {
+                        sakai-rubric-criterion-rating-edit {
+                            visibility: visible;
+                        }
+                    }
+                }
+            }
+
+            .criterion-ratings {
+                display: table-cell;
+                vertical-align: top;
+                width: 75%;
+                height: 100%;
+
+                .cr-table {
+                    display: table;
+                    width: 100%;
+                    height: 100%;
+
+                    .cr-table-row {
+                        display: table-row;
+                        height: 100%;
+                    }
+                }
+
+                .rating-item {
+                    position: relative;
+                    display: table-cell;
+                    padding: 5px;
+                    height: 100%;
+                    border-right: $rubrics-crit-border-size solid $rubrics-crit-border-color;
+
+                    p {
+                        margin: 0;
+                        padding: 0;
+                        font-size: 11px;
+                        color: $rubrics-item-color;
+                    }
+
+                    .points {
+                        color: $rubrics-item-points-color;
+                        font-style: italic;
+                    }
+                }
+            }
+
+            .criterion-actions {
+                padding: $standard-spacing;
+                display: table-cell;
+                background: $rubrics-crit-actions-bg;
+                width: 5%;
+                position: relative;
+            }
+        }
+
+        .criterion-title, .criterion-item-title {
+            font-size: 16px;
+            color: $rubrics-crit-title-color;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+
+            &.criterion-item-title {
+                font-weight: normal;
+                color: $rubrics-crit-item-title-color;
+            }
+        }
+
+        &.grading {
+            .rating-item {
+                cursor: default;
+
+                &:hover:not(.student), &:focus:not(.student) {
+                    background: $rubrics-rating-hover-bg;
+                }
+
+                &.selected {
+                    background: $rubrics-rating-selected-bg;
+                }
+            }
+
+            .fine-tune-points {
+                min-width: 75px;
+            }
+
+            strong.points-display {
+                display: block;
+                padding: 2px;
+                text-align: center;
+
+                &.strike {
+                    text-decoration: line-through;
+                }
+            }
+        }
+    }
+}
+
+.rubric-totals {
+    &.sakai-rubric-criterion-grading,
+    &.sakai-rubric-criterion-student {
+        text-align: right;
+        padding: 5px $standard-spacing;
+    }
+}
+
+sakai-rubric-grading-comment,
+sakai-rubric-student-comment {
+    iron-icon.comment-icon {
+        height: 15px;
+        width: 15px;
+        margin: 5px auto;
+        display: block;
+
+        &.active {
+            fill: orange;
+        }
+    }
+}
+
+[class*="edit-popover"] {
+    width: 400px;
+
+    .buttons {
+        text-align: right;
+
+        .btn {
+            margin: 0;
+
+            &.cancel {
+                color: $rubrics-popover-cancel-color;
+            }
+        }
+    }
+
+    .form-group {
+        &.title {
+            display: inline-block;
+            width: 70%;
+        }
+
+        &.points {
+            display: inline-block;
+            width: 28%;
+        }
+    }
+}
+
+.popover.show-tooltip {
+    display: inline-block;
+    position: absolute;
+
+    .popover-title{
+        @include display-flex;
+        @include justify-content(flex-end);
+
+        .criterion-title{
+            margin-right: auto;
+            margin-bottom: inherit;
+            align-self: center;
+            font-size: 14px;
+        }
+
+        .buttons{
+            align-self: center;
+            margin-left: $standard-spacing;
+        }
+    }
+
+    .first-row {
+        @include display-flex;
+        @include justify-content(space-between);
+    }
+}
+
+.hide-input-arrows {
+    -moz-appearance: textfield;
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        margin: 0;
+    }
+}

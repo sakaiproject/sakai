@@ -24,6 +24,7 @@ package org.sakaiproject.poll.tool.params;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,6 @@ public class PollToolBean {
 	
 	//public Poll newPoll = new Poll();
 	public String siteID;
-
 
 	public Option option;
 
@@ -139,16 +139,17 @@ public class PollToolBean {
 		boolean isNew = true;
 		if (poll.getPollId()!=null) {
 			log.debug("Actualy updating poll " + poll.getPollId());
+			Poll existingPoll = manager.getPollById(poll.getPollId(), false);
 			isNew = false;
 			//check for possible unchanged values
-			log.debug(" newPoll is " + poll.getText()+ " while poll text is " + poll.getText());
+			log.debug("newPoll is {} while poll text is {}", poll.getText(), existingPoll.getText());
 			
 
-			if (poll.getText().equals("") && poll.getText()!=null)
-				poll.setText(poll.getText());
-
-			if (poll.getDetails().equals("") && poll.getDetails() != null)
-				poll.setDetails(poll.getDetails());
+			if (poll.getCreationDate() == null) {
+				poll.setCreationDate(existingPoll.getCreationDate());
+			}
+		} else {
+			poll.setCreationDate(new Date());
 		}
 
 		
@@ -369,7 +370,7 @@ public class PollToolBean {
 	private void sendOptionDeletedNotification(String[] userEids) {
 		Poll poll = manager.getPollById(option.getPollId());
 		String siteTitle = externalLogic.getSiteTile(poll.getSiteId());
-		externalLogic.notifyDeletedOption(Arrays.asList(userEids), siteTitle, poll.getPollText());
+		externalLogic.notifyDeletedOption(Arrays.asList(userEids), siteTitle, poll.getText());
 	}
 
 }

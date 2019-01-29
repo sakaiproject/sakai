@@ -729,7 +729,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (canEditPage) {
 			// show tool bar, but not if coming from grading pane
 			if(!cameFromGradingPane) {
-				createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
+				createToolBar(tofill, currentPage);
 			}
 			
 			UIOutput.make(tofill, "title-descrip");
@@ -1084,8 +1084,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    } catch (Exception e) {}
 		}
 
+		List<SimplePageItem> itemList = null;
+		
 		// items to show
-		List<SimplePageItem> itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
+		if(httpServletRequest.getParameter("printall") != null && currentPage.getTopParent() != null)
+		{
+			itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getTopParent());
+		}
+		else
+		{
+			itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
+		}
 		
 		// Move all items with sequence <= 0 to the end of the list.
 		// Count is necessary to guarantee we don't infinite loop over a
@@ -1307,7 +1316,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
-				    } else if ("colunn".equals(i.getFormat()))
+				    } else if ("column".equals(i.getFormat()))
 					colnum++;
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
@@ -1352,6 +1361,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    // for first item, if wasn't break, process it
 				}
 				
+				if (!simplePageBean.isItemVisible(i, currentPage)) {
+					continue;
+				}
+
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
 						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
 				{
@@ -1385,9 +1398,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
-				if (!simplePageBean.isItemVisible(i, currentPage)) {
-					continue;
-				}
 				// break isn't a real item. probably don't want to count it
 				if (i.getType() != SimplePageItem.BREAK)
 				    anyItemVisible[0] = true;
@@ -1993,7 +2003,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
-						    else if(!lengthOk(height) && lengthOk(width)) {
+						    else if(!lengthOk(height) && lengthOk(width) && ("px".equals(width.unit) || "".equals(width.unit))) {
 							    // Youtube seems to use aspect ratio of 16*9 from 2015 on
 							    int youtubeDerivedHeight = (int) Math.ceil(new Double(width.getOld()) * 9 / 16);
 							    item.decorate(new UIFreeAttributeDecorator("height", youtubeDerivedHeight + ""));
@@ -4136,7 +4146,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//		return ieVersion;
 	}
 
-	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
+	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 		boolean studentPage = simplePageBean.isStudentPage(currentPage);
 

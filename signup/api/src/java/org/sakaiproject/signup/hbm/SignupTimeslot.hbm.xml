@@ -36,6 +36,7 @@
 					<column name="attended" default="0"/>
 				</property>
 				<!-- <property name="attended" column="attended" type="boolean" not-null="false" /> -->
+				<property name="inscriptionTime" column="inscription_time" type="org.sakaiproject.springframework.orm.hibernate.type.InstantType" not-null="false" />
 			</composite-element>	
 		</list>
 		<list name="waitingList" cascade="all" table="signup_ts_waitinglist" fetch="join">
@@ -51,6 +52,7 @@
 				<property name="attended"  type="boolean" >
 					<column name="attended" default="0"/>
 				</property>
+				<property name="inscriptionTime" column="inscription_time" type="org.sakaiproject.springframework.orm.hibernate.type.InstantType" not-null="false" />
 			</composite-element>	
 		</list>
 	</class>

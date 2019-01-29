@@ -17,12 +17,17 @@ public class LaunchJWT extends BaseJWT {
 
 	public static String CLAIM_PREFIX = "https://purl.imsglobal.org/spec/lti/claim/";
 
+	public static String MESSAGE_TYPE_LAUNCH = "LtiResourceLinkRequest";
+	public static String MESSAGE_TYPE_DEEP_LINK = "LtiDeepLinkingRequest";
+
 	public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner";
 	public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor";
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
 	public String deployment_id;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/target_link_uri")
+	public String target_link_uri;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/message_type")
 	public String message_type;
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/version")
@@ -55,6 +60,9 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/resource_link")
 	public ResourceLink resource_link;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti1_1_user_id")
+	public String lti1_1_user_id;
+
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/context")
 	public Context context;
 
@@ -70,9 +78,15 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome")
 	public BasicOutcome basicoutcome;
 
+	@JsonProperty("https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice")
+	public NamesAndRoles names_and_roles;
+
+	@JsonProperty("https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings")
+	public DeepLink deep_link;
+
 	// Constructor
 	public LaunchJWT() {
-		this.message_type = "LtiResourceLinkRequest";
+		this.message_type = MESSAGE_TYPE_LAUNCH;
 		this.version = "1.3.0";
 		this.launch_presentation = new LaunchPresentation();
 	}

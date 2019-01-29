@@ -34,8 +34,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.rubrics.RubricsConfiguration;
 import org.sakaiproject.rubrics.logic.AuthenticatedRequestContext;

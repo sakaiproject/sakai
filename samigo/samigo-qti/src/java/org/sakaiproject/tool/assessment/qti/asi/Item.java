@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -248,7 +248,7 @@ public class Item extends ASIBaseClass
     }
     
     if(this.isEMI()){
-    	helper.setItemLabel(StringEscapeUtils.escapeXml(item.getThemeText()), this);
+    	helper.setItemLabel(StringEscapeUtils.escapeXml10(item.getThemeText()), this);
 		helper.setPresentationLabel(item.getIsAnswerOptionsSimple()?"Simple":"Rich", this);
 		String ident = "EMI" + item.getSequence();
 		helper.setPresentationFlowResponseIdent(ident, this);

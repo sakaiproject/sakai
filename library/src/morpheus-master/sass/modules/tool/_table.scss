@@ -135,7 +135,7 @@ table{
 
 		input, select, button
 		{
-			margin: 0 0 0 10px;
+			margin: 0 0 0 $standard-space;;
 		}
 
 	}
@@ -145,21 +145,26 @@ table{
 		margin-bottom: 10px;
 	}
 
-	.sakai-table-viewFilter select
-	{
-		width: 100%;
-	}
-
-	.sakai-table-viewFilter input[type=radio], .sakai-table-viewFilter input[type=checkbox]
-	{
-		margin: 0;
-	}
-
 	.sakai-table-viewFilter
 	{
+		select
+		{
+			width: 100%;
+		}
+		
+		input[type=button], input[type=submit]
+		{
+			margin: $standard-space;
+		}
+		
+		input[type=radio], input[type=checkbox]
+		{
+			margin: 0;
+		}
+
 		input[type=radio] ~ label, input[type=checkbox] ~ label
 		{
-			margin-right: calc(#{$standard-spacing} / 2);
+			margin-right: $standard-space;
 		}
 	}
 

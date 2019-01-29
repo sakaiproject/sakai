@@ -278,7 +278,11 @@ table.messageActions td{
 	background: #fff;
 	padding: 2px 5px;
 	vertical-align: middle;
-	margin: 0 .3em 0 0;
+	margin: 0 .3em .3em 0;
+	display: inline-block;
+}
+.messageActions a span{
+	white-space: nowrap;
 }
 .messageActions a:hover{
 	border: 1px solid #555  !important;

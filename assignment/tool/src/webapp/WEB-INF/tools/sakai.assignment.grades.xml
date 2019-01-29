@@ -6,6 +6,7 @@
 			id="sakai.assignment.grades"
 			title="Assignments"
 			description="For posting, submitting and grading assignment(s) online.">
+			<!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 		
 		<category name="course" />
 		<category name="project" />

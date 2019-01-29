@@ -41,6 +41,9 @@
 		<!-- Enable/disable Resource statistics for Overview page -->
 		<!-- <property name="enableResourceStats" value="true" /> -->
 
+		<!-- Enable/disable Lessons statistics for Overview page -->
+		<!-- <property name="enableLessonsStats" value="true" /> -->
+
 		<!-- Enable/disable sakai-wide statistics -->
 		<!-- <property name="serverWideStatsEnabled" value="false" /> -->
 

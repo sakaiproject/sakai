@@ -260,8 +260,12 @@
 		}
 	}
 
-	.viewLinkControl{
-		@extend .button;
+	.viewLinkControl {
+		margin: $standard-spacing 0;
+		
+		a {
+			@extend .button;
+		}
 	}
 
 	.calendarLegend{

@@ -270,11 +270,11 @@ public class PresenceTool extends HttpServlet
 		{
 		}
 
-		out.println("<ul class=\"presenceList\">");
+		out.println("<div class=\"presenceList\">");
 		if (users == null)
 		{
 			out.println("<!-- Presence empty -->");
-			out.println("</ul>");
+			out.println("</div>");
 			return;
 		}
 
@@ -291,10 +291,10 @@ public class PresenceTool extends HttpServlet
 					displayName += " (" + asName + ")";
 				}
 
-				out.print("<li class=\"inChat\">");
+				out.print("<div class=\"listUser inChat\">");
 				out.print("<span title=\"" + msg + "\">");
 				out.print(Web.escapeHtml(displayName));
-				out.println("</span></li>");				
+				out.println("</span></div>");
 			}
 		}
 
@@ -316,13 +316,13 @@ public class PresenceTool extends HttpServlet
 				displayName += " (" + asName + ")";
 			}
 
-			out.print("<li>");
+			out.print("<div class=\"listUser\">");
 			out.print("<span title=\"" + msg + "\">");
 			out.print(Web.escapeHtml(displayName));
-			out.println("</span></li>");
+			out.println("</span></div>");
 		}
 
-		out.println("</ul>");
+		out.println("</div>");
 	}
 
 	/**

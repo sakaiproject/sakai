@@ -146,7 +146,7 @@
             <f:facet name="header">
                 <h:outputText value="#{msgs.overview_table_header_remove}" />
             </f:facet>
-            <h:selectBooleanCheckbox id="remove" value="#{section.flaggedForRemoval}" rendered="#{ ! section.readOnly }"/>
+            <h:selectBooleanCheckbox id="remove" value="#{section.flaggedForRemoval}" rendered="#{ ! section.readOnly && ! section.lockedForDeletion }"/>
         </h:column>
     </sec:rowGroupTable>
 

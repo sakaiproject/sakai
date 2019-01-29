@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>course-management</artifactId>
 		<groupId>org.sakaiproject.edu-services.course-management</groupId>
-		<version>19-SNAPSHOT</version><!-- ProjectVersion -->
+		<version>20-SNAPSHOT</version><!-- ProjectVersion -->
 		<relativePath>../../../pom.xml</relativePath>
 	</parent>
 	<name>coursemanagement-hibernate-impl</name>
@@ -41,7 +41,6 @@
 		<dependency>
 			<groupId>jdom</groupId>
 			<artifactId>jdom</artifactId>
-			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -96,9 +95,13 @@
 			<artifactId>hsqldb</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>dom4j</groupId>
+			<groupId>org.dom4j</groupId>
 			<artifactId>dom4j</artifactId>
-			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

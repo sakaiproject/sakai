@@ -4,7 +4,7 @@
   <parent>
     <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>19-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-jldap-provider</name>
@@ -42,8 +42,8 @@
       <artifactId>commons-pool</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>com.novell.ldap</groupId>

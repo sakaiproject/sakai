@@ -127,6 +127,38 @@ public class CourseManagementGroupProvider implements GroupProvider {
 		return userRoleMap;
 	}
 
+	public Map<String, String> getGroupRolesForUser(String userEid, String academicSessionEid) {
+		log.debug("------------------CMGP.getGroupRolesForUser({})", userEid);
+		Map<String, String> groupRoleMap = new HashMap<>();
+		for(RoleResolver rr : roleResolvers) {
+			// note that some implementations of RoleResolver may not implement this method call signature.
+			Map<String, String> rrGroupRoleMap = rr.getGroupRoles(cmService, userEid, academicSessionEid);
+			log.debug("Found {} groups for {} from resolver {}", rrGroupRoleMap.size(), userEid, rr.getClass().getName());
+
+			// Only add the section eids if they aren't already in the map or if the new role has a higher preference.
+			for(String sectionEid : rrGroupRoleMap.keySet()) {
+				String existingRole = groupRoleMap.get(sectionEid);
+				String rrRole = rrGroupRoleMap.get(sectionEid);
+
+				// The Role Resolver has found no role for this section
+				if (rrRole == null) {
+					continue;
+				}
+
+				if (existingRole == null) {
+					log.debug("Adding {} to groupRoleMap with sakai role {} for user {}", sectionEid, rrRole, userEid);
+					groupRoleMap.put(sectionEid, rrRole);
+				} else if (preferredRole(existingRole, rrRole).equals(rrRole)) {
+					log.debug("Changing {}'s role in groupRoleMap from {} to {} for section {}", userEid, existingRole, rrRole, sectionEid);
+					groupRoleMap.put(sectionEid, rrRole);
+				}
+			}
+		}
+
+		log.debug("______________getGroupRolesForUser={}", groupRoleMap);
+		return groupRoleMap;
+	}
+
 	/**
 	 * Provides a map of Course Section EIDs (which can be used as AuthzGroup provider IDs)
 	 * to Sakai roles for a given user.

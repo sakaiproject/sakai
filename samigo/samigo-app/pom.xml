@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>19-SNAPSHOT</version>
+		<version>20-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Tool (samigo-app)</name>
@@ -137,9 +137,8 @@
             <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
-            <groupId>dom4j</groupId>
+            <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
         </dependency>
 		<dependency>
             <groupId>javax.activation</groupId>
@@ -229,10 +228,17 @@
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
         </dependency>
-        <!-- test -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
         </dependency>
         <dependency>
         	<groupId>joda-time</groupId>
@@ -240,10 +246,6 @@
         	<version>${joda.time.version}</version>
         	<type>jar</type>
         	<scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.samigo</groupId>
-            <artifactId>samigo-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.tags</groupId>
@@ -278,7 +280,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>2.6</version>
 			</plugin>
 		</plugins>
 		<resources>

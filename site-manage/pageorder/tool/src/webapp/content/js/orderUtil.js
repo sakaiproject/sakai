@@ -191,7 +191,7 @@ function doSaveEdit(clickedLink) {
 			$(li).find(".item_label_box").attr("style", "display: inline");
 			$(li).find(".item_control_box").show();
 			$(li).find(".item_control_box").attr("style", "display: inline");
-			$(li).addClass("sortable_item");
+			$(li).addClass("sortable_item reorder-element");
 			$(li).removeClass("editable_item");
 		}
   	});
@@ -204,7 +204,7 @@ function doCancelEdit(clickedLink) {
 	$(li).find(".item_label_box").attr("style", "display: inline");
 	$(li).find(".item_control_box").show();
 	$(li).find(".item_control_box").attr("style", "display: inline");
-	$(li).addClass("sortable_item");
+	$(li).addClass("sortable_item reorder-element");
 	$(li).removeClass("editable_item");
 	$(li).find(".new_title").val($(li).find(".item_label_box").text());
 }

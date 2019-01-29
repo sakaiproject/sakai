@@ -249,7 +249,6 @@
 						title="#{msgs.button_publish}" />
 					<h:commandButton
 						action="#{SyllabusTool.processEditBulkDraft}"
-						styleClass="active"
 						value="#{msgs.bar_new}" 
 						accesskey="s"
 						title="#{msgs.button_save}" />

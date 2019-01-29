@@ -35,7 +35,6 @@ import org.sakaiproject.api.app.help.TableOfContents;
 public class TableOfContentsTool
 {
 
-  private TableOfContents tableOfContents;
   private HelpManager helpManager;
   private String baseUrl = null;
 

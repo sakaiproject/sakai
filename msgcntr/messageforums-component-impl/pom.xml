@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.msgcntr</groupId>
     <artifactId>msgcntr</artifactId>
-    <version>19-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
   </parent>
   <name>Sakai Message Forums Component Implementation</name>
   <groupId>org.sakaiproject.msgcntr</groupId>
@@ -99,11 +99,15 @@
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler-api</artifactId>
     </dependency>
-      <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-private</artifactId>
-          <scope>compile</scope>
-      </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-private</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.rubrics</groupId>
+      <artifactId>rubrics-service-api</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <resources>

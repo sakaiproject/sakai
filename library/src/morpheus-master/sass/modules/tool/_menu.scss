@@ -32,7 +32,7 @@
 				text-transform: $tool-tab-text-transform;
 				letter-spacing: $tool-tab-text-letter-spacing;
 
-				&:hover{
+				&:hover, &:focus {
 					color: $tool-tab-hover-text-color;
 					background: $tool-tab-hover-background-color;
 					text-decoration: none;
@@ -47,7 +47,12 @@
 						right: -1px;
 						top: -1px;
 					}
-			  }
+				}
+				
+				&:focus {
+					position: relative;		// so the outline doesn't get hidden by adjacent tabs
+					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
+				}
 			}
 			&.current{
 				color: $tool-tab-active-text-color;

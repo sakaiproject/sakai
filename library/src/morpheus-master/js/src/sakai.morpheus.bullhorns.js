@@ -10,9 +10,9 @@
     portal.socialBullhorn = $PBJQ('#Mrphs-social-bullhorn');
     portal.academicBullhorn = $PBJQ('#Mrphs-academic-bullhorn');
 
-    var formatDate = function (millis) {
+    var formatDate = function (instant) {
 
-        var m = moment(millis);
+        var m = moment.unix(instant.epochSecond);
         return m.format('L LT');
     };
 
@@ -237,6 +237,9 @@
             $PBJQ.ajax({
                 url: '/direct/portal/bullhornCounts.json',
                 cache: false,
+                data: {
+                    auto: true // indicates that this request is not a user action
+                }
                 }).done(function (data) {
 
                     portal.failedBullhornCounts = 0;
@@ -253,8 +256,8 @@
                         portal.socialBullhorn.find('.bullhorn-counter').remove();
                     }
                 }).fail(function (xhr, status, error) {
-                    console.log('Failed to get the bullhorn counts. Status: ' + status);
-                    console.log('FAILED ERROR: ' + error);
+                    if (console) console.log('Failed to get the bullhorn counts. Status: ' + status);
+                    if (console) console.log('FAILED ERROR: ' + error);
                     portal.failedBullhornCounts = portal.failedBullhornCounts || 0;
                     portal.failedBullhornCounts += 1;
                     if (portal.failedBullhornCounts == 3) {

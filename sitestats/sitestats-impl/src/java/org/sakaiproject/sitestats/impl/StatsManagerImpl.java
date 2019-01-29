@@ -104,6 +104,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean						enableSiteVisits						= null;
 	private Boolean						enableSiteActivity						= null;
 	private Boolean						enableResourceStats						= null;
+	private Boolean						enableLessonsStats						= null;
 	private Boolean						enableSitePresences						= null;
 	private Boolean						visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= true;
@@ -192,6 +193,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return enableResourceStats;
 	}
 	
+	public void setEnableLessonsStats(Boolean enableLessonsStats) {
+		this.enableResourceStats = enableLessonsStats;
+	}
+	public void setEnableLessonsStats(boolean enableLessonsStats) {
+		this.enableLessonsStats = Boolean.valueOf(enableLessonsStats);
+	}
+	public boolean isEnableLessonsStats() {
+		return enableLessonsStats;
+	}
+
 	public void setEnableSitePresences(Boolean enableSitePresences) {
 		this.enableSitePresences = enableSitePresences;
 	}
@@ -361,6 +372,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if(enableResourceStats == null) {
 			enableResourceStats = true;
 		}
+		if(enableLessonsStats == null) {
+			enableLessonsStats = true;
+		}
 		if(enableSitePresences == null) {
 			// turn off, by default
 			enableSitePresences = false;// M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
@@ -438,6 +452,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					try{
 						// parse from stored preferences
 						prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
+						// preferences doesn't store additionalToolIds, add them back
+						EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), M_ers.getEventRegistry());
 					}catch(Exception e){
 						// something failed, use default
 						log.warn("Exception in parseSitePrefs() ",e);

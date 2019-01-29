@@ -20,6 +20,8 @@
 
 		<configuration name="functions.require" value="annc.read" />
 
+		<category name="widget" />
+
 	</tool>
 
 </registration>

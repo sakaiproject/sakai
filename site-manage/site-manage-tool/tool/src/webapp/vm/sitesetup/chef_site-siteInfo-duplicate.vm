@@ -30,6 +30,7 @@
 				        </label>
 				        <div class="col-sm-6">
 				            <input type="text" name="newSiteId" id="newSiteId" maxlength="$!siteIdMaxLength" size="50" value="" />
+				            <label for="newSiteId"><em>$tlang.getString("sitdup.newsitid.instructions")</em></label>
 				        </div>
 				    </div>
 				#end

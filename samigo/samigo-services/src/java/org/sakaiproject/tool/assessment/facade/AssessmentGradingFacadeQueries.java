@@ -717,27 +717,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     public void removeMediaById(Long mediaId, Long itemGradingId) {
         String mediaLocation = null;
-        Session session = null;
-        try {
-            session = getSessionFactory().openSession();
-            String query0 = "select LOCATION from SAM_MEDIA_T where MEDIAID = :id";
-            mediaLocation = (String) session.createSQLQuery(query0).setLong("id", mediaId).uniqueResult();
-            log.debug("****mediaLocation=" + mediaLocation);
-
-            String query = "delete from SAM_MEDIA_T where MEDIAID = :id";
-            session.createSQLQuery(query).setLong("id", mediaId).executeUpdate();
-        } catch (HibernateException e) {
-            log.warn(e.getMessage());
-        } finally {
-            if (session != null) {
-                try {
-                    session.flush();
-                    session.close();
-                } catch (Exception e1) {
-                    log.warn(e1.getMessage(), e1);
-                }
+        int retryCount = persistenceHelper.getRetryCount();
+        while (retryCount > 0) {
+            try {
+                MediaData mediaData = this.getMedia(mediaId);
+                mediaLocation = mediaData.getLocation();
+                getHibernateTemplate().delete(mediaData);
+                retryCount = 0;
+            } catch (Exception e) {
+                log.warn("Problem deleting media with Id {}",  mediaId);
+                retryCount = persistenceHelper.retryDeadlock(e, retryCount);
             }
         }
+
         if (mediaLocation != null) {
             File mediaFile = new File(mediaLocation);
             if (mediaFile.delete()) {
@@ -1827,7 +1819,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         };
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
         for (Object[] o : countList) {
-            actualNumberRetakeHash.put((Long) o[0], (Integer) o[1]);
+            Long l = (Long) o[1];
+            actualNumberRetakeHash.put((Long) o[0], l.intValue());
         }
         return actualNumberRetakeHash;
     }
@@ -3105,19 +3098,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId()
                         .toString());
                 // this call happens in a separate transaction, so a rollback only affects this iteration
-                
                 boolean success = saveOrUpdateAssessmentGrading(adata);
                 
-                if (success && updateGrades == true) {
+                if (success && updateGrades && autoSubmitCurrent) {
                     GradingService gs = new GradingService();
-                	gs.updateAutosubmitEventLog(adata);
+                    gs.updateAutosubmitEventLog(adata);
                     gs.notifyGradebookByScoringType(adata, publishedAssessment);
                 }
-                else {
+                else if (!success) {
                     ++failures;
                 }
-                
-                adata = null;
             } catch (Exception e) {
                 ++failures;
                 if (adata != null) {
@@ -3126,6 +3116,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 } else {
                     log.error(e.getMessage(), e);
                 }
+            }
+            finally {
+                adata = null;
             }
         }
 

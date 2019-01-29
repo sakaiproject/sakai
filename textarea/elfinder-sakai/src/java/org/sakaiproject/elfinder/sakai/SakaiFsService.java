@@ -15,28 +15,33 @@
  */
 package org.sakaiproject.elfinder.sakai;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import cn.bluejoe.elfinder.controller.executor.FsItemEx;
 import cn.bluejoe.elfinder.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.elfinder.impl.SakaiFsServiceConfig;
 import org.sakaiproject.elfinder.sakai.content.ContentFsItem;
 import org.sakaiproject.elfinder.sakai.content.ContentSiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
 import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.elfinder.sakai.samigo.SamFsItem;
 import org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory.SamSiteVolume;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.user.api.UserDirectoryService;
-
-import java.io.IOException;
-import java.util.*;
-
 import static org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  *
@@ -50,6 +55,7 @@ import static org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
  *
  * Then within each volume there will be files. The one that needs to be done really carefully is
  */
+@Slf4j
 public class SakaiFsService implements FsService {
 
 	private ContentHostingService contentHostingService;
@@ -194,7 +200,14 @@ public class SakaiFsService implements FsService {
 			if("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)){
 				continue;
 			}
-			volumes.add(getSiteVolume(currentSiteId));
+			try
+			{
+				volumes.add(getSiteVolume(siteService.getSiteVisit(currentSiteId).getId()));
+			} catch (IdUnusedException e) {
+				log.warn("Unexpected IdUnusedException: {}", e.getMessage());
+			} catch (PermissionException e) {
+				log.warn("Unexpected PermissionException: {}", e.getMessage());
+			}
 		}
 		return volumes.toArray(new FsVolume[0]);
 	}

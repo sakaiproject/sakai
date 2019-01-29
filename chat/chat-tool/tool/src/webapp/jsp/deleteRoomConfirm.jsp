@@ -19,7 +19,8 @@
 	<sakai:button_bar>
 	    <h:commandButton id="delete"
 	        action="#{ChatTool.processActionDeleteRoom}"
-	        value="#{msgs['gen.delete']}" />
+	        value="#{msgs['gen.delete']}"
+	        styleClass="active" />
 	    <h:commandButton id="cancel"
 	        action="#{ChatTool.processActionDeleteRoomCancel}"
 	        value="#{msgs['gen.cancel']}" />

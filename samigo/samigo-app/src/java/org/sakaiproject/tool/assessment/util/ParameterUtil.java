@@ -21,18 +21,23 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+
 public class ParameterUtil {
     /**
      * Get parameters for a specified rubric association
      * @param entityId Entity ID of a rubric association
      * @return Map of parameters key and parameters value
      */
-    public Map<String,String> getRubricConfigurationParameters(String entityId) {
+    public Map<String,String> getRubricConfigurationParameters(String entityId, String evaluatedItemId) {
         FacesContext context = FacesContext.getCurrentInstance();
         Map<String, String> requestParams = context.getExternalContext().getRequestParameterMap();
         Map<String, String> list = new HashMap<>();
 
-        String entity = "rbcs-";
+        String entity = RubricsConstants.RBCS_PREFIX;
+        if (evaluatedItemId != null && !evaluatedItemId.isEmpty()) {
+            entity += evaluatedItemId + "-";
+        }
         if (entityId != null && !entityId.isEmpty()) {
             entity += entityId + "-";
         }

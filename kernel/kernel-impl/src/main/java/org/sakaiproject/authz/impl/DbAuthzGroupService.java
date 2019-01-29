@@ -248,7 +248,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
             refreshTaskInterval = initConfig(REFRESH_INTERVAL_PROPKEY, serverConfigurationService().getString(REFRESH_INTERVAL_PROPKEY), refreshTaskInterval);
             refreshMaxTime = initConfig(REFRESH_MAX_TIME_PROPKEY, serverConfigurationService().getString(REFRESH_MAX_TIME_PROPKEY), refreshMaxTime);
 
-            refreshQueue = Collections.synchronizedMap(new HashMap<String, AuthzGroup>());
+            refreshQueue = Collections.synchronizedMap(new LinkedHashMap<>());
 
             refreshScheduler = Executors.newSingleThreadScheduledExecutor();
             refreshScheduler.scheduleWithFixedDelay(

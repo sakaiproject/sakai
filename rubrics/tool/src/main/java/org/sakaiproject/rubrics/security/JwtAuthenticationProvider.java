@@ -22,8 +22,6 @@
 
 package org.sakaiproject.rubrics.security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.rubrics.logic.AuthenticatedRequestContext;
 import org.sakaiproject.rubrics.logic.JwtAuthenticationToken;
 import org.sakaiproject.rubrics.security.exception.JwtTokenMalformedException;
@@ -39,8 +37,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
-
-    private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;

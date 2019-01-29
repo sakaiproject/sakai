@@ -105,4 +105,5 @@ public interface ItemFacadeQueriesAPI
 
   public Boolean itemExists(Long itemId);
 
+  public void removeItemAttachment(Long itemAttachmentId);
 }

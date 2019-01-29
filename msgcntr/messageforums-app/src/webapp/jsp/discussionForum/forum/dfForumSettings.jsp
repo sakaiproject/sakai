@@ -64,31 +64,35 @@ if (thisId == null)
 			<p class="textPanel">
 				    <h:outputText id="forum_shortDescription"  value="#{ForumTool.selectedForum.forum.shortDescription}"/>
 			</p>
-			<p>
-				<a id="show" class="show"  href="#">
-					<h:graphicImage url="/images/collapse.gif" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
-				</a>
-			</p>
-			<p>
-				<a id="hide" class="hide"  href="#">
-					<h:graphicImage url="/images/expand.gif" alt="" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
-				</a>
-			</p>
-			<div class="textPanel toggle" id="toggle">
-				<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true" value="#{ForumTool.selectedForum.forum.extendedDescription}"/>
+
+			<h:panelGroup>
+				<h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock display-none">
+					<a href="#" id="showMessage" class="toggle show">
+						<h:graphicImage url="/images/expand.gif" alt=""/>
+						<h:outputText value=" #{msgs.cdfm_read_full_description}" />
+					</a>
+				</h:panelGroup>
+				<h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock">
+					<a href="#" id="hideMessage" class="toggle show">
+						<h:graphicImage url="/images/collapse.gif" alt="" />
+						<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
+					</a>
+				</h:panelGroup>
+			</h:panelGroup>
+
+			<h:panelGroup layout="block" id="fullTopicDescription" styleClass="textPanel fullTopicDescription">
+				<h:outputText escape="false" value="#{ForumTool.selectedForum.forum.extendedDescription}" />
+
 				<h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="table table-hover table-striped table-bordered" columnClasses="bogus">
-			    <h:column>
-			    	<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />						
-<%--  				  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
-	  				  <h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
-		  		  </h:outputLink>--%>
-  				  <h:outputLink value="#{eachAttach.url}" target="_new_window">
-	  				  <h:outputText value="#{eachAttach.attachment.attachmentName}"  style="text-decoration:underline;"/>
-		  		  </h:outputLink>
-			    </h:column>
-			  </h:dataTable>
-			</div>
+					<h:column>
+						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
+						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />
+						<h:outputLink value="#{eachAttach.url}" target="_new_window">
+							<h:outputText value="#{eachAttach.attachment.attachmentName}"  style="text-decoration:underline;"/>
+						</h:outputLink>
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
 		</div>	
 		</td>
 		</tr>

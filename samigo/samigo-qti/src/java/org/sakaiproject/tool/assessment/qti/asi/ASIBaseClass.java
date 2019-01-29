@@ -32,7 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Comment;
@@ -136,7 +136,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlStringBuffer;
   public static String escapeXml(String s)
   {
     if (s==null) return "";
-    return StringEscapeUtils.escapeXml(s);
+    return StringEscapeUtils.escapeXml10(s);
   }
 
   /**

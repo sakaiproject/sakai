@@ -23,7 +23,7 @@ package org.sakaiproject.unboundid;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.unboundid.ldap.sdk.migrate.ldapjdk.LDAPEntry;
 

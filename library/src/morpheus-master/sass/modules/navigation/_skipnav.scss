@@ -72,6 +72,7 @@
 
 			// Tool row
 			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--tools {
+				@include display-flex;
 				background: $portal-background-color;
 				box-shadow: $divider-shadow;
 
@@ -93,8 +94,18 @@
 				
 				a.#{$namespace}skipNav--toolName {
 					color: $link-color;
-					&::after {
-						border-right: 0px none;
+				}
+				a.manage-overview-link-mobile {
+					display: inline-block;
+					margin-left: auto; 			// push this link to the far right
+					color: $link-color;
+
+					span {
+						padding-right: $standard-space;
+					}
+
+					&:after {
+						border-right: 0 none;
 					}
 				}
 			}

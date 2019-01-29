@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 

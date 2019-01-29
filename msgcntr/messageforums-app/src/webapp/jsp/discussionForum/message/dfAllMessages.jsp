@@ -189,12 +189,10 @@
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
 					<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.topic.availability == 'false'}" style="margin-right:.5em"/>
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}" style="margin-right:.5em"/>
-					  
-					
-					
+					<%-- Rubrics marker --%>
+					<h:outputText styleClass="fa fa-table" id="rubrics-forum-icon" rendered="#{ForumTool.selectedTopic.hasRubric == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_rubric}"/>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" styleClass="title"/>
-					
-                                
+
 			         <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="childrenNewZero" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />
 					
 					  <%--//designNote: for paralellism to other views, need to add read/unread count here as well as Moderated attribute--%>  
@@ -210,31 +208,31 @@
 
 					<h:outputText   value="#{ForumTool.selectedTopic.topic.shortDescription}" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}"  styleClass="shortDescription" />
 					
-					
-					
-						<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_view}" styleClass="show"
-								rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"
-							onclick="resize();$(this).next('.hide').toggle(); $('div.toggle').slideToggle(resize);$(this).toggle();$(this).toggleClass('opened');">
-								<h:graphicImage url="/images/collapse.gif" alt="" /><h:outputText value="#{msgs.cdfm_view}" />
-								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
-								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList && ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
+					<h:panelGroup rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}">
+						<p id="openLinkBlock" class="toggleParent openLinkBlock">
+							<a href="#" id="showMessage" class="toggle show">
+								<h:graphicImage url="/images/expand.gif" alt=""/>
+								<h:outputText value=" #{msgs.cdfm_read_full_description}" />
+								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
-					  </h:outputLink>
-				   
-			
-					<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" style="display:none " styleClass="hide" 
-								rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"
-							onclick="resize();$(this).prev('.show').toggle(); $('div.toggle').slideToggle(resize);$(this).toggle();">
-								<h:graphicImage url="/images/expand.gif" alt="" /><h:outputText value="#{msgs.cdfm_hide}" />
-								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
-								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList && ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
+							</a>
+						</p>
+						<p id="hideLinkBlock" class="toggleParent hideLinkBlock display-none">
+							<a href="#" id="hideMessage" class="toggle show">
+								<h:graphicImage url="/images/collapse.gif" alt="" />
+								<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
+								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList}" />
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
-					  </h:outputLink>
-					
-					<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
-						<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}"/> 
+							</a>
+						</p>
+					</h:panelGroup>
+
+					<f:verbatim><div id="fullTopicDescription" class="textPanel fullTopicDescription"></f:verbatim>
+						<div>
+							<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
+						</div>
 						<div class="table-responsive">
-						<h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em">
+						<h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 					  <h:column>
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt=""  />						

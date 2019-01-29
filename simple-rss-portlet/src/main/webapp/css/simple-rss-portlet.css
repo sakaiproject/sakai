@@ -14,10 +14,8 @@
  *    limitations under the License.
  */
 .simple-rss-portlet form p {
-	margin-top: 1em;
+	margin-top: 10px;
 	margin-bottom: 0;
-	font-size: 0.9em;
-	font-weight: bold;
 }
 
 .simple-rss-portlet form a {
@@ -33,7 +31,6 @@
 	font-weight: normal;
 }
 
-
 /** overrides for CSyndFeed **/
 /** Sakai version **/
 .news-item-img {
@@ -46,7 +43,6 @@
     display: block;
     width: 100%;
     margin-bottom: 1em;
-    /*margin-left: -40px;*/ /* since we are in a list, negate the indent */
 }
 
 /* reduce the amount of white space around the headings of feeds */
@@ -66,4 +62,3 @@
 	font-weight: bold;
 	font-size: larger;
 }
-

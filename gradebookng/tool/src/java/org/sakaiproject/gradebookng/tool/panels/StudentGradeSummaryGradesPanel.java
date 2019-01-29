@@ -38,6 +38,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradingType;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -94,7 +95,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
+		final SortType sortedBy = this.isGroupedByCategory ? SortType.SORT_BY_CATEGORY : SortType.SORT_BY_SORTING;
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
 
 		final List<String> categoryNames = new ArrayList<>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
@@ -129,7 +131,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				if (!catItems.isEmpty()) {
 					Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						businessService.getCategoryScoreForStudent(catId, userId)
+						businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
 							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
@@ -171,10 +173,21 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		};
 		addOrReplace(noAssignments);
 
+		// course grade panel
+		final WebMarkupContainer courseGradePanel = new WebMarkupContainer("course-grade-panel") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+			}
+		};
+		addOrReplace(courseGradePanel);
+
 		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
 		add(new AttributeModifier("data-studentid", userId));
 	}

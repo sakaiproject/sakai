@@ -144,7 +144,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		UIOutput.make(tofill,"question",poll.getText());
 		log.debug("got poll " + poll.getText());
-		List<Option> pollOptions = poll.getPollOptions();
+		List<Option> pollOptions = poll.getOptions();
 
 		log.debug("got a list of " + pollOptions.size() + " options");
 		//Append an option for no votes

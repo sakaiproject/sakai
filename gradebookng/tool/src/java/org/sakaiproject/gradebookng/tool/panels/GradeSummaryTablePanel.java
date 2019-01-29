@@ -40,6 +40,7 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -89,7 +90,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		}
 
 		this.rubricStudentWindow = new GbModalWindow("rubricStudentWindow");
-		add(this.rubricStudentWindow);
+		addOrReplace(this.rubricStudentWindow);
 
 		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
 		toggleActions.setVisible(categoriesEnabled);
@@ -234,7 +235,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
-								.setVisible(assignment.getExtraCredit()));
+								.setVisible(assignment.isExtraCredit()));
 						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
 								.add(new AttributeModifier("data-trigger", "focus"))
 								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
@@ -283,22 +284,35 @@ public class GradeSummaryTablePanel extends BasePanel {
 							rubricIcon.setVisible(false);
 							gradeScore.add(rubricIcon);
 						} else {
-							gradeScore.add(new Label("grade", FormatHelper.formatGradeForDisplay(rawGrade)));
+							gradeScore.add(
+									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
-									new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
+									new StringResourceModel("label.studentsummary.outof", null, assignment.getPoints())));
+							final GbAjaxLink rubricIcon = new GbAjaxLink("rubricIcon") {
 								@Override
-								public boolean isVisible() {
-									return StringUtils.isNotBlank(rawGrade);
-								}
-							});
-							GbAjaxLink rubricIcon = new GbAjaxLink("rubricIcon") {
 								public void onClick(final AjaxRequestTarget target) {
 									final GbModalWindow window = GradeSummaryTablePanel.this.getRubricStudentWindow();
 
 									window.setTitle(new ResourceModel("rubrics.option.graderubric"));
-									RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);
-									rubricStudentPanel.setAssignmentId(assignment.getId());
-									rubricStudentPanel.setStudentUuid(studentUuid);
+									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);									
+									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
+										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+										final String[] bits = assignment.getExternalId().split("/");
+										final String assignmentId = bits[bits.length-1];
+										final String submissionId = GradeSummaryTablePanel.this.rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+										if(StringUtils.isEmpty(submissionId)){
+											setVisible(false);
+										}
+										rubricStudentPanel.setAssignmentId(assignmentId);
+										rubricStudentPanel.setStudentUuid(submissionId);
+									} else {
+										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
+										rubricStudentPanel.setAssignmentId(String.valueOf(assignment.getId()));
+										rubricStudentPanel.setStudentUuid(assignment.getId() + "." + studentUuid);
+									}
+									if(GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
+										rubricStudentPanel.setInstructor(true);
+									}
 									window.setContent(rubricStudentPanel);
 									window.setComponentToReturnFocusTo(this);
 									window.show(target);
@@ -308,15 +322,26 @@ public class GradeSummaryTablePanel extends BasePanel {
 							rubricIcon.add(new AttributeModifier("title", new ResourceModel("rubrics.browse_grading_criteria")));
 							if (StringUtils.isNotBlank(rawGrade)) {
 								try {
-									Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation("sakai.gradebookng", assignment.getId().toString());
+									String tool = RubricsConstants.RBCS_TOOL_GRADEBOOKNG;
+									String assignmentId = assignment.getId().toString();
+									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
+										tool = RubricsConstants.RBCS_TOOL_ASSIGNMENT;
+										final String[] bits = assignment.getExternalId().split("/");
+										assignmentId = bits[bits.length-1];
+									}
+									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation(tool, assignmentId);
 									if (rubricAssociation.isPresent()) {
-										boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview");
-										rubricIcon.setVisible(!hidePreview);
+										if(showingStudentView || !GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
+											boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
+											rubricIcon.setVisible(!hidePreview);
+										} else {
+											rubricIcon.setVisible(true);
+										}
 									} else {
 										rubricIcon.setVisible(false);
 									}
-								} catch (Exception ex) {
-									rubricIcon.setVisible(true);
+								} catch (final Exception ex) {
+									rubricIcon.setVisible(false);
 								}
 							}
 							gradeScore.add(rubricIcon);

@@ -23,8 +23,6 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Contains the fields related to a calculation (which is just a formula that is directly evaluated as part of the question)
  * 

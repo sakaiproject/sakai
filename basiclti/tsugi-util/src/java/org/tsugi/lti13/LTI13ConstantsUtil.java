@@ -56,22 +56,23 @@ public class LTI13ConstantsUtil {
 	public static final String KEY_DATA = "data";
 
 	// Deep Linking types
-	public static final String LTI_DL_TYPE_LTILINK = "ltiLink";
+	public static final String LTI_DL_TYPE_LTILINK = "ltiResourceLink";
 	public static final String LTI_DL_TYPE_LINK = "link";
 	public static final String LTI_DL_TYPE_FILE = "file";
 	public static final String LTI_DL_TYPE_HTML = "html";
 	public static final String LTI_DL_TYPE_IMAGE = "image";
 
 	// Misc
+	public static final String MESSAGE_TYPE = "https://purl.imsglobal.org/spec/lti/claim/message_type";
 	public static final String MESSAGE_TYPE_LTI_RESOURCE = "LtiResourceLinkRequest";
-	public static final String MESSAGE_TYPE_LTI_DEEP_LINKING_REQUEST = "LTIDeepLinkingRequest";
-	public static final String ISSUER = "http://blackboard.com/";
+	public static final String MESSAGE_TYPE_LTI_DEEP_LINKING_REQUEST = "LtiDeepLinkingRequest";
+	public static final String MESSAGE_TYPE_LTI_DEEP_LINKING_RESPONSE = "LtiDeepLinkingResponse";
 	public static final String CONTENT_ITEM_DOC_TARGET_IFRAME = "iframe";
 	public static final String CONTENT_ITEM_DOC_TARGET_WINDOW = "window";
 	public static final String CONTENT_ITEM_MEDIA_TYPES = "*/*";
 
 	//Deep Linking
-	public static final String DEEP_LINKING_RETURN_URL_PATH = "/webapps/blackboard/controller/lti/v2/deeplinking";
 	public static final String DEEP_LINKING_RETURN_URL = "return_url";
+
 
 }

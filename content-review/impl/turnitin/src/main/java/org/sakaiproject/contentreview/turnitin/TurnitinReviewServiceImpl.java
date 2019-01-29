@@ -1007,13 +1007,14 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			throws SubmissionException, TransientSubmissionException {
 
 		// get the assignment reference
-		String taskTitle = "";
+		String rawTitle = "";
 		if (extraAsnnOpts.containsKey("title")) {
-			taskTitle = extraAsnnOpts.get("title").toString();
+			rawTitle = extraAsnnOpts.get("title").toString();
 		} else {
-			getAssignmentTitle(taskId);
+			rawTitle = getAssignmentTitle(taskId);
 		}
-		log.debug("Creating assignment for site: " + siteId + ", task: " + taskId + " tasktitle: " + taskTitle);
+		String taskTitle = rawTitle.replaceAll("[^\\w\\s]", "");
+		log.debug("Creating assignment for site: " + siteId + ", task: " + taskId + ", rawTitle: " + rawTitle + ", taskTitle: " + taskTitle);
 
 		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
 		dform.applyPattern(TURNITIN_DATETIME_FORMAT);

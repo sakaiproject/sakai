@@ -16,16 +16,6 @@
        		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
        		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
        		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-			<script type="text/javascript">
-				$(document).ready(function() {
-					$('#openLinkBlock').hide();
-					jQuery('.toggle').click(function(e) { 
-						$('#fullTopicDescription').toggle('slow');
-						$('.toggleParent').toggle();					
-						 resizeFrame('grow')
-				});						
-				});			
-			</script>
 
 
 
@@ -38,28 +28,24 @@
 	  <h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 	  </div>
 						<div>
-		     <p style="padding:0;margin:.5em 0" id="openLinkBlock" class="toggleParent">
-					<a href="#" id="showMessage" class="toggle show">
-						<h:graphicImage url="/images/expand.gif" alt=""/>	
-						<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
-					</a>
-				</p>
-				<p style="padding:0;margin:.5em 0" id="hideLinkBlock" class="toggleParent">
-					<a href="#" id="hideMessage" class="toggle show">
-						<h:graphicImage url="/images/collapse.gif" alt="" />					
-						<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
-					</a>
-				</p>
-		     
-		     
+							<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
+								<a href="#" id="showMessage" class="toggle show">
+									<h:graphicImage url="/images/expand.gif" alt=""/>
+									<h:outputText value=" #{msgs.cdfm_read_full_description}" />
+								</a>
+							</p>
+							<p id="hideLinkBlock" class="toggleParent hideLinkBlock">
+								<a href="#" id="hideMessage" class="toggle show">
+									<h:graphicImage url="/images/collapse.gif" alt="" />
+									<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
+								</a>
+							</p>
 							<%-- //designNote: am assuming that the thinking is that once the user is here 
 								there is no longer need for the long description context (or as much), so do not put it in
 								the response by default - same goes for attachment list if any --%>
-			<div id="fullTopicDescription" style="display: none">
-			<mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-		                   id="topic_extended_description" 
-									hideBorder="true" />
-			</div>
+							<div id="fullTopicDescription" class="textPanel">
+								<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -180,4 +166,3 @@
 		</h:form>
   </sakai:view>
 </f:view> 
-

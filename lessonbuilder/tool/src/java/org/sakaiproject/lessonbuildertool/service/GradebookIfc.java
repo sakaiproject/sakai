@@ -28,6 +28,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 /**
@@ -47,10 +48,11 @@ public class GradebookIfc {
     public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
-	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription);
-	} catch (org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException e) {
-	    // already exists. Say it worked
-	    return true;
+	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, null);
+	} catch (ConflictingAssignmentNameException cane) {
+	    // already exists
+	    log.warn("ConflictingAssignmentNameException for title {} : {} ", title, cane.getMessage());
+	    throw cane;
 	} catch (Exception e) {
 	    log.info("failed add " + e);
 	    return false;
@@ -61,13 +63,12 @@ public class GradebookIfc {
     public boolean updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					    final String title, final double points, final Date dueDate) {
 	try {
-	    gbExternalService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate);
+	    gbExternalService.updateExternalAssessment(gradebookUid, externalId, externalUrl, null, title, points, dueDate);
 	} catch (Exception e) {
 	    return false;
 	}
 	return true;
     }
-
 
 
     public boolean removeExternalAssessment(final String gradebookUid, final String externalId) {

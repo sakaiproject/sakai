@@ -107,7 +107,7 @@ public class QuestionScorePagerListener
 	  }
 	  else {
 		  if (itemType.equals(Long.valueOf("7"))){
-			  if (bean.getHasAudioMaxDisplayedScoreRowsChanged()) {
+			  if (bean.isHasAudioMaxDisplayedScoreRowsChanged()) {
 				  bean.setMaxDisplayedRows(bean.getAudioMaxDisplayedScoreRows());
 			  }
 			  else {

@@ -1,10 +1,9 @@
 <dom-module id="sakai-rubric-edit">
   <template>
     <!-- Styling -->
-    <style include="polymer-bootstrap"></style>
-    <style include="sakai-rubrics-styles"></style>
-  
-    <iron-icon class="edit" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls="edit_rubric_[[rubric.id]]" tabindex="0" icon="rubrics-icons:edit" on-tap="editRubric" title="[[lang('edit', 'Edit')]] {{rubric.title}}" ></iron-icon>
+    <style include="granite-bootstrap"></style>
+
+    <iron-icon class="edit" role="button" aria-haspopup="true" aria-expanded$="[[popoverOpen]]" aria-controls="edit_rubric_[[rubric.id]]" tabindex="0" icon="rubrics-icons:edit" on-tap="editRubric" title="[[lang('edit_rubric', 'Edit')]] {{rubric.title}}" ></iron-icon>
 
     <div id="edit_rubric_[[rubric.id]]" class="popover rubric-edit-popover bottom">
       <div class="arrow"></div>
@@ -54,12 +53,16 @@
         e.stopPropagation();
         console.log('event stopped at host');
       },
+      closeOpen: function() {
+        $('.show-tooltip .cancel').click();
+      },
       editRubric: function(e) {
         e.stopPropagation();
         var titleinput = this.tt.querySelector('[type="text"]');
         this.fire('show-tooltip', this.rubric);
 
         if (!hasClass(this.tt, 'show-tooltip')) {
+          this.closeOpen();
           this.popoverOpen = "true";
           var triggerPosition = altOffset(e.target);
 

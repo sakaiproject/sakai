@@ -33,6 +33,12 @@
 						<span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
 						<span>${page.pageTitle}</span>
 					</a>
+
+                    #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+                        <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="manage-overview-link-mobile">
+                            <span class="fa fa-pencil"></span>$rloader.sit_manover
+                        </a>
+                    #end
 				#end
 			#end
         </li>

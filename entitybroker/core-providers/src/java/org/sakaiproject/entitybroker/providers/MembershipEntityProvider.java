@@ -240,7 +240,7 @@ RESTful, ActionsExecutable {
 
         List<EntityData> l = getEntities(new EntityReference(PREFIX, ""), new Search(
                 CollectionResolvable.SEARCH_LOCATION_REFERENCE, locationReference));
-        ActionReturn actionReturn = new ActionReturn(l, Formats.JSON);
+        ActionReturn actionReturn = new ActionReturn(l, view.getFormat());
         if ((extraResponseHeaders != null) && !extraResponseHeaders.isEmpty()) {
             actionReturn.setHeaders(extraResponseHeaders);
         }
@@ -705,18 +705,22 @@ RESTful, ActionsExecutable {
                 throw new IllegalArgumentException("unable to find user with id ("+userId+")");
             }
 
-            boolean userCurrent = userId.equals(currentUserId);
 
             // Is there a faster way to do this? I really truly hope so -AZ
             // Only if you don't care about getMember details -MJ
             List<Site> allUserSites = siteService.getUserSites(false, userId);
+            List<Site> sites = new ArrayList<>();
 
-            // Filter out sites where the logged in user of EB does not have view roster status.
-            List<Site> sites = new ArrayList<Site>();
-            for (Site site: allUserSites) {
-                if (siteService.allowViewRoster(site.getId())) {
-                    sites.add(site);
+            boolean userCurrent = userId.equals(currentUserId);
+            if (!userCurrent) {
+                // Filter out sites where the logged in user of EB does not have view roster status.
+                for (Site site : allUserSites) {
+                    if (siteService.allowViewRoster(site.getId())) {
+                        sites.add(site);
+                    }
                 }
+            } else {
+                sites = allUserSites;
             }
 
             if (includeMemberDetails) {

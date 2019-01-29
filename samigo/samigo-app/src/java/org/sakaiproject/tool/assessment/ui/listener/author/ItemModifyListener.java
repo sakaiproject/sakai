@@ -38,8 +38,8 @@ import javax.faces.event.ActionListener;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -362,7 +362,7 @@ public class ItemModifyListener implements ActionListener
                     nextpage = "imageMapItem";
                     break;
         }
-        itemauthorbean.setRbcsToken(rubricsService.generateJsonWebToken(SamigoConstants.RBCS_TOOL_ID));
+        itemauthorbean.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
         itemauthorbean.setRubricStateDetails("");
     }
     catch(RuntimeException e)
@@ -974,6 +974,9 @@ public class ItemModifyListener implements ActionListener
     	       if (meta.getLabel().equals(ItemMetaDataIfc.IMAGE_MAP_SRC)){
     	    		 bean.setImageMapSrc(meta.getEntry());
     	       }
+       if (ItemMetaDataIfc.IMAGE_MAP_ALT_TEXT.equals(meta.getLabel())){
+           bean.setImageMapAltText(meta.getEntry());
+       }
        if (meta.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
     	   bean.setMcmsPartialCredit(meta.getEntry());
        }

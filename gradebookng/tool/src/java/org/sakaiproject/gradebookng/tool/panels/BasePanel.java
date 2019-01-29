@@ -24,12 +24,14 @@ import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -46,6 +48,12 @@ public abstract class BasePanel extends Panel {
 
 	@SpringBean(name = "org.sakaiproject.rubrics.logic.RubricsService")
 	protected RubricsService rubricsService;
+
+	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
+	protected ServerConfigurationService serverConfigService;
+
+	protected static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
+	protected static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = Boolean.TRUE;
 
 	public BasePanel(final String id) {
 		super(id);
@@ -108,7 +116,7 @@ public abstract class BasePanel extends Panel {
 	protected HashMap<String, String> getRubricParameters(String entityId) {
 		HashMap<String, String> list = new HashMap<String, String>();
 
-		String entity = "rbcs-";
+		String entity = RubricsConstants.RBCS_PREFIX;
 		if (entityId != null && !entityId.isEmpty()) {
 			entity += entityId + "-";
 		}

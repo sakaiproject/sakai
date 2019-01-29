@@ -40,7 +40,12 @@
 				<wicket:message key="accessibility.profile.status.input">Enter your current status</wicket:message>
 			</label>
 			<input type="text" wicket:id="message" class="form-control" wicket:message="title:text.no.status"/>
-			<input type="submit" wicket:id="submit" value="Say it" /><span id="tracker" class="text-counter"></span>
+                        <div class="profileSayItActionBar">
+                            <p class="act">
+                                <input type="submit" class="active" wicket:id="submit" value="Say it" />
+                            </p>
+                            <span id="tracker" class="text-counter"></span>
+                        </div>
 		</form>
     </div>
     

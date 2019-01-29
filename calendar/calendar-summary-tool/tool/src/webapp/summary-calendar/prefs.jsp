@@ -135,8 +135,8 @@
         	<script type="text/javascript">javascript:prepForms();</script>
         </f:verbatim>
         
-		<%/* BUTTONS */%><p>
-		<h:panelGrid styleClass="act" columns="2">
+		<%/* BUTTONS */%>
+		<p class="act">
 			<h:commandButton
 				action="#{PrefsBean.update}"
 				value="#{msgs.update}"				
@@ -147,7 +147,7 @@
 			<h:commandButton
 				action="#{PrefsBean.cancel}"
 				value="#{msgs.cancel}"/>
-		</h:panelGrid>       
+		</p>
 	</h:form>
 </sakai:view>
 </f:view>

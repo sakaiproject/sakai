@@ -32,11 +32,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -60,7 +61,7 @@ public class SectionContentsBean
 	private static final long serialVersionUID = 5959692528847396966L;
 	private String text;
 	private String nonDefaultText;
-  private List itemContents;
+  private List<ItemContentsBean> itemContents;
   private String sectionId;
   private String number;
   private double maxPoints;
@@ -141,17 +142,7 @@ public class SectionContentsBean
    */
   public int getUnansweredQuestions()
   {
-    Iterator i = itemContents.iterator();
-    int num = 0;
-    while (i.hasNext())
-    {
-      ItemContentsBean next = (ItemContentsBean) i.next();
-      if (next.isUnanswered())
-      {
-        num++;
-      }
-    }
-    return num;
+    return (int) itemContents.stream().filter(ItemContentsBean::isUnanswered).count();
   }
 
   /**
@@ -228,30 +219,22 @@ public class SectionContentsBean
    * Contents of part.
    * @return item contents of part.
    */
-  public List getItemContents()
+  public List<ItemContentsBean> getItemContents()
   {
-    /*
-        if( (sectionAuthorType!= null) && (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL) ))
-          return getItemContentsForRandomDraw();
-        else if( (sectionAuthorType!= null) && (questionOrdering!=null ) && (sectionAuthorType.equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE)) && (questionOrdering.equals(SectionDataIfc.RANDOM_WITHIN_PART)))
-          return getItemContentsForRandomQuestionOrdering();
-        else
-          return itemContents;
-     */
     return itemContents;
   }
 
-  public List getItemContentsForRandomDraw()
+  public int getItemContentsCount() {
+    return itemContents.size();
+  }
+
+  public List<ItemContentsBean> getItemContentsForRandomDraw()
   {
     // same ordering for each student
-    List randomsample = new ArrayList();
+    List<ItemContentsBean> randomsample = new ArrayList<>();
     long seed = (long) AgentFacade.getAgentString().hashCode();
     Collections.shuffle(itemContents, new Random(seed));
-    int samplesize = numberToBeDrawn.intValue();
-    for (int i = 0; i < samplesize; i++)
-    {
-      randomsample.add(itemContents.get(i));
-    }
+    IntStream.range(0, numberToBeDrawn).forEach(n -> randomsample.add(itemContents.get(n)));
     return randomsample;
   }
 
@@ -267,7 +250,7 @@ public class SectionContentsBean
    * Contents of part.
    * @param itemContents item contents of part.
    */
-  public void setItemContents(List itemContents)
+  public void setItemContents(List<ItemContentsBean> itemContents)
   {
     this.itemContents = itemContents;
   }
@@ -351,7 +334,7 @@ public class SectionContentsBean
   {
     try
     {
-      this.itemContents = new ArrayList();
+      this.itemContents = new ArrayList<>();
       setSectionId(section.getSectionId().toString());
       setTitle(section.getTitle());
       setDescription(section.getDescription());
@@ -366,14 +349,11 @@ public class SectionContentsBean
       }
       setNumber(section.getSequence().toString());
       // do teh rest later
-      Set itemSet = section.getItemSet();
+      Set<ItemDataIfc> itemSet = section.getItemSet();
       if (itemSet != null)
       {
         setQuestions(itemSet.size());
-        Iterator i = itemSet.iterator();
-        while (i.hasNext())
-        {
-          ItemDataIfc item = (ItemDataIfc) i.next();
+        for (ItemDataIfc item : itemSet) {
           ItemContentsBean itemBean = new ItemContentsBean(item);
           this.itemContents.add(itemBean);
         }
@@ -665,7 +645,7 @@ public class SectionContentsBean
     String pointsDisplayString = "";
     if (showStudentQuestionScore)
     {
-      pointsDisplayString = Precision.round(points, 2) + "/";
+      pointsDisplayString = String.valueOf(Precision.round(points, 2));
     }
     return pointsDisplayString;
   }

@@ -70,13 +70,15 @@ public class SortGradeItemsPanel extends Panel {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
 				final HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
-				String[] ids = request.getParameterValues("id");
+				String[] ids = new String[0];
+				if (request.getParameterValues("id") != null) {
+					ids = request.getParameterValues("id");
+				}
 
 				Map<Long, Integer> updates = new HashMap<>();
 				boolean error = false;
 
-				for (int i = 0; i < ids.length; i++) {
-					String id = ids[i];
+				for (String id : ids) {
 					String order = request.getParameter(String.format("item_%s[order]", id));
 					String current = request.getParameter(String.format("item_%s[current_order]", id));
 

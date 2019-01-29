@@ -273,9 +273,7 @@ function printView(url) {
 					</div>
 				#end
 				<div id="sendFeedbackPanelContent" style="display:none;">
-					<p class="text-info">
-						$tlang.getString("sendFeedback.instruction")
-					</p>
+					<p>$tlang.getString("sendFeedback.instruction")</p>
 					<textarea cols=40 rows=5 name="commentFeedback"></textarea>
 					<div class="form-group">
 						<label>$tlang.getString("sendFeedback.options"):</label>
@@ -304,14 +302,14 @@ function printView(url) {
 					</a>
 				</p>
 				<div id="allowResubmissionPanelContent" style="display:none; overflow: hidden;">
-				<p class="text-info">
+				<p>
 				#if ($assignment.IsGroup)
 					$tlang.getString("allowResubmission.groups.instruction")
 				#else
 					$tlang.getString("allowResubmission.instruction")
 				#end
 				</p>
-							<p class="shorttext" id="allowResubmitNumber">
+							<p id="allowResubmitNumber">
 								<label for="allowResubmitNumber">
 									$tlang.getString("allow.resubmit.number")
 								</label>
@@ -324,7 +322,7 @@ function printView(url) {
 									<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
 								</select>
 							</p>
-							<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
+							<p id="allowResubmitTime" style="$!resubmitStyle">
 								## only show date selection when allowed to resubmit
 								<label>
 									$tlang.getString("gen.acesubunt")
@@ -675,7 +673,7 @@ function printView(url) {
 											#else
 												<span>
 											#end
-											$!item.getScoreDisplay()<br/>
+											$!service.getGradeDisplay($item.score.toString(), $assignment.TypeOfGrade, $assignment.ScaleFactor)<br/>
 											</span>
 										#end
 									#end
@@ -800,7 +798,7 @@ function printView(url) {
 		</tr>
 		<tr> 
 			<th>
-					$tlang.getString("gen.due")
+					$tlang.getString("gen.due.header")
 			</th>
 			<td>
 				$!service.getUsersLocalDateTimeString($assignment.DueDate)
@@ -852,7 +850,7 @@ function printView(url) {
 		</tr>
 	</table>	
 	
-	#if ($assignment.Instructions.length() > 0)
+	#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
 		<h4>$tlang.getString("gen.assinf")</h4>
 		<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
 	#end

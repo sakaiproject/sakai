@@ -46,7 +46,7 @@
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm" onsubmit="return editorCheck();">
-
+<p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
@@ -69,7 +69,7 @@
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>
- 
+</p>
   <!-- NOTE:  Had to call this.form.onsubmit(); when toggling between single  -->
   <!-- and multiple choice, or adding additional answer choices.  -->
   <!-- to invoke the onsubmit() function for htmlarea to save the htmlarea contents to bean -->
@@ -101,8 +101,6 @@
       </ul>
     </div>
   </div>
-
-  <%@ include file="/jsf/author/item/rubricAssociation.jsp" %>
 
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
     <div class="form-group row">
@@ -258,11 +256,6 @@
 	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
   </h:selectManyCheckbox>
 
-  <h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" rendered="#{itemauthor.currentItem.multipleCorrect}">
-    <h:outputText id="text" value="#{commonMessages.remove_action}"/>
-    <f:param name="answerid" value="#{answer.label}"/>
-  </h:commandLink>		 
-
   <!-- if single correct, use radiobuttons -->
   <h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="mcradiobtn"
 	layout="pageDirection"
@@ -271,9 +264,9 @@
     <f:selectItem itemValue="#{answer.label}" itemLabel="&#160; #{answer.label}" escape="false" />
   </h:selectOneRadio>
 
-  <h:commandLink title="#{authorMessages.t_removeC}" id="removelinkSingle" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoicesSingle}" rendered="#{!itemauthor.currentItem.multipleCorrect}">
-    <h:outputText id="textSingle" value="#{commonMessages.remove_action}"/>
-    <f:param name="answeridSingle" value="#{answer.label}"/>
+  <h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" >
+    <h:outputText id="text" value="#{commonMessages.remove_action}"/>
+    <f:param name="answerid" value="#{answer.label}"/>
   </h:commandLink>
  </h:panelGroup>
 

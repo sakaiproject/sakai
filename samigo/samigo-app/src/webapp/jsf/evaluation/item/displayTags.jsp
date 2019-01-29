@@ -1,5 +1,4 @@
-<script type="text/javascript" src="/library/webjars/select2/4.0.3/dist/js/select2.full.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/webjars/select2/4.0.3/dist/css/select2.css">
+<script type="text/javascript">includeWebjarLibrary('select2');</script>
 
 <script type="text/javascript">
 

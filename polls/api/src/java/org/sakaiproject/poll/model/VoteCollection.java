@@ -24,63 +24,21 @@ package org.sakaiproject.poll.model;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.Data;
+
+@Data
 public class VoteCollection {
 
     private String id;
     private List<Vote> votes;
     private Long pollId;
-    public String[] optionsSelected;
-    public String option;
-    private String submittionStatus;
+    private String[] optionsSelected;
+    private String option;
+    private String submissionStatus;
 
     public VoteCollection(){
         //need a new id here
         id = UUID.randomUUID().toString();
-    }
-
-    public void setId(String value) {
-        id = value;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setVotes(List<Vote> rvotes) {
-        votes = rvotes;
-    }
-
-    public List<Vote> getVotes() {
-        return votes;
-    }
-
-    public void setPollId (Long pid) {
-        this.pollId=pid;
-    }
-    public Long getPollId(){
-        return this.pollId;
-    }
-
-    public void setOption(String s){
-        this.option = s;
-    }
-    public String getOption(){
-        return option;
-    }
-
-    public void setOptionsSelected(String[] s) {
-        this.optionsSelected = s;
-    }
-    public String[] getOptionsSelected(){
-        return this.optionsSelected;
-    }
-
-    public void setSubmissionStatus(String s){
-        this.submittionStatus=s;
-    }
-
-    public String getSubmissionStatus(){
-        return this.submittionStatus;
     }
 }
 

@@ -36,7 +36,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -314,11 +314,11 @@ implements ActionListener
 			Date entryStartDate = entry.getStartDate();
 			Date entryDueDate = entry.getDueDate();
 			Date entryRetractDate = entry.getRetractDate();
-			if(!"".equals(entry.getUser())) {
+			if(StringUtils.isNotEmpty(entry.getUser())) {
 				extendedTimeUsers.add(entry.getUser());
 			}
 
-			if(!"".equals(entry.getGroup())) {
+			if(StringUtils.isNotEmpty(entry.getGroup())) {
 				extendedTimeGroups.add(entry.getGroup());
 			}
 			boolean isEntryRetractEarlierThanAvailable = false;

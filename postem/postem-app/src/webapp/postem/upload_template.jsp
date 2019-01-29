@@ -26,7 +26,8 @@
 				<sakai:button_bar>					
 					<sakai:button_bar_item
 						action="#{PostemTool.processTemplateUpload}"
-						value="#{msgs.upload}" />
+						value="#{msgs.upload}"
+						styleClass="active" />
 					<sakai:button_bar_item
 						action="#{PostemTool.processUploadCancel}"
 						value="#{msgs.cancel}" />

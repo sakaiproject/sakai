@@ -145,7 +145,7 @@
 					</th>
 					<th id="dueDate">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
-							$tlang.getString("gen.due")
+							$tlang.getString("gen.due.header")
 							#if ($sortedBy.equals("duedate"))
 								#if ($sortedAsc.equals("true"))
 									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
@@ -316,21 +316,24 @@
 									#else
 										## SAK-21525 START
 										## If this assignment has groups, their access controls must take precedence
-										#set($groupIds='')
-										#set($groupIds=$assignment.getGroups())
-										#if($groupIds != '' && $groupIds.size() > 0)
-											#set($allowSubmit=false)
-											## If asn.submit is set on at least one of the assignment's authz groups, set allowSubmit to true
-											#foreach($groupId in $groupIds)
-												#if($AuthzGroupService.isAllowed($user.getId(),'asn.submit',$groupId))
-													#set($allowSubmit=true)
+										#if ($assignment.TypeOfAccess.Ordinal == 1)
+											#set($groupIds='')
+											#set($groupIds=$assignment.Groups)
+											#if($groupIds != '' && $groupIds.size() > 0)
+												#set($allowSubmit=false)
+												## If asn.submit is set on at least one of the assignment's authz groups, set allowSubmit to true
+												#foreach($groupId in $groupIds)
+													#if($AuthzGroupService.isAllowed($user.getId(),'asn.submit',$groupId))
+														#set($allowSubmit=true)
+													#end
 												#end
 											#end
 										#end
+
 										## SAK-21525 END
-										#if($!allowSubmit)
+										#if($allowSubmit)
 											## for those who can submit
-											#if ($!submission && ($submitTime || $!submissionReturned))
+											#if ($submission)
 												## is there a submission already?
 												#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 												#if(!$!allowResubmitNumber.equals("0"))
@@ -478,7 +481,7 @@
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignmentReference))
 									#set($ungradedNumber = $!service.countSubmissions($assignmentReference, false))
-									#set($totalNumber = $!service.countSubmissions($assignmentReference, $null))
+									#set($totalNumber = $!service.countSubmissions($assignmentReference, null))
 									<div class="spinnerBesideContainer">
 										<a name="asnActionLink" href="javascript:void(0)" onclick="if(ASN.allowClick(this)){ SPNR.insertSpinnerAfter( this, null, null ); window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; }" >
 											<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $validator.escapeHtml($!assignment.Title). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber
@@ -533,8 +536,8 @@
 									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($assignment.Title)</strong>
 									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
-								#if ($!groups && $!allowGradeSubmission)
-									<!-- groups col -->
+								#if ($!allowGradeSubmission)
+									<!-- scope col -->
 									<td></td>
 								#end
 								<!-- status col -->
@@ -615,9 +618,9 @@
 							</tr>
 
 							<!-- end peer assessment overview row -->
-							<!-- peer assessment items rows->
+							<!-- peer assessment items rows -->
 							#if ($!submission && $!service.isPeerAssessmentOpen($!assignment) && $!reviews)
-								<!-- peer assessment is open and user has submitted, show item details
+								<!-- peer assessment is open and user has submitted, show item details -->
 								#set ($reviewCount = 0)
 								#foreach ($review in $reviews)
 									#set ($reviewCount = $reviewCount + 1)
@@ -636,8 +639,8 @@
 												#end
 											</span>
 										</td>
-										#if ($!groups && $!allowGradeSubmission)
-											<!-- groups col -->
+										#if ($!allowGradeSubmission)
+											<!-- scope col -->
 											<td></td>
 										#end
 										<!-- status col -->
@@ -676,7 +679,7 @@
 									</tr>
 								#end
 							#end
-						<!-- End peer assessment items rows->
+						<!-- End peer assessment items rows -->
 
 						<!-- End Peer assessment rows -->
 						#end

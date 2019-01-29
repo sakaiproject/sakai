@@ -224,7 +224,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             List<Vote> l = voteMap.get(pollId);
             if (l != null) {
                 poll.setCurrentUserVoted(true);
-                poll.setCurrentUserVotes(l);
             } else {
                 poll.setCurrentUserVoted(false);
             }
@@ -309,7 +308,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 List<Vote> l = voteMap.get(pollId);
                 if (l != null) {
                     poll.setCurrentUserVoted(true);
-                    poll.setCurrentUserVotes(l);
                 } else {
                     poll.setCurrentUserVoted(false);
                 }

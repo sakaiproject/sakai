@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.sakaiproject.reset-pass</groupId>
 		<artifactId>reset-pass</artifactId>
-		<version>19-SNAPSHOT</version>
+		<version>20-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 
@@ -119,10 +119,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>dom4j</groupId>
+			<groupId>org.dom4j</groupId>
 			<artifactId>dom4j</artifactId>
-			<version>1.6.1</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.transaction</groupId>
@@ -141,10 +139,6 @@
 			<artifactId>easymock</artifactId>
 			<version>3.4</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-validator</groupId>
-			<artifactId>commons-validator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>oro</groupId>

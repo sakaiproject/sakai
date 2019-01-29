@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.BooleanUtils;
-
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
@@ -88,7 +88,7 @@ public class LoginServlet
       throws ServletException, IOException
   {
 	String alias = req.getParameter("id");
-	if ((alias==null) ||("").equals(alias)){
+	if (StringUtils.isEmpty(alias)) {
 		log.warn("The published URL you have entered is incorrect. id is missing. Please check in Published Settings.");
 		return;
 	}
@@ -217,6 +217,9 @@ public class LoginServlet
         }
         else if ("timeExpired".equals(nextAction)){
         	path = "/jsf/delivery/timeExpired.faces";
+        }
+        else if ("accessDenied".equals(nextAction)) {
+        	path = "/jsf/delivery/accessDenied.faces";
         }
         else {
         	path = "/jsf/delivery/assessmentNotAvailable.faces";

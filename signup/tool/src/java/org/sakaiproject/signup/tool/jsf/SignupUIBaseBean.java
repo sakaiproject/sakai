@@ -70,7 +70,9 @@ import org.sakaiproject.user.api.User;
  * </P>
  */
 @Slf4j
-abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMessageTypes, MeetingTypes {
+public abstract class SignupUIBaseBean implements SignupBeanConstants, SignupMessageTypes, MeetingTypes {
+
+	private static final String DB_ERROR_OR_EVENT_NOT_EXISTED = "db.error_or_event.notExisted";
 
 	protected SakaiFacade sakaiFacade;
 
@@ -89,12 +91,12 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	protected boolean currentUserSignedup;
 
-	protected static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
-										"signup.default.email.notification", "true")) ? true : false;
+	protected static final boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
+										"signup.default.email.notification", "true"));
 
-	protected static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
+	protected static final boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true"));
 
-	protected static String DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = Utilities.getSignupConfigParamVal(
+	protected static final String DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = Utilities.getSignupConfigParamVal(
 			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS, VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY);
 	
 	protected boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
@@ -134,8 +136,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 				meetingWrapper.setMeeting(meeting);
 				updateTimeSlotWrappers(meetingWrapper);
 			} catch (Exception e) {
-				Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-				log.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
+				Utilities.addErrorMessage(Utilities.rb.getString(DB_ERROR_OR_EVENT_NOT_EXISTED));
+				log.error(Utilities.rb.getString(DB_ERROR_OR_EVENT_NOT_EXISTED) + " - " + e.getMessage());
 			}
 		}
 		return meetingWrapper;
@@ -147,23 +149,23 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		if (meeting == null)
 			return;
 
-		List timeslots = meeting.getSignupTimeSlots();
+		List<SignupTimeslot> timeslots = meeting.getSignupTimeSlots();
 		if (timeslots == null)
 			return;
 
-		List<TimeslotWrapper> timeslotWrapperList = new ArrayList<TimeslotWrapper>();
+		List<TimeslotWrapper> timeslotWrapperList = new ArrayList<>();
 		setCurrentUserSignedup(false);// reset and make sure to capture new
 		// changes
 		int i = 0;
 		int totalSignedupSlots=0;
-		for (Iterator iter = timeslots.iterator(); iter.hasNext();) {
-			SignupTimeslot elm = (SignupTimeslot) iter.next();
-			TimeslotWrapper tsw = new TimeslotWrapper(elm, sakaiFacade.getCurrentUserId());
+		for (Iterator<SignupTimeslot> iter = timeslots.iterator(); iter.hasNext();) {
+			SignupTimeslot signupTimeslot = iter.next();
+			TimeslotWrapper tsw = new TimeslotWrapper(signupTimeslot, sakaiFacade.getCurrentUserId());
 			
-			List<AttendeeWrapper> attendeeWrp = new ArrayList<AttendeeWrapper>();
+			List<AttendeeWrapper> attendeeWrp = new ArrayList<>();
 			int posIndex = 0;
 			//clean the list
-			List<SignupAttendee> cleanedList = getValidAttendees(elm.getAttendees());
+			List<SignupAttendee> cleanedList = getValidAttendees(signupTimeslot.getAttendees());
 			for (SignupAttendee attendee : cleanedList) {
 				AttendeeWrapper attWrp = new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayLastFirstName(attendee
 						.getAttendeeUserId()));
@@ -186,7 +188,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			
 			tsw.setAttendeeWrappers(attendeeWrp);
 
-			tsw.setWaitingList(wrapWaiters(elm.getWaitingList()));
+			tsw.setWaitingList(wrapWaiters(signupTimeslot.getWaitingList()));
 			tsw.setPositionInTSlist(i++);
 			timeslotWrapperList.add(tsw);
 
@@ -213,8 +215,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			updateTimeSlotWrappers(getMeetingWrapper());
 			return destinationUrl;
 		} catch (Exception e) {
-			Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-			log.warn(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
+			Utilities.addErrorMessage(Utilities.rb.getString(DB_ERROR_OR_EVENT_NOT_EXISTED));
+			log.warn(Utilities.rb.getString(DB_ERROR_OR_EVENT_NOT_EXISTED) + " - " + e.getMessage());
 			Utilities.resetMeetingList();
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
@@ -248,10 +250,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	
 	public boolean isMeetingOverRepeatPeriod(Date startTime, Date endTime, int repeatPeriodInDays){
 		long duration= endTime.getTime()- startTime.getTime();
-		if( 24*repeatPeriodInDays - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
-			return false;
-		
-		return true;
+		return ( 24*repeatPeriodInDays - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) < 0  );
 	}
 
 	/** convert SignupAttendee to AttendeeWrapper object */
@@ -277,7 +276,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	/** convert SignupAttendee to AttendeeWrapper object */
 	private List<AttendeeWrapper> wrapWaiters(List<SignupAttendee> attendees) {
-		List<AttendeeWrapper> attendeeWrp = new ArrayList<AttendeeWrapper>();
+		List<AttendeeWrapper> attendeeWrp = new ArrayList<>();
 		for (SignupAttendee attendee : attendees) {
 			attendeeWrp
 					.add(new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayLastFirstName(attendee.getAttendeeUserId())));
@@ -529,15 +528,12 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		if (this.publishedSite == null) {
 			try {
 				boolean status = sakaiFacade.getSiteService().getSite(sakaiFacade.getCurrentLocationId()).isPublished();
-				this.publishedSite = new Boolean(status);
-
+				this.publishedSite = Boolean.valueOf(status);
 			} catch (Exception e) {
 				log.warn(e.getMessage());
-				this.publishedSite = new Boolean(false);
-
+				this.publishedSite = Boolean.FALSE;
 			}
 		}
-
 		return publishedSite.booleanValue();
 	}
 
@@ -563,10 +559,10 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		this.attachmentHandler = attachmentHandler;
 	}
 	
-	protected void markerTimeslots(List<TimeslotWrapper> TimeSlotWrpList){
+	protected void markerTimeslots(List<TimeslotWrapper> timeSlotWrpList){
 		int i=0;
-		if(TimeSlotWrpList !=null){
-			for (TimeslotWrapper tsWrp : TimeSlotWrpList) {
+		if(timeSlotWrpList !=null){
+			for (TimeslotWrapper tsWrp : timeSlotWrpList) {
 				tsWrp.setTsMarker(i);
 				i++;
 			}
@@ -604,7 +600,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * @return	the cleaned list
 	 */
 	public List<SignupAttendee> getValidAttendees(List<SignupAttendee> attendees) {
-		List<SignupAttendee> cleanedList = new ArrayList<SignupAttendee>();
+		List<SignupAttendee> cleanedList = new ArrayList<>();
 		
 		for(SignupAttendee attendee: attendees){
 			if(sakaiFacade.checkForUser(attendee.getAttendeeUserId())) {
@@ -647,7 +643,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	public List<String> getEidsForEmail(String email) {
 		Collection<User> users = sakaiFacade.getUsersByEmail(email);
 		
-		List<String> eids = new ArrayList<String>();
+		List<String> eids = new ArrayList<>();
 		for(User u:users) {
 			eids.add(u.getEid());
 		}
@@ -680,7 +676,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	//convert a list of SignupAttendees to a list of userIds
 	public List<String> convertAttendeesToUuids(List<SignupAttendee> attendees) {
 		
-		List<String> uuids = new ArrayList<String>();
+		List<String> uuids = new ArrayList<>();
 		
 		for(SignupAttendee a: attendees) {
 			uuids.add(a.getAttendeeUserId());
@@ -692,7 +688,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	//convert a list of AttendeeWrappers to a list of userIds
 	public List<String> convertAttendeeWrappersToUuids(List<AttendeeWrapper> attendees) {
 		
-		List<String> uuids = new ArrayList<String>();
+		List<String> uuids = new ArrayList<>();
 		
 		for(AttendeeWrapper a: attendees) {
 			uuids.add(a.getSignupAttendee().getAttendeeUserId());
@@ -717,7 +713,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 */
 	public String getAllAttendeesEmailAddressesFormatted() {
 		
-		Set<String> emails = new HashSet<String>();
+		Set<String> emails = new HashSet<>();
 		
 		StringBuilder sb = new StringBuilder();
 		if (timeslotWrappers!=null){
@@ -746,8 +742,6 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * Generate and send for download an ICS file for the meeting. Contains no timeslots, just the meeting itself.
 	 * This method is in this particular bean because 1. We have access to the meeting here, and 2. it is used in more than one sub-bean.
 	 */
-	
-	private UserTimeZone userTimeZone;
 	
 	public void downloadICSForMeeting() {
 		String filePath;
@@ -845,19 +839,19 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		cal.setTimeZone(currentUserTimeZone);
 		
 		//get user Pref display hour, day, month and year
-		int userPrefMinute = cal.get(cal.MINUTE);
-		int userPrefHour = cal.get(cal.HOUR_OF_DAY);
-		int userPrefDay = cal.get(cal.DAY_OF_MONTH);
-		int userPrefMonth = cal.get(cal.MONTH);
-		int userPreYear = cal.get(cal.YEAR);
+		int userPrefMinute = cal.get(Calendar.MINUTE);
+		int userPrefHour = cal.get(Calendar.HOUR_OF_DAY);
+		int userPrefDay = cal.get(Calendar.DAY_OF_MONTH);
+		int userPrefMonth = cal.get(Calendar.MONTH);
+		int userPreYear = cal.get(Calendar.YEAR);
 		
 		Calendar calNew = Calendar.getInstance();
 		calNew.setTime(dateBasedOnServerTimezone);
-		calNew.set(cal.MINUTE,userPrefMinute);
-		calNew.set(cal.HOUR_OF_DAY, userPrefHour);
-		calNew.set(cal.DAY_OF_MONTH, userPrefDay);
-		calNew.set(cal.MONTH, userPrefMonth);
-		calNew.set(cal.YEAR, userPreYear);
+		calNew.set(Calendar.MINUTE,userPrefMinute);
+		calNew.set(Calendar.HOUR_OF_DAY, userPrefHour);
+		calNew.set(Calendar.DAY_OF_MONTH, userPrefDay);
+		calNew.set(Calendar.MONTH, userPrefMonth);
+		calNew.set(Calendar.YEAR, userPreYear);
 		return calNew.getTime();		
 	}
 	
@@ -936,7 +930,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			log.warn("Error generating file for download:" + ex.getMessage());
 		} finally {
 			try{
-				out.close();
+				if(out != null) {
+					out.close();
+				}
 			}catch (Exception e){
 				//do nothing;
 			}
@@ -953,8 +949,6 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return calendarHelper.isIcsEnabled();
 	}
 	
-	private String iframeId = "";
-
 	/**
 	 * This is a getter method which provide current Iframe id for refresh
 	 * IFrame purpose.
@@ -964,12 +958,11 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	public String getIframeId() {
 		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
 				.getRequest();
-		String iFrameId = (String) request.getAttribute("sakai.tool.placement.id");
-		return iFrameId;
+		return (String) request.getAttribute("sakai.tool.placement.id");
 	}
-
+	
 	public void setIframeId(String iframeId) {
-		this.iframeId = iframeId;
+
 	}
 
 	public String getCustomLocation() {

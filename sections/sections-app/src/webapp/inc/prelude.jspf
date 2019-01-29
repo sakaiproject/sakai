@@ -23,7 +23,7 @@
 		<script type="text/javascript" src="${pageContext.request.contextPath}/js/sections.js"> </script>
 		<script type="text/javascript">includeLatestJQuery('polls');</script>
 		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-        <link type="text/css" href="/library/js/jquery/ui/1.12.1/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
+        <link type="text/css" href="/library/webjars/jquery-ui-themes/1.12.1/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
         <script>
 			$(document).ready(function(){
 				<%=request.getAttribute("sakai.html.body.onload")%>

@@ -10,7 +10,7 @@
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
 			<input type="submit" accesskey ="x" name="doDone" value="$tlang.getString('gen.done')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;" class="active">
 			#if ($reg_state == "0")
 			<input type="submit" accesskey ="r" name="doRegister" value="$tlang.getString('gen.register')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeployRegister")&id=$id'; return false;"/>

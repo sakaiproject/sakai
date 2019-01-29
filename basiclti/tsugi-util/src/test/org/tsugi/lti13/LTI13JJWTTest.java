@@ -119,4 +119,20 @@ public class LTI13JJWTTest {
 		}
 		assertTrue(good);
 	}
+
+	@Test
+	public void testFive() throws NoSuchAlgorithmException, NoSuchProviderException {
+		String inp = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODg4OFwvdHN1Z2kiLCJzdWIiOiJsdGkxM19odHRwczpcL1wvd3d3LnNha2FpcHJvamVjdC5vcmdcL181MmE2N2I2OS1jNTk4LTRjZWQtYWNiMy1kOTQ5MzJkZTJiMWEiLCJhdWQiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODA4MFwvaW1zYmxpc1wvbHRpMTNcL3Rva2VuXC85IiwiaWF0IjoxNTM2NDMzODUwLCJleHAiOjE1MzY0MzM5MTAsImp0aSI6Imh0dHA6XC9cL2xvY2FsaG9zdDo4ODg4XC90c3VnaTViOTQxZWJhNWVkNjQifQ.JhwwgUEVV85HLteYmmSykQkMkmP-mcbV0R99tvP69hTFBJf3ZAS_uyfdXZoeRJaS5_hzwNf_b9HXYJWmZvYQK2NLt3s5GsW3h2pD4S3lVybIRXbpajr8NgeKA3BfsRLDoyKCLYn16BDR5w7ULZj0om8avVSFMUNbQYouc6XaTUPCZGfxPn-OPFYxX7SlDfIZjvbPWFxQh-cS90m_mKIcSYitoKrg9az59K6iGu-pq1PmZYSdt4xabh0_WoOiracvvJE6N1Um7A5enS3iXuHbCufKySIO2ykYtdRgVqhxP5YYPlar55nNRqEZtDgBgMMsneNePfMrifOvvFLkxnpefA";
+		String header = LTI13JwtUtil.rawJwtHeader(inp);
+		boolean good = "{\"typ\":\"JWT\",\"alg\":\"RS256\"}".equals(header);
+		if ( ! good ) System.out.println("Bad header:"+header);
+		assertTrue(good);
+
+		String body = LTI13JwtUtil.rawJwtBody(inp);
+		assertNotNull(body);
+		good = body.startsWith("{\"iss\":\"http:\\/\\/localhost:8888\\/tsugi\",\"sub\"");
+		if ( ! good ) System.out.println("Bad body:"+body);
+		assertTrue(good);
+
+	}
 }

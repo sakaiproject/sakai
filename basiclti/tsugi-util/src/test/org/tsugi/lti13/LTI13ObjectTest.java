@@ -12,6 +12,8 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.BasicOutcome;
 import org.tsugi.lti13.objects.Endpoint;
 
+import org.tsugi.jackson.JacksonUtil;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,14 +87,14 @@ public class LTI13ObjectTest {
 			lj.custom.put(custom_key, custom_val);
 		}
 
-		String ljs = LTI13JacksonUtil.toString(lj);
+		String ljs = JacksonUtil.toString(lj);
 		boolean good = ljs.contains("call.me.back");
 		if (!good) {
 			System.out.println("Bad Payload: " + ljs);
 		}
 		assertTrue(good);
 
-		String ljsp = LTI13JacksonUtil.toStringPretty(lj);
+		String ljsp = JacksonUtil.prettyPrint(lj);
 		good = ljsp.contains("call.me.back");
 		if (!good) {
 			System.out.println("Bad pretty payload: " + ljsp);

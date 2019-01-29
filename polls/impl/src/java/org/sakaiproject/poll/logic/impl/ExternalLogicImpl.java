@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -71,9 +72,13 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
+@Setter
 public class ExternalLogicImpl implements ExternalLogic {
+	
+	private static final ResourceLoader RB = new ResourceLoader("notifyDeletedOption");
 
 	 private static final String
 	 	/* Email template constants */
@@ -91,96 +96,22 @@ public class ExternalLogicImpl implements ExternalLogic {
 	 */
 	
     private LearningResourceStoreService learningResourceStoreService;
-    
-	public void setLearningResourceStoreService(
-			LearningResourceStoreService learningResourceStoreService) {
-		this.learningResourceStoreService = learningResourceStoreService;
-	}
-    
 	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(
-			DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
-	
-	
     private AuthzGroupService authzGroupService;
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
-	
     private EntityManager entityManager;
-    public void setEntityManager(EntityManager em) {
-        entityManager = em;
-    }
-
     private EmailService emailService;
-    public void setEmailService(EmailService emailService) {
-    	this.emailService = emailService;
-    }
-    
     private EmailTemplateService emailTemplateService;
-    public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
-    	this.emailTemplateService = emailTemplateService;
-    }
-
     private ArrayList<String> emailTemplates;
-    public void setEmailTemplates(ArrayList<String> emailTemplates) {
-    	this.emailTemplates = emailTemplates;
-    }
-    
     private EventTrackingService eventTrackingService;
-    public void setEventTrackingService(EventTrackingService ets) {
-        eventTrackingService = ets;
-    }
-    
     private FunctionManager functionManager;
-    public void setFunctionManager(FunctionManager fm) {
-        functionManager = fm;
-    }
-
     private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-
     private SecurityService securityService;
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-	
 	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
 	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-	
 	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-	
 	private UserTimeService userTimeService;
-	public void setUserTimeService(UserTimeService userTimeService) {
-		this.userTimeService = userTimeService;
-	}
-
-
 	private String fromEmailAddress;
-	public void setFromEmailAddress(String fromEmailAddress) {
-		this.fromEmailAddress = fromEmailAddress;
-	}
-	
 	private String replyToEmailAddress;
-	public void setReplyToEmailAddress(String replyToEmailAddress) {
-		this.replyToEmailAddress = replyToEmailAddress;
-	}
 	
 	/**
      * Methods
@@ -462,6 +393,14 @@ public class ExternalLogicImpl implements ExternalLogic {
 				replacementValues.put("recipientDisplayName", user.getDisplayName());
 				replacementValues.put("pollQuestion", pollQuestion);
 				replacementValues.put("siteTitle", siteTitle); 
+				
+				// Values of "src/bundle/notifyDeletedOption.properties"
+				replacementValues.put("subject", RB.getString("subject"));
+				replacementValues.put("message1", RB.getString("message1"));
+				replacementValues.put("message2", RB.getString("message2"));
+				replacementValues.put("message3", RB.getString("message3"));
+				replacementValues.put("message4", RB.getString("message4"));
+				replacementValues.put("message5", RB.getString("message5"));				
 
 				RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION,
 						user.getReference(), replacementValues);

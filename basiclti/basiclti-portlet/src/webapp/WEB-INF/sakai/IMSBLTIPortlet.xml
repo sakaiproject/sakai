@@ -4,6 +4,7 @@
                         id="sakai.basiclti"
                         title="External Tool"
                         description="Launch external tools using IMS Learning Tools Interoperability.">
+                        <!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
@@ -102,10 +103,10 @@
                 <configuration name="sakai:menuClass" value="icon-sakai -2 dashes- sakai-lessonbuildertool"/>
 
                 <configuration name="imsti.launch"
-                   value="http://www.dr-chuck.com/sakai-api-test/tool.php" />
+                   value="https://www.tsugi.org/lti-test/tool.php" />
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" value="secret" />
-                <configuration name="imsti.key" value="lmsng.school.edu" />
+                <configuration name="imsti.key" value="12345" />
 
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.message.api;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Stack;
 
@@ -85,8 +86,16 @@ public interface MessageHeader extends AttachmentContainer
 	 * Access the date/time the message was sent to the channel.
 	 * 
 	 * @return The date/time the message was sent to the channel.
+	 * @deprecated {@link #getInstant()}
 	 */
 	Time getDate();
+	
+	/**
+	 * Access the {@link java.time.Instant} the message was sent to the channel.
+	 * 
+	 * @return The Instant the message was sent to the channel.
+	 */
+	Instant getInstant();
 	
 	/**
 	 * Access the message order of the message was sent to the channel.

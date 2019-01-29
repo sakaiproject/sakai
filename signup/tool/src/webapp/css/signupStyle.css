@@ -103,10 +103,6 @@ table.userDefineTsTable th {
 	background: rgb(248, 248, 248);
 }
 
-.addButton {
-	padding-left: 15px;
-}
-
 .timeslotCol {
 	white-space: nowrap;
 	text-align: left;
@@ -183,6 +179,11 @@ table.organizerAction td {
 
 .editAddImages{
 	white-space: nowrap;
+	vertical-align: top;
+}
+
+table.organizerAction td.attName {
+    padding: 0 0.1em;
 }
 
 .attendee_status {
@@ -490,7 +491,7 @@ table.emailTable td.valueColumn {
 	padding-left:0px;
 }
 
-.openCloseImageIcon:hover, .addButton:hover{
+.openCloseImageIcon:hover{
 	background:buttonhighlight;
 	/* for IE */
   	filter:alpha(opacity=80);
@@ -523,7 +524,6 @@ table.emailTable td.valueColumn {
 }
 
 .dateExact {
-	color: #888;
 	margin-left: 10px;
 }
 @media (max-width: 991px) {
@@ -533,4 +533,10 @@ table.emailTable td.valueColumn {
 	.form-group label:first-of-type {
 		margin-top: 0;
 	}
+}
+.addPanel {
+	white-space: normal;
+}
+.addPanel .form-group.row {
+	margin-bottom: 0;
 }

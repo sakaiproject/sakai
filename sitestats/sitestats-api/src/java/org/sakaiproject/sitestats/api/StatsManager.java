@@ -54,6 +54,7 @@ public interface StatsManager {
 	public final static String			LOG_ACTION_VIEW				= "view";
 	public final static String			LOG_ACTION_DELETE			= "delete";
 	public final static String			RESOURCES_TOOLID			= "sakai.resources";
+	public final static String			LESSONS_TOOLID				= "sakai.lessonbuildertool";
 	public final static String			DROPBOX_TOOLID				= "sakai.dropbox";
 	public final static String			PARSERTIP_FOR_CONTEXTID		= "contextId";
 	public static final String			VIEW_WEEK					= "week";
@@ -122,6 +123,9 @@ public interface StatsManager {
 	
 	/** Are Resource statistics enabled for Overview page? */
 	public boolean isEnableResourceStats();	
+
+	/** Are Lessons statistics enabled for Overview page? */
+	public boolean isEnableLessonsStats();
 	
 	/** Are site presence statistics enabled? */
 	public boolean isEnableSitePresences();

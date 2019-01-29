@@ -338,7 +338,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		String siteId = externalLogic.getCurrentLocationId();
 		newPoll.parameters.add(new UIELBinding("#{poll.siteId}",siteId));
 
-		if (isNew || poll.getPollOptions() == null || poll.getPollOptions().size() == 0)	 {
+		if (isNew || poll.getOptions() == null || poll.getOptions().size() == 0)	 {
 			UICommand.make(newPoll, "submit-new-poll", UIMessage.make("new_poll_saveoption"),
 			"#{pollToolBean.processActionAdd}");
 		} else {
@@ -403,7 +403,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		log.debug("Action result got poll: " + poll.getPollId());
 		log.debug("resulting view is: " + result.resultingView);
 
-		if (poll.getPollOptions() == null || poll.getPollOptions().size() == 0) {
+		if (poll.getOptions() == null || poll.getOptions().size() == 0) {
 			result.resultingView = new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString());
 		} else {
 			result.resultingView = new SimpleViewParameters(PollToolProducer.VIEW_ID);

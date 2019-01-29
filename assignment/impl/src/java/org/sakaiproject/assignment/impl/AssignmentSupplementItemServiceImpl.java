@@ -32,6 +32,7 @@ import org.hibernate.Query;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
@@ -431,46 +432,33 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	    return getHibernateTemplate().execute(hcb);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canViewModelAnswer(Assignment a, AssignmentSubmission s)
-	{
-		if (a != null)
-		{
-			AssignmentModelAnswerItem m = getModelAnswer(a.getId());
-			if (m != null)
-			{
-				if (m_assignmentService.allowGradeSubmission(m_assignmentService.createAssignmentEntity(a.getId()).getReference()))
-				{
-					// model answer is viewable to all graders
-					return true;
-				}
-				else
-				{
-					int show = m.getShowTo();
-					if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_BEFORE_STARTS)
-					{
-						return true;
-					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT && s != null && s.getUserSubmission() && s.getSubmitted())
-					{
-						return true;
-					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_GRADE_RETURN && s!= null && s.getGradeReleased())
-					{
-						return true;
-					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseDate().isBefore(Instant.now())))
-					{
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
+    public boolean canViewModelAnswer(Assignment a, AssignmentSubmission s) {
+        if (a != null) {
+            AssignmentModelAnswerItem m = getModelAnswer(a.getId());
+            if (m != null) {
+                if (m_assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())) {
+                    // model answer is viewable to all graders
+                    return true;
+                } else {
+                    Integer show = m.getShowTo();
+                    if (show != null) {
+                        switch (show) {
+                            case AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_BEFORE_STARTS:
+                                return true;
+                            case AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT:
+                                return s != null && s.getUserSubmission() && s.getSubmitted();
+                            case AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_GRADE_RETURN:
+                                return s != null && s.getGradeReleased();
+                            case AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL:
+                                return a.getCloseDate().isBefore(Instant.now());
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 	/**
 	 * {@inheritDoc}
 	 */

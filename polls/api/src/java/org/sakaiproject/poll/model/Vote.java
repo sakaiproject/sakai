@@ -27,6 +27,9 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.cover.SessionManager;
 
+import lombok.Data;
+
+@Data
 public class Vote {
 
     private Long id;
@@ -34,7 +37,7 @@ public class Vote {
     private String ip;
     private Long pollId;
     private Date voteDate;
-    private Long optionid;
+    private Long pollOption;
     private String submissionId;
 
     public Vote() {
@@ -43,7 +46,7 @@ public class Vote {
 
     public Vote(Poll poll, Option option, String subId) {
         this.pollId = poll.getPollId();
-        this.optionid = option.getOptionId();
+        this.pollOption = option.getOptionId();
         this.submissionId = subId;
 
         // the date can default to now
@@ -59,64 +62,8 @@ public class Vote {
         }
     }
 
-    public void setId(Long value) {
-        id = value;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setUserId(String uid) {
-        userId = uid;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setIp(String value) {
-        ip = value;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setVoteDate(Date date) {
-        this.voteDate = date;
-    }
-
-    public Date getVoteDate() {
-        return this.voteDate;
-    }
-
-    public void setPollOption(Long voption) {
-        optionid = voption;
-    }
-
-    public Long getPollOption() {
-        return optionid;
-    }
-
-    public void setPollId(Long value) {
-        this.pollId = value;
-    }
-
-    public Long getPollId() {
-        return pollId;
-    }
-
-    public void setSubmissionId(String sid) {
-        this.submissionId = sid;
-    }
-
-    public String getSubmissionId() {
-        return this.submissionId;
-    }
-
     public String toString() {
-        return this.pollId + ":" + this.userId + ":" + this.ip + ":" + this.optionid;
+        return this.pollId + ":" + this.userId + ":" + this.ip + ":" + this.pollOption;
     }
 
 }

@@ -197,6 +197,16 @@ public class FormatHelper {
 	}
 
 	/**
+	 * Convert an empty grade to a dash for display purposes
+	 *
+	 * @param grade
+	 * @return a dash if the grade is empty, the original grade if not
+	 */
+	public static String convertEmptyGradeToDash(final String grade) {
+		return StringUtils.defaultIfBlank(grade, " - ");
+	}
+
+	/**
 	 * Format a grade using the locale
 	 *
 	 * @param grade - string representation of a grade
@@ -284,17 +294,6 @@ public class FormatHelper {
 	 */
 	public static String abbreviateMiddle(final String s) {
 		return StringUtils.abbreviateMiddle(s, "...", 45);
-	}
-
-	/**
-	 * Validate if a string is a valid Double using the specified Locale.
-	 *
-	 * @param value - The value validation is being performed on.
-	 * @return true if the value is valid
-	 */
-	public static boolean isValidDouble(final String value) {
-		final DoubleValidator dv = new DoubleValidator();
-		return dv.isValid(value, rl.getLocale());
 	}
 
 	/**

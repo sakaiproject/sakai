@@ -596,12 +596,13 @@
 										
 				<h:inputHidden value="step2" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 				<sakai:button_bar>
-					<h:commandButton id="goNextPage" action="#{NewSignupMeetingBean.processSave}" value="#{msgs.publish_button}" onclick='displayProcessingIndicator(this);'/> 
+					<h:commandButton id="goNextPage" styleClass="active" action="#{NewSignupMeetingBean.processSave}" value="#{msgs.publish_button}" onclick='displayProcessingIndicator(this);'/> 
 					<h:commandButton id="assignStudents" action="#{NewSignupMeetingBean.proceesPreAssignAttendee}" value="#{msgs.assign_attendee_publish_button}" disabled="#{NewSignupMeetingBean.announcementType}"/> 
 					<h:commandButton id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
 					<h:commandButton id="Cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}" immediate="true"/>
-					<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />  
+ 
 				</sakai:button_bar>
+                                <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />
 
 			 </h:form>
   		</sakai:view_content>	

@@ -232,14 +232,6 @@ ul.attachList li{
 	padding: 2px;
 }
 
-
-/*for link controls in views */
-/*see calendar */
-.viewLinkControl
-{
-	padding:.5em 0
-}
-
 /*for abc or 123 navigators*/
 /*not sure where used - samigo?*/
 span.abc{
@@ -890,8 +882,8 @@ ul.calendarLegend li{
 .ui-timepicker-div span.ui-button-icon.ui-icon {top: 50%; left: 50%; }
 
 /*jQuery Datepicker button class*/
-.ui-datepicker-trigger{background:none;border:none;font-size:1em;}
-.ui-datepicker-trigger:hover{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger{font-size:1em;margin-left: 4px;}
+.ui-datepicker-trigger:hover{font-size:1em;}
 .ui-datepicker-trigger span.fa{color:#000;}
 .ui-datepicker-trigger:hover span.fa{color:#000;}
 

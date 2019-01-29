@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -341,6 +342,15 @@ public abstract class SakaiSecurity implements SecurityService, Observer
             }
         }
         return false;
+    }
+
+    /**
+     * Removes the specified users site visit permission from the call cache
+     */
+    protected void notifyMembersRemovedFromRealm(Set<String> userIds, String azgRef) {
+
+        m_callCache.removeAll(userIds.stream().map(
+            uid -> makeCacheKey(uid, null, SiteService.SITE_VISIT, azgRef, false)).collect(Collectors.toSet()));
     }
 
     /* Don't think we need this right now but leaving it for future ref just in case -AZ

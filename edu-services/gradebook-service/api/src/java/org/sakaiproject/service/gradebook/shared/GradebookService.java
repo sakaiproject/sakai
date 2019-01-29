@@ -67,6 +67,8 @@ public interface GradebookService {
 	public static final String gradePermission = GraderPermission.GRADE.toString();
 	@Deprecated
 	public static final String viewPermission = GraderPermission.VIEW.toString();
+	@Deprecated
+	public static final String noPermission = GraderPermission.NONE.toString();
 
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 
@@ -305,8 +307,8 @@ public interface GradebookService {
 	 * @param assignments list of Assignments to copy
 	 * @param toGradebookUid target gradebook uid
 	 */
-	public void transferGradebook(final GradebookInformation gradebookInformation, final List<Assignment> assignments,
-			final String toGradebookUid);
+	public Map<String,String> transferGradebook(final GradebookInformation gradebookInformation, final List<Assignment> assignments,
+			final String toGradebookUid, final String fromContext);
 
 	/**
 	 *
@@ -777,10 +779,11 @@ public interface GradebookService {
 	 * @param gradebookId Id of the gradebook
 	 * @param studentUuid uuid of the student
 	 * @param categoryId id of category
+	 * @param isInstructor will determine whether category score includes non-released items
 	 * @return percentage and dropped items, or empty if no calculations were made
 	 *
 	 */
-	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
+	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId, boolean includeNonReleasedItems);
 
 	/**
 	 * Calculate the category score for the given gradebook, category, assignments in the category and grade map. This doesn't do any
@@ -795,7 +798,7 @@ public interface GradebookService {
 	 * @return percentage and dropped items, or empty if no calculations were made
 	 */
 	Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category,
-			final List<Assignment> categoryAssignments, Map<Long, String> gradeMap);
+			final List<Assignment> categoryAssignments, Map<Long, String> gradeMap, boolean includeNonReleasedItems);
 
 	/**
 	 * Get the course grade for a student

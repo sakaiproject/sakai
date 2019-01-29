@@ -25,7 +25,7 @@
 	</h:panelGroup>
 	<h:panelGroup styleClass="itemNav specialLink">
 		<%-- gsilver:huh? renders anyway - because it is looking at topics instead of at folders?--%>
-		<h:commandLink styleClass="btn-primary" action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
+		<h:commandLink styleClass="button" action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
 			                rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.pvt_prev_folder}">
 			<f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
 		</h:commandLink>
@@ -33,7 +33,7 @@
 			<h:outputText value="#{msgs.pvt_prev_folder}"/>
 		</h:panelGroup>
 		
-		<h:commandLink styleClass="btn-primary" action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
+		<h:commandLink styleClass="button" action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
 				  		                  rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}" title=" #{msgs.pvt_next_folder}">
 			<f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
 		</h:commandLink>

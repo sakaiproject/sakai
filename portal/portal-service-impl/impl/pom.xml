@@ -5,7 +5,7 @@
     <parent>
         <artifactId>portal</artifactId>
         <groupId>org.sakaiproject.portal</groupId>
-        <version>19-SNAPSHOT</version>
+        <version>20-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -54,6 +54,10 @@
         <dependency>
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>lessonbuilder-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.commons</groupId>
+            <artifactId>commons-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

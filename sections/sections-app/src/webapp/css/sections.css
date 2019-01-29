@@ -6,7 +6,7 @@
 .selected {width:210px; text-align:right; vertical-align:top;}
 
 .transferButtonTable {text-align:center; font-weight:bold;}
-.studentSectionInfo {font-weight:bold;}
+.sectionTable .studentSectionInfo {font-weight:bold;}
 .deleteButtons {margin-top:40px;}
 .verticalPadding {margin-top:20px;}
 

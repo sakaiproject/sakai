@@ -38,6 +38,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.util.NumberUtil;
 
 public class GradeUpdateAction extends InjectableAction implements Serializable {
 
@@ -134,7 +135,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		final String rawNewGrade = params.get("newScore").textValue();
 
 		if (StringUtils.isNotBlank(rawNewGrade)
-				&& (!FormatHelper.isValidDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
+				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
 			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
 
 			return new ArgumentErrorResponse("Grade not valid");
@@ -197,7 +198,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		}
 
 		Optional<CategoryScoreData> catData = categoryId == null ?
-				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
+				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid, true);
 		String categoryScore = catData.map(c -> String.valueOf(c.score)).orElse("-");
 		List<Long> droppedItems = catData.map(c -> c.droppedItems).orElse(Collections.emptyList());
 

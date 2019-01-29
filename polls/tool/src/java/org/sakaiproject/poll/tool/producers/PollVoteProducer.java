@@ -149,7 +149,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			UIVerbatim.make(tofill,"poll-description",poll.getDetails());
 		}
 
-		log.debug("this poll has " + poll.getPollOptions().size()+ " options");
+		log.debug("this poll has " + poll.getOptions().size()+ " options");
 
 		UIForm voteForm = UIForm.make(tofill,"options-form",""); 
 

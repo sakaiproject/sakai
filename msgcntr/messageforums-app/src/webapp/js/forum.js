@@ -418,18 +418,20 @@ function doAjax(messageId, topicId, self){
     return false;
 }
 
-// This will display/hide extended description for an element
-// Need to be fancy due to a bug (SAK-11933) where copy/pasting
-// content causes addition tags with class 'toggle' to be in
-// markup, causing errors on display.
-// Found multiple versions of this fix, so centralizing it here
-function toggleExtendedDescription(hideShowEl, parent, element) {
-    resize();
-    hideShowEl.toggle();
-    parent.slideToggle(resize);
-    element.toggle();
-    element[0].classList.toggle('opened');
-}
+$(document).ready(function() {
+    var toggleFinished = true;
+    $('.toggle').click(function(e) {
+        if (toggleFinished) {
+            toggleFinished = false;
+            $(this).parent().parent().find('.toggleParent').toggle();
+            $(this).parent().parent().find('[id$=fullTopicDescription]').slideToggle('slow', function() {
+                toggleFinished = true;
+            });
+        }
+        e.preventDefault();
+        return false;
+    });
+});
 
 function toggleDates(hideShowEl, parent, element) {
     resize();
@@ -886,6 +888,25 @@ $(document).ready(function(){
         $buttonContainer.find('.messageProgress').fadeIn('slow')
     });
 
+});
+
+$(document).ready(function(){
+    $("#prefs_pvt_form\\:pvtmsgs\\:checkAll, #prefs_pvt_form\\:threaded_pvtmsgs\\:checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+        if(this.checked){
+            toggleBulkOperations(true, 'prefs_pvt_form');
+        }else{
+            toggleBulkOperations(false, 'prefs_pvt_form');
+        }
+    });
+    $("#prefs_form_search\\:pvtmsgs\\:checkAll, #prefs_form_search\\:threaded_pvtmsgs\\:checkAll").click(function () {
+        $('input:checkbox').not(this).prop('checked', this.checked);
+        if(this.checked){
+            toggleBulkOperations(true, 'prefs_form_search');
+        }else{
+            toggleBulkOperations(false, 'prefs_form_search');
+        }
+    });
 });
 
 // rubrics-specific code

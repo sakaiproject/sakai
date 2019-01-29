@@ -76,4 +76,12 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
             "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
     List<Evaluation> findByToolIdAndAssociationItemIdAndEvaluatedItemId(@Param("toolId") String toolId,
             @Param("itemId") String itemId, @Param("evaluatedItemId") String evaluatedItemId);
+
+    @RestResource(path = "by-association-and-user", rel = "by-association-and-user")
+    @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
+    @Query("select resource.evaluatedItemId from Evaluation resource where " +
+            " resource.toolItemRubricAssociation.itemId = :associationId " +
+            "and resource.evaluatedItemOwnerId = :userId " +
+            "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
+    String findByAssociationIdAndUserId(@Param("associationId") String associationId, @Param("userId") String userId);
 }

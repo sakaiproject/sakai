@@ -35,7 +35,7 @@ public class CopyAssessmentListener implements ActionListener {
 		String assessmentId = assessmentBean.getAssessmentId();
 		log.debug("assessmentId = " + assessmentId);
 		AssessmentService assessmentService = new AssessmentService();
-		String apepndCopyTitle = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "append_copy_title");
-		assessmentService.copyAssessment(assessmentId, apepndCopyTitle);
+		String appendCopyTitle = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "append_copy_title");
+		assessmentService.copyAssessment(assessmentId, appendCopyTitle);
 	}
 }

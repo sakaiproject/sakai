@@ -44,6 +44,20 @@
 	function closeDateCal(){
 		NewCal('revise:closeDate','MMDDYYYY',true,12, '<h:outputText value="#{ForumTool.defaultAvailabilityTime}"/>');	
 	}
+
+	function updateGradeAssignment(){
+		var elems = document.getElementsByTagName('sakai-rubric-association');
+		if( document.getElementById("revise:topic_assignments").value != null && document.getElementById("revise:topic_assignments").value != 'Default_0'){
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'inline';
+			}
+		} else {
+			for (var i = 0; i<elems.length; i++) {
+				elems[i].style.display = 'none';
+			}
+		}
+	}
+
 	function setAutoCreatePanel(radioButton) {
 		$(".createOneTopicPanel").slideToggle("fast");
 		$(".createTopicsForGroupsPanel").slideToggle("fast");
@@ -88,10 +102,9 @@
 	ValueBinding vbinding = appl.createValueBinding("#{ForumTool}");
 	DiscussionForumTool forumTool = (DiscussionForumTool) vbinding.getValue(fcontext);
 	String stateDetails = forumTool.getRbcsStateDetails();
-	String entityId = forumTool.getSelectedTopic().getTopic().getUuid();
+	String entityId = "top." + forumTool.getSelectedTopic().getTopic().getId();
 %>
 <script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<link rel="stylesheet" href="/rubrics-service/css/sakai-rubrics-associate.css">
 <!-- END RUBRICS JAVASCRIPT -->
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
@@ -239,7 +252,7 @@
 						id="topic_postFirst">
 					</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>	
-				<t:htmlTag value="p" styleClass="checkbox" rendered="#{ForumTool.anonymousEnabled}">
+				<t:htmlTag value="p" styleClass="checkbox anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 					<h:selectBooleanCheckbox
 						title="postAnonymous" value="#{ForumTool.selectedTopic.topicPostAnonymous}"
 						id="topic_postAnonymous"
@@ -252,7 +265,7 @@
 						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="messageInstruction" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 					</h:outputLabel>
 				</t:htmlTag>
-				<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1" rendered="#{ForumTool.anonymousEnabled}">
+				<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 					<h:selectBooleanCheckbox
 						title="revealIDsToRoles" value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}"
 						id="topic_revealIDsToRoles"
@@ -360,10 +373,10 @@
 				<h4><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h4>
 				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
 			    <h:panelGroup  style="white-space:nowrap;">
-						<h:outputLabel for="topic_assignments"  value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
+						<h:outputLabel for="topic_assignments" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
 			  	</h:panelGroup>		
 					  <h:panelGroup  styleClass="gradeSelector   itemAction actionItem"> 
-						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" disabled="#{not ForumTool.editMode}">
+						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" onchange="updateGradeAssignment()" id="topic_assignments" disabled="#{not ForumTool.editMode}">
 			     	    <f:selectItems value="#{ForumTool.assignments}" />
 			  	    </h:selectOneMenu>
 									<h:outputText value="#{msgs.perm_choose_assignment_none_t}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
@@ -378,7 +391,7 @@
 					    </h:panelGroup>
 			  </h:panelGrid>
 
-		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px"
+		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none"
 
 			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
 			dont-associate-value="0"
@@ -455,7 +468,7 @@ $(function () {
 </script>
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" actionListener="#{ForumTool.keepStateDetails}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
-          								 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick"> 
+          								 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick active"> 
     	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>    
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
@@ -477,7 +490,7 @@ $(function () {
                            value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
           </h:commandButton>
-          <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
+          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
           <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
        
@@ -497,6 +510,7 @@ $(function () {
 								$('.gradeSelector').find('.instrWithGrades').hide();
 								$('.gradeSelector').find('.instrWOGrades').show();
 							}
+							updateGradeAssignment();
 							
 		
 				var charRemFormat = $('.charRemFormat').text();

@@ -28,16 +28,16 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.sakaiproject.content.api.ContentResource;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
@@ -72,26 +72,26 @@ public class XLContentDigester extends BaseContentDigester
 			contentStream = contentResource.streamContent();
 			
             POIFSFileSystem fs = new POIFSFileSystem(contentStream);
-            HSSFWorkbook workbook = new HSSFWorkbook(fs);
+            Workbook workbook = new HSSFWorkbook(fs);
 
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-                HSSFSheet sheet = workbook.getSheetAt(i);
+                Sheet sheet = workbook.getSheetAt(i);
 
                 Iterator<Row> rows = sheet.rowIterator();
                 while (rows.hasNext()) {
-                    HSSFRow row = (HSSFRow) rows.next();
+                    Row row = rows.next();
 
                     Iterator<Cell> cells = row.cellIterator();
                     while (cells.hasNext()) {
                         HSSFCell cell = (HSSFCell) cells.next();
-                        switch (cell.getCellType()) {
-                        case HSSFCell.CELL_TYPE_NUMERIC:
+                        switch (cell.getCellTypeEnum()) {
+                        case NUMERIC :
                             String num = Double.toString(cell.getNumericCellValue()).trim();
                             if (num.length() > 0) {
                                 writer.write(num + " ");
                             }
                             break;
-                        case HSSFCell.CELL_TYPE_STRING:
+                        case STRING:
                             String text = cell.getStringCellValue().trim();
                             if (text.length() > 0) {
                                 writer.write(text + " ");

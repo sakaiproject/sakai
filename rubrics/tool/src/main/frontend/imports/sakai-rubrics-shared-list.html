@@ -1,9 +1,7 @@
 <dom-module id="sakai-rubrics-shared-list">
   <template>
-
     <!-- Styling -->
-    <style include="sakai-rubrics-styles"></style>
-    <style include="polymer-bootstrap"></style>
+    <style include="granite-bootstrap"></style>
 
     <!-- Templating -->
     <div role="tablist">
@@ -69,7 +67,7 @@
         var index = this.rubricslist.indexOf(e.detail);
         this.$.copyShareToSite.headers = { "Content-Type": "application/json" , "x-copy-source": e.detail.id, "Authorization": this.token, "lang": this.locale};
         this.$.copyShareToSite.body = '{}'
-        this.$.copyShareToSitel.generateRequest();
+        this.$.copyShareToSite.generateRequest();
       },
       handleCopyShareToSite: function(request) {
         this.fire('copy-share-site');

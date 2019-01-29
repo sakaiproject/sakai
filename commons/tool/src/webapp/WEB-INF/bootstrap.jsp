@@ -16,7 +16,8 @@
                 embedder: '${embedder}',
                 userId: '${userId}',
                 isUserSite: ${isUserSite},
-                postId: '${postId}'
+                postId: '${postId}',
+                maxUploadSize: '${maxUploadSize}'
             };
 
         </script>
@@ -29,7 +30,6 @@
 
         <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-        <script src="/library/webjars/momentjs/2.11.1/min/moment-with-locales.min.js"></script>
         <script src="/library/webjars/qtip2/3.0.3/jquery.qtip.min.js"></script>
         <script src="/commons-tool/lib/handlebars.runtime-v4.0.5.js"></script>
         <script src="/commons-tool/templates/templates.js"></script>

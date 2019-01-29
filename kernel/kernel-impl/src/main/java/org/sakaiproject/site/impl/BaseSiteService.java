@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,6 +94,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 	private static final String RESOURCECLASS = "resource.class.siteimpl";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
 	private static final String ORIGINAL_SITE_ID_PROPERTY = "original-site-id";
+
+	private final UrlValidator siteIdValidator
+		= new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS | UrlValidator.ALLOW_2_SLASHES);
 
 	private ResourceLoader rb = null;
 	// protected ResourceLoader rb = new ResourceLoader("site-impl");
@@ -1267,6 +1271,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		id = Validator.escapeResourceName(id);
+
+		if (!serverConfigurationService().getBoolean("site.api.allow_malformed_ids", false)
+				&& !siteIdValidator.isValid("http://localhost/portal/site/" + id)) {
+			String message
+				= "Id " + id + " is not a valid id format. It can only contain url friendly characters";
+			log.warn(".addSite(): " + message);
+			throw new IdInvalidException(message);
+		}
 
 		// check for a valid site type
 		if (!Validator.checkSiteType(type)) {
@@ -3702,30 +3714,32 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		String eventType = event.getEvent();
 
-		if (EVENT_SITE_USER_INVALIDATE.equals(eventType) || PreferencesService.SECURE_EDIT_PREFS.equals(eventType)) {
-			// KNL-1171: always clear the cache for the user as the Site below may have been deleted
-			clearUserCacheForUser(event.getUserId());
+        if (eventType != null) {
+            switch (eventType) {
+                case SiteService.SECURE_UPDATE_SITE_MEMBERSHIP:
+                case SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP:
+                case SiteService.SECURE_UPDATE_SITE:
+                    notifySiteParticipant("/gradebook/" + event.getContext() + "/");
+                    break;
+                case EVENT_SITE_USER_INVALIDATE:
+                    try {
+                        Site site = getSite(event.getResource());
+                        clearUserCacheForSite(site);
+                    } catch (IdUnusedException iue) {
+                        log.warn("Site not found when handling event ({})", event);
+                    }
+                case AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP:
+                case EVENT_SITE_VISIT_DENIED:
+                case PreferencesService.SECURE_EDIT_PREFS:
+                    // always clear the cache for the user as the Site below may have been deleted
+                    clearUserCacheForUser(event.getUserId());
+                    break;
+                default:
+                    // do nothing for all other events
+            }
+        }
+    }
 
-			try {
-				Site site = getSite(event.getResource());
-				clearUserCacheForSite(site);
-			} catch (IdUnusedException e) {
-				if (log.isDebugEnabled())
-				{
-					log.debug("Site not found when handling an event (" + eventType + "), ID/REF: " + event.getResource());
-				}
-			}
-		}
-		else if (EVENT_SITE_VISIT_DENIED.equals(eventType) || AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP.equals(eventType))
-		{
-			clearUserCacheForUser(event.getUserId());
-		}
-		else if(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventType) || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventType)
-				|| SiteService.SECURE_UPDATE_SITE.equals(eventType))
-		{
-			notifySiteParticipant("/gradebook/" + event.getContext() + "/");
-		}
-	}
 	protected Storage storage() {
 		return m_storage;
 	}

@@ -81,27 +81,14 @@
 	}
 }
 
-.#{$namespace}container--footer{
+// Note: this is the footer container; see _footer.scss for the rest of the design of the footer
+.#{$namespace}container--footer {
 	margin-top: auto; 	// push the footer to the bottom of the page
 	background-color: $footer-background-color;
 	border-top: 1px solid $footer-border-color;
 }
 
-.#{$namespace}footer{
-	color: $footer-color;
-	padding: 0.8em;
-	font-size: 0.8em;
-	#footer-links{
-		list-style: none;
-		padding: 0 0 0 0;
-		li{
-			display: inline-block;
-		}
-	}
-}
-
-.#{$namespace}noJs.js-warn-no-js
-{
+.#{$namespace}noJs.js-warn-no-js {
 	position: fixed;
 	bottom: 0;
 	left: 10%;

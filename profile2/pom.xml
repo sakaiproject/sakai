@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>19-SNAPSHOT</version>
+		<version>20-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Profile2</name>
@@ -19,7 +19,7 @@
 	<inceptionYear>2008</inceptionYear>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>6.26.0</wicket.version>
+		<wicket.version>6.29.0</wicket.version>
 	</properties>
 	<modules>
 		<module>api</module>

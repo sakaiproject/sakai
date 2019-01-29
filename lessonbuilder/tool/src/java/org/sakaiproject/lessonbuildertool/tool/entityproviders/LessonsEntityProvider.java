@@ -429,6 +429,8 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		final JSONObject result = new JSONObject();
 
 		final List<SimplePage> topLevelPages = simplePageToolDao.getTopLevelPages(siteId);
+		if (topLevelPages == null) return result.toJSONString();
+
 		SimplePageBean simplePageBean = null;
 		final String currentUserId = sessionManager.getCurrentSessionUserId();
 

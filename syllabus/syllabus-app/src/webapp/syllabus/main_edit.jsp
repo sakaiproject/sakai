@@ -317,13 +317,13 @@
 					 action="#{SyllabusTool.processListDelete}"
 					 title="#{msgs.update}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="s" 	/>
+					 accesskey="s" styleClass="active" />
 				<h:commandButton 
 				     value="#{msgs.reset}" 
 					 action="#{SyllabusTool.processMainEditCancel}"
 					 title="#{msgs.reset}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="s" styleClass="active"/>
+					 accesskey="s" />
 				<h:commandButton
 					value="#{msgs.cancel}"
 					action="#{SyllabusTool.processStudentView}"

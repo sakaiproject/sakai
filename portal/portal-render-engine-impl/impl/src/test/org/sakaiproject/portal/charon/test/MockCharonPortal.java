@@ -236,8 +236,8 @@ public class MockCharonPortal extends HttpServlet
 		{
 			List l = new ArrayList();
 			Map m = new HashMap();
-			m.put("poweredByUrl", "http://sakaiproject.org");
-			m.put("poweredByImage", "/library/image/sakai_powered.gif");
+			m.put("poweredByUrl", "https://www.sakaiproject.org/");
+			m.put("poweredByImage", "/library/image/poweredBySakai.png");
 			m.put("poweredByAltText", "Powered by Sakai");
 			l.add(m);
 			rcontext.put("bottomNavPoweredBy", l);

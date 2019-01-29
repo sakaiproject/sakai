@@ -44,8 +44,8 @@ function checkRadioSettings() {
         var changed = false;
         if ( $("input[name='allowtitle']:checked").val() == 0 ||
              $("input[name='allowlaunch']:checked").val() == 0 ) {
-            $("#allowtitle_allow").click();
-            $("#allowlaunch_allow").click();
+            $("#allowtitle_allow-input").click();
+            $("#allowlaunch_allow-input").click();
             $( "#radioDialog" ).dialog();
         }
     }

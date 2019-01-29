@@ -619,7 +619,7 @@ sakai.updateSignupBeginsExact = function() {
 	
 	//set the new date into the fields
 	var signBExtTag = document.getElementById('meeting:signupBeginsExact');
-	jQuery(signBExtTag).text(displayDateTime(signupBeginsExact));
+	jQuery(signBExtTag).text('(' + displayDateTime(signupBeginsExact) + ')');
 }
 
 sakai.updateSignupEndsExact = function() {
@@ -655,7 +655,7 @@ sakai.updateSignupEndsExact = function() {
 	
 	//set the new date into the fields
 	var signEndExtTag = document.getElementById('meeting:signupEndsExact');
-	jQuery(signEndExtTag).text(displayDateTime(signupEndsExact));
+	jQuery(signEndExtTag).text('(' + displayDateTime(signupEndsExact) + ')');
 }
 
 sakai.toggleExactDateVisibility = function() {
@@ -746,6 +746,7 @@ function displayProcessingIndicator(el){
     var pos = jQuery(clickedElement).position();
     var blockerWidth = jQuery(clickedElement).width();
     var blockerHeight = jQuery(clickedElement).height();
+    var $messageContain = $buttonContainer.siblings('.messageProgress');
 
     jQuery(clickedElement).blur();
     $buttonContainer.find('#buttonBlocker').remove();
@@ -766,7 +767,7 @@ function displayProcessingIndicator(el){
         'left': pos.left,
         'display': 'block'
     });
-    $buttonContainer.find('.messageProgress').fadeIn('slow');
+    $messageContain.fadeIn();
 };
 
 //void enter Key on inputField to cause refresh the page

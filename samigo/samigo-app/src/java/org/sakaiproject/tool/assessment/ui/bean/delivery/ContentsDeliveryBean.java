@@ -39,7 +39,7 @@ public class ContentsDeliveryBean
   implements Serializable
 {
 	private static final long serialVersionUID = -4619361961662881387L;
-  private List partsContents;
+  private List<SectionContentsBean> partsContents;
   private double currentScore;
   private double maxScore; // SectionContentsBean
   // for display/hide score
@@ -86,7 +86,7 @@ public class ContentsDeliveryBean
    * List of parts (SectionContentsBean) for entire contents.
    * @return parts for entire contents
    */
-  public List getPartsContents()
+  public List<SectionContentsBean> getPartsContents()
   {
     return partsContents;
   }
@@ -95,7 +95,7 @@ public class ContentsDeliveryBean
    * Set parts (SectionContentsBean) for entire contents
    * @param partsContents parts (SectionContentsBean) for entire contents
    */
-  public void setPartsContents(List partsContents)
+  public void setPartsContents(List<SectionContentsBean> partsContents)
   {
     this.partsContents = partsContents;
   }

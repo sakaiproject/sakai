@@ -19,6 +19,7 @@
     <tool id="sakai.commons"
         title="Commons"
         description="A social networking style tool allowing posts with url to thumbnail expansion, and unthreaded replies.">
+        <!-- Note: Tool titles and descriptions are now internationalized and managed in the tools.properties file in the config project and will override the above values -->
 
         <category name="course" />
         <category name="project" />

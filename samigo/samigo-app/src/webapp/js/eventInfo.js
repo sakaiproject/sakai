@@ -12,14 +12,10 @@ $(document).ready(
     {
       $(this).find("span.makeLogInfo").hide();
     });
-    $("span.deleted").each(function(){
-    	var tr = this.closest('tr');
-    	$(tr).css('color','#AAA');
-    });
-    $("#eventLogId\\:assessmentTitle option").each(function(){
-    	if(typeof this.innerHTML.contains !== "undefined" && this.innerHTML.contains('-deleted')){
-    		this.style="color:#AAA";
-    	}
+    $("#eventLogId\\:assessmentTitle option").each(function() {
+      if ($(this).text().indexOf(deletedText) > -1){
+        $(this).addClass('eventLogDeleted');
+      }
     });
   }
 );

@@ -9,9 +9,7 @@
 <%
 
   FacesContext context = FacesContext.getCurrentInstance();
-  Application app = context.getApplication();
-  ValueBinding binding = app.createValueBinding("#{ForumTool}");
-  DiscussionForumTool forumTool = (DiscussionForumTool) binding.getValue(context);
+  DiscussionForumTool forumTool = context.getApplication().evaluateExpressionGet(context, "#{ForumTool}", DiscussionForumTool.class);
 
   String target = "";
 
@@ -29,7 +27,7 @@
     }
   }
 
-  target = "/jsp/discussionForum/forum/dfForumDetail.jsf?forumId="
+  target = "/jsp/discussionForum/forum/dfForumDetail.jsp?forumId="
   	       + request.getParameter("forumId");
   forumTool.processActionDisplayForum();
 

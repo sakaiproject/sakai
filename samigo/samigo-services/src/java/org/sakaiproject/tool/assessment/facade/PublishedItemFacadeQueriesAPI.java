@@ -52,4 +52,6 @@ public interface PublishedItemFacadeQueriesAPI {
 	public Long getPublishedAssessmentId(Long itemId);
 
 	public Boolean itemExists(String itemId);
+
+	public void removeItemAttachment(Long itemAttachmentId);
 }

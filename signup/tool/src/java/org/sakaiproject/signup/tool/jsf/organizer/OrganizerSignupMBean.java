@@ -20,6 +20,7 @@
 package org.sakaiproject.signup.tool.jsf.organizer;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1449,5 +1450,9 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 */
 	public String getCurrentUserEmailAddress() {
 		return sakaiFacade.getUser(sakaiFacade.getCurrentUserId()).getEmail();
+	}
+	
+	public String getDisplayTimeFromInstant(Instant instant) {
+		return signupMeetingService.getUsersLocalDateTimeString(instant);
 	}
 }

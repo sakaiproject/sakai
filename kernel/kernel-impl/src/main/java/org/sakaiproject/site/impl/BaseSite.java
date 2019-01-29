@@ -1729,7 +1729,7 @@ public class BaseSite implements Site
 	 */
 	public void removeGroup(Group group)
 	{
-		if(group.isLocked()) {
+		if(group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
 			log.error("Error, cannot remove a locked group");
 			return;
 		}
@@ -1745,7 +1745,7 @@ public class BaseSite implements Site
 	 */
 	public void deleteGroup(Group group) throws IllegalStateException
 	{
-		if (group.isLocked()) {
+		if(group.isLocked(Group.LockMode.ALL) || group.isLocked(Group.LockMode.DELETE)) {
 			throw new IllegalStateException("Error, cannot remove group: " + group.getId() + " because it is locked");
 		}
 		// remove it

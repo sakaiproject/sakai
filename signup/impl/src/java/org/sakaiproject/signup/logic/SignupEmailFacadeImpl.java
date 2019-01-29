@@ -45,7 +45,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.fortuna.ical4j.model.component.VEvent;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.EmailValidator;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;

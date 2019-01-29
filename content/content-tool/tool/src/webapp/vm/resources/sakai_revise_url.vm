@@ -64,8 +64,8 @@
 		<p class="act">
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")"  accesskey="s"/>
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")"  accesskey="x"/>
-			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.save.url")</span>
 		</p>
+		<p id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.save.url")</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

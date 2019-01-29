@@ -118,7 +118,7 @@
 	
 	            <div class=".Mrphs-portalChat__user--wrapper" >
 	                <h2 class="Mrphs-portalChat__title">${rloader.pc_site_users_label}</h2>
-	                <ul id="Mrphs-portalChat__siteusers"class="Mrphs-portalChat__list Mrphs-portalChat__siteusers"></ul>
+	                <div id="Mrphs-portalChat__siteusers"class="Mrphs-portalChat__list Mrphs-portalChat__siteusers"></div>
 	            </div>
 	
 	        </div>
@@ -166,7 +166,7 @@
     <!-- Trimpath template for the present users list -->
     <div id="pc_site_users_template" class="Mrphs-portalChat__template Mrphs-portalChat__template--users is-hidden"><!--
                 {for user in siteUsers}
-                    <li class="Mrphs-portalChat__user Mrphs-portalChat__list-item">
+                    <div class="Mrphs-portalChat__user Mrphs-portalChat__list-item">
                         {if !user.offline}
                         <a id="${user.id}_link" class="pc_user_link Mrphs-portalChat__user--link" href="javascript:;" onclick="return portal.chat.setupChatWindow('${user.id}');">
                         {/if}
@@ -190,7 +190,7 @@
                         	   <i class="Mrphs-portalChat__connection--bullet Mrphs-footerApp--icon icon-sakai-videocam"></i>
                          </a>
                         {/if}
-                    </li>
+                    </div>
                 {/for}
             -->
     </div>

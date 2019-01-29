@@ -815,7 +815,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		try {
 			getHibernateTemplate().delete(o);
 			return true;
-		} catch (DataAccessException e) {
+		} catch (DataAccessException | IllegalArgumentException e) {
 			try {
 				
 				/* If we have multiple objects of the same item, you must merge them

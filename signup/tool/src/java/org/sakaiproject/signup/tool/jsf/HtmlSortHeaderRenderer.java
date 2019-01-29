@@ -44,37 +44,10 @@ import org.sakaiproject.util.ResourceLoader;
  */
 @Slf4j
 public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
-	public final static String CURRENT_SORT_STYLE = "currentSort";
-	public final static String NOT_CURRENT_SORT_STYLE = "notCurrentSort";
-
 	private ResourceLoader rb = new ResourceLoader("messages");
 
 	public void encodeBegin(FacesContext facesContext, UIComponent component)
 			throws IOException {
-		// If this is a currently sorted sort header, always give it the "currentSort" CSS style class
-        if (component instanceof HtmlCommandSortHeader) {
-            HtmlCommandSortHeader sortHeader = (HtmlCommandSortHeader)component;
-            String styleClass = StringUtils.trimToNull(getStyleClass(facesContext, component));
-            String newStyleClass;
-            String unStyleClass;
-            if (sortHeader.findParentDataTable().getSortColumn().equals(sortHeader.getColumnName())) {
-            	newStyleClass = CURRENT_SORT_STYLE;
-            	unStyleClass = NOT_CURRENT_SORT_STYLE;
-            } else {
-            	newStyleClass = NOT_CURRENT_SORT_STYLE;
-            	unStyleClass = CURRENT_SORT_STYLE;
-            }
-            if (StringUtils.indexOf(styleClass, newStyleClass) == -1) {
-            	if (StringUtils.indexOf(styleClass, unStyleClass) != -1) {
-            		styleClass = StringUtils.replace(styleClass, unStyleClass, newStyleClass);
-            	} else if (styleClass != null) {
-            		styleClass = (new StringBuilder(styleClass)).append(' ').append(newStyleClass).toString();
-            	} else {
-            		styleClass = newStyleClass;
-            	}
-            	sortHeader.setStyleClass(styleClass);
-            }
-        }
  		super.encodeBegin(facesContext, component); //check for NP
 	}
 

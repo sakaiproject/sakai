@@ -270,7 +270,16 @@ public interface GradebookPermissionService
 	  * @return
 	  */
 	 public void updatePermissionsForUser(final String gradebookUid, final String userId, List<PermissionDefinition> permissionDefinitions);
-	 
+
+	/**
+	 * Remove all grader specific permissions for the given user
+	 *
+	 * @param gradebookUid
+	 * @param userId
+	 * @return
+	 */
+	public void clearPermissionsForUser(final String gradebookUid, final String userId);
+
 	 /**
 	  * Get a list of permissions defined for the given user based on section and role or all sections if allowed. 
 	  * This method checks realms permissions for role/section and is independent of the 

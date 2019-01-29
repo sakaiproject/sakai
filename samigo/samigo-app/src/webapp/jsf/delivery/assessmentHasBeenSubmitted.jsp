@@ -35,24 +35,7 @@
       <title><h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
-
-<div class="portletBody">
-  <!-- content... -->
-  <h3><h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.assessment_has_been_submitted}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
-  <h:outputText value="#{deliveryMessages.assessment_has_been_submitted_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
- 
- <h:form id="assessment_has_been_submitted">
- <p class="act">
-       <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
-         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
-          <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-       </h:commandButton>
- </p>
- </h:form>
-  <!-- end content -->
-</div>
+        <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
       </body>
     </html>
   </f:view>

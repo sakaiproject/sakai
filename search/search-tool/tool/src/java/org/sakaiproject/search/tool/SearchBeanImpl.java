@@ -161,6 +161,8 @@ import org.sakaiproject.util.StringUtil;
 
 	private int nTerms = 100;
 
+	private int nSites = 1000;
+
 	private List<SearchTerm> finalTermList;
 
 	private int topTerms = 10;
@@ -444,7 +446,9 @@ import org.sakaiproject.util.StringUtil;
 			}
 		}
 		if (scope != null && scope.equals(Scope.MINE)) {
-			l.addAll(Arrays.asList(getAllUsersSites()));
+			List<String> allUserSites = Arrays.asList(getAllUsersSites());
+			List<String> trimmedUserSites = allUserSites.subList(0, Math.min(nSites, allUserSites.size()));
+			l.addAll(trimmedUserSites);
 		}
 		
 		 return l;

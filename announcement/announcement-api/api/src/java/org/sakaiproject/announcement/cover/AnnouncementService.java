@@ -21,6 +21,7 @@
 
 package org.sakaiproject.announcement.cover;
 
+import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdInvalidException;
@@ -29,8 +30,6 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.announcement.api.AnnouncementChannel;
-import org.sakaiproject.announcement.api.AnnouncementMessage;
 
 /**
  * <p>
@@ -39,6 +38,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessage;
  * 
  * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
+ * @deprecated
  */
 public class AnnouncementService
 {

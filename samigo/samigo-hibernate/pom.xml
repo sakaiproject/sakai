@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
-		<version>19-SNAPSHOT</version>
+		<version>20-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Samigo Hibernate POJO (samigo-hibernate)</name>
@@ -28,8 +28,8 @@
             <artifactId>samigo-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 	</dependencies>
     

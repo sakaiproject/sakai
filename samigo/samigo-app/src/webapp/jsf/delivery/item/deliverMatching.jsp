@@ -29,11 +29,9 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-  <h:dataTable value="#{question.answers}" var="answer">
-   <h:column>
-     <h:outputText value="#{answer}" escape="false" />
-   </h:column>
-  </h:dataTable>
+  <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.answers}" var="answer">
+    <h:outputText value="#{answer}" escape="false" />
+  </t:dataList>
 
   <h:dataTable value="#{question.matchingArray}" var="matching">
     <h:column rendered="#{delivery.feedback eq 'true' &&

@@ -21,35 +21,32 @@
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
-import java.util.concurrent.ScheduledFuture;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.event.cover.NotificationService;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Title: TimedAssessmentRunnable</p>
@@ -59,11 +56,24 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 public class TimedAssessmentRunnable implements Runnable {
 
   private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+
+  private EventTrackingService eventTrackingService;
+  private ThreadLocalManager threadLocalManager;
+  private ServerConfigurationService serverConfigurationService;
+  private SessionManager sessionManager;
+  private UsageSessionService usageSessionService;
+
   private long timedAGId;
   TimedAssessmentQueue queue;
 
 
   public TimedAssessmentRunnable(long id){
+    eventTrackingService = ComponentManager.get(EventTrackingService.class);
+    threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
+    serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+    sessionManager = ComponentManager.get(SessionManager.class);
+    usageSessionService = ComponentManager.get(UsageSessionService.class);
+
     this.timedAGId = id;
     this.queue = TimedAssessmentQueue.getInstance();
   }
@@ -72,15 +82,13 @@ public class TimedAssessmentRunnable implements Runnable {
   public void run(){
     try {
       TimedAssessmentGradingModel timedAG = this.queue.get(this.timedAGId);
-      String serverName = ServerConfigurationService.getServerName();
+      String serverName = serverConfigurationService.getServerName();
 
       boolean submitted = timedAG.getSubmittedForGrade();
       long bufferedExpirationTime = timedAG.getBufferedExpirationDate().getTime(); // in millesec
       long currentTime = (new Date()).getTime(); // in millisec
   
-      log.debug("SAMIGO_TIMED_ASSESSMENT:TICKTOCK ID:" + this.timedAGId + 
-         " submitted:" + submitted + 
-         " time_left:" + (bufferedExpirationTime-currentTime));
+      log.debug("SAMIGO_TIMED_ASSESSMENT:TICKTOCK ID:{} submitted:{} time_left:{}", this.timedAGId, submitted, bufferedExpirationTime - currentTime);
   
       if (!submitted){
         if (currentTime > bufferedExpirationTime){ // time's up, i.e. timeLeft + latency buffer reached
@@ -89,23 +97,21 @@ public class TimedAssessmentRunnable implements Runnable {
           GradingService service = new GradingService();
           AssessmentGradingData ag = service.load(String.valueOf(this.timedAGId), false);
 
-          log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT ID:" + this.timedAGId + 
-             " userId:" + ag.getAgentId());
+          log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT ID:{} userId:{}", this.timedAGId, ag.getAgentId());
 
           if (!ag.getForGrade()) {
             Date submitDate = new Date();
 
-            log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE ID:" + this.timedAGId + 
-               " userId:" + ag.getAgentId());
+            log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE ID:{} userId:{}", this.timedAGId, ag.getAgentId());
 
 
             // Create a new session here so this is associated in the database with the correct userid
-            UsageSession usageSession = UsageSessionService.startSession(ag.getAgentId(), serverName, "TimedAssessmentRunnable");
+            usageSessionService.startSession(ag.getAgentId(), serverName, "TimedAssessmentRunnable");
 
             // Change user id for the Gradebook update (if required) and so the event is associated with the correct userid
-            Session session = SessionManager.getCurrentSession();
+            Session session = sessionManager.getCurrentSession();
             if (session == null) {
-            	session = SessionManager.startSession();
+            	session = sessionManager.startSession();
             }
 
             session.setUserId(ag.getAgentId());
@@ -159,7 +165,7 @@ public class TimedAssessmentRunnable implements Runnable {
 
             notiValues.put( "confirmationNumber", confirmationNumber );
 
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD,
+            eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD,
                notiValues.toString(),
                siteId,
                true,
@@ -168,22 +174,21 @@ public class TimedAssessmentRunnable implements Runnable {
             GradingService g = new GradingService();
             g.notifyGradebookByScoringType(ag, publishedAssessment);
 
-            log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE assessmentId:" + eventLogData.getAssessmentId() + 
-               " userEid:" + eventLogData.getUserEid() + 
-               " siteId:" + siteId + 
-               " submissionId:" + ag.getAssessmentGradingId());
-            //Invalidate the session
-            UsageSessionService.logout();
+            log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE assessmentId:{} userEid:{} siteId:{} submissionId:{}",
+                    eventLogData.getAssessmentId(), eventLogData.getUserEid(), siteId, ag.getAssessmentGradingId());
           }
         }
       } else { //submitted, remove from queue if transaction buffer is also reached
-        if (currentTime > (bufferedExpirationTime + timedAG.getTransactionBuffer()*1000L)){
+        if (currentTime > bufferedExpirationTime + timedAG.getTransactionBuffer() * 1000L){
           this.queue.remove(this.timedAGId);
         }
       }
     } catch (Exception ex) {
-      log.error("SAMIGO_TIMED_ASSESSMENT:SUBMIT:ERROR - " + ex);
+      log.warn("SAMIGO_TIMED_ASSESSMENT:SUBMIT:ERROR - {}", ex.getMessage(), ex);
       this.queue.remove(this.timedAGId);
+    } finally {
+      usageSessionService.logout();
+      threadLocalManager.clear();
     }
   }
 

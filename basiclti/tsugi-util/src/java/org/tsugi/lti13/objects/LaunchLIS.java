@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 public class LaunchLIS {
 
+	public static final String SCOPE_NAMES_AND_ROLES = "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly";
+
 	@JsonProperty("person_sourcedid")
 	public String person_sourcedid;
 	@JsonProperty("course_offering_sourcedid")

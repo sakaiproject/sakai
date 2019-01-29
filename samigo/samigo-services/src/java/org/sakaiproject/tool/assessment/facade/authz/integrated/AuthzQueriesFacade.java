@@ -26,7 +26,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Query;
@@ -71,6 +70,10 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
 
   public void setAuthzGroupService(AuthzGroupService authzGroupService) {
     this.authzGroupService = authzGroupService;
+  }
+
+  public boolean hasPrivilege(String functionName, String siteId) {
+    return SecurityService.unlock(functionName, "/site/" + siteId);
   }
 
   public boolean hasPrivilege(String functionName)

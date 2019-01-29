@@ -38,7 +38,8 @@ commons.switchState = function (state, arg) {
 
         var templateData = {
                 currentUserId: commons.userId,
-                isUserSite: commons.isUserSite
+                isUserSite: commons.isUserSite,
+                maxUploadSize: commons.maxUploadSize
             };
 
         // renderPageOfPosts uses this. Set it to the start page
@@ -215,11 +216,12 @@ commons.switchState = function (state, arg) {
 
             var fileInsertButton = $('#commons-image-dialog-insert-button');
             var fileField = $('#commons-image-dialog-file');
+            var fileMessage = $('#commons-image-dialog-message');
 
             fileInsertButton.click(function (e) {
 
                 var file = fileField[0].files[0];
-                var extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+                var extension = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
 
                 if (commons.imageFileExtensions.indexOf(extension) != -1) {
                     var formData = new FormData();
@@ -236,12 +238,19 @@ commons.switchState = function (state, arg) {
             });
 
             fileField.change(function (e) {
-                fileInsertButton.prop('disabled', false);
+
+                var file = fileField[0].files[0];
+                if ((file.size/1000000) > parseInt(commons.maxUploadSize)) {
+                    fileMessage.html('File too big');
+                } else {
+                    fileInsertButton.prop('disabled', false);
+                }
             });
 
             $('#commons-image-dialog-cancel-button').click(function (e) {
 
                 fileInsertButton.prop('disabled', true);
+                fileMessage.html('');
                 fileField.val('');
                 editorImageButton.qtip('api').hide();
             });

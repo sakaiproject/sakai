@@ -18,8 +18,8 @@ package org.sakaiproject.commons.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -186,7 +186,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         if (postExists(post.getId())) {
             sqlService.dbWrite(POST_UPDATE
                 , new Object[] { post.getContent()
-                                    , new Timestamp(new Date().getTime())
+                                    , Timestamp.from(Instant.now())
                                     , new Timestamp(post.getReleaseDate())
                                     , post.getId() });
 

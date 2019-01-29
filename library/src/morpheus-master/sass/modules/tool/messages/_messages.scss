@@ -16,8 +16,7 @@
 
  	.searchNav{
  		.button_search{
- 			margin: 0 0.5em;
- 			padding: 5px 10px 5px 12px;
+ 			margin: 0 0 0 $standard-space;
  		}
  	}
 
@@ -84,6 +83,9 @@
  		&\:pvtmsgs{
  			max-width: 1200px;
  			
+ 			th{
+ 				min-width: 32px;
+ 			}
  			td.check{
  				width: 10%;
  			} 		

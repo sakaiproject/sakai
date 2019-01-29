@@ -18,6 +18,8 @@
  */
 package org.tsugi.lti13;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Base64;
@@ -25,6 +27,9 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -192,4 +197,36 @@ public class LTI13Util {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/*
+		HTTP/1.1 400 OK
+		Content-Type: application/json;charset=UTF-8
+		Cache-Control: no-store
+		Pragma: no-cache
+
+		{
+			"error" : "invalid_scope"    
+		}
+	*/
+	public static void return400(HttpServletResponse response, String error, String detail) {
+			response.setContentType("application/json;charset=UTF-8");
+			response.setHeader("Cache-Control", "no-store");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			if ( detail != null ) response.setHeader("X-Tsugi-LTI13-Error-Detail", detail);
+			JSONObject job = new JSONObject();
+			job.put("error", error);
+			String retval = org.tsugi.jackson.JacksonUtil.toString(job);
+			try {
+				PrintWriter out = response.getWriter();
+				out.println(retval);
+			} catch (IOException e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				log.error(e.getMessage(), e);
+		}
+	}
+
+	public static void return400(HttpServletResponse response, String error) {
+		return400(response, error, null);
+	}
+
 }

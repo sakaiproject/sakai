@@ -44,7 +44,7 @@ body.active-more-sites{
 }
 
 #portalMask{
-	background: $all-sites-mask-background;
+	background: $portal-mask-background;
 	position: fixed;
 }
 
@@ -795,6 +795,15 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	float: left;
 	width: 70%;
 	border-right: solid 1px $all-sites-tab-border-color;
+
+	#favoritesToShow {
+		margin-top: 1em;
+
+		.fa-bars {
+			margin: 0 4px;
+			color: #777777;
+		}
+	}
 }
 
 #favorite-settings-pane {
@@ -810,7 +819,7 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 		padding: 0.6em;
 
 		&[aria-checked="true"] :first-child, &[aria-checked="false"] :last-child {
-			background-color: $button-primary-hover-background-color;
+			background: $button-primary-hover-background;
 			color: $button-primary-text-color;
 		}
 

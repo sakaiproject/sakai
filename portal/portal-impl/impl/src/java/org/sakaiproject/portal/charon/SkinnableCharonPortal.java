@@ -1034,6 +1034,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String universalAnalyticsId =  ServerConfigurationService.getString("portal.google.universal_analytics_id", null);
 		if ( universalAnalyticsId != null ) {
 			rcontext.put("googleUniversalAnalyticsId", universalAnalyticsId);
+			rcontext.put("googleAnonymizeIp", ServerConfigurationService.getBoolean("portal.google.anonymize.ip", false));
 		}
 
 		String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
@@ -1320,8 +1321,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         if (Boolean.valueOf(strMathJaxEnabledForSite))
                         {
                             // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
-                            headJs.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n");
-                            headJs.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n");
+                            headJs.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\nmessageStyle: \"none\",\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n");
+                            headJs.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\" type=\"text/javascript\"></script>\n");
                         }                     
                     }
                 }
@@ -1460,6 +1461,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				} else {
 					toolContextPath = toolContextPath.replace("/~","/%7E");
 				}
+			} else if ( toolContextPath.indexOf(" ") > 0 && reqUrl.indexOf(" ") < 1 ) {
+				toolContextPath = toolContextPath.replace(" ","%20");
 			}
 		}
 		log.debug("forwardtool call {} toolPathInfo {} ctx {}", req.getRequestURL(), toolPathInfo, toolContextPath);
@@ -1750,8 +1753,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				List<Object> l = new ArrayList<Object>();
 				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("poweredByUrl", "http://sakaiproject.org");
-				m.put("poweredByImage", "/library/image/sakai_powered.gif");
+				m.put("poweredByUrl", "https://www.sakaiproject.org/");
+				m.put("poweredByImage", "/library/image/poweredBySakai.png");
 				m.put("poweredByAltText", "Powered by Sakai");
 				l.add(m);
 				rcontext.put("bottomNavPoweredBy", l);
@@ -1766,7 +1769,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
 			rcontext.put("useBullhornAlerts", useBullhornAlerts);
 			if (useBullhornAlerts) {
-				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 10000);
+				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 60000);
 				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
 			}
 

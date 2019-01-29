@@ -543,6 +543,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// Event process methods
 	// ################################################################	
 	private void preProcessEvent(Event event) {
+
+		if (event == null) {
+			log.debug("Ignoring null event");
+			return;
+		}
+
 		totalEventsProcessed++;
 		String userId = event.getUserId();
 		Event e = fixMalFormedEvents(event);

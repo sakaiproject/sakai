@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.portal.service;
 
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.*;
 import java.sql.ResultSet;
@@ -39,6 +38,10 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.commons.api.CommonsEvents;
+import org.sakaiproject.commons.api.CommonsManager;
+import org.sakaiproject.commons.api.datamodel.Comment;
+import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -71,6 +74,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.TransactionStatus;
 
+import javax.inject.Inject;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,12 +84,12 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private static final List<String> HANDLED_EVENTS = new ArrayList<>();
 
-    private final static String COMMONS_COMMENT_CREATED = "commons.comment.created";
-
     @Setter
     private AnnouncementService announcementService;
     @Setter
     private AssignmentService assignmentService;
+    @Inject
+    private CommonsManager commonsManager;
     @Setter
     private EntityManager entityManager;
     @Setter
@@ -112,49 +117,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     @Setter
     private TransactionTemplate transactionTemplate;
 
-    private Object commonsManager = null;
-    private Method commonsManagerGetPostMethod = null;
-    private Method commonsPostGetCreatorIdMethod = null;
-    private Method commonsPostGetSiteIdMethod = null;
-    private Method commonsPostGetCommentsMethod = null;
-    private Method commonsCommentGetCreatorIdMethod = null;
-
-    private boolean commonsInstalled = false;
-
     private Cache<String, Map> countCache = null;
 
     public void init() {
-
-        try {
-            Class postClass = Class.forName("org.sakaiproject.commons.api.datamodel.Post");
-            Class commentClass = Class.forName("org.sakaiproject.commons.api.datamodel.Comment");
-            if (postClass != null && commentClass != null) {
-                log.debug("Found commons Post and Comment classes. Commons IS installed.");
-                commonsPostGetCreatorIdMethod = postClass.getMethod("getCreatorId", new Class[] {});
-                commonsPostGetSiteIdMethod = postClass.getMethod("getSiteId", new Class[] {});
-                commonsPostGetCommentsMethod = postClass.getMethod("getComments", new Class[] {});
-                commonsCommentGetCreatorIdMethod = commentClass.getMethod("getCreatorId", new Class[] {});
-                ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
-                commonsManager = componentManager.get("org.sakaiproject.commons.api.CommonsManager");
-                if (commonsManager != null) {
-                    commonsManagerGetPostMethod
-                        = commonsManager.getClass().getMethod("getPost", new Class[] { String.class, boolean.class });
-                }
-                if (commonsManager != null &&
-                    commonsManagerGetPostMethod != null && commonsPostGetCommentsMethod != null &&
-                    commonsPostGetCreatorIdMethod != null && commonsPostGetSiteIdMethod != null && 
-                    commonsCommentGetCreatorIdMethod != null) {
-                    log.debug("All good, got everything");
-                    commonsInstalled = true;
-                } else {
-                    log.error("Commons is installed, but we're unable to get one of the methods");
-                }
-            } else {
-                log.debug("Commons IS NOT installed.");
-            }
-        } catch (Exception e) {
-            log.debug("Failed to setup stubs for commons tool", e);
-        }
 
         if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
             HANDLED_EVENTS.add(ProfileConstants.EVENT_STATUS_UPDATE);
@@ -165,8 +130,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
-            HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
+            HANDLED_EVENTS.add(CommonsEvents.COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
+            HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
             eventTrackingService.addLocalObserver(this);
         }
 
@@ -234,19 +200,18 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                                                     + "/tool/" + toolId + "/messages";
                         doSocialInsert(from, to, event, ref, e.getEventTime(), url);
                         countCache.remove(to);
-                    } else if (commonsInstalled && COMMONS_COMMENT_CREATED.equals(event)) {
+                    } else if (CommonsEvents.COMMENT_CREATED.equals(event)) {
                         String type = pathParts[2];
                         String postId = pathParts[4];
                         // To is always going to be the author of the original post
-                        Object post = commonsManagerGetPostMethod.invoke(commonsManager, new Object[] { postId, true });
+                        Post post = commonsManager.getPost(postId, true);
                         if (post != null) {
                             Set<String> tos = new HashSet<>();
-                            String siteId = (String) commonsPostGetSiteIdMethod.invoke(post, new Object[] {});
-                            String to = (String) commonsPostGetCreatorIdMethod.invoke(post, new Object[] {});
+                            String siteId = post.getSiteId();
+                            String to = post.getCreatorId();
                             tos.add(to);
-                            List<Object> comments = (List <Object>) commonsPostGetCommentsMethod.invoke(post, new Object[] {});
-                            for (Object comment : comments) {
-                                to = (String) commonsCommentGetCreatorIdMethod.invoke(comment, new Object[] {});
+                            for (Comment comment : post.getComments()) {
+                                to = comment.getCreatorId();
                                 tos.add(to);
                             }
                             doCommonsCommentInserts(from, event, ref, e, siteId, postId, tos);
@@ -377,6 +342,25 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } catch (NumberFormatException nfe) {
                             log.error("Caught number format exception whilst handling events", nfe);
                         }
+                    } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
+                        final String siteId = pathParts[2];
+
+                        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+                            protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                                final List<BullhornAlert> deferredAlerts
+                                    = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
+                                        .add(Restrictions.eq("deferred", true))
+                                        .add(Restrictions.eq("siteId", siteId)).list();
+
+                                for (BullhornAlert da : deferredAlerts) {
+                                    da.setDeferred(false);
+                                    sessionFactory.getCurrentSession().update(da);
+                                    countCache.remove(da.getToUser());
+                                }
+                            }
+                        });
                     }
                 } catch (Exception ex) {
                     log.error("Caught exception whilst handling events", ex);
@@ -416,6 +400,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private void doAcademicInsert(String from, String to, String event, String ref
                                             , String title, String siteId, Date eventDate, String url) {
 
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -428,8 +413,16 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setRef(ref);
                 ba.setTitle(title);
                 ba.setSiteId(siteId);
-                ba.setEventDate(eventDate);
+                ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
+
+                boolean deferred = false;
+                try {
+                    deferred = !siteService.getSite(siteId).isPublished();
+                } catch (IdUnusedException iue) {
+                    log.warn("Failed to find site with id '" + siteId + "'. deferred will be false.");
+                }
+                ba.setDeferred(deferred);
 
                 sessionFactory.getCurrentSession().persist(ba);
             }
@@ -450,8 +443,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setRef(ref);
                 ba.setTitle("");
                 ba.setSiteId("");
-                ba.setEventDate(eventDate);
+                ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
+                ba.setDeferred(false);
 
                 sessionFactory.getCurrentSession().persist(ba);
             }
@@ -551,6 +545,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
         List<BullhornAlert> alerts = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
                 .add(Restrictions.eq("alertType", ACADEMIC))
+                .add(Restrictions.eq("deferred", false))
                 .add(Restrictions.eq("toUser", userId)).list();
 
         for (BullhornAlert alert : alerts) {
@@ -588,6 +583,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             count = (Long) sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
                 .add(Restrictions.eq("alertType", ACADEMIC))
                 .add(Restrictions.eq("toUser", userId))
+                .add(Restrictions.eq("deferred", false))
                 .setProjection(Projections.rowCount()).uniqueResult();
             cachedCounts.put("academic", count);
             countCache.put(userId, cachedCounts);
@@ -607,8 +603,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private boolean clearAllAlerts(String alertType, String userId) {
 
-        sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where alertType = :alertType and toUser = :toUser")
-                .setString("alertType", alertType).setString("toUser", userId)
+        sessionFactory.getCurrentSession().createQuery(
+                "delete BullhornAlert where alertType = :alertType and toUser = :toUser and deferred = :deferred")
+                .setString("alertType", alertType).setString("toUser", userId).setBoolean("deferred", false)
                 .executeUpdate();
         countCache.remove(userId);
         return true;

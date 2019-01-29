@@ -88,4 +88,6 @@ public interface ToolConfiguration extends Placement, Serializable
 	 * @return the tool's order in the page.
 	 */
 	public int getPageOrder();
+
+	public void setPageOrder(int pos);
 }

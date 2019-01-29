@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
+import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
@@ -311,7 +312,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		
 		//delete
 		try {
-			getHibernateTemplate().delete(profileFriend);
+			getHibernateTemplate().delete(profileFriend, LockMode.NONE);
 			return true;
 		} catch (final Exception e) {
 			log.error("removeConnection failed. " + e.getClass() + ": " + e.getMessage());  

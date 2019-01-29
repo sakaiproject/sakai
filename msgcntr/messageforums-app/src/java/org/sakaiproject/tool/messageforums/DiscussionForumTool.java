@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -142,6 +143,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -235,7 +238,7 @@ public class DiscussionForumTool
   private static final String INSUFFICIENT_PRIVILEAGES_TO="cdfm_insufficient_privileages_to";
   private static final String INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD="cdfm_insufficient_privileges_post_thread";  
   private static final String INSUFFICIENT_PRIVILEGES_REVISE_MESSAGE="cdfm_insufficient_privileges_revise_message";
-  private static final String INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM="cdfm_insufficient_privileges_change_forum";
+  private static final String INSUFFICIENT_PRIVILEGES_CHANGE_FORUM="cdfm_insufficient_privileges_change_forum";
   private static final String INSUFFICIENT_PRIVILEGES_NEW_TOPIC = "cdfm_insufficient_privileges_new_topic";
   private static final String INSUFFICIENT_PRIVILEGES_CREATE_TOPIC="cdfm_insufficient_privileges_create_topic";
   private static final String FORUM_LOCKED = "cdfm_forum_locked";
@@ -798,7 +801,7 @@ public class DiscussionForumTool
 	    			 for (Iterator iterator = decoForum.getTopics().iterator(); iterator.hasNext();) {
 	    				 DiscussionTopicBean dTopicBean = (DiscussionTopicBean) iterator.next();
 	    				 //if user can read this forum topic, count the messages as well
-	    				 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){        			
+	    				 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){
 	    					 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
 	    				 }
 	    			 }
@@ -1144,32 +1147,32 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public String processActionDeleteForum()
-  {
-    if (uiPermissionsManager == null)
-    {
+  public String processActionDeleteForum() {
+    if (uiPermissionsManager == null) {
       throw new IllegalStateException("uiPermissionsManager == null");
     }
-    if (selectedForum == null)
-    {
+    if (selectedForum == null) {
       throw new IllegalStateException("selectedForum == null");
     }
-    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
-    {
+    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum())) {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
       return gotoMain();
-   }
+    }
     HashMap<String, Integer> beforeChangeHM = null;    
     Long forumId = selectedForum.getForum().getId();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
-	  forumManager.deleteForum(selectedForum.getForum());
+    forumManager.deleteForum(selectedForum.getForum());
 
-	  if(beforeChangeHM != null)
-		  updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    // remove rubric association if there is one
+    rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forumId);
 
-	  reset();
-	  return gotoMain();
+    if(beforeChangeHM != null){
+        updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    }
+
+    reset();
+    return gotoMain();
   }
   
   public void updateSynopticMessagesForForumComparingOldMessagesCount(String siteId, Long forumId, Long topicId, HashMap<String, Integer> beforeChangeHM, int numOfAttempts) {
@@ -1269,7 +1272,7 @@ public class DiscussionForumTool
     
     if(!uiPermissionsManager.isChangeSettings(forum))
     {
-      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHANGE_FORUM));
       return gotoMain();
     }
     
@@ -1294,38 +1297,6 @@ public class DiscussionForumTool
     return FORUM_SETTING_REVISE;
 
   }
-
-  /**
-   * @return
-   */
-  /*public String processActionReviseForumSettings()
-  {
-    log.debug("processActionReviseForumSettings()");    
-    setEditMode(true);
-    setPermissionMode(PERMISSION_MODE_FORUM);
-    if ((selectedForum) == null)
-    {
-      setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
-      return gotoMain();
-    }
-    if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
-    {
-      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
-      return gotoMain();
-    }
-    List attachList = selectedForum.getForum().getAttachments();
-    if (attachList != null)
-    {
-      for (int i = 0; i < attachList.size(); i++)
-      {
-        attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
-      }
-    }
-    
-    setFromMainOrForumOrTopic();
-
-    return FORUM_SETTING_REVISE; //
-  }*/
 
   /**
    * @return
@@ -1370,12 +1341,12 @@ public class DiscussionForumTool
     
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHANGE_FORUM));
       return gotoMain();
     }   
 
     DiscussionForum forum = processForumSettings(false);
-    if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
+    if(!uiPermissionsManager.isNewTopic(forum))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
       reset();
@@ -1437,7 +1408,7 @@ public class DiscussionForumTool
 	
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHANGE_FORUM));
       return gotoMain();
     }
     if(selectedForum.getForum()!=null && 
@@ -1487,7 +1458,7 @@ public class DiscussionForumTool
 
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHANGE_FORUM));
       return gotoMain();
     }
     if(selectedForum.getForum()!=null && 
@@ -1566,8 +1537,9 @@ public class DiscussionForumTool
     }
 
     //RUBRICS, Save the binding between the forum and the rubric
-    rubricsService.saveRubricAssociation("sakai.forums", forum.getUuid(), getRubricConfigurationParameters());
+    rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId(), getRubricConfigurationParameters());
 
+    selectedForum.getForum().setId(forum.getId());
     return forum;
   }
 
@@ -1952,7 +1924,7 @@ public class DiscussionForumTool
     }
 
     //RUBRICS, Save the binding between the topic and the rubric
-    rubricsService.saveRubricAssociation("sakai.forums", selectedTopic.getTopic().getUuid(), getRubricConfigurationParameters());
+    rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + selectedTopic.getTopic().getId(), getRubricConfigurationParameters());
 
     return processReturnToOriginatingPage();
     //reset();
@@ -2163,16 +2135,13 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public String processActionDeleteTopic()
-  {   
+  public String processActionDeleteTopic() {   
     log.debug("processActionDeleteTopic()");
-    if (selectedTopic == null)
-    {
+    if (selectedTopic == null) {
       log.debug("There is no topic selected for deletion");
       return gotoMain();
     }
-    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
-    {
+    if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum())) {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
@@ -2181,13 +2150,16 @@ public class DiscussionForumTool
     Long forumId = selectedTopic.getTopic().getBaseForum().getId();
     Long topicId = selectedTopic.getTopic().getId();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, topicId);
-    
+
     forumManager.deleteTopic(selectedTopic.getTopic());
-    
-    if(beforeChangeHM != null)
-    	updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-    
-    
+
+    // remove rubric association if there is one
+    rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + topicId);
+
+    if(beforeChangeHM != null){
+        updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    }
+
     reset();
     return gotoMain();
   }
@@ -3690,7 +3662,6 @@ public class DiscussionForumTool
 
     setNewTopicBeanAssign(selectedForum, thisDTB);
     return thisDTB;
-    //return new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
   }
 
   // compose
@@ -6544,6 +6515,13 @@ public class DiscussionForumTool
         gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
+
+            // Get fresh copy of current data, to prevent hibernate version discrepancy on
+            // intermediate update from "Select a Gradebook item" html select input.
+            selectedMessage = new DiscussionMessageBean(
+                messageManager.getMessageByIdWithAttachments(selectedMessage.getMessage().getId()),
+                messageManager);
+
         	Message msg = selectedMessage.getMessage();
         //SAK-30711
         	msg.setGradeAssignmentName(Long.toString(gbItemId));
@@ -6564,15 +6542,19 @@ public class DiscussionForumTool
     } 
         
     String eventRef = "";
+    String evaluatedItemId = "";
     if(selectedMessage != null){
     	eventRef = getEventReference(selectedMessage.getMessage());
-    	rubricsService.saveRubricEvaluation("sakai.forums", getRubricAssociationUuid(), selectedMessage.getMessage().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	evaluatedItemId = studentUid+"."+selectedMessage.getMessage().getUuid();
     }else if(selectedTopic != null){
     	eventRef = getEventReference(selectedTopic.getTopic());
-    	rubricsService.saveRubricEvaluation("sakai.forums", getRubricAssociationUuid(), selectedTopic.getTopic().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	evaluatedItemId = studentUid+"."+selectedTopic.getTopic().getUuid();
     }else if(selectedForum != null){
     	eventRef = getEventReference(selectedForum.getForum());
-    	rubricsService.saveRubricEvaluation("sakai.forums", getRubricAssociationUuid(), selectedForum.getForum().getUuid(), studentUid, getUserId(), getRubricConfigurationParameters());
+    	evaluatedItemId = studentUid+"."+selectedForum.getForum().getUuid();
+    }
+    if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId())){
+    	rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_FORUMS, getRubricAssociationId(), evaluatedItemId, studentUid, getUserId(), getRubricConfigurationParameters());
     }
     LRS_Statement statement = null;
     if (null != learningResourceStoreService) {
@@ -8663,8 +8645,7 @@ public class DiscussionForumTool
 		newTopic.setDefaultAssignName(fromAssignmentTitle);
 	}
 	
-	// copy the release/end dates
-	
+	// copy the release/end dates	
 	if(fromTopic.getAvailabilityRestricted()){
 		newTopic.setAvailabilityRestricted(true);
 		newTopic.setOpenDate(fromTopic.getOpenDate());
@@ -8674,6 +8655,16 @@ public class DiscussionForumTool
 	newTopic.setBaseForum(forum);
 	forumManager.saveTopic(newTopic, fromTopic.getDraft(), true);
 	selectedTopic = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
+
+	//copy rubrics
+	try {
+		Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + fromTopic.getId());
+		if (rubricAssociation.isPresent()) {
+			rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + newTopic.getId(), rubricAssociation.get().getFormattedAssociation());
+		}
+	} catch(Exception e){
+		log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+	}
 
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
@@ -8765,6 +8756,16 @@ public class DiscussionForumTool
 		}
 
 		forum = saveForumSettings(oldForum.getDraft());
+
+		//copy rubrics
+		try {
+			Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + oldForum.getId());
+			if (rubricAssociation.isPresent()) {
+				rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + forum.getId(), rubricAssociation.get().getFormattedAssociation());
+			}
+		} catch(Exception e){
+			log.error("Error while trying to duplicate Rubrics: {} ", e.getMessage());
+		}
 
 		forum = forumManager.getForumById(forum.getId());
 		List attachList = forum.getAttachments();
@@ -10150,7 +10151,7 @@ public class DiscussionForumTool
 
 	public String getRbcsToken() {
 		log.debug("getRbcsToken()");
-		return rubricsService.generateJsonWebToken("sakai.forums");
+		return rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_FORUMS);
 	}
 
 	public String getRbcsStateDetails() {
@@ -10175,14 +10176,14 @@ public class DiscussionForumTool
 	}
 
 	public boolean hasAssociatedRubric(){
-		return (allowedToGradeItem && (getRubricAssociationUuid() != null));
+		return (allowedToGradeItem && (getRubricAssociationId() != null));
 	}
 
-	public String getRubricAssociationUuid(){
-		if(selectedTopic != null && rubricsService.hasAssociatedRubric("sakai.forums", selectedTopic.getTopic().getUuid())){
-			return selectedTopic.getTopic().getUuid();
-		} else if(selectedForum != null && rubricsService.hasAssociatedRubric("sakai.forums", selectedForum.getForum().getUuid())) {
-			return selectedForum.getForum().getUuid();
+	public String getRubricAssociationId(){
+		if(selectedTopic != null && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + selectedTopic.getTopic().getId())){
+			return RubricsConstants.RBCS_TOPIC_ENTITY_PREFIX + selectedTopic.getTopic().getId();
+		} else if(selectedForum != null && rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_FORUMS, RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + selectedForum.getForum().getId())) {
+			return RubricsConstants.RBCS_FORUM_ENTITY_PREFIX + selectedForum.getForum().getId();
 		} else {
 			return null;
 		}

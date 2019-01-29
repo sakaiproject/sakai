@@ -403,6 +403,10 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		return m_pageOrder;
 	}
 
+	public void setPageOrder(int pos){
+		m_pageOrder = pos;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

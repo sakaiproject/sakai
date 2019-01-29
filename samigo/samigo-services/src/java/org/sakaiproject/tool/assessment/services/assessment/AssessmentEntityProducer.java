@@ -18,11 +18,8 @@ package org.sakaiproject.tool.assessment.services.assessment;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +27,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.content.api.ContentResource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -43,9 +38,6 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -58,8 +50,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssessmentEntityProducer implements EntityTransferrer,

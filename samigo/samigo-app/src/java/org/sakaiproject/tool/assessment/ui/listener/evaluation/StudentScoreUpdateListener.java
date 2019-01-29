@@ -43,6 +43,7 @@ import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -124,20 +125,17 @@ public class StudentScoreUpdateListener
     AssessmentGradingData adata = null;
     try
     {
-      List parts = delivery.getPageContents().getPartsContents();
-      Iterator iter = parts.iterator();
+      List<SectionContentsBean> parts = delivery.getPageContents().getPartsContents();
       boolean updateFlag = false;
-      while (iter.hasNext())
-      {
-        List items = ((SectionContentsBean) iter.next()).getItemContents();
-        Iterator iter2 = items.iterator();
-        while (iter2.hasNext())
-        {
-          ItemContentsBean question = (ItemContentsBean) iter2.next();
-
+      for (SectionContentsBean part : parts) {
+        List<ItemContentsBean> items = part.getItemContents();
+        for (ItemContentsBean question : items) {
           // Persist the rubric evaluation
-          String entityId = SamigoConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
-          rubricsService.saveRubricEvaluation(SamigoConstants.RBCS_TOOL_ID, entityId, bean.getAssessmentGradingId() + "." + question.getItemData().getItemId(), bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId));
+          String entityId = RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + tbean.getPublishedId() + "." + question.getItemData().getItemId();
+          if(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, entityId)){
+            String evaluatedItemId = bean.getAssessmentGradingId() + "." + question.getItemData().getItemId();
+            rubricsService.saveRubricEvaluation(RubricsConstants.RBCS_TOOL_SAMIGO, entityId, evaluatedItemId, bean.getStudentId(), SessionManager.getCurrentSessionUserId(), paramUtil.getRubricConfigurationParameters(entityId, evaluatedItemId));
+          }
 
           List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
           log.debug("****1. pub questionId = " + question.getItemData().getItemId());
@@ -154,14 +152,11 @@ public class StudentScoreUpdateListener
 
           int fibFinNumCorrect  = 0;
           if (question.getItemData().getTypeId().equals(Long.valueOf(8)) || question.getItemData().getTypeId().equals(Long.valueOf(11))) {
-        	  Iterator itemGradingIter = gradingarray.iterator();
-        	  while (itemGradingIter.hasNext()){
-        		  Object obj = itemGradingIter.next();
-        		  ItemGradingData data = (ItemGradingData) obj;
-        		  if (Boolean.TRUE.equals(data.getIsCorrect())) {
-        			  fibFinNumCorrect++;
-        		  }
+        	for (ItemGradingData data : gradingarray) {
+        	  if (Boolean.TRUE.equals(data.getIsCorrect())) {
+        		  fibFinNumCorrect++;
         	  }
+        	}
           }
           
           log.debug("****3a Gradingarray length2 = " + gradingarray.size());
@@ -308,40 +303,31 @@ public class StudentScoreUpdateListener
   }
 
     public void updateAttachment(DeliveryBean delivery){
-    	List parts = delivery.getPageContents().getPartsContents();
-    	Iterator iter = parts.iterator();
-    	List attachmentList = new ArrayList();
-    	while (iter.hasNext())
-    	{
-    		List items = ((SectionContentsBean) iter.next()).getItemContents();
-    		Iterator iter2 = items.iterator();
-    		while (iter2.hasNext())
-    		{
-    			ItemContentsBean question = (ItemContentsBean) iter2.next();
+    	List<SectionContentsBean> parts = delivery.getPageContents().getPartsContents();
+    	List<ItemGradingAttachment> attachmentList = new ArrayList();
+    	for (SectionContentsBean part : parts) {
+    		List<ItemContentsBean> items = part.getItemContents();
+    		for (ItemContentsBean question : items) {
     			List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
     			log.debug("Gradingarray length2 = " + gradingarray.size());
-    			Iterator<ItemGradingData> iter3 = gradingarray.iterator();
-    			while (iter3.hasNext()) {
-    				ItemGradingData itemGradingData = iter3.next();
-    				List oldList = itemGradingData.getItemGradingAttachmentList();
-    				List newList = question.getItemGradingAttachmentList();
-    				if ((oldList == null || oldList.isEmpty() ) && (newList == null || newList.isEmpty())) {
+    			for (ItemGradingData itemGradingData : gradingarray) {
+    			    List<ItemGradingAttachment> oldList = itemGradingData.getItemGradingAttachmentList();
+    				List<ItemGradingAttachment> newList = question.getItemGradingAttachmentList();
+    				if ((oldList == null || oldList.isEmpty()) && (newList == null || newList.isEmpty())) {
     					continue;
     				}
     				
-    				Map map = getAttachmentIdHash(oldList);
-    				for (int i=0; i<newList.size(); i++){
-    					ItemGradingAttachment itemGradingAttachment = (ItemGradingAttachment) newList.get(i);
-    					if (map.get(itemGradingAttachment.getAttachmentId()) != null){
-    						// exist already, remove it from map
-    						map.remove(itemGradingAttachment.getAttachmentId());
-    					}
-    					else{
-    						// new attachments
-    						itemGradingAttachment.setItemGrading(itemGradingData);
-    						attachmentList.add(itemGradingAttachment);
-    					}
-    				}      
+    				Map<Long, ItemGradingAttachment> map = getAttachmentIdHash(oldList);
+                    for (ItemGradingAttachment itemGradingAttachment : newList) {
+                        if (map.get(itemGradingAttachment.getAttachmentId()) != null) {
+                            // exist already, remove it from map
+                            map.remove(itemGradingAttachment.getAttachmentId());
+                        } else {
+                            // new attachments
+                            itemGradingAttachment.setItemGrading(itemGradingData);
+                            attachmentList.add(itemGradingAttachment);
+                        }
+                    }
     				// save new ones
     				GradingService gradingService = new GradingService();
     				if (attachmentList.size() > 0) {
@@ -352,10 +338,8 @@ public class StudentScoreUpdateListener
     				}
     				
     				// remove old ones
-    				Set set = map.keySet();
-    				Iterator iter4 = set.iterator();
-    				while (iter4.hasNext()){
-    					Long attachmentId = (Long)iter4.next();
+    				Set<Long> set = map.keySet();
+    				for (Long attachmentId : set) {
     					gradingService.removeItemGradingAttachment(attachmentId.toString());
     					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, 
     							"siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
@@ -365,12 +349,9 @@ public class StudentScoreUpdateListener
     	}
     }
 
-    private Map getAttachmentIdHash(List list){
-    	Map map = new HashMap();
-    	for (int i=0; i<list.size(); i++){
-    		ItemGradingAttachment a = (ItemGradingAttachment)list.get(i);
-    		map.put(a.getAttachmentId(), a);
-    	}
+    private Map<Long, ItemGradingAttachment> getAttachmentIdHash(List<ItemGradingAttachment> list){
+    	Map<Long, ItemGradingAttachment> map = new HashMap<>();
+    	if (list != null) list.forEach(a -> map.put(a.getAttachmentId(), a));
     	return map;
     }
 }

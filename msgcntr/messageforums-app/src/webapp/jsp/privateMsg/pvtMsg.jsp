@@ -59,8 +59,11 @@
 	  	                
 		  <h:column>
 		    <f:facet name="header">
- 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               title="#{msgs.cdfm_checkall}" />
+				<h:panelGroup>
+					<h:selectBooleanCheckbox id="checkAll" title="#{msgs.cdfm_checkall}"/>
+					<h:outputText value=" "/>
+					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
+				</h:panelGroup>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
@@ -191,9 +194,11 @@
 								 columnClasses="attach,attach,attack,specialLink,bogus,bogus,bogus">
 		 	<h:column>
 		    <f:facet name="header">
- 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
- 					               title="#{msgs.cdfm_checkall}"/>
-		     <%--<h:commandButton alt="SelectAll" image="/messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
+				<h:panelGroup>
+					<h:selectBooleanCheckbox id="checkAll" title="#{msgs.cdfm_checkall}"/>
+					<h:outputText value=" "/>
+					<h:outputLabel value="#{msgs.cdfm_checkall}"/>
+				</h:panelGroup>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>

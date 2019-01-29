@@ -52,7 +52,7 @@ import javax.servlet.ServletContext;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -70,7 +70,7 @@ import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
@@ -1202,7 +1202,7 @@ public class ItemAuthorBean
     ItemService service = loadItemService(isEditPendingAssessmentFlow);
     ItemFacade itemData = null;
     // itemId == null => new questiion
-    if (this.itemId!=null){
+    if (StringUtils.isNotEmpty(this.itemId)){
       try{
         itemData = service.getItem(this.itemId);
       }
@@ -1545,7 +1545,7 @@ public class ItemAuthorBean
 	    FacesContext context = FacesContext.getCurrentInstance();
 	    ExternalContext external = context.getExternalContext();
 	    Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
-	    Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
+	    Long maxSize = Long.valueOf(ServerConfigurationService.getString("samigo.sizeMax", "40960"));
 
 	    ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
 	    if (fileSize!=null){
@@ -1618,10 +1618,10 @@ public class ItemAuthorBean
     }
 
     public String getRubricStateDetails() {
-        if (StringUtils.isNotBlank(this.rubricStateDetails) && !StringUtils.isNotBlank(ContextUtil.lookupParam(SamigoConstants.RBCS_ASSOCIATION_STATE_DETAILS))) {
+        if (StringUtils.isNotBlank(this.rubricStateDetails) && !StringUtils.isNotBlank(ContextUtil.lookupParam(RubricsConstants.RBCS_ASSOCIATION_STATE_DETAILS))) {
             return this.rubricStateDetails;
         }
-        this.rubricStateDetails = ContextUtil.lookupParam(SamigoConstants.RBCS_ASSOCIATION_STATE_DETAILS);
+        this.rubricStateDetails = ContextUtil.lookupParam(RubricsConstants.RBCS_ASSOCIATION_STATE_DETAILS);
         return this.rubricStateDetails;
     }
 

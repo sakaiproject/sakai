@@ -660,6 +660,12 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .flc-reorderer-module:hover {
     border:1px solid #000;
 }
+.reorderItemsContainer {
+    min-height: 60px;
+}
+.ui-sortable-handle {
+    cursor: move;
+}
 .reordSeqContainer {
     position: absolute;
     width:50px;
@@ -1968,10 +1974,6 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     font-size: 100%;
     font-weight: normal;
     color: #000;
-}
-.checklistDiv h3 {
-    margin-top: 0px;
-    font-size: 100%;
 }
 .checklistSaveMessage {
     font-family:Arial, Helvetica, sans-serif;

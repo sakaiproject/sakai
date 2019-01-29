@@ -184,7 +184,7 @@ implements ActionListener, ValueChangeListener
       for (Object[] assessment : assessmentTitles) {
          Long id = (Long)assessment[0];
          Integer status = statusMap.get( id );
-         String strStatus = status != null && status == EventLogBean.DELETED_STATUS ? "-deleted" : "";
+         String strStatus = status != null && status == EventLogBean.DELETED_STATUS ? ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EventLogMessages", "assessment_deleted") : "";
          String title = (String)assessment[1]+strStatus;
          assessments.add(new SelectItem(id, title));
       }
