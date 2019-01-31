@@ -411,6 +411,9 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String[] PUBLIC_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicOnly");
 	private final static String[] PRIVATE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.privateOnly");
 
+	private static final String SAK_PROP_DEFAULT_SITE_VIS = "wsetup.defaultSiteVisibility";
+	private static final boolean SAK_PROP_DEFAULT_SITE_VIS_DFLT = true;
+
 	private final static String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
 	
 	private static final String STATE_SITE_ADD_COURSE = "canAddCourse";
@@ -9521,6 +9524,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (forward) {
 				if (getStateSite(state) == null)
 				{
+					boolean siteVisibilityDefault = ServerConfigurationService.getBoolean(SAK_PROP_DEFAULT_SITE_VIS, SAK_PROP_DEFAULT_SITE_VIS_DFLT);
+					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+					siteInfo.include = siteVisibilityDefault;
+
 					// alerts after clicking Continue but not Back
 					if (!forward) {
 						// removing previously selected template site
