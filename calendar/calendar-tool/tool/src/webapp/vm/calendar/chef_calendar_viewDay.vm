@@ -69,7 +69,7 @@
     #set ($timeType = $amString)
 #elseif ( $page == "third" )
     ## set start time to be 2 PM 
-    #set($timer = 14)
+    #set($timer = 24-$numberHoursPerPage)
     #set ($timeType = $pmString)
 #else ##if ( $page == "first" )
     #set($timer = 0)
