@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+	        <artifactId>sakai-acadtermmanage</artifactId>
+        	<groupId>org.sakaiproject.acadtermmanage</groupId>
+	    	<version>20-SNAPSHOT</version>
+        	<relativePath>../pom.xml</relativePath>
+	</parent>
+	
+	<name>sakai-acadtermmanage - Tool</name>
+	<artifactId>sakai-acadtermmanage-tool</artifactId>
+	
+	<packaging>war</packaging>
+	
+	<dependencies>
+		
+		<!-- project dependencies -->
+		<dependency>
+      		<groupId>org.sakaiproject.acadtermmanage</groupId>
+      		<artifactId>sakai-acadtermmanage-api</artifactId>
+    	</dependency>
+    	
+    	
+    	<!-- third party dependencies -->
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-datetime</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-extensions</artifactId>				
+		</dependency>
+            
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+    	</dependency>
+    
+		<!-- Sakai dependencies -->
+       	<dependency>
+           	<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+
+	</dependencies>
+	
+
+	<build>
+		<resources>
+			<!-- include our HTML but not the Java source -->
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                    <include>*.xml</include>
+                </includes>
+            </resource>
+		</resources>
+	</build>
+	
+</project>

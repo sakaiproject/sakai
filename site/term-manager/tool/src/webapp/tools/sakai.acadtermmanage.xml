@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.acadtermmanage" 
+		title="Academic Term Manager" 
+		description="Add or edit academic terms">
+
+		<!--  This tool will be made available to the 
+		      following site types via Site Info > Edit Tools -->
+		<!--
+		<category name="course" />
+      	<category name="project" />      
+      	<category name="myworkspace" />
+      	-->
+       	
+       	<category name="sakai.admin" />
+      
+
+		<!--  If the visibility/access of this tool should be 
+		       dependent on a user permission, you can list that here
+		<configuration name="functions.require" 
+				value="sakai.acadtermmanage.is_manager"/>
+		..doesn't make any sense to do this (for now), because the course management API requires
+		people to be admins, i.e. we might as well just check for admin status, too, instead of using a permission.
+		If you want to enable this, make sure the value for the function name here still matches the one defined by
+		org.sakaiproject.acadtermmanage.logic.AcademicSessionLogic.FUNCTION_IS_AS_MANAGER	
+		-->		
+    </tool>
+</registration>
+
