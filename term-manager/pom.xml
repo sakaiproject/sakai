@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>sakai-acadtermmanage - Base</name>
+	<groupId>org.sakaiproject.acadtermmanage</groupId>
+	<artifactId>sakai-acadtermmanage</artifactId>	
+	<version>11.4-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>11.4</version>
+		<relativePath />
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<my.wicket.version>6.29.0</my.wicket.version>
+		<my.lombok.version>1.16.10</my.lombok.version>
+		<my.logback.version>1.1.2</my.logback.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<!-- project dependencies -->
+			<dependency>
+				<groupId>org.sakaiproject.acadtermmanage</groupId>
+				<artifactId>sakai-acadtermmanage-api</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.acadtermmanage</groupId>
+				<artifactId>sakai-acadtermmanage-impl</artifactId>
+				<version>${project.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+
+
+			<!-- third party dependencies -->
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-core</artifactId>
+				<version>${my.wicket.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-spring</artifactId>
+				<version>${my.wicket.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-extensions</artifactId>
+				<version>${my.wicket.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-datetime</artifactId>
+				<version>${my.wicket.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${sakai.slf4j.version}</version>
+				<scope>compile</scope>			
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${my.logback.version}</version>
+				<scope>compile</scope>			
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-core</artifactId>
+				<version>${my.logback.version}</version>
+				<scope>compile</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${my.lombok.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+
+
+			<dependency>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache-core</artifactId>
+				<version>${sakai.ehcache.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<!-- sakai dependencies -->
+			<dependency>
+				<groupId>org.sakaiproject.edu-services.course-management</groupId>
+				<artifactId>coursemanagement-api</artifactId>
+				<version>${sakai.kernel.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+
+	<repositories>
+		<repository>
+			<id>sakai-maven</id>
+			<name>Sakai Maven Repo</name>
+			<layout>default</layout>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>Sakai Plugin Repo</id>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+
+
+	<modules>
+		<module>tool</module>
+		<module>api</module>
+		<module>impl</module>
+		<module>pack</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
