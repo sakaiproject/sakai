@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:extend>
+		<style>
+			#sakai.acadtermmanage_pagenumbox {
+				max-width: 70px
+			}
+			div.sakai.acadtermmanage-feedbackpanel{
+				margin-bottom: 20px;
+			}
+			table tr th.wicket_orderDown:after {
+				padding-left: 0.15em;
+				font-family: "FontAwesome";
+				content: "\f161";	/* fa-sort-amount-dsc */
+			}
+			table tr th.wicket_orderUp:after {
+				padding-left: 0.15em;
+				font-family: "FontAwesome";
+				content: "\f160";	/* fa-sort-amount-asc */
+			}
+		</style>
+		<div class="container-fluid">
+			<div class="well">
+				<h3 class="row">
+					<wicket:message key="header_semester_list" />
+				</h3>
+				<div class="row">
+					<table class="table table-bordered table-striped">
+						<tr>
+							<th wicket:id="orderBy_eid"><wicket:message key="lbl_eid" /></th>
+							<th wicket:id="orderBy_title"><wicket:message key="lbl_title" /></th>
+							<th wicket:id="orderBy_startDate"><wicket:message key="lbl_startDate" /></th>
+							<th wicket:id="orderBy_endDate"><wicket:message key="lbl_endDate" /></th>
+							<th wicket:id="orderBy_description"><wicket:message key="lbl_desc" /></th>
+							<th wicket:id="orderBy_current"><wicket:message key="lbl_current" /></th>
+							<th>-</th>
+						</tr>
+						<tr wicket:id="row">
+							<td wicket:id="dataRow"></td>
+						</tr>
+					</table>
+					<div class="row">
+						<form class="form-inline" wicket:id="pagingform">
+							<div class="col-xs-3" wicket:id="navigator" />
+							<div class="col-lg-5 col-lg-offset-4 col-md-6 col-md-offset-3 col-xs-8 col-xs-offset-1">
+
+								<div class="form-group">
+									<label class="control-label" wicket:for="pagecount"><wicket:message key="lbl_pagecount" />:</label> <input
+										class="form-control" id="sakai.acadtermmanage_pagenumbox" type="number" wicket:id="pagecount" /> <input type="submit"
+										wicket:message="value:lbl_apply" />
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-lg-6 col-md-8 col-sm-10 col-xs-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<wicket:message key="header_add_edit_semester_list" />
+							</h3>
+						</div>
+						<div class="row panel-body">
+							<div class="col-xs-12">
+								<form class="form-horizontal" wicket:id="form">
+									<div class="form-group">
+										<label class="control-label col-xs-3"><wicket:message key="lbl_eid" />: </label>
+										<div class="col-xs-9">
+											<input class="form-control" type="text" wicket:id="eid" />
+										</div>
+									</div>
+									<div class="form-group">
+
+										<label class="control-label col-xs-3"><wicket:message key="lbl_title" />: </label>
+										<div class="col-xs-9">
+											<input class="form-control" type="text" wicket:id="title" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-xs-3"><wicket:message key="lbl_startDate" />: </label>
+										<div class="col-xs-9">
+
+											<span class="sakai.acadtermmanage-datepicker" wicket:id="startDate" />
+										</div>
+
+									</div>
+									<div class="form-group">
+										<label class="control-label col-xs-3"><wicket:message key="lbl_endDate" />: </label>
+										<div class="col-xs-9">
+											<span class="sakai.acadtermmanage-datepicker" wicket:id="endDate" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-xs-3"><wicket:message key="lbl_desc" />: </label>
+										<div class="col-xs-9">
+											<input class="form-control" type="text" wicket:id="description" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-xs-3"><wicket:message key="lbl_current" />: </label>
+										<div class="col-xs-9">
+											<input class="form-control" type="checkbox" wicket:id="current" />
+										</div>
+
+									</div>
+									<div class="form-group">
+										<div class="col-sm-offset-3 col-sm-5">
+											<input type="submit" wicket:id="okbutton" />
+										</div>
+
+										<div class="col-sm-3">
+											<input type="submit" wicket:id="cancelbutton" />
+										</div>
+									</div>
+
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</wicket:extend>
+</body>
+</html>
