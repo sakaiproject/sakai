@@ -15,6 +15,7 @@
 
   <modules>
     <module>admin-perms-tool</module>
+    <module>term-manager</module>
     <module>sakai-message-bundle-manager-tool</module>
     <module>mergedlist-util/util</module>
   </modules>

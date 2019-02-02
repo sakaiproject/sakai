@@ -304,6 +304,9 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1500', 'sitePage.c
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Manager', '0', 21, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1590', '!admin', 'Academic Term Manager', '0', 22, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1590', '!admin-1590', '!admin', 'sakai.acadtermmanage', 1, 'Academic Term Manager', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1590', 'sitePage.customTitle', 'true');
 
 INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1);
 
