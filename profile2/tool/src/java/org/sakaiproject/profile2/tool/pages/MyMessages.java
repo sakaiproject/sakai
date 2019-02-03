@@ -16,8 +16,7 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.form.Form;
@@ -25,10 +24,11 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-
 import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
 import org.sakaiproject.profile2.tool.pages.panels.MessageThreadsView;
 import org.sakaiproject.profile2.tool.pages.panels.MessageView;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MyMessages extends BasePage {
