@@ -28,6 +28,8 @@
      var autoSubmit = <h:outputText value="#{delivery.settings.autoSubmit}"/>;
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
+     var submitButtonValue = "<h:outputText value='#{deliveryMessages.begin_assessment_}' />";
+     var selector = "input[value='" + submitButtonValue + "']";
 
      var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
      var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";     
@@ -44,13 +46,21 @@
 		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
 			honorPledgeIsChecked = false;
 
-			$('#takeAssessmentForm\\:honor_pledge').change(
-				function() { honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked'); }
+			$('#takeAssessmentForm\\:honor_pledge').change(function() {
+					honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked');
+					if(honorPledgeIsChecked) {
+						$(selector).addClass('active');
+						$(selector).removeAttr('disabled');
+					} else {
+						$(selector).removeClass('active');
+						$(selector).attr('disabled','disabled');
+					}
+				}
 			);
 		}
 
 		// Check honor code checkbox, warn about autosubmitting empty attempts, lock the UI to avoid user double-clicks
-		$("input[type='submit'][class!='noActionButton']").click(function() { 
+		$("input.active[type='submit'][class!='noActionButton']").click(function() {
 			var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
 			if (beginButtonIds.includes($(this).attr('id'))) {
 				if (!honorPledgeIsChecked) {
@@ -65,7 +75,13 @@
 				}
 			}
 			if (!timerSave) $.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
-		}); 
+		});
+
+		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
+			$(selector).removeClass('active');
+			$(selector).attr('disabled','disabled');
+		}
+
 		//Disable the back button
 		disableBackButton("<h:outputText value="#{deliveryMessages.use_form_navigation}"/>");
 
