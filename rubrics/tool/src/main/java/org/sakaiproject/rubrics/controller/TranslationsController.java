@@ -76,7 +76,7 @@ public class TranslationsController {
 
 
         try{
-            URL url = new URL(serverConfigurationService.getServerUrl() + "/sakai-ws/rest/i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.RubricsService&resourcebundle=rubricsMessages");
+            URL url = new URL(serverConfigurationService.getServerUrl() + "/sakai-ws/rest/i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.RubricsService&resourcebundle=org.sakaiproject.rubrics.bundle.Messages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 

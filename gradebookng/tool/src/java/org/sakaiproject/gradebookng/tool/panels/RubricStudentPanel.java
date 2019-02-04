@@ -23,6 +23,8 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
+import org.sakaiproject.rubrics.logic.RubricsConstants;
+
 public class RubricStudentPanel extends BasePanel {
 
     private final ModalWindow window;
@@ -41,9 +43,10 @@ public class RubricStudentPanel extends BasePanel {
         super.onInitialize();
 
         final WebMarkupContainer sakaiRubricStudent = new WebMarkupContainer("sakai-rubric-student");
-        sakaiRubricStudent.add(AttributeModifier.append("tool-id", toolId));
-        sakaiRubricStudent.add(AttributeModifier.append("entity-id", assignmentId));//this only works for Assignments atm
-        sakaiRubricStudent.add(AttributeModifier.append("evaluated-item-id", studentUuid));
+        sakaiRubricStudent.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+        sakaiRubricStudent.add(AttributeModifier.append("toolId", toolId));
+        sakaiRubricStudent.add(AttributeModifier.append("entityId", assignmentId));//this only works for Assignments atm
+        sakaiRubricStudent.add(AttributeModifier.append("evaluatedItemId", studentUuid));
         sakaiRubricStudent.add(AttributeModifier.append("instructor", instructor));
         add(sakaiRubricStudent);
 
