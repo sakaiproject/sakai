@@ -16,8 +16,7 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -34,7 +33,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
@@ -45,6 +43,8 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MyStatusPanel extends Panel {

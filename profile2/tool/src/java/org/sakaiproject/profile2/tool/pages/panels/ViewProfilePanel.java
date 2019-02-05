@@ -17,8 +17,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -26,7 +25,6 @@ import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -37,6 +35,8 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Container for viewing the profile of someone else.
