@@ -95,7 +95,6 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.apache.commons.lang.StringUtils;
 import org.tsugi.ags2.objects.LineItem;
 import org.tsugi.ags2.objects.Result;
 import org.tsugi.lti13.objects.LaunchLIS;
@@ -393,7 +392,7 @@ public class LTI13Servlet extends HttpServlet {
 		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
 		if (body == null) {
 			LTI13Util.return400(response, "Could not find Jwt Body in client_assertion");
-			log.error("Could not find Jwy Body in client_assertion\n{}", client_assertion);
+			log.error("Could not find Jwt Body in client_assertion\n{}", client_assertion);
 			return;
 		}
 
