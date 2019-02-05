@@ -110,7 +110,7 @@ public class LTI13ObjectTest {
 				.signWith(key)
 				.compact();
 
-		assertEquals(2012, jws.length());
+		assertEquals(2002, jws.length());
 		Matcher m = base64url_pattern.matcher(jws);
 		good = m.find();
 		if (!good) {
