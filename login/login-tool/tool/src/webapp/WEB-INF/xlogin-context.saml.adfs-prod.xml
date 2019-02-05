@@ -216,7 +216,11 @@
     </bean>
 
     <!-- SAML 2.0 WebSSO Assertion Consumer -->
-    <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl"/>
+    <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
+        <!-- Duration in seconds after initial authentication with the IDP that SSO login will be allowed: see
+             https://docs.spring.io/spring-security-saml/docs/current/reference/html/configuration-advanced.html#time-interval -->
+        <property name="maxAuthenticationAge" value="86400"/>
+    </bean>
 
     <!-- SAML 2.0 Holder-of-Key WebSSO Assertion Consumer -->
     <bean id="hokWebSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl"/>
