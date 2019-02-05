@@ -2330,6 +2330,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		String score = null;
 		try {
 			score = getAssignmentScoreString(gradebookUid, assignmentName, studentUid);
+			if (score == null && !isAssignmentDefined(gradebookUid, assignmentName)) {
+				// Try to get the assignment by id
+				if (NumberUtils.isCreatable(assignmentName)) {
+					final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
+					score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+				}
+			}
 		} catch (final AssessmentNotFoundException e) {
 			// Don't fail on this exception
 			log.debug("Assessment not found by name", e);
@@ -2337,14 +2344,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			log.warn("User {} does not have permission to retrieve score for assignment {}", studentUid, assignmentName, gse);
 			return null;
 		}
-
-		if (score == null && !isAssignmentDefined(gradebookUid, assignmentName)) {
-			// Try to get the assignment by id
-			if (NumberUtils.isCreatable(assignmentName)) {
-				final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
-				score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
-			}
-		}
+		
 		return score;
 	}
 
