@@ -37,6 +37,12 @@ public class LineItem {
 	@JsonProperty("tag")
 	public String tag;
 
+	@JsonProperty("startDateTime")
+	public String startDateTime;
+
+	@JsonProperty("endDateTime")
+	public String endDateTime;
+
 	@JsonProperty("id")
 	public String id;			// Output only
 	@JsonProperty("resourceLinkId")
