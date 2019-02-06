@@ -1203,7 +1203,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			retval = LineItemUtil.updateLineItem(site, sat.tool_id, assignment_id, item);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			LTI13Util.return400(response, "Could not update lineitem: "+e.getMessage());
 			return;
 		}
@@ -1473,7 +1473,7 @@ public class LTI13Servlet extends HttpServlet {
 						result.comment = commentDef.getCommentText();
 					}
 				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
-					e.printStackTrace();  // Unexpected
+					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}
 
@@ -1482,7 +1482,7 @@ public class LTI13Servlet extends HttpServlet {
 				try {
 					actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
 				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
-					e.printStackTrace();  // Unexpected
+					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}
 
@@ -1509,7 +1509,7 @@ public class LTI13Servlet extends HttpServlet {
 				out.println("");
 			}
 		} catch (Throwable t) {
-			t.printStackTrace();
+			log.error(t.getMessage(), t);
 		} finally {
 			SakaiBLTIUtil.popAdvisor();
 		}
