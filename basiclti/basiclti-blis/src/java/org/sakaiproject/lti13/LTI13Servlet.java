@@ -1449,7 +1449,7 @@ public class LTI13Servlet extends HttpServlet {
 			boolean first = true;
 			PrintWriter out = response.getWriter();
 
-			if ( user_id == null ) out.println("{ \"results\" : [");
+			if ( user_id == null ) out.println("[");
 			for (User user : users) {
 				Result result = new Result();
                                 String lti11_legacy_user_id = user.getId();
@@ -1505,8 +1505,7 @@ public class LTI13Servlet extends HttpServlet {
 
 			}
 			if ( user_id == null ) {
-				out.println("] }");
-				out.println("");
+				out.println("]");
 			}
 		} catch (Throwable t) {
 			log.error(t.getMessage(), t);
