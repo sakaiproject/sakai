@@ -679,7 +679,7 @@ public interface GradebookService {
 	 * @param studentUid
 	 * @return String of score
 	 */
-	public String getAssignmentScoreStringByNameOrId(String gradebookUid, String assignmentName, String studentUid)
+	public String getAssignmentScoreStringByName(String gradebookUid, String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**

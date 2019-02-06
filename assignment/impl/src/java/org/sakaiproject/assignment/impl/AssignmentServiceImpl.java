@@ -2313,7 +2313,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         String gradebookAssignmentName = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
         if (StringUtils.isNotBlank(gradebookAssignmentName) && !gradebookExternalAssessmentService.isExternalAssignmentDefined(assignment.getContext(), gradebookAssignmentName)) {
             // associated gradebook item
-            grade = gradebookService.getAssignmentScoreStringByNameOrId(assignment.getContext(), gradebookAssignmentName, submitter);
+            grade = gradebookService.getAssignmentScoreStringByName(assignment.getContext(), gradebookAssignmentName, submitter);
         }
 
         if (StringUtils.isNotBlank(grade)) {

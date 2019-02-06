@@ -5059,7 +5059,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                                     (gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "");
                                             gradebookExternalAssessmentService.updateExternalAssessmentComment(gradebookUid, associateGradebookAssignment, submitter.getSubmitter(),
                                                     (commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
-                                        } else if (gradebookService.isAssignmentDefined(gradebookUid, associateGradebookAssignment)) {
+                                        } else if (isAssignmentDefined) {
                                         	// the associated assignment is internal one, update records
                                         	final Long associateGradebookAssignmentId = gradebookService.getAssignment(gradebookUid, associateGradebookAssignment).getId();
                                         	final String submitterId = submitter.getSubmitter();

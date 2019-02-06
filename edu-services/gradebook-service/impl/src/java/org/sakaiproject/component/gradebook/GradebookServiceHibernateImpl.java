@@ -2321,11 +2321,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new AssessmentNotFoundException("There is no assignment with name " + assignmentName + " in gradebook " + gradebookUid);
 		}
 
-		return getAssignmentScoreString(gradebookUid, assignment.getId(), studentUid);
+		final AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
+		if (log.isDebugEnabled()) {
+			log.debug("gradeRecord=" + gradeRecord);
+		}
+		if (gradeRecord == null) {
+			return null;
+		} else {
+			final Double assignmentScore = gradeRecord.getPointsEarned();
+			if (assignmentScore == null) {
+				return null;
+			}
+			else {
+				// avoid scientific notation on large scores by using a formatter
+				final NumberFormat numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+				final DecimalFormat df = (DecimalFormat) numberFormat;
+				df.setGroupingUsed(false);
+	
+				return df.format(assignmentScore);
+			}
+		}
 	}
 
 	@Override
-	public String getAssignmentScoreStringByNameOrId(final String gradebookUid, final String assignmentName, final String studentUid)
+	public String getAssignmentScoreStringByName(final String gradebookUid, final String assignmentName, final String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException {
 		String score = null;
 		try {
@@ -2338,13 +2357,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 
-		if (score == null && !isAssignmentDefined(gradebookUid, assignmentName)) {
-			// Try to get the assignment by id
-			if (NumberUtils.isCreatable(assignmentName)) {
-				final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
-				score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
-			}
-		}
 		return score;
 	}
 
