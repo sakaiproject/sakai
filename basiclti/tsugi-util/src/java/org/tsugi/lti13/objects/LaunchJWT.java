@@ -19,9 +19,8 @@ public class LaunchJWT extends BaseJWT {
 
 	public static String MESSAGE_TYPE_LAUNCH = "LtiResourceLinkRequest";
 	public static String MESSAGE_TYPE_DEEP_LINK = "LtiDeepLinkingRequest";
-
-	public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner";
-	public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor";
+	public static String ROLE_LEARNER = "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner";
+	public static String ROLE_INSTRUCTOR = "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor";
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/deployment_id")
 	public String deployment_id;
@@ -60,8 +59,8 @@ public class LaunchJWT extends BaseJWT {
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/resource_link")
 	public ResourceLink resource_link;
 
-	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti1_1_user_id")
-	public String lti1_1_user_id;
+	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/lti11_legacy_user_id")
+	public String lti11_legacy_user_id;
 
 	@JsonProperty("https://purl.imsglobal.org/spec/lti/claim/context")
 	public Context context;

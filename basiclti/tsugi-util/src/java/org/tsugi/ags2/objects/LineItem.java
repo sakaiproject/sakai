@@ -7,8 +7,10 @@ import javax.annotation.Generated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Generated("com.googlecode.jsonschema2pojo")
 
 /*  application/vnd.ims.lis.v2.lineitem+json
@@ -36,6 +38,12 @@ public class LineItem {
 	public String resourceId;
 	@JsonProperty("tag")
 	public String tag;
+
+	@JsonProperty("startDateTime")
+	public String startDateTime;
+
+	@JsonProperty("endDateTime")
+	public String endDateTime;
 
 	@JsonProperty("id")
 	public String id;			// Output only

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 /*
 	"https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice": {
 		"context_memberships_url": "https://www.myuniv.example.com/2344/memberships",
-		"service_version": "2.0"
+		"service_versions" : ["2.0"]
 	}
  */
 public class NamesAndRoles {
@@ -24,10 +24,11 @@ public class NamesAndRoles {
 
 	@JsonProperty("context_memberships_url")
 	public String context_memberships_url;
-	@JsonProperty("service_version")
-	public String service_version;
+	@JsonProperty("service_versions")
+	public List<String> service_versions;
 
 	public NamesAndRoles() {
-		this.service_version = SERVICE_VERSION_LTI13;
+		this.service_versions = new ArrayList<String>();
+		this.service_versions.add(SERVICE_VERSION_LTI13);
 	}
 }
