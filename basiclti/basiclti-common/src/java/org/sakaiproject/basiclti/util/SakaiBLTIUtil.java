@@ -1731,9 +1731,15 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
+	// In case this gets more complex later
+	public static String getDeploymentId(String site_id) {
+		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
+		return deployment_id;
+	}
+
 	public static String getIssuer(String site_id) {
 		String retval = getOurServerUrl();
-		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
+		String deployment_id = getDeploymentId(site_id);
 		if ( ! LTI13_DEPLOYMENT_ID_DEFAULT.equals(deployment_id) ) {
 				retval += "/deployment/" + deployment_id;
 		}
@@ -1743,14 +1749,27 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	public static String getSubject(String user_id) {
+	public static String getSubject(String user_id, String site_id) {
 		String retval = getOurServerUrl();
-		String deployment_id = ServerConfigurationService.getString(LTI13_DEPLOYMENT_ID, LTI13_DEPLOYMENT_ID_DEFAULT);
+		String deployment_id = getDeploymentId(site_id);
 		if ( ! LTI13_DEPLOYMENT_ID_DEFAULT.equals(deployment_id) ) {
 				retval += "/deployment/" + deployment_id;
 		}
 		retval = retval + "/user/" + user_id;
 		return retval;
+	}
+
+	// Return the Sakai user_id from an LTI 1.3 Subject
+	// https://dev1.sakaicloud.com/user/c71bb6b6-3f3c-4922-a1f9-73855570a0eb
+	public static String parseSubject(String subject) {
+		if ( subject == null ) return subject;
+		String retval = getOurServerUrl();
+		if ( ! subject.startsWith(getOurServerUrl()) ) return subject;
+
+		String [] pieces = subject.split("/");
+		int where = pieces.length-1;
+		if ( where < 0 ) return subject;
+		return pieces[where];
 	}
 
 	public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
@@ -1769,7 +1788,12 @@ public class SakaiBLTIUtil {
 		String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",
 				ServerConfigurationService.getString("serverUrl", null));
 
-		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		String orig_site_id_null = (String) tool.get("orig_site_id_null");
+		String site_id = null;
+		if ( ! "true".equals(orig_site_id_null) ) {
+			site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+		}
+
 		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
 		String platform_public = (String) tool.get(LTIService.LTI13_PLATFORM_PUBLIC);
 		String platform_private = decryptSecret((String) tool.get(LTIService.LTI13_PLATFORM_PRIVATE));
@@ -1820,6 +1844,8 @@ roles: Instructor,Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:s
 user_id: admin
 		 */
 
+		String context_id = ltiProps.getProperty("context_id");
+
 		// Lets make a JWT from the LTI 1.x data
 		boolean deepLink = false;
 		LaunchJWT lj = new LaunchJWT();
@@ -1833,17 +1859,20 @@ user_id: admin
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
 		lj.audience = client_id;
 		lj.issuer = getIssuer(site_id);
-		lj.lti1_1_user_id = (String) ltiProps.getProperty("user_id");
-		lj.subject = getSubject(lj.lti1_1_user_id);
+		lj.lti11_legacy_user_id = (String) ltiProps.getProperty("user_id");
+		lj.subject = getSubject(lj.lti11_legacy_user_id, context_id);
 		lj.name = ltiProps.getProperty("lis_person_name_full");
 		lj.nonce = toolProps.getProperty("nonce");
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 3600L;
+		lj.deployment_id = getDeploymentId(context_id);
 		// TODO: Check through the rolemap logic
 		String lti1_roles = ltiProps.getProperty("roles");
 		if (lti1_roles != null && lti1_roles.contains("Instructor")) {
 			lj.roles.add(LaunchJWT.ROLE_INSTRUCTOR);
+		} else {
+			lj.roles.add(LaunchJWT.ROLE_LEARNER);
 		}
 
 		String resource_link_id = ltiProps.getProperty("resource_link_id");
@@ -1853,8 +1882,6 @@ user_id: admin
 			lj.resource_link.title = ltiProps.getProperty("resource_link_title");
 			lj.resource_link.description = ltiProps.getProperty("resource_link_description");
 		}
-
-		String context_id = ltiProps.getProperty("context_id");
 
 		lj.context = new Context();
 		lj.context.id = context_id;
@@ -2011,8 +2038,17 @@ user_id: admin
 		String state = toolProps.getProperty("state");
 		state = StringUtils.trimToNull(state);
 
+		// This is a comma separated list of valid redirect URLs - lame as heck
 		String lti13_oidc_redirect = toNull((String) tool.get(LTIService.LTI13_OIDC_REDIRECT));
-		if ( lti13_oidc_redirect != null ) launch_url = lti13_oidc_redirect;
+
+		// If we have been told to send this to a redirect_uri instead of a launch...
+		HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
+		String redirect_uri = req.getParameter("redirect_uri");
+		if ( redirect_uri != null && lti13_oidc_redirect != null ) {
+			if ( lti13_oidc_redirect.indexOf(redirect_uri) >= 0 ) {
+				launch_url = redirect_uri;
+			}
+		}
 
 		String form_id = java.util.UUID.randomUUID().toString();
 		String html = "<form action=\"" + launch_url + "\" id=\""+ form_id + "\" method=\"POST\">\n"
