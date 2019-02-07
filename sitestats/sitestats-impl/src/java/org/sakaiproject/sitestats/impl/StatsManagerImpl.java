@@ -438,6 +438,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					try{
 						// parse from stored preferences
 						prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
+						// preferences doesn't store additionalToolIds, add them back
+						EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), M_ers.getEventRegistry());
 					}catch(Exception e){
 						// something failed, use default
 						log.warn("Exception in parseSitePrefs() ",e);
