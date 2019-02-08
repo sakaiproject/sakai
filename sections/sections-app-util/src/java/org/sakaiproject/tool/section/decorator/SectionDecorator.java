@@ -77,8 +77,6 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
     protected boolean readOnly;
     private static Set<String> readOnlyCategories;
 
-    protected boolean lockedForDeletion;
-
     /**
      * Creates a SectionDecorator from a vanilla CourseSection.
      *
@@ -104,7 +102,6 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
             }
         }
         this.readOnly = readOnlyCategories.contains(section.getCategory()) || section.isLocked();  
-        this.lockedForDeletion = section.isLockedForDeletion();  
     }
 
     /**
@@ -141,9 +138,6 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
 
     public boolean isReadOnly() {
     	return readOnly;
-    }
-    public boolean isLockedForDeletion() {
-        return lockedForDeletion;
     }
     public List getInstructorNames() {
         return instructorNames;

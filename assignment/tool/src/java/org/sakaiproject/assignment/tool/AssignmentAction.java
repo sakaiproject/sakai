@@ -7690,7 +7690,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment.Access aOldAccess = null;
 
         // assignment old group setting
-        Collection<String> aOldGroups = new ArrayList<String>();
+        Collection<String> aOldGroups;
 
         // assignment old open date setting
         Instant oldOpenTime;
@@ -7913,7 +7913,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 aOldAccess = a.getTypeOfAccess();
 
-                aOldGroups.addAll(a.getGroups());
+                aOldGroups = a.getGroups();
 
                 // old open time
                 oldOpenTime = a.getOpenDate();
@@ -7968,9 +7968,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         lockedGroupsReferences.add(group.getReference());
                         log.debug("Adding group: {}", group.getReference());
 
-                        if (!aOldGroups.contains(group.getReference()) || !group.isLocked(groupAssignmentReference, Group.LockMode.ALL)) {
+                        if (!aOldGroups.contains(group.getReference()) || !group.isLocked(groupAssignmentReference)) {
                             log.debug("locking group: {}", group.getReference());
-                            group.lockGroup(groupAssignmentReference, Group.LockMode.ALL);
+                            group.lockGroup(groupAssignmentReference);
                             log.debug("locked group: {}", group.getReference());
 
                             try {
@@ -7996,7 +7996,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 Group group = site.getGroup(reference);
                                 if (group != null) {
                                     String groupReferenceAssignment = group.getReference() + "/assignment/" + a.getId();
-                                    group.unlockGroup(groupReferenceAssignment, Group.LockMode.ALL);
+                                    group.unlockGroup(groupReferenceAssignment);
                                     siteService.save(group.getContainingSite());
                                 }
                             }
@@ -9749,7 +9749,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 for (String reference : groups) {
                     Group group = site.getGroup(reference);
                     if (group != null) {
-                        group.unlockGroup(group.getReference() + "/assignment/" + assignment.getId(), Group.LockMode.ALL);
+                        group.unlockGroup(group.getReference() + "/assignment/" + assignment.getId());
                         siteService.save(group.getContainingSite());
                     }
                 }

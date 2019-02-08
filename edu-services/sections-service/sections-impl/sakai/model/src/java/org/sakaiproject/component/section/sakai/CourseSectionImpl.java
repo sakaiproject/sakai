@@ -77,7 +77,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     protected String title;
     protected String eid;
     protected boolean isLocked;
-    protected boolean isLockedForDeletion;
     
     protected boolean lazy_eid = false;
     
@@ -128,8 +127,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 		this.course = new CourseImpl(group.getContainingSite());
 		this.title = group.getTitle();
 		this.description = group.getDescription();
-		this.isLocked = group.isLocked(Group.LockMode.ALL);
-		this.isLockedForDeletion = group.isLocked(Group.LockMode.DELETE);
+		this.isLocked = group.isLocked();
 
 		ResourceProperties props = group.getProperties();
 		this.category = props.getProperty(CourseSectionImpl.CATEGORY);
@@ -620,10 +618,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 
 	public boolean isLocked(){
 		return isLocked;
-	}
-
-	public boolean isLockedForDeletion(){
-		return isLockedForDeletion;
 	}
 
 	public Integer getMaxEnrollments() {

@@ -145,15 +145,10 @@ public class GroupListProducer
 				UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
 				
 				String groupTitle = group.getTitle();
-				if (group.isLocked(Group.LockMode.MODIFY)) {
+				if (group.isLocked()) {
 					UIOutput groupIcon = UIOutput.make(grouprow, "group-icon");
 					groupIcon.decorate(new UIStyleDecorator("fa-lock"));
 					groupIcon.decorate(new UITooltipDecorator(messageLocator.getMessage("group.locked")));
-				}
-				if (group.isLocked(Group.LockMode.DELETE)) {
-					UIOutput lockedGroupIcon = UIOutput.make(grouprow, "group-for-deletion-icon");
-					lockedGroupIcon.decorate(new UIStyleDecorator("fa-lock"));
-					lockedGroupIcon.decorate(new UITooltipDecorator(messageLocator.getMessage("group.locked.for.deletion")));
 				}
                                 
 				UIOutput.make(grouprow, "group-title-label", groupTitle);
@@ -165,13 +160,12 @@ public class GroupListProducer
 				nameLabel.decorate(new UILabelTargetDecorator(name));
 				UIInternalLink editLink = UIInternalLink.make(grouprow,"group-title", groupTitle,
 																					 new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));
-				if (group.isLocked(Group.LockMode.MODIFY)) {
+				if (group.isLocked()) {
 					editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.noteditable")+ ":" + groupTitle));
 				} else {
 					editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + groupTitle));
 				}
-				log.debug("Check if the group is locked : {} -> {}", group.getId(), group.isLocked(Group.LockMode.MODIFY));
-				log.debug("Check if the group is locked for deletion : {} -> {}", group.getId(), group.isLocked(Group.LockMode.DELETE));
+				log.debug("Check if the group is locked : {} -> {}", group.getId(), group.isLocked());
 
 				String joinableSet = "---";
 				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET) != null){
@@ -228,7 +222,7 @@ public class GroupListProducer
 				
 				UIOutput.make(grouprow,"group-members",groupMembers);
 				
-				if (!group.isLocked(Group.LockMode.ALL) && !group.isLocked(Group.LockMode.DELETE)) {
+				if (!group.isLocked()) {
 					deletable.add(group.getId());
 					UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
 					delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
