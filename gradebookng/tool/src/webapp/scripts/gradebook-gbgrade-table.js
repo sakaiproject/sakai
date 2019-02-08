@@ -254,6 +254,11 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   var $td = $(td);
   var index = col - GbGradeTable.FIXED_COLUMN_OFFSET;
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
+
+  if (!instance.view.settings.columns[col]) {
+    return;
+  }
+
   var column = instance.view.settings.columns[col]._data_;
 
   // key needs to contain all values the cell requires for render
@@ -868,7 +873,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     cells: function (row, col, prop) {
       var cellProperties = {};
 
-      var column = GbGradeTable.instance.view.settings.columns[col]._data_;
+      var column = GbGradeTable.instance.view.settings.columns[col] ?
+                    GbGradeTable.instance.view.settings.columns[col]._data_ : null;
       var student = GbGradeTable.instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
 
       if (column == null) {
