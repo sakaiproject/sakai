@@ -144,7 +144,7 @@ public class BaseGroup implements Group, Identifiable
 		{
 			m_id = siteService.idManager().createUuid();
 			// since locks contain references we need to remove all locks if this is not an exact copy
-			Arrays.stream(LockMode.values()).map(this::getGroupLockProperty).filter(Objects::nonNull).forEach(properties::removeProperty);
+			properties.removeProperty(GROUP_PROP_LOCKED_BY);
 		}
 
 		properties.setLazy(bOtherProperties.isLazy());
