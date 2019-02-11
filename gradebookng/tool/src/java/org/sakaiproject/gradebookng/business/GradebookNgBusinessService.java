@@ -2013,8 +2013,13 @@ public class GradebookNgBusinessService {
 
 				// TODO if this is slow doing it one by one, might be able to
 				// batch it
+
+				// The service needs it otherwise it will assume 'null'
+				// so pull it back from the service and poke it in there!
+				final String comment = getAssignmentGradeComment(Long.valueOf(assignmentId), studentUuid);
+
 				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
-						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), null);
+						FormatHelper.formatGradeForDisplay(String.valueOf(grade)), comment);
 			}
 
 			EventHelper.postUpdateUngradedEvent(gradebook, assignmentId, String.valueOf(grade), getUserRoleOrNone());
