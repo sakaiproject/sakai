@@ -2317,11 +2317,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 
-		if (score == null && !isAssignmentDefined(gradebookUid, assignmentName)) {
+		if (score == null) {
 			// Try to get the assignment by id
 			if (NumberUtils.isCreatable(assignmentName)) {
 				final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
-				score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+				try {
+					score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+				} catch (AssessmentNotFoundException anfe) {
+					log.debug("Assessment could not be found for gradebook id {} and assignment id {} and student id {}", gradebookUid, assignmentName, studentUid);
+				}
 			}
 		}
 		return score;
