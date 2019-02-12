@@ -5068,6 +5068,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "open_date_string", "#{simplePageBean.peerEvalOpenDate}");
 		UIOutput.make(form, "open_date_dummy");
 
+		UIOutput.make(form, "peer_eval_due_date_label", messageLocator.getMessage("simplepage.peer-eval.due_date"));
+       
 		UIOutput dueDateField = UIOutput.make(form, "peer_eval_due_date:");
 		UIInput.make(form, "due_date_string", "#{simplePageBean.peerEvalDueDate}");
 		UIOutput.make(form, "due_date_dummy");
