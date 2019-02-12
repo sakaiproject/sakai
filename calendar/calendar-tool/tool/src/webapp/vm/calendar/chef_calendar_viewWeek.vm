@@ -501,7 +501,7 @@
                 <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
-                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        #if ($timer == 0) #set($timer=12) #end
                         $timer
                     #elseif ($format == "a")
                         #if ($temp2 >= 12) $pmString
@@ -821,7 +821,7 @@
                 <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
-                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        #if ($timer == 0) #set($timer=12) #end
                         $timer
                     #elseif ($format == "a")
                         #if ($temp2 >= 12) $pmString
@@ -859,7 +859,7 @@
                 <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
-                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        #if ($timer == 0) #set($timer=12) #end
                         $timer
                     #elseif ($format == "a")
                         #if ($temp2 >= 12) $pmString
