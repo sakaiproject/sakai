@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -806,6 +807,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String CONTEXT_HAS_TERMS = "hasTerms";
 	
 	private static final String SAK_PROP_AUTO_FILTER_TERM = "site.setup.autoFilterTerm";
+
+	private static final String SAK_PROP_RM_STLTH_ON_DUP = "site.duplicate.removeStealthTools";
+	private static final boolean SAK_PROP_RM_STLTH_ON_DUP_DEFAULT = false;
 	
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
@@ -9759,7 +9763,55 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 							Site site = SiteService.addSite(newSiteId,
 									getStateSite(state));
-							
+
+							boolean removeStealthToolsFromDup = ServerConfigurationService.getBoolean(SAK_PROP_RM_STLTH_ON_DUP, SAK_PROP_RM_STLTH_ON_DUP_DEFAULT);
+							if (removeStealthToolsFromDup) {
+								List<SitePage> pageList = site.getPages();
+								if (CollectionUtils.isNotEmpty(pageList)) {
+									List<SitePage> rmPageList = new ArrayList<>();
+
+									// Check if each tool is stealthed; if so, queue for removal
+									for (SitePage page : pageList) {
+										List<ToolConfiguration> pageToolList = page.getTools();
+										if (CollectionUtils.isNotEmpty(pageToolList)) {
+											List<ToolConfiguration> rmToolList = new ArrayList<>();
+
+											for (ToolConfiguration toolConf : pageToolList) {
+												Tool tool = toolConf.getTool();
+												String toolId = StringUtils.trimToEmpty(tool.getId());
+
+												if (StringUtils.isNotBlank(toolId) && !notStealthOrHiddenTool(toolId)) {
+													// Found a stealthed tool, queue for removal
+													log.debug("found stealthed tool {}", toolId);
+													rmToolList.add(toolConf);
+												}
+											}
+
+											// Remove stealthed tools from page
+											if (!rmToolList.isEmpty()) {
+												for (ToolConfiguration rmToolConf : rmToolList) {
+													page.removeTool(rmToolConf);
+												}
+
+												if (page.getTools().isEmpty()) {
+													// Queue page for removal if no tools remain
+													log.debug("queueing page for removal: {}", page.getId());
+													rmPageList.add(page);
+												}
+											}
+										}
+									}
+
+									// Remove now-empty pages from site
+									if (!rmPageList.isEmpty()) {
+										for (SitePage rmPage : rmPageList) {
+											log.debug("removing {} from site", rmPage.getId());
+											site.removePage(rmPage);
+										}
+									}
+								}
+							}
+
 							// An event for starting the "duplicate site" action
 							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 
