@@ -388,7 +388,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 				throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.createDefaultLetterGradePercentMapping");
 			}
 
-			if(validateLetterGradeMapping(gradeMap) == false) {
+			if (!validateLetterGradeMapping(gradeMap)) {
 				throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.createDefaultLetterGradePercentMapping");
 			}
 

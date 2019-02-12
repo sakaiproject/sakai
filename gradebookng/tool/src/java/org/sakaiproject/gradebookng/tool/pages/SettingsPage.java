@@ -61,11 +61,11 @@ public class SettingsPage extends BasePage {
 	private static final String SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS = "gradebook.settings.gradeEntry.showToNonAdmins";
 	private static final boolean SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT = true;
 
-	SettingsGradeEntryPanel gradeEntryPanel;
-	SettingsGradeReleasePanel gradeReleasePanel;
-	SettingsStatisticsPanel statisticsPanel;
-	SettingsCategoryPanel categoryPanel;
-	SettingsGradingSchemaPanel gradingSchemaPanel;
+	private SettingsGradeEntryPanel gradeEntryPanel;
+	private SettingsGradeReleasePanel gradeReleasePanel;
+	private SettingsStatisticsPanel statisticsPanel;
+	private SettingsCategoryPanel categoryPanel;
+	private SettingsGradingSchemaPanel gradingSchemaPanel;
 
 	public SettingsPage() {
 
@@ -88,7 +88,7 @@ public class SettingsPage extends BasePage {
 	}
 
 	private void setShowGradeEntryToNonAdmins() {
-		this.showGradeEntryToNonAdmins = serverConfigService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
+		this.showGradeEntryToNonAdmins = this.serverConfigService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
 	}
 
 	@Override
@@ -278,7 +278,7 @@ public class SettingsPage extends BasePage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		final String version = serverConfigService.getString("portal.cdn.version", "");
+		final String version = this.serverConfigService.getString("portal.cdn.version", "");
 
 		// Drag and Drop (requires jQueryUI)
 		response.render(
