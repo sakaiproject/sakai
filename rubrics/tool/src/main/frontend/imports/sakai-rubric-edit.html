@@ -22,7 +22,7 @@
           <label for="rubric_title_edit">
             <sr-lang key="rubric_title">Rubric Title</sr-lang>
           </label>
-          <input title="[[lang('rubric_title','Rubric Title')]]" name="rubric_title_edit" type="text" class="form-control" on-keypress="checkForEnter" value="{{rubricDataClone.title::input}}">
+          <input title="[[lang('rubric_title','Rubric Title')]]" name="rubric_title_edit" type="text" class="form-control" on-keypress="checkForEnter" value="{{rubricDataClone.title::input}}" maxlength="255">
         </div>
       </div>
     </div>
