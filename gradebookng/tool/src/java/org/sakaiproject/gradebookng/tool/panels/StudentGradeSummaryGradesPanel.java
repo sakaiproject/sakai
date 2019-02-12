@@ -223,7 +223,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			}
 		};
 
-		add(courseGradeStatsLink);
+		courseGradePanel.add(courseGradeStatsLink);
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
