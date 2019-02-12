@@ -5489,6 +5489,7 @@ public class SiteAction extends PagedResourceActionII {
 		boolean hardDelete = false;
 		if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_HARD_DELETE), Boolean.TRUE.toString())) {
 			hardDelete = true;
+			state.removeAttribute(STATE_HARD_DELETE);
 		}
 		
 		if (!chosenList.isEmpty()) {
@@ -7740,6 +7741,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// go to site info list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else {
+			if ("8".equals(currentIndex)) {
+				state.removeAttribute(STATE_HARD_DELETE);
+			}
 			// go to WSetup list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 		}
