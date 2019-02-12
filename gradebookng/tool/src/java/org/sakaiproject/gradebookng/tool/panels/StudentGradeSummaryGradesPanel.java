@@ -133,21 +133,21 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				}
 			}
 			// get the category scores and mark any dropped items
-			for (String catName : categoryNamesToAssignments.keySet()) {
+			for (final String catName : categoryNamesToAssignments.keySet()) {
 				if (catName.equals(getString(GradebookPage.UNCATEGORISED))) {
 					continue;
 				}
 
-				List<Assignment> catItems = categoryNamesToAssignments.get(catName);
+				final List<Assignment> catItems = categoryNamesToAssignments.get(catName);
 				if (!catItems.isEmpty()) {
-					Long catId = catItems.get(0).getCategoryId();
+					final Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
+						this.businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
 							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
 			}
-			categoriesMap = businessService.getGradebookCategoriesForStudent(userId).stream()
+			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 			Collections.sort(categoryNames);
 		}
@@ -190,7 +190,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 			@Override
 			public boolean isVisible() {
-				return serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+				return StudentGradeSummaryGradesPanel.this.serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
 			}
 		};
 		addOrReplace(courseGradePanel);
@@ -247,11 +247,11 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
+		return this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
 	}
 
-	private void storeAvgAndMarkIfDropped(CategoryScoreData avg, Long catId, Map<Long, Double> categoryAverages,
-		Map<Long, GbGradeInfo> grades) {
+	private void storeAvgAndMarkIfDropped(final CategoryScoreData avg, final Long catId, final Map<Long, Double> categoryAverages,
+		final Map<Long, GbGradeInfo> grades) {
 
 		categoryAverages.put(catId, avg.score);
 
