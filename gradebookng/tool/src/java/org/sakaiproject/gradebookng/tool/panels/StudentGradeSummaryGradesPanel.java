@@ -24,19 +24,24 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -55,6 +60,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	boolean isGroupedByCategory = false;
 	boolean categoriesEnabled = false;
 	boolean isAssignmentsDisplayed = false;
+	private boolean courseGradeStatsEnabled;
 
 	public StudentGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -73,6 +79,9 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
+
+		final GradebookInformation settings = getSettings();
+		this.courseGradeStatsEnabled = settings.isCourseGradeStatsDisplayed();
 
 		setOutputMarkupId(true);
 	}
@@ -102,6 +111,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 		final Map<Long, Double> categoryAverages = new HashMap<>();
 		Map<String, CategoryDefinition> categoriesMap = Collections.emptyMap();
+		final ModalWindow statsWindow = new ModalWindow("statsWindow");
+		add(statsWindow);
 
 		// if gradebook release setting disabled, no work to do
 		if (this.isAssignmentsDisplayed) {
@@ -122,21 +133,21 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				}
 			}
 			// get the category scores and mark any dropped items
-			for (String catName : categoryNamesToAssignments.keySet()) {
+			for (final String catName : categoryNamesToAssignments.keySet()) {
 				if (catName.equals(getString(GradebookPage.UNCATEGORISED))) {
 					continue;
 				}
 
-				List<Assignment> catItems = categoryNamesToAssignments.get(catName);
+				final List<Assignment> catItems = categoryNamesToAssignments.get(catName);
 				if (!catItems.isEmpty()) {
-					Long catId = catItems.get(0).getCategoryId();
+					final Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
+						this.businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
 							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
 			}
-			categoriesMap = businessService.getGradebookCategoriesForStudent(userId).stream()
+			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 			Collections.sort(categoryNames);
 		}
@@ -179,7 +190,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 			@Override
 			public boolean isVisible() {
-				return serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+				return StudentGradeSummaryGradesPanel.this.serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
 			}
 		};
 		addOrReplace(courseGradePanel);
@@ -188,6 +199,31 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
 		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+
+		final GbAjaxLink courseGradeStatsLink = new GbAjaxLink(
+				"courseGradeStatsLink") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+
+				statsWindow.setContent(new StudentCourseGradeStatisticsPanel(
+						statsWindow.getContentId(),
+						Model.of(StudentGradeSummaryGradesPanel.this
+								.getCurrentSiteId()),
+						statsWindow));
+				statsWindow.show(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return StudentGradeSummaryGradesPanel.this.courseGradeStatsEnabled
+						&& courseGrade != null;
+			}
+		};
+
+		courseGradePanel.add(courseGradeStatsLink);
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
@@ -211,11 +247,11 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
+		return this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
 	}
 
-	private void storeAvgAndMarkIfDropped(CategoryScoreData avg, Long catId, Map<Long, Double> categoryAverages,
-		Map<Long, GbGradeInfo> grades) {
+	private void storeAvgAndMarkIfDropped(final CategoryScoreData avg, final Long catId, final Map<Long, Double> categoryAverages,
+		final Map<Long, GbGradeInfo> grades) {
 
 		categoryAverages.put(catId, avg.score);
 

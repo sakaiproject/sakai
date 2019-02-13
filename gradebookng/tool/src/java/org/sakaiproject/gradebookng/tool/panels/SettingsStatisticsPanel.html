@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
+<body>
+<wicket:panel>
+
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="settingsStatisticsHeader">
+			<h3 class="panel-title">
+				<a role="button" data-toggle="collapse" href="#settingsStatistics" aria-expanded="false" aria-controls="settingsStatistics">
+					<wicket:message key="settingspage.statistics.heading">Statistics</wicket:message>
+				</a>
+			</h3>
+		</div>
+		<div wicket:id="settingsStatisticsPanel" id="settingsStatistics" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsStatisticsHeader">
+			<div class="panel-body">
+				<div class="checkbox">
+					<label>
+						<input wicket:id="displayAssignmentStats" type="checkbox" />
+						<wicket:message key="settingspage.statistics.assignment.label" />
+					</label>
+				</div>
+				
+				<div class="checkbox">
+					<label>
+						<input wicket:id="displayCourseGradeStats" type="checkbox" />
+						<wicket:message key="settingspage.statistics.coursegrade.label" />
+					</label>
+				</div>	
+			</div>
+		</div>
+	</div>
+
+</wicket:panel>
+</body>
+</html>
