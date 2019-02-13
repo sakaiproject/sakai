@@ -20,13 +20,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import lombok.Data;
 
 /**
  * Represents the settings for the gradebook
  *
  */
+@Data
 public class GradebookInformation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -48,8 +48,11 @@ public class GradebookInformation implements Serializable {
 	private Map<String, Double> selectedGradingScaleBottomPercents;
 
 	private boolean displayReleasedGradeItemsToStudents;
+
 	private int gradeType;
+
 	private int categoryType;
+
 	private List<CategoryDefinition> categories;
 
 	/**
@@ -77,115 +80,14 @@ public class GradebookInformation implements Serializable {
 	 */
 	private boolean courseAverageDisplayed;
 
-	public String getSelectedGradingScaleUid() {
-		return this.selectedGradingScaleUid;
-	}
+	/**
+	 * Are assignment stats to be shown to students?
+	 */
+	private boolean assignmentStatsDisplayed;
 
-	public void setSelectedGradingScaleUid(final String selectedGradingScaleUid) {
-		this.selectedGradingScaleUid = selectedGradingScaleUid;
-	}
-
-	public String getSelectedGradeMappingId() {
-		return this.selectedGradeMappingId;
-	}
-
-	public void setSelectedGradeMappingId(final String selectedGradeMappingId) {
-		this.selectedGradeMappingId = selectedGradeMappingId;
-	}
-
-	public List<GradeMappingDefinition> getGradeMappings() {
-		return this.gradeMappings;
-	}
-
-	public void setGradeMappings(final List<GradeMappingDefinition> gradeMappings) {
-		this.gradeMappings = gradeMappings;
-	}
-
-	public Map<String, Double> getSelectedGradingScaleBottomPercents() {
-		return this.selectedGradingScaleBottomPercents;
-	}
-
-	public void setSelectedGradingScaleBottomPercents(
-			final Map<String, Double> selectedGradingScaleBottomPercents) {
-		this.selectedGradingScaleBottomPercents = selectedGradingScaleBottomPercents;
-	}
-
-	public boolean isDisplayReleasedGradeItemsToStudents() {
-		return this.displayReleasedGradeItemsToStudents;
-	}
-
-	public void setDisplayReleasedGradeItemsToStudents(
-			final boolean displayReleasedGradeItemsToStudents) {
-		this.displayReleasedGradeItemsToStudents = displayReleasedGradeItemsToStudents;
-	}
-
-	public int getGradeType() {
-		return this.gradeType;
-	}
-
-	public void setGradeType(final int gradeType) {
-		this.gradeType = gradeType;
-	}
-
-	public int getCategoryType() {
-		return this.categoryType;
-	}
-
-	public void setCategoryType(final int categoryType) {
-		this.categoryType = categoryType;
-	}
-
-	public String getGradeScale() {
-		return this.gradeScale;
-	}
-
-	public void setGradeScale(final String gradeScale) {
-		this.gradeScale = gradeScale;
-	}
-
-	public boolean isCourseGradeDisplayed() {
-		return this.courseGradeDisplayed;
-	}
-
-	public void setCourseGradeDisplayed(final boolean courseGradeDisplayed) {
-		this.courseGradeDisplayed = courseGradeDisplayed;
-	}
-
-	public List<CategoryDefinition> getCategories() {
-		return this.categories;
-	}
-
-	public void setCategories(final List<CategoryDefinition> categories) {
-		this.categories = categories;
-	}
-
-	public boolean isCourseLetterGradeDisplayed() {
-		return this.courseLetterGradeDisplayed;
-	}
-
-	public void setCourseLetterGradeDisplayed(final boolean courseLetterGradeDisplayed) {
-		this.courseLetterGradeDisplayed = courseLetterGradeDisplayed;
-	}
-
-	public boolean isCoursePointsDisplayed() {
-		return this.coursePointsDisplayed;
-	}
-
-	public void setCoursePointsDisplayed(final boolean coursePointsDisplayed) {
-		this.coursePointsDisplayed = coursePointsDisplayed;
-	}
-
-	public boolean isCourseAverageDisplayed() {
-		return this.courseAverageDisplayed;
-	}
-
-	public void setCourseAverageDisplayed(final boolean courseAverageDisplayed) {
-		this.courseAverageDisplayed = courseAverageDisplayed;
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-	}
+	/**
+	 * Are course grade stats to be shown to students?
+	 */
+	private boolean courseGradeStatsDisplayed;
 
 }

@@ -45,6 +45,7 @@
 
 		<property name="scaledExtraCredit" column="IS_SCALED_EXTRA_CREDIT" type="boolean" not-null="false"/>
 
+		<!-- all of the DO_ prefixed fields are gradebook2 fields and not used in the main Gradebook -->
 		<property name="showMean" column="DO_SHOW_MEAN" type="boolean" not-null="false"/>
 		
 		<property name="showMedian" column="DO_SHOW_MEDIAN" type="boolean" not-null="false"/>
@@ -58,6 +59,10 @@
 		<property name="showStatisticsChart" column="DO_SHOW_STATISTICS_CHART" type="boolean" not-null="false"/>
 		
 		<property name="courseLetterGradeDisplayed" column="COURSE_LETTER_GRADE_DISPLAYED" type="boolean" not-null="true"/>
+		
+		<property name="assignmentStatsDisplayed" column="ASSIGNMENT_STATS_DISPLAYED" type="boolean" not-null="true"/>
+		
+		<property name="courseGradeStatsDisplayed" column="COURSE_GRADE_STATS_DISPLAYED" type="boolean" not-null="true"/>	
 		
 	</class>
 </hibernate-mapping>
