@@ -371,7 +371,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		Map params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "fid", fid, "fcmd", fcmd, "assignid",
 				assignid, "cid", cid, "oid", oid, "utp", utp);
 
-		params.putAll(getInstructorInfo(item.getSiteId()));
+		params.putAll(getInstructorInfo(item.getSiteId(), false, userId));
 
 		return turnitinConn.buildTurnitinURL(params);
 	}
@@ -590,9 +590,10 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 */
 	public void syncGrades(Map<String, Object> data) {
 		// Get session and check if gardes have already been synced
-		Session sess = sessionManager.getCurrentSession();
+		final Session sess = sessionManager.getCurrentSession();
+		final String userId = sess.getUserId();
 		boolean runOnce = gradesChecked(sess, data.get("taskId").toString());
-		boolean isStudent = isUserStudent(data.get("siteId").toString(), sess.getUserId());
+		boolean isStudent = isUserStudent(data.get("siteId").toString(), userId);
 		String siteId = data.get("siteId").toString();
 
 		if (turnitinConn.getUseGradeMark() && gradebookService.isGradebookDefined(siteId)
@@ -630,7 +631,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 				Map params = new HashMap();
 				params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "fid", "10", "fcmd", "2", "tem",
 						getTEM(siteId), "assign", assign, "assignid", taskId, "cid", siteId, "ctl", siteId, "utp", "2");
-				params.putAll(getInstructorInfo(siteId));
+				params.putAll(getInstructorInfo(siteId, false, userId));
 
 				Document document = null;
 				document = turnitinConn.callTurnitinReturnDocument(params);
@@ -776,7 +777,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		String tiiExternalId = "";// the ID sakai stores
 		String tiiInternalId = "";// Turnitin internal ID
 		User user = null;
-		Map instructorInfo = getInstructorInfo(siteId, true);
+		Map instructorInfo = getInstructorInfo(siteId, true, null);
 		try {
 			user = userDirectoryService.getUser(instructorInfo.get("uid").toString());
 		} catch (UserNotDefinedException e) {
@@ -848,7 +849,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		Map params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "cid", cid, "cpw", cpw, "ctl", ctl,
 				"fcmd", fcmd, "fid", fid, "utp", utp);
 
-		params.putAll(getInstructorInfo(siteId));
+		params.putAll(getInstructorInfo(siteId, false, null));
 
 		document = turnitinConn.callTurnitinReturnDocument(params);
 
@@ -974,7 +975,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		Map params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "assign", taskTitle, "assignid", taskId,
 				"cid", siteId, "ctl", siteId, "fcmd", "7", "fid", "4", "utp", "2");
 
-		params.putAll(getInstructorInfo(siteId));
+		params.putAll(getInstructorInfo(siteId, false, null));
 
 		return turnitinConn.callTurnitinReturnMap(params);
 	}
@@ -1151,7 +1152,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		// method, since theoretically getInstructorInfo could return
 		// different instructors for different invocations and we need
 		// the same one since we're using a session id.
-		Map instructorInfo = getInstructorInfo(siteId);
+		Map<String, String> instructorInfo = getInstructorInfo(siteId, false, null);
 		params.putAll(instructorInfo);
 
 		if (extraAsnnOpts != null) {
@@ -1792,7 +1793,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 							currentItem.getSiteId(), "ctl", currentItem.getSiteId(), "fcmd", "7", "fid", "4", "utp",
 							"2");
 
-					getAsnnParams.putAll(getInstructorInfo(currentItem.getSiteId()));
+					getAsnnParams.putAll(getInstructorInfo(currentItem.getSiteId(), false, null));
 
 					Map curasnn = turnitinConn.callTurnitinReturnMap(getAsnnParams);
 
@@ -1841,7 +1842,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 				// try {
 				params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(), "fid", fid, "fcmd", fcmd, "tem", tem,
 						"assign", assign, "assignid", assignid, "cid", cid, "ctl", ctl, "utp", utp);
-				params.putAll(getInstructorInfo(currentItem.getSiteId()));
+				params.putAll(getInstructorInfo(currentItem.getSiteId(), false, null));
 
 				Document document = null;
 
@@ -2081,7 +2082,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 				"ets_dictionary", ets_dictionary, "ets_spelling", ets_spelling, "ets_style", ets_style, "ets_grammar",
 				ets_grammar, "ets_mechanics", ets_mechanics, "ets_usage", ets_usage);
 
-		params.putAll(getInstructorInfo(siteId));
+		params.putAll(getInstructorInfo(siteId, false, null));
 
 		Document document = null;
 
@@ -2274,7 +2275,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 	private String getTEM(String cid) {
 		if (turnitinConn.isUseSourceParameter()) {
-			return getInstructorInfo(cid).get("uem").toString();
+			return getInstructorInfo(cid, false, null).get("uem").toString();
 		} else {
 			return turnitinConn.getDefaultInstructorEmail();
 		}
@@ -2287,15 +2288,18 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	 * it will use the default Instructor information that has been configured
 	 * for the system.
 	 *
+	 * @param	siteId
+	 * @param 	ignoreUseSource
+	 * @param	userId				If set, will return details on matching user id. If not set, will send first instructor
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId) {
+	public Map<String, String> getInstructorInfo(final String siteId, final boolean ignoreUseSource, final String userId) {
 
-		log.debug("Getting instructor info for site " + siteId);
+		log.debug("Getting instructor info for site {}", siteId);
 
-		Map togo = new HashMap();
-		if (!turnitinConn.isUseSourceParameter()) {
+		Map<String, String> togo = new HashMap<>();
+		if (!turnitinConn.isUseSourceParameter() && !ignoreUseSource) {
 			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
 			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
 			togo.put("uln", turnitinConn.getDefaultInstructorLName());
@@ -2307,56 +2311,26 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 				Site site = siteService.getSite(siteId);
 				User user = userDirectoryService.getCurrentUser();
 
-				log.debug("Current user: " + user.getId());
+				log.debug("Current user: {}", user.getId());
 
 				if (site.isAllowed(user.getId(), INST_ROLE)) {
 					inst = user;
 				} else {
 					Set<String> instIds = getActiveInstructorIds(INST_ROLE, site);
 					if (instIds.size() > 0) {
-						inst = userDirectoryService.getUser((String) instIds.toArray()[0]);
-					}
-				}
-			} catch (IdUnusedException e) {
-				log.error("Unable to fetch site in getAbsoluteInstructorInfo: " + siteId, e);
-			} catch (UserNotDefinedException e) {
-				log.error("Unable to fetch user in getAbsoluteInstructorInfo", e);
-			}
+						for (String instId : instIds) {
+							if (StringUtils.equals(userId, instId) || StringUtils.isEmpty(userId)) {
+								inst = userDirectoryService.getUser(instId);
+								break;
+							}
+						}
 
-			if (inst == null) {
-				log.error("Instructor is null in getAbsoluteInstructorInfo");
-			} else {
-				togo.put("uem", getEmail(inst));
-				togo.put("ufn", inst.getFirstName());
-				togo.put("uln", inst.getLastName());
-				togo.put("uid", inst.getId());
-				togo.put("username", inst.getDisplayName());
-			}
-		}
-
-		return togo;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Map getInstructorInfo(String siteId, boolean ignoreUseSource) {
-		Map togo = new HashMap();
-		if (!turnitinConn.isUseSourceParameter() && ignoreUseSource == false) {
-			togo.put("uem", turnitinConn.getDefaultInstructorEmail());
-			togo.put("ufn", turnitinConn.getDefaultInstructorFName());
-			togo.put("uln", turnitinConn.getDefaultInstructorLName());
-			togo.put("uid", turnitinConn.getDefaultInstructorId());
-		} else {
-			String INST_ROLE = "section.role.instructor";
-			User inst = null;
-			try {
-				Site site = siteService.getSite(siteId);
-				User user = userDirectoryService.getCurrentUser();
-				if (site.isAllowed(user.getId(), INST_ROLE)) {
-					inst = user;
-				} else {
-					Set<String> instIds = getActiveInstructorIds(INST_ROLE, site);
-					if (instIds.size() > 0) {
-						inst = userDirectoryService.getUser((String) instIds.toArray()[0]);
+						// Could not find a matching entry so will send back first instructor
+						if (inst == null) {
+							String firstInst = instIds.iterator().next();
+							inst = userDirectoryService.getUser(firstInst);
+							log.warn("Could not find userId in getActiveInstructorIds ({}) so return {} instead", userId, inst.getId());
+						}
 					}
 				}
 			} catch (IdUnusedException e) {
