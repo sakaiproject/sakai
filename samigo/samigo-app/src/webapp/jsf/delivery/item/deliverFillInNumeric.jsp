@@ -65,7 +65,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
       <h:panelGroup rendered="#{answer.hasInput && delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment'}">
         <h:outputLabel styleClass="sr-only" for="fin" value="#{deliveryMessages.fin_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.fin_sr_answer_label_part2}" />
-        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="fin" />
+        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" onkeyup="this.value = this.value.replace(/[^0-9\.\,\+\-eEiI ]/g, '');" id="fin" />
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" rendered="#{delivery.actionString=='gradeAssessment' || delivery.actionString=='reviewAssessment'}"
          value="#{answer.response}"/>
