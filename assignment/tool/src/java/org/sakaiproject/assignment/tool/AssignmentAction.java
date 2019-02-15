@@ -2727,38 +2727,54 @@ public class AssignmentAction extends PagedResourceActionII {
         if (gradebookExists) {
             String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
-            try {
-                // how many gradebook assignment have been integrated with Assignment tool already
-                currentAssignmentGradebookIntegrationIntoContext(context, state, gradebookUid, a != null ? a.getTitle() : null);
+            // how many gradebook assignment have been integrated with Assignment tool already
+            currentAssignmentGradebookIntegrationIntoContext(context, state, gradebookUid, a != null ? a.getTitle() : null);
 
-                if (StringUtils.isBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
-                    state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                }
+            if (StringUtils.isBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+            }
 
-                context.put("withGradebook", Boolean.TRUE);
+            context.put("withGradebook", Boolean.TRUE);
 
-                // offer the gradebook integration choice only in the Assignments with Grading tool
-                boolean withGrade = (Boolean) state.getAttribute(WITH_GRADES);
-                if (withGrade) {
-                    context.put("name_Addtogradebook", NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-                    context.put("name_AssociateGradebookAssignment", PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                }
+            // offer the gradebook integration choice only in the Assignments with Grading tool
+            boolean withGrade = (Boolean) state.getAttribute(WITH_GRADES);
+            if (withGrade) {
+                context.put("name_Addtogradebook", NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+                context.put("name_AssociateGradebookAssignment", PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            }
 
-                context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
-                context.put("gradebookChoice_no", GRADEBOOK_INTEGRATION_NO);
-                context.put("gradebookChoice_add", GRADEBOOK_INTEGRATION_ADD);
-                context.put("gradebookChoice_associate", GRADEBOOK_INTEGRATION_ASSOCIATE);
-                String associateGradebookAssignment = (String) state.getAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                if (StringUtils.isNotBlank(associateGradebookAssignment)) {
-                    context.put("associateGradebookAssignment", associateGradebookAssignment);
-                    if (a != null) {
-                        context.put("noAddToGradebookChoice",
-                                associateGradebookAssignment.equals(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) || gradebookService.isAssignmentDefined(gradebookUid, a.getTitle()));
+            context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+            context.put("gradebookChoice_no", GRADEBOOK_INTEGRATION_NO);
+            context.put("gradebookChoice_add", GRADEBOOK_INTEGRATION_ADD);
+            context.put("gradebookChoice_associate", GRADEBOOK_INTEGRATION_ASSOCIATE);
+            String associateGradebookAssignment = (String) state.getAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            if (StringUtils.isNotBlank(associateGradebookAssignment)) {
+                context.put("associateGradebookAssignment", associateGradebookAssignment);
+                if (a != null) {
+                    // the premise here is that if there is a VALID value for PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT
+                    // then the assignment is already associated to the gradebook and the user should not see the add to gradebook option
+                    boolean valid = false;
+                    if (StringUtils.startsWith(associateGradebookAssignment, REFERENCE_ROOT)) {
+                        // checking externally maintained by gradebook
+                        if (AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference().equals(associateGradebookAssignment)) {
+                            // the reference matches that of the assignment
+                            valid = true;
+                        } else {
+                            // why do we have a reference to some other assignment?
+                            log.warn("Gradebook association for assignment {} was pointing to assignment {}", a.getId(), associateGradebookAssignment);
+                        }
+                    } else {
+                        // check internally maintained by gradebook
+                        try {
+                            if (gradebookService.getAssignmentByNameOrId(gradebookUid, associateGradebookAssignment) != null) {
+                                valid = true;
+                            }
+                        } catch (AssessmentNotFoundException anfe) {
+                            log.debug("Gradebook item not found for assignment {} with {} = {}", a.getId(), PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                        }
                     }
+                    context.put("noAddToGradebookChoice", valid);
                 }
-            } catch (Exception e) {
-                // not able to link to Gradebook
-                log.warn(this + "setAssignmentFormContext " + e.getMessage());
             }
 
             if (StringUtils.isBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
@@ -3018,7 +3034,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private void putGradebookCategoryInfoIntoContext(SessionState state, Context context) {
         Map<Long, String> categoryTable = categoryTable();
         if (categoryTable != null) {
-            context.put("value_totalCategories", Integer.valueOf(categoryTable.size()));
+            long categoryTableSize = categoryTable.keySet().stream().filter(i -> i >= 0).count();
+            context.put("value_totalCategories", Long.valueOf(categoryTableSize));
 
             // selected category
             context.put("value_Category", state.getAttribute(NEW_ASSIGNMENT_CATEGORY));
@@ -3031,7 +3048,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("categoryKeys", categoryList);
             context.put("categoryTable", categoryTable);
         } else {
-            context.put("value_totalCategories", Integer.valueOf(0));
+            context.put("value_totalCategories", Long.valueOf(0));
         }
     }
 
