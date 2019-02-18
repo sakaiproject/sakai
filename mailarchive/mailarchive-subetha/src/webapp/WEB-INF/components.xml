@@ -19,6 +19,7 @@
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
     </bean>
 
 </beans>

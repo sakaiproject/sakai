@@ -29,6 +29,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.mail.internet.ParseException;
+import javax.mail.util.ByteArrayDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,8 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.email.api.Attachment;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -88,6 +91,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
     private ContentHostingService contentHostingService;
     private MailArchiveService mailArchiveService;
     private SessionManager sessionManager;
+	private EmailService emailService;
 
     public void setInternationalizedMessages(InternationalizedMessages rb) {
         this.rb = rb;
@@ -133,6 +137,10 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
         this.sessionManager = sessionManager;
     }
 
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
     // used when parsing email header parts
     private static final String NAME_PREFIX = "name=";
 
@@ -148,6 +156,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
         Objects.requireNonNull(contentHostingService, "ContentHostingService must be set");
         Objects.requireNonNull(mailArchiveService, "MailArchiveService must be set");
         Objects.requireNonNull(sessionManager, "SessionManager must be set");
+        Objects.requireNonNull(emailService, "EmailService must be set");
 
         if (serverConfigurationService.getBoolean("smtp.enabled", false)) {
             server = new SMTPServer(this);
@@ -181,6 +190,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
         return new MessageHandler() {
             private String from;
             private Collection<Recipient> recipients = new LinkedList<>();
+            private Collection<Recipient> rejectedRecipients = new LinkedList<>();
 
             @Override
             public void from(String from) throws RejectException {
@@ -193,6 +203,23 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                 }
             }
 
+            final String DROP_AND_DONT_NOTIFY = "DROP_AND_DONT_NOTIFY";
+
+            /* improved error handling
+             * MessageHandler methods recipient() and data() are called by Subetha to handle mail delivery into Sakai mailarchive.
+             * recipient() in turn calls getMailArchiveChannel(), which itself throws RejectExceptions for the error cases dealt with here:
+             *      non-existent site, sender not a site member, and sender=member lacks permissions to send into site mailarchive
+             * In 11.x OOTB, these exceptions hold an SMTP result codes and an associated arbitrary error string.
+             * OOTB, the exceptions are caught by Subetha, not within this MessageHandler class.
+             *
+             * The changes here to get immediate error messages and control their content and format:
+             *      summary:  exceptions are now caught internally in this MessageHandler class, and usually result in secondary mail sent -- not Subetha/postfix bounce.
+             * getMailArchiveChannel() -- exceptions thrown use as the associated error string the key to the message bundle property for the specific error.
+             *      there is also a provision to send string "DROP_AND_DONT_NOTIFY" to prevent notification and so reject the incoming message silently.
+             * recipient() -- catches exceptions, verifies and stores error property _value_ in the new Recipient, and stores those exceptional Recipients for data() to reject.
+             *      exceptions are rethown in case Subetha/postfix bounce is wanted, or in case an extraordinary error prevents expected operation
+             * data() -- rejected Recipients have common text added to their specific errors; original body text is provided as attachments; mail sent through existing Sakia API.
+             */
             @Override
             public void recipient(String to) throws RejectException {
                 SplitEmailAddress address = SplitEmailAddress.parse(to);
@@ -201,9 +228,26 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     // || serverConfigurationService.getServerNameAliases().contains(address.getDomain())) {
                     Recipient recipient = new Recipient();
                     recipient.address = address;
-                    recipient.channel = getMailArchiveChannel(address.getLocal());
-                    if (recipient.channel != null) {
-                        recipients.add(recipient);
+                    try {
+                        recipient.channel = getMailArchiveChannel(address.getLocal());
+                        if (recipient.channel != null) {
+                            recipients.add(recipient);
+                        }
+                    } catch (RejectException e) {
+                        String key = e.getMessage();
+                        if (StringUtils.isBlank(key)) {
+                            throw e;
+                        }
+                        if (DROP_AND_DONT_NOTIFY.equals(key)) {
+                            // neither throw for subetha to handle nor .add(recipient) for data() callback to handle.
+                        } else {
+                            if (!rb.containsKey(key)) {
+                                throw e;
+                            }
+
+                            recipient.errorExplanation = rb.getString(key);
+                            rejectedRecipients.add(recipient);
+                        }
                     }
                 } else {
                     // TODO Correct SMTP error?
@@ -272,6 +316,8 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                                 + " subject: " + subject);
                     }
 
+                    String siteId = null; // hoisted here to make available in both loops
+
                     // process for each recipient
                     for (Recipient recipient : recipients) {
                         String mailId = recipient.address.getLocal();
@@ -285,7 +331,6 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                             bodyBuf[0] = new StringBuilder();
                             bodyBuf[1] = new StringBuilder();
                             List<Reference> attachments = entityManager.newReferenceList();
-                            String siteId = null;
                             if (siteService.siteExists(channel.getContext())) {
                                 siteId = channel.getContext();
                             }
@@ -347,6 +392,50 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                             // INDICATES that some general exception has occurred which we did not expect
                             // This definitely should NOT happen
                             log.error("mailarchive General message service exception: (id=" + id + ") (mailId=" + mailId + ") : " + ex, ex);
+                        }
+                    }
+
+                    // process for each recipient rejected
+                    for (Recipient recipient : rejectedRecipients) {
+
+                        // prepare the message
+                        StringBuilder bodyBuf[] = new StringBuilder[2];
+                        bodyBuf[0] = new StringBuilder();
+                        bodyBuf[1] = new StringBuilder();
+
+                        try {
+                            StringBuilder bodyContentType = new StringBuilder();
+                            parseParts(siteId, msg, id, bodyBuf, bodyContentType, null, -1); // null: dont store incoming attachments as sakai resources, or otherwise process
+
+                            if (bodyContentType.length() > 0) {
+                                // save the content type of the message body - which may be different from the overall MIME type of the message (multipart, etc)
+                                mailHeaders.add(HEADER_INNER_CONTENT_TYPE + ": " + bodyContentType);
+                            }
+                        } catch (MessagingException e) {
+                            // NOTE: if this happens it just means we don't get the extra header, not the end of the world
+                            log.warn("MessagingException: service(): msg.getContent() threw: {}", e);
+                        } catch (IOException e) {
+                            // NOTE: if this happens it just means we don't get the extra header, not the end of the world
+                            log.warn("IOException: service(): msg.getContent() threw: {}", e);
+                        }
+
+                        List<Attachment> outgoingAttachments = new LinkedList<>();
+                        outgoingAttachments.add(new Attachment(new ByteArrayDataSource(bodyBuf[0].toString(), "plain/text")));
+                        outgoingAttachments.add(new Attachment(new ByteArrayDataSource(bodyBuf[1].toString(), "html/text")));
+
+                        String errMsg = recipient.errorExplanation + "\n\n";
+                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
+                        if (mailSupport != null) {
+                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
+                        }
+
+                        try {
+                            InternetAddress errFrom = new InternetAddress("postmaster@".concat(serverConfigurationService.getServerName()));
+                            InternetAddress[] errTo = new InternetAddress[] {new InternetAddress(this.from)};
+                            String errSubject = "Re:" + subject;
+                            emailService.sendMail(errFrom, errTo, errSubject, errMsg, null, null, null, outgoingAttachments);
+                        } catch (javax.mail.internet.AddressException ae) {
+                            log.warn("mailarchive couldn't form reject msg InternetAddress for postmaster or for original sender={}", this.from);
                         }
                     }
                 } catch (MessagingException me) {
@@ -448,12 +537,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         // INDICATES that the channel is NOT currently enabled so no messages can be received
                         if (!from.startsWith(POSTMASTER)) {
                             // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                            String errMsg = rb.getString("err_email_off") + "\n\n";
-                            String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                            if (mailSupport != null) {
-                                errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                            }
-                            throw new RejectException(450, errMsg);
+                            throw new RejectException(450, "err_email_off");
                         }
 
                         if (log.isInfoEnabled()) {
@@ -471,12 +555,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                                 log.info("Mail rejected: from: " + from + " not authorized for site: " + mailId + " and channel (" + channelRef + ")");
                             }
                             // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                            String errMsg = rb.getString("err_not_member") + "\n\n";
-                            String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                            if (mailSupport != null) {
-                                errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                            }
-                            throw new RejectException(550, errMsg);
+                            throw new RejectException(550, "err_not_member");
                         }
                     }
                     return channel;
@@ -484,12 +563,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                     // if this is to the postmaster, and there's no site, channel or alias for the postmaster,
                     // then quietly eat the message
                     if (!POSTMASTER.equals(mailId) && !from.startsWith(POSTMASTER + "@")) {
-                        String errMsg = rb.getString("err_addr_unknown") + "\n\n";
-                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                        if (mailSupport != null) {
-                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                        }
-                        throw new RejectException(550, errMsg);
+                        throw new RejectException(550, "err_addr_unknown");
                     }
                 } catch (PermissionException e) {
                     try {
@@ -500,12 +574,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         // This generally should not happen because the current user should be the postmaster
                         log.warn("No access to alias, this should never happen.", e);
                         // BOUNCE REPLY - send a message back to the user to let them know their email failed
-                        String errMsg = rb.getString("err_not_member") + "\n\n";
-                        String mailSupport = StringUtils.trimToNull(serverConfigurationService.getString("mail.support"));
-                        if (mailSupport != null) {
-                            errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
-                        }
-                        throw new RejectException(550, errMsg);
+                        throw new RejectException(550, "err_not_member");
                     } catch (UserNotDefinedException unde) {
                         log.warn(String.format("no postmaster, incoming mail will not be processed until a " +
                                 "postmaster user (id=%s) exists in this Sakai instance", POSTMASTER));
@@ -743,7 +812,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
             }
 
             // read the attachments bytes, and create it as an attachment in content hosting
-            if (p.getSize() > 0) {
+            if (p.getSize() > 0 && attachments != null) {
                 // can we ignore the attachment it it's just whitespace chars??
                 Optional<ContentResource> attachment = createAttachment(siteId, attachments, cType.getBaseType(), name, p.getInputStream(), id);
 
@@ -807,5 +876,6 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
     protected class Recipient {
         protected SplitEmailAddress address;
         protected MailArchiveChannel channel;
+        protected String errorExplanation = "";
     }
 }

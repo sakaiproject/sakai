@@ -26,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -91,6 +92,9 @@ public class SakaiMessageHandlerTest {
     private SessionManager sessionManager;
 
     @Mock
+    private EmailService emailService;
+
+    @Mock
     private Session session;
 
     private SakaiMessageHandlerFactory messageHandlerFactory;
@@ -109,6 +113,7 @@ public class SakaiMessageHandlerTest {
         messageHandlerFactory.setContentHostingService(contentHostingService);
         messageHandlerFactory.setMailArchiveService(mailArchiveService);
         messageHandlerFactory.setSessionManager(sessionManager);
+        messageHandlerFactory.setEmailService(emailService);
 
         // Binding to port 0 means that it picks a random port to listen on.
         when(serverConfigurationService.getInt("smtp.port", 25)).thenReturn(0);
@@ -143,7 +148,6 @@ public class SakaiMessageHandlerTest {
     @Test(expected = SMTPException.class)
     public void testRejectedAddress() throws Exception {
         when(aliasService.getTarget("user")).thenThrow(IdUnusedException.class);
-        when(rb.getString("err_addr_unknown")).thenReturn("err_addr_unknown");
         SmartClient client = createClient();
         client.from("sender@example.com");
         client.to("user@sakai.example.com");
