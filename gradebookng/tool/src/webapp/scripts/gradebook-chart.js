@@ -124,13 +124,27 @@ function renderChart(gbChartData) {
 	var yAxisLabel = chartData.yAxisLabel;
 	var chartType = chartData.chartType;
 	var chartId = chartData.chartId;
-	
+	var studentGradeRange = chartData.studentGradeRange;
+	var backgroundColour = [];
+
 	var data = $.map(dataset, function(value, index) {
 		return value;
 	});
 	var labels = $.map(dataset, function(value, index) {
 		return index;
 	});
+	
+	//If this chart is being viewed by a student, display the bar that 
+	//includes their mark in a different colour
+	if (studentGradeRange != null) {
+		var index = labels.indexOf(studentGradeRange);
+		for (i = 0; i < labels.length; i++) {
+			backgroundColour.push('#15597e');
+		}
+		backgroundColour[index] = '#7fc464';
+	} else {
+		backgroundColour = '#15597e';
+	}
 	
 	//clear data. If ChartJS implements a better way, change this.
 	$('#'+chartId).replaceWith('<canvas id="'+chartId+'"></canvas>');
@@ -142,7 +156,7 @@ function renderChart(gbChartData) {
 			labels: labels,
 			datasets: [{
 				data: data,
-				backgroundColor: '#15597e',
+				backgroundColor: backgroundColour,
 				borderWidth: 0
 			}]
 		},
@@ -188,10 +202,30 @@ function renderChart(gbChartData) {
 			tooltips: {
 				displayColors: false,
 				callbacks: {
-			        title: function(tooltipItem, data) {
-			          return tooltipItem[0].yLabel + ': ' + tooltipItem[0].xLabel;
-			        },
-			        label: function() {}
+					title: function(tooltipItem, data) {
+						switch(chartType) {
+						case 'bar':
+							return tooltipItem[0].yLabel + ' student(s): ' + tooltipItem[0].xLabel;
+							break;
+						case 'horizontalBar':
+							return tooltipItem[0].xLabel + ' student(s): ' + tooltipItem[0].yLabel;
+						}
+
+					},
+					label: function() {},
+					afterTitle: function(tooltipItem) {
+						switch(chartType) {
+						case 'bar': 
+							if (studentGradeRange != null && studentGradeRange == tooltipItem[0].xLabel) {
+								return 'Your grade';
+							}
+							break;
+						case 'horizontalBar': 
+							if (studentGradeRange != null && studentGradeRange == tooltipItem[0].yLabel) {
+								return 'Your grade';
+							}
+						}
+					}
 				}
 			}
 		}

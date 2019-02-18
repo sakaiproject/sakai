@@ -23,9 +23,12 @@ public class AssignmentGradeChart extends BaseChart {
 
 	private final long assignmentId;
 
-	public AssignmentGradeChart(final String id, final long assignmentId) {
+	private final String studentGrade;
+
+	public AssignmentGradeChart(final String id, final long assignmentId, final String studentGrade) {
 		super(id);
 		this.assignmentId = assignmentId;
+		this.studentGrade = studentGrade;
 	}
 
 	/**
@@ -77,29 +80,8 @@ public class AssignmentGradeChart extends BaseChart {
 					continue;
 				}
 
-				final double percentage;
-				if (GradingType.PERCENTAGE.equals(gradingType)) {
-					percentage = grade;
-				} else {
-					percentage = grade / assignment.getPoints() * 100;
-				}
-
-				// determine key for this grade
-				final int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
-
-				int start = total * range;
-				if (start == 100) {
-					start = start - range;
-				}
-
-				String key;
-				if (start < 50) {
-					key = buildRangeLabel(0, 50);
-				} else {
-					key = buildRangeLabel(start, start + range);
-				}
-
-				data.add(key);
+				final double percentage = this.getPercentage(grade, assignment, gradingType);
+				data.add(determineKeyForGrade(percentage, range));
 			}
 
 			data.setChartTitle(MessageHelper.getString("label.statistics.chart.title"));
@@ -107,7 +89,10 @@ public class AssignmentGradeChart extends BaseChart {
 			data.setYAxisLabel(MessageHelper.getString("label.statistics.chart.yaxis"));
 			data.setChartType("bar");
 			data.setChartId(this.getMarkupId());
-
+			if (this.studentGrade != null) {
+				data.setStudentGradeRange(determineKeyForGrade(
+						getPercentage(Double.valueOf(this.studentGrade), assignment, gradingType), range));
+			}
 			return data;
 
 		} finally {
@@ -137,6 +122,29 @@ public class AssignmentGradeChart extends BaseChart {
 	private boolean isExtraCredit(final Double grade, final Assignment assignment, final GradingType gradingType) {
 		return (GradingType.PERCENTAGE.equals(gradingType) && grade > 100)
 				|| (GradingType.POINTS.equals(gradingType) && grade > assignment.getPoints());
+	}
+
+	private String determineKeyForGrade(final double percentage, final int range) {
+		final int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
+
+		int start = total * range;
+		if (start == 100) {
+			start = start - range;
+		}
+
+		if (start < 50) {
+			return buildRangeLabel(0, 50);
+		} else {
+			return buildRangeLabel(start, start + range);
+		}
+	}
+
+	private double getPercentage(final Double grade, final Assignment assignment, final GradingType gradingType) {
+		if (GradingType.PERCENTAGE.equals(gradingType)) {
+			return grade;
+		} else {
+			return grade / assignment.getPoints() * 100;
+		}
 	}
 
 }
