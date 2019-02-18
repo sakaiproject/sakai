@@ -66,6 +66,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -1579,8 +1580,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  for (Group group: delGroups) {
 	      try {
 	        site.deleteGroup(group);
-	      } catch (IllegalStateException e) {
-	        log.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
+	      } catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 	      }
 	  }
 	  try {

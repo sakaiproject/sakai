@@ -95,6 +95,7 @@ import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -908,6 +909,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.debug("successful delete for assignment with id = {}", assignment.getId());
         } catch (AuthzPermissionException e) {
             log.warn("deleting realm for assignment reference = {}", reference, e);
+        } catch (AuthzRealmLockException arle) {
+            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
         }
     }
 
@@ -1161,6 +1164,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 log.warn("removing realm for : {} : {}", reference, e.getMessage());
             } catch (GroupNotDefinedException e) {
                 log.warn("cannot find group for submission : {} : {}", reference, e.getMessage());
+            } catch (AuthzRealmLockException arle) {
+                log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
             }
         }
     }

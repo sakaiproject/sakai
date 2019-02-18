@@ -154,4 +154,12 @@ public interface DbAuthzGroupSql
 	String getSelectRealmUsersInGroupsSql( String inClause);
 
     String getMaintainRolesSql();
+
+    String getSelectRealmLocksSql();
+
+    String getInsertRealmLocksSql();
+
+    String getDeleteRealmLocksForRealmWithReferenceSql();
+
+    String getDeleteRealmLocksForRealmSql();
 }

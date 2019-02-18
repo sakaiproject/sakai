@@ -26,6 +26,7 @@ import java.util.StringJoiner;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -373,8 +374,8 @@ public class SiteManageGroupHandler {
 				if (!found) {
 					try {
 						group.deleteMember(mId);
-					} catch (IllegalStateException e) {
-						log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
+					} catch (AuthzRealmLockException arle) {
+                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 						return null;
 					}
 				}
@@ -397,8 +398,8 @@ public class SiteManageGroupHandler {
                         group.insertMember(memberId, r != null ? r.getId()
                                               : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
                                               false);
-                    } catch (IllegalStateException e) {
-                        log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                    } catch (AuthzRealmLockException arle) {
+                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                         return null;
                     }
                 }
@@ -465,9 +466,9 @@ public class SiteManageGroupHandler {
                 if (g != null) {
                     try {
                         site.deleteGroup(g);
-                    } catch (IllegalStateException e) {
+                    } catch (AuthzRealmLockException arle) {
                         notDeletedGroupsTitles.add(g.getTitle());
-                        log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
+                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                     }
                 }
             }

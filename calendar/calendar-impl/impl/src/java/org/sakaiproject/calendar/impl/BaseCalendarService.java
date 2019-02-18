@@ -888,8 +888,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			log.warn("removeCalendar: removing realm for : " + calendar.getReference() + " : " + e);
 		}
-		catch (GroupNotDefinedException ignore)
+		catch (GroupNotDefinedException gnde)
 		{
+			log.debug(gnde.getMessage());
+		}
+		catch (AuthzRealmLockException arle)
+		{
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 
 	} // removeCalendar
@@ -2917,8 +2922,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			{
 				log.warn("removeEvent: removing realm for : " + edit.getReference() + " : " + e);
 			}
-			catch (GroupNotDefinedException ignore)
+			catch (GroupNotDefinedException gnde)
 			{
+				log.debug(gnde.getMessage());
+			}
+			catch (AuthzRealmLockException arle)
+			{
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 
 		} // removeEvent

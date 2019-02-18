@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.MultiGroupRecord;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.RunData;
@@ -47,11 +48,11 @@ class RangeAndGroupsDelegate
 	private static final String VALUE_ASSIGN_TO_INDIVIDUALS_FROM_GROUPS = "individualsFromGroups";
 	private static final String VALUE_ASSIGN_TO_GROUPS = "groups";
 
-	private final AssignmentService asnServ;
+	private final AssignmentService assignmentService;
 	private final ResourceLoader rb;
-	private final SiteService siteServ;
-	private final SecurityService secServ;
-	private final FormattedText fmtTxt;
+	private final SiteService siteService;
+	private final SecurityService securityService;
+	private final FormattedText formattedText;
 
 	void buildInstructorNewEditAssignmentContextGroupCheck(Context context, Assignment asn)
 	{
@@ -63,17 +64,17 @@ class RangeAndGroupsDelegate
 		List<MultiGroupRecord> dupes = defaultMultipleGroupCheck(asn);
 		if (!dupes.isEmpty())
 		{
-			context.put("multipleGroupUsers", fmtTxt.escapeHtml(formatDuplicateMemberships(dupes)));
+			context.put("multipleGroupUsers", formattedText.escapeHtml(formatDuplicateMemberships(dupes)));
 		}
 	}
 
 	void setAssignmentFormContext(SessionState state, Context context, String contextString, AssignmentAction asnAct)
 	{
 		String range = StringUtils.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_RANGE));
-		Collection<Group> groupsAllowAddAssignment = asnServ.getGroupsAllowAddAssignment(contextString);
+		Collection<Group> groupsAllowAddAssignment = assignmentService.getGroupsAllowAddAssignment(contextString);
 		if (range == null)
 		{
-			if (asnServ.allowAddSiteAssignment(contextString))
+			if (assignmentService.allowAddSiteAssignment(contextString))
 			{
 				range = Assignment.Access.SITE.toString();
 			}
@@ -145,7 +146,7 @@ class RangeAndGroupsDelegate
 		if (groupAssignment)
 		{
 			List<String> groupIds = Arrays.asList(data.getParameters().getStrings("selectedGroups"));
-			List<MultiGroupRecord> dupes = asnServ.checkAssignmentForUsersInMultipleGroups(siteId, groupsFromIds(siteId, groupIds));
+			List<MultiGroupRecord> dupes = assignmentService.checkAssignmentForUsersInMultipleGroups(siteId, groupsFromIds(siteId, groupIds));
 			alertDuplicateMemberships(dupes, state);
 		}
 
@@ -193,37 +194,38 @@ class RangeAndGroupsDelegate
 		return new RangeAndGroupSettings(isGroupSubmit, range, groups);
 	}
 
-	void postSaveAssignmentGroupLocking(SessionState state, boolean post, RangeAndGroupSettings settings, Collection<String> aOldGroups, String siteId, String asnId)
+	void postSaveAssignmentGroupLocking(SessionState state, boolean post, RangeAndGroupSettings settings, Collection<String> aOldGroups, String siteId, String assignmentReference)
 	{
 		List<String> lockedGroupsReferences = new ArrayList<>();
 		if (post && settings.isGroupSubmit && !settings.groups.isEmpty())
 		{
 			for (Group group : settings.groups)
 			{
-				String groupAssignmentReference = group.getReference() + "/assignment/" + asnId;
-
-				log.debug("Getting groups from reference: {}", groupAssignmentReference);
+				// Prior to SAK-41172 the string concatenation:
+				// 'group.getReference() + "/assignment/" + a.getId()'
+				// was used to create the reference for a lock
+				// this was simplified to the assignment reference
 				lockedGroupsReferences.add(group.getReference());
-				log.debug("Adding group: {}", group.getReference());
+				log.debug("Adding group to lock list: {}", group.getReference());
 
-				if (!aOldGroups.contains(group.getReference()) || !group.isLocked(groupAssignmentReference, Group.LockMode.ALL))
+				if (!aOldGroups.contains(group.getReference()) || group.getLockForReference(assignmentReference) == AuthzGroup.RealmLockMode.NONE)
 				{
 					log.debug("locking group: {}", group.getReference());
-					group.lockGroup(groupAssignmentReference, Group.LockMode.ALL);
+					group.setLockForReference(assignmentReference, AuthzGroup.RealmLockMode.ALL);
 					log.debug("locked group: {}", group.getReference());
 
 					try
 					{
-						siteServ.save(group.getContainingSite());
+						siteService.save(group.getContainingSite());
 					}
 					catch (IdUnusedException e)
 					{
-						log.warn(".post_save_assignment: Cannot find site with id {}", siteId);
+						log.warn("Cannot find site with id {}", siteId);
 						VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("options_cannotFindSite", siteId));
 					}
 					catch (PermissionException e)
 					{
-						log.warn(".post_save_assignment: Do not have permission to edit site with id {}", siteId);
+						log.warn("Do not have permission to edit site with id {}", siteId);
 						VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("options_cannotEditSite", siteId));
 					}
 				}
@@ -234,7 +236,7 @@ class RangeAndGroupsDelegate
 		{
 			try
 			{
-				Site site = siteServ.getSite(siteId);
+				Site site = siteService.getSite(siteId);
 
 				for (String reference : aOldGroups)
 				{
@@ -244,9 +246,8 @@ class RangeAndGroupsDelegate
 						Group group = site.getGroup(reference);
 						if (group != null)
 						{
-							String groupReferenceAssignment = group.getReference() + "/assignment/" + asnId;
-							group.unlockGroup(groupReferenceAssignment, Group.LockMode.ALL);
-							siteServ.save(group.getContainingSite());
+							group.setLockForReference(assignmentReference, AuthzGroup.RealmLockMode.NONE);
+							siteService.save(group.getContainingSite());
 						}
 					}
 				}
@@ -289,7 +290,7 @@ class RangeAndGroupsDelegate
 	 */
 	List<MultiGroupRecord> defaultMultipleGroupCheck(Assignment asn)
 	{
-		return asnServ.checkAssignmentForUsersInMultipleGroups(asn.getContext(), groupsFromRefs(asn.getContext(), asn.getGroups()));
+		return assignmentService.checkAssignmentForUsersInMultipleGroups(asn.getContext(), groupsFromRefs(asn.getContext(), asn.getGroups()));
 	}
 
 	/**
@@ -318,13 +319,13 @@ class RangeAndGroupsDelegate
 	 */
 	Collection<MultiGroupRecord> checkSubmissionForUsersInMultipleGroups(Assignment asn, Group submissionGroup, SessionState state, boolean showAlert)
 	{
-		if (submissionGroup == null || secServ.isSuperUser()) // don't check this for admin users / short circuit if no group given
+		if (submissionGroup == null || securityService.isSuperUser()) // don't check this for admin users / short circuit if no group given
 		{
 			return Collections.emptyList();
 		}
 
 		String siteId = asn.getContext();
-		List<MultiGroupRecord> dupes = asnServ.checkSubmissionForUsersInMultipleGroups(siteId, submissionGroup, groupsFromRefs(siteId, asn.getGroups()));
+		List<MultiGroupRecord> dupes = assignmentService.checkSubmissionForUsersInMultipleGroups(siteId, submissionGroup, groupsFromRefs(siteId, asn.getGroups()));
 		if (showAlert)
 		{
 			alertDuplicateNames(dupes, state);
@@ -367,7 +368,7 @@ class RangeAndGroupsDelegate
 
 	void buildInstructorGradeAssignmentContext(SessionState state, Context context, Assignment asn)
 	{
-		Collection<String> dupes = checkAssignmentForUsersInMultipleGroups(asn, state).stream().map(mgr -> fmtTxt.escapeHtml(mgr.user.getDisplayName())).collect(Collectors.toList());
+		Collection<String> dupes = checkAssignmentForUsersInMultipleGroups(asn, state).stream().map(mgr -> formattedText.escapeHtml(mgr.user.getDisplayName())).collect(Collectors.toList());
 		if (!dupes.isEmpty())
 		{
 			context.put("usersinmultiplegroups", dupes);
@@ -395,7 +396,7 @@ class RangeAndGroupsDelegate
 		}
 
 		// user is not in any assignment groups, if they are an instructor this is probably the Student View feature so let them through
-		return asnServ.allowAddAssignment(site.getId()) || asnServ.allowUpdateAssignmentInContext(site.getId());
+		return assignmentService.allowAddAssignment(site.getId()) || assignmentService.allowUpdateAssignmentInContext(site.getId());
 	}
 
 	void buildInstructorGradeSubmissionContextGroupCheck(Optional<Assignment> asnOpt, String groupId, SessionState state)
@@ -419,7 +420,7 @@ class RangeAndGroupsDelegate
 	{
 		try
 		{
-			return siteServ.getSite(asn.getContext());
+			return siteService.getSite(asn.getContext());
 		}
 		catch (IdUnusedException e)
 		{
@@ -433,7 +434,7 @@ class RangeAndGroupsDelegate
 		if (!msg.isEmpty())
 		{
 			String baseMessage = rb.getString("group.user.multiple.warning");
-			VelocityPortletPaneledAction.addAlert(state, fmtTxt.escapeHtml(baseMessage + " " + msg));
+			VelocityPortletPaneledAction.addAlert(state, formattedText.escapeHtml(baseMessage + " " + msg));
 		}
 	}
 
@@ -478,7 +479,7 @@ class RangeAndGroupsDelegate
 	{
 		try
 		{
-			return siteServ.getSite(siteId).getGroups().stream().filter(g -> groups.contains(accessor.apply(g))).collect(Collectors.toList());
+			return siteService.getSite(siteId).getGroups().stream().filter(g -> groups.contains(accessor.apply(g))).collect(Collectors.toList());
 		}
 		catch (IdUnusedException e)
 		{
@@ -497,7 +498,7 @@ class RangeAndGroupsDelegate
 	 */
 	private List<Group> getGroupsWithUser(String userId, Assignment asn, Site site)
 	{
-		boolean isAdmin = secServ.isSuperUser();
+		boolean isAdmin = securityService.isSuperUser();
 		return asn.getGroups().stream().map(gref -> site.getGroup(gref)).filter(Objects::nonNull)
 				.filter(g -> g.getMember(userId) != null || isAdmin) // allow admin to submit on behalf of groups
 				.collect(Collectors.toList());

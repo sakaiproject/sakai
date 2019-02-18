@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.time.api.Time;
@@ -408,7 +409,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * @param group
 	 *        The group to delete.
 	 */
-	void deleteGroup(Group group) throws IllegalStateException;
+	void deleteGroup(Group group) throws AuthzRealmLockException;
 
 	/**
 	 * Check if the site has a custom page order

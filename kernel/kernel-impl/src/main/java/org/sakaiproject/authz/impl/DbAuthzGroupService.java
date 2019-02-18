@@ -29,11 +29,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
+import org.sakaiproject.authz.api.GroupFullException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.MemberWithRoleId;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SimpleRole;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -715,7 +725,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	/**
 	 * Covers for the BaseXmlFileStorage, providing AuthzGroup and RealmEdit parameters
 	 */
-	protected class DbStorage extends BaseDbFlatStorage implements Storage, SqlReader
+	protected class DbStorage extends BaseDbFlatStorage implements BaseAuthzGroupService.Storage, SqlReader
 	{
 
 		private static final String REALM_USER_GRANTS_CACHE = "REALM_USER_GRANTS_CACHE";
@@ -967,6 +977,22 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				payLoad.put(REALM_USER_GRANTS_CACHE, membersWithRoleIds);
 				m_realmRoleGRCache.put(realm.getId(), payLoad);
 			}
+
+			// read the realm locks
+			String realmLocksSql = dbAuthzGroupSql.getSelectRealmLocksSql();
+			m_sql.dbRead(conn, realmLocksSql, new String[] {realm.getId()}, (SqlReader) result -> {
+				try {
+					Integer key = result.getInt(1);
+					String reference = result.getString(2);
+					Integer lockType = result.getInt(3);
+
+					RealmLock realmLock = new RealmLock(key, reference, RealmLockMode.values()[lockType]);
+					realm.m_realmLocks.add(realmLock);
+				} catch (SQLException se) {
+					log.warn("Could not read locks for realm {}, Exception: {}", realm.getId(), se.getMessage());
+				}
+				return null;
+			});
 		}
 
 		/**
@@ -1482,6 +1508,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// update SAKAI_REALM_ROLE_DESC
 			save_REALM_ROLE_DESC(edit);
 
+			// update SAKAI_REALM_LOCKS
+			save_REALM_LOCKS(edit);
+
 			// update the main realm table and properties
 			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), edit.getProperties(), ((BaseAuthzGroup) edit).getKey());
 		}
@@ -1804,6 +1833,62 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 		}
 
+		protected void save_REALM_LOCKS(AuthzGroup azg)
+		{
+			// add what we have in the azg, unless we see it in the db
+			final Set<RealmLock> toAdd = new HashSet<>();
+			((BaseAuthzGroup)azg).m_realmLocks.forEach(l -> toAdd.add(new RealmLock(l)));
+
+			// delete anything we see in the db we don't have in the azg
+			final Set<RealmLock> toDelete = new HashSet<>();
+
+			// read what we have there now
+			final String selectSql = dbAuthzGroupSql.getSelectRealmLocksSql();
+			final String azgId = caseId(azg.getId());
+			Object[] selectFields = new Object[1];
+			selectFields[0] = azgId;
+			m_sql.dbRead(selectSql, selectFields, result -> {
+				try {
+					Integer key = result.getInt(1);
+					String reference = result.getString(2);
+					Integer lockType = result.getInt(3);
+
+					RealmLock realmLock = new RealmLock(key, reference, RealmLockMode.values()[lockType]);
+					// if it exists in the database
+					if (toAdd.contains(realmLock)) {
+						// remove it from toAdd
+						toAdd.remove(realmLock);
+					} else {
+						// add it to toDelete
+						toDelete.add(realmLock);
+					}
+				} catch (SQLException se) {
+					log.warn("Could not read locks for realm {}, Exception: {}", azgId, se.getMessage());
+				}
+				return null;
+			});
+
+
+			// delete what we need to
+			final String deleteSql = dbAuthzGroupSql.getDeleteRealmLocksForRealmWithReferenceSql();
+			toDelete.forEach(l -> {
+				Object[] deleteFields = new Object[2];
+				deleteFields[0] = azgId;
+				deleteFields[1] = l.getReference();
+				m_sql.dbWrite(deleteSql, deleteFields);
+			});
+
+			// add what we need to
+			final String insertSql = dbAuthzGroupSql.getInsertRealmLocksSql();
+			toAdd.forEach(l -> {
+				Object[] insertFields = new Object[3];
+				insertFields[0] = azgId;
+				insertFields[1] = l.getReference();
+				insertFields[2] = l.getLockMode().ordinal();
+				m_sql.dbWrite(insertSql, insertFields);
+			});
+		}
+
 		public void cancel(AuthzGroup edit)
 		{
 			super.cancelResource(edit);
@@ -1843,6 +1928,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			m_sql.dbWrite(statement, fields);
 
 			statement = dbAuthzGroupSql.getDeleteRealmRoleDescription2Sql();
+			m_sql.dbWrite(statement, fields);
+
+			statement = dbAuthzGroupSql.getDeleteRealmLocksForRealmSql();
 			m_sql.dbWrite(statement, fields);
 
 			// delete the realm and properties
@@ -3043,6 +3131,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
             return maintainRoles;
         }
 
+        public RealmLock newRealmLock(Integer key, String reference, RealmLockMode lockMode) {
+            return new RealmLock(key, reference, lockMode);
+        }
+
 		private class UserAndGroups
 		{
 			String user;
@@ -3269,6 +3361,21 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			}
 		}
 
+		@Data
+		@AllArgsConstructor
+		@EqualsAndHashCode
+		class RealmLock {
+
+			private Integer key;
+			private String reference;
+			@EqualsAndHashCode.Exclude private RealmLockMode lockMode;
+
+			public RealmLock(RealmLock realmLock) {
+				this.key = realmLock.getKey();
+				this.reference = realmLock.getReference();
+				this.lockMode = realmLock.getLockMode();
+			}
+		}
 	} // DbStorage
 	
 	private Set<Integer> getRealmRoleKeys(Set<String> roles) {

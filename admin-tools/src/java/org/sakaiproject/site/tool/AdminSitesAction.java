@@ -38,6 +38,7 @@ import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
@@ -1865,8 +1866,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			try {
 				site.deleteGroup(group);
-			} catch (IllegalStateException e) {
-				log.error(".doCancel_group: Group with id {} cannot be removed because is locked", group.getId());
+			} catch (AuthzRealmLockException arle) {
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 
@@ -1893,8 +1894,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		// remove the page (no confirm)
 		try {
 			site.deleteGroup(group);
-		} catch (IllegalStateException e) {
-			log.error(".doRemove_group: Group with id {} cannot be removed because is locked", group.getId());
+		} catch (AuthzRealmLockException arle) {
+			log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 
 		// done with the page

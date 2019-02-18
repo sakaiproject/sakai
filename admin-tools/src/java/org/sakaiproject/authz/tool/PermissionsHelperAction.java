@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
 import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -625,6 +626,10 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			catch (AuthzPermissionException e)
 			{
 				addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{edit.getReference()}));
+			}
+			catch (AuthzRealmLockException arle)
+			{
+				log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 			}
 		}
 

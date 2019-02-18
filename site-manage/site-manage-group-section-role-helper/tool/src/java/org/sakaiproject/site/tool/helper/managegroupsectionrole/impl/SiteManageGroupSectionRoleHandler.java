@@ -45,7 +45,9 @@ import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
@@ -700,8 +702,10 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
-			log.debug("Check if the group is locked : {}", group.isLocked(Group.LockMode.MODIFY));
-			if(group.isLocked(Group.LockMode.MODIFY)) {
+            RealmLockMode lockMode = group.getRealmLock();
+		    boolean modifyLockFound = RealmLockMode.ALL.equals(lockMode) || RealmLockMode.MODIFY.equals(lockMode);
+			log.debug("Check if the group is locked : {}", modifyLockFound);
+			if(modifyLockFound) {
 				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 				return null;
 			}
@@ -740,8 +744,8 @@ public class SiteManageGroupSectionRoleHandler {
 					try {
 						group.deleteMember(mId);
 						removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
-					} catch (IllegalStateException e) {
-						log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
+					} catch (AuthzRealmLockException arle) {
+                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 						return null;
 					}
 				}
@@ -771,8 +775,8 @@ public class SiteManageGroupSectionRoleHandler {
                         try {
                             group.insertMember(roleUserId, memberId, member.isActive(), false);
                             addedGroupMember.add("uid=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
-                        } catch (IllegalStateException e) {
-                            log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", roleUserId, group.getId());
+                        } catch (AuthzRealmLockException arle) {
+                            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                             return null;
                         }
                     }
@@ -922,9 +926,9 @@ public class SiteManageGroupSectionRoleHandler {
                 if (g != null) {
                     try {
                         site.deleteGroup(g);
-                    } catch (IllegalStateException e) {
+                    } catch (AuthzRealmLockException arle) {
                         notDeletedGroupsTitles.add(g.getTitle());
-                        log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
+                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                     }
                 }
             }
@@ -1143,8 +1147,8 @@ public class SiteManageGroupSectionRoleHandler {
                                     Member member = site.getMember(userId);
                                     try {
                                         group.insertMember(userId, role, member.isActive(), false);
-                                    } catch (IllegalStateException e) {
-                                        log.error(".processAutoCreateGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                                    } catch (AuthzRealmLockException arle) {
+                                        log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                                     }
                                 }
                             }
@@ -1258,8 +1262,8 @@ public class SiteManageGroupSectionRoleHandler {
                 // Add the user to the group
                 try {
                     group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
-                } catch (IllegalStateException e) {
-                    log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+                } catch (AuthzRealmLockException arle) {
+                    log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
                 }
                 userIDs.remove( index );
                 userCount++;
@@ -1284,8 +1288,8 @@ public class SiteManageGroupSectionRoleHandler {
             Member member = site.getMember( userID );
             try {
                 group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
-            } catch (IllegalStateException e) {
-                log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+            } catch (AuthzRealmLockException arle) {
+                log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
             }
             userIDs.remove( userIndex );
         }
@@ -1792,8 +1796,8 @@ public class SiteManageGroupSectionRoleHandler {
 		Role memberRole = m != null ? m.getRole() : null;
 		try {
 			g.insertMember(id, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
-		} catch (IllegalStateException e) {
-			log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
+		} catch (AuthzRealmLockException arle) {
+            log.warn("GROUP LOCK REGRESSION: {}", arle.getMessage(), arle);
 		}
 		
 	}
