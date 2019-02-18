@@ -812,7 +812,10 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String SAK_PROP_RM_STLTH_ON_DUP = "site.duplicate.removeStealthTools";
 	private static final boolean SAK_PROP_RM_STLTH_ON_DUP_DEFAULT = false;
-	
+
+	private static final String SAK_PROP_ALLOW_DEL_LAST_ROSTER = "site.setup.allowDelLastRoster";
+	private static final boolean SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT = false;
+
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
 	// state variable for lti tools
@@ -10430,6 +10433,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							hasNonProvidedMainroleUser = true;
 					}
 				}
+
+				String currentUserId = SessionManager.getCurrentSessionUserId();
+				boolean allowDelLastRoster = ServerConfigurationService.getBoolean(SAK_PROP_ALLOW_DEL_LAST_ROSTER, SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT);
+				if (allowDelLastRoster && !hasNonProvidedMainroleUser && realmEdit1.hasRole(currentUserId, maintainRoleString)) {
+					realmEdit1.addMember(currentUserId, maintainRoleString, true, false);
+					hasNonProvidedMainroleUser = true;
+				}
+
 				if (!hasNonProvidedMainroleUser)
 				{
 					// if after the removal, there is no provider id, and there is no maintain role user anymore, show alert message and don't save the update
