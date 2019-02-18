@@ -467,18 +467,7 @@ function printView(url) {
 						</th>
 					#end	
 					#if ($allowReviewService && $assignment.ContentReview)
-						<th id="reviewService">
-							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
-								$reviewServiceName
-								#if ($sortedBy.equals($!sort_submitReview)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_review" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sort_descending_review" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
-							</a>
-						</td>
+						<th id="reviewService">$reviewServiceName</th>
 					#end
 					<th id="gradereleased">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;"  title="$tlang.getString("listsub.sorbyrel")">

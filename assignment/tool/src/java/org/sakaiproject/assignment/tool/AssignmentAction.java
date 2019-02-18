@@ -323,10 +323,6 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String SORTED_GRADE_SUBMISSION_BY_RELEASED = "sorted_grade_submission_by_released";
     /**
-     * state sort submissuib by content review score
-     **/
-    private static final String SORTED_GRADE_SUBMISSION_CONTENTREVIEW = "sorted_grade_submission_by_contentreview";
-    /**
      * state sort submission*
      */
     private static final String SORTED_SUBMISSION_BY = "Assignment.submission_sorted_by";
@@ -4020,7 +4016,6 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("sort_submitStatus", SORTED_GRADE_SUBMISSION_BY_STATUS);
         context.put("sort_submitGrade", SORTED_GRADE_SUBMISSION_BY_GRADE);
         context.put("sort_submitReleased", SORTED_GRADE_SUBMISSION_BY_RELEASED);
-        context.put("sort_submitReview", SORTED_GRADE_SUBMISSION_CONTENTREVIEW);
         context.put("userDirectoryService", userDirectoryService);
 
         String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
@@ -11960,12 +11955,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (!criteria.equals(state.getAttribute(SORTED_GRADE_SUBMISSION_BY))) {
             state.setAttribute(SORTED_GRADE_SUBMISSION_BY, criteria);
-            //for content review default is desc
-            if (criteria.equals(SORTED_GRADE_SUBMISSION_CONTENTREVIEW))
-                asc = Boolean.FALSE.toString();
-            else
-                asc = Boolean.TRUE.toString();
-
             state.setAttribute(SORTED_GRADE_SUBMISSION_ASC, asc);
         } else {
             // current sorting sequence
@@ -15176,31 +15165,6 @@ public class AssignmentAction extends PagedResourceActionII {
                     factor2 = "";
                 }
                 result = compareString(factor1, factor2);
-            }
-            /** ***************** for sorting submissions in instructor grade assignment view ************* */
-            else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_CONTENTREVIEW)) {
-                SubmitterSubmission u1 = (SubmitterSubmission) o1;
-                SubmitterSubmission u2 = (SubmitterSubmission) o2;
-                if (u1 == null || u2 == null) {
-                    result = 1;
-                } else {
-                    AssignmentSubmission s1 = u1.getSubmission();
-                    AssignmentSubmission s2 = u2.getSubmission();
-
-
-                    if (s1 == null) {
-                        result = -1;
-                    } else if (s2 == null) {
-                        result = 1;
-                    } else {
-                        String ts1 = s1.getProperties().get(AssignmentConstants.REVIEW_SCORE);
-                        String ts2 = s2.getProperties().get(AssignmentConstants.REVIEW_SCORE);
-                        int score1 = ts1 != null ? Integer.parseInt(ts1) : 0;
-                        int score2 = ts2 != null ? Integer.parseInt(ts2) : 0;
-                        result = score1 > score2 ? 1 : -1;
-                    }
-                }
-
             } else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_LASTNAME)) {
                 // sorted by the submitters sort name
                 SubmitterSubmission u1 = (SubmitterSubmission) o1;
