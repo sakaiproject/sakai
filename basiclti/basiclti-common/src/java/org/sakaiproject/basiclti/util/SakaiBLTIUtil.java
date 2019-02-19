@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Enumeration;
+import java.util.Objects;
 
 import java.net.URL;
 import java.net.URLEncoder;
@@ -933,8 +934,8 @@ public class SakaiBLTIUtil {
 
 		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
 		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
-		boolean isLTI13 = toolLTI13.equals(1L) && !contentLTI13.equals(1L);
-		if (secret == null || key == null && toolLTI13.equals(1L)) {
+		boolean isLTI13 = Objects.equals(toolLTI13, 1L) && !Objects.equals(contentLTI13, 1L);
+		if (secret == null || key == null && Objects.equals(toolLTI13, 1L)) {
 			isLTI13 = true;  // No way to launch LTI 1.1
 		}
 
@@ -1464,8 +1465,8 @@ public class SakaiBLTIUtil {
 
 		// LTI 1.3 is a variation on  LTI 1.1
 		Long toolLTI13 = getLongNull(tool.get(LTIService.LTI13));
-		boolean isLTI13 = toolLTI13.equals(1L);
-		if (secret == null || consumerkey == null && toolLTI13.equals(1L)) {
+		boolean isLTI13 = Objects.equals(toolLTI13, 1L);
+		if (secret == null || consumerkey == null && Objects.equals(toolLTI13, 1L)) {
 			isLTI13 = true;  // No way to launch LTI 1.1
 		}
 		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
