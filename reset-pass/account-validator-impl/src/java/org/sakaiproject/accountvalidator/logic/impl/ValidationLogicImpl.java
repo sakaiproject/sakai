@@ -89,6 +89,17 @@ public class ValidationLogicImpl implements ValidationLogic {
 
 	private static ResourceLoader rl = new ResourceLoader();
 
+	@Setter private IdManager idManager;
+	@Setter private ValidationDao dao;
+	@Setter private EmailTemplateService emailTemplateService;	
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private AuthzGroupService authzGroupService;
+	@Setter private SiteService siteService;
+	@Setter private DeveloperHelperService developerHelperService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SecurityService securityService;
+	@Setter private GroupProvider groupProvider;
+	
 	public void init(){
 		log.info("init()");
 
@@ -108,17 +119,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 			groupProvider = (GroupProvider) ComponentManager.get(GroupProvider.class.getName());
 		}
 	}
-
-	@Setter private IdManager idManager;
-	@Setter private ValidationDao dao;
-	@Setter private EmailTemplateService emailTemplateService;	
-	@Setter private UserDirectoryService userDirectoryService;
-	@Setter private AuthzGroupService authzGroupService;
-	@Setter private SiteService siteService;
-	@Setter private DeveloperHelperService developerHelperService;
-	@Setter private ServerConfigurationService serverConfigurationService;
-	@Setter private SecurityService securityService;
-	@Setter private GroupProvider groupProvider;
 	
 	public ValidationAccount getVaLidationAcountById(Long id) {
 		Search search = new Search();
