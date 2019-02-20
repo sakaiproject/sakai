@@ -8903,11 +8903,11 @@ public class AssignmentAction extends PagedResourceActionII {
             a.setAllowAttachments(false);
         }
 
-        if (attachments != null && !attachments.isEmpty()) {
-            Set<String> aAttachments = a.getAttachments();
-            // clear attachments
-            aAttachments.clear();
+        Set<String> aAttachments = a.getAttachments();
+        // clear attachments
+        aAttachments.clear();
 
+        if (attachments != null && !attachments.isEmpty()) {
             // add each attachment
             for (Reference reference : entityManager.newReferenceList(attachments)) {
                 aAttachments.add(reference.getReference());
