@@ -329,8 +329,12 @@ public class GradebookNgBusinessService {
 		final List<User> users = getUsers(userUuids);
 		final Site site = getCurrentSite().orElse(null);
 
+		Map<String, List<String>> userSections
+			= (site != null) ? getUserSections(site.getId()) : Collections.emptyMap();
+
 		for (final User u : users) {
-			gbUsers.add(new GbUser(u, getStudentNumber(u, site)));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
+							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
 		}
 
 		return gbUsers;
@@ -1027,17 +1031,10 @@ public class GradebookNgBusinessService {
 		return items;
 	}
 
-	/**
-	 * Gets a {@link List} of {@link GbUser} objects for the specified userUuids, sorting and filtering in accordance with any UI settings.
-	 * @param userUuids
-	 * @param settings
-	 * @param site
-	 * @return
-	 */
-	public List<GbUser> getGbUsersForUiSettings(List<String> userUuids, GradebookUiSettings settings, Site site) {
+	private Map<String, List<String>> getUserSections(String siteId) {
 
 		Map<String, List<String>> userSections = new HashMap<>();
-		for (CourseSection cs : sectionManager.getSections(site.getId())) {
+		for (CourseSection cs : sectionManager.getSections(siteId)) {
 			for (EnrollmentRecord er : sectionManager.getSectionEnrollments(cs.getUuid())) {
 				String userId = er.getUser().getUserUid();
 				List<String> sections = userSections.get(userId);
@@ -1048,6 +1045,19 @@ public class GradebookNgBusinessService {
 				}
 			}
 		}
+		return userSections;
+	}
+
+	/**
+	 * Gets a {@link List} of {@link GbUser} objects for the specified userUuids, sorting and filtering in accordance with any UI settings.
+	 * @param userUuids
+	 * @param settings
+	 * @param site
+	 * @return
+	 */
+	public List<GbUser> getGbUsersForUiSettings(List<String> userUuids, GradebookUiSettings settings, Site site) {
+
+		Map<String, List<String>> userSections = getUserSections(site.getId());
 
 		List<User> users = getUsers(userUuids);
 		List<GbUser> gbUsers = new ArrayList<>(users.size());
@@ -1070,7 +1080,8 @@ public class GradebookNgBusinessService {
 		}
 
 		for (User u : users) {
-			gbUsers.add(new GbUser(u, getStudentNumber(u, site)).setSections(userSections.get(u.getId())));
+			gbUsers.add(new GbUser(u, getStudentNumber(u, site))
+							.setSections(userSections.getOrDefault(u.getId(), Collections.emptyList())));
 		}
 
 		return gbUsers;

@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.user.api.User;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,6 +69,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.firstName = u.getFirstName();
 		this.lastName = u.getLastName();
 		this.studentNumber = studentNumber;
+		this.sections = Collections.emptyList();
 	}
 
 	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber) {
@@ -77,6 +79,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.studentNumber = studentNumber;
+		this.sections = Collections.emptyList();
 	}
 
 	public static GbUser forDisplayOnly(final String displayID, final String displayName) {
