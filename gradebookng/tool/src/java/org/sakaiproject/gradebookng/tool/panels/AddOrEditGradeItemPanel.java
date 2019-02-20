@@ -19,6 +19,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -173,9 +174,18 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 	}
 
 	private void setISODates() {
-		final String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
-		if (DateFormatterUtil.isValidISODate(dueDateString)) {
+		final String dueDateString = StringUtils.trimToNull(
+				getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString(""));
+		//Allow for clearing the due date
+
+		if (dueDateString == null) {
+			this.dueDate = null;
+		}
+		else if (DateFormatterUtil.isValidISODate(dueDateString)) {
 			this.dueDate = DateFormatterUtil.parseISODate(dueDateString);
+		}
+		else {
+			error(new ResourceModel("error.addgradeitem.duedate").getObject());
 		}
 	}
 
@@ -183,9 +193,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		final Assignment assignment = (Assignment) form.getModelObject();
 
 		setISODates();
-		if (AddOrEditGradeItemPanel.this.dueDate != null) {
-			assignment.setDueDate(AddOrEditGradeItemPanel.this.dueDate);
-		}
+		assignment.setDueDate(AddOrEditGradeItemPanel.this.dueDate);
 
 		boolean validated = true;
 
