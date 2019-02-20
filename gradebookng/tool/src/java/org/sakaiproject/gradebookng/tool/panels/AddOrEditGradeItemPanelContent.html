@@ -64,6 +64,8 @@
                             $('.gb-datepicker').each(function() {
                                 var $datepicker = $(this);
 
+				// This method is hardcoded to duedate_iso8601 so .each will only work with one date picker. 
+				// Would need to adjust this or create a wicket component to support multiple dates.
                                 localDatePicker({
                                     input: '#' + $datepicker.attr('id'),
                                     useTime: 0,
@@ -82,6 +84,8 @@
                                 // add clear action if present
                                 $datepicker.siblings().find(".clear-datepicker-btn").click(function() {
                                     $datepicker.val("");
+				    // Clear the hidden date too, possibly a better way to do this
+	    			    $datepicker.siblings("#duedate_iso8601").val("")
                                 });
                             });
                         };
