@@ -1233,7 +1233,7 @@
 									## show the gradebook assignment list
 									if (document.getElementById('gradebookList'))
 										$('#gradebookList').fadeOut('slow');
-									if($!value_totalCategories > 1)
+									if ($!value_totalCategories > 0)
 										$('#categoryList').fadeIn('slow');
 								}
 								else
@@ -1333,7 +1333,7 @@
 					</select>
 				</div>
 			#end
-			#if (!$!categoryTable.isEmpty())
+			#if ($!value_totalCategories > 0)
 				## show the "Category list" choices or not
 				<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
 					<label for="category">
