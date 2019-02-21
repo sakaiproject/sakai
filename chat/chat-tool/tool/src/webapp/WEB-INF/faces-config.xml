@@ -29,6 +29,12 @@
             <value>#{Components["org.sakaiproject.chat2.model.ChatManager"]}</value>
         </managed-property>
 
+        <managed-property>
+           <description>Service Dependency: serverConfigurationService</description>
+           <property-name>serverConfigurationService</property-name>
+           <value>#{Components["org.sakaiproject.component.api.ServerConfigurationService"]}</value>
+        </managed-property>
+
       	<managed-property>
       	   <description>Service Dependency: toolManager</description>
            <property-name>toolManager</property-name>
