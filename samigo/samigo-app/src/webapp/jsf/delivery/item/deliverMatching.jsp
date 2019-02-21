@@ -30,7 +30,7 @@ should be included in file importing DeliveryMessages
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
   <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.answers}" var="answer">
-    <h:outputText value="#{answer}" escape="false" />
+    <h:outputText value="#{answer}" escape="false" styleClass="mcAnswerText" />
   </t:dataList>
 
   <h:dataTable value="#{question.matchingArray}" var="matching">
@@ -57,7 +57,7 @@ should be included in file importing DeliveryMessages
      </t:selectOneMenu>
    </h:column>
    <h:column>
-     <h:outputText value="#{matching.text}" escape="false"/>
+     <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText" />
      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel && 
 	   matching.feedback ne '' && matching.feedback != 'null' && matching.feedback != null}" >
