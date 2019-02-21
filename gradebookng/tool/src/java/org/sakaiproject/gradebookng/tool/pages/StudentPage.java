@@ -74,12 +74,9 @@ public class StudentPage extends BasePage {
 				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.widgets.min.js?version=%s", version)));
 
 		// GradebookNG Grade specific styles and behaviour
-		response.render(
-				CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
-		response.render(
-				CssHeaderItem.forUrl(
-						String.format("/gradebookng-tool/styles/gradebook-print.css?version=%s", version),
-						"print"));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-gbgrade-table.css?version=%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-print.css?version=%s", version), "print"));
 		response.render(
 				JavaScriptHeaderItem.forUrl(
 						String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
