@@ -44,6 +44,7 @@ var chatscript = {
 		var textarea = $("#topForm\\:controlPanel\\:message");
 		var submitButton = $("#topForm\\:controlPanel\\:submit");
 		var resetButton = $("#topForm\\:controlPanel\\:reset");
+
 		submitButton.bind('click', function() {
 			var messageBody = textarea.val();
 			submitButton.prop("disabled", true);
@@ -116,9 +117,25 @@ var chatscript = {
       this.updateChatData();
     }
   },
+	onAjaxError: function (xhr) {
+
+		var textarea = $("#topForm\\:controlPanel\\:message");
+		var submitButton = $("#topForm\\:controlPanel\\:submit");
+		if (xhr.status === 404) {
+			$("#missingChannel").slideDown('fast');
+			textarea.val("").prop("disabled", true);
+			submitButton.prop("disabled", true);
+			$("#topForm\\:controlPanel\\:reset").prop("disabled", true);
+		} else {
+			$("#errorSubmit").slideDown('fast');
+			submitButton.prop("disabled", false);
+		}
+		textarea.focus();
+	},
 	sendMessage : function(params, textarea, submitButton) {
 		var me = this;
 		var errorSubmit = $("#errorSubmit");
+		var missingChannel = $("#missingChannel");
 		$.ajax({
 			url: me.url_submit + 'new',
 			data: params,
@@ -126,17 +143,15 @@ var chatscript = {
 			beforeSend: function() {
 				errorSubmit.slideUp('fast');
 			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				errorSubmit.slideDown('fast');
-				textarea.focus();
-				submitButton.prop("disabled", false);
+			error: function(xhr, textStatus, errorThrown) {
+				me.onAjaxError(xhr);
 			},
 			success: function(data) {
 				me.scrollChat();
 				me.updateChatData();
 				textarea.val("").focus();
 				submitButton.prop("disabled", false);
-			}
+			},
 		});
 	},
 	deleteMessage : function(messageId) {
@@ -167,6 +182,7 @@ var chatscript = {
 	},
 	doUpdateChatData : function() {
 		var me = this;
+		var missingChannel = $("#missingChannel");
 		var url = me.url_submit + portal.user.id + "/chatData.json";
 		var params = {
 			"siteId": portal.siteId,
@@ -177,10 +193,13 @@ var chatscript = {
 			data: params,
 			type: "GET",
 			cache: false,
-			success: function(data) {
+			success: function (data) {
 				me.addMessages(data.data.messages);
 				me.updatePresentUsers(data.data.presentUsers);
 				me.deleteMessages(data.data.deletedMessages);
+			},
+			error: function (xhr, textStatus, errorThrown) {
+				me.onAjaxError(xhr);
 			}
 		});
 	},
