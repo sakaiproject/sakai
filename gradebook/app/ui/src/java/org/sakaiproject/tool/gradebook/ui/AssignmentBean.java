@@ -113,7 +113,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		// The first choice is always "Unassigned"
 		this.categoriesSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
 		final List gbCategories = getGradebookManager().getCategories(getGradebookId());
-		if (gbCategories != null && gbCategories.isEmpty()) {
+		if (gbCategories != null && !gbCategories.isEmpty()) {
 			final Iterator catIter = gbCategories.iterator();
 			while (catIter.hasNext()) {
 				final Category cat = (Category) catIter.next();
