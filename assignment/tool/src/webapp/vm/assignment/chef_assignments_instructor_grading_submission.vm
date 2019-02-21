@@ -656,10 +656,10 @@
                                         <label>$!submitterName</label>
                                         <div class="assignment-checkbox-inline">
                                             <span>$tlang.getString("gen.grade.override")</span>
-                                            <label for="gradeChecked">
+                                            <label for="$group_name_grade">
                                                 <input name="$group_name_grade" type="checkbox" value="Checked"
                                                    #if ($!group_value_grade.equals("Checked"))checked="checked"#end
-                                                   id="gradeChecked"/>
+                                                   id="$group_name_grade"/>
                                                 $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
                                             </label>
                                         </div>
