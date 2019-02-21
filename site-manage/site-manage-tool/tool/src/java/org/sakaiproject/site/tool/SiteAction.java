@@ -1536,8 +1536,10 @@ public class SiteAction extends PagedResourceActionII {
 			// If we're in the restore view
 			context.put("showRestore", SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED)));
 
-			if (SecurityService.isSuperUser()) {
+			boolean isSuperUser = SecurityService.isSuperUser();
+			if (isSuperUser) {
 				context.put("superUser", Boolean.TRUE);
+				context.put("canDelSoftDel", Boolean.TRUE);
 			} else {
 				context.put("superUser", Boolean.FALSE);
 			}
@@ -1652,9 +1654,20 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("portalUrl", portalUrl);
 
 			List<Site> allSites = prepPage(state);
-						
 			state.setAttribute(STATE_SITES, allSites);
 			context.put("sites", allSites);
+
+			if (!isSuperUser) {
+				boolean canDelSoftDel = false;
+				for (Site s : allSites) {
+					canDelSoftDel = SecurityService.unlock("site.del.softly.deleted", s.getReference());
+					if (canDelSoftDel) {
+						break;
+					}
+				}
+
+				context.put("canDelSoftDel", canDelSoftDel);
+			}
 
 			context.put("totalPageNumber", Integer.valueOf(totalPageNumber(state)));
 			context.put("searchString", state.getAttribute(STATE_SEARCH));
