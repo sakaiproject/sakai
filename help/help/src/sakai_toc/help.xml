@@ -1646,6 +1646,7 @@
         <ref bean="lessonsUserGuide"/>
         <ref bean="messagesUserGuide"/>
         <ref bean="newsUserGuide"/>
+        <ref bean="overviewUserGuide"/>
         <ref bean="permissionsandRolesUserGuide"/>
         <ref bean="podcastsUserGuide"/>
         <ref bean="pollsUserGuide"/>
@@ -4143,6 +4144,30 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_newsUserGuide/howdoIdeleteaNewstool.html</value>
+    </property>
+  </bean>
+  <bean id="overviewUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Overview</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatisOverview"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisOverview</value>
+    </property>
+    <property name="name">
+      <value>What is Overview?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_overviewUserGuide/whatisOverview.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.iframe.site</value>
     </property>
   </bean>
   <bean id="permissionsandRolesUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
