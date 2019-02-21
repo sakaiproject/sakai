@@ -416,7 +416,7 @@ public class GradebookAssignment extends GradableObject {
 	 *
 	 * @return selective release true or false
 	 */
-	public boolean isReleased() {
+	public Boolean isReleased() {
 		return this.released != null ? this.released : false;
 	}
 
