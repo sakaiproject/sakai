@@ -1951,6 +1951,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment assignment = getAssignment(aReference, "build_student_view_assignment_context", state);
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("assignmentReference", aReference);
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -4373,6 +4374,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment assignment = getAssignment(assignmentId, "build_instructor_view_assignment_context", state);
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("assignmentReference", assignmentId);
 
             // put the resubmit information into context
             assignment_resubmission_option_into_context(context, state);

@@ -232,7 +232,7 @@
 		#end
 		## student view
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
-		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="assignmentId" value="$assignmentReference" />
 		#if (!$hideStudentViewFlag)
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
