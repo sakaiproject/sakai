@@ -100,6 +100,13 @@
                             <div id="errorSubmit" class="alertMessage" style="display:none">
                                 <h:outputText value="#{msgs['therewaspro']}" />
                             </div>
+                            <div id="missingChannel" class="alertMessage" style="display:none">
+                                <h:outputText value="#{msgs['missingchannel1']}" />
+                                <h:outputLink value="#{ChatTool.toolUrl}">
+                                    <h:outputText value="#{msgs['here']}" />
+                                </h:outputLink>
+                                <h:outputText value="#{msgs['missingchannel2']}" />
+                            </div>
                             <label for="topForm:controlPanel:message">
                                 <h:outputText value="#{msgs['control.lab']}" />
                             </label>
