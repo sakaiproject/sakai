@@ -30,8 +30,6 @@ import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 /**
  * When the kernel starts up it will ask the component manager for all instances of this interface and then
  * it will allow them all to add to the central Hibernate session factory configuration.
- *
- * @see AddableSessionFactoryBean
  */
 public interface AdditionalHibernateMappings extends Comparable<AdditionalHibernateMappings>
 {
