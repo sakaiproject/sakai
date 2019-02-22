@@ -22,7 +22,7 @@
 
 	<application>
 		<view-handler>
-			org.sakaiproject.jsf2.app.SakaiViewHandler
+			org.sakaiproject.jsf2.app.SakaiViewHandlerWrapper
 		</view-handler>
 		<navigation-handler>
 			org.sakaiproject.jsf2.app.SakaiNavigationHandler
