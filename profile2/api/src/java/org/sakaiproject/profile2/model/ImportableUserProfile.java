@@ -15,10 +15,10 @@
  */
 package org.sakaiproject.profile2.model;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 /**
  * Extension of UserProfile to provide some additional fields we need during import

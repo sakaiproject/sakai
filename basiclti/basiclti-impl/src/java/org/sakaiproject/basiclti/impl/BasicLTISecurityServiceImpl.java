@@ -76,6 +76,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
+import org.apache.commons.codec.binary.Base64;
+
 @SuppressWarnings("deprecation")
 @Slf4j
 public class BasicLTISecurityServiceImpl implements EntityProducer {
@@ -262,19 +264,28 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		login_hint	required, Hint to the Authorization Server about the login
 					identifier the End-User might use to log in (if necessary).
 	*/
-	private void redirectOIDC(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool, String oidc_endpoint, ResourceLoader rb)
+	private void redirectOIDC(HttpServletRequest req, HttpServletResponse res,
+		Map<String, Object> content, Map<String, Object> tool, String oidc_endpoint, ResourceLoader rb)
 	{
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String login_hint = req.getRequestURI().toString();
 		String query_string = req.getQueryString();
+
 		if ( StringUtils.isNotEmpty(query_string)) {
 			login_hint = login_hint + "?" + query_string;
 		}
-		String launch_url = (String) tool.get(LTIService.LTI_LAUNCH);
+		String launch_url = StringUtils.trimToNull((String) tool.get(LTIService.LTI_LAUNCH));
+		if ( content != null ) {
+			String content_launch_url = StringUtils.trimToNull((String) content.get(LTIService.LTI_LAUNCH));
+			if ( content_launch_url != null ) launch_url = content_launch_url;
+		}
+
+		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
+		String encoded_login_hint = new String(bytesEncoded);
 		String redirect = oidc_endpoint;
 		redirect += "?iss=" + java.net.URLEncoder.encode(SakaiBLTIUtil.getOurServerUrl());
-		redirect += "&login_hint=" + java.net.URLEncoder.encode(login_hint);
+		redirect += "&login_hint=" + encoded_login_hint;
 		if ( StringUtils.isNotEmpty(launch_url)) {
 			redirect += "&target_link_uri=" + java.net.URLEncoder.encode(launch_url);
 		}
@@ -350,6 +361,11 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					{
 						tool = ltiService.getToolDao(toolKey, ref.getContext());
 						if ( tool != null ) {
+							// Save for LTI 13 Issuer
+							String orig_site_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI_SITE_ID));
+							if ( orig_site_id == null ) {
+								tool.put("orig_site_id_null", "true");
+							}
 							tool.put(LTIService.LTI_SITE_ID, ref.getContext());
 						}
 						String state = req.getParameter("state");
@@ -360,7 +376,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 						if (StringUtils.isNotBlank(oidc_endpoint) &&
 								( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
-							redirectOIDC(req, res, tool, oidc_endpoint, rb);
+							redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
 						}
 						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 					}
@@ -419,7 +435,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 					if (StringUtils.isNotBlank(oidc_endpoint) &&
 							(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
-						redirectOIDC(req, res, tool, oidc_endpoint, rb);
+						redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
 					}
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 				}

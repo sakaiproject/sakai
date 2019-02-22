@@ -50,9 +50,8 @@
 			<artifactId>twitter4j-core</artifactId>
 		</dependency>
 		<dependency>
-      		<groupId>commons-lang</groupId>
-      		<artifactId>commons-lang</artifactId>
-      		<scope>provided</scope>
+      		<groupId>org.apache.commons</groupId>
+      		<artifactId>commons-lang3</artifactId>
    		</dependency> 
 		<dependency>
 			<groupId>org.sakaiproject.genericdao</groupId>

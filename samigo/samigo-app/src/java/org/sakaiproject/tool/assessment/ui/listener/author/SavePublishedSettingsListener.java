@@ -121,7 +121,7 @@ implements ActionListener
 		}
 
 		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
-		boolean error = checkPublishedSettings(assessmentService, assessmentSettings, context);
+		boolean error = checkPublishedSettings(assessmentService, assessmentSettings, context, retractNow);
 		
 		if (error){
 			assessmentSettings.setOutcome("editPublishedAssessmentSettings");
@@ -231,7 +231,7 @@ implements ActionListener
 	    calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rb.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
 	}
 
-	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context) {
+	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context, boolean retractNow) {
 		boolean error = false;
 		// Title
 		String assessmentName = assessmentSettings.getTitle();
@@ -415,7 +415,7 @@ implements ActionListener
 	    }
 
 	    // if auto-submit is enabled, make sure late submission date is set
-	    if (assessmentSettings.getAutoSubmit() && retractDate == null) {
+	    if (assessmentSettings.getAutoSubmit() && retractDate == null && !retractNow) {
 	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
 	    	if (autoSubmitEnabled) {
 	    		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
@@ -576,7 +576,9 @@ implements ActionListener
 			}
 		}
 		else if (retractNow) {
+			assessmentSettings.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString());
 			control.setDueDate(new Date());
+			control.setRetractDate(new Date());
 		}
 		else if ("".equals(assessmentSettings.getRetractDateString())) {
 			control.setRetractDate(null);

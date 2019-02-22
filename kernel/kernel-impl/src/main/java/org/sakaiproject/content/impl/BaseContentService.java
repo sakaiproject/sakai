@@ -8266,6 +8266,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				ContentCollection oCollection = getCollection(fromContext);
 
 				// Copy the Resource Properties from Root Collection to New Root Collection
+				// TODO: Shouldn't this only happen on a data replace, but not on a merge?
 				ResourceProperties oCollectionProperties = oCollection.getProperties();
 				ContentCollectionEdit toCollectionEdit = (ContentCollectionEdit) toCollection;
 				ResourcePropertiesEdit toColPropEdit = toCollectionEdit.getPropertiesEdit();
@@ -8458,10 +8459,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				/*
 				 * If this is "reuse content" during worksite setup, the site collection at this time is
 				 * /group/!admin/ for all content including ones in the folders, so count how many "/" in
-				 * the collection ID. If <= 3, then it's a top-level item and needs to be hidden.
+				 * the collection ID. If == 3, then it's a top-level item and needs to be hidden.
 				 */
 				int slashcount = StringUtils.countMatches(containingCollectionId, "/");
-				if (slashcount <= 3)
+				if (slashcount == 3)
 				{
 					if (resource != null)
 					{

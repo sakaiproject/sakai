@@ -874,6 +874,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String OW_FEEDBACK = "feedback_overwritten";
     private static final String SAVED_FEEDBACK = "feedback_saved";
     private static final int INPUT_BUFFER_SIZE = 102400;
+    private static final long MEGABYTE = 1024L * 1024L;
     private static final String INVOKE = "invoke_via";
     private static final String INVOKE_BY_LINK = "link";
     private static final String INVOKE_BY_PORTAL = "portal";
@@ -932,6 +933,9 @@ public class AssignmentAction extends PagedResourceActionII {
     private String prevWithSubmissionRef = "";
     private String nextUngradedWithSubmissionRef = "";
     private String prevUngradedWithSubmissionRef = "";
+
+    // Content providers names
+    private static final String CONTENT_PROVIDER_URKUND = "Urkund";
 
     private AnnouncementService announcementService;
     private AssignmentActivityProducer assignmentActivityProducer;
@@ -1466,6 +1470,17 @@ public class AssignmentAction extends PagedResourceActionII {
                 		state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage())); 
                     context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
 
+                    String reviewServiceName = contentReviewService.getServiceName();
+                    switch(reviewServiceName) {
+                        case CONTENT_PROVIDER_URKUND:
+                            long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
+                            String plagiarismFileSize = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
+                            state.setAttribute("plagiarismFileSize", plagiarismFileSize); 
+                            context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+                            break;
+                        default:
+                    }
+
                     // SAK-31649 commenting this out to remove file picker filters, as the results vary depending on OS and browser.
                     // If in the future browser support for the 'accept' attribute on a file picker becomes more robust and
                     // ubiquitous across browsers, we can re-enable this feature.
@@ -1936,6 +1951,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment assignment = getAssignment(aReference, "build_student_view_assignment_context", state);
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("assignmentReference", aReference);
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -2063,6 +2079,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if(assignment.getContentReview()) {
 	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
 	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
 	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
 	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
 	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
@@ -2628,7 +2645,18 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_UseReviewService", state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
         if (!contentReviewService.allowAllContent()) {
             String fileTypesMessage = getContentReviewAcceptedFileTypesMessage();
-            String contentReviewNote = rb.getFormattedMessage("content_review.note", new Object[]{fileTypesMessage});
+            String reviewServiceName = contentReviewService.getServiceName();
+            Object[] params = new Object[2];
+            params[0] = fileTypesMessage;
+            params[1] = "";
+            switch(reviewServiceName) {
+                case CONTENT_PROVIDER_URKUND:
+                    long maxFileSizeBytes = Long.parseLong(serverConfigurationService.getString("urkund.maxFileSize", "20971520"));
+                    params[1] = rb.getFormattedMessage("plagiarismFileSize", new Object[]{maxFileSizeBytes/MEGABYTE});
+                    break;
+                default:
+            }
+            String contentReviewNote = rb.getFormattedMessage("content_review.note", params);
             context.put("content_review_note", contentReviewNote);
         }
         context.put("turnitin_forceSingleAttachment", serverConfigurationService.getBoolean("turnitin.forceSingleAttachment", false));
@@ -2727,38 +2755,54 @@ public class AssignmentAction extends PagedResourceActionII {
         if (gradebookExists) {
             String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
-            try {
-                // how many gradebook assignment have been integrated with Assignment tool already
-                currentAssignmentGradebookIntegrationIntoContext(context, state, gradebookUid, a != null ? a.getTitle() : null);
+            // how many gradebook assignment have been integrated with Assignment tool already
+            currentAssignmentGradebookIntegrationIntoContext(context, state, gradebookUid, a != null ? a.getTitle() : null);
 
-                if (StringUtils.isBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
-                    state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                }
+            if (StringUtils.isBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+            }
 
-                context.put("withGradebook", Boolean.TRUE);
+            context.put("withGradebook", Boolean.TRUE);
 
-                // offer the gradebook integration choice only in the Assignments with Grading tool
-                boolean withGrade = (Boolean) state.getAttribute(WITH_GRADES);
-                if (withGrade) {
-                    context.put("name_Addtogradebook", NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-                    context.put("name_AssociateGradebookAssignment", PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                }
+            // offer the gradebook integration choice only in the Assignments with Grading tool
+            boolean withGrade = (Boolean) state.getAttribute(WITH_GRADES);
+            if (withGrade) {
+                context.put("name_Addtogradebook", NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+                context.put("name_AssociateGradebookAssignment", PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            }
 
-                context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
-                context.put("gradebookChoice_no", GRADEBOOK_INTEGRATION_NO);
-                context.put("gradebookChoice_add", GRADEBOOK_INTEGRATION_ADD);
-                context.put("gradebookChoice_associate", GRADEBOOK_INTEGRATION_ASSOCIATE);
-                String associateGradebookAssignment = (String) state.getAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                if (StringUtils.isNotBlank(associateGradebookAssignment)) {
-                    context.put("associateGradebookAssignment", associateGradebookAssignment);
-                    if (a != null) {
-                        context.put("noAddToGradebookChoice",
-                                associateGradebookAssignment.equals(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) || gradebookService.isAssignmentDefined(gradebookUid, a.getTitle()));
+            context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+            context.put("gradebookChoice_no", GRADEBOOK_INTEGRATION_NO);
+            context.put("gradebookChoice_add", GRADEBOOK_INTEGRATION_ADD);
+            context.put("gradebookChoice_associate", GRADEBOOK_INTEGRATION_ASSOCIATE);
+            String associateGradebookAssignment = (String) state.getAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+            if (StringUtils.isNotBlank(associateGradebookAssignment)) {
+                context.put("associateGradebookAssignment", associateGradebookAssignment);
+                if (a != null) {
+                    // the premise here is that if there is a VALID value for PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT
+                    // then the assignment is already associated to the gradebook and the user should not see the add to gradebook option
+                    boolean valid = false;
+                    if (StringUtils.startsWith(associateGradebookAssignment, REFERENCE_ROOT)) {
+                        // checking externally maintained by gradebook
+                        if (AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference().equals(associateGradebookAssignment)) {
+                            // the reference matches that of the assignment
+                            valid = true;
+                        } else {
+                            // why do we have a reference to some other assignment?
+                            log.warn("Gradebook association for assignment {} was pointing to assignment {}", a.getId(), associateGradebookAssignment);
+                        }
+                    } else {
+                        // check internally maintained by gradebook
+                        try {
+                            if (gradebookService.getAssignmentByNameOrId(gradebookUid, associateGradebookAssignment) != null) {
+                                valid = true;
+                            }
+                        } catch (AssessmentNotFoundException anfe) {
+                            log.debug("Gradebook item not found for assignment {} with {} = {}", a.getId(), PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                        }
                     }
+                    context.put("noAddToGradebookChoice", valid);
                 }
-            } catch (Exception e) {
-                // not able to link to Gradebook
-                log.warn(this + "setAssignmentFormContext " + e.getMessage());
             }
 
             if (StringUtils.isBlank((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
@@ -3018,7 +3062,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private void putGradebookCategoryInfoIntoContext(SessionState state, Context context) {
         Map<Long, String> categoryTable = categoryTable();
         if (categoryTable != null) {
-            context.put("value_totalCategories", Integer.valueOf(categoryTable.size()));
+            long categoryTableSize = categoryTable.keySet().stream().filter(i -> i >= 0).count();
+            context.put("value_totalCategories", Long.valueOf(categoryTableSize));
 
             // selected category
             context.put("value_Category", state.getAttribute(NEW_ASSIGNMENT_CATEGORY));
@@ -3031,7 +3076,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("categoryKeys", categoryList);
             context.put("categoryTable", categoryTable);
         } else {
-            context.put("value_totalCategories", Integer.valueOf(0));
+            context.put("value_totalCategories", Long.valueOf(0));
         }
     }
 
@@ -4329,6 +4374,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment assignment = getAssignment(assignmentId, "build_instructor_view_assignment_context", state);
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("assignmentReference", assignmentId);
 
             // put the resubmit information into context
             assignment_resubmission_option_into_context(context, state);
@@ -7102,12 +7148,15 @@ public class AssignmentAction extends PagedResourceActionII {
                 String associatedAssignmentTitles = "";
                 // check assignments from the site
                 for (Assignment a : assignments) {
+                    if (assignmentId.equals(a.getId())) {
+                        continue;
+                    }
                     String gradebookItem = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                    if(associateAssignment.equals(gradebookItem)){
+                    if (gradebookItem != null && StringUtils.equals(associateAssignment, gradebookItem)) {
                         associatedAssignmentTitles += a.getTitle();
                     }
                 }
-                if (StringUtils.isNotBlank(associatedAssignmentTitles) && !title.equals(associatedAssignmentTitles) && state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) == null) {
+                if (StringUtils.isNotBlank(associatedAssignmentTitles) && state.getAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED) == null) {
                     state.setAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED, Boolean.TRUE);
                 } else {
                     // clean the attribute after user confirm
@@ -8903,11 +8952,11 @@ public class AssignmentAction extends PagedResourceActionII {
             a.setAllowAttachments(false);
         }
 
-        if (attachments != null && !attachments.isEmpty()) {
-            Set<String> aAttachments = a.getAttachments();
-            // clear attachments
-            aAttachments.clear();
+        Set<String> aAttachments = a.getAttachments();
+        // clear attachments
+        aAttachments.clear();
 
+        if (attachments != null && !attachments.isEmpty()) {
             // add each attachment
             for (Reference reference : entityManager.newReferenceList(attachments)) {
                 aAttachments.add(reference.getReference());
@@ -11767,6 +11816,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.removeAttribute(RUBRIC_STATE_DETAILS);
 
+        state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
     } // resetNewAssignment
 
     /**

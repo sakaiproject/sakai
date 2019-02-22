@@ -781,7 +781,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "2.22.2";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'momentjs/' + libraryVersion + '/min/moment-with-locales.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'dropzone') {
-		libraryVersion = "5.2.0";
+		libraryVersion = "5.5.0";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.js' + ver + '">' + '\x3C/script>');
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'dropzone/'+libraryVersion + '/min/dropzone.min.css' + ver + '"/>');
 	} else if (library == 'select2') {
