@@ -9,7 +9,10 @@ function setMainFrameHeightNow(id)
 {
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
-	if (typeof window.name != "undefined" && id != window.name) return;
+	if (typeof window.name != "undefined" && id !== window.name)
+	{
+		return;
+	}
 
 	var frame = parent.document.getElementById(id);
 	if (frame)
@@ -19,20 +22,20 @@ function setMainFrameHeightNow(id)
 
 		var objToResize = (frame.style) ? frame.style : frame;
 
-		var height; 		
+		var height;
 		var offsetH = document.body.offsetHeight;
 		var innerDocScrollH = null;
 
-		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		if (typeof(frame.contentDocument) !== 'undefined' || typeof(frame.contentWindow) !== 'undefined')
 		{
 			// very special way to get the height from IE on Windows!
 			// note that the above special way of testing for undefined variables is necessary for older browsers
 			// (IE 5.5 Mac) to not choke on the undefined variables.
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+			innerDocScrollH = (innerDoc !== null) ? innerDoc.body.scrollHeight : null;
 		}
 	
-		if (document.all && innerDocScrollH != null)
+		if (document.all && innerDocScrollH !== null)
 		{
 			// IE on Windows only
 			height = innerDocScrollH;
@@ -47,7 +50,10 @@ function setMainFrameHeightNow(id)
 		var newHeight = height + 10;
 
 		// but not too big!
-		if (newHeight > 32760) newHeight = 32760;
+		if (newHeight > 32760)
+		{
+			newHeight = 32760;
+		}
 
 		// capture my current scroll position
 		var scroll = findScroll();
@@ -104,7 +110,7 @@ function findScroll()
 		x = document.body.scrollLeft;
 		y = document.body.scrollTop;
 	}
-	
+
 	return [x,y];
 }
 
@@ -114,10 +120,10 @@ function firstFocus()
 	if (document.forms.length > 0)
 	{
 		var f = document.forms[0];
-		for (var i=0; i<f.length; i++)
+		for (var i = 0; i < f.length; i++)
 		{
 			var e = f.elements[i];
-			if ((e.name) && (e.type) && ((e.type=='text') || (e.type=='textarea')) && (!e.disabled))
+			if ((e.name) && (e.type) && ((e.type === 'text') || (e.type === 'textarea')) && (!e.disabled))
 			{
 				e.focus();
 				break;
@@ -131,7 +137,7 @@ function firstFocus()
 // which should be the id's of zero or more frames followed by the id of the element.
 function setFocus(elements)
 {
-	if(typeof elements == "undefined")
+	if(typeof elements === "undefined")
 	{
 		return;
 	}
@@ -161,7 +167,7 @@ function setFocus(elements)
 			break;
 		}
 	}
-	
+
 	if(focal_point && focal_point.focus)
 	{
 		focal_point.focus();
@@ -174,9 +180,12 @@ function addAuto(loc)
 	var str = loc.toString();
 
 	// not if already there
-	if (str.indexOf("auto=courier") != -1) return str;
-	
-	if (str.indexOf("?") != -1)
+	if (str.indexOf("auto=courier") !== -1)
+	{
+		return str;
+	}
+
+	if (str.indexOf("?") !== -1)
 	{
 		// has a ?
 		return str + '&auto=courier';
@@ -190,30 +199,42 @@ function addAuto(loc)
 
 function showNotif(item, button,formName)
 {
-	if (button !="noBlock")
+	if (button !== "noBlock")
 	{
 		eval("document." + formName + "." + button + ".disabled=true")
 	}
-	if (item !="noNotif")
+	if (item !== "noNotif")
 	{
 		var browserType;
-		if (document.all) {browserType = "ie"}
-		if (window.navigator.userAgent.toLowerCase().match("gecko")) {browserType= "gecko"}
-		if (browserType == "gecko" )
+		if (document.all)
+		{
+			browserType = "ie";
+		}
+		if (window.navigator.userAgent.toLowerCase().match("gecko"))
+		{
+			browserType= "gecko";
+		}
+		if (browserType === "gecko" )
+		{
 			document.showItem = eval('document.getElementById(item)');
-		else if (browserType == "ie")
+		}
+		else if (browserType === "ie")
+		{
 			document.showItem = eval('document.all[item]');
+		}
 		else
+		{
 			document.showItem = eval('document.layers[item]');
+		}
 
-			document.showItem.style.visibility = "visible";
+		document.showItem.style.visibility = "visible";
 	}
-	
-	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
+
+	for (var i = 0; i < document.getElementsByTagName("input").length; i++)
 	{
-		if (document.getElementsByTagName("input").item(i).className == "disableme")
+		if (document.getElementsByTagName("input").item(i).className === "disableme")
 		{
 			document.getElementsByTagName("input").item(i).disabled = "disabled";
 		}
-	}		
+	}
 }

@@ -32,6 +32,7 @@ import java.util.Vector;
 import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMTypeValidator;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Provides support for the URI data type, as defined in the SCORM 2004 RTE Book<br>
@@ -126,11 +127,11 @@ public class URIValidator extends DMTypeValidator implements Serializable {
 	public boolean compare(String iFirst, String iSecond, Vector<DMDelimiter> iDelimiters) {
 		boolean equal = true;
 
-		if (iFirst == null || iFirst.trim().equals("")) {
+		if (StringUtils.isBlank( iFirst )) {
 			// The first string is an invalid URI
 			equal = false;
 		} else {
-			if (iSecond == null || iSecond.trim().equals("")) {
+			if (StringUtils.isBlank( iSecond )) {
 				// The second string is an invalid URI
 				equal = false;
 			} else {
@@ -184,12 +185,13 @@ public class URIValidator extends DMTypeValidator implements Serializable {
 		// Assume the value is valid
 		int valid = DMErrorCodes.NO_ERROR;
 
-		if (iValue == null)
+		if (iValue == null){
 			// A null value can never be valid
 			return DMErrorCodes.UNKNOWN_EXCEPTION;
+		}
 
 		// URIs are not allowed to be empty strings
-		if (iValue.trim().equals("")) {
+		if (iValue.trim().isEmpty()) {
 			valid = DMErrorCodes.TYPE_MISMATCH;
 		} else {
 			try {

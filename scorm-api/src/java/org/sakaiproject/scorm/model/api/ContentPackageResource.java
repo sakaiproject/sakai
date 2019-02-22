@@ -18,38 +18,26 @@ package org.sakaiproject.scorm.model.api;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 
-public abstract class ContentPackageResource implements Serializable {
-
-	/**
-	 * 
-	 */
+public abstract class ContentPackageResource implements Serializable
+{
 	private static final long serialVersionUID = 1L;
 
-	private String path;
+	@Getter @Setter private String path;
 
-	public ContentPackageResource() {
-	}
+	public ContentPackageResource() {}
 
-	public ContentPackageResource(String path) {
+	public ContentPackageResource(String path)
+	{
 		this.path = path;
 	}
 
 	public abstract InputStream getInputStream() throws ResourceNotFoundException;
-
 	public abstract long getLastModified();
-
 	public abstract long getLength();
-
 	public abstract String getMimeType();
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
 }

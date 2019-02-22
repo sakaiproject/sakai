@@ -246,7 +246,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		if (mActivityMap != null) {
 			mActivityMap.clear();
 		} else {
-			mActivityMap = new Hashtable<String, SeqActivity>();
+			mActivityMap = new Hashtable<>();
 		}
 
 		// Walk the activity tree -- add a reference to the activity map for
@@ -266,6 +266,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * Clears the current state of the activity tree, except for its SuspsendAll
 	 * state.
 	 */
+	@Override
 	public void clearSessionState() {
 
 		if (_Debug) {
@@ -289,6 +290,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * This method provides the state this <code>SeqActivityTree</code> object
 	 * for diagnostic purposes.
 	 */
+	@Override
 	public void dumpState() {
 		if (_Debug) {
 			System.out.println("  :: SeqActivtyTree   --> BEGIN - dumpState");
@@ -345,8 +347,8 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 				SeqActivity walk = mRoot;
 				long depth = 0;
 
-				List<SeqActivity> lookAt = new ArrayList<SeqActivity>();
-				List<Long> depthTrack = new ArrayList<Long>();
+				List<SeqActivity> lookAt = new ArrayList<>();
+				List<Long> depthTrack = new ArrayList<>();
 
 				while (walk != null) {
 					// Display the state of this activity
@@ -356,7 +358,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 					if (walk.hasChildren(true)) {
 						// Look at its children later
 						lookAt.add(walk);
-						depthTrack.add(Long.valueOf(depth + 1));
+						depthTrack.add(depth + 1);
 					}
 
 					// Walk the current level of the tree
@@ -365,7 +367,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 					// If there is not another sibling
 					if (walk == null) {
 						// Look one level deeper
-						if (lookAt.size() != 0) {
+						if (!lookAt.isEmpty()) {
 							// Remove the activity from the 'lookat' list
 							walk = lookAt.get(0);
 							lookAt.remove(0);
@@ -374,7 +376,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 							walk = (walk.getChildren(true)).get(0);
 
 							// Remember how deep we are in the tree
-							depth = (depthTrack.get(0)).longValue();
+							depth = (depthTrack.get(0));
 							depthTrack.remove(0);
 						} else {
 							// Done
@@ -390,15 +392,19 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		SeqActivityTree other = (SeqActivityTree) obj;
-		if (id != other.id)
+		if (id != other.id){
 			return false;
+		}
 		return true;
 	}
 
@@ -412,6 +418,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *         request or <code>null</code> if no activity with that ID exists in
 	 *         current activity tree.
 	 */
+	@Override
 	public SeqActivity getActivity(String iActivityID) {
 
 		// Make sure the Activity Map has been created
@@ -428,6 +435,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		return temp;
 	}
 
+	@Override
 	public long getContentPackageId() {
 		return contentPackageId;
 	}
@@ -438,6 +446,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @return The ID (<code>String</code>) of the course associated with this
 	 *         activity tree or <code>null</code> if none has been assigned.
 	 */
+	@Override
 	public String getCourseID() {
 
 		if (_Debug) {
@@ -504,8 +513,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 
 		// If the first candidiate is null, then return the current 
 		// activity
-		if (mFirstCandidate == null)
+		if (mFirstCandidate == null){
 			return mCurActivity;
+		}
 
 		// else return the first candidate activity
 		return mFirstCandidate;
@@ -524,6 +534,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @return The set of global objective IDs <code>List</code> or <code>
 	 *         null</code> if none exist.
 	 */
+	@Override
 	public List<String> getGlobalObjectives() {
 
 		if (_Debug) {
@@ -548,7 +559,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 
 		// Do not return an empty set
 		if (mObjSet != null) {
-			if (mObjSet.size() == 0) {
+			if (mObjSet.isEmpty()) {
 				mObjSet = null;
 			}
 		}
@@ -583,6 +594,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @return The ID (<code>String</code>) of the learner associated with this
 	 *         activity tree or <code>null</code> if none has been assigned.
 	 */
+	@Override
 	public String getLearnerID() {
 
 		if (_Debug) {
@@ -603,6 +615,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @return The set of activity IDs <code>List</code> or <code>null</code>
 	 *         if none exist.
 	 */
+	@Override
 	public List<String> getObjMap(String iObjID) {
 
 		if (_Debug) {
@@ -618,7 +631,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 
 			// Do not allow an empty set
 			if (mObjMap != null) {
-				if (mObjMap.size() == 0) {
+				if (mObjMap.isEmpty()) {
 					mObjMap = null;
 				}
 			}
@@ -673,6 +686,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *         tree's objectives, or <code>null</code> if the objectives are
 	 *         global to the system.
 	 */
+	@Override
 	public String getScopeID() {
 
 		if (_Debug) {
@@ -691,6 +705,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @return The activity (<code>SeqActivity</code>) associated with the last
 	 *         attempted activity or <code>null</code> if none exists.
 	 */
+	@Override
 	public SeqActivity getSuspendAll() {
 
 		if (_Debug) {
@@ -752,7 +767,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		// Walk the activity tree, recording all mapped global objectives
 		SeqActivity walk = mRoot;
 
-		List<SeqActivity> lookAt = new ArrayList<SeqActivity>();
+		List<SeqActivity> lookAt = new ArrayList<>();
 
 		while (walk != null) {
 			// Check if the activity has children
@@ -776,7 +791,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 
 							// Make sure we haven't already added this objective
 							if (mObjSet == null) {
-								mObjSet = new ArrayList<String>();
+								mObjSet = new ArrayList<>();
 								mObjSet.add(target);
 							} else {
 								boolean found = false;
@@ -794,13 +809,13 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 							// If this is a 'read' objective add it to our obj map
 							if (map.mReadStatus || map.mReadMeasure) {
 								if (mObjMap == null) {
-									mObjMap = new Hashtable<String, List<String>>();
+									mObjMap = new Hashtable<>();
 								}
 
 								List<String> actList = mObjMap.get(target);
 
 								if (actList == null) {
-									actList = new ArrayList<String>();
+									actList = new ArrayList<>();
 								}
 
 								actList.add(walk.getID());
@@ -817,7 +832,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 			// If there is not another sibling
 			if (walk == null) {
 				// Look one level deeper
-				if (lookAt.size() != 0) {
+				if (!lookAt.isEmpty()) {
 					// Remove the activity from the 'lookat' list
 					walk = lookAt.get(0);
 					lookAt.remove(0);
@@ -835,6 +850,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		}
 	}
 
+	@Override
 	public void setContentPackageId(long contentPackageId) {
 		this.contentPackageId = contentPackageId;
 	}
@@ -844,6 +860,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * 
 	 * @param iCourseID Describes the course ID
 	 */
+	@Override
 	public void setCourseID(String iCourseID) {
 
 		if (_Debug) {
@@ -865,6 +882,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * 
 	 * @param iCurrent The 'current' activity (<code>SeqActivity</code>).
 	 */
+	@Override
 	public void setCurrentActivity(ISeqActivity iCurrent) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setCurrentActivity");
@@ -897,15 +915,15 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 			SeqActivity walk = mRoot;
 			int depth = 0;
 
-			List<SeqActivity> lookAt = new ArrayList<SeqActivity>();
-			List<Integer> depths = new ArrayList<Integer>();
+			List<SeqActivity> lookAt = new ArrayList<>();
+			List<Integer> depths = new ArrayList<>();
 
 			while (walk != null) {
 				// Check if the activity has children
 				if (walk.hasChildren(true)) {
 					// Look at its children later
 					lookAt.add(walk);
-					depths.add(Integer.valueOf(depth + 1));
+					depths.add(depth + 1);
 				}
 
 				walk.setDepth(depth);
@@ -916,13 +934,13 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 				// If there is not another sibling
 				if (walk == null) {
 					// Look one level deeper
-					if (lookAt.size() != 0) {
+					if (!lookAt.isEmpty()) {
 						// Remove the activity from the 'lookat' list
 						walk = lookAt.get(0);
 						lookAt.remove(0);
 
 						// Remove the depth of the new activity from the 'depths' list
-						depth = depths.get(0).intValue();
+						depth = depths.get(0);
 						depths.remove(0);
 
 						// Start at the first child of the activity
@@ -944,6 +962,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * 
 	 * @param iFirst The first candidate activity (<code>SeqActivity</code>).
 	 */
+	@Override
 	public void setFirstCandidate(ISeqActivity iFirst) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setFirstCandidate");
@@ -987,6 +1006,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * 
 	 * @param iLearnerID The ID of the student associated with this tree
 	 */
+	@Override
 	public void setLearnerID(String iLearnerID) {
 
 		if (_Debug) {
@@ -1053,6 +1073,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *                 activity tree's objectives, or <code>null</code> of the
 	 *                 objectives are global to the system.
 	 */
+	@Override
 	public void setScopeID(String iScopeID) {
 
 		if (_Debug) {
@@ -1128,7 +1149,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 			SeqActivity walk = mRoot;
 			int count = 0;
 
-			List<SeqActivity> lookAt = new ArrayList<SeqActivity>();
+			List<SeqActivity> lookAt = new ArrayList<>();
 
 			while (walk != null) {
 				count++;
@@ -1143,7 +1164,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 					walk = walk.getNextSibling(true);
 				}
 
-				while (lookAt.size() != 0 && walk == null) {
+				while (!lookAt.isEmpty() && walk == null) {
 					// Remove the activity from the 'lookat' list
 					walk = lookAt.get(0);
 					lookAt.remove(0);

@@ -109,13 +109,13 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 		// Check if this element is managing records -- is it an array container?
 		if (mDescription.mSPM != -1 && mDescription.mChildren != null) {
 			// Initialize the set of records
-			mRecords = new ArrayList<DMElement>();
+			mRecords = new ArrayList<>();
 		}
 
 		// Check if this element has children
 		if (mDescription.mChildren != null) {
 			// Initialize the set of children bindings
-			mChildrenBindings = new ArrayList<String>();
+			mChildrenBindings = new ArrayList<>();
 
 			for (int i = 0; i < mDescription.mChildren.size(); i++) {
 				DMElementDescriptor desc = mDescription.mChildren.get(i);
@@ -125,7 +125,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 				// If this is not an array container
 				if (mRecords == null) {
 					if (mChildren == null) {
-						mChildren = new Hashtable<String, DMElement>();
+						mChildren = new Hashtable<>();
 					}
 
 					// Initialize the leaf child element
@@ -138,7 +138,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 			// This must be a leaf element, so initialize 
 			if (mDescription.mDelimiters != null) {
 				// Initialize this element's set of delimiters 
-				mDelimiters = new ArrayList<DMDelimiter>();
+				mDelimiters = new ArrayList<>();
 
 				for (int i = 0; i < mDescription.mDelimiters.size(); i++) {
 					DMDelimiterDescriptor desc = mDescription.mDelimiters.get(i);
@@ -202,10 +202,11 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 				// any provided delimiters are equal, or the existing delimiter
 				// value is the default.
 				if (mDelimiters != null) {
-					List<Boolean> checked = new ArrayList<Boolean>();
+					List<Boolean> checked = new ArrayList<>();
 
 					// Set all delimiters to 'not checked'
-					for (int j = 0; j < mDelimiters.size(); j++) {
+					for( DMDelimiter mDelimiter : mDelimiters )
+					{
 						checked.add(false);
 					}
 
@@ -224,7 +225,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 
 							if (toCheck.mDescription.mName.equals(del.getName())) {
 								// Make sure we haven't already checked this delimter
-								boolean alreadyChecked = checked.get(j).booleanValue();
+								boolean alreadyChecked = checked.get(j);
 
 								if (!alreadyChecked) {
 									// Remember we've checked this delimiter
@@ -262,7 +263,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 						// Make sure any delimters not included in the request are 
 						// equal to their defaults
 						for (int j = 0; j < mDelimiters.size() && equal; j++) {
-							boolean check = !checked.get(j).booleanValue();
+							boolean check = !checked.get(j);
 
 							if (check) {
 								DMDelimiter toCheck = mDelimiters.get(j);
@@ -722,7 +723,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 
 			if (mDelimiters != null) {
 				boolean found = true;
-				List<Boolean> set = new ArrayList<Boolean>();
+				List<Boolean> set = new ArrayList<>();
 
 				// Set all delimiters to their defaults
 				for (int j = 0; j < mDelimiters.size(); j++) {
@@ -747,7 +748,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 
 						if (toSet.mDescription.mName.equals(del.getName())) {
 							// Make sure we haven't set this delimiter yet
-							boolean setAlready = set.get(j).booleanValue();
+							boolean setAlready = set.get(j);
 
 							if (!setAlready) {
 								found = true;

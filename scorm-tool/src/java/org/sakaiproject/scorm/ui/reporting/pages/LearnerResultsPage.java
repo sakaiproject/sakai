@@ -19,8 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -30,36 +28,38 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+
 import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.ui.console.pages.DisplayDesignatedPackage;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.scorm.ui.reporting.util.SummaryProvider;
+import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
-import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 
-public class LearnerResultsPage extends BaseResultsPage {
-
+public class LearnerResultsPage extends BaseResultsPage
+{
 	private static final long serialVersionUID = 1L;
 
-	private static final ResourceReference PAGE_ICON = new ResourceReference(LearnerResultsPage.class, "res/report_user.png");
-
-	public LearnerResultsPage(PageParameters pageParams) {
+	public LearnerResultsPage(PageParameters pageParams)
+	{
 		super(pageParams);
 	}
 
 	@Override
-	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams) {
+	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams)
+	{
 		PageParameters uberparentParams = new PageParameters();
-		uberparentParams.put("contentPackageId", contentPackage.getContentPackageId());
+		uberparentParams.add("contentPackageId", contentPackage.getContentPackageId());
 
 		PageParameters parentParams = new PageParameters();
-		parentParams.put("contentPackageId", contentPackage.getContentPackageId());
-		parentParams.put("learnerId", learner.getId());
-		parentParams.put("attemptNumber", attemptNumber);
+		parentParams.add("contentPackageId", contentPackage.getContentPackageId());
+		parentParams.add("learnerId", learner.getId());
+		parentParams.add("attemptNumber", attemptNumber);
 
 		// SCO-94 - deny users who do not have scorm.view.results permission
 		String context = lms.currentContext();
@@ -77,20 +77,27 @@ public class LearnerResultsPage extends BaseResultsPage {
 			heading.setVisibilityAllowed( false );
 
 			IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
+
 			// MvH
-			if (isSinglePackageTool()) {
-				if (lms.canGrade(lms.currentContext())) {
+			if (isSinglePackageTool())
+			{
+				if (lms.canGrade(lms.currentContext()))
+				{
 					addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
 				}
-				else {
+				else
+				{
 					addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
 				}
 			}
-			else {
-				if (lms.canGrade(lms.currentContext())) {
+			else
+			{
+				if (lms.canGrade(lms.currentContext()))
+				{
 					addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
 				}
-				else {
+				else
+				{
 					addBreadcrumb(breadcrumbModel, PackageListPage.class, uberparentParams, true);
 				}
 			}
@@ -99,21 +106,21 @@ public class LearnerResultsPage extends BaseResultsPage {
 			List<ActivitySummary> summaries = resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber);
 			SummaryProvider dataProvider = new SummaryProvider(summaries);
 			dataProvider.setTableTitle(getLocalizer().getString("table.title", this));
-			EnhancedDataPresenter presenter = new EnhancedDataPresenter("summaryPresenter", getColumns(), dataProvider);
-			add(presenter);
 
-			presenter.setVisible(summaries != null && summaries.size() > 0);
+			SakaiDataTable table = new SakaiDataTable("learnerTable", getColumns(), dataProvider, true);
+			add(table);
 		}
 	}
-	
+
 	@Override
-	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
+	protected Link newPreviousLink(String previousId, PageParameters pageParams)
+	{
 		PageParameters prevParams = new PageParameters();
 
-		long contentPackageId = pageParams.getLong("contentPackageId");
+		long contentPackageId = pageParams.get("contentPackageId").toLong();
 
-		prevParams.put("contentPackageId", contentPackageId);
-		prevParams.put("learnerId", previousId);
+		prevParams.add("contentPackageId", contentPackageId);
+		prevParams.add("learnerId", previousId);
 
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), LearnerResultsPage.class, prevParams);
 		link.setVisible(StringUtils.isNotEmpty(previousId));
@@ -121,38 +128,34 @@ public class LearnerResultsPage extends BaseResultsPage {
 	}
 
 	@Override
-	protected Link newNextLink(String nextId, PageParameters pageParams) {
+	protected Link newNextLink(String nextId, PageParameters pageParams)
+	{
 		PageParameters nextParams = new PageParameters();
 
-		long contentPackageId = pageParams.getLong("contentPackageId");
+		long contentPackageId = pageParams.get("contentPackageId").toLong();
 
-		nextParams.put("contentPackageId", contentPackageId);
-		nextParams.put("learnerId", nextId);
+		nextParams.add("contentPackageId", contentPackageId);
+		nextParams.add("learnerId", nextId);
 
 		Link link = new BookmarkablePageLabeledLink("nextLink", new ResourceModel("next.link.label"), LearnerResultsPage.class, nextParams);
-
 		link.setVisible(StringUtils.isNotBlank(nextId));
 		return link;
 	}
 
 	@Override
-	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params) {
+	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params)
+	{
 		return new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), LearnerResultsPage.class, params);
 	}
 
-	@Override
-	protected ResourceReference getPageIconReference() {
-		return PAGE_ICON;
-	}
-
-	private List<IColumn> getColumns() {
+	private List<IColumn> getColumns()
+	{
 		IModel titleHeader = new ResourceModel("column.header.title");
 		IModel scoreHeader = new ResourceModel("column.header.score");
 		IModel completedHeader = new ResourceModel("column.header.completed");
 		IModel successHeader = new ResourceModel("column.header.success");
 
-		List<IColumn> columns = new LinkedList<IColumn>();
-
+		List<IColumn> columns = new LinkedList<>();
 		String[] paramPropertyExpressions = {"contentPackageId", "learnerId", "scoId", "attemptNumber"};
 
 		ActionColumn actionColumn = new ActionColumn(titleHeader, "title", "title");
@@ -160,9 +163,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		columns.add(actionColumn);
 
 		columns.add(new PercentageColumn(scoreHeader, "scaled", "scaled"));
-
 		columns.add(new PropertyColumn(completedHeader, "completionStatus", "completionStatus"));
-
 		columns.add(new PropertyColumn(successHeader, "successStatus", "successStatus"));
 
 		return columns;

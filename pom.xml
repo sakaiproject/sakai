@@ -25,6 +25,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scorm.wicket.version>8.6.1</scorm.wicket.version>
     </properties>
 
     <modules>
@@ -100,6 +101,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
                 <configuration>
                     <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
                     <includes>
@@ -111,11 +113,19 @@
                         <exclude>**/org/ims/**</exclude>
                     </excludes>
                     <properties>
-                        <year>${project.inceptionYear}</year>
                         <holder>The Apereo Foundation</holder>
                     </properties>
                     <encoding>UTF-8</encoding>
+                    <skipExistingHeaders>true</skipExistingHeaders>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin-git</artifactId>
+                        <!-- make sure you use the same version as license-maven-plugin -->
+                        <version>3.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

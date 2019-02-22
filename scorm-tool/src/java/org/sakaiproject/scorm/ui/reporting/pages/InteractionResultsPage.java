@@ -19,8 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -30,41 +28,38 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Interaction;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.model.api.Objective;
 import org.sakaiproject.scorm.ui.reporting.components.InteractionPanel;
 import org.sakaiproject.scorm.ui.reporting.util.ObjectiveProvider;
+import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
-import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
 
-public class InteractionResultsPage extends BaseResultsPage {
-
+public class InteractionResultsPage extends BaseResultsPage
+{
 	private static final long serialVersionUID = 1L;
 
-	private static final ResourceReference PAGE_ICON = new ResourceReference(InteractionResultsPage.class, "res/report_magnify.png");
-
-	public InteractionResultsPage(PageParameters pageParams) {
+	public InteractionResultsPage(PageParameters pageParams)
+	{
 		super(pageParams);
 	}
 
 	@Override
-	protected ResourceReference getPageIconReference() {
-		return PAGE_ICON;
-	}
-
-	@Override
-	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams) {
-		String scoId = pageParams.getString("scoId");
+	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams)
+	{
+		String scoId = pageParams.get("scoId").toString();
 
 		PageParameters uberuberparentParams = new PageParameters();
-		uberuberparentParams.put("contentPackageId", contentPackage.getContentPackageId());
+		uberuberparentParams.add("contentPackageId", contentPackage.getContentPackageId());
 
 		PageParameters parentParams = new PageParameters();
-		parentParams.put("contentPackageId", contentPackage.getContentPackageId());
-		parentParams.put("learnerId", learner.getId());
-		parentParams.put("attemptNumber", attemptNumber);
+		parentParams.add("contentPackageId", contentPackage.getContentPackageId());
+		parentParams.add("learnerId", learner.getId());
+		parentParams.add("attemptNumber", attemptNumber);
 
 		// SCO-94 - deny users who do not have scorm.view.results permission
 		String context = lms.currentContext();
@@ -82,10 +77,9 @@ public class InteractionResultsPage extends BaseResultsPage {
 			// SCO-94
 			heading.setVisibilityAllowed( false );
 
-			String interactionId = pageParams.getString("interactionId");
+			String interactionId = pageParams.get("interactionId").toString();
 
 			Interaction interaction = resultService.getInteraction(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId, interactionId);
-
 			add(new InteractionPanel("interactionPanel", interaction));
 
 			IModel breadcrumbModel = new StringResourceModel("uberuberparent.breadcrumb", this, new Model(contentPackage));
@@ -97,27 +91,27 @@ public class InteractionResultsPage extends BaseResultsPage {
 			List<Objective> objectives = interaction.getObjectives();
 			ObjectiveProvider dataProvider = new ObjectiveProvider(objectives);
 			dataProvider.setTableTitle("Objectives");
-			EnhancedDataPresenter presenter = new EnhancedDataPresenter("objectivePresenter", getColumns(), dataProvider);
-			add(presenter);
 
-			presenter.setVisible(objectives != null && objectives.size() > 0);
+			SakaiDataTable table = new SakaiDataTable("interactionTable", getColumns(), dataProvider, true);
+			add(table);
 		}
 	}
 
 	@Override
-	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
+	protected Link newPreviousLink(String previousId, PageParameters pageParams)
+	{
 		PageParameters prevParams = new PageParameters();
 
-		long contentPackageId = pageParams.getLong("contentPackageId");
-		String learnerId = pageParams.getString("learnerId");
-		long attemptNumber = pageParams.getLong("attemptNumber");
-		String scoId = pageParams.getString("scoId");
+		long contentPackageId = pageParams.get("contentPackageId").toLong();
+		String learnerId = pageParams.get("learnerId").toString();
+		long attemptNumber = pageParams.get("attemptNumber").toLong();
+		String scoId = pageParams.get("scoId").toString();
 
-		prevParams.put("contentPackageId", contentPackageId);
-		prevParams.put("learnerId", learnerId);
-		prevParams.put("attemptNumber", attemptNumber);
-		prevParams.put("scoId", scoId);
-		prevParams.put("interactionId", previousId);
+		prevParams.add("contentPackageId", contentPackageId);
+		prevParams.add("learnerId", learnerId);
+		prevParams.add("attemptNumber", attemptNumber);
+		prevParams.add("scoId", scoId);
+		prevParams.add("interactionId", previousId);
 
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), InteractionResultsPage.class, prevParams);
 		link.setVisible(StringUtils.isNotBlank(previousId));
@@ -125,38 +119,40 @@ public class InteractionResultsPage extends BaseResultsPage {
 	}
 
 	@Override
-	protected Link newNextLink(String nextId, PageParameters pageParams) {
+	protected Link newNextLink(String nextId, PageParameters pageParams)
+	{
 		PageParameters nextParams = new PageParameters();
 
-		long contentPackageId = pageParams.getLong("contentPackageId");
-		String learnerId = pageParams.getString("learnerId");
-		long attemptNumber = pageParams.getLong("attemptNumber");
-		String scoId = pageParams.getString("scoId");
+		long contentPackageId = pageParams.get("contentPackageId").toLong();
+		String learnerId = pageParams.get("learnerId").toString();
+		long attemptNumber = pageParams.get("attemptNumber").toLong();
+		String scoId = pageParams.get("scoId").toString();
 
-		nextParams.put("contentPackageId", contentPackageId);
-		nextParams.put("learnerId", learnerId);
-		nextParams.put("attemptNumber", attemptNumber);
-		nextParams.put("scoId", scoId);
-		nextParams.put("interactionId", nextId);
+		nextParams.add("contentPackageId", contentPackageId);
+		nextParams.add("learnerId", learnerId);
+		nextParams.add("attemptNumber", attemptNumber);
+		nextParams.add("scoId", scoId);
+		nextParams.add("interactionId", nextId);
 
 		Link link = new BookmarkablePageLabeledLink("nextLink", new ResourceModel("next.link.label"), InteractionResultsPage.class, nextParams);
-
 		link.setVisible(StringUtils.isNotBlank(nextId));
 		return link;
 	}
 
 	@Override
-	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params) {
+	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params)
+	{
 		return new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), InteractionResultsPage.class, params);
 	}
 
-	private List<IColumn> getColumns() {
+	private List<IColumn> getColumns()
+	{
 		IModel idHeader = new ResourceModel("column.header.id");
 		IModel descriptionHeader = new ResourceModel("column.header.description");
 		IModel completionStatusHeader = new ResourceModel("column.header.completion.status");
 		IModel successStatusHeader = new ResourceModel("column.header.success.status");
 
-		List<IColumn> columns = new LinkedList<IColumn>();
+		List<IColumn> columns = new LinkedList<>();
 
 		columns.add(new PropertyColumn(idHeader, "id", "id"));
 		columns.add(new PropertyColumn(descriptionHeader, "description", "description"));

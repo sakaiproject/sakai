@@ -17,41 +17,45 @@ package org.sakaiproject.scorm.ui;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.wicket.Request;
-import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.request.Request;
 
-public class AbsoluteUrl {
+public class AbsoluteUrl
+{
 	private Request request;
 	private String relativeUrl;
 	private boolean includeServer, includeContext;
-	
-	public AbsoluteUrl(Request request, String relativeUrl, boolean includeServer, boolean includeContext) {
+
+	public AbsoluteUrl(Request request, String relativeUrl, boolean includeServer, boolean includeContext)
+	{
 		this.request = request;
 		this.relativeUrl = relativeUrl;
 		this.includeServer = includeServer;
 		this.includeContext = includeContext;
 	}
-	
-	
+
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuilder builder = new StringBuilder();
 	
-		WebRequest webRequest = (WebRequest)request;
-		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
-		
-		if (includeServer) {
+		ServletWebRequest webRequest = (ServletWebRequest) request;
+		HttpServletRequest servletRequest = webRequest.getContainerRequest();
+
+		if (includeServer)
+		{
 			builder.append(servletRequest.getScheme()).append("://")
 				.append(servletRequest.getServerName())
 				.append(":")
 				.append(servletRequest.getServerPort());
 		}
+
 		if (includeContext)
+		{
 			builder.append(servletRequest.getContextPath()).append("/");
-		
+		}
+
 		builder.append(relativeUrl);
-		
 		return builder.toString();
 	}
-	
 }

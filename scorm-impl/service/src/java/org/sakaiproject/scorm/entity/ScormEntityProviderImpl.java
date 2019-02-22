@@ -23,11 +23,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -48,6 +50,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.site.api.Site;
@@ -62,456 +65,438 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  * @author bjones86
  */
+@Slf4j
 public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RequestAware,
-                                                PropertyProvideable, Resolvable, Outputable, RESTful, Redirectable, ActionsExecutable
+												PropertyProvideable, Resolvable, Outputable, RESTful, Redirectable, ActionsExecutable
 {
-    // Class members
-    private static final Log    LOG                         = LogFactory.getLog( ScormEntityProviderImpl.class );
-    private static final String TOOL_CONFIG_PERM            = "scorm.configure";
-    private static final String TOOL_LAUNCH_PERM            = "scorm.launch";
-    private static final String TOOL_REG_NAME               = "sakai.scorm.tool";
-    private static final String SCORM_PLAYER_PAGE_URL_PART  = "wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage";
-    private static final String URL_CHARACTER_ENCODING      = "UTF-8";
+	// Class members
+	private static final String TOOL_REG_NAME               = "sakai.scorm.tool";
+	private static final String SCORM_PLAYER_PAGE_URL_PART  = "wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage";
+	private static final String URL_CHARACTER_ENCODING      = "UTF-8";
 
-    // Instance members
-    private final ResourceLoader resourceLoader = new ResourceLoader( "messages" );
+	// Instance members
+	private final ResourceLoader resourceLoader = new ResourceLoader( "messages" );
 
-    // Sakai APIs
-    @Getter @Setter private SessionManager              sessionManager;
-    @Getter @Setter private SiteService                 siteService;
-    @Getter @Setter private SecurityService             securityService;
-    @Getter @Setter private UserDirectoryService        userDirectoryService;
-    @Getter @Setter private RequestGetter               requestGetter;
-    @Getter @Setter private ServerConfigurationService  serverConfigurationService;
+	// Sakai APIs
+	@Getter @Setter private SessionManager              sessionManager;
+	@Getter @Setter private SiteService                 siteService;
+	@Getter @Setter private SecurityService             securityService;
+	@Getter @Setter private UserDirectoryService        userDirectoryService;
+	@Getter @Setter private RequestGetter               requestGetter;
+	@Getter @Setter private ServerConfigurationService  serverConfigurationService;
 
-    // SCORM APIs
-    @Getter @Setter private ScormContentService contentService;
+	// SCORM APIs
+	@Getter @Setter private ScormContentService contentService;
 
-    // *************************************************************
-    // ************** Public EntityBroker Methods ******************
-    // *************************************************************
+	// *************************************************************
+	// ************** Public EntityBroker Methods ******************
+	// *************************************************************
 
-    /**
-     * Controls the globally unique prefix for the entities handled by this provider. For
-     * example: Announcements might use "annc", Evaluation might use "eval" (if this is not actually
-     * unique then an exception will be thrown when Sakai attempts to register this broker).
-     * (the global reference string will consist of the entity prefix and the local id)
-     * 
-     * @return the string that represents the globally unique prefix for an entity type
-     */
-    @Override
-    public String getEntityPrefix()
-    {
-        logIfDebugEnabled( "getEntityPrefix()" );
+	/**
+	 * Controls the globally unique prefix for the entities handled by this provider. For
+	 * example: Announcements might use "annc", Evaluation might use "eval" (if this is not actually
+	 * unique then an exception will be thrown when Sakai attempts to register this broker).
+	 * (the global reference string will consist of the entity prefix and the local id)
+	 *
+	 * @return the string that represents the globally unique prefix for an entity type
+	 */
+	@Override
+	public String getEntityPrefix()
+	{
+		log.debug( "getEntityPrefix()" );
+		return ScormEntityProvider.ENTITY_PREFIX;
+	}
 
-        return ScormEntityProvider.ENTITY_PREFIX;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object getSampleEntity()
+	{
+		log.debug( "getSampleEntity()" );
+		return new ScormEntity();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getSampleEntity()
-    {
-        logIfDebugEnabled( "getSampleEntity()" );
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String[] getHandledOutputFormats()
+	{
+		log.debug( "getHandledOutputFormats()" );
+		return ScormEntityProvider.HANDLED_OUTPUT_FORMATS;
+	}
 
-        return new ScormEntity();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> findEntityRefs( String[] prefixes, String[] names, String[] searchValues, boolean exactMatch )
+	{
+		log.debug( "findEntityRefs()" );
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String[] getHandledOutputFormats()
-    {
-        logIfDebugEnabled( "getHandledOutputFormats()" );
+		String siteID = null;
+		String userID = null;
+		List<String> entityRefs = new ArrayList<>();
 
-        return ScormEntityProvider.HANDLED_OUTPUT_FORMATS;
-    }
+		// If the provided prefix is that of the SCORM prefix...
+		if( ENTITY_PREFIX.equals( prefixes[0] ) )
+		{
+			// Get the siteID and userID
+			for( int i = 0; i < names.length; i++ )
+			{
+				if( "context".equalsIgnoreCase( names[i] ) || "site".equalsIgnoreCase( names[i] ) )
+				{
+					siteID = searchValues[i];
+				}
+				else if( "user".equalsIgnoreCase( names[i] ) || "userId".equalsIgnoreCase( names[i] ) )
+				{
+					userID = searchValues[i];
+				}
+			}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> findEntityRefs( String[] prefixes, String[] names, String[] searchValues, boolean exactMatch )
-    {
-        logIfDebugEnabled( "findEntityRefs()" );
+			// If a siteID and userID are provided...
+			if( siteID != null && userID != null )
+			{
+				try
+				{
+					// If the siteID and userID are the same, it's really trying to access the user's My Workspace, so we need to prepend '~' to the siteID
+					if( siteID.equals( userID ) )
+					{
+						siteID = "~" + siteID;
+					}
 
-        String siteID = null;
-        String userID = null;
-        List<String> entityRefs = new ArrayList<>();
+					// Get the site, verify it exists
+					Site site = siteService.getSite( siteID );
+					if( site != null )
+					{
+						// Check to make sure the current user has the 'scorm.configure' permission for the site
+						if( !securityService.unlock( userID, ScormConstants.PERM_CONFIG, siteService.siteReference( siteID ) ) )
+						{
+							// Log the message that this user doesn't have the permision for the site, return an empty list
+							log.error( "User ({}) does not have permission ({}) for site: {}", userID, ScormConstants.PERM_CONFIG, siteID );
+							return entityRefs;
+						}
 
-        // If the provided prefix is that of the SCORM prefix...
-        if( ENTITY_PREFIX.equals( prefixes[0] ) )
-        {
-            // Get the siteID and userID
-            for( int i = 0; i < names.length; i++ )
-            {
-                if( "context".equalsIgnoreCase( names[i] ) || "site".equalsIgnoreCase( names[i] ) )
-                {
-                    siteID = searchValues[i];
-                }
-                else if( "user".equalsIgnoreCase( names[i] ) || "userId".equalsIgnoreCase( names[i] ) )
-                {
-                    userID = searchValues[i];
-                }
-            }
+						// Get the tool ID
+						String toolID = "";
+						Collection<ToolConfiguration> toolConfigs = site.getTools( TOOL_REG_NAME );
+						for( ToolConfiguration toolConfig : toolConfigs )
+						{
+							toolID = toolConfig.getId();
+						}
 
-            // If a siteID and userID are provided...
-            if( siteID != null && userID != null )
-            {
-                try
-                {
-                    // If the siteID and userID are the same, it's really trying to access the user's My Workspace, so we need to prepend '~' to the siteID
-                    if( siteID.equals( userID ) )
-                    {
-                        siteID = "~" + siteID;
-                    }
+						// Only continue if the tool ID is valid
+						if( StringUtils.isNotBlank( toolID ) )
+						{
+							// Get the content packages
+							List<ContentPackage> contentPackages = contentService.getContentPackages( siteID );
+							for( ContentPackage contentPackage : contentPackages )
+							{
+								String refString = "/" + ENTITY_PREFIX + "/" +
+													siteID + ENTITY_PARAM_DELIMITER +
+													toolID + ENTITY_PARAM_DELIMITER +
+													contentPackage.getContentPackageId() + ENTITY_PARAM_DELIMITER +
+													contentPackage.getResourceId() + ENTITY_PARAM_DELIMITER +
+													contentPackage.getTitle();
+								entityRefs.add( refString );
+							}
+						}
+					}
+				}
+				catch( IdUnusedException ex )
+				{
+					log.warn( "Can't find site with ID = {}", siteID, ex );
+					throw new IllegalArgumentException( "Can't find site with ID = " + siteID, ex );
+				}
+			}
+		}
 
-                    // Get the site, verify it exists
-                    Site site = siteService.getSite( siteID );
-                    if( site != null )
-                    {
-                        // Check to make sure the current user has the 'scorm.configure' permission for the site
-                        if( !securityService.unlock( userID, TOOL_CONFIG_PERM, siteService.siteReference( siteID ) ) )
-                        {
-                            // Log the message that this user doesn't have the permision for the site, return an empty list
-                            LOG.error( "User (" + userID + ") does not have permission (" + TOOL_CONFIG_PERM + ") for site: " + siteID );
-                            return entityRefs;
-                        }
+		return entityRefs;
+	}
 
-                        // Get the tool ID
-                        String toolID = "";
-                        Collection<ToolConfiguration> toolConfigs = site.getTools( TOOL_REG_NAME );
-                        for( ToolConfiguration toolConfig : toolConfigs )
-                        {
-                            toolID = toolConfig.getId();
-                        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object getEntity( EntityReference ref )
+	{
+		log.debug( "getEntity()" );
 
-                        // Only continue if the tool ID is valid
-                        if( StringUtils.isNotBlank( toolID ) )
-                        {
-                            // Get the content packages
-                            List<ContentPackage> contentPackages = contentService.getContentPackages( siteID );
-                            for( ContentPackage contentPackage : contentPackages )
-                            {
-                                String refString = "/" + ENTITY_PREFIX + "/" + 
-                                                   siteID + ENTITY_PARAM_DELIMITER +
-                                                   toolID + ENTITY_PARAM_DELIMITER +
-                                                   contentPackage.getContentPackageId() + ENTITY_PARAM_DELIMITER +
-                                                   contentPackage.getResourceId() + ENTITY_PARAM_DELIMITER +
-                                                   contentPackage.getTitle();
-                                entityRefs.add( refString );
-                            }
-                        }
-                    }
-                }
-                catch( IdUnusedException ex )
-                {
-                    LOG.warn( "Can't find site with ID = " + siteID, ex );
-                    throw new IllegalArgumentException( "Can't find site with ID = " + siteID, ex );
-                }
-            }
-        }
+		try
+		{
+			// If the reference is invalid, throw an exception and exit
+			if( ref == null || StringUtils.isBlank( ref.getId() ) )
+			{
+				throw new IllegalArgumentException( "You must supply a valid EntityReference" );
+			}
 
-        return entityRefs;
-    }
+			// If the user has permission to launch SCORM modules in the current site, redirect them to the module
+			ScormEntity entity = getScormEntity( ref.getId() );
+			if( isCurrentUserLaunchAuth( entity.getSiteID() ) )
+			{
+				requestGetter.getResponse().sendRedirect( "/direct/" + ENTITY_PREFIX + "/" + entity.getID() + "/redirect" );
+			}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getEntity( EntityReference ref )
-    {
-        logIfDebugEnabled( "getEntity()" );
+			// Otherwise, redirect them to the HTML representation of the SCORM entity
+			else
+			{
+				requestGetter.getResponse().sendRedirect( "/direct/" + ENTITY_PREFIX + "/" + entity.getID() + "/viewHTML" );
+			}
+		}
+		catch( IOException ex )
+		{
+			log.error( ex.getMessage() );
+		}
 
-        try
-        {
-            // If the reference is invalid, throw an exception and exit
-            if( ref == null || StringUtils.isBlank( ref.getId() ) )
-            {
-                throw new IllegalArgumentException( "You must supply a valid EntityReference" );
-            }
+		return ref;
+	}
 
-            // If the user has permission to launch SCORM modules in the current site, redirect them to the module
-            ScormEntity entity = getScormEntity( ref.getId() );
-            if( isCurrentUserLaunchAuth( entity.getSiteID() ) )
-            {
-                requestGetter.getResponse().sendRedirect( "/direct/" + ENTITY_PREFIX + "/" + entity.getID() + "/redirect" );
-            }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean entityExists( String id )
+	{
+		log.debug( "entityExists()" );
 
-            // Otherwise, redirect them to the HTML representation of the SCORM entity
-            else
-            {
-                requestGetter.getResponse().sendRedirect( "/direct/" + ENTITY_PREFIX + "/" + entity.getID() + "/viewHTML" );
-            }
-        }
-        catch( IOException ex )
-        {
-            LOG.error( ex );
-        }
+		// If the id is invalid, throw an exception and exit
+		if( StringUtils.isBlank( id ) )
+		{
+			throw new IllegalArgumentException( "You must supply a valid ID" );
+		}
 
-        return ref;
-    }
+		// Otherwise, attempt to get the entity
+		else
+		{
+			// If the entity is null, it doesn't exist
+			return getScormEntity( id ) != null;
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean entityExists( String id )
-    {
-        logIfDebugEnabled( "entityExists()" );
+	/**
+	 * Returns an HTML string that describes the ScormEntity in question;
+	 * takes into account authentication for viewing SCORM modules.
+	 *
+	 * @param ref the EntityReference object requested
+	 * @return the HTML string describing the entity
+	 */
+	@EntityCustomAction( action = "viewHTML", viewKey = EntityView.VIEW_SHOW )
+	public Object getScormEntityAsHTML( EntityReference ref )
+	{
+		log.debug( "getScormEntityAsHTML()" );
 
-        // If the id is invalid, throw an exception and exit
-        if( StringUtils.isBlank( id ) )
-        {
-            throw new IllegalArgumentException( "You must supply a valid ID" );
-        }
+		// Return the generated HTML
+		return new ActionReturn( Formats.UTF_8, Formats.HTML_MIME_TYPE, createScormEntityHTML( (ScormEntity) getScormEntity( ref.getId() ) ) );
+	}
 
-        // Otherwise, attempt to get the entity
-        else
-        {
-            // If the entity is null, it doesn't exist
-            return getScormEntity( id ) != null;
-        }
-    }
+	/**
+	 * Redirects the user who clicked on a SCORM entity link to the actual final generated
+	 * URL of the SCORM instance, provided the current user passes the validation/authentication
+	 * required for launching a SCORM module
+	 *
+	 * @param vars the map of parameters returned from the EntityBroker (contains the toolID:contentPackageID:resourceID identifier)
+	 * @return the final generated URL of the SCORM instance
+	 */
+	@EntityURLRedirect( "/{prefix}/{id}/redirect" )
+	public String redirectScormEntity( Map<String, String> vars )
+	{
+		log.debug( "redirectScormEntity()" );
 
-    /**
-     * Returns an HTML string that describes the ScormEntity in question;
-     * takes into account authentication for viewing SCORM modules.
-     * 
-     * @param ref the EntityReference object requested
-     * @return the HTML string describing the entity
-     */
-    @EntityCustomAction( action = "viewHTML", viewKey = EntityView.VIEW_SHOW )
-    public Object getScormEntityAsHTML( EntityReference ref )
-    {
-        logIfDebugEnabled( "getScormEntityAsHTML()" );
+		// If the current user is able to launch a SCORM module, generate and return the final URL
+		ScormEntity entity = (ScormEntity) getScormEntity( vars.get( "id" ) );
+		if( isCurrentUserLaunchAuth( entity.getSiteID() ) )
+		{
+			return generateFinalScormURL( entity );
+		}
 
-        // Return the generated HTML
-        return new ActionReturn( Formats.UTF_8, Formats.HTML_MIME_TYPE, createScormEntityHTML( (ScormEntity) getScormEntity( ref.getId() ) ) );
-    }
+		// Otherwise, redirect to the /viewHTML custom action (which handles the non-authorized presentation)
+		else
+		{
+			return "/direct/" + ENTITY_PREFIX + "/" + entity.getID() + "/viewHTML";
+		}
+	}
 
-    /**
-     * Redirects the user who clicked on a SCORM entity link to the actual final generated
-     * URL of the SCORM instance, provided the current user passes the validation/authentication
-     * required for launching a SCORM module
-     * 
-     * @param vars the map of parameters returned from the EntityBroker (contains the toolID:contentPackageID:resourceID identifier)
-     * @return the final generated URL of the SCORM instance
-     */
-    @EntityURLRedirect( "/{prefix}/{id}/redirect" )
-    public String redirectScormEntity( Map<String, String> vars )
-    {
-        logIfDebugEnabled( "redirectScormEntity()" );
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, String> getProperties( String reference )
+	{
+		log.debug( "getProperties()" );
 
-        // If the current user is able to launch a SCORM module, generate and return the final URL
-        ScormEntity entity = (ScormEntity) getScormEntity( vars.get( "id" ) );
-        if( isCurrentUserLaunchAuth( entity.getSiteID() ) )
-        {
-            return generateFinalScormURL( entity );
-        }
+		// If the reference is invalid, throw an exception and exit
+		Map<String, String> properties = new HashMap<>();
+		if( StringUtils.isBlank( reference ) )
+		{
+			throw new IllegalArgumentException( "You must provide a valid reference string" );
+		}
+		else
+		{
+			// Get the entity by ID
+			String id = reference.replaceAll( "/" + ENTITY_PREFIX + "/", "" );
+			ScormEntity entity = getScormEntity( id );
 
-        // Otherwise, redirect to the /viewHTML custom action (which handles the non-authorized presentation)
-        else
-        {
-            return "/direct/" + ENTITY_PREFIX + "/" + entity.getID() + "/viewHTML";
-        }
-    }
+			// If the entity is not null, get the properties
+			if( entity != null )
+			{
+				properties.put( SCORM_ENTITY_PROP_SITE_ID, entity.getSiteID() );
+				properties.put( SCORM_ENTITY_PROP_TOOL_ID, entity.getToolID() );
+				properties.put( SCORM_ENTITY_PROP_CONTENT_PACKAGE_ID, entity.getContentPackageID() );
+				properties.put( SCORM_ENTITY_PROP_RESOURCE_ID, entity.getResourceID() );
+				properties.put( SCORM_ENTITY_PROP_TITLE, entity.getTitle() );
+				properties.put( SCORM_ENTITY_PROP_TITLE_ENCODED, entity.getTitleEncoded() );
+			}
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, String> getProperties( String reference )
-    {
-        logIfDebugEnabled( "getProperties()" );
+		return properties;
+	}
 
-        // If the reference is invalid, throw an exception and exit
-        Map<String, String> properties = new HashMap<>();
-        if( StringUtils.isBlank( reference ) )
-        {
-            throw new IllegalArgumentException( "You must provide a valid reference string" );
-        }
-        else
-        {
-            // Get the entity by ID
-            String id = reference.replaceAll( "/" + ENTITY_PREFIX + "/", "" );
-            ScormEntity entity = getScormEntity( id );
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getPropertyValue( String reference, String name )
+	{
+		log.debug( "getPropertyValue()" );
 
-            // If the entity is not null, get the properties
-            if( entity != null )
-            {
-                properties.put( SCORM_ENTITY_PROP_SITE_ID, entity.getSiteID() );
-                properties.put( SCORM_ENTITY_PROP_TOOL_ID, entity.getToolID() );
-                properties.put( SCORM_ENTITY_PROP_CONTENT_PACKAGE_ID, entity.getContentPackageID() );
-                properties.put( SCORM_ENTITY_PROP_RESOURCE_ID, entity.getResourceID() );
-                properties.put( SCORM_ENTITY_PROP_TITLE, entity.getTitle() );
-                properties.put( SCORM_ENTITY_PROP_TITLE_ENCODED, entity.getTitleEncoded() );
-            }
-        }
+		// Get the properties; if they're not null, get the named property requested
+		String property = null;
+		Map<String, String> properties = getProperties( reference );
+		if( properties != null && properties.containsKey( name ) )
+		{
+			property = properties.get( name );
+		}
 
-        return properties;
-    }
+		return property;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getPropertyValue( String reference, String name )
-    {
-        logIfDebugEnabled( "getPropertyValue()" );
+	// *************************************************************
+	// ******************* Private Utility Methods******************
+	// *************************************************************
 
-        // Get the properties; if they're not null, get the named property requested
-        String property = null;
-        Map<String, String> properties = getProperties( reference );
-        if( properties != null && properties.containsKey( name ) )
-        {
-            property = properties.get( name );
-        }
+	/**
+	 * Determine if the current user should be able to launch the SCORM module,
+	 * based on the 'scorm.launch' permission.
+	 *
+	 * @param siteID the current site's internal ID
+	 * @return true/false if the user has the 'scorm.launch' permission in the current site
+	 */
+	private boolean isCurrentUserLaunchAuth( String siteID )
+	{
+		log.debug( "isCurrentUserLaunchAuth()" );
 
-        return property;
-    }
+		String userID = userDirectoryService.getCurrentUser().getId();
+		return securityService.unlock( userID, ScormConstants.PERM_LAUNCH, siteService.siteReference( siteID ) );
+	}
 
-    // *************************************************************
-    // ******************* Private Utility Methods******************
-    // *************************************************************
+	/**
+	 * Get a ScormEntity object by ID (toolID:contentPackageID:resourceID:title)
+	 *
+	 * @param entityID the packed ID reference string (toolID:contentPackageID:resourceID:title)
+	 * @return the ScormEntity object requested
+	 */
+	private ScormEntity getScormEntity( String entityID )
+	{
+		log.debug( "getScormEntity()" );
 
-    /**
-     * Determine if the current user should be able to launch the SCORM module, 
-     * based on the 'scorm.launch' permission.
-     * 
-     * @param siteID the current site's internal ID
-     * @return true/false if the user has the 'scorm.launch' permission in the current site
-     */
-    private boolean isCurrentUserLaunchAuth( String siteID )
-    {
-        logIfDebugEnabled( "isCurrentUserLaunchAuth()" );
+		// Short circuit if an ID is not supplied
+		ScormEntity entity = null;
+		if( StringUtils.isBlank( entityID ) )
+		{
+			throw new IllegalArgumentException( "You must supply a valid reference string" );
+		}
+		else
+		{
+			String tokens[] = entityID.split( ScormEntityProvider.ENTITY_PARAM_DELIMITER );
+			if( tokens.length == 5 )
+			{
+				String siteID           = tokens[0];
+				String toolID           = tokens[1];
+				String contentPackageID = tokens[2];
+				String resourceID       = tokens[3];
+				String title            = tokens[4];
 
-        String userID = userDirectoryService.getCurrentUser().getId();
-        return securityService.unlock( userID, TOOL_LAUNCH_PERM, siteService.siteReference( siteID ) );
-    }
+				String titleEncoded = title;
+				try
+				{
+					titleEncoded = URLEncoder.encode( title, URL_CHARACTER_ENCODING );
+				}
+				catch( UnsupportedEncodingException ex )
+				{
+					log.warn( "Unable to encode SCORM entity title: {}", title, ex );
+				}
 
-    /**
-     * Get a ScormEntity object by ID (toolID:contentPackageID:resourceID:title)
-     * 
-     * @param entityID the packed ID reference string (toolID:contentPackageID:resourceID:title)
-     * @return the ScormEntity object requested
-     */
-    private ScormEntity getScormEntity( String entityID )
-    {
-        logIfDebugEnabled( "getScormEntity()" );
+				entity = new ScormEntity( siteID, toolID, contentPackageID, resourceID, title, titleEncoded );
+			}
+			else
+			{
+				throw new IllegalArgumentException( "You must supply a valid reference string" );
+			}
+		}
 
-        // Short circuit if an ID is not supplied
-        ScormEntity entity = null;
-        if( StringUtils.isBlank( entityID ) )
-        {
-            throw new IllegalArgumentException( "You must supply a valid reference string" );
-        }
-        else
-        {
-            String tokens[] = entityID.split( ScormEntityProvider.ENTITY_PARAM_DELIMITER );
-            if( tokens.length == 5 )
-            {
-                String siteID           = tokens[0];
-                String toolID           = tokens[1];
-                String contentPackageID = tokens[2];
-                String resourceID       = tokens[3];
-                String title            = tokens[4];
+		return entity;
+	}
 
-                String titleEncoded = title;
-                try
-                {
-                    titleEncoded = URLEncoder.encode( title, URL_CHARACTER_ENCODING );
-                }
-                catch( UnsupportedEncodingException ex )
-                {
-                    LOG.warn( "Unable to encode SCORM entity title: " + title, ex );
-                }
+	/**
+	 * Creates an HTML representation for a given ScormEntity object.
+	 *
+	 * @param entity the ScormEntity to describe via HTML
+	 * @return the generated HTML string based on the provided ScormEntity object
+	 */
+	private String createScormEntityHTML( ScormEntity entity )
+	{
+		log.debug( "createScormEntityHTML()" );
 
-                entity = new ScormEntity( siteID, toolID, contentPackageID, resourceID, title, titleEncoded );
-            }
-            else
-            {
-                throw new IllegalArgumentException( "You must supply a valid reference string" );
-            }
-        }
+		StringBuilder sb = new StringBuilder();
+		sb.append( resourceLoader.getFormattedMessage( "htmlHeader", new Object[] { serverConfigurationService.getString( "skin.repo" ) + "/tool_base.css" } ) );
 
-        return entity;
-    }
+		// If the user is allowed to launch SCORM modules in the current site, generate the HTML to view the link
+		if( isCurrentUserLaunchAuth( entity.getSiteID() ) )
+		{
+			sb.append( resourceLoader.getFormattedMessage( "htmlIframe", new Object[] { generateFinalScormURL( entity ) } ) );
+		}
 
-    /**
-     * Creates an HTML representation for a given ScormEntity object.
-     * 
-     * @param entity the ScormEntity to describe via HTML
-     * @return the generated HTML string based on the provided ScormEntity object
-     */
-    private String createScormEntityHTML( ScormEntity entity )
-    {
-        logIfDebugEnabled( "createScormEntityHTML()" );
+		// Otherwise, just build some HTML to tell the user thye're not allowed to launch SCORM modules in this site
+		else
+		{
+			sb.append( resourceLoader.getFormattedMessage( "htmlH2", new Object[] { resourceLoader.getString( "authFailMsg" ) } ) );
+		}
 
-        StringBuilder sb = new StringBuilder();
-        sb.append( resourceLoader.getFormattedMessage( "htmlHeader", new Object[] { serverConfigurationService.getString( "skin.repo" ) + "/tool_base.css" } ) );
+		// Return the generated HTML string
+		sb.append(  resourceLoader.getString( "htmlFooter" ) );
+		return sb.toString();
+	}
 
-        // If the user is allowed to launch SCORM modules in the current site, generate the HTML to view the link
-        if( isCurrentUserLaunchAuth( entity.getSiteID() ) )
-        {
-            sb.append( resourceLoader.getFormattedMessage( "htmlIframe", new Object[] { generateFinalScormURL( entity ) } ) );
-        }
+	/**
+	 * Generates the final URL for a SCORM module entity, which includes the tool ID,
+	 * content package ID, resource ID and title.
+	 *
+	 * @param entity the specific SCORM module the requester wants a link to
+	 * @return
+	 */
+	private String generateFinalScormURL( ScormEntity entity )
+	{
+		log.debug( "generateFinalScormURL()" );
 
-        // Otherwise, just build some HTML to tell the user thye're not allowed to launch SCORM modules in this site
-        else
-        {
-            sb.append( resourceLoader.getFormattedMessage( "htmlH2", new Object[] { resourceLoader.getString( "authFailMsg" ) } ) );
-        }
+		// Build and return the full URL to the specified SCORM module
+		String url = serverConfigurationService.getServerUrl() + "/portal/tool/" +
+					 entity.getToolID() + "?" +
+					 SCORM_PLAYER_PAGE_URL_PART + "&contentPackageId=" +
+					 entity.getContentPackageID() + "&resourceId=" +
+					 entity.getResourceID() + "&title=" +
+					 entity.getTitleEncoded();
+		return url;
+	}
 
-        // Return the generated HTML string
-        sb.append(  resourceLoader.getString( "htmlFooter" ) );
-        return sb.toString();
-    }
+	// *************************************************************
+	// ******************* Unimplemented Methods *******************
+	// *************************************************************
 
-    /**
-     * Generates the final URL for a SCORM module entity, which includes the tool ID,
-     * content package ID, resource ID and title.
-     * 
-     * @param entity the specific SCORM module the requester wants a link to
-     * @return 
-     */
-    private String generateFinalScormURL( ScormEntity entity )
-    {
-        logIfDebugEnabled( "generateFinalScormURL()" );
-
-        // Build and return the full URL to the specified SCORM module
-        String url = serverConfigurationService.getServerUrl() + "/portal/tool/" +
-                     entity.getToolID() + "?" + 
-                     SCORM_PLAYER_PAGE_URL_PART + "&contentPackageId=" +
-                     entity.getContentPackageID() + "&resourceId=" +
-                     entity.getResourceID() + "&title=" +
-                     entity.getTitleEncoded();
-        return url;
-    }
-
-    /**
-     * Utility method to avoid repeating this debug code in every method.
-     * 
-     * @param message the message to be logged
-     */
-    private void logIfDebugEnabled( String message )
-    {
-        if( LOG.isDebugEnabled() )
-        {
-            LOG.debug( message );
-        }
-    }
-
-    // *************************************************************
-    // ******************* Unimplemented Methods *******************
-    // *************************************************************
-
-    @Override public String     createEntity( EntityReference ref, Object entity, Map<String, Object> params )  { return null; }
-    @Override public List<?>    getEntities ( EntityReference ref, Search search )                              { return null; }
-    @Override public String[]   getHandledInputFormats()                                                        { return null; }
-    @Override public void       updateEntity( EntityReference ref, Object entity, Map<String, Object> params )  {}
-    @Override public void       deleteEntity( EntityReference ref, Map<String, Object> params )                 {}
-    @Override public void       setPropertyValue( String reference, String name, String value )                 {}
+	@Override public String     createEntity( EntityReference ref, Object entity, Map<String, Object> params )  { return null; }
+	@Override public List<?>    getEntities ( EntityReference ref, Search search )                              { return null; }
+	@Override public String[]   getHandledInputFormats()                                                        { return null; }
+	@Override public void       updateEntity( EntityReference ref, Object entity, Map<String, Object> params )  {}
+	@Override public void       deleteEntity( EntityReference ref, Map<String, Object> params )                 {}
+	@Override public void       setPropertyValue( String reference, String name, String value )                 {}
 }

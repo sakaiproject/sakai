@@ -102,17 +102,21 @@ public abstract class DMElement implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		DMElement other = (DMElement) obj;
-		if (id == null)
+		if (id == null){
 			return false; // Always return false is id == null
-		else if (!id.equals(other.id))
+		} else if (!id.equals(other.id)){
 			return false;
+		}
 		return true;
 	}
 
@@ -152,7 +156,7 @@ public abstract class DMElement implements Serializable {
 
 	public List<DMElement> getAllChilden() {
 		Map<String, DMElement> children = getChildren();
-		List<DMElement> all = new ArrayList<DMElement>(children.size());
+		List<DMElement> all = new ArrayList<>(children.size());
 		Set<Entry<String, DMElement>> entrySet = children.entrySet();
 		for (Entry<String, DMElement> entry : entrySet) {
 			all.add(entry.getValue());
@@ -162,7 +166,7 @@ public abstract class DMElement implements Serializable {
 	}
 
 	public Map<String, DMElement> getChildren() {
-		return (mChildren != null ? mChildren : (mChildren = new HashMap<String, DMElement>()));
+		return (mChildren != null ? mChildren : (mChildren = new HashMap<>()));
 	}
 
 	public List<DMDelimiter> getDelimiters() {
@@ -322,7 +326,7 @@ public abstract class DMElement implements Serializable {
 	 */
 	public void putChild(String iName, DMElement iElement) {
 		if (mChildren == null) {
-			mChildren = new Hashtable<String, DMElement>();
+			mChildren = new Hashtable<>();
 
 		}
 

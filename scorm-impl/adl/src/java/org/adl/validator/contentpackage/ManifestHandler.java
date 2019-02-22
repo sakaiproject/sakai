@@ -111,7 +111,7 @@ public class ManifestHandler implements Serializable {
 	 */
 	public static List<Node> getOrganizationNodes(Node iRootNode, boolean iDefaultOrganizationOnly) {
 		//mLogger.entering("ManifestHandler", "getOrganizationNodes()");
-		List<Node> result = new ArrayList<Node>();
+		List<Node> result = new ArrayList<>();
 
 		if (iDefaultOrganizationOnly) {
 			result.add(getDefaultOrganizationNode(iRootNode));
@@ -149,7 +149,7 @@ public class ManifestHandler implements Serializable {
 
 	public static List<Node> getSSPResourceList(Node iRootNode) {
 		//take
-		List<Node> result = new ArrayList<Node>();
+		List<Node> result = new ArrayList<>();
 
 		// get the list of resource nodes
 		Node resourcesNode = DOMTreeUtility.getNode(iRootNode, "resources");
@@ -247,11 +247,11 @@ public class ManifestHandler implements Serializable {
 	public ManifestHandler() {
 		mLaunchDataTracked = false;
 		mMetadataTracked = false;
-		mMetadataDataList = new ArrayList<MetadataData>();
-		mLaunchDataList = new ArrayList<LaunchData>();
+		mMetadataDataList = new ArrayList<>();
+		mLaunchDataList = new ArrayList<>();
 		mManifestResourcesXMLBase = "";
 		mResourceXMLBase = "";
-		mLocationList = new ArrayList<String>();
+		mLocationList = new ArrayList<>();
 	}
 
 	/**
@@ -267,8 +267,9 @@ public class ManifestHandler implements Serializable {
 	 */
 	private void addItemInfo(Node iNode, String iOrgID) {
 		mLogger.entering("ManifestHandler", "addItemInfo()");
-		if (iNode == null)
+		if (iNode == null){
 			return;
+		}
 
 		int type = iNode.getNodeType();
 		String orgID = iOrgID;

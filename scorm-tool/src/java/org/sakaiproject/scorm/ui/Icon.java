@@ -15,14 +15,17 @@
  */
 package org.sakaiproject.scorm.ui;
 
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.request.resource.ResourceReference;
 
-public class Icon extends Image {
+public class Icon extends Image
+{
 	private static final long serialVersionUID = 1L;
+
 	private ResourceReference reference;
-	
-	public Icon(String id, ResourceReference reference) {
+
+	public Icon(String id, ResourceReference reference)
+	{
 		super(id);
 		this.reference = reference;
 	}

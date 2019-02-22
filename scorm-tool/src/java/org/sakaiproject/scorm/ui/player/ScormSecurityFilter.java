@@ -22,18 +22,27 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+
 import org.springframework.web.filter.GenericFilterBean;
 
-public class ScormSecurityFilter extends GenericFilterBean {
+public class ScormSecurityFilter extends GenericFilterBean
+{
+	private static final SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		SecurityService.pushAdvisor(new ScormSecurityAdvisor());
-		try {
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
+	{
+		ScormSecurityAdvisor securityAdvisor = new ScormSecurityAdvisor();
+		securityService.pushAdvisor(securityAdvisor);
+		try
+		{
 			chain.doFilter(request, response);
-		} finally {
-			SecurityService.popAdvisor();
+		}
+		finally
+		{
+			securityService.popAdvisor(securityAdvisor);
 		}
 	}
-
 }

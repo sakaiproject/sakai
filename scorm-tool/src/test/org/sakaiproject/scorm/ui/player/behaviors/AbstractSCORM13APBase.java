@@ -18,7 +18,9 @@ package org.sakaiproject.scorm.ui.player.behaviors;
 import org.adl.api.ecmascript.APIErrorManager;
 import org.adl.api.ecmascript.IErrorManager;
 import org.adl.sequencer.SeqNavRequests;
+
 import org.junit.Before;
+
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -27,6 +29,7 @@ import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -39,8 +42,8 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 				"classpath*:org/sakaiproject/scorm/**/spring-adl-*.xml",
 				"classpath*:org/sakaiproject/scorm/**/spring-standalone-*.xml",
 				"classpath*:org/sakaiproject/scorm/**/spring-mock-*.xml"})
-public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4SpringContextTests {
-
+public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4SpringContextTests
+{
 	protected SCORM13API scorm13api;
 	protected ScormApplicationService scormApplicationService;
 	protected ScormSequencingService scormSequencingService;
@@ -52,7 +55,8 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 	protected ContentPackage contentPackage;
 
 	@Before
-	public void onSetUpBeforeTransaction() throws Exception {
+	public void onSetUpBeforeTransaction() throws Exception
+	{
 		scormApplicationService = (ScormApplicationService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormApplicationService");
 		scormSequencingService = (ScormSequencingService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormSequencingService");
 		scormContentService = (ScormContentService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormContentService");
@@ -67,39 +71,46 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 		sessionBean = new SessionBean();
 		sessionBean.setContentPackage(contentPackage);
 		sessionBean.setErrorManager(new APIErrorManager(IErrorManager.SCORM_2004_API));
+
 		// init the launch data.
 		scormSequencingService.navigate(SeqNavRequests.NAV_START, sessionBean, null, new Object());
 		scoBean = scormApplicationService.produceScoBean("undefined", sessionBean);
 
-		scorm13api = new SCORM13API() {
-
+		scorm13api = new SCORM13API()
+		{
 			@Override
-			public Object getTarget() {
+			public Object getTarget()
+			{
 				return null;
 			}
 
 			@Override
-			public SessionBean getSessionBean() {
+			public SessionBean getSessionBean()
+			{
 				return sessionBean;
 			}
 
 			@Override
-			public ScormSequencingService getSequencingService() {
+			public ScormSequencingService getSequencingService()
+			{
 				return scormSequencingService;
 			}
 
 			@Override
-			public ScoBean getScoBean() {
+			public ScoBean getScoBean()
+			{
 				return scoBean;
 			}
 
 			@Override
-			public ScormApplicationService getApplicationService() {
+			public ScormApplicationService getApplicationService()
+			{
 				return scormApplicationService;
 			}
 
 			@Override
-			public INavigable getAgent() {
+			public INavigable getAgent()
+			{
 				return null;
 			}
 		};

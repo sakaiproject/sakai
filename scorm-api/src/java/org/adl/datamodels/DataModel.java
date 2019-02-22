@@ -73,6 +73,7 @@ public abstract class DataModel implements IDataModel {
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
+	@Override
 	public int equals(DMRequest iRequest) {
 		return equals(iRequest, true);
 	}
@@ -88,22 +89,28 @@ public abstract class DataModel implements IDataModel {
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
+	@Override
 	public abstract int equals(DMRequest iRequest, boolean iValidate);
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		DataModel other = (DataModel) obj;
 		if (id == null) {
-			if (other.id != null)
+			if (other.id != null){
 				return false;
-		} else if (!id.equals(other.id))
+			}
+		} else if (!id.equals(other.id)){
 			return false;
+		}
 		return true;
 	}
 
@@ -112,6 +119,7 @@ public abstract class DataModel implements IDataModel {
 	 * 
 	 * @return This data model's binding string.
 	 */
+	@Override
 	public abstract String getDMBindingString();
 
 	/**
@@ -123,6 +131,7 @@ public abstract class DataModel implements IDataModel {
 	 *         or <code>null</code> if the element does not exist in the data
 	 *         model.
 	 */
+	@Override
 	public abstract DMElement getDMElement(String iElement);
 
 	/**
@@ -135,6 +144,7 @@ public abstract class DataModel implements IDataModel {
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
+	@Override
 	public abstract int getValue(DMRequest iRequest, DMProcessingInfo oInfo);
 
 	@Override
@@ -151,6 +161,7 @@ public abstract class DataModel implements IDataModel {
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
+	@Override
 	public abstract int initialize();
 
 	/**
@@ -161,11 +172,13 @@ public abstract class DataModel implements IDataModel {
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
+	@Override
 	public abstract int setValue(DMRequest iRequest, IValidatorFactory validatorFactory);
 
 	/**
 	 * Displays the contents of the entire data model.
 	 */
+	@Override
 	public abstract void showAllElements();
 
 	/**
@@ -174,6 +187,7 @@ public abstract class DataModel implements IDataModel {
 	    * @return An abstract data model error code indicating the result of this
 	    *         operation.
 	    */
+	@Override
 	public abstract int terminate(IValidatorFactory validatorFactory);
 
 	/**
@@ -185,6 +199,7 @@ public abstract class DataModel implements IDataModel {
 	    * @return An abstract data model error code indicating the result of this
 	    *         operation.
 	    */
+	@Override
 	public abstract int validate(DMRequest iRequest);
 
 } // end DataModel

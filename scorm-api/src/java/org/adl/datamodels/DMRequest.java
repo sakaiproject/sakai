@@ -97,7 +97,9 @@ public class DMRequest {
 				throw nf;
 			}
 		} else
+		{
 			throw new NullPointerException();
+		}
 	}
 
 	/**
@@ -135,7 +137,9 @@ public class DMRequest {
 				throw iae;
 			}
 		} else
+		{
 			throw new NullPointerException("Element name not specified");
+		}
 	}
 
 	/**
@@ -166,7 +170,9 @@ public class DMRequest {
 				throw nf;
 			}
 		} else
+		{
 			throw new NullPointerException();
+		}
 	}
 
 	/**
@@ -202,7 +208,9 @@ public class DMRequest {
 				throw nf;
 			}
 		} else
+		{
 			throw new NullPointerException();
+		}
 	}
 
 	/**
@@ -370,7 +378,7 @@ public class DMRequest {
 	 */
 	private void parseElement(String iElement) {
 		// Initiazlize this request's set of tokens
-		mTokens = new ArrayList<RequestToken>();
+		mTokens = new ArrayList<>();
 		mCurToken = 0;
 
 		RequestToken tok = null;
@@ -387,7 +395,9 @@ public class DMRequest {
 				tok = new RequestToken(name, RequestToken.TOKEN_DATA_MODEL);
 				mTokens.add(tok);
 			} else
+			{
 				throw new IllegalArgumentException("Empty token");
+			}
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException("Data Model improperly specified");
 		}
@@ -403,7 +413,9 @@ public class DMRequest {
 					tok = new RequestToken(name, false);
 
 				} else
+				{
 					throw new IllegalArgumentException("Empty token");
+				}
 			} catch (IllegalArgumentException e) {
 				throw new IllegalArgumentException("Element improperly specified");
 			}
@@ -539,7 +551,7 @@ public class DMRequest {
 
 	@Override
 	public String toString() {
-		List<String> toks = new ArrayList<String>(mTokens.size());
+		List<String> toks = new ArrayList<>(mTokens.size());
 		for (RequestToken tok : mTokens) {
 			toks.add(tok.getValue());
 		}

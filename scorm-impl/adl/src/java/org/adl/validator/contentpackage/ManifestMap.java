@@ -122,14 +122,14 @@ public class ManifestMap implements IManifestMap {
 		//mLogger = Logger.getLogger("org.adl.util.debug.validator"); 
 
 		mManifestId = "";
-		mResourceIds = new ArrayList<String>();
-		mItemIds = new ArrayList<String>();
-		mItemIdrefs = new ArrayList<String>();
-		mManifestMaps = new ArrayList<ManifestMap>();
+		mResourceIds = new ArrayList<>();
+		mItemIds = new ArrayList<>();
+		mItemIdrefs = new ArrayList<>();
+		mManifestMaps = new ArrayList<>();
 		mDoSubmanifestExist = false;
 		mApplicationProfile = "";
-		mDependencyIdrefs = new ArrayList<String>();
-		mSubManifestIDrefs = new ArrayList<String>();
+		mDependencyIdrefs = new ArrayList<>();
+		mSubManifestIDrefs = new ArrayList<>();
 	}
 
 	/**
@@ -141,8 +141,9 @@ public class ManifestMap implements IManifestMap {
 	 * reference valid identifers.
 	 *
 	 */
+	@Override
 	public List<String> checkAllIdReferences() {
-		List<String> resultList = new ArrayList<String>();
+		List<String> resultList = new ArrayList<>();
 		String msgText = "";
 		String idrefValue = "";
 		boolean iItemdrefResult = false;
@@ -152,7 +153,7 @@ public class ManifestMap implements IManifestMap {
 			for (int i = 0; i < mItemIdrefsSize; i++) {
 				idrefValue = mItemIdrefs.get(i);
 
-				if (!idrefValue.equals("")) {
+				if (!idrefValue.isEmpty()) {
 					msgText = Messages.getString("ManifestMap.40", idrefValue);
 					log.debug("INFO: " + msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
@@ -177,7 +178,7 @@ public class ManifestMap implements IManifestMap {
 			for (int i = 0; i < mDependencyIdrefsSize; i++) {
 				idrefValue = mDependencyIdrefs.get(i);
 
-				if (!idrefValue.equals("")) {
+				if (!idrefValue.isEmpty()) {
 					msgText = Messages.getString("ManifestMap.40", idrefValue);
 					log.debug("INFO: " + msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
@@ -214,6 +215,7 @@ public class ManifestMap implements IManifestMap {
 	 * reference valid identifers.
 	 *
 	 */
+	@Override
 	public boolean checkIdReference(String iIdref, boolean iInSubManifest) {
 		boolean result = false;
 		String msgText = "";
@@ -314,6 +316,7 @@ public class ManifestMap implements IManifestMap {
 	 *
 	 * @return - The boolean describing if the manifest utilizes (Sub) manifest.
 	 */
+	@Override
 	public String getApplicationProfile() {
 		return mApplicationProfile;
 	}
@@ -325,6 +328,7 @@ public class ManifestMap implements IManifestMap {
 	 * @return - The identifier reference values of all &lt;dependency&gt; elements
 	 * that belong to the &lt;manifest&gt; element of mManifestId.
 	 */
+	@Override
 	public List<String> getDependencyIdrefs() {
 		return mDependencyIdrefs;
 	}
@@ -336,6 +340,7 @@ public class ManifestMap implements IManifestMap {
 	 * @return - The boolean describing if the manifest utilizes (Sub) manifest.
 	 * 
 	 */
+	@Override
 	public boolean getDoSubmanifestExist() {
 		return mDoSubmanifestExist;
 	}
@@ -347,6 +352,7 @@ public class ManifestMap implements IManifestMap {
 	 * @return - The identifier reference values of all &lt;item&gt; elements that
 	 * belong to the &lt;manifest&gt; element of mManifestId.
 	 */
+	@Override
 	public List<String> getItemIdrefs() {
 		return mItemIdrefs;
 	}
@@ -358,6 +364,7 @@ public class ManifestMap implements IManifestMap {
 	 * @return - The identifier attributes of all &lt;item&gt; elements that
 	 * belong to the &lt;manifest&gt; element of mManifestId.
 	 */
+	@Override
 	public List<String> getItemIds() {
 		return mItemIds;
 	}
@@ -367,6 +374,7 @@ public class ManifestMap implements IManifestMap {
 	 *
 	 * @return - The identifier value of the &lt;manifest&gt; element.
 	 */
+	@Override
 	public String getManifestId() {
 		return mManifestId;
 	}
@@ -376,6 +384,7 @@ public class ManifestMap implements IManifestMap {
 	 *
 	 * @return - The ManifestMap objects for all (Sub) manifest elements.
 	 */
+	@Override
 	public List<ManifestMap> getManifestMaps() {
 		return mManifestMaps;
 	}
@@ -387,6 +396,7 @@ public class ManifestMap implements IManifestMap {
 	 * @return - The identifier attributes of all &lt;resource&gt; elements that
 	 * belong to the &lt;manifest&gt; element of mManifestId.
 	 */
+	@Override
 	public List<String> getResourceIds() {
 		return mResourceIds;
 	}
@@ -396,6 +406,7 @@ public class ManifestMap implements IManifestMap {
 	 *
 	 * @return - The ManifestMap objects for all (Sub) manifest elements.
 	 */
+	@Override
 	public List<String> getSubManifestIDrefs() {
 		return mSubManifestIDrefs;
 	}
@@ -413,6 +424,7 @@ public class ManifestMap implements IManifestMap {
 	 * @return - The boolean describing if the ManifestMap object(s) has been
 	 * populated properly.
 	 */
+	@Override
 	public boolean populateManifestMap(Node iNode) {
 		// looks exactly like prunetree as we walk down the tree
 		log.debug("populateManifestMap");
@@ -591,6 +603,7 @@ public class ManifestMap implements IManifestMap {
 	 *
 	 * @param iApplicationProfile The indicator of the Application Profile
 	 */
+	@Override
 	public void setApplicationProfile(String iApplicationProfile) {
 		mApplicationProfile = iApplicationProfile;
 	}

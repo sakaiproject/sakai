@@ -17,50 +17,43 @@ package org.sakaiproject.scorm.ui;
 
 import java.io.Serializable;
 
-public class NameValuePair implements Serializable {
+import lombok.Getter;
+import lombok.Setter;
+
+public class NameValuePair implements Serializable
+{
 	private static final long serialVersionUID = 1L;
-	
-	private String value;
-	private String name;
-	
-	public NameValuePair(String value, String id) {
+
+	@Getter @Setter private String value;
+	@Getter @Setter private String name;
+
+	public NameValuePair(String value, String id)
+	{
 		this.value = value;
 		this.name = id;
 	}
 
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
 	@Override
-	public boolean equals(Object object) {
-		if (object instanceof NameValuePair) {
-			NameValuePair nvp = (NameValuePair)object;
-			
+	public boolean equals(Object object)
+	{
+		if (object instanceof NameValuePair)
+		{
+			NameValuePair nvp = (NameValuePair) object;
 			return name.equals(nvp.getName());
 		}
+
 		return false;
 	}
-	
+
 	@Override
-	public int hashCode() {
-	    return (name != null ? name.hashCode() : super.hashCode());
+	public int hashCode()
+	{
+		return (name != null ? name.hashCode() : super.hashCode());
 	}
-	
+
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return name;
 	}
 }

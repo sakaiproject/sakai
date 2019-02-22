@@ -7,25 +7,9 @@
 </head>
 <body>
 	<wicket:extend>
-		<ul class="navIntraTool" wicket:id="toolbar-administration">
-			<li class="firstToolBarItem">
-				<span>
-					<img wicket:id="listIcon" class="pageIcon"/>
-					<a wicket:id="listLink" wicket:message="title:link.list"></a>
-				</span>
-			</li>
-			<li>
-				<span>
-					<img wicket:id="uploadIcon" class="pageIcon"/>
-					<a wicket:id="uploadLink" wicket:message="title:link.upload"></a>
-				</span>
-			</li>
-			<!--<li>
-				<span>
-					<img wicket:id="validateIcon" class="pageIcon"/>
-					<a wicket:id="validateLink" wicket:message="title:link.validate"></a>
-				</span>
-			</li>-->
+		<ul class="navIntraTool" wicket:id="navBar">
+			<span wicket:id="listLink"></span>
+			<span wicket:id="uploadLink"></span>
 		</ul>
 
 		<wicket:enclosure child="breadcrumbs">
@@ -33,19 +17,13 @@
 			<p/>
 		</wicket:enclosure>
 
-	    <h3><img wicket:id="pageIcon" class="pageIcon"/>&nbsp;&nbsp;<span wicket:id="page.title">Console</span></h3>
+		<h3 wicket:id="page.title">Console</h3>
 
-	    <div class="navPanel" style="height:auto">
-			<wicket:enclosure child="feedback">
-				<p class="information"><span wicket:id="feedback"></span></p>
-			</wicket:enclosure>
-			<div class="viewNav">
-				<p class="instruction"><wicket:message key="page.instructions"/></p>
-			</div>
-		</div>
-		
+		<wicket:enclosure child="feedback">
+			<div wicket:id="feedback"></div>
+		</wicket:enclosure>
+
 		<wicket:child/>
-		
 	</wicket:extend>
 </body>
 </html>

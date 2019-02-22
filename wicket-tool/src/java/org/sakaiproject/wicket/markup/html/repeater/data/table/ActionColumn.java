@@ -31,33 +31,42 @@ import org.apache.wicket.model.IModel;
  * @author jrenfro
  *
  */
-public class ActionColumn extends PropertyColumn {
-
+public class ActionColumn extends PropertyColumn
+{
 	private static final long serialVersionUID = 1L;
 
-	private List<Action> actions = new LinkedList<Action>();
-	
-	public ActionColumn(IModel headerDisplayModel) {
+	private List<Action> actions = new LinkedList<>();
+
+	public ActionColumn(IModel headerDisplayModel)
+	{
 		super(headerDisplayModel, null);
 	}
-	
-	public ActionColumn(IModel headerDisplayModel, String propertyExpression) {
+
+	public ActionColumn(IModel headerDisplayModel, String propertyExpression)
+	{
 		super(headerDisplayModel, propertyExpression);
 	}
-	
-	public ActionColumn(IModel headerDisplayModel, String sortProperty, String propertyExpression) {
+
+	public ActionColumn(IModel headerDisplayModel, String sortProperty, String propertyExpression)
+	{
 		super(headerDisplayModel, sortProperty, propertyExpression);
 	}
-	
-	public void populateItem(Item item, String componentId, IModel model) {
+
+	@Override
+	public void populateItem(Item item, String componentId, IModel model)
+	{
 		final Object modelObject = model.getObject();
-		
+
 		if (actions != null && actions.size() > 0)
+		{
 			item.add(new ActionPanel(componentId, actions, modelObject));
+		}
 		else
+		{
 			super.populateItem(item, componentId, model);
+		}
 	}
-	
+
 	/**
 	 * This method should be called once for each "action". The first action added
 	 * will appear as an h4 link, and any addition actions will appear below that 
@@ -65,8 +74,8 @@ public class ActionColumn extends PropertyColumn {
 	 * 
 	 * @param action
 	 */
-	public void addAction(Action action) {
+	public void addAction(Action action)
+	{
 		actions.add(action);
 	}
-	
 }

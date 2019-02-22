@@ -206,10 +206,10 @@ public class Messages {
 	 */
 	private static String mkRegxReady(String iParam) {
 		if (iParam != null) {
-			if (iParam.indexOf("\\") != -1) {
+			if (iParam.contains( "\\" )) {
 				iParam = replace(iParam, "\\", "\\\\");
 			}
-			if (iParam.indexOf("$") != -1) {
+			if (iParam.contains( "$" )) {
 				iParam = replace(iParam, "$", "\\$");
 			}
 		}

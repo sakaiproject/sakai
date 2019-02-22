@@ -17,10 +17,9 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 
-public interface ScoBean extends Serializable {
-
+public interface ScoBean extends Serializable
+{
 	public static final int SCO_VERSION_2 = 2;
-
 	public static final int SCO_VERSION_3 = 3;
 
 	public void clearState();
@@ -44,23 +43,4 @@ public interface ScoBean extends Serializable {
 	public void setTerminated(boolean isTerminated);
 
 	public void setVersion(int version);
-
-	/*public String Commit(String parameter);
-
-	public String GetDiagnostic(String iErrorCode);
-
-	public String GetErrorString(String iErrorCode);
-
-	public String GetLastError();
-
-	public String GetValue(String parameter);
-
-	public String Initialize(String parameter);
-
-	public String SetValue(String dataModelElement, String value);
-
-	public String Terminate(String iParam);
-
-	public String Terminate(String iParam, IRefreshable agent, Object target);*/
-
 }

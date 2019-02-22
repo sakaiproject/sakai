@@ -77,7 +77,7 @@ public class MDChildren {
 	*/
 	public MDChildren() {
 		mLogger = Logger.getLogger("org.adl.util.debug.validator");
-		mChildren = new ArrayList<String>();
+		mChildren = new ArrayList<>();
 		mAllKidsValid = false;
 
 	}// end constructor()

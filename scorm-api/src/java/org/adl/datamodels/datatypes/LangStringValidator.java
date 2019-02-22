@@ -215,11 +215,11 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 
 		// Make sure there is something to validate
 		if (iFirst != null && iSecond != null) {
-			if (iFirst.trim().equals("") || iSecond.trim().equals("")) {
+			if (iFirst.trim().isEmpty() || iSecond.trim().isEmpty()) {
 				// If either value is empty, there is nothing to compare
 				done = true;
 
-				if (!iFirst.trim().equals("") || !iSecond.trim().equals("")) {
+				if (!iFirst.trim().isEmpty() || !iSecond.trim().isEmpty()) {
 					// But they both have to be empty to be equal
 					equal = false;
 				} else {
@@ -235,8 +235,8 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 				String lang2 = iSecond;
 
 				// Find the first '-'
-				curDash1 = iFirst.indexOf("-");
-				curDash2 = iSecond.indexOf("-");
+				curDash1 = iFirst.indexOf('-');
+				curDash2 = iSecond.indexOf('-');
 
 				if (curDash1 != -1) {
 					lang1 = iFirst.substring(0, curDash1);
@@ -324,14 +324,14 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 						}
 					} else {
 						// Look for the next '-'
-						curDash1 = iFirst.indexOf("-", 2);
+						curDash1 = iFirst.indexOf('-', 2);
 						if (curDash1 == -1) {
 							lang1 = iFirst.substring(2);
 						} else {
 							lang1 = iFirst.substring(2, curDash1);
 						}
 
-						curDash2 = iSecond.indexOf("-", 2);
+						curDash2 = iSecond.indexOf('-', 2);
 						if (curDash2 == -1) {
 							lang2 = iSecond.substring(2);
 						} else {
@@ -375,8 +375,8 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 				// Make sure there is a string to check
 				if (StringUtils.isNotBlank(country1) && StringUtils.isNotBlank(country2)) {
 					// Look for the next dash
-					curDash1 = country1.indexOf("-");
-					curDash2 = country2.indexOf("-");
+					curDash1 = country1.indexOf('-');
+					curDash2 = country2.indexOf('-');
 
 					if (curDash1 != -1) {
 						country1 = country1.substring(0, curDash1);
@@ -530,7 +530,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 
 		// Make sure there is something to validate
 		if (iValue != null) {
-			if (iValue.trim().equals("")) {
+			if (iValue.trim().isEmpty()) {
 				if (!mAllowEmpty) {
 					valid = DMErrorCodes.TYPE_MISMATCH;
 				}
@@ -569,13 +569,13 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 				String iana = iValue.toLowerCase();
 
 				// Find the first '-'
-				curDash = iValue.indexOf("-");
+				curDash = iValue.indexOf('-');
 
 				// Extract the language
 				if (curDash != -1) {
 					lang = iValue.substring(0, curDash);
 
-					int secDash = iValue.indexOf("-", curDash + 1);
+					int secDash = iValue.indexOf('-', curDash + 1);
 					if (secDash != -1) {
 						iana = iValue.substring(0, secDash).toLowerCase();
 					}
@@ -647,7 +647,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 					// Make sure there is a string to check
 					if (StringUtils.isNotBlank(lang)) {
 						// Find the next '-'
-						curDash = lang.indexOf("-");
+						curDash = lang.indexOf('-');
 					} else {
 						// Can't just have 'x-'
 						valid = DMErrorCodes.TYPE_MISMATCH;
@@ -689,7 +689,7 @@ public class LangStringValidator extends DMTypeValidator implements Serializable
 				// Make sure there is a string to check
 				if (StringUtils.isNotBlank(country)) {
 					// Look for the next dash
-					curDash = country.indexOf("-");
+					curDash = country.indexOf('-');
 
 					if (curDash != -1) {
 						country = country.substring(0, curDash);

@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.scorm.navigation;
 
-public interface INavigationEvent {
-
+public interface INavigationEvent
+{
 	public String getChoiceEvent();
 
 	public int getEvent();
@@ -26,5 +26,4 @@ public interface INavigationEvent {
 	public void setChoiceEvent(String choiceEvent);
 
 	public void setEvent(int event);
-
 }

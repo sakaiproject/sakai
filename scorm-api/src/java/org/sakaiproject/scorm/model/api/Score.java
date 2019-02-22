@@ -17,58 +17,16 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 
-public class Score implements Serializable {
+import lombok.Getter;
+import lombok.Setter;
 
+public class Score implements Serializable
+{
 	private static final long serialVersionUID = 1L;
 
-	private double scaled;
-
-	private double raw;
-
-	private double min;
-
-	private double max;
-
-	private double scaledToPass;
-
-	public double getMax() {
-		return max;
-	}
-
-	public double getMin() {
-		return min;
-	}
-
-	public double getRaw() {
-		return raw;
-	}
-
-	public double getScaled() {
-		return scaled;
-	}
-
-	public double getScaledToPass() {
-		return scaledToPass;
-	}
-
-	public void setMax(double max) {
-		this.max = max;
-	}
-
-	public void setMin(double min) {
-		this.min = min;
-	}
-
-	public void setRaw(double raw) {
-		this.raw = raw;
-	}
-
-	public void setScaled(double scaled) {
-		this.scaled = scaled;
-	}
-
-	public void setScaledToPass(double scaledToPass) {
-		this.scaledToPass = scaledToPass;
-	}
-
+	@Getter @Setter private double scaled;
+	@Getter @Setter private double raw;
+	@Getter @Setter private double min;
+	@Getter @Setter private double max;
+	@Getter @Setter private double scaledToPass;
 }

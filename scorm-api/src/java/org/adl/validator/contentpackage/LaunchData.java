@@ -199,6 +199,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the mAbandon.
 	 */
+	@Override
 	public boolean getAbandon() {
 		return mAbandon;
 	}
@@ -208,6 +209,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the attemptAbsoluteDurationLimit element.
 	 */
+	@Override
 	public String getAttemptAbsoluteDurationLimit() {
 		return mAttemptAbsoluteDurationLimit;
 	}
@@ -217,6 +219,7 @@ public class LaunchData implements ILaunchData {
 	 * 
 	 * @return The value of the completionThreshold element.
 	 */
+	@Override
 	public String getCompletionThreshold() {
 		return mCompletionThreshold;
 	}
@@ -228,6 +231,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the mContinue.
 	 */
+	@Override
 	public boolean getContinue() {
 		return mContinue;
 	}
@@ -237,6 +241,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the datafromlms element.
 	 */
+	@Override
 	public String getDataFromLMS() {
 		return mDataFromLMS;
 	}
@@ -248,6 +253,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the mExit.
 	 */
+	@Override
 	public boolean getExit() {
 		return mExit;
 	}
@@ -258,6 +264,7 @@ public class LaunchData implements ILaunchData {
 	 * 
 	 * @return The value of mExitAll.
 	 */
+	@Override
 	public boolean getExitAll() {
 		return mExitAll;
 	}
@@ -272,6 +279,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The identifier value of the <code>&lt;item&gt;</code> element.
 	 */
+	@Override
 	public String getItemIdentifier() {
 		return mItemIdentifier;
 	}
@@ -281,6 +289,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The title value of the item.
 	 */
+	@Override
 	public String getItemTitle() {
 		return mItemTitle;
 	}
@@ -291,12 +300,13 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The full launch location of the item.
 	 */
+	@Override
 	public String getLaunchLine() {
 		String launchLine = "";
 		String parameterString = "";
 		String xmlBase = getXMLBase();
 
-		if ((!xmlBase.equals("")) && (!xmlBase.endsWith("/"))) {
+		if ((!xmlBase.isEmpty()) && (!xmlBase.endsWith("/"))) {
 			xmlBase += "/";
 		}
 
@@ -311,19 +321,20 @@ public class LaunchData implements ILaunchData {
 			parameterString = "";
 		}
 
-		if (!parameterString.equals("")) {
+		if (!parameterString.isEmpty()) {
 			while (parameterString.startsWith("?") || parameterString.startsWith("&")) {
 				parameterString = parameterString.substring(1);
 			}
 			if (parameterString.startsWith("#")) {
-				if (launchLine.indexOf("#") != -1)
+				if (launchLine.contains( "#" )){
 					return xmlBase + launchLine;
+				}
 				// if the above return is not executed return the following
 				return xmlBase + launchLine + parameterString;
 
 			}
 
-			if (launchLine.indexOf("?") != -1) {
+			if (launchLine.contains( "?" )) {
 				launchLine = launchLine.concat("&");
 			} else {
 				launchLine = launchLine.concat("?");
@@ -337,6 +348,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The location value of the item.
 	 */
+	@Override
 	public String getLocation() {
 		return mLocation;
 	}
@@ -347,6 +359,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The xml:base value of the <code>&lt;manifest&gt;</code> element.
 	 */
+	@Override
 	public String getManifestXMLBase() {
 		return mManifestXMLBase;
 	}
@@ -356,6 +369,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the minNormalizedMeasure element.
 	 */
+	@Override
 	public String getMinNormalizedMeasure() {
 		return mMinNormalizedMeasure;
 	}
@@ -365,6 +379,7 @@ public class LaunchData implements ILaunchData {
 	 * 
 	 * @return The value of the objectiveslist element.
 	 */
+	@Override
 	public String getObjectivesList() {
 		return mObjectivesList;
 	}
@@ -376,6 +391,7 @@ public class LaunchData implements ILaunchData {
 	 * @return The identifier value of the <code>&lt;organization&gt;</code> 
 	 * element.
 	 */
+	@Override
 	public String getOrganizationIdentifier() {
 		return mOrganizationIdentifier;
 	}
@@ -385,6 +401,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return - The parameter value of the <code>&lt;item&gt;</code> element.
 	 */
+	@Override
 	public String getParameters() {
 		return mParameters;
 	}
@@ -395,6 +412,7 @@ public class LaunchData implements ILaunchData {
 	 * 
 	 * @return The value of the persistState attribute of the item.
 	 */
+	@Override
 	public String getPersistState() {
 		return mPersistState;
 	}
@@ -406,6 +424,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the mPrevious.
 	 */
+	@Override
 	public boolean getPrevious() {
 		return mPrevious;
 	}
@@ -417,6 +436,7 @@ public class LaunchData implements ILaunchData {
 	 * @return The identifier value of the <code>&lt;resource&gt;</code> 
 	 * element.
 	 */
+	@Override
 	public String getResourceIdentifier() {
 		return mResourceIdentifier;
 	}
@@ -428,6 +448,7 @@ public class LaunchData implements ILaunchData {
 	 * @return The xml:base value of the <code>&lt;resources&gt;</code> 
 	 * element.
 	 */
+	@Override
 	public String getResourcesXMLBase() {
 		return mResourcesXMLBase;
 	}
@@ -438,6 +459,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The xml:base value of the <code>&lt;resource&gt;</code> element.
 	 */
+	@Override
 	public String getResourceXMLBase() {
 		return mResourceXMLBase;
 	}
@@ -447,6 +469,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The SCORM type value of the item.
 	 */
+	@Override
 	public String getSCORMType() {
 		return mSCORMType;
 	}
@@ -458,6 +481,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the mSuspendAll.
 	 */
+	@Override
 	public boolean getSuspendAll() {
 		return mSuspendAll;
 	}
@@ -467,6 +491,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @return The value of the timelimitaction element.
 	 */
+	@Override
 	public String getTimeLimitAction() {
 		return mTimeLimitAction;
 	}
@@ -477,6 +502,7 @@ public class LaunchData implements ILaunchData {
 	 * @return The full <code>xml:base</code> value as determined in the 
 	 * manifest.
 	 */
+	@Override
 	public String getXMLBase() {
 		if (mManifestXMLBase == null) {
 			mManifestXMLBase = "";
@@ -488,17 +514,17 @@ public class LaunchData implements ILaunchData {
 			mResourceXMLBase = "";
 		}
 
-		StringBuffer result = new StringBuffer(mManifestXMLBase);
+		StringBuilder result = new StringBuilder(mManifestXMLBase);
 
 		// add a file separator only if there is a directory before and after it.
-		if ((!result.toString().equals("")) && (!mResourcesXMLBase.equals("")) && (!result.toString().endsWith("/"))) {
+		if ((!result.toString().isEmpty()) && (!mResourcesXMLBase.isEmpty()) && (!result.toString().endsWith("/"))) {
 			result.append("/");
 		}
 
 		result.append(mResourcesXMLBase);
 
 		// add a file separator only if there is a directory before and after it.
-		if ((!result.toString().equals("")) && (!mResourceXMLBase.equals("")) && (!result.toString().endsWith("/"))) {
+		if ((!result.toString().isEmpty()) && (!mResourceXMLBase.isEmpty()) && (!result.toString().endsWith("/"))) {
 			result.append("/");
 		}
 
@@ -511,6 +537,7 @@ public class LaunchData implements ILaunchData {
 	 * Displays a string representation of the data structure for the SCO
 	 * Integration to the Java logger. 
 	 */
+	@Override
 	public void print() {
 		mLogger.fine("##################################################");
 		mLogger.fine("####   resourceIdentifier = '" + mResourceIdentifier + "'");
@@ -530,6 +557,7 @@ public class LaunchData implements ILaunchData {
 	 * Displays a string representation of the data structure for Integration to
 	 * the Java Console.
 	 */
+	@Override
 	public void printToConsole() {
 		System.out.println("###############################################");
 		System.out.println("###   resourceIdentifier = '" + mResourceIdentifier + "'");
@@ -550,6 +578,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iAbandon The abandon value to be assigned.
 	 */
+	@Override
 	public void setAbandon(boolean iAbandon) {
 		mAbandon = iAbandon;
 	}
@@ -560,6 +589,7 @@ public class LaunchData implements ILaunchData {
 	 * @param iAttemptAbsoluteDurationLimit The attemptabsolutedurationlimit
 	 * value to be assigned.
 	 */
+	@Override
 	public void setAttemptAbsoluteDurationLimit(String iAttemptAbsoluteDurationLimit) {
 		mAttemptAbsoluteDurationLimit = iAttemptAbsoluteDurationLimit;
 	}
@@ -570,6 +600,7 @@ public class LaunchData implements ILaunchData {
 	 * @param iCompletionThreshold The completionThreshold value to be 
 	 * assigned.
 	 */
+	@Override
 	public void setCompletionThreshold(String iCompletionThreshold) {
 		mCompletionThreshold = iCompletionThreshold;
 	}
@@ -579,6 +610,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iContinue The continue value to be assigned.
 	 */
+	@Override
 	public void setContinue(boolean iContinue) {
 		mContinue = iContinue;
 	}
@@ -588,6 +620,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iDataFromLMS The datafromlms value to be assigned.
 	 */
+	@Override
 	public void setDataFromLMS(String iDataFromLMS) {
 		mDataFromLMS = iDataFromLMS;
 	}
@@ -597,6 +630,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iExit The exit value to be assigned.
 	 */
+	@Override
 	public void setExit(boolean iExit) {
 		mExit = iExit;
 	}
@@ -605,6 +639,7 @@ public class LaunchData implements ILaunchData {
 	 * Assigns the given value to the mExitAll attribute.
 	 * @param iExitAll the exitAll value to be assigned.
 	 */
+	@Override
 	public void setExitAll(boolean iExitAll) {
 		mExitAll = iExitAll;
 	}
@@ -618,6 +653,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iItemIdentifier The item identifier value to be assigned.
 	 */
+	@Override
 	public void setItemIdentifier(String iItemIdentifier) {
 		mItemIdentifier = iItemIdentifier;
 	}
@@ -627,6 +663,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iItemTitle The item value to be assigned.
 	 */
+	@Override
 	public void setItemTitle(String iItemTitle) {
 		mItemTitle = iItemTitle;
 	}
@@ -636,6 +673,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iLocation The location value to be assigned.
 	 */
+	@Override
 	public void setLocation(String iLocation) {
 		mLocation = iLocation;
 	}
@@ -645,6 +683,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iManifestXMLBase The manifest xml:base value to be assigned.
 	 */
+	@Override
 	public void setManifestXMLBase(String iManifestXMLBase) {
 		mManifestXMLBase = iManifestXMLBase;
 	}
@@ -655,6 +694,7 @@ public class LaunchData implements ILaunchData {
 	 * @param iMinNormalizedMeasure The minnormalizedmeasure value to be
 	 * assigned.
 	 */
+	@Override
 	public void setMinNormalizedMeasure(String iMinNormalizedMeasure) {
 		mMinNormalizedMeasure = iMinNormalizedMeasure;
 	}
@@ -664,6 +704,7 @@ public class LaunchData implements ILaunchData {
 	 * 
 	 * @param iObjectivesList The objectives to be assigned.
 	 */
+	@Override
 	public void setObjectivesList(String iObjectivesList) {
 		mObjectivesList = iObjectivesList;
 	}
@@ -674,6 +715,7 @@ public class LaunchData implements ILaunchData {
 	 * @param iOrganizationIdentifier The organization identitifier value to 
 	 * be assigned.
 	 */
+	@Override
 	public void setOrganizationIdentifier(String iOrganizationIdentifier) {
 		mOrganizationIdentifier = iOrganizationIdentifier;
 	}
@@ -683,6 +725,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iParameters The parameters value to be assigned.
 	 */
+	@Override
 	public void setParameters(String iParameters) {
 		mParameters = iParameters;
 	}
@@ -692,6 +735,7 @@ public class LaunchData implements ILaunchData {
 	 * 
 	 * @param iPersistState The persistState value to be assigned.
 	 */
+	@Override
 	public void setPersistState(String iPersistState) {
 		mPersistState = iPersistState;
 	}
@@ -701,6 +745,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iPrevious The previous value to be assigned.
 	 */
+	@Override
 	public void setPrevious(boolean iPrevious) {
 		mPrevious = iPrevious;
 	}
@@ -710,6 +755,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iResourceIdentifier The resource identifier value to be assigned.
 	 */
+	@Override
 	public void setResourceIdentifier(String iResourceIdentifier) {
 		mResourceIdentifier = iResourceIdentifier;
 	}
@@ -719,6 +765,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iResourcesXMLBase The resources xml:base value to be assigned.
 	 */
+	@Override
 	public void setResourcesXMLBase(String iResourcesXMLBase) {
 		mResourcesXMLBase = iResourcesXMLBase;
 	}
@@ -728,6 +775,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iResourceXMLBase The resource xml:base value to be assigned.
 	 */
+	@Override
 	public void setResourceXMLBase(String iResourceXMLBase) {
 		mResourceXMLBase = iResourceXMLBase;
 	}
@@ -737,6 +785,7 @@ public class LaunchData implements ILaunchData {
 	 *
 	 * @param iSCORMType The scormtype value to be assigned.
 	 */
+	@Override
 	public void setSCORMType(String iSCORMType) {
 		mSCORMType = iSCORMType;
 	}
@@ -746,6 +795,7 @@ public class LaunchData implements ILaunchData {
 	    *
 	    * @param iSuspendAll The suspendAll value to be assigned.
 	    */
+	@Override
 	public void setSuspendAll(boolean iSuspendAll) {
 		mSuspendAll = iSuspendAll;
 	}
@@ -755,6 +805,7 @@ public class LaunchData implements ILaunchData {
 	    *
 	    * @param iTimeLimitAction The timelimitaction value to be assigned.
 	    */
+	@Override
 	public void setTimeLimitAction(String iTimeLimitAction) {
 		mTimeLimitAction = iTimeLimitAction;
 	}

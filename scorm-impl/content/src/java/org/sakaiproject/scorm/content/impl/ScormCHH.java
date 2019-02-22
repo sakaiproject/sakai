@@ -21,8 +21,8 @@ import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
@@ -32,24 +32,24 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-public class ScormCHH extends FastZipCHH implements ScormConstants {
-
-	/**
-	 * 
-	 */
+@Slf4j
+public class ScormCHH extends FastZipCHH
+{
 	private static final long serialVersionUID = -5151758531490144616L;
 
-	private static Log log = LogFactory.getLog(ScormCHH.class);
+	private static final String CONTENT_HOSTING_HANDLER_NAME = "org.sakaiproject.scorm.content.api.ScormCHH";
 
-	protected VirtualFileSystem buildVirtualFileSystem(ContentEntity realParent) {
+	protected VirtualFileSystem buildVirtualFileSystem(ContentEntity realParent)
+	{
 		String realParentId = realParent.getId();
-
 		VirtualFileSystem fs = new VirtualFileSystem(realParentId);
 
-		try {
+		try
+		{
 			XmlPullParserFactory factory = XmlPullParserFactory.newInstance(System.getProperty(XmlPullParserFactory.PROPERTY_NAME), null);
 
 			factory.setNamespaceAware(true);
@@ -61,37 +61,53 @@ public class ScormCHH extends FastZipCHH implements ScormConstants {
 			int eventType = xpp.getEventType();
 			String tagName = null;
 			String xmlBase = null;
-			while (eventType != XmlPullParser.END_DOCUMENT) {
-				if (eventType == XmlPullParser.START_TAG) {
+			while (eventType != XmlPullParser.END_DOCUMENT)
+			{
+				if (eventType == XmlPullParser.START_TAG)
+				{
 					tagName = xpp.getName();
-					if (tagName != null) {
-						if (tagName.equals("resource")) {
+					if (tagName != null)
+					{
+						if (tagName.equals("resource"))
+						{
 							xmlBase = getAttributeValue(xpp, "xml", "base");
-						} else if (tagName.equals("file")) {
+						}
+						else if (tagName.equals("file")) {
 							String href = getAttributeValue(xpp, null, "href");
 
-							StringBuffer pathBuffer = new StringBuffer();
-							if (xmlBase != null) {
+							StringBuilder pathBuffer = new StringBuilder();
+							if (xmlBase != null)
+							{
 								pathBuffer.append(xmlBase);
 							}
-							if (href != null) {
+
+							if (href != null)
+							{
 								pathBuffer.append(href);
 								fs.addPath(pathBuffer.toString());
 							}
 						}
 					}
-				} else if (eventType == XmlPullParser.END_TAG) {
+				}
+				else if (eventType == XmlPullParser.END_TAG)
+				{
 					tagName = xpp.getName();
-					if (tagName != null && tagName.equals("resource")) {
+					if (tagName != null && tagName.equals("resource"))
+					{
 						xmlBase = null;
 					}
 				}
+
 				eventType = xpp.next();
 			}
-			if (inStream != null) {
+
+			if (inStream != null)
+			{
 				inStream.close();
 			}
-		} catch (Exception xppe) {
+		}
+		catch (Exception xppe)
+		{
 			log.error("Caught an exception parsing the xml of the manifest document", xppe);
 		}
 
@@ -99,30 +115,32 @@ public class ScormCHH extends FastZipCHH implements ScormConstants {
 	}
 
 	@Override
-	protected int countChildren(ContentEntity parent, int depth) {
+	protected int countChildren(ContentEntity parent, int depth)
+	{
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());
 		String relativePath = getRelativePath(realParent.getId(), parent.getId());
-
 		VirtualFileSystem fs = getVirtualFileSystem(realParent);
-
 		return fs.getCount(relativePath);
 	}
 
 	@Override
-	protected List<ContentEntity> extractChildren(ContentEntity parent, int depth) {
+	protected List<ContentEntity> extractChildren(ContentEntity parent, int depth)
+	{
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());
 		String relativePath = getRelativePath(realParent.getId(), parent.getId());
 
 		VirtualFileSystem fs = getVirtualFileSystem(realParent);
-
-		List<ContentEntity> list = new LinkedList<ContentEntity>();
-
+		List<ContentEntity> list = new LinkedList<>();
 		List<String> entityNames = fs.getChildren(relativePath);
 
-		for (String name : entityNames) {
-			if (name.endsWith(Entity.SEPARATOR)) {
+		for (String name : entityNames)
+		{
+			if (name.endsWith(Entity.SEPARATOR))
+			{
 				list.add(makeCollection(realParent, newId(relativePath, name), name));
-			} else {
+			}
+			else
+			{
 				list.add(makeResource(realParent, newId(relativePath, name), name, null));
 			}
 		}
@@ -130,15 +148,18 @@ public class ScormCHH extends FastZipCHH implements ScormConstants {
 		return list;
 	}
 
-	private String getAttributeValue(XmlPullParser xpp, String prefix, String name) {
+	private String getAttributeValue(XmlPullParser xpp, String prefix, String name)
+	{
 		int count = xpp.getAttributeCount();
-
 		String value = null;
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++)
+		{
 			String attrPrefix = xpp.getAttributePrefix(i);
 			String attrName = xpp.getAttributeName(i);
-			if (attrName != null && (prefix == null || (attrPrefix != null && attrPrefix.equals(prefix)))) {
-				if (attrName.equals(name)) {
+			if (attrName != null && (prefix == null || (attrPrefix != null && attrPrefix.equals(prefix))))
+			{
+				if (attrName.equals(name))
+				{
 					value = URLDecoder.decode(xpp.getAttributeValue(i));
 					return value;
 				}
@@ -149,27 +170,33 @@ public class ScormCHH extends FastZipCHH implements ScormConstants {
 	}
 
 	@Override
-	public String getContentHostingHandlerName() {
-		return "org.sakaiproject.scorm.content.api.ScormCHH";
+	public String getContentHostingHandlerName()
+	{
+		return CONTENT_HOSTING_HANDLER_NAME;
 	}
 
-	private InputStream getManifestAsStream(String contentPackageId) {
+	private InputStream getManifestAsStream(String contentPackageId)
+	{
 		InputStream stream = null;
-
 		String path = new StringBuffer().append(contentPackageId).append("/imsmanifest.xml").toString();
-		try {
+		try
+		{
 			ContentResource resource = super.getContentResourceEdit(path);
-
-			if (resource != null) {
+			if (resource != null)
+			{
 				byte[] content = resource.getContent();
-
-				if (content != null) {
+				if (content != null)
+				{
 					stream = new ByteArrayInputStream(content);
-				} else {
+				} 
+				else
+				{
 					stream = resource.streamContent();
 				}
 			}
-		} catch (Exception iue) {
+		}
+		catch (Exception iue)
+		{
 			log.error("Caught an exception grabbing the manifest file as a stream", iue);
 		}
 
@@ -177,51 +204,60 @@ public class ScormCHH extends FastZipCHH implements ScormConstants {
 	}
 
 	@Override
-	public ContentEntity getVirtualContentEntity(ContentEntity ce, String finalId) {
+	public ContentEntity getVirtualContentEntity(ContentEntity ce, String finalId)
+	{
 		ContentEntity virtualEntity = null;
-
 		if (null == ce)
+		{
 			return null;
+		}
 
 		ResourceProperties realProperties = ce.getProperties();
 		if (null == realProperties)
+		{
 			return null;
+		}
 
 		String chhbeanname = realProperties.getProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME);
-
 		if (chhbeanname == null || !chhbeanname.equals(getContentHostingHandlerName()))
+		{
 			return null;
+		}
 
 		String parentId = ce.getId();
 		String path = getRelativePath(parentId, finalId);
 
-		if (path.length() == 0) {
+		if (path.length() == 0)
+		{
 			// Grab some data from the real content entity
 			String name = (String) realProperties.get(ResourceProperties.PROP_DISPLAY_NAME);
 
 			ContentCollectionEdit virtualCollection = makeCollection(ce, path, name);
 
 			virtualCollection.setContentHandler(this);
-			//ce.setContentHandler(this);
 			ce.setVirtualContentEntity(virtualCollection);
-			// This is stupid, but I think it needs to be set since BaseContentService checks to verify that this value is not null or else it gets into an infinite loop.
-			//virtualEntity.setVirtualContentEntity(ce);
 
-			if (realProperties.getProperty(CONTENT_PACKAGE_TITLE_PROPERTY) != null) {
+			if (realProperties.getProperty(ScormConstants.CONTENT_PACKAGE_TITLE_PROPERTY) != null)
+			{
 				ResourcePropertiesEdit virtualProps = virtualCollection.getPropertiesEdit();
-				virtualProps.addProperty(CONTENT_PACKAGE_TITLE_PROPERTY, realProperties.getProperty(CONTENT_PACKAGE_TITLE_PROPERTY));
-				virtualProps.addProperty(IS_CONTENT_PACKAGE_PROPERTY, "true");
+				virtualProps.addProperty(ScormConstants.CONTENT_PACKAGE_TITLE_PROPERTY, realProperties.getProperty(ScormConstants.CONTENT_PACKAGE_TITLE_PROPERTY));
+				virtualProps.addProperty(ScormConstants.IS_CONTENT_PACKAGE_PROPERTY, "true");
 			}
 
 			virtualEntity = virtualCollection;
-		} else {
+		}
+		else
+		{
 			virtualEntity = uncacheEntity(newId(parentId, path));
-
-			if (null == virtualEntity) {
-				try {
+			if (null == virtualEntity)
+			{
+				try
+				{
 					virtualEntity = extractEntity(ce, path);
 					cacheEntity(virtualEntity);
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					log.error("Caught an exception extracting resource ", e);
 				}
 			}
@@ -231,50 +267,40 @@ public class ScormCHH extends FastZipCHH implements ScormConstants {
 	}
 
 	@Override
-	protected VirtualFileSystem getVirtualFileSystem(ContentEntity parent) {
+	protected VirtualFileSystem getVirtualFileSystem(ContentEntity parent)
+	{
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());
 		String realParentId = realParent.getId();
 
 		VirtualFileSystem fs = uncacheVirtualFileSystem(realParentId);
-		if (fs == null) {
+		if (fs == null)
+		{
 			fs = buildVirtualFileSystem(realParent);
-			if (fs != null) {
+			if (fs != null)
+			{
 				cacheVirtualFileSystem(realParentId, fs);
 			}
 		}
-		return fs;
-	}
 
-	/*protected VirtualFileSystem uncacheVirtualFileSystem(String key) {
-		VirtualFileSystem fs = null;
-		try {
-			fs = (VirtualFileSystem) ThreadLocalManager.get(VIRTUAL_FS_CACHE_KEY + key);
-		} catch(ClassCastException e) {
-			log.error("Caught a class cast exception finding virtual file system with key " + key, e);
-		}
-		
 		return fs;
 	}
-	
-	protected void cacheVirtualFileSystem(String key, VirtualFileSystem fs) {
-		if (null != fs) {			
-			ThreadLocalManager.set(VIRTUAL_FS_CACHE_KEY + key, fs);
-		}
-	}*/
 
 	@Override
-	public void init() {
+	public void init()
+	{
 		resourceTypeRegistry.register(new ScormCollectionType());
 	}
 
 	@Override
-	protected ContentCollectionEdit makeCollection(ContentEntity ce, String path, String name) {
+	protected ContentCollectionEdit makeCollection(ContentEntity ce, String path, String name)
+	{
 		ContentCollectionEdit collection = super.makeCollection(ce, path, name);
 		collection.setResourceType(ScormCollectionType.SCORM_CONTENT_TYPE_ID);
 		return collection;
 	}
 
-	protected ScormContentService scormContentService() {
+	protected ScormContentService scormContentService()
+	{
 		return null;
 	}
 }

@@ -125,18 +125,23 @@ public class ADLValidRequests implements Serializable, IValidRequests {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		ADLValidRequests other = (ADLValidRequests) obj;
-		if (id != other.id)
+		if (id != other.id){
 			return false;
+		}
 		return true;
 	}
 
+	@Override
 	public Map<String, ActivityNode> getChoice() {
 		return mChoice;
 	}
@@ -145,6 +150,7 @@ public class ADLValidRequests implements Serializable, IValidRequests {
 		return id;
 	}
 
+	@Override
 	public TreeModel getTreeModel() {
 		return mTreeModel;
 	}
@@ -157,26 +163,32 @@ public class ADLValidRequests implements Serializable, IValidRequests {
 		return result;
 	}
 
+	@Override
 	public boolean isContinueEnabled() {
 		return mContinue;
 	}
 
+	@Override
 	public boolean isContinueExitEnabled() {
 		return mContinueExit;
 	}
 
+	@Override
 	public boolean isPreviousEnabled() {
 		return mPrevious;
 	}
 
+	@Override
 	public boolean isResumeEnabled() {
 		return mResume;
 	}
 
+	@Override
 	public boolean isStartEnabled() {
 		return mStart;
 	}
 
+	@Override
 	public boolean isSuspendEnabled() {
 		return mSuspend;
 	}

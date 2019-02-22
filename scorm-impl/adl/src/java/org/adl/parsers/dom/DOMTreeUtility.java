@@ -236,7 +236,7 @@ public class DOMTreeUtility {
 	public static List<Node> getNodes(Node iNode, String iNodeName) {
 		log.debug("DOMTreeUtility getNodes()");
 		// Create a vector to hold the results of the method
-		List<Node> result = new ArrayList<Node>();
+		List<Node> result = new ArrayList<>();
 
 		// Check to see if the input node is null
 		if (iNode != null) {

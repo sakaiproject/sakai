@@ -86,6 +86,7 @@ public class MetadataData implements IMetadataData, Serializable {
 	/* (non-Javadoc)
 	 * @see org.adl.validator.contentpackage.IMetadataData#getApplicationProfileType()
 	 */
+	@Override
 	public String getApplicationProfileType() {
 		return mApplicationProfileType;
 	}
@@ -93,6 +94,7 @@ public class MetadataData implements IMetadataData, Serializable {
 	/* (non-Javadoc)
 	 * @see org.adl.validator.contentpackage.IMetadataData#getIdentifier()
 	 */
+	@Override
 	public String getIdentifier() {
 		return mIdentifier;
 	}
@@ -100,6 +102,7 @@ public class MetadataData implements IMetadataData, Serializable {
 	/* (non-Javadoc)
 	 * @see org.adl.validator.contentpackage.IMetadataData#getLocation()
 	 */
+	@Override
 	public String getLocation() {
 		return mLocation;
 	}
@@ -107,6 +110,7 @@ public class MetadataData implements IMetadataData, Serializable {
 	/* (non-Javadoc)
 	 * @see org.adl.validator.contentpackage.IMetadataData#getRootLOMNode()
 	 */
+	@Override
 	public Node getRootLOMNode() {
 		return mRootLOMNode;
 	}
@@ -114,6 +118,7 @@ public class MetadataData implements IMetadataData, Serializable {
 	/* (non-Javadoc)
 	 * @see org.adl.validator.contentpackage.IMetadataData#isInlineMetadata()
 	 */
+	@Override
 	public boolean isInlineMetadata() {
 		boolean result = true;
 		if (getRootLOMNode() == null) {

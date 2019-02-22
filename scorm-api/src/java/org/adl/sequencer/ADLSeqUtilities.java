@@ -103,7 +103,7 @@ public class ADLSeqUtilities {
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "isvisible");
 		if (tempVal != null) {
 			if (!isEmpty(tempVal)) {
-				act.setIsVisible((Boolean.valueOf(tempVal)).booleanValue());
+				act.setIsVisible((Boolean.valueOf(tempVal)));
 			}
 		}
 
@@ -1010,7 +1010,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "choice");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setControlModeChoice((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setControlModeChoice((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1018,7 +1018,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "choiceExit");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setControlModeChoiceExit((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setControlModeChoiceExit((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1026,7 +1026,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "flow");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setControlModeFlow((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setControlModeFlow((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1034,7 +1034,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "forwardOnly");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setControlForwardOnly((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setControlForwardOnly((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1043,7 +1043,7 @@ public class ADLSeqUtilities {
 
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setUseCurObjective((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setUseCurObjective((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1052,7 +1052,7 @@ public class ADLSeqUtilities {
 
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setUseCurProgress((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setUseCurProgress((Boolean.valueOf(tempVal)));
 						}
 					}
 				} else if (curNode.getLocalName().equals("sequencingRules")) {
@@ -1164,7 +1164,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "selectCount");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setSelectCount((Integer.valueOf(tempVal)).intValue());
+							ioAct.setSelectCount((Integer.valueOf(tempVal)));
 						}
 					}
 
@@ -1172,7 +1172,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "reorderChildren");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setReorderChildren((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setReorderChildren((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1193,7 +1193,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "tracked");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setIsTracked((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setIsTracked((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1201,7 +1201,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "completionSetByContent");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setSetCompletion((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setSetCompletion((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1209,7 +1209,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "objectiveSetByContent");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setSetObjective((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setSetObjective((Boolean.valueOf(tempVal)));
 						}
 					}
 				} else if (curNode.getLocalName().equals("constrainedChoiceConsiderations")) {
@@ -1222,7 +1222,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "preventActivation");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setPreventActivation((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setPreventActivation((Boolean.valueOf(tempVal)));
 						}
 					}
 
@@ -1230,7 +1230,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "constrainChoice");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setConstrainChoice((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setConstrainChoice((Boolean.valueOf(tempVal)));
 						}
 					}
 				} else if (curNode.getLocalName().equals("rollupConsiderations")) {
@@ -1280,7 +1280,7 @@ public class ADLSeqUtilities {
 
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							ioAct.setSatisfactionIfActive((Boolean.valueOf(tempVal)).booleanValue());
+							ioAct.setSatisfactionIfActive((Boolean.valueOf(tempVal)));
 						}
 					}
 				}
@@ -1313,7 +1313,7 @@ public class ADLSeqUtilities {
 		String tempVal = null;
 		SeqConditionSet condSet = new SeqConditionSet();
 
-		List<SeqCondition> conditions = new ArrayList<SeqCondition>();
+		List<SeqCondition> conditions = new ArrayList<>();
 
 		// Look for 'conditionCombination'
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "conditionCombination");
@@ -1363,7 +1363,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curCond, "measureThreshold");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							cond.mThreshold = (new Double(tempVal)).doubleValue();
+							cond.mThreshold = (new Double(tempVal));
 						}
 					}
 
@@ -1467,7 +1467,7 @@ public class ADLSeqUtilities {
 		String tempVal = null;
 
 		// List of auxiliary resources
-		List<ADLAuxiliaryResource> auxRes = new ArrayList<ADLAuxiliaryResource>();
+		List<ADLAuxiliaryResource> auxRes = new ArrayList<>();
 
 		// Get the children elements of <auxiliaryResources>
 		NodeList children = iNode.getChildNodes();
@@ -1887,7 +1887,7 @@ public class ADLSeqUtilities {
 		}
 
 		String tempVal = null;
-		List<SeqObjectiveMap> maps = new ArrayList<SeqObjectiveMap>();
+		List<SeqObjectiveMap> maps = new ArrayList<>();
 
 		// Get the children elements of this objective
 		NodeList children = iNode.getChildNodes();
@@ -1917,7 +1917,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "readSatisfiedStatus");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							map.mReadStatus = (Boolean.valueOf(tempVal)).booleanValue();
+							map.mReadStatus = (Boolean.valueOf(tempVal));
 						}
 					}
 
@@ -1925,7 +1925,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "readNormalizedMeasure");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							map.mReadMeasure = (Boolean.valueOf(tempVal)).booleanValue();
+							map.mReadMeasure = (Boolean.valueOf(tempVal));
 						}
 					}
 
@@ -1933,7 +1933,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "writeSatisfiedStatus");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							map.mWriteStatus = (Boolean.valueOf(tempVal)).booleanValue();
+							map.mWriteStatus = (Boolean.valueOf(tempVal));
 						}
 					}
 
@@ -1941,7 +1941,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "writeNormalizedMeasure");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							map.mWriteMeasure = (Boolean.valueOf(tempVal)).booleanValue();
+							map.mWriteMeasure = (Boolean.valueOf(tempVal));
 						}
 					}
 
@@ -1951,7 +1951,7 @@ public class ADLSeqUtilities {
 		}
 
 		// Don't return an empty set.
-		if (maps.size() == 0) {
+		if (maps.isEmpty()) {
 			maps = null;
 		}
 
@@ -1982,7 +1982,7 @@ public class ADLSeqUtilities {
 
 		boolean ok = true;
 		String tempVal = null;
-		List<SeqObjective> objectives = new ArrayList<SeqObjective>();
+		List<SeqObjective> objectives = new ArrayList<>();
 
 		// Get the children elements of <objectives>
 		NodeList children = iNode.getChildNodes();
@@ -2014,7 +2014,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "satisfiedByMeasure");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							obj.mSatisfiedByMeasure = (Boolean.valueOf(tempVal)).booleanValue();
+							obj.mSatisfiedByMeasure = (Boolean.valueOf(tempVal));
 						}
 					}
 
@@ -2022,7 +2022,7 @@ public class ADLSeqUtilities {
 					tempVal = getElementText(curNode, "minNormalizedMeasure");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							obj.mMinMeasure = (new Double(tempVal)).doubleValue();
+							obj.mMinMeasure = (new Double(tempVal));
 						}
 					}
 
@@ -2053,7 +2053,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "satisfiedByMeasure");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							obj.mSatisfiedByMeasure = (Boolean.valueOf(tempVal)).booleanValue();
+							obj.mSatisfiedByMeasure = (Boolean.valueOf(tempVal));
 						}
 					}
 
@@ -2061,7 +2061,7 @@ public class ADLSeqUtilities {
 					tempVal = getElementText(curNode, "minNormalizedMeasure");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							obj.mMinMeasure = (new Double(tempVal)).doubleValue();
+							obj.mMinMeasure = (new Double(tempVal));
 						}
 					}
 
@@ -2106,13 +2106,13 @@ public class ADLSeqUtilities {
 
 		boolean ok = true;
 		String tempVal = null;
-		List<SeqRollupRule> rollupRules = new ArrayList<SeqRollupRule>();
+		List<SeqRollupRule> rollupRules = new ArrayList<>();
 
 		// Look for 'rollupObjectiveSatisfied'
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "rollupObjectiveSatisfied");
 		if (tempVal != null) {
 			if (!isEmpty(tempVal)) {
-				ioAct.setIsObjRolledUp((Boolean.valueOf(tempVal)).booleanValue());
+				ioAct.setIsObjRolledUp((Boolean.valueOf(tempVal)));
 			}
 		}
 
@@ -2120,7 +2120,7 @@ public class ADLSeqUtilities {
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "objectiveMeasureWeight");
 		if (tempVal != null) {
 			if (!isEmpty(tempVal)) {
-				ioAct.setObjMeasureWeight((new Double(tempVal)).doubleValue());
+				ioAct.setObjMeasureWeight((new Double(tempVal)));
 			}
 		}
 
@@ -2128,7 +2128,7 @@ public class ADLSeqUtilities {
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "rollupProgressCompletion");
 		if (tempVal != null) {
 			if (!isEmpty(tempVal)) {
-				ioAct.setIsProgressRolledUp((Boolean.valueOf(tempVal)).booleanValue());
+				ioAct.setIsProgressRolledUp((Boolean.valueOf(tempVal)));
 			}
 		}
 
@@ -2161,7 +2161,7 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "minimumCount");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							rule.mMinCount = (Long.valueOf(tempVal)).longValue();
+							rule.mMinCount = (Long.valueOf(tempVal));
 						}
 					}
 
@@ -2169,12 +2169,12 @@ public class ADLSeqUtilities {
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "minimumPercent");
 					if (tempVal != null) {
 						if (!isEmpty(tempVal)) {
-							rule.mMinPercent = (new Double(tempVal)).doubleValue();
+							rule.mMinPercent = (new Double(tempVal));
 						}
 					}
 
 					rule.mConditions = new SeqConditionSet(true);
-					List<SeqCondition> conditions = new ArrayList<SeqCondition>();
+					List<SeqCondition> conditions = new ArrayList<>();
 
 					NodeList ruleInfo = curNode.getChildNodes();
 
@@ -2300,9 +2300,9 @@ public class ADLSeqUtilities {
 		boolean ok = true;
 		String tempVal = null;
 
-		List<ISeqRule> preRules = new ArrayList<ISeqRule>();
-		List<ISeqRule> exitRules = new ArrayList<ISeqRule>();
-		List<ISeqRule> postRules = new ArrayList<ISeqRule>();
+		List<ISeqRule> preRules = new ArrayList<>();
+		List<ISeqRule> exitRules = new ArrayList<>();
+		List<ISeqRule> postRules = new ArrayList<>();
 
 		// Get the children elements of <sequencingRules>
 		NodeList children = iNode.getChildNodes();
@@ -2710,7 +2710,7 @@ public class ADLSeqUtilities {
 		if (!iMeasure.equals("unknown")) {
 			try {
 				Double tempMeasure = new Double(iMeasure);
-				double range = tempMeasure.doubleValue();
+				double range = tempMeasure;
 
 				if (range < -1.0 || range > 1.0) {
 					if (_Debug) {

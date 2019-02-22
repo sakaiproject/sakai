@@ -33,5 +33,6 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 				"classpath*:org/sakaiproject/scorm/**/spring-adl-*.xml",
 				"classpath*:org/sakaiproject/scorm/**/spring-standalone-*.xml",
 				"classpath*:org/sakaiproject/scorm/**/spring-mock-*.xml"})
-public abstract class AbstractServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
+public abstract class AbstractServiceTest extends AbstractTransactionalJUnit4SpringContextTests
+{
 }

@@ -807,31 +807,42 @@ public class BucketAllocation {
 
 	@Override
     public boolean equals(Object obj) {
-	    if (this == obj)
-		    return true;
-	    if (obj == null)
-		    return false;
-	    if (getClass() != obj.getClass())
-		    return false;
+	    if (this == obj){
+			return true;
+		}
+	    if (obj == null){
+			return false;
+		}
+	    if (getClass() != obj.getClass()){
+			return false;
+		}
 	    BucketAllocation other = (BucketAllocation) obj;
 	    if (mBucketID == null) {
-		    if (other.mBucketID != null)
-			    return false;
-	    } else if (!mBucketID.equals(other.mBucketID))
-		    return false;
+		    if (other.mBucketID != null){
+				return false;
+			}
+	    } else if (!mBucketID.equals(other.mBucketID)){
+			return false;
+		}
 	    if (mBucketType == null) {
-		    if (other.mBucketType != null)
-			    return false;
-	    } else if (!mBucketType.equals(other.mBucketType))
-		    return false;
-	    if (mMinimumSizeInt != other.mMinimumSizeInt)
-		    return false;
-	    if (mPersistence != other.mPersistence)
-		    return false;
-	    if (mReduciblebool != other.mReduciblebool)
-		    return false;
-	    if (mRequestedSizeInt != other.mRequestedSizeInt)
-		    return false;
+		    if (other.mBucketType != null){
+				return false;
+			}
+	    } else if (!mBucketType.equals(other.mBucketType)){
+			return false;
+		}
+	    if (mMinimumSizeInt != other.mMinimumSizeInt){
+			return false;
+		}
+	    if (mPersistence != other.mPersistence){
+			return false;
+		}
+	    if (mReduciblebool != other.mReduciblebool){
+			return false;
+		}
+	    if (mRequestedSizeInt != other.mRequestedSizeInt){
+			return false;
+		}
 	    return true;
     }
 

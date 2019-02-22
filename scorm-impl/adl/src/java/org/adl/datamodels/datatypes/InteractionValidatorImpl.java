@@ -25,6 +25,7 @@
 package org.adl.datamodels.datatypes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -123,16 +124,11 @@ public class InteractionValidatorImpl extends InteractionValidator {
 			String choices1[] = iFirst.split(comma);
 			String choices2[] = iSecond.split(comma);
 
-			Set<String> set1 = new HashSet<String>();
-			Set<String> set2 = new HashSet<String>();
+			Set<String> set1 = new HashSet<>();
+			Set<String> set2 = new HashSet<>();
 
-			for (String element : choices1) {
-				set1.add(element);
-			}
-
-			for (String element : choices2) {
-				set2.add(element);
-			}
+			set1.addAll( Arrays.asList( choices1 ) );
+			set2.addAll( Arrays.asList( choices2 ) );
 
 			equal = set1.equals(set2);
 
@@ -225,7 +221,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 						}
 					}
 				} else {
-					List<Boolean> matched = new ArrayList<Boolean>();
+					List<Boolean> matched = new ArrayList<>();
 
 					// set all matched to 'not matched'
 					for (@SuppressWarnings("unused")
@@ -291,7 +287,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 							}
 
 							if (found) {
-								boolean used = matched.get(j).booleanValue();
+								boolean used = matched.get(j);
 
 								// Make sure this value was not used before
 								if (!used) {
@@ -351,7 +347,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 		}
 		case MATCHING: {
 			// Check to see if we can accept two empty strings
-			if (mAllowEmpty && (iFirst.trim().equals("") || iSecond.trim().equals(""))) {
+			if (mAllowEmpty && (iFirst.trim().isEmpty() || iSecond.trim().isEmpty())) {
 				equal = iFirst.trim().equals(iSecond.trim());
 
 				// We're done
@@ -363,7 +359,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 
 			// If the lengths are not equal, we're done
 			if (pairs1.length == pairs2.length) {
-				List<Boolean> matched = new ArrayList<Boolean>();
+				List<Boolean> matched = new ArrayList<>();
 
 				// set all matched pairs to 'not matched'
 				for (@SuppressWarnings("unused")
@@ -396,7 +392,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 						}
 
 						if (found) {
-							boolean used = matched.get(j).booleanValue();
+							boolean used = matched.get(j);
 
 							// Make sure this pair was not used before
 							if (!used) {
@@ -422,7 +418,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 		}
 		case PERFORMANCE: {
 			// Check to see if we can accept two empty strings
-			if (mAllowEmpty && (iFirst.trim().equals("") || iSecond.trim().equals(""))) {
+			if (mAllowEmpty && (iFirst.trim().isEmpty() || iSecond.trim().isEmpty())) {
 				equal = iFirst.trim().equals(iSecond.trim());
 
 				// We're done
@@ -458,7 +454,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 						equal = records1[i].equals(records2[i]);
 					}
 				} else {
-					List<Boolean> matched = new ArrayList<Boolean>();
+					List<Boolean> matched = new ArrayList<>();
 
 					// set all matched records to 'not matched'
 					for (@SuppressWarnings("unused")
@@ -476,7 +472,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 							found = records1[i].equals(records2[j]);
 
 							if (found) {
-								boolean used = matched.get(j).booleanValue();
+								boolean used = matched.get(j);
 
 								// Make sure this record was not used before
 								if (!used) {
@@ -575,9 +571,10 @@ public class InteractionValidatorImpl extends InteractionValidator {
 		// Assume the value is valid
 		int valid = DMErrorCodes.NO_ERROR;
 
-		if (iValue == null)
+		if (iValue == null){
 			// A null value can never be valid
 			return DMErrorCodes.UNKNOWN_EXCEPTION;
+		}
 
 		// Real Range validator
 		RealRangeValidator realValidator = new RealRangeValidator();
@@ -633,13 +630,13 @@ public class InteractionValidatorImpl extends InteractionValidator {
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, warn));
 			}
 
-			HashSet<String> set = new HashSet<String>();
+			HashSet<String> set = new HashSet<>();
 			boolean added = false;
 
 			// Check to determine if each choice is within the SPM range  
 			for (int i = 0; i < choices.length; i++) {
 				// The identifier cannot be empty
-				if (choices[i].trim().equals("")) {
+				if (choices[i].trim().isEmpty()) {
 					// Cannot have an empty identifier
 					valid = DMErrorCodes.TYPE_MISMATCH;
 					break;
@@ -977,7 +974,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 									}
 
 									if (min != null && max != null) {
-										if (min.doubleValue() > max.doubleValue()) {
+										if (min > max) {
 											// The range minimum cannot exceed max
 											valid = DMErrorCodes.TYPE_MISMATCH;
 										}
@@ -1082,7 +1079,7 @@ public class InteractionValidatorImpl extends InteractionValidator {
 							}
 
 							if (min != null && max != null) {
-								if (min.doubleValue() > max.doubleValue()) {
+								if (min > max) {
 									// The range minimum cannot exceed max
 									valid = DMErrorCodes.TYPE_MISMATCH;
 								}

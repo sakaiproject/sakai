@@ -17,7 +17,6 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 	</bean>
-	
 
 	<bean id="scorm.ContentPackageDaoTarget"
 		class="org.sakaiproject.scorm.dao.hibernate.ContentPackageDaoImpl">
@@ -40,24 +39,7 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 	</bean>
-	
-	<!-- COMMENTTED THIS OUT IN FAVOR OF ActivityTreeHolderDao, which serializes the object
-	<bean id="scorm.SeqActivityDaoTarget"
-		class="org.sakaiproject.scorm.dao.hibernate.SeqActivityDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		</property>
-	</bean>
 
-	
-	<bean id="scorm.SeqActivityTreeDaoTarget"
-		class="org.sakaiproject.scorm.dao.hibernate.SeqActivityTreeDaoImpl">
-		<property name="sessionFactory">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		</property>
-	</bean>
-	-->	
-	
 	<!-- This wraps our DAOs so that the transactions are managed -->
 	<bean id="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
@@ -69,7 +51,7 @@
 			</props>
 		</property>
 	</bean>
-	
+
 	<bean id="org.sakaiproject.scorm.dao.api.AttemptDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -80,7 +62,7 @@
 			</props>
 		</property>
 	</bean>
-	
+
 	<bean id="org.sakaiproject.scorm.dao.api.ContentPackageDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -91,7 +73,7 @@
 			</props>
 		</property>
 	</bean>
-	
+
 	<bean id="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -102,7 +84,7 @@
 			</props>
 		</property>
 	</bean>
-	
+
 	<bean id="org.sakaiproject.scorm.dao.api.DataManagerDao"
 			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -113,28 +95,4 @@
 			</props>
 		</property>
 	</bean>
-	
-	<!-- COMMENTED THIS OUT TO USE THE SAKAI VERSION THAT SERIALIZES TO CONTENT REPOSITORY
-	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityDao"
-			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		<property name="target" ref="scorm.SeqActivityDaoTarget" />
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
-	</bean>
-	
-	<bean id="org.sakaiproject.scorm.dao.api.SeqActivityTreeDao"
-			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		<property name="target" ref="scorm.SeqActivityTreeDaoTarget" />
-		<property name="transactionAttributes">
-			<props>
-				<prop key="*">PROPAGATION_REQUIRED</prop>
-			</props>
-		</property>
-	</bean>
-	-->
 </beans>

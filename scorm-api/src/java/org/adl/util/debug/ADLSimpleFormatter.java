@@ -46,6 +46,7 @@ public class ADLSimpleFormatter extends SimpleFormatter {
 	 * A line separator used to separate messages sent to the log.
 	 */
 	private String mLineSeparator = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<String>() {
+		@Override
 		public String run() {
 			return System.getProperty("line.separator");
 		}
@@ -60,7 +61,7 @@ public class ADLSimpleFormatter extends SimpleFormatter {
 	 */
 	@Override
 	public synchronized String format(LogRecord iRecord) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		if (iRecord.getSourceClassName() != null) {
 			sb.append(iRecord.getSourceClassName());

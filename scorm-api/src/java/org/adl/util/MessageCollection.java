@@ -92,8 +92,8 @@ public class MessageCollection {
 	 * anyone but itself.
 	 */
 	private MessageCollection() {
-		mMessages = new ArrayList<LogMessage>();
-		mMessageTypeProperties = new ArrayList<Integer>();
+		mMessages = new ArrayList<>();
+		mMessageTypeProperties = new ArrayList<>();
 	}
 
 	/**
@@ -116,7 +116,7 @@ public class MessageCollection {
 		if (mAccept) {
 
 			result = true;
-			List<LogMessage> messages = new ArrayList<LogMessage>(iMessages);
+			List<LogMessage> messages = new ArrayList<>(iMessages);
 			int messagesSize = messages.size();
 			int messageTypePropertiesSize = mMessageTypeProperties.size();
 			LogMessage currentMessage;
@@ -132,7 +132,7 @@ public class MessageCollection {
 				// collection
 				for (int j = 0; j < messageTypePropertiesSize; j++) {
 
-					messageType = mMessageTypeProperties.get(j).intValue();
+					messageType = mMessageTypeProperties.get(j);
 
 					if (currentMessageType == messageType) {
 						result = messages.add(currentMessage) && result;
@@ -224,7 +224,7 @@ public class MessageCollection {
 	 * @return <code>Collection</code> of <code>Messages</code>
 	 */
 	public Collection<LogMessage> getByType() {
-		List<LogMessage> resultMessages = new ArrayList<LogMessage>();
+		List<LogMessage> resultMessages = new ArrayList<>();
 		int messagesSize = mMessages.size();
 		int messageTypePropertiesSize = mMessageTypeProperties.size();
 		LogMessage currentMessage;
@@ -240,7 +240,7 @@ public class MessageCollection {
 			// cycle through the wanted MessageTypes and add then to the
 			// resultMessages
 			for (int j = 0; j < messageTypePropertiesSize; j++) {
-				messageType = mMessageTypeProperties.get(j).intValue();
+				messageType = mMessageTypeProperties.get(j);
 
 				if (currentMessageType == messageType) {
 					result = resultMessages.add(currentMessage) && result;
@@ -324,7 +324,7 @@ public class MessageCollection {
 	 * @return true if the properties changed as a result of the call.
 	 */
 	public boolean setMessageTypeProperties(int iMessageType) {
-		return mMessageTypeProperties.add(Integer.valueOf(iMessageType));
+		return mMessageTypeProperties.add(iMessageType);
 	}
 
 	/**

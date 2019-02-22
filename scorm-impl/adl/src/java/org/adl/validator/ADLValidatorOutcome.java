@@ -189,6 +189,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @param iManifestNode - The root <code>&lt;manfiest$gt;</code> node of a 
 	 * manifest.
 	 */
+	@Override
 	public void applyXMLBase(Node iManifestNode) {
 		mLogger.entering("ADLValidatorOutcome", "applyXMLBase()");
 		String x = "";
@@ -206,7 +207,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 		//get base of resources node
 		Node resourcesNode = DOMTreeUtility.getNode(iManifestNode, "resources");
 		String resourcesBase = getXMLBaseValue(resourcesNode);
-		if ((!x.equals("")) && (!resourcesBase.equals("")) && (!x.endsWith("/"))) {
+		if ((!x.isEmpty()) && (!resourcesBase.isEmpty()) && (!x.endsWith("/"))) {
 			//x += File.separator;
 			x += "/";
 		}
@@ -223,7 +224,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				if (currentNodeName.equals("resource")) {
 					resourceBase = getXMLBaseValue(currentNode);
 
-					if ((!x.equals("")) && (!resourceBase.equals("")) && (!x.endsWith("/"))) {
+					if ((!x.isEmpty()) && (!resourceBase.isEmpty()) && (!x.endsWith("/"))) {
 						//y = x + File.separator + resourceBase;
 						y = x + "/" + resourceBase;
 					} else {
@@ -233,7 +234,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 					currentHrefAttr = DOMTreeUtility.getAttribute(currentNode, "href");
 					if (currentHrefAttr != null) {
 						currentHrefValue = currentHrefAttr.getValue();
-						if ((!y.equals("")) && (!currentHrefValue.equals("")) && (!y.endsWith("/"))) {
+						if ((!y.isEmpty()) && (!currentHrefValue.isEmpty()) && (!y.endsWith("/"))) {
 							currentHrefAttr.setValue(y + "/" + currentHrefValue);
 						} else {
 							currentHrefAttr.setValue(y + currentHrefValue);
@@ -248,7 +249,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 							if (fileNodeName.equals("file")) {
 								Attr fileHrefAttr = DOMTreeUtility.getAttribute(currentFileNode, "href");
 								fileHrefValue = fileHrefAttr.getValue();
-								if ((!y.equals("")) && (!fileHrefValue.equals("")) && (!y.endsWith("/"))) {
+								if ((!y.isEmpty()) && (!fileHrefValue.isEmpty()) && (!y.endsWith("/"))) {
 									fileHrefAttr.setValue(y + "/" + fileHrefValue);
 								} else {
 									fileHrefAttr.setValue(y + fileHrefValue);
@@ -270,14 +271,15 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Returns a List containing all of the manifest nodes in the
 	 * manifest.
 	 */
+	@Override
 	public List<Node> getAllManifests(Node iManifest) {
 		mLogger.entering("ADLValidatorOutcome", "getAllManifests()");
-		List<Node> resultList = new ArrayList<Node>();
-		List<Node> manifestList = new ArrayList<Node>();
+		List<Node> resultList = new ArrayList<>();
+		List<Node> manifestList = new ArrayList<>();
 		Node currentManifest = null;
 		if (iManifest != null) {
 			manifestList = DOMTreeUtility.getNodes(iManifest, "manifest");
-			resultList = new ArrayList<Node>(manifestList);
+			resultList = new ArrayList<>(manifestList);
 		}
 
 		for (int manifestCount = 0; manifestCount < manifestList.size(); manifestCount++) {
@@ -296,10 +298,11 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Returns a List containing all of the resource nodes in the
 	 * manifest.
 	 */
+	@Override
 	public List<Node> getAllResources(Node iManifest) {
 		mLogger.entering("ADLValidatorOutcome", "getAllResources()");
-		List<Node> resourceList = new ArrayList<Node>();
-		List<Node> manifestList = new ArrayList<Node>();
+		List<Node> resourceList = new ArrayList<>();
+		List<Node> manifestList = new ArrayList<>();
 		Node resourcesNode = DOMTreeUtility.getNode(iManifest, "resources");
 		resourceList = DOMTreeUtility.getNodes(resourcesNode, "resource");
 		manifestList = DOMTreeUtility.getNodes(iManifest, "manifest");
@@ -321,6 +324,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Document -  An electronic representation of the XML produced by
 	 * the parse.
 	 */
+	@Override
 	public Document getDocument() {
 		return mDocument;
 	}
@@ -333,6 +337,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return boolean - describes if the required IMS Manifest was detected at
 	 * the root of the pif, <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean getDoesIMSManifestExist() {
 		return mDoesIMSManifestExist;
 	}
@@ -346,6 +351,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return boolean - describes if the required schemas were detected at the
 	 * root of the pif, <code>false</code> otherwise.
 	 */
+	@Override
 	public boolean getDoRequiredCPFilesExist() {
 		return mDoRequiredCPFilesExist;
 	}
@@ -359,6 +365,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return boolean - describes if the XML Instance contains extension
 	 * elements/attributes.
 	 */
+	@Override
 	public boolean getIsExtensionsUsed() {
 		return mIsExtensionsUsed;
 	}
@@ -372,6 +379,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * was expected.
 	 *
 	 */
+	@Override
 	public boolean getIsValidRoot() {
 		return mIsValidRoot;
 	}
@@ -386,6 +394,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return boolean - decribes if the XML Instance is valid according to the
 	 * SCORM Profiles.
 	 */
+	@Override
 	public boolean getIsValidToApplicationProfile() {
 		return mIsValidToApplicationProfile;
 	}
@@ -399,6 +408,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return boolean - decribes if the XML Instance is valid against the
 	 * schema(s).
 	 */
+	@Override
 	public boolean getIsValidToSchema() {
 		return mIsValidToSchema;
 	}
@@ -410,6 +420,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 *
 	 * @return boolean - describes if the instance was found to be wellformed.
 	 */
+	@Override
 	public boolean getIsWellformed() {
 		return mIsWellformed;
 	}
@@ -422,10 +433,11 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Returns a List of all sub-items of the given item.
 	 *
 	 */
+	@Override
 	public List<Node> getItems(Node iItem) {
 		mLogger.entering("ADLValidatorOutcome", "getItems()");
-		List<Node> result = new ArrayList<Node>();
-		List<Node> itemList = new ArrayList<Node>();
+		List<Node> result = new ArrayList<>();
+		List<Node> itemList = new ArrayList<>();
 		Node currentItem = null;
 		if (iItem != null) {
 			itemList = DOMTreeUtility.getNodes(iItem, "item");
@@ -449,12 +461,13 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Returns List containing all of the item nodes in the
 	 * manifest.
 	 */
+	@Override
 	public List<Node> getItemsInManifest(Node iManifest) {
 		mLogger.entering("ADLValidatorOutcome", "getItemsInManifest()");
 		Node organizationsNode = null;
-		List<Node> organizationList = new ArrayList<Node>();
-		List<Node> itemList = new ArrayList<Node>();
-		List<Node> resultList = new ArrayList<Node>();
+		List<Node> organizationList = new ArrayList<>();
+		List<Node> itemList = new ArrayList<>();
+		List<Node> resultList = new ArrayList<>();
 		Node currentOrg = null;
 		Node currentItem = null;
 		organizationsNode = DOMTreeUtility.getNode(iManifest, "organizations");
@@ -483,6 +496,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 *
 	 * @return Returns the item Node whose identifier matches the ID passed in.
 	 */
+	@Override
 	public Node getItemWithID(String iItemID) {
 		mLogger.entering("ADLValidatorOutcome", "getItemsWithID()");
 		Node manifestNode = mDocument.getDocumentElement();
@@ -493,7 +507,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 		Node currentManifest = null;
 		Node theNode = null;
 		String currentItemID = "";
-		List<Node> itemList = new ArrayList<Node>();
+		List<Node> itemList = new ArrayList<>();
 		boolean isFound = false;
 
 		itemList = getItemsInManifest(manifestNode);
@@ -542,6 +556,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Returns the Node that has the identifier matching the ID passed 
 	 * in.
 	 */
+	@Override
 	public Node getNodeWithID(Node iManifest, String iID) {
 		mLogger.entering("ADLValidatorOutcome", "getNodeWithID()");
 		boolean isFound = false;
@@ -597,6 +612,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @return Document -  An electronic representation of the XML produced by
 	 * the parse.
 	 */
+	@Override
 	public Document getRolledUpDocument() {
 		return mRolledUpDocument;
 	}
@@ -609,6 +625,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 *
 	 * @return Node - the root node of the DOM stored in memory
 	 */
+	@Override
 	public Node getRootNode() {
 		return mDocument.getDocumentElement();
 	}
@@ -622,6 +639,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @param iNode - the node whose xml:base attribute value is needed.
 	 * @return Returns the value of the xml:base attribute of this node.
 	 */
+	@Override
 	public String getXMLBaseValue(Node iNode) {
 		mLogger.entering("ADLValidatorOutcome", "getXMLBaseValue()");
 		String result = "";
@@ -653,6 +671,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 * @param iManifestNode The root manifest node of the DOM tree.
 	 *
 	 */
+	@Override
 	public void processManifestMap(IManifestMap iManifestMap, Node iManifestNode) {
 		mLogger.entering("ADLValidatorOutcome", "processManifestMap()");
 		boolean isInResources = false;
@@ -667,7 +686,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 		String itemIdref = "";
 		String resourceID = "";
 		Node organizationsNode = null;
-		List<Node> organizationNodes = new ArrayList<Node>();
+		List<Node> organizationNodes = new ArrayList<>();
 		int organizationIndex = 0;
 		String defaultOrgID = "";
 		String tempOrgID = "";
@@ -686,7 +705,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 		//Loop through the itemIdref List
 		for (int idRefCount = 0; idRefCount < itemIdrefs.size(); idRefCount++) {
 			itemIdref = itemIdrefs.get(idRefCount);
-			if (!itemIdref.equals("")) {
+			if (!itemIdref.isEmpty()) {
 				theNode = null;
 				isInResources = false;
 				for (int resourceIDCount = 0; resourceIDCount < resourceIDs.size(); resourceIDCount++) {
@@ -784,12 +803,13 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 *
 	 * @param isResPackage - Whether or not the package is a resource package.
 	 */
+	@Override
 	public void rollupSubManifests(boolean isResPackage) {
 		mLogger.entering("ADLValidatorOutcome", "rollupSubManifests()");
 		Node manifest = mDocument.getDocumentElement();
 		ManifestMap manifestMap = new ManifestMap();
-		List<Node> manifestList = new ArrayList<Node>();
-		List<Node> resourceList = new ArrayList<Node>();
+		List<Node> manifestList = new ArrayList<>();
+		List<Node> resourceList = new ArrayList<>();
 		Node rootResources = DOMTreeUtility.getNode(manifest, "resources");
 		Node currentManifest = null;
 		Node currentResource = null;

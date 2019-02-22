@@ -17,85 +17,31 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 
-public class Progress implements Serializable {
+import lombok.Getter;
+import lombok.Setter;
 
+public class Progress implements Serializable
+{
 	private static final long serialVersionUID = 1L;
 
 	// cmi.progress_measure
-	private double progressMeasure;
+	@Getter @Setter private double progressMeasure;
 
 	// cmi.completion_threshold
-	private double completionThreshold;
+	@Getter @Setter private double completionThreshold;
 
 	// cmi.completion_status
-	private String completionStatus;
+	@Getter @Setter private String completionStatus;
 
 	// cmi.success_status
-	private String successStatus;
+	@Getter @Setter private String successStatus;
 
 	// cmi.location
-	private String learnerLocation;
+	@Getter @Setter private String learnerLocation;
 
 	// cmi.max_time_allowed
-	private long maxSecondsAllowed;
+	@Getter @Setter private long maxSecondsAllowed;
 
 	// cmi.total_time
-	private String totalSessionSeconds;
-
-	public String getCompletionStatus() {
-		return completionStatus;
-	}
-
-	public double getCompletionThreshold() {
-		return completionThreshold;
-	}
-
-	public String getLearnerLocation() {
-		return learnerLocation;
-	}
-
-	public long getMaxSecondsAllowed() {
-		return maxSecondsAllowed;
-	}
-
-	public double getProgressMeasure() {
-		return progressMeasure;
-	}
-
-	public String getSuccessStatus() {
-		return successStatus;
-	}
-
-	public String getTotalSessionSeconds() {
-		return totalSessionSeconds;
-	}
-
-	public void setCompletionStatus(String completionStatus) {
-		this.completionStatus = completionStatus;
-	}
-
-	public void setCompletionThreshold(double completionThreshold) {
-		this.completionThreshold = completionThreshold;
-	}
-
-	public void setLearnerLocation(String learnerLocation) {
-		this.learnerLocation = learnerLocation;
-	}
-
-	public void setMaxSecondsAllowed(long maxSecondsAllowed) {
-		this.maxSecondsAllowed = maxSecondsAllowed;
-	}
-
-	public void setProgressMeasure(double progressMeasure) {
-		this.progressMeasure = progressMeasure;
-	}
-
-	public void setSuccessStatus(String successStatus) {
-		this.successStatus = successStatus;
-	}
-
-	public void setTotalSessionSeconds(String totalSessionSeconds) {
-		this.totalSessionSeconds = totalSessionSeconds;
-	}
-
+	@Getter @Setter private String totalSessionSeconds;
 }

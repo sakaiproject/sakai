@@ -111,7 +111,7 @@ public class ObjectiveMap {
 		mWriteSatisfiedStatus = "";
 		mReadNormalizedMeasure = "";
 		mWriteNormalizedMeasure = "";
-		mObjectiveMaps = new ArrayList<ObjectiveMap>();
+		mObjectiveMaps = new ArrayList<>();
 	}
 
 	/**
@@ -459,7 +459,7 @@ public class ObjectiveMap {
 				if (currentNodeName.equals("objectiveID")) {
 					attributeValue = currentAttrNode.getValue();
 
-					if (mObjectiveID.equals("")) {
+					if (mObjectiveID.isEmpty()) {
 						setObjectiveID(attributeValue);
 					} else {
 						// need to indicate that we need to create a new object and

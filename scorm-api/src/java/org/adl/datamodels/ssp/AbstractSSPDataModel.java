@@ -45,9 +45,9 @@ public abstract class AbstractSSPDataModel extends DataModel {
 	/**
 	 * Describes the data model elements managed by this data model.
 	 */
-	protected List<?> mManaged = null;
+	protected List<Object> mManaged = null;
 
-	public List<?> getManagedElements() {
+	public List<Object> getManagedElements() {
 		return mManaged;
 	}
 

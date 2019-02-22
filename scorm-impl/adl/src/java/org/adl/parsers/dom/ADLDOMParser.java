@@ -178,7 +178,7 @@ public class ADLDOMParser implements ErrorHandler {
 		mExtensionsFound = false;
 		mFirstTimeSchemaLocationFound = true;
 		mSchemaLocExists = false;
-		mDeclaredNamespaces = new ArrayList<String>();
+		mDeclaredNamespaces = new ArrayList<>();
 	}
 
 	/**
@@ -377,6 +377,7 @@ public class ADLDOMParser implements ErrorHandler {
 	 *
 	 * @param iSPE    Exception object created by the parser.
 	 */
+	@Override
 	public void error(SAXParseException iSPE) {
 		log.debug("error()");
 
@@ -403,6 +404,7 @@ public class ADLDOMParser implements ErrorHandler {
 	 *
 	 * @param iSPE    Exception object created by the parser.
 	 */
+	@Override
 	public void fatalError(SAXParseException iSPE) {
 		log.debug("fatalError()");
 
@@ -554,7 +556,7 @@ public class ADLDOMParser implements ErrorHandler {
 
 		String fileName = searchFile(iXMLFileName, "xml");
 
-		if (!fileName.equals("")) {
+		if (!fileName.isEmpty()) {
 			if (mParser != null) {
 				try {
 					msgText = "Parsing for Well-Formedness first to obtain document";
@@ -746,7 +748,7 @@ public class ADLDOMParser implements ErrorHandler {
 		xsdLocation = xsdLocation.replaceAll(" ", "%20");
 		xsdLocation = xsdLocation.replace('\\', '/');
 
-		if (!fileName.equals("")) {
+		if (!fileName.isEmpty()) {
 			if (mParser != null) {
 				try {
 					msgText = Messages.getString("ADLDOMParser.52");
@@ -806,7 +808,7 @@ public class ADLDOMParser implements ErrorHandler {
 				typeStr = new StringBuffer(iNodeTypeString);
 			}
 
-			nodeType = new StringBuffer(Integer.valueOf(iNode.getNodeType()).toString());
+			nodeType = new StringBuffer(Short.toString(iNode.getNodeType()));
 
 			if (iNode.getNodeName() != null) {
 				nodeName = new StringBuffer(iNode.getNodeName());
@@ -844,8 +846,9 @@ public class ADLDOMParser implements ErrorHandler {
 		String value;
 
 		// is there anything to do?
-		if (iNode == null)
+		if (iNode == null){
 			return;
+		}
 
 		switch (iNode.getNodeType()) {
 		case Node.PROCESSING_INSTRUCTION_NODE: {
@@ -1137,17 +1140,17 @@ public class ADLDOMParser implements ErrorHandler {
 					}
 					// Reads the file in the determined encoding
 					else {
-						//Creates a buffer with the size of the xml encoded file
-						BufferedReader inStream = new BufferedReader(new InputStreamReader(inputStream, encoding));
-						StringBuffer dataString = new StringBuffer();
-						String s = "";
-
-						//Builds the encoded file to be parsed
-						while ((s = inStream.readLine()) != null) {
-							dataString.append(s);
+						StringBuffer dataString;
+						try ( //Creates a buffer with the size of the xml encoded file
+								BufferedReader inStream = new BufferedReader(new InputStreamReader(inputStream, encoding)))
+						{
+							dataString = new StringBuffer();
+							String s = "";
+							//Builds the encoded file to be parsed
+							while ((s = inStream.readLine()) != null) {
+								dataString.append(s);
+							}
 						}
-
-						inStream.close();
 						inputStream.close();
 						inFile.close();
 						is = new InputSource(new StringReader(dataString.toString()));
@@ -1220,6 +1223,7 @@ public class ADLDOMParser implements ErrorHandler {
 	 *
 	 * @param iSPE SAX Parse Exception object created by the parser.
 	 */
+	@Override
 	public void warning(SAXParseException iSPE) {
 		log.debug("warning()");
 

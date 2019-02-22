@@ -114,13 +114,13 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 		// Check if this element is managing records -- is it an array container?
 		if (mDescription.mSPM != -1 && mDescription.mChildren != null && mDescription.mChildren.size() > 0) {
 			// Initialize the set of records
-			mRecords = new Vector<DMElement>();
+			mRecords = new Vector<>();
 		}
 
 		// Check if this element has children
 		if (mDescription.mChildren != null && mDescription.mChildren.size() > 0) {
 			// Initialize the set of children bindings
-			mChildrenBindings = new Vector<String>();
+			mChildrenBindings = new Vector<>();
 
 			for (int i = 0; i < mDescription.mChildren.size(); i++) {
 				DMElementDescriptor desc = mDescription.mChildren.get(i);
@@ -130,7 +130,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 				// If this is not an array container
 				if (mRecords == null) {
 					if (mChildren == null) {
-						mChildren = new Hashtable<String, DMElement>();
+						mChildren = new Hashtable<>();
 					}
 
 					// Initialize the leaf child element
@@ -143,7 +143,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 			// This must be a leaf element, so initialize 
 			if (mDescription.mDelimiters != null && mDescription.mDelimiters.size() > 0) {
 				// Initialize this element's set of delimiters 
-				mDelimiters = new Vector<DMDelimiter>();
+				mDelimiters = new Vector<>();
 
 				for (int i = 0; i < mDescription.mDelimiters.size(); i++) {
 					DMDelimiterDescriptor desc = mDescription.mDelimiters.get(i);
@@ -207,10 +207,11 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 				// any provided delimiters are equal, or the existing delimiter
 				// value is the default.
 				if (mDelimiters != null && mDelimiters.size() > 0) {
-					Vector<Boolean> checked = new Vector<Boolean>();
+					Vector<Boolean> checked = new Vector<>();
 
 					// Set all delimiters to 'not checked'
-					for (int j = 0; j < mDelimiters.size(); j++) {
+					for( DMDelimiter mDelimiter : mDelimiters )
+					{
 						checked.add(false);
 					}
 
@@ -229,7 +230,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 							if (toCheck.mDescription.mName.equals(del.getName())) {
 								// Make sure we haven't already checked this delimter
-								boolean alreadyChecked = checked.get(j).booleanValue();
+								boolean alreadyChecked = checked.get(j);
 
 								if (!alreadyChecked) {
 									// Remember we've checked this delimiter
@@ -279,7 +280,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 						// Make sure any delimters not included in the request are 
 						// equal to their defaults
 						for (int j = 0; j < mDelimiters.size() && equal; j++) {
-							boolean check = !checked.get(j).booleanValue();
+							boolean check = !checked.get(j);
 
 							if (check) {
 								DMDelimiter toCheck = mDelimiters.get(j);
@@ -457,7 +458,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 				// Add the case_matters delimiter
 				String[] boolVocab = { "true", "false" };
 				del = new DMDelimiterDescriptor("case_matters", "false", new VocabularyValidator(boolVocab));
-				pattern.mDelimiters = new Vector<DMDelimiterDescriptor>();
+				pattern.mDelimiters = new Vector<>();
 				pattern.mDelimiters.add(del);
 
 				// Add the order_matters delimiter
@@ -476,7 +477,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 				String[] boolVocab = { "true", "false" };
 				del = new DMDelimiterDescriptor("case_matters", "false", new VocabularyValidator(boolVocab));
 
-				pattern.mDelimiters = new Vector<DMDelimiterDescriptor>();
+				pattern.mDelimiters = new Vector<>();
 				pattern.mDelimiters.add(del);
 
 				// Add the lang delimiter
@@ -508,7 +509,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 				// Add the order_matters delimiter
 				String[] boolVocab = { "true", "false" };
 				del = new DMDelimiterDescriptor("order_matters", "true", new VocabularyValidator(boolVocab));
-				pattern.mDelimiters = new Vector<DMDelimiterDescriptor>();
+				pattern.mDelimiters = new Vector<>();
 				pattern.mDelimiters.add(del);
 
 				pattern.mValueSPM = -2;
@@ -579,7 +580,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 		} else if (mValue.equals("long-fill-in")) {
 			// Add the lang delimiter
 			del = new DMDelimiterDescriptor("lang", "en", SCORM_2004_DM.SHORT_SPM, new LangStringValidator());
-			ioChild.mDelimiters = new Vector<DMDelimiterDescriptor>();
+			ioChild.mDelimiters = new Vector<>();
 			ioChild.mDelimiters.add(del);
 
 			ioChild.mValueSPM = -2;
@@ -917,7 +918,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 			if (mDelimiters != null && mDelimiters.size() > 0) {
 				boolean found = true;
-				Vector<Boolean> set = new Vector<Boolean>();
+				Vector<Boolean> set = new Vector<>();
 
 				// Set all delimiters to their defaults
 				for (int j = 0; j < mDelimiters.size(); j++) {
@@ -942,7 +943,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 						if (toSet.mDescription.mName.equals(del.getName())) {
 							// Make sure we haven't set this delimiter yet
-							boolean setAlready = set.get(j).booleanValue();
+							boolean setAlready = set.get(j);
 
 							if (!setAlready) {
 								found = true;
@@ -1086,10 +1087,11 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 		int i = 0;
 
 		if (mDelimiters != null && mDelimiters.size() > 0) {
-			Vector<Boolean> checked = new Vector<Boolean>();
+			Vector<Boolean> checked = new Vector<>();
 
 			// Set all delimiters to 'not checked'
-			for (int j = 0; j < mDelimiters.size(); j++) {
+			for( DMDelimiter mDelimiter : mDelimiters )
+			{
 				checked.add(false);
 			}
 
@@ -1112,7 +1114,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 					if (toCheck.mDescription.mName.equals(trim)) {
 						// Make sure we haven't already checked this delimter
-						boolean alreadyChecked = checked.get(j).booleanValue();
+						boolean alreadyChecked = checked.get(j);
 
 						if (!alreadyChecked) {
 							// If a known delimiter has whitespace, flag the error

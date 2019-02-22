@@ -19,28 +19,30 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
-public abstract class DecoratedPropertyColumn extends PropertyColumn {
-
+public abstract class DecoratedPropertyColumn extends PropertyColumn
+{
 	private static final long serialVersionUID = 1L;
 
-	public DecoratedPropertyColumn(IModel displayModel, String propertyExpression) {
+	public DecoratedPropertyColumn(IModel displayModel, String propertyExpression)
+	{
 		super(displayModel, propertyExpression);
 	}
-	
-	public DecoratedPropertyColumn(IModel displayModel, String sortProperty, String propertyExpression) {
+
+	public DecoratedPropertyColumn(IModel displayModel, String sortProperty, String propertyExpression)
+	{
 		super(displayModel, sortProperty, propertyExpression);
 	}
-	
+
 	protected IModel createLabelModel(IModel embeddedModel)
 	{
-		return new PropertyModel(embeddedModel, getPropertyExpression()) {
-	
+		return new PropertyModel(embeddedModel, getPropertyExpression())
+		{
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Object getObject()
 			{
 				Object object = super.getObject();
-				
 				return convertObject(object);
 			}
 			
@@ -48,5 +50,4 @@ public abstract class DecoratedPropertyColumn extends PropertyColumn {
 	}
 
 	public abstract Object convertObject(Object object);
-
 }

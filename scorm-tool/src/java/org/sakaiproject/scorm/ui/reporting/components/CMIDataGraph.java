@@ -24,34 +24,34 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.scorm.model.api.CMIData;
 import org.sakaiproject.scorm.service.api.ScormResultService;
-import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
+import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
 
-public class CMIDataGraph extends Panel {
-
+public class CMIDataGraph extends Panel
+{
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
-	
-	public CMIDataGraph(String id, List<CMIData> cmiData) {
+
+	public CMIDataGraph(String id, List<CMIData> cmiData)
+	{
 		super(id);
 
-		List<IColumn> columns = new LinkedList<IColumn>();
-		
+		List<IColumn> columns = new LinkedList<>();
 		IModel descriptionHeader = new ResourceModel("column.header.description");
 		IModel nameHeader = new ResourceModel("column.header.name");
 		IModel valueHeader = new ResourceModel("column.header.value");
-		
+
 		columns.add(new PropertyColumn(descriptionHeader, "description", "description"));
 		columns.add(new PropertyColumn(nameHeader, "fieldName", "fieldName"));
 		columns.add(new PropertyColumn(valueHeader, "fieldValue", "fieldValue"));
-		
-		BasicDataTable table = new BasicDataTable("attemptTable", columns, cmiData);
+
+		SakaiDataTable table = new SakaiDataTable("attemptTable", columns, new CMIDataProvider(cmiData), true);
 		add(table);
-		
+
 		this.setOutputMarkupId(true);
 	}
-	
 }

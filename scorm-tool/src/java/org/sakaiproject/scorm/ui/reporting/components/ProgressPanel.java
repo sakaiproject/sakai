@@ -19,33 +19,30 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
+
 import org.sakaiproject.scorm.model.api.Progress;
 
-public class ProgressPanel extends Panel {
-
+public class ProgressPanel extends Panel
+{
 	private static final long serialVersionUID = 1L;
 
-	public ProgressPanel(String id, Progress progress) {
+	public ProgressPanel(String id, Progress progress)
+	{
 		super(id, new CompoundPropertyModel(progress));
 
 		double mark = progress.getProgressMeasure();
 		double scale = progress.getCompletionThreshold();
-
 		double percentage = 100.0 * mark / scale;
-		
+
 		Label percentCompleteLabel = new Label("percentComplete", new Model("" + percentage));		
 		percentCompleteLabel.setVisible(mark != -1 && scale != -1);
-		
 		add(percentCompleteLabel);
-		
+
 		Label successLabel = new Label("successStatus");
 		Label completionLabel = new Label("completionStatus");
-		
 		successLabel.setVisible(progress.getSuccessStatus() != null && progress.getSuccessStatus().trim().length() != 0);
 		completionLabel.setVisible(progress.getCompletionStatus() != null && progress.getCompletionStatus().trim().length() != 0);
-		
 		add(successLabel);
 		add(completionLabel);
 	}
-
 }

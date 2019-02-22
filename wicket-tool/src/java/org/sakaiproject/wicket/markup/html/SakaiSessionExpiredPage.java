@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.wicket.markup.html;
 
-public class SakaiSessionExpiredPage extends SakaiPortletWebPage {
+public class SakaiSessionExpiredPage extends SakaiPortletWebPage
+{
 	private static final long serialVersionUID = 1L;
-
 }

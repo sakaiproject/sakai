@@ -19,66 +19,100 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
+
 import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
-public class ContentPackageResourceStream implements IResourceStream {
-
+@Slf4j
+public class ContentPackageResourceStream implements IResourceStream
+{
 	private static final long serialVersionUID = 1L;
-	
-	private static Log log = LogFactory.getLog(ContentPackageResourceStream.class);
-	
+
 	private ContentPackageResource resource;
 	private InputStream in;
-	private Locale locale;
-	
-	public ContentPackageResourceStream(ContentPackageResource resource) {
+	@Getter @Setter private Locale locale;
+
+	public ContentPackageResourceStream(ContentPackageResource resource)
+	{
 		this.resource = resource;
 	}
-	
-	public void close() throws IOException {
+
+	@Override
+	public void close() throws IOException
+	{
 		if (in != null)
+		{
 			in.close();
+		}
 	}
 
-	public String getContentType() {
+	@Override
+	public String getContentType()
+	{
 		return resource.getMimeType();
 	}
 
-	public InputStream getInputStream() throws ResourceStreamNotFoundException {
-		try {
+	@Override
+	public InputStream getInputStream() throws ResourceStreamNotFoundException
+	{
+		try
+		{
 			in = resource.getInputStream();
-			
 			if (in == null)
+			{
 				throw new ResourceNotFoundException(resource.getPath());
-				
-		} catch (ResourceNotFoundException rnfe) {
-			log.error("Could not return input stream for resource: " + resource.getPath());
+			}
+		}
+		catch (ResourceNotFoundException rnfe)
+		{
+			log.error("Could not return input stream for resource: {}", resource.getPath());
 			throw new ResourceStreamNotFoundException("The requested resource was not found: " + resource.getPath());
 		}
-		
+
 		return in;
 	}
 
-	public long length() {
-		return resource.getLength();
-	}
-	
-	public Locale getLocale() {
-		return locale;
+	@Override
+	public String getStyle()
+	{
+		throw new UnsupportedOperationException( "Not supported yet." );
 	}
 
-	public void setLocale(Locale locale) {
-		this.locale = locale;
+	@Override
+	public void setStyle( String style )
+	{
+		throw new UnsupportedOperationException( "Not supported yet." );
 	}
 
-	public Time lastModifiedTime() {
-		return Time.milliseconds(resource.getLastModified());
+	@Override
+	public String getVariation()
+	{
+		throw new UnsupportedOperationException( "Not supported yet." );
 	}
 
+	@Override
+	public void setVariation( String variation )
+	{
+		throw new UnsupportedOperationException( "Not supported yet." );
+	}
+
+	@Override
+	public Bytes length()
+	{
+		return Bytes.bytes(resource.getLength());
+	}
+
+	@Override
+	public Time lastModifiedTime()
+	{
+		return Time.millis(resource.getLastModified());
+	}
 }

@@ -103,9 +103,9 @@ public class InteractionTrunc {
 				}
 
 				if (StringUtils.length(langString) > 250) {
-					trunc.append("{lang=" + langString.substring(0, 250) + "}");
+					trunc.append( "{lang=" ).append( langString.substring(0, 250) ).append("}");
 				} else {
-					trunc.append("{lang=" + langString + "}");
+					trunc.append( "{lang=" ).append( langString ).append("}");
 				}
 
 				if (matchString.length() > 250) {

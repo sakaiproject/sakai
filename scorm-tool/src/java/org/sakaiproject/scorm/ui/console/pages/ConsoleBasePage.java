@@ -15,161 +15,114 @@
  */
 package org.sakaiproject.scorm.ui.console.pages;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
-import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
-import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
+import org.sakaiproject.wicket.markup.html.navigation.NavLink;
 
 
 public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
 
-	private static ResourceReference CONSOLE_CSS = new CompressedResourceReference(ConsoleBasePage.class, "res/scorm_console.css");
-	private static ResourceReference LIST_ICON = new ResourceReference(ConsoleBasePage.class, "res/table.png");
-	private static ResourceReference UPLOAD_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
-	private static ResourceReference VALIDATE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_link.png");
+	private static PackageResourceReference CONSOLE_CSS = new PackageResourceReference(ConsoleBasePage.class, "res/scorm_console.css");
 
-    private static final String SAK_PROP_ENABLE_MENU_BUTTON_ICONS = "scorm.menuButton.icons";
-    @SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
-    ServerConfigurationService serverConfigurationService;
-	
+	@SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
+	ServerConfigurationService serverConfigurationService;
+
+	@SpringBean
+	private LearningManagementSystem lms;
+
+	@SpringBean
+	public ToolManager toolManager;
+
 	// The feedback panel component displays dynamic messages to the user
 	protected FeedbackPanel feedback;
 	private BreadcrumbPanel breadcrumbs;
 
-	public NavIntraLink listLink;
-	public NavIntraLink uploadLink;
-	//public NavIntraLink validateLink;
+	public NavLink listLink;
+	public NavLink uploadLink;
 
-	@SpringBean
-	private LearningManagementSystem lms;
-	@SpringBean
-	public ToolManager toolManager;
+	private boolean isSinglePackageTool;
 
-	
-	public ConsoleBasePage() {
+	public ConsoleBasePage()
+	{
 		this(null);
 	}
-	
-	public ConsoleBasePage(PageParameters params) {
-		
+
+	public ConsoleBasePage(PageParameters params)
+	{
 		final String context = lms.currentContext();
 		final boolean canUpload = lms.canUpload(context);
 		final boolean canValidate = lms.canValidate(context);
-		
-		WebMarkupContainer wmc = new MaydayWebMarkupContainer("toolbar-administration");
-		if (isSinglePackageTool()) {
-	        wmc.setVisible(false);
-		}
 
-		listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
-		uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
-		//validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
+		isSinglePackageTool = isSinglePackageTool();
 
-		listLink.setVisible(canUpload || canValidate);
-		uploadLink.setVisible(canUpload);
-
-		// SCO-107 - hide the validate link (interface is currently unimplemented)
-		//validateLink.setVisible(canValidate);
-		//validateLink.setVisibilityAllowed(false);
-
-		Icon listIcon = new Icon("listIcon", LIST_ICON);
-		Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
-		//Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
-
-		// SCO-109 - conditionally show the icons in the menu bar buttons
-		boolean enableMenuBarIcons = serverConfigurationService.getBoolean( SAK_PROP_ENABLE_MENU_BUTTON_ICONS, true );
-		if( enableMenuBarIcons )
+		WebMarkupContainer navBar = new WebMarkupContainer("navBar")
 		{
-			listIcon.setVisible(canUpload || canValidate);
-			uploadIcon.setVisible(canUpload);
+			@Override
+			public boolean isVisible()
+			{
+				return !isSinglePackageTool;
+			}
+		};
 
-			// SCO-107 hide the validate link (interface is currently unimplemented)
-			//validateIcon.setVisible(canValidate);
-			//validateIcon.setVisibilityAllowed(false);
-		}
-		else
-		{
-			listIcon.setVisibilityAllowed( false );
-			uploadIcon.setVisibilityAllowed( false );
-			//validateIcon.setVisibilityAllowed( false );
-		}
-
-		wmc.add(listIcon);
-		wmc.add(uploadIcon);
-		//wmc.add(validateIcon);
-
-		wmc.add( listLink );
-		wmc.add( uploadLink );
-		//wmc.add( validateLink );
+		ResourceModel listLinkText = new ResourceModel("link.list");
+		ResourceModel uploadLinkText = new ResourceModel("link.upload");
+		navBar.add(listLink = new NavLink("listLink", PackageListPage.class, (canUpload || canValidate), listLinkText, listLinkText));
+		navBar.add(uploadLink = new NavLink("uploadLink", UploadPage.class, canUpload, uploadLinkText, uploadLinkText));
 
 		// add the toolbar container
-		add(wmc);
+		add(navBar);
 
 		add(newPageTitleLabel(params));
 		add(feedback = new SakaiFeedbackPanel("feedback"));
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
-		
-		Icon pageIcon = new Icon("pageIcon", getPageIconReference());
-		pageIcon.setVisible(getPageIconReference() != null);
-		add(pageIcon);
 	}
-	
-	public void addBreadcrumb(IModel model, Class<?> pageClass, PageParameters params, boolean isEnabled) {
+
+	public void addBreadcrumb(IModel model, Class<?> pageClass, PageParameters params, boolean isEnabled)
+	{
 		breadcrumbs.addBreadcrumb(model, pageClass, params, isEnabled);
 	}
-	
-	protected Label newPageTitleLabel(PageParameters params) {
+
+	protected Label newPageTitleLabel(PageParameters params)
+	{
 		return new Label("page.title", new ResourceModel("page.title"));
 	}
-	
+
 	@Override
-	protected void onBeforeRender() {
+	protected void onBeforeRender()
+	{
 		super.onBeforeRender();
 		// If a feedback message exists, then make the feedback panel visible, otherwise, hide it.
 		feedback.setVisible(hasFeedbackMessage());
 		breadcrumbs.setVisible(breadcrumbs.getNumberOfCrumbs() > 0);
 	}
-	
+
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public void renderHead(IHeaderResponse response)
+	{
 		super.renderHead(response);
-		response.renderCSSReference(CONSOLE_CSS);
-	}
-	
-	protected ResourceReference getPageIconReference() {
-		return null;
-	}
-	
-	protected boolean isSinglePackageTool() {
-		return toolManager != null && 
-				toolManager.getCurrentTool() != null && 
-				"sakai.scorm.singlepackage.tool".equals(toolManager.getCurrentTool().getId());
+		response.render(CssHeaderItem.forReference(CONSOLE_CSS));
 	}
 
-	/**
-	 * Helper to disable a link. Add the Sakai class 'current'.
-	 * @param link
-	 */
-	protected void disableLink(final NavIntraLink link) {
-		link.add(new AttributeAppender("class", new Model<>("current"), " "));
-		link.setEnabled(false);
+	protected boolean isSinglePackageTool()
+	{
+		return toolManager != null && toolManager.getCurrentTool() != null
+				&& "sakai.scorm.singlepackage.tool".equals(toolManager.getCurrentTool().getId());
 	}
 }

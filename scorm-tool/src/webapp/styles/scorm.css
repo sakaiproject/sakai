@@ -107,3 +107,7 @@ div.my-tree div.wicket-tree {
     list-style: circle inside;
     padding: 2px 0px;
 }
+
+span.tree-content a.selected {
+    font-weight: bold;
+}

@@ -207,6 +207,7 @@ public class SeqRule implements Serializable, ISeqRule {
 	 * This method provides the state this <code>SeqRule</code> object for
 	 * diagnostic purposes.
 	 */
+	@Override
 	public void dumpState() {
 		if (_Debug) {
 			System.out.println("  :: SeqRule       --> BEGIN - dumpState");
@@ -226,15 +227,19 @@ public class SeqRule implements Serializable, ISeqRule {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		SeqRule other = (SeqRule) obj;
-		if (id != other.id)
+		if (id != other.id){
 			return false;
+		}
 		return true;
 	}
 

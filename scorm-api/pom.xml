@@ -52,6 +52,11 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>${scorm.wicket.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

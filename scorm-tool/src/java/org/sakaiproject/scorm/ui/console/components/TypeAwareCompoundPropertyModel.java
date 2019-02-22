@@ -25,50 +25,53 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.PropertyModel;
 
-public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
-	
+public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel
+{
 	private static final long serialVersionUID = 1L;
 
 	private SimpleDateFormat dateFormat;
-	
-	public TypeAwareCompoundPropertyModel(Object object) {
+
+	public TypeAwareCompoundPropertyModel(Object object)
+	{
 		super(object);
 		this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 	}
-	
+
 	@Override
 	public IModel bind(String property)
 	{
 		return new TypeAwarePropertyModel(this, property);
 	}
-	
+
 	@Override
 	public IWrapModel wrapOnInheritance(Component component)
 	{
 		return new AttachedCompoundPropertyModel(component);
 	}
-	
-	
-	public class TypeAwarePropertyModel extends PropertyModel {
 
+	public class TypeAwarePropertyModel extends PropertyModel
+	{
 		private static final long serialVersionUID = 1L;
 
-		public TypeAwarePropertyModel(Object modelObject, String expression) {
+		public TypeAwarePropertyModel(Object modelObject, String expression)
+		{
 			super(modelObject, expression);
 		}
-		
+
 		@Override
-		public Object getObject() {
+		public Object getObject()
+		{
 			Object obj = super.getObject();
-			
+
 			if (obj instanceof Date)
+			{
 				return dateFormat.format(obj);
-			
+			}
+
 			return obj;
 		}
 	}
-	
-	
+
 	private class AttachedCompoundPropertyModel extends AbstractPropertyModel implements IWrapModel
 	{
 		private static final long serialVersionUID = 1L;
@@ -78,8 +81,7 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 		/**
 		 * Constructor
 		 * 
-		 * @param owner
-		 *            component that this model has been attached to
+		 * @param owner component that this model has been attached to
 		 */
 		public AttachedCompoundPropertyModel(Component owner)
 		{
@@ -99,6 +101,7 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 		/**
 		 * @see org.apache.wicket.model.IWrapModel#getWrappedModel()
 		 */
+		@Override
 		public IModel getWrappedModel()
 		{
 			return TypeAwareCompoundPropertyModel.this;
@@ -115,16 +118,16 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 		}
 
 		@Override
-		public Object getObject() {
+		public Object getObject()
+		{
 			Object obj = super.getObject();
-			
+
 			if (obj instanceof Date)
+			{
 				return dateFormat.format(obj);
-			
+			}
+
 			return obj;
 		}
-
 	}
-
-	
 }

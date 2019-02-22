@@ -518,7 +518,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		}
 
 		if (mChildren == null) {
-			mChildren = new ArrayList<SeqActivity>();
+			mChildren = new ArrayList<>();
 		}
 
 		// To maintain consistency, adding a child activity will set the active
@@ -636,6 +636,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * diagnostic purposes.
 	 *
 	 */
+	@Override
 	public void dumpState() {
 
 		if (_Debug) {
@@ -949,6 +950,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The absolute duration limit for an activity.
 	 * 
 	 */
+	@Override
 	public String getActivityAbDur() {
 
 		if (_Debug) {
@@ -978,6 +980,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         is defined for this activity, otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getActivityAbDurControl() {
 
 		if (_Debug) {
@@ -1016,6 +1019,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The experienced duration limit for an activity.
 	 * 
 	 */
+	@Override
 	public String getActivityExDur() {
 
 		if (_Debug) {
@@ -1046,6 +1050,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         this activity, otherwise <code>false</code>.
 	 *
 	 */
+	@Override
 	public boolean getActivityExDurControl()
 
 	{
@@ -1067,6 +1072,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The absolute duration limit for an attempt on the activity.
 	 * 
 	 */
+	@Override
 	public String getAttemptAbDur() {
 
 		if (_Debug) {
@@ -1096,6 +1102,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         is defined for this activity, otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getAttemptAbDurControl() {
 
 		if (_Debug) {
@@ -1161,6 +1168,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The experienced duration limit for an attempt on the activity.
 	 * 
 	 */
+	@Override
 	public String getAttemptExDur() {
 
 		if (_Debug) {
@@ -1191,6 +1199,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         this activity, otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getAttemptExDurControl() {
 
 		if (_Debug) {
@@ -1211,6 +1220,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         defined.
 	 *
 	 */
+	@Override
 	public long getAttemptLimit() {
 
 		if (_Debug) {
@@ -1230,6 +1240,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         this activity, otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getAttemptLimitControl() {
 
 		if (_Debug) {
@@ -1249,6 +1260,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         objects) of auxiliary resource assoiciated with the activity.
 	 * 
 	 */
+	@Override
 	public List<ADLAuxiliaryResource> getAuxResources() {
 
 		if (_Debug) {
@@ -1258,7 +1270,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 		List<ADLAuxiliaryResource> result = null;
 		if (mAuxResources != null && mAuxResources.size() > 0) {
-			result = new ArrayList<ADLAuxiliaryResource>(mAuxResources);
+			result = new ArrayList<>(mAuxResources);
 		}
 
 		return result;
@@ -1271,6 +1283,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The time limit when an activity may begin.
 	 *
 	 */
+	@Override
 	public String getBeginTimeLimit() {
 
 		if (_Debug) {
@@ -1291,6 +1304,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         is defined for this activity, otherwise <code>false</code>.
 	 *
 	 */
+	@Override
 	public boolean getBeginTimeLimitControl() {
 
 		if (_Debug) {
@@ -1352,11 +1366,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 		if (iAll) {
 			if (null != mChildren && mChildren.size() > 0) {
-				result = new ArrayList<SeqActivity>(mChildren);
+				result = new ArrayList<>(mChildren);
 			}
 		} else {
 			if (null != mActiveChildren && mActiveChildren.size() > 0) {
-				result = new ArrayList<SeqActivity>(mActiveChildren);
+				result = new ArrayList<>(mActiveChildren);
 			}
 		}
 
@@ -1379,6 +1393,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	  *         activity,  otherwise <code>false</code>.
 	  * 
 	  */
+	@Override
 	public boolean getConstrainChoice() {
 
 		if (_Debug) {
@@ -1398,6 +1413,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         cluster,  otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getControlForwardOnly() {
 
 		if (_Debug) {
@@ -1417,6 +1433,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getControlModeChoice() {
 
 		if (_Debug) {
@@ -1435,6 +1452,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getControlModeChoiceExit() {
 
 		if (_Debug) {
@@ -1454,6 +1472,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getControlModeFlow() {
 
 		if (_Debug) {
@@ -1486,6 +1505,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The DeliveryMode (<code>String</code>) for this activity.
 	 * 
 	 */
+	@Override
 	public String getDeliveryMode() {
 
 		if (_Debug) {
@@ -1519,6 +1539,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The time limit by which an activity must end.
 	 * 
 	 */
+	@Override
 	public String getEndTimeLimit() {
 
 		if (_Debug) {
@@ -1539,6 +1560,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         is defined for this activity, otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getEndTimeLimitControl() {
 
 		if (_Debug) {
@@ -1559,6 +1581,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         rules have been defined.
 	 * 
 	 */
+	@Override
 	public ISeqRuleset getExitSeqRules() {
 
 		if (_Debug) {
@@ -1576,6 +1599,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         NOTE: This will not be <code>null</code>.
 	 * 
 	 */
+	@Override
 	public String getID() {
 		return mActivityID;
 	}
@@ -1601,6 +1625,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         otherwise <code>false</code>
 	 * 
 	 */
+	@Override
 	public boolean getIsActive() {
 
 		if (_Debug) {
@@ -1621,6 +1646,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>false</code> if it should not be considered.
 	 * 
 	 */
+	@Override
 	public boolean getIsObjRolledUp() {
 
 		if (_Debug) {
@@ -1641,6 +1667,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>false</code> if it should not be considered.
 	 * 
 	 */
+	@Override
 	public boolean getIsProgressRolledUp() {
 
 		if (_Debug) {
@@ -1658,6 +1685,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * 
 	 * @return Indication if the activity is currently selected
 	 */
+	@Override
 	public boolean getIsSelected() {
 
 		if (_Debug) {
@@ -1679,6 +1707,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         otherwise <code>false</code>
 	 * 
 	 */
+	@Override
 	public boolean getIsSuspended() {
 
 		if (_Debug) {
@@ -1698,6 +1727,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getIsTracked() {
 
 		if (_Debug) {
@@ -1716,6 +1746,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>false</code>
 	 * 
 	 */
+	@Override
 	public boolean getIsVisible() {
 
 		if (_Debug) {
@@ -1734,6 +1765,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         this activity.
 	 * 
 	 */
+	@Override
 	public String getLearnerID() {
 
 		if (_Debug) {
@@ -1843,6 +1875,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>SeqObjective</code> objects.
 	 * 
 	 */
+	@Override
 	public List<SeqObjective> getObjectives() {
 
 		if (_Debug) {
@@ -1852,7 +1885,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 		List<SeqObjective> result = null;
 		if (mObjectives != null && mObjectives.size() > 0) {
-			result = new ArrayList<SeqObjective>(mObjectives);
+			result = new ArrayList<>(mObjectives);
 		}
 
 		return result;
@@ -1907,13 +1940,13 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 						if (!iRead && (map.mWriteStatus || map.mWriteMeasure)) {
 							if (objSet == null) {
-								objSet = new ArrayList<String>();
+								objSet = new ArrayList<>();
 							}
 
 							objSet.add(map.mGlobalObjID);
 						} else if (iRead && (map.mReadStatus || map.mReadMeasure)) {
 							if (objSet == null) {
-								objSet = new ArrayList<String>();
+								objSet = new ArrayList<>();
 							}
 
 							objSet.add(map.mGlobalObjID);
@@ -1980,7 +2013,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 					result = obj.getObjMeasure(iIsRetry);
 
 					if (!result.equals(ADLTracking.TRACK_UNKNOWN)) {
-						measure = (new Double(result)).doubleValue();
+						measure = (new Double(result));
 					}
 				} else {
 					if (_Debug) {
@@ -2050,7 +2083,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 					result = obj.getObjMeasure(iIsRetry);
 
 					if (!result.equals(ADLTracking.TRACK_UNKNOWN)) {
-						measure = (new Double(result)).doubleValue();
+						measure = (new Double(result));
 					}
 				} else {
 					if (_Debug) {
@@ -2233,6 +2266,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         weight this activity's score will have during rollup.
 	 * 
 	 */
+	@Override
 	public double getObjMeasureWeight() {
 
 		if (_Debug) {
@@ -2657,7 +2691,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		}
 
 		if (mCurTracking.mObjectives != null) {
-			objSet = new ArrayList<ADLObjStatus>();
+			objSet = new ArrayList<>();
 
 			Iterator<String> it = mCurTracking.mObjectives.keySet().iterator();
 			while (it.hasNext()) {
@@ -2680,7 +2714,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 					objStatus.mHasMeasure = !measure.equals(ADLTracking.TRACK_UNKNOWN);
 
 					if (objStatus.mHasMeasure) {
-						objStatus.mMeasure = (new Double(measure)).doubleValue();
+						objStatus.mMeasure = (new Double(measure));
 					}
 
 					objStatus.mStatus = obj.getObjStatus(false);
@@ -2691,7 +2725,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		}
 
 		if (objSet != null) {
-			if (objSet.size() == 0) {
+			if (objSet.isEmpty()) {
 				objSet = null;
 			}
 		}
@@ -2740,8 +2774,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		}
 
 		// If the parent is not null
-		if (mParent != null)
+		if (mParent != null){
 			return mParent.getID();
+		}
 
 		return null;
 
@@ -2757,6 +2792,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>null</code> if no post condition rules have been defined.
 	 * 
 	 */
+	@Override
 	public ISeqRuleset getPostSeqRules() {
 
 		if (_Debug) {
@@ -2777,6 +2813,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         rules have been defined.
 	 *
 	 */
+	@Override
 	public ISeqRuleset getPreSeqRules() {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - " + "getPreSeqRules");
@@ -2794,6 +2831,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         activity,  otherwise <code>false</code>.
 	 * 
 	 */
+	@Override
 	public boolean getPreventActivation() {
 
 		if (_Debug) {
@@ -2921,6 +2959,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         activity.
 	 * 
 	 */
+	@Override
 	public String getRandomTiming() {
 
 		if (_Debug) {
@@ -2941,6 +2980,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         randomization process is applied (<code>boolean</code>).
 	 * 
 	 */
+	@Override
 	public boolean getReorderChildren() {
 
 		if (_Debug) {
@@ -2960,6 +3000,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         parents Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public String getRequiredForCompleted() {
 
 		if (_Debug) {
@@ -2978,6 +3019,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         parents Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public String getRequiredForIncomplete() {
 
 		if (_Debug) {
@@ -2996,6 +3038,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         parents Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public String getRequiredForNotSatisfied() {
 
 		if (_Debug) {
@@ -3014,6 +3057,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         parents Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public String getRequiredForSatisfied() {
 
 		if (_Debug) {
@@ -3032,6 +3076,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         resource.
 	 * 
 	 */
+	@Override
 	public String getResourceID() {
 
 		if (_Debug) {
@@ -3056,6 +3101,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         defined.
 	 * 
 	 */
+	@Override
 	public ISeqRollupRuleset getRollupRules() {
 
 		if (_Debug) {
@@ -3074,6 +3120,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         the activity is active.
 	 * 
 	 */
+	@Override
 	public boolean getSatisfactionIfActive() {
 
 		if (_Debug) {
@@ -3091,6 +3138,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         this activity's objectives.
 	 * 
 	 */
+	@Override
 	public String getScopeID() {
 
 		if (_Debug) {
@@ -3110,6 +3158,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         from this activity.
 	 * 
 	 */
+	@Override
 	public int getSelectCount() {
 
 		if (_Debug) {
@@ -3160,6 +3209,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return When the selectiion process should be applied to this activity.
 	 * 
 	 */
+	@Override
 	public String getSelectionTiming() {
 
 		if (_Debug) {
@@ -3179,6 +3229,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * otherwise <code>false</code>
 	 * 
 	 */
+	@Override
 	public boolean getSelectStatus() {
 
 		if (_Debug) {
@@ -3200,6 +3251,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         activity's progress status.
 	 * 
 	 */
+	@Override
 	public boolean getSetCompletion() {
 
 		if (_Debug) {
@@ -3221,6 +3273,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         activity's objective status.
 	 * 
 	 */
+	@Override
 	public boolean getSetObjective() {
 
 		if (_Debug) {
@@ -3239,6 +3292,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         associated with this activity.
 	 * 
 	 */
+	@Override
 	public String getStateID() {
 
 		if (_Debug) {
@@ -3260,6 +3314,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>null</code> if the activity does not have a title.
 	 * 
 	 */
+	@Override
 	public String getTitle() {
 
 		if (_Debug) {
@@ -3280,6 +3335,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         is defined for this cluster, otherwise <code>false</code>.
 	 *
 	 */
+	@Override
 	public boolean getUseCurObjective() {
 
 		if (_Debug) {
@@ -3300,6 +3356,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         is defined for this cluster, otherwise <code>false</code>.
 	 *
 	 */
+	@Override
 	public boolean getUseCurProgress() {
 
 		if (_Debug) {
@@ -3317,6 +3374,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The XML fragment.
 	 * 
 	 */
+	@Override
 	public String getXMLFragment() {
 
 		if (_Debug) {
@@ -3376,7 +3434,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		// Store existing tracking information for historical purposes
 		if (mCurTracking != null) {
 			if (mTracking == null) {
-				mTracking = new ArrayList<ADLTracking>();
+				mTracking = new ArrayList<>();
 			}
 
 			mTracking.add(mCurTracking);
@@ -3489,6 +3547,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iDur   The absolute duration (<code>String</code>) for an activity.
 	 * 
 	 */
+	@Override
 	public void setActivityAbDur(String iDur) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - " + "setActivityAbDur");
@@ -3516,6 +3575,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               activity.
 	 * 
 	 */
+	@Override
 	public void setActivityExDur(String iDur) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - " + "setActivityExDur");
@@ -3543,6 +3603,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               on the activity.
 	 * 
 	 */
+	@Override
 	public void setAttemptAbDur(String iDur) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setAttemptAbDur");
@@ -3571,6 +3632,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               attempt on the activity.
 	 * 
 	 */
+	@Override
 	public void setAttemptExDur(String iDur) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setAttemptExDur");
@@ -3596,6 +3658,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iMaxAttempt The maximum number attempts allowed for this activity.
 	 *
 	 */
+	@Override
 	public void setAttemptLimit(Long iMaxAttempt) {
 
 		if (_Debug) {
@@ -3610,7 +3673,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		}
 
 		if (iMaxAttempt != null) {
-			long value = iMaxAttempt.longValue();
+			long value = iMaxAttempt;
 
 			if (value > 0) {
 				mMaxAttemptControl = true;
@@ -3635,6 +3698,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               activity.
 	 * 
 	 */
+	@Override
 	public void setAuxResources(List<ADLAuxiliaryResource> iRes) {
 
 		if (_Debug) {
@@ -3662,6 +3726,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               on the activity cannot begin.
 	 * 
 	 */
+	@Override
 	public void setBeginTimeLimit(String iTime) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - " + "setBeginTimeLimit");
@@ -3741,6 +3806,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                     this activity or <code>false</code> to prevent.
 	 * 
 	 */
+	@Override
 	public void setConstrainChoice(boolean iConstrainChoice) {
 
 		if (_Debug) {
@@ -3763,6 +3829,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                     cluster or <code>false</code> to disable.
 	 * 
 	 */
+	@Override
 	public void setControlForwardOnly(boolean iForwardOnly) {
 
 		if (_Debug) {
@@ -3784,6 +3851,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iChoice <code>true</code> to enable 'Choice' for this cluster or
 	 *                <code>false</code> to disable.
 	 */
+	@Override
 	public void setControlModeChoice(boolean iChoice) {
 
 		if (_Debug) {
@@ -3806,6 +3874,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                    or <code>false</code> to disable.
 	 * 
 	 */
+	@Override
 	public void setControlModeChoiceExit(boolean iChoiceExit) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setChoiceExit");
@@ -3827,6 +3896,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               <code>false</code> to disable.
 	 * 
 	 */
+	@Override
 	public void setControlModeFlow(boolean iFlow) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setFlow");
@@ -3893,6 +3963,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iDeliveryMode The Delivery Mode for this activity.
 	 * 
 	 */
+	@Override
 	public void setDeliveryMode(String iDeliveryMode) {
 
 		if (_Debug) {
@@ -3981,6 +4052,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	  *               on the activity is invalid.
 	  * 
 	 */
+	@Override
 	public void setEndTimeLimit(String iTime) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - " + "setEndTimeLimit");
@@ -4007,6 +4079,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 (<code>SeqRuleset</code>) defined for this activity.
 	 * 
 	 */
+	@Override
 	public void setExitSeqRules(ISeqRuleset iRuleSet) {
 
 		if (_Debug) {
@@ -4032,6 +4105,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iID   The activity's ID.
 	 * 
 	 */
+	@Override
 	public void setID(String iID) {
 
 		if (_Debug) {
@@ -4052,6 +4126,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iActive Indicates that the activity is assumed to be 'Active'.
 	 * 
 	 */
+	@Override
 	public void setIsActive(boolean iActive) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setIsActive");
@@ -4074,6 +4149,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  <code>false</code>.
 	 * 
 	 */
+	@Override
 	public void setIsObjRolledUp(boolean iRolledup) {
 
 		if (_Debug) {
@@ -4097,6 +4173,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  <code>false</code>.
 	 * 
 	 */
+	@Override
 	public void setIsProgressRolledUp(boolean iRolledup) {
 
 		if (_Debug) {
@@ -4116,6 +4193,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * 
 	 * @param iSelected Indicates if the activity is 'selected.
 	 */
+	@Override
 	public void setIsSelected(boolean iSelected) {
 
 		if (_Debug) {
@@ -4136,6 +4214,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iSuspended Is the activity assumed to be 'suspended'?
 	 * 
 	 */
+	@Override
 	public void setIsSuspended(boolean iSuspended) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setIsSuspended");
@@ -4157,6 +4236,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 maintained for this activity.
 	 * 
 	 */
+	@Override
 	public void setIsTracked(boolean iTracked) {
 
 		if (_Debug) {
@@ -4177,6 +4257,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iIsVisible TODO:  Add description
 	 * 
 	 */
+	@Override
 	public void setIsVisible(boolean iIsVisible) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setIsVisible");
@@ -4196,6 +4277,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iLearnerID The ID of the learner associated with this activity.
 	 * 
 	 */
+	@Override
 	public void setLearnerID(String iLearnerID) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setLearnerID");
@@ -4217,6 +4299,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               of objectives(s) associated with this activity.
 	 * 
 	 */
+	@Override
 	public void setObjectives(List<SeqObjective> iObjs) {
 
 		if (_Debug) {
@@ -4236,7 +4319,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 				if (obj.mMaps != null) {
 					if (mObjMaps == null) {
-						mObjMaps = new Hashtable<String, List<SeqObjectiveMap>>();
+						mObjMaps = new Hashtable<>();
 					}
 
 					mObjMaps.put(obj.mObjID, obj.mMaps);
@@ -4376,6 +4459,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                weight this activity's score will have during rollup.
 	 * 
 	 */
+	@Override
 	public void setObjMeasureWeight(double iWeight) {
 
 		if (_Debug) {
@@ -4562,6 +4646,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 (<code>SeqRuleset</code>) defined for this activity.
 	 *
 	 */
+	@Override
 	public void setPostSeqRules(ISeqRuleset iRuleSet) {
 
 		if (_Debug) {
@@ -4590,6 +4675,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 (<code>SeqRuleset</code>) defined for this activity.
 	 * 
 	 */
+	@Override
 	public void setPreSeqRules(ISeqRuleset iRuleSet) {
 
 		if (_Debug) {
@@ -4617,6 +4703,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                     this activity or <code>false</code> to allow.
 	 * 
 	 */
+	@Override
 	public void setPreventActivation(boolean iPreventActivation) {
 
 		if (_Debug) {
@@ -4705,6 +4792,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                to this activity.
 	 * 
 	 */
+	@Override
 	public void setRandomTiming(String iTiming) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity    --> BEGIN - setRandomTiming");
@@ -4733,6 +4821,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 this activity.
 	 * 
 	 */
+	@Override
 	public void setReorderChildren(boolean iReorder) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity    --> BEGIN - " + "setReorderChildren");
@@ -4754,6 +4843,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  its parent's Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public void setRequiredForCompleted(String iConsider) {
 
 		if (_Debug) {
@@ -4777,6 +4867,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  its parent's Satisfaction rollup rule evaluation.
 	 *
 	 */
+	@Override
 	public void setRequiredForIncomplete(String iConsider) {
 
 		if (_Debug) {
@@ -4800,6 +4891,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  its parent's Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public void setRequiredForNotSatisfied(String iConsider) {
 
 		if (_Debug) {
@@ -4823,6 +4915,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  its parent's Satisfaction rollup rule evaluation.
 	 * 
 	 */
+	@Override
 	public void setRequiredForSatisfied(String iConsider) {
 
 		if (_Debug) {
@@ -4844,6 +4937,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iResourceID The ID (<code>String</code>) of the resource.
 	 * 
 	 */
+	@Override
 	public void setResourceID(String iResourceID) {
 
 		if (_Debug) {
@@ -4866,6 +4960,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 defined for this activity.
 	 * 
 	 */
+	@Override
 	public void setRollupRules(ISeqRollupRuleset iRuleSet) {
 
 		if (_Debug) {
@@ -4892,6 +4987,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                       satisfaction if the activity is active.
 	 * 
 	 */
+	@Override
 	public void setSatisfactionIfActive(boolean iActiveMeasure) {
 
 		if (_Debug) {
@@ -4913,6 +5009,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iScopeID The ID of the scope associated with the objectives
 	 * 
 	 */
+	@Override
 	public void setScopeID(String iScopeID) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setScopeID");
@@ -4934,6 +5031,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               the selection process is applied to this activity.
 	 * 
 	 */
+	@Override
 	public void setSelectCount(int iCount) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity    --> BEGIN - setSelectCount");
@@ -4979,6 +5077,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                to this activity.
 	 * 
 	 */
+	@Override
 	public void setSelectionTiming(String iTiming) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity    --> BEGIN - " + "setSelectionTiming");
@@ -5006,6 +5105,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               status information.
 	 * 
 	 */
+	@Override
 	public void setSetCompletion(boolean iSet) {
 
 		if (_Debug) {
@@ -5029,6 +5129,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *               status information.
 	 * 
 	 */
+	@Override
 	public void setSetObjective(boolean iSet) {
 
 		if (_Debug) {
@@ -5050,6 +5151,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                 state information.
 	 * 
 	 */
+	@Override
 	public void setStateID(String iStateID) {
 
 		if (_Debug) {
@@ -5070,6 +5172,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iTitle The user-readable title for this activity.
 	 * 
 	 */
+	@Override
 	public void setTitle(String iTitle) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setTitle");
@@ -5095,6 +5198,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                <code>false</code> to disable.
 	 * 
 	 */
+	@Override
 	public void setUseCurObjective(boolean iUseCur) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - " + "setUseCurObjective");
@@ -5120,6 +5224,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                <code>false</code> to disable.
 	 *
 	 */
+	@Override
 	public void setUseCurProgress(boolean iUseCur) {
 
 		if (_Debug) {
@@ -5140,6 +5245,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iXML   Contains the XML fragment.
 	 * 
 	 */
+	@Override
 	public void setXMLFragment(String iXML) {
 		if (_Debug) {
 			System.out.println("  :: SeqActivity     --> BEGIN - setXMLFragment");
@@ -5186,7 +5292,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						result = obj.getObjMeasure(false);
 
 						if (!result.equals(ADLTracking.TRACK_UNKNOWN)) {
-							measure = (new Double(result)).doubleValue();
+							measure = (new Double(result));
 
 							obj.setObjMeasure(measure, true);
 						} else {

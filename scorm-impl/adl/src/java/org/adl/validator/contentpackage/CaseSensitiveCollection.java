@@ -55,8 +55,9 @@ public class CaseSensitiveCollection extends ArrayList<String> implements Serial
 
 		// iterate through the collection and check the String objects
 		while (iter.hasNext()) {
-			if ((iter.next()).equalsIgnoreCase(str))
+			if ((iter.next()).equalsIgnoreCase(str)){
 				return true;
+			}
 		}
 		return false;
 	}

@@ -17,12 +17,15 @@ package org.sakaiproject.scorm.ui.player.behaviors;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.util.string.StringValue;
+
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
@@ -30,7 +33,6 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
 import org.sakaiproject.scorm.ui.player.util.Utils;
 
 /**
@@ -44,37 +46,34 @@ import org.sakaiproject.scorm.ui.player.util.Utils;
  * 
  * @author jrenfro
  */
-public abstract class SjaxCall extends AjaxEventBehavior {	
+@Slf4j
+public abstract class SjaxCall extends AjaxEventBehavior
+{
 	public static final String ARG_COMPONENT_ID = "arg";
 	public static final String RESULT_COMPONENT_ID = "result";
 	public static final String SCO_COMPONENT_ID = "scoId";
-		
-	private static Log log = LogFactory.getLog(SjaxCall.class);
 	private static final long serialVersionUID = 1L;
 	protected static final String APIClass = "APIAdapter";
-	
 	protected String event;
 	protected int numArgs;
-		
 	private String js = null;
-	
+
 	/**
 	 * Constructor
 	 * 
 	 * @param event : the name of the function from the api
 	 * @param numArgs : the number of arguments that this function takes
-	 * @param sessionBean : the omnipresent SessionBean, where we store all the state information
 	 */
-	public SjaxCall(String event, int numArgs) {
+	public SjaxCall(String event, int numArgs)
+	{
 		super(event);
 		this.event = event;
 		this.numArgs = numArgs;
 	}
 
 	protected abstract INavigable getNavigationAgent();
-	
 	protected abstract LearningManagementSystem lms();
-	
+
 	/**
 	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
 	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
@@ -83,7 +82,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * @return API Service dependency injected at the Component level
 	 */
 	protected abstract ScormApplicationService applicationService();
-	
+
 	/**
 	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
 	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
@@ -92,7 +91,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * @return Resource Service dependency injected at the Component level
 	 */
 	protected abstract ScormResourceService resourceService();
-	
+
 	/**
 	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
 	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
@@ -101,7 +100,6 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * @return Sequencing Service dependency injected at the Component level
 	 */
 	protected abstract ScormSequencingService sequencingService();
-	
 
 	/**
 	 * Although the SessionBean doesn't need to be handled this way -- since it's serializable, it
@@ -110,8 +108,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * @return the omnipresent SessionBean, where we store all the state information
 	 */
 	protected abstract SessionBean getSessionBean();
-	
-	
+
 	/**
 	 * This is the core magic of the SjaxCall class. Since we want to map a Javascript call to 
 	 * an API method, we use method reflection to pass that function name around -- i.e. this is the
@@ -121,246 +118,177 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * @param target
 	 * @param args
 	 * 
-	 * 
 	 * @return String result code or value to browser
 	 */
-	protected String callMethod(final ScoBean scoBean, final AjaxRequestTarget target, Object... args) {
+	protected String callMethod(final ScoBean scoBean, final AjaxRequestTarget target, Object... args)
+	{
 		String result = "";
-		
-		SCORM13API api = new SCORM13API() {
-
+		SCORM13API api = new SCORM13API()
+		{
 			@Override
-			public INavigable getAgent() {
+			public INavigable getAgent()
+			{
 				return getNavigationAgent();
 			}
 
 			@Override
-			public ScormApplicationService getApplicationService() {
+			public ScormApplicationService getApplicationService()
+			{
 				return SjaxCall.this.applicationService();
 			}
 
 			@Override
-			public ScoBean getScoBean() {
+			public ScoBean getScoBean()
+			{
 				return scoBean;
 			}
 
 			@Override
-			public ScormSequencingService getSequencingService() {
+			public ScormSequencingService getSequencingService()
+			{
 				return SjaxCall.this.sequencingService();
 			}
 
 			@Override
-			public SessionBean getSessionBean() {
+			public SessionBean getSessionBean()
+			{
 				return SjaxCall.this.getSessionBean();
 			}
 
 			@Override
-			public Object getTarget() {
+			public Object getTarget()
+			{
 				return target;
 			}
-
 		};
-		
-		try {
+
+		try
+		{
 			Class[] argClasses = new Class[numArgs];
-			
-			for (int i=0;i<numArgs;i++) {
+			for (int i = 0; i < numArgs; i++)
+			{
 				argClasses[i] = String.class;
+				args[i] = ((StringValue) args[i]).toString();
 			}
-			
+
 			Method method = api.getClass().getMethod(event, argClasses);
-			result = (String)method.invoke(api, args);
-		} catch (Exception e) {
+			result = (String) method.invoke(api, args);
+		}
+		catch (Exception e)
+		{
 			log.error("Unable to execute api method through reflection -- method may not exist or some other exception may be being trapped", e);
 		}
+
 		return result;
 	}
-	
-	@Override
-	protected void onEvent(final AjaxRequestTarget target) {
-		try {
-			String callNumber = this.getComponent().getRequest().getParameter("callNumber");
-			//String scoValue = this.getComponent().getRequest().getParameter("scoId");
-			
-			//final ScoBean scoBean = applicationService().produceScoBean(scoValue, getSessionBean());
 
+	@Override
+	protected void onEvent(final AjaxRequestTarget target)
+	{
+		try
+		{
+			String callNumber = this.getComponent().getRequest().getRequestParameters().getParameterValue("callNumber").toString();
 			final ScoBean scoBean = getSessionBean().getDisplayingSco();
-			
-			if (log.isDebugEnabled()) {
-				log.debug("Processing " + callNumber);
-				if (scoBean != null)
-					log.debug("Sco: " + scoBean.getScoId());
+
+			log.debug("Processing {}", callNumber);
+			if (scoBean != null)
+			{
+				log.debug("Sco: {}", scoBean.getScoId());
 			}
 				
 			Object[] args = new Object[numArgs];
-			
-			for (int i=0;i<numArgs;i++) {
+			for (int i = 0; i < numArgs; i++)
+			{
 				String paramName = new StringBuilder("arg").append(i+1).toString();
-				args[i] = this.getComponent().getRequest().getParameter(paramName);
+				args[i] = this.getComponent().getRequest().getRequestParameters().getParameterValue(paramName);
 			}
-			
+
 			String resultValue = callMethod(scoBean, target, args);
-			
-			String result = new StringBuffer().append("scormresult=")
-				.append(resultValue).append(";").toString();
+			String result = new StringBuffer().append("scormresult=").append(resultValue).append(";").toString();
 
-			target.appendJavascript(result);
-
-		} catch (Exception e) {
+			target.appendJavaScript(result);
+		}
+		catch (Exception e)
+		{
 			log.error("Caught a fatal exception during scorm api communication", e);
 		}
 	}
-	
-	public void prependJavascript(String js) {
+
+	public void prependJavascript(String js)
+	{
 		this.js = js;
 	}
-	
-	@Override
-	protected CharSequence getPreconditionScript()
-	{
-		return null;
-	}
-
-	
-	@Override
-	protected CharSequence getFailureScript()
-	{
-		return null;
-	}
 
 	@Override
-	protected CharSequence getSuccessScript()
+	protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
 	{
-		return null;
+		super.updateAjaxAttributes(attributes);
+		attributes.getAjaxCallListeners().add(new AjaxCallListener().onAfter(getCallbackScript()));
 	}
-	
-	@Override
-	protected IAjaxCallDecorator getAjaxCallDecorator()
+
+	public String getCallbackScript()
 	{
-		return new SjaxCallDecorator(js);
-	}
-	
-	@Override
-	protected CharSequence getCallbackScript(boolean onlyTargetActivePage)
-	{
-		StringBuffer buffer = new StringBuffer();
-		
-		buffer.append("\n");
-		buffer.append("var sjaxCallContainer = document.getElementById('").append(event.toLowerCase())
-			.append("call');\n");
-		buffer.append("var url = undefined;\n");
-				//'").append(getCallUrl()).append("';\n");
-				
-		buffer.append("if (sjaxCallContainer != undefined) {\n")
-			  .append("    url = sjaxCallContainer.value; \n")
-			  .append("} \n");
-		
-		//buffer.append("var d = '").append(new Date().toString()).append("';");
-		
-		//buffer.append("alert(url);");
-		
-		//buffer.append("ScormSjax.sjaxCall(sco, '").append(getCallUrl())
-		//	.append("', ");
-		
-		buffer.append("var wcall=ScormSjax.sjaxCall(url, ");
-		
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("\n")
+				.append("var sjaxCallContainer = document.getElementById('")
+				.append(event.toLowerCase())
+				.append("call');\n")
+				.append("var url = undefined;\n")
+				.append("if (sjaxCallContainer != undefined) {\n")
+				.append("    url = sjaxCallContainer.value; \n")
+				.append("} \n")
+				.append("var wcall=ScormSjax.sjaxCall(url, ");
+
 		if (numArgs == 0)
+		{
 			buffer.append("'', ''");
+		}
 		else if (numArgs == 1)
+		{
 			buffer.append("arg1, ''");
+		}
 		else
+		{
 			buffer.append("arg1, arg2");
-		
+		}
+
 		buffer.append(",null,null, null, '1|s'); \n return wcall;\n");
-		
 		return buffer.toString();
-		//return generateCallbackScript(buffer.toString());
 	}
-	
+
 	public CharSequence getCallUrl()
 	{
 		if (getComponent() == null)
 		{
-			throw new IllegalArgumentException(
-					"Behavior must be bound to a component to create the URL");
+			throw new IllegalArgumentException("Behavior must be bound to a component to create the URL");
 		}
-		
-		
-		/*String relativePagePath= getComponent().urlFor(this, rli).toString();
-		
-		String url = null;
-		
-		if (!lms().canUseRelativeUrls()) {
-			WebRequest webRequest = (WebRequest)getComponent().getRequest();
-			HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
-			//url.append(servletRequest.getContextPath()).append("/");
-			url = RequestUtils.toAbsolutePath(servletRequest.getRequestURL().toString(), relativePagePath);
-		} else {
-			url = relativePagePath;
-		}*/
-			
-		return Utils.generateUrl(this, null, getComponent(), lms().canUseRelativeUrls());
+
+		return Utils.generateUrl(this, getComponent(), lms().canUseRelativeUrls());
 	}
-	
-	
+
 	@Override
-	protected void onComponentTag(final ComponentTag tag) {
+	protected void onComponentTag(final ComponentTag tag)
+	{
 		// only add the event handler when the component is enabled.
 		if (getComponent().isEnabled())
 		{
 			tag.put(event, getCallUrl());
 		}
 	}
-	
-	/*@Override
-	public void renderHead(IHeaderResponse response) {
-	    super.renderHead(response);
 
-	    response.renderJavascriptReference(SJAX);
-	    
-	    StringBuffer script = new StringBuffer().append(APIClass)
-			.append(".")
-			.append(getEvent())
-			.append(" = function(");
-		
-	    for (int i=0;i<numArgs;i++) {
-			script.append("arg").append(i+1);
-			if (i+1<numArgs)
+	public String getJavascriptCode()
+	{
+		StringBuffer script = new StringBuffer().append(APIClass).append(".").append(getEvent()).append(" = function(");
+		for (int i = 0; i < numArgs; i++)
+		{
+			script.append("arg").append(i + 1);
+			if (i + 1 < numArgs)
+			{
 				script.append(", ");
+			}
 		}
-	    
-	    script.append(") { ");
-	    
-	    //script.append(" var elem = getElementById('comPanel'); \n ");
-	    //script.append(" return elem.").append(getEvent().toLowerCase()).append("(); \n");
-	    
-	    
-		script.append(getCallbackScript(false));
-		script.append("};");
-		
-		response.renderJavascript(script.toString(), getEvent());
-	    
-	}*/
-	
-	
-	public String getJavascriptCode() {
-		StringBuffer script = new StringBuffer().append(APIClass)
-			.append(".")
-			.append(getEvent())
-			.append(" = function(");
-	
-	    for (int i=0;i<numArgs;i++) {
-			script.append("arg").append(i+1);
-			if (i+1<numArgs)
-				script.append(", ");
-		}
-	    
-	    script.append(") { ");
 
-		script.append(getCallbackScript(false));
-		script.append("};");
-	
+		script.append(") { ").append(getCallbackScript()).append("};");
 		return script.toString();
 	}
-	
 }

@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.sakaiproject.scorm.model.api.ContentPackage;
 
-public interface ContentPackageDao {
-
+public interface ContentPackageDao
+{
 	public int countContentPackages(String context, String name);
 
 	public List<ContentPackage> find(String context);

@@ -1161,8 +1161,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private boolean canBeIncluded(SeqActivity walk, SeqActivity cur, ActivityNode node) {
 
 		// If we're _not_ looking at the root node, and its parent is _not_ a choice event, then quit now.
-		if (walk.getParent() != null && !walk.getParent().getControlModeChoice())
+		if (walk.getParent() != null && !walk.getParent().getControlModeChoice()){
 			return false;
+		}
 
 		// Attempt to get rule information from the activity
 		ISeqRuleset hiddenRules = walk.getPreSeqRules();
@@ -1183,12 +1184,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		// Check if this activity is prevented from activation		
 		if (walk.getPreventActivation() && !walk.getIsActive()) {
 			// Looks like we need a candidate
-			if (cur == null)
+			if (cur == null){
 				return false;
+			}
 
 			// If we're not looking at the candidate or its parent, then we don't want to include
-			if (walk != cur && walk != cur.getParent())
+			if (walk != cur && walk != cur.getParent()){
 				return false;
+			}
 		}
 
 		return true;
@@ -1254,6 +1257,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            ID of the objective whose measure has changed.
 	 * 
 	 */
+	@Override
 	public void clearAttemptObjMeasure(String iID, String iObjID) {
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer --> BEGIN - " + "clearAttemptObjMeasure");
@@ -1304,6 +1308,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	/**
 	 * Clear the current activity; this is done unconditionally.
 	 */
+	@Override
 	public void clearSeqState() {
 
 		if (_Debug) {
@@ -1450,7 +1455,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			terminateDescendentAttempts(target);
 
 			// Begin all required new attempts
-			List<SeqActivity> begin = new ArrayList<SeqActivity>();
+			List<SeqActivity> begin = new ArrayList<>();
 			SeqActivity walk = target;
 
 			while (walk != null) {
@@ -1508,7 +1513,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			oLaunch.mMaxTime = target.getAttemptAbDur();
 
 			// Create auxilary services List
-			Hashtable<String, ADLAuxiliaryResource> services = new Hashtable<String, ADLAuxiliaryResource>();
+			Hashtable<String, ADLAuxiliaryResource> services = new Hashtable<>();
 			ADLAuxiliaryResource test = null;
 			walk = target;
 
@@ -1990,20 +1995,21 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			// Reorder the 'selected' child set if neccessary
 			if (ioCluster.getReorderChildren()) {
-				List<SeqActivity> reorder = new ArrayList<SeqActivity>();
-				set = new ArrayList<Integer>();
+				List<SeqActivity> reorder = new ArrayList<>();
+				set = new ArrayList<>();
 
-				for (int i = 0; i < all.size(); i++) {
+				for( SeqActivity all1 : all )
+				{
 					// Pick an unselected child
 					ok = false;
 					while (!ok) {
 						rand = gen.nextInt();
 						num = Math.abs(rand % all.size());
 
-						lookUp = set.indexOf(Integer.valueOf(num));
+						lookUp = set.indexOf(num);
 
 						if (lookUp == -1) {
-							set.add(Integer.valueOf(num));
+							set.add(num);
 							reorder.add(all.get(num));
 
 							if (_Debug) {
@@ -2077,8 +2083,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					}
 
 					// Select count activities from the set of children
-					children = new ArrayList<SeqActivity>();
-					set = new ArrayList<Integer>();
+					children = new ArrayList<>();
+					set = new ArrayList<>();
 
 					while (set.size() < count) {
 						// Find an unselected child of the cluster
@@ -2087,10 +2093,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							rand = gen.nextInt();
 							num = Math.abs(rand % all.size());
 
-							lookUp = set.indexOf(Integer.valueOf(num));
+							lookUp = set.indexOf(num);
 
 							if (lookUp == -1) {
-								set.add(Integer.valueOf(num));
+								set.add(num);
 								ok = true;
 
 								if (_Debug) {
@@ -2102,7 +2108,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 					// Create the selected child List
 					for (int i = 0; i < all.size(); i++) {
-						lookUp = set.indexOf(Integer.valueOf(i));
+						lookUp = set.indexOf(i);
 
 						if (lookUp != -1) {
 							children.add(all.get(i));
@@ -3222,7 +3228,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		SeqActivity exitAt = null;
 		String exited = null;
 
-		List<SeqActivity> path = new ArrayList<SeqActivity>();
+		List<SeqActivity> path = new ArrayList<>();
 
 		if (start != null) {
 			SeqActivity parent = start.getParent();
@@ -3464,6 +3470,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * 
 	 * @return The current activity tree (<code>SeqActivityTree</code>).
 	 */
+	@Override
 	public ISeqActivityTree getActivityTree() {
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer --> BEGIN - getActivityTree");
@@ -3493,7 +3500,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		if (treeModel != null) {
 			ActivityNode tempNode = null;
-			set = new Hashtable<String, ActivityNode>();
+			set = new Hashtable<>();
 
 			ActivityNode rootNode = (ActivityNode) treeModel.getRoot();
 
@@ -3583,6 +3590,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *         for the requested activity or <code>null</code> if none are
 	 *         defined.
 	 */
+	@Override
 	public List<ADLObjStatus> getObjStatusSet(String iActivityID) {
 
 		if (_Debug) {
@@ -3620,6 +3628,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * 
 	 * @return The root activity of the current activity tree (<code>SeqActivity</code>).
 	 */
+	@Override
 	public ISeqActivity getRoot() {
 		ISeqActivity rootActivity = null;
 		if (mSeqTree != null) {
@@ -3637,7 +3646,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	private DefaultTreeModel getTreeModel(SeqActivity iStart) {
 
-		List<ActivityNode> nodes = new ArrayList<ActivityNode>();
+		List<ActivityNode> nodes = new ArrayList<>();
 
 		log.debug("Generating the table of contents tree model");
 
@@ -3653,8 +3662,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		SeqActivity walk = iStart;
 		int depth = 0;
 		int parentTOC = -1;
-		List<SeqActivity> lookAt = new ArrayList<SeqActivity>();
-		List<SeqActivity> flatTOC = new ArrayList<SeqActivity>();
+		List<SeqActivity> lookAt = new ArrayList<>();
+		List<SeqActivity> flatTOC = new ArrayList<>();
 
 		// Tree traversal status indicators
 		boolean next = false;
@@ -4277,21 +4286,21 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			if (tempNode.isHidden()) {
 				tempNode.setDepth(-1);
-				List<Integer> parents = new ArrayList<Integer>();
+				List<Integer> parents = new ArrayList<>();
 
 				for (int j = i + 1; j < nodes.size(); j++) {
 					tempNode = nodes.get(j);
 
 					if (tempNode.getParentLocation() == i && tempNode.getDepth() > 0) {
 						tempNode.setDepth(tempNode.getDepth() - 1);
-						parents.add(Integer.valueOf(j));
+						parents.add(j);
 					} else {
 						if (tempNode.getDepth() != -1) {
-							int idx = parents.indexOf(Integer.valueOf(tempNode.getParentLocation()));
+							int idx = parents.indexOf(tempNode.getParentLocation());
 
 							if (idx != -1) {
 								tempNode.setDepth(tempNode.getDepth() - 1);
-								parents.add(Integer.valueOf(j));
+								parents.add(j);
 							}
 						}
 					}
@@ -4332,6 +4341,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * @param oValid
 	 *            Upon return, contains the set of valid navigation reqeusts.
 	 */
+	@Override
 	public void getValidRequests(IValidRequests argValid) {
 		ADLValidRequests oValid = (ADLValidRequests) argValid;
 		if (_Debug) {
@@ -4363,7 +4373,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			}
 
 			if (valid.mChoice != null) {
-				oValid.mChoice = new HashMap<String, ActivityNode>(valid.mChoice);
+				oValid.mChoice = new HashMap<>(valid.mChoice);
 			}
 		} else {
 			if (_Debug) {
@@ -4411,7 +4421,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			System.out.println("  ::-->  Start: " + ioTarget.getID());
 		}
 
-		Hashtable<String, Integer> rollupSet = new Hashtable<String, Integer>();
+		Hashtable<String, Integer> rollupSet = new Hashtable<>();
 
 		// Case #1 -- Rollup applies along the active path
 		if (ioTarget == mSeqTree.getCurrentActivity()) {
@@ -4429,7 +4439,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					System.out.println("  ::--> Adding :: " + walk.getID());
 				}
 
-				rollupSet.put(walk.getID(), Integer.valueOf(walk.getDepth()));
+				rollupSet.put(walk.getID(), walk.getDepth());
 
 				List<String> writeObjIDs = walk.getObjIDs(null, false);
 
@@ -4471,7 +4481,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 											System.out.println("  ::--> Adding :: " + act.getID());
 										}
 
-										rollupSet.put(act.getID(), Integer.valueOf(act.getDepth()));
+										rollupSet.put(act.getID(), act.getDepth());
 									}
 								}
 							}
@@ -4529,7 +4539,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 									System.out.println("  ::--> Adding :: " + act.getID());
 								}
 
-								rollupSet.put(act.getID(), Integer.valueOf(act.getDepth()));
+								rollupSet.put(act.getID(), act.getDepth());
 							}
 						}
 					}
@@ -4538,7 +4548,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		// Perform the deterministic rollup extension
-		while (rollupSet.size() != 0) {
+		while (!rollupSet.isEmpty()) {
 			if (_Debug) {
 				System.out.println("  ::--> Rollup Set Size == " + rollupSet.size());
 
@@ -4668,6 +4678,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * @return Information about the 'Next' activity to delivery or a processing
 	 *         error.
 	 */
+	@Override
 	public ADLLaunch navigate(int iRequest) {
 
 		// This method implements all cases, except case #7 of the Navigation
@@ -5147,6 +5158,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * @return Information about the 'Next' activity to delivery or a processing
 	 *         error.
 	 */
+	@Override
 	public ADLLaunch navigate(String iTarget) {
 
 		// This method implements case 7 of the Navigation Request Process
@@ -5322,7 +5334,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		SeqActivity walk = mSeqTree.getRoot();
-		List<SeqActivity> lookAt = new ArrayList<SeqActivity>();
+		List<SeqActivity> lookAt = new ArrayList<>();
 
 		if (walk != null) {
 			while (walk != null) {
@@ -5352,7 +5364,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				walk = walk.getNextSibling(false);
 
 				if (walk == null) {
-					if (lookAt.size() != 0) {
+					if (!lookAt.isEmpty()) {
 						walk = lookAt.get(0);
 						walk = walk.getChildren(false).get(0);
 
@@ -5492,6 +5504,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *                   </code>)
 	 *            or not (<code>false</code>).
 	 */
+	@Override
 	public void reportSuspension(String iID, boolean iSuspended) {
 
 		if (_Debug) {
@@ -5538,6 +5551,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * @param iTree
 	 *            The activty tree for this sequencer to act on.
 	 */
+	@Override
 	public void setActivityTree(ISeqActivityTree iTree) {
 
 		if (_Debug) {
@@ -5574,6 +5588,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            Indicates the experienced duration of the current attempt.
 	 * 
 	 */
+	@Override
 	public void setAttemptDuration(String iID, IDuration argDur) {
 		ADLDuration iDur = (ADLDuration) argDur;
 		if (_Debug) {
@@ -5641,6 +5656,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            New value for the objective's measure.
 	 * 
 	 */
+	@Override
 	public void setAttemptObjMeasure(String iID, String iObjID, double iMeasure) {
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptObjMeasure");
@@ -5708,6 +5724,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            values are 'unknown', 'satisfied, 'notsatisfied'.
 	 * 
 	 */
+	@Override
 	public void setAttemptObjSatisfied(String iID, String iObjID, String iStatus) {
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptObjSatisfied");
@@ -5768,6 +5785,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            are: 'unknown', 'completed', 'incomplete'.
 	 * 
 	 */
+	@Override
 	public void setAttemptProgressStatus(String iID, String iProgress) {
 		if (_Debug) {
 			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptProgressStatus");
@@ -6416,10 +6434,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					ioFrom.at = walk.at;
 
 					// Test if we've switched directions...
-					if (iPrevDirection == ADLSequencer.FLOW_BACKWARD && walk.direction == ADLSequencer.FLOW_BACKWARD)
+					if (iPrevDirection == ADLSequencer.FLOW_BACKWARD && walk.direction == ADLSequencer.FLOW_BACKWARD){
 						return walkActivity(ADLSequencer.FLOW_BACKWARD, ADLSequencer.FLOW_NONE, ioFrom);
-					else
+					} else
+					{
 						return walkActivity(iDirection, iPrevDirection, ioFrom);
+					}
 				}
 			} else {
 				// The activity was not skipped, make sure it is enabled

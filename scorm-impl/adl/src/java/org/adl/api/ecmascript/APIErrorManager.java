@@ -111,10 +111,10 @@ public class APIErrorManager implements IErrorManager {
 
 		mCurrentErrorCode = APIErrorCodes.NO_ERROR;
 		// Intialize the Hashtable size - should be a prime number
-		mErrorCodes = new Hashtable<Integer, String>(211);
-		mErrorMessages = new Hashtable<Integer, String>(59);
-		mErrorDiagnostics = new Hashtable<Integer, String>(59);
-		mAbstErrors = new Hashtable<String, Integer>(59);
+		mErrorCodes = new Hashtable<>(211);
+		mErrorMessages = new Hashtable<>(59);
+		mErrorDiagnostics = new Hashtable<>(59);
+		mAbstErrors = new Hashtable<>(59);
 
 		if (iAPIVersion == SCORM_2004_API) {
 			// Initialize the SCORM 2004 RTE API Error Codes Hash Table
@@ -481,25 +481,26 @@ public class APIErrorManager implements IErrorManager {
 	}
 
 	private void addAbstErrors(String apiCode, int internalCode) {
-		mAbstErrors.put(apiCode, Integer.valueOf(internalCode));
+		mAbstErrors.put(apiCode, internalCode);
 	}
 
 	private void addErrorCode(int internalCode, String apiCode) {
-		mErrorCodes.put(Integer.valueOf(internalCode), apiCode);
+		mErrorCodes.put(internalCode, apiCode);
 	}
 
 	private void addErrorDiagnostics(int internalCode, String apiCode) {
-		mErrorDiagnostics.put(Integer.valueOf(internalCode), apiCode);
+		mErrorDiagnostics.put(internalCode, apiCode);
 	}
 
 	private void addErrorMessage(int internalCode, String apiCode) {
-		mErrorMessages.put(Integer.valueOf(internalCode), apiCode);
+		mErrorMessages.put(internalCode, apiCode);
 	}
 
 	/**
 	 * Sets the current error code to No Error (
 	 * <code>APIErrorCodes.NO_ERROR</code>)
 	 */
+	@Override
 	public void clearCurrentErrorCode() {
 		mCurrentErrorCode = APIErrorCodes.NO_ERROR;
 	}
@@ -510,8 +511,9 @@ public class APIErrorManager implements IErrorManager {
 	 * @return The value of the current error code that was set by the most
 	 *         recent API call.
 	 */
+	@Override
 	public String getCurrentErrorCode() {
-		Integer errInt = Integer.valueOf(mCurrentErrorCode);
+		Integer errInt = mCurrentErrorCode;
 		String err = mErrorCodes.get(errInt);
 
 		if (err == null) {
@@ -526,9 +528,10 @@ public class APIErrorManager implements IErrorManager {
 	 * 
 	 * @return The text associated with the specfied error code.
 	 */
+	@Override
 	public String getErrorDescription() {
 		// Retrieves and returns the description of the current error code
-		Integer errInt = Integer.valueOf(mCurrentErrorCode);
+		Integer errInt = mCurrentErrorCode;
 		return mErrorMessages.get(errInt);
 	}
 
@@ -541,10 +544,11 @@ public class APIErrorManager implements IErrorManager {
 	 * 
 	 * @return The text associated with the specfied error code.
 	 */
+	@Override
 	public String getErrorDescription(String iCode) {
 		String message = "";
 
-		if ((iCode != null) && (!iCode.equals(""))) {
+		if ((iCode != null) && (!iCode.isEmpty())) {
 			// Retrieves and returns the description of the provided error code
 			Integer errInt = mAbstErrors.get(iCode);
 
@@ -567,9 +571,10 @@ public class APIErrorManager implements IErrorManager {
 	 * 
 	 * @return The diagnostic text associated with the specificed error code.
 	 */
+	@Override
 	public String getErrorDiagnostic() {
 		// returns diagnostic text of previous error
-		Integer errInt = Integer.valueOf(mCurrentErrorCode);
+		Integer errInt = mCurrentErrorCode;
 		return mErrorDiagnostics.get(errInt);
 	}
 
@@ -582,10 +587,11 @@ public class APIErrorManager implements IErrorManager {
 	 * 
 	 * @return The diagnostic text associated with the specificed error code.
 	 */
+	@Override
 	public String getErrorDiagnostic(String iCode) {
 		String diagnostic = "";
 
-		if ((iCode != null) && (!iCode.equals(""))) {
+		if ((iCode != null) && (!iCode.isEmpty())) {
 			// Returns the diagnostic text of the provided error code
 			Integer errInt = mAbstErrors.get(iCode);
 			if (errInt != null) {
@@ -597,7 +603,7 @@ public class APIErrorManager implements IErrorManager {
 			}
 		} else {
 			// returns diagnostic text of previous error
-			Integer errInt = Integer.valueOf(mCurrentErrorCode);
+			Integer errInt = mCurrentErrorCode;
 			String tempDiagnostic = mErrorDiagnostics.get(errInt);
 
 			if (tempDiagnostic != null) {
@@ -616,6 +622,7 @@ public class APIErrorManager implements IErrorManager {
 	 *            The error code.
 	 * @return Indicates whether or not the error code is valid.
 	 */
+	@Override
 	public boolean isValidErrorCode(String iErrorCode) {
 		boolean result = false;
 		Enumeration<String> enumOfErrorCodes = mErrorCodes.elements();
@@ -639,6 +646,7 @@ public class APIErrorManager implements IErrorManager {
 	 * @param iCode
 	 *            The error code being set.
 	 */
+	@Override
 	public void setCurrentErrorCode(int iCode) {
 		mCurrentErrorCode = iCode;
 	}

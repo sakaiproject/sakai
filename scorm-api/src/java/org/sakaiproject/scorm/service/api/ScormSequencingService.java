@@ -21,8 +21,8 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 
-public interface ScormSequencingService {
-
+public interface ScormSequencingService
+{
 	/**
 	 * Called to get the TreeModel object that represents the 'choice' tree of activities
 	 */
@@ -45,11 +45,6 @@ public interface ScormSequencingService {
 	 * activity.
 	 */
 	public boolean isControlForwardOnly(SessionBean sessionBean);
-
-	/**
-	 * Called to get the destination url for the selected sco
-	 */
-	//public String getCurrentUrl(SessionBean sessionBean);
 
 	/**
 	 * Indicates that a Choice navigation request is permitted (True or False) to target the

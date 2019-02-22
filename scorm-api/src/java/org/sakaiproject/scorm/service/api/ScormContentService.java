@@ -17,14 +17,14 @@ package org.sakaiproject.scorm.service.api;
 
 import java.util.List;
 
-import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
+
 import org.w3c.dom.Document;
 
-public interface ScormContentService extends ScormConstants {
-
+public interface ScormContentService
+{
 	/**
 	 * Gets the content package by PK
 	 * @param contentPackageId
@@ -104,5 +104,4 @@ public interface ScormContentService extends ScormConstants {
 	 * @throws ResourceStorageException
 	 */
 	public int storeAndValidate(String resourceId, boolean isValidateToSchema, String encoding) throws ResourceStorageException;
-	
 }

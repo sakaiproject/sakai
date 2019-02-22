@@ -20,10 +20,6 @@
     </organization>
     <inceptionYear>2007</inceptionYear>
 
-    <properties>
-        <scorm.wicket.version>1.4.15</scorm.wicket.version>
-    </properties>
-
     <dependencies>
         <!-- Sakai API Dependencies -->
         <dependency>
@@ -42,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket</artifactId>
+            <artifactId>wicket-core</artifactId>
             <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
@@ -62,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-datetime</artifactId>
+            <artifactId>wicket-util</artifactId>
             <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
@@ -72,6 +68,10 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
 
@@ -91,12 +91,4 @@
             </resource>
         </resources>
     </build>
-
-    <repositories>
-        <repository>
-            <id>org.wicketstuff</id>
-            <name>Wicket Stuff Repository</name>
-            <url>http://wicketstuff.org/maven/repository</url>
-        </repository>
-    </repositories>
 </project>

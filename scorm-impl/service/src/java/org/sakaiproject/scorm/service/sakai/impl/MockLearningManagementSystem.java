@@ -21,85 +21,115 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 
-public class MockLearningManagementSystem implements LearningManagementSystem, ScormConstants {
-
-	public boolean canConfigure(String context) {
-		return hasPermission(context, "scorm.configure");
+public class MockLearningManagementSystem implements LearningManagementSystem
+{
+	@Override
+	public boolean canConfigure(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_CONFIG);
 	}
 
-	public boolean canDelete(String context) {
-		return hasPermission(context, "scorm.delete");
+	@Override
+	public boolean canDelete(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_DELETE);
 	}
 
-	public boolean canGrade(String context) {
-		return hasPermission(context, "scorm.grade");
+	@Override
+	public boolean canGrade(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_GRADE);
 	}
 
-	public boolean canLaunch(String context) {
-		return hasPermission(context, "scorm.launch");
+	public boolean canLaunch(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_LAUNCH);
 	}
 
-	public boolean canLaunchNewWindow() {
+	@Override
+	public boolean canLaunchNewWindow()
+	{
 		return true;
 	}
 
-	public boolean canModify(String context) {
+	@Override
+	public boolean canModify(String context)
+	{
 		return canConfigure(context) || canDelete(context) || canGrade(context);
 	}
 
-	public boolean canUpload(String context) {
-		return hasPermission(context, "scorm.upload");
+	@Override
+	public boolean canUpload(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_UPLOAD);
 	}
 
+	@Override
 	public boolean canUseRelativeUrls() {
 		return false;
 	}
 
-	public boolean canValidate(String context) {
-		return hasPermission(context, "scorm.validate");
+	@Override
+	public boolean canValidate(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_VALIDATE);
 	}
 
-	public boolean canViewResults(String context) {
-		return hasPermission(context, "scorm.view.results");
+	@Override
+	public boolean canViewResults(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_VIEW_RESULTS);
 	}
 
-	public String currentContext() {
+	@Override
+	public String currentContext()
+	{
 		return "context1";
 	}
 
-	public String currentLearnerId() {
+	@Override
+	public String currentLearnerId()
+	{
 		return "learner1";
 	}
 
-	public Learner getLearner(String learnerId) throws LearnerNotDefinedException {
+	@Override
+	public Learner getLearner(String learnerId) throws LearnerNotDefinedException
+	{
 		return new Learner(currentLearnerId(), getLearnerName(currentLearnerId()), "learner1");
 	}
 
-	public String getLearnerName(String learnerId) {
-
+	@Override
+	public String getLearnerName(String learnerId)
+	{
 		return "Scott Scorm";
 	}
 
-	protected boolean hasPermission(String context, String lock) {
-
+	protected boolean hasPermission(String context, String lock)
+	{
 		return true;
 	}
 
-	public boolean isOwner() {
+	@Override
+	public boolean isOwner()
+	{
 		return true;
 	}
 
-	protected boolean unlockCheck(String lock, String ref) {
+	protected boolean unlockCheck(String lock, String ref)
+	{
 		return true;
-
 	}
 
-	public boolean canLaunchAttempt(ContentPackage contentPackage, long attemptNumber) {
-	    return true;
-    }
+	@Override
+	public boolean canLaunchAttempt(ContentPackage contentPackage, long attemptNumber)
+	{
+		return true;
+	}
 
-	public boolean canLaunch(ContentPackage contentPackage) {
-	    return canLaunchAttempt(contentPackage, -1);
-    }
-
+	@Override
+	public boolean canLaunch(ContentPackage contentPackage)
+	{
+		return canLaunchAttempt(contentPackage, -1);
+	}
 }

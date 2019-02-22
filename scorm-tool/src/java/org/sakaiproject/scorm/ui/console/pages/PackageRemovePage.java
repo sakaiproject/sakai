@@ -18,12 +18,11 @@ package org.sakaiproject.scorm.ui.console.pages;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.PageParameters;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -35,7 +34,9 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -47,10 +48,10 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.wicket.markup.html.form.CancelButton;
 
-public class PackageRemovePage extends ConsoleBasePage {
-
+@Slf4j
+public class PackageRemovePage extends ConsoleBasePage
+{
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(PackageRemovePage.class);
 
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
@@ -82,44 +83,33 @@ public class PackageRemovePage extends ConsoleBasePage {
 			IModel model = new CompoundPropertyModel( this );
 			this.setModel( model );
 
-			String title = params.getString( "title" );
-			final long contentPackageId = params.getLong( "contentPackageId" );
+			String title = params.get( "title" ).toString();
+			final long contentPackageId = params.get( "contentPackageId" ).toLong();
 
 			ContentPackage contentPackage = new ContentPackage( title, contentPackageId );
-
-			List<ContentPackage> list = new LinkedList<ContentPackage>();
+			List<ContentPackage> list = new LinkedList<>();
 			list.add( contentPackage );
 
-			List<IColumn> columns = new LinkedList<IColumn>();
+			List<IColumn> columns = new LinkedList<>();
 			columns.add( new PropertyColumn( new Model( "Content Package" ), "title", "title" ) );
 
-			DataTable removeTable = new DataTable( "removeTable", columns.toArray( new IColumn[columns.size()] ), 
-					new ListDataProvider( list ), 3 );
+			DataTable removeTable = new DataTable( "removeTable", columns, new ListDataProvider( list ), 3 );
 
 			final Label alertLabel = new Label( "alert", new ResourceModel( "verify.remove" ) );
 			final CancelButton btnCancel = new CancelButton( "btnCancel", PackageListPage.class );
 			IndicatingAjaxButton btnSubmit = new IndicatingAjaxButton( "btnSubmit", this )
 			{
 				private static final long serialVersionUID = 1L;
-				
+
 				@Override
-				protected IAjaxCallDecorator getAjaxCallDecorator()
+				protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
 				{
-					return new AjaxPostprocessingCallDecorator( super.getAjaxCallDecorator() )
-					{
-						private static final long serialVersionUID = 1L;
-						
-						@Override
-						public CharSequence postDecorateScript( CharSequence script )
-						{
-							// Disable the submit and cancel buttons on click
-							return script + "this.disabled = true; document.getElementsByName( \"btnCancel\" )[0].disabled = true;";
-						}
-					};
+					super.updateAjaxAttributes(attributes);
+					attributes.getAjaxCallListeners().add(new AjaxCallListener().onAfter("this.disabled = true; document.getElementsByName( \"btnCancel\" )[0].disabled = true;"));
 				}
-				
+
 				@Override
-				protected void onSubmit( AjaxRequestTarget target, Form<?> form )
+				protected void onSubmit( AjaxRequestTarget target )
 				{
 					try
 					{
@@ -133,7 +123,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 							for( AssessmentSetup assessmentSetup : gradebookSetup.getAssessments() )
 							{
 								String assessmentExternalID = getAssessmentExternalId( gradebookSetup, assessmentSetup );
-								boolean on = assessmentSetup.issynchronizeSCOWithGradebook();
+								boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
 								boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined( context, assessmentExternalID );
 								if( has && on )
 								{
@@ -146,9 +136,9 @@ public class PackageRemovePage extends ConsoleBasePage {
 					}
 					catch( ResourceNotDeletedException rnde )
 					{
-						LOG.warn( "Failed to delete all underlying resources ", rnde );
+						log.warn( "Failed to delete all underlying resources ", rnde );
 						alertLabel.setDefaultModel( new ResourceModel( "exception.remove" ) );
-						target.addComponent( alertLabel );
+						target.add( alertLabel );
 						setResponsePage( PackageRemovePage.class, params );
 					}
 				}
@@ -176,7 +166,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 				{
 					String assessmentExternalId = getAssessmentExternalId( gradebookSetup, as );
 					boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined( context, assessmentExternalId );
-					as.setsynchronizeSCOWithGradebook( has );
+					as.setSynchronizeSCOWithGradebook( has );
 				}
 			}
 

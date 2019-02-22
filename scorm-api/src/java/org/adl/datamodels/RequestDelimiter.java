@@ -75,12 +75,14 @@ public class RequestDelimiter {
 	 */
 	public RequestDelimiter(String iName, String iValue) {
 		// Make sure none of the parameters are null
-		if (iName == null || iValue == null)
+		if (iName == null || iValue == null){
 			throw new NullPointerException("Delimiter not specified");
+		}
 
 		// Make sure the name parameters has non-zero length
-		if (iName.length() == 0)
+		if (iName.length() == 0){
 			throw new IllegalArgumentException("Delimiter name is blank");
+		}
 
 		mName = iName;
 		mValue = iValue;

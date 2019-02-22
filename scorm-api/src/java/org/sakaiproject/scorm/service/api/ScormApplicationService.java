@@ -20,8 +20,8 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.navigation.INavigationEvent;
 
-public interface ScormApplicationService {
-
+public interface ScormApplicationService
+{
 	public boolean commit(String parameter, SessionBean sessionBean, ScoBean scoBean);
 
 	public void discardScoBean(String scoId, SessionBean sessionBean, INavigable agent);
@@ -43,5 +43,4 @@ public interface ScormApplicationService {
 	public boolean setValue(String dataModelElement, String value, SessionBean sessionBean, ScoBean scoBean);
 
 	public boolean terminate(String iParam, INavigationEvent navigationEvent, SessionBean sessionBean, ScoBean scoBean);
-
 }

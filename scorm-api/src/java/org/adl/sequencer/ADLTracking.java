@@ -165,7 +165,7 @@ public class ADLTracking implements Serializable {
 	public ADLTracking() {
 
 		if (mObjectives == null) {
-			mObjectives = new Hashtable<String, SeqObjectiveTracking>();
+			mObjectives = new Hashtable<>();
 		}
 
 	}
@@ -198,7 +198,7 @@ public class ADLTracking implements Serializable {
 				// If the objective is defined, add it to the set of objectives
 				// associated with this activity
 				if (mObjectives == null) {
-					mObjectives = new Hashtable<String, SeqObjectiveTracking>();
+					mObjectives = new Hashtable<>();
 				}
 
 				mObjectives.put(obj.mObjID, objTrack);
@@ -222,7 +222,7 @@ public class ADLTracking implements Serializable {
 			SeqObjectiveTracking objTrack = new SeqObjectiveTracking(def, iLearnerID, iScopeID);
 
 			if (mObjectives == null) {
-				mObjectives = new Hashtable<String, SeqObjectiveTracking>();
+				mObjectives = new Hashtable<>();
 			}
 
 			mObjectives.put(def.mObjID, objTrack);

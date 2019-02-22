@@ -63,7 +63,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	 * Default constructor required for serialization support.
 	 */
 	public SSP_DataModel() {
-		mManaged = new ArrayList<Object>();
+		mManaged = new ArrayList<>();
 
 	}
 

@@ -17,10 +17,9 @@ package org.sakaiproject.scorm.dao.api;
 
 import org.adl.sequencer.ISeqActivityTree;
 
-public interface SeqActivityTreeDao {
-
+public interface SeqActivityTreeDao
+{
 	public ISeqActivityTree find(long contentPackageId, String learnerId);
 
 	public void save(ISeqActivityTree tree);
-
 }

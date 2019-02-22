@@ -226,6 +226,7 @@ public class ADLLaunch implements ILaunch {
 	 * This method provides the state this <code>ADLLaunch</code> object
 	 * for diagnostic purposes.<br>
 	 */
+	@Override
 	public void dumpState() {
 		if (_Debug) {
 			System.out.println("  :: ADLLaunch  --> BEGIN - dumpState");
@@ -259,18 +260,22 @@ public class ADLLaunch implements ILaunch {
 		}
 	}
 
+	@Override
 	public String getActivityId() {
 		return mActivityID;
 	}
 
+	@Override
 	public String getLaunchStatusNoContent() {
 		return mSeqNonContent;
 	}
 
+	@Override
 	public IValidRequests getNavState() {
 		return mNavState;
 	}
 
+	@Override
 	public String getSco() {
 		return mStateID;
 	}

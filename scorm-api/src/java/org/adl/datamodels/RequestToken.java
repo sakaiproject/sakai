@@ -254,8 +254,9 @@ public class RequestToken {
 			try {
 				int i = Integer.parseInt(iValue);
 
-				if (i < 0)
+				if (i < 0){
 					throw new NumberFormatException("Negative Index");
+				}
 			} catch (NumberFormatException nf) {
 				throw nf;
 			}
@@ -459,7 +460,7 @@ public class RequestToken {
 			String consider = iValue.substring(start + 1, end);
 
 			// Find the equal '='
-			equals = consider.indexOf("=");
+			equals = consider.indexOf('=');
 
 			// If we didn't find it, we have an improperly formed delimiter
 			// Note: Only the first occurance of '=' is signifigant, any further
@@ -478,7 +479,7 @@ public class RequestToken {
 			}
 
 			if (mDelimiters == null) {
-				mDelimiters = new ArrayList<RequestDelimiter>();
+				mDelimiters = new ArrayList<>();
 			}
 
 			mDelimiters.add(del);

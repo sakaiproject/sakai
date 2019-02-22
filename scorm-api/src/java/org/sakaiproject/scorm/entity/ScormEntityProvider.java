@@ -24,10 +24,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
  * implement {@link CoreEntityProvider}, this interface is primarily for extending an existing
  * entity provider (adding extra functionality to one that is already registered
  * 
- * Usage:<br/> 1) Implement this interface<br/> 2) Implement any additional capabilities
- * interfaces (optional, but it would be crazy not to do at least one)<br/> 3) Create a spring bean
- * definition in the Sakai application context (components.xml)<br/> 4) Implement
- * {@link AutoRegisterEntityProvider} or register this implementation some other way
+ * Usage:
+ * 1) Implement this interface
+ * 2) Implement any additional capabilities interfaces (optional, but it would be crazy not to do at least one)
+ * 3) Create a spring bean definition in the Sakai application context (components.xml)
+ * 4) Implement {@link AutoRegisterEntityProvider} or register this implementation some other way
  * 
  * @author Brian Jones (bjones86@uwo.ca)
  */

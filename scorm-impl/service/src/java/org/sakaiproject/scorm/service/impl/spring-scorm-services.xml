@@ -39,6 +39,7 @@
 			</props>
 		</property>
 	</bean>
+
 	<bean id="org.sakaiproject.scorm.service.api.ScormResultServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl">
 
 		<!-- Service beans -->
@@ -48,7 +49,6 @@
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
-
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.service.api.ScormContentService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
@@ -73,7 +73,6 @@
 		<lookup-method name="contentPackageManifestDao" bean="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
-
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
@@ -85,6 +84,7 @@
 			</props>
 		</property>
 	</bean>
+
 	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingServiceTarget" class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl">
 		
 		<!-- Service beans -->

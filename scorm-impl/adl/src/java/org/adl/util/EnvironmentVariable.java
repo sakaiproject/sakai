@@ -65,14 +65,14 @@ public final class EnvironmentVariable {
 			}
 
 			p.waitFor();
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			value = br.readLine();
-
-			if (StringUtils.startsWith(value, "%")) {
-				value = "";
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream())))
+			{
+				value = br.readLine();
+				
+				if (StringUtils.startsWith(value, "%")) {
+					value = "";
+				}
 			}
-
-			br.close();
 			p.destroy();
 		} catch (IOException ioe) {
 			System.out.println("Could not read environment variable key " + iKey);
