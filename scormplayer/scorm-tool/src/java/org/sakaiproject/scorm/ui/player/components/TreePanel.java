@@ -15,70 +15,37 @@
  */
 package org.sakaiproject.scorm.ui.player.components;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
+import lombok.Getter;
+
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 
-public class TreePanel extends Panel {
+public class TreePanel extends Panel
+{
 	private static final long serialVersionUID = 1L;
-	
-	private ActivityTree tree;
-	private LaunchPanel launchPanel;
-		
+
+	@Getter private LaunchPanel launchPanel;
+
 	@SpringBean
 	LearningManagementSystem lms;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
-	
-	public TreePanel(String id, final SessionBean sessionBean, LaunchPanel launchPanel) {
+
+	public TreePanel(String id, final SessionBean sessionBean, LaunchPanel launchPanel)
+	{
 		super(id);
 		this.launchPanel = launchPanel;
-		
-		tree = new ActivityTree("tree", sessionBean, launchPanel); /* {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected LearningManagementSystem lms() {
-				return lms;
-			}
-			
-			@Override
-			protected ScormResourceService resourceService() {
-				return resourceService;
-			}
-			
-			@Override
-			protected ScormSequencingService sequencingService() {
-				return sequencingService;
-			}
-			
-		};*/
+		ActivityTreePanel tree = new ActivityTreePanel("tree", sessionBean, sequencingService, launchPanel);
 		tree.setOutputMarkupId(true);
 		add(tree);
 	}
-	
-	public void setTreeVisible(boolean isVisible, AjaxRequestTarget target) {
-		if (null != tree && tree.isVisible() != isVisible) {
-			tree.setVisible(true);
-		
-			if (target != null)
-				target.addComponent(this);
-		}
-	}
-
-	public LaunchPanel getLaunchPanel() {
-		return launchPanel;
-	}
-	
-	public ActivityTree getActivityTree() {
-		return tree;
-	}
-	
 }

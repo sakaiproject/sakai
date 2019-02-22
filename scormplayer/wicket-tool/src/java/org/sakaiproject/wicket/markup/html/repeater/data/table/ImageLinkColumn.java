@@ -15,16 +15,18 @@
  */
 package org.sakaiproject.wicket.markup.html.repeater.data.table;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
+import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.lang.PropertyResolver;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ResourceReference;
+
 import org.sakaiproject.wicket.markup.html.link.IconLink;
 
-public class ImageLinkColumn extends AbstractColumn {
-
+public class ImageLinkColumn extends AbstractColumn
+{
 	private static final long serialVersionUID = 1L;
 
 	private Class<?> pageClass;
@@ -33,19 +35,27 @@ public class ImageLinkColumn extends AbstractColumn {
 	private String popupWindowName;
 	private String iconProperty = null;
 
-	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions,
-				ResourceReference iconReference, String sortProperty) {
+	/**
+	 * Convenience constructor for non-sortable column. Alternatively, you could call one of the other constructors and pass 'null' for the sortProperty param.
+	 */
+	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, PackageResourceReference iconReference)
+	{
+		this(displayModel, pageClass, paramPropertyExpressions, iconReference, null, null);
+	}
+
+	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, PackageResourceReference iconReference, String sortProperty)
+	{
 		this(displayModel, pageClass, paramPropertyExpressions, iconReference, null, sortProperty);
 	}
 
-	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions,
-			String iconProperty, String sortProperty) {
+	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, String iconProperty, String sortProperty)
+	{
 		this(displayModel, pageClass, paramPropertyExpressions, null, null, sortProperty);
 		this.iconProperty = iconProperty;
 	}
 
-	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, 
-			ResourceReference iconReference, String popupWindowName, String sortProperty) {
+	public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, PackageResourceReference iconReference, String popupWindowName, String sortProperty)
+	{
 		super(displayModel, sortProperty);
 		this.pageClass = pageClass;
 		this.paramPropertyExpressions = paramPropertyExpressions;
@@ -53,12 +63,15 @@ public class ImageLinkColumn extends AbstractColumn {
 		this.popupWindowName = popupWindowName;
 	}
 
-	public void populateItem(Item cellItem, String componentId, IModel model) {
+	@Override
+	public void populateItem(Item cellItem, String componentId, IModel model)
+	{
 		Object bean = model.getObject();
 
 		final PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
 
-		if (iconProperty != null) {
+		if (iconProperty != null)
+		{
 			String iconPropertyValue = String.valueOf(PropertyResolver.getValue(iconProperty, bean));
 			iconReference = getIconPropertyReference(iconPropertyValue);
 		}
@@ -66,14 +79,17 @@ public class ImageLinkColumn extends AbstractColumn {
 		cellItem.add(new IconLink("cell", pageClass, params, iconReference, popupWindowName));
 	}
 
-	protected ResourceReference getIconPropertyReference(String iconPropertyValue) {
+	protected ResourceReference getIconPropertyReference(String iconPropertyValue)
+	{
 		return iconReference;
 	}
 
-	private PageParameters buildPageParameters(String[] propertyExpressions, Object object) {
+	private PageParameters buildPageParameters(String[] propertyExpressions, Object object)
+	{
 		PageParameters params = new PageParameters();
 
-		if (propertyExpressions != null) {
+		if (propertyExpressions != null)
+		{
 			for( String propertyExpression : propertyExpressions )
 			{
 				String paramValue = String.valueOf( PropertyResolver.getValue( propertyExpression, object ) );

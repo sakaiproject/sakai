@@ -205,15 +205,19 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		SeqRollupRuleset other = (SeqRollupRuleset) obj;
-		if (id != other.id)
+		if (id != other.id){
 			return false;
+		}
 		return true;
 	}
 
@@ -227,6 +231,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 	 *
 	 * @param ioThisActivity The target activity of the rollup evaluation.
 	 */
+	@Override
 	public void evaluate(ISeqActivity thisActivity) {
 		SeqActivity ioThisActivity = (SeqActivity) thisActivity;
 		// Clear previous evaluation state -- nothing should change due to rollup.
@@ -281,7 +286,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 					}
 
 					if (mRollupRules == null) {
-						mRollupRules = new ArrayList<SeqRollupRule>();
+						mRollupRules = new ArrayList<>();
 					}
 
 					// Create default Not Satisfied rule
@@ -290,7 +295,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 					SeqRollupRule rule = new SeqRollupRule();
 
 					set.mCombination = SeqConditionSet.COMBINATION_ANY;
-					set.mConditions = new ArrayList<SeqCondition>();
+					set.mConditions = new ArrayList<>();
 
 					cond.mCondition = SeqCondition.ATTEMPTED;
 					set.mConditions.add(cond);
@@ -313,7 +318,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 
 					set.mCombination = SeqConditionSet.COMBINATION_ALL;
 					cond.mCondition = SeqCondition.SATISFIED;
-					set.mConditions = new ArrayList<SeqCondition>();
+					set.mConditions = new ArrayList<>();
 					set.mConditions.add(cond);
 
 					rule.mAction = SeqRollupRule.ROLLUP_ACTION_SATISFIED;
@@ -331,7 +336,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 					}
 
 					if (mRollupRules == null) {
-						mRollupRules = new ArrayList<SeqRollupRule>();
+						mRollupRules = new ArrayList<>();
 					}
 
 					// Create default Incomplete rule
@@ -340,7 +345,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 					SeqRollupRule rule = new SeqRollupRule();
 
 					set.mCombination = SeqConditionSet.COMBINATION_ANY;
-					set.mConditions = new ArrayList<SeqCondition>();
+					set.mConditions = new ArrayList<>();
 
 					cond.mCondition = SeqCondition.ATTEMPTED;
 					set.mConditions.add(cond);
@@ -363,7 +368,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 
 					set.mCombination = SeqConditionSet.COMBINATION_ALL;
 					cond.mCondition = SeqCondition.COMPLETED;
-					set.mConditions = new ArrayList<SeqCondition>();
+					set.mConditions = new ArrayList<>();
 					set.mConditions.add(cond);
 
 					rule = new SeqRollupRule();
@@ -522,9 +527,11 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 	 * 
 	 * @return The count of rollup rules in this set.
 	 */
+	@Override
 	public int size() {
-		if (mRollupRules != null)
+		if (mRollupRules != null){
 			return mRollupRules.size();
+		}
 
 		return 0;
 	}

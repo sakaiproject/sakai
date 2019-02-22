@@ -15,85 +15,108 @@
  */
 package org.sakaiproject.scorm.ui.player.util;
 
-import org.apache.wicket.Application;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.markup.html.WebResource;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
+import lombok.Getter;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.time.Time;
 import org.apache.wicket.util.watch.IModifiable;
+
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
-public class ContentPackageWebResource extends WebResource implements IModifiable {
-	
+public class ContentPackageWebResource extends ResourceReference implements IModifiable
+{
 	private static final long serialVersionUID = 1L;
 
 	private static final String[] candidateCompressionContentTypes = { "text/html", "text/javascript", "text/css"  };
-	
+
 	private ContentPackageResource resource;
 	private ContentPackageResourceStream resourceStream;
-	
-	public ContentPackageWebResource(ContentPackageResource resource) {
-		setCacheable(true);
+
+	public ContentPackageWebResource(ContentPackageResource resource)
+	{
+		super(resource.getClass(), resource.getPath());
 		this.resource = resource;
 		this.resourceStream = new ContentPackageResourceStream(resource);
 	}
-	
+
 	@Override
-	public IResourceStream getResourceStream() {
-		
-		if (canCompress()) {
+	public IResource getResource()
+	{
+		return new WicketContentPackageWebResource(this);
+	}
+
+	public IResourceStream getResourceStream()
+	{
+		if (canCompress())
+		{
 			return new CompressingContentPackageResourceStream(resource);
 		}
-		
+
 		return resourceStream;
 	}
-	
-	@Override
-	protected void setHeaders(WebResponse response) {
-		super.setHeaders(response);
-		if (canCompress()) {
-			response.setHeader("Content-Encoding", "gzip");
-		}
+
+	private boolean canCompress()
+	{
+		return isCandidateForCompression() && supportsCompression();
 	}
-	
-	private boolean canCompress() {
-		return isCandidateForCompression() && supportsCompression();	
-	}
-	
-	private boolean isCandidateForCompression() {
+
+	private boolean isCandidateForCompression()
+	{
 		String contentType = resourceStream.getContentType();
-		
 		if (contentType != null)
-			for (int i=0;i<candidateCompressionContentTypes.length;i++) 
-				if (contentType.startsWith(candidateCompressionContentTypes[i]))
+		{
+			for( String candidateCompressionContentType : candidateCompressionContentTypes )
+			{
+				if( contentType.startsWith( candidateCompressionContentType ) )
+				{
 					return true;
-		
+				}
+			}
+		}
+
 		return false;
 	}
-	
-	private boolean supportsCompression() {
-		if (Application.get().getResourceSettings().getDisableGZipCompression())
+
+	private boolean supportsCompression()
+	{
+		if (RequestCycle.get() == null)
 		{
 			return false;
 		}
-		if (RequestCycle.get() == null)
-			return false;
-		
-		WebRequest request = (WebRequest)RequestCycle.get().getRequest();
-		String s = request.getHttpServletRequest().getHeader("Accept-Encoding");
+
+		ServletWebRequest request = (ServletWebRequest) RequestCycle.get().getRequest();
+		String s = request.getContainerRequest().getHeader("Accept-Encoding");
 		if (s == null)
 		{
 			return false;
 		}
 		else
 		{
-			return s.indexOf("gzip") >= 0;
+			return s.contains( "gzip" );
 		}
 	}
 
-	public Time lastModifiedTime() {
-	    return resourceStream.lastModifiedTime();
-    }
+	@Override
+	public Time lastModifiedTime()
+	{
+		return resourceStream.lastModifiedTime();
+	}
+
+	public class WicketContentPackageWebResource implements IResource
+	{
+		@Getter private ContentPackageWebResource resource;
+
+		public WicketContentPackageWebResource(ContentPackageWebResource resource)
+		{
+			this.resource = resource;
+		}
+
+		@Override
+		public void respond( Attributes atrbts )
+		{
+		}
+	}
 }

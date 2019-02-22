@@ -20,26 +20,26 @@ import java.util.List;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
+
 import org.sakaiproject.scorm.model.api.CMIField;
 import org.sakaiproject.scorm.model.api.CMIFieldGroup;
 
-public class CMIFieldGroupPanel extends Panel {
-
+public class CMIFieldGroupPanel extends Panel
+{
 	private static final long serialVersionUID = 1L;
 
 	private final RepeatingView fields;
-	
-	public CMIFieldGroupPanel(String id, CMIFieldGroup fieldGroup) {
-		super(id);
 
+	public CMIFieldGroupPanel(String id, CMIFieldGroup fieldGroup)
+	{
+		super(id);
 		add(fields = new RepeatingView("fields"));
-		
+
 		List<CMIField> list = fieldGroup.getList();
-		
-		for (CMIField field : list) {
+		for (CMIField field : list)
+		{
 			addField(field, fields);
 		}
-		
 	}
 
 	
@@ -59,7 +59,4 @@ public class CMIFieldGroupPanel extends Panel {
 
 		container.add(item);
 	}
-	
-	
-	
 }

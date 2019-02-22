@@ -242,22 +242,22 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		mXMLBase[1][1] = "";
 		mXMLBase[2][1] = "";
 
-		mOrganizationIdentifierList = new ArrayList<String>();
+		mOrganizationIdentifierList = new ArrayList<>();
 		mRulesValidator = new RulesValidator("contentpackage");
 		mManifestHandler = new ManifestHandler();
 		mEnvironmentVariable = iEnvironmentVariable;
 		mManifestInfo = new ManifestMap();
 		mManifestID = "";
-		mValidIdrefs = new ArrayList<String>();
-		mFileList = new ArrayList<String>();
-		mResourceNodes = new ArrayList<Node>();
-		mResourceIdentifierList = new ArrayList<String>();
+		mValidIdrefs = new ArrayList<>();
+		mFileList = new ArrayList<>();
+		mResourceNodes = new ArrayList<>();
+		mResourceIdentifierList = new ArrayList<>();
 		mHrefCaseSensitiveList = new CaseSensitiveCollection();
-		mManifestResourceIdentifierList = new ArrayList<String>();
-		mRequiredFilesList = new ArrayList<String>();
-		mAllIdrefsList = new ArrayList<String>();
+		mManifestResourceIdentifierList = new ArrayList<>();
+		mRequiredFilesList = new ArrayList<>();
+		mAllIdrefsList = new ArrayList<>();
 		mManifestID = "";
-		mResourceTable = new Hashtable<String, List<String>>();
+		mResourceTable = new Hashtable<>();
 		mSchemaLocExists = true;
 	}
 
@@ -346,7 +346,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		mLogger.debug("CPValidator checkBucketUniqueness");
 
 		String msgText;
-		List<String> idList = new ArrayList<String>();
+		List<String> idList = new ArrayList<>();
 
 		NodeList childrenOfItem = iResourceNode.getChildNodes();
 
@@ -667,7 +667,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		boolean result = true;
 		String msgText = "";
 
-		if (!(iURIString.equals(""))) {
+		if (!(iURIString.isEmpty())) {
 			// check for a valid protocol
 
 			if (((iURIString.length() > 4) && (iURIString.substring(0, 5).equals("http:")))
@@ -899,7 +899,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					} else {
 						String identifierRefValue = identifierRef.getValue();
-						if (identifierRefValue.equals("")) {
+						if (identifierRefValue.isEmpty()) {
 							// ERROR, must reference a resource therefore it
 							// cannot
 							// contain an identifierref attibute that is set to
@@ -1117,7 +1117,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			String resourceID = DOMTreeUtility.getAttributeValue(iResourceNode, "identifier");
 			boolean referencesAResource = false;
 
-			if (!resourceID.equals("")) {
+			if (!resourceID.isEmpty()) {
 				// loop through mValidIdrefs to find a matching reference
 
 				for (int i = 0; i < mValidIdrefs.size(); i++) {
@@ -1178,7 +1178,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		String resourceHref = DOMTreeUtility.getAttributeValue(iResourceNode, "href");
 
 		// only continue check if the resourceHref exists
-		if (!resourceHref.equals("")) {
+		if (!resourceHref.isEmpty()) {
 			// remove all parameters from the end of the href, if they exist
 
 			// first deal with ?
@@ -1580,8 +1580,9 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	private boolean compareToRules(Node iTestSubjectNode, String iPath) {
 		// is there anything to do?
-		if (iTestSubjectNode == null)
+		if (iTestSubjectNode == null){
 			return false;
+		}
 
 		mLogger.debug("CPValidator compareToRules");
 		mLogger.debug("Node: " + iTestSubjectNode.getLocalName());
@@ -2003,7 +2004,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						// the value is not an empty string
 
 						String myAttributeValue = currentAttrNode.getValue();
-						if (!myAttributeValue.equals("")) {
+						if (!myAttributeValue.isEmpty()) {
 							// check to ensure there are no leading slashes
 							result = checkForSlashes("href", myAttributeValue) && result;
 
@@ -2070,7 +2071,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 				String path;
 
-				if (iPath.equals("")) {
+				if (iPath.isEmpty()) {
 					// the node is a DOCUMENT or a root <manifest>
 					path = parentNodeName;
 				} else if ((iPath.equals("manifest.manifest")) && (parentNodeName.equals("manifest"))) {
@@ -2552,7 +2553,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		boolean xmlBaseExists = true;
 
 		// determine if the xml:base array contains values
-		if ((mXMLBase[0][1].equals("")) && (mXMLBase[1][1].equals("")) && (mXMLBase[2][1].equals(""))) {
+		if ((mXMLBase[0][1].isEmpty()) && (mXMLBase[1][1].isEmpty()) && (mXMLBase[2][1].isEmpty())) {
 			// xml:base was not declared for a manifest, resources, or resource
 			// element
 			xmlBaseExists = false;
@@ -2792,6 +2793,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            in the LaunchData list.
 	 * @return List: Containing the launch information
 	 */
+	@Override
 	public List<LaunchData> getLaunchData(boolean iDefaultOrganizationOnly, boolean iRemoveAssets) {
 		return mManifestHandler.getLaunchData((super.getDocument()).getDocumentElement(), iDefaultOrganizationOnly, iRemoveAssets);
 	}
@@ -2808,6 +2810,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            - boolean describing if to include assets in launch locatation
 	 * @return Returns a List of launch data
 	 */
+	@Override
 	public List<LaunchData> getLaunchData(Document iRolledUpDocument, boolean iDefaultOrganizationOnly, boolean iRemoveAssets) {
 		return mManifestHandler.getLaunchData(iRolledUpDocument.getDocumentElement(), iDefaultOrganizationOnly, iRemoveAssets);
 	}
@@ -2820,6 +2823,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 * 
 	 * @return List: Containing the metadata launch information
 	 */
+	@Override
 	public List<MetadataData> getMetadataDataList() {
 		return mManifestHandler.getMetadata((super.getDocument()).getDocumentElement(), mBaseDirectory);
 	}
@@ -2836,6 +2840,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            The name of the element being searched for
 	 * @return - int: number of instances of a given attribute
 	 */
+	@Override
 	public int getMultiplicityUsed(NamedNodeMap iAttributeMap, String iNodeName) {
 		mLogger.debug("CPValidator getMultiplicityUsed() - Attributes");
 		mLogger.debug("Input Node we are looking for: " + iNodeName);
@@ -2871,6 +2876,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            The name of the element being searched for
 	 * @return - int: number of instances of a given element
 	 */
+	@Override
 	public int getMultiplicityUsed(Node iParentNode, String iNodeName) {
 		mLogger.debug("CPValidator getMultiplicityUsed() - Elements");
 		mLogger.debug("Input Parent Node: " + iParentNode.getLocalName());
@@ -2991,7 +2997,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// loop through each resource and track all files per resource
 			// identifer
 			for (int t = 0; t < numChildren; t++) {
-				fileHrefList = new ArrayList<String>();
+				fileHrefList = new ArrayList<>();
 				currentResource = resourceNodes.get(t);
 				// resourceID used for hash table key
 				String resourceID = DOMTreeUtility.getAttributeValue(currentResource, "identifier");
@@ -3001,7 +3007,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				// call our recursive function here
 				// pass in a resource node and expect back an arrayList of files
 
-				List<String> resourcesVisited = new ArrayList<String>();
+				List<String> resourcesVisited = new ArrayList<>();
 				findFileHrefs(currentResource, resourcesXMLBase, fileHrefList, resourceNodes, resourcesVisited);
 
 				if (!fileHrefList.isEmpty()) {
@@ -3023,6 +3029,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            True implies to parse for well-formedness and validation to
 	 *            the schema, false implies to parse for well-formedness only.
 	 */
+	@Override
 	public void setPerformValidationToSchema(boolean iValue) {
 		mPerformFullValidation = iValue;
 	}
@@ -3117,7 +3124,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 		mLogger.debug("CPValidator trackResourceIdentifiers()");
 
-		List<Node> resourceNodes = new ArrayList<Node>();
+		List<Node> resourceNodes = new ArrayList<>();
 
 		if (iResourcesNode != null) {
 			// this will return a List of all child nodes of iResourceNode
@@ -3244,6 +3251,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         True implies that validation was error free, false implies
 	 *         otherwise.
 	 */
+	@Override
 	public boolean validate(String iFileName, String iTestType, String iApplicationProfileType, boolean iManifestOnly, String encoding) {
 		boolean validateResult = true;
 		String msgText;

@@ -164,7 +164,7 @@ public class RulesValidator implements Serializable {
 		log.debug("    iAttribName coming in is " + iAttribName);
 
 		List<Node> ruleNodeList;
-		List<String> vocabList = new ArrayList<String>();
+		List<String> vocabList = new ArrayList<>();
 
 		if (mRulesDocument != null) {
 			log.debug("mRulesDocument != null");
@@ -355,8 +355,8 @@ public class RulesValidator implements Serializable {
 		log.debug("    iElementName coming in is " + iElementName);
 		log.debug("    iPath coming in is " + iPath);
 
-		List<Node> ruleNodeList = new ArrayList<Node>();
-		List<String> vocabList = new ArrayList<String>();
+		List<Node> ruleNodeList = new ArrayList<>();
+		List<String> vocabList = new ArrayList<>();
 
 		if (mRulesDocument != null) {
 			log.debug("mRulesDocument != null");
@@ -528,7 +528,7 @@ public class RulesValidator implements Serializable {
 	private List<Node> retrieveAttribVocabRuleElements(String iElementName, String iPath, String iRuleName, String iAttribName) {
 		log.debug("retrieveAttribVocabRuleElements()");
 
-		List<Node> resultList = new ArrayList<Node>();
+		List<Node> resultList = new ArrayList<>();
 
 		Node rootRulesNode = mRulesDocument.getDocumentElement();
 		NodeList kids = rootRulesNode.getChildNodes();
@@ -684,7 +684,7 @@ public class RulesValidator implements Serializable {
 	private List<Node> retrieveVocabRuleElements(String iElementName, String iPath, String iRuleName) {
 		log.debug("retrieveVocabRuleElements()");
 
-		List<Node> resultList = new ArrayList<Node>();
+		List<Node> resultList = new ArrayList<>();
 
 		Node rootRulesNode = mRulesDocument.getDocumentElement();
 		NodeList kids = rootRulesNode.getChildNodes();

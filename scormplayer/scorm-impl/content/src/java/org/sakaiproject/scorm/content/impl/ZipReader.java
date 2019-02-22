@@ -23,93 +23,115 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.content.api.ContentEntity;
 
-public abstract class ZipReader {
-	private static Log log = LogFactory.getLog(ZipReader.class);
-
+@Slf4j
+public abstract class ZipReader
+{
 	private ZipInputStream zipStream;
-
 	private int count = 0;
 
-	public ZipReader(InputStream contentStream) {
+	public ZipReader(InputStream contentStream)
+	{
 		this.zipStream = new ZipInputStream(contentStream);
 	}
 
-	public int getCount() {
+	public int getCount()
+	{
 		return count;
 	}
 
 	protected abstract boolean includeContent(boolean isDirectory);
-
 	protected abstract boolean isValid(String entryPath);
-
 	protected abstract ContentEntity processEntry(String entryPath, ByteArrayOutputStream outStream, boolean isDirectory);
 
-	public List<ContentEntity> read() {
-		List<ContentEntity> list = new LinkedList<ContentEntity>();
+	public List<ContentEntity> read()
+	{
+		List<ContentEntity> list = new LinkedList<>();
 		ZipEntry entry;
 		ByteArrayOutputStream outStream = null;
 		byte[] buffer = new byte[1024];
 		int length;
-		try {
+		try
+		{
 			count = 0;
 			entry = zipStream.getNextEntry();
 			while (entry != null) {
-				if (isValid(entry.getName())) {
-
-					if (includeContent(entry.isDirectory())) {
+				if (isValid(entry.getName()))
+				{
+					if (includeContent(entry.isDirectory()))
+					{
 						outStream = new ByteArrayOutputStream();
-						while ((length = zipStream.read(buffer)) > 0) {
+						while ((length = zipStream.read(buffer)) > 0)
+						{
 							outStream.write(buffer, 0, length);
 						}
 
-						if (null != outStream) {
+						if (null != outStream)
+						{
 							outStream.close();
 						}
 					}
 
 					ContentEntity o = processEntry(entry.getName(), outStream, entry.isDirectory());
-
-					if (null != o) {
+					if (null != o)
+					{
 						list.add(o);
 					}
+
 					count++;
 				}
+
 				entry = zipStream.getNextEntry();
 			}
-		} catch (IOException ioe) {
+		}
+		catch (IOException ioe)
+		{
 			log.error("Caught an io exception reading from zip stream", ioe);
-		} finally {
-			try {
-				if (null != zipStream) {
+		}
+		finally
+		{
+			try
+			{
+				if (null != zipStream)
+				{
 					zipStream.close();
 				}
-				if (null != outStream) {
+
+				if (null != outStream)
+				{
 					outStream.close();
 				}
-			} catch (IOException noie) {
-				log.info("Caught an io exception closing streams!");
+			}
+			catch (IOException noie)
+			{
+				log.info("Caught an io exception closing streams!", noie);
 			}
 		}
 
 		return list;
 	}
 
-	public Object readFirst() {
+	public Object readFirst()
+	{
 		ZipEntry entry;
 		ByteArrayOutputStream outStream = null;
 		byte[] buffer = new byte[1024];
 		int length;
-		try {
+		try
+		{
 			entry = zipStream.getNextEntry();
-			while (entry != null) {
-				if (isValid(entry.getName())) {
-					if (includeContent(entry.isDirectory())) {
+			while (entry != null)
+			{
+				if (isValid(entry.getName()))
+				{
+					if (includeContent(entry.isDirectory()))
+					{
 						outStream = new ByteArrayOutputStream();
-						while ((length = zipStream.read(buffer)) > 0) {
+						while ((length = zipStream.read(buffer)) > 0)
+						{
 							outStream.write(buffer, 0, length);
 						}
 
@@ -117,31 +139,42 @@ public abstract class ZipReader {
 					}
 
 					Object o = processEntry(entry.getName(), outStream, entry.isDirectory());
-
 					zipStream.close();
-					if (null != outStream) {
+					if (null != outStream)
+					{
 						outStream.close();
 					}
+
 					return o;
 				}
+
 				entry = zipStream.getNextEntry();
 			}
-		} catch (IOException ioe) {
+		}
+		catch (IOException ioe)
+		{
 			log.error("Caught an io exception reading from zip stream", ioe);
-		} finally {
-			try {
-				if (null != zipStream) {
+		}
+		finally
+		{
+			try
+			{
+				if (null != zipStream)
+				{
 					zipStream.close();
 				}
-				if (null != outStream) {
+
+				if (null != outStream)
+				{
 					outStream.close();
 				}
-			} catch (IOException noie) {
-				log.info("Caught an io exception closing streams!");
+			}
+			catch (IOException noie)
+			{
+				log.info("Caught an io exception closing streams!", noie);
 			}
 		}
 
 		return null;
 	}
-
 }

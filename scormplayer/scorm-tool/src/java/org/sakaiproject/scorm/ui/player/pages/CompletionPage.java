@@ -15,36 +15,36 @@
  */
 package org.sakaiproject.scorm.ui.player.pages;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 
-public class CompletionPage extends NotificationPage {
-	
+public class CompletionPage extends NotificationPage
+{
 	private static final String CLOSE_ON_LOAD = "setTimeout('window.close()', 5000);";
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean
 	LearningManagementSystem lms;
-	
-	public CompletionPage() {
+
+	public CompletionPage()
+	{
 		this(new PageParameters());
 	}
-	
-	public CompletionPage(PageParameters pageParams) {
+
+	public CompletionPage(PageParameters pageParams)
+	{
 		super();
 	}
-	
-	
-	@Override
-	public void renderHead(IHeaderResponse response) {
-		super.renderHead(response);
-		
-		response.renderOnDomReadyJavascript(CLOSE_ON_LOAD);
 
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		super.renderHead(response);
+		response.render(OnDomReadyHeaderItem.forScript(CLOSE_ON_LOAD));
 	}
-	
-	
 }

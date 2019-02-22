@@ -17,7 +17,9 @@ package org.sakaiproject.scorm.model.api.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;
+
 import org.apache.commons.lang.ObjectUtils;
+
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 
 /**

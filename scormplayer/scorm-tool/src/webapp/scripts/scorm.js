@@ -483,7 +483,6 @@ function doConfirm()
               //Neither IE nor Netscape is being used
               alert("your browser may not be supported");
            }  
-
     }
     else
     {

@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.scorm.service.sakai.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -30,74 +30,76 @@ import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.tool.api.ToolManager;
 
-public abstract class CHHResourceService extends SakaiResourceService {
-
-	private static Log log = LogFactory.getLog(SakaiResourceService.class);
-
-	private static final String MANIFEST_RESOURCE_ID_PROPERTY = "manifest_resource_id";
-
+@Slf4j
+public abstract class CHHResourceService extends SakaiResourceService
+{
 	@Override
 	protected abstract ServerConfigurationService configurationService();
 
 	@Override
 	protected abstract ContentHostingService contentService();
 
-	public String convertArchive(String resourceId) {
-		try {
+	@Override
+	protected abstract ToolManager toolManager();
+
+	protected abstract ScormCHH scormCHH();
+
+	public String convertArchive(String resourceId)
+	{
+		try
+		{
 			ContentResourceEdit modify = this.contentService().editResource(resourceId);
 
 			modify.setContentHandler(scormCHH());
 			modify.setResourceType("org.sakaiproject.content.types.scormContentPackage");
 
 			ResourcePropertiesEdit props = modify.getPropertiesEdit();
-
 			props.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ScormCHH");
-			// props.addProperty(MANIFEST_RESOURCE_ID_PROPERTY,
-			// manifestResourceId);
 
 			int noti = NotificationService.NOTI_NONE;
 			this.contentService().commitResource(modify, noti);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			log.error("Unable to convert archive to a Scorm content package", e);
 		}
 
 		return resourceId;
 	}
 
-	public ContentPackageResource getResource(String resourceId, String path) {
+	public ContentPackageResource getResource(String resourceId, String path)
+	{
 		String fullResourceId = new StringBuilder(resourceId).append("/").append(path).toString();
-
-		try {
+		try
+		{
 			ContentResource resource = this.contentService().getResource(fullResourceId);
-
 			return new ContentPackageSakaiResource(path, resource);
-		} catch (Exception e) {
-			log.error("Failed to retrieve resource from content hosting ", e);
+		}
+		catch (Exception e)
+		{
+			log.error("Failed to retrieve resource from content hosting {}", e);
 		}
 
 		return null;
 	}
 
-	public String getUrl(SessionBean sessionBean) {
-		if (null != sessionBean.getLaunchData()) {
+	public String getUrl(SessionBean sessionBean)
+	{
+		if (null != sessionBean.getLaunchData())
+		{
 			String launchLine = sessionBean.getLaunchData().getLaunchLine();
 			String baseUrl = sessionBean.getBaseUrl();
 			StringBuffer fullPath = new StringBuffer().append(baseUrl);
 
-			if (!baseUrl.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR)) {
+			if (!baseUrl.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR))
+			{
 				fullPath.append(Entity.SEPARATOR);
 			}
 
 			fullPath.append(launchLine);
-
 			return fullPath.toString();
 		}
+
 		return null;
 	}
-
-	protected abstract ScormCHH scormCHH();
-
-	@Override
-	protected abstract ToolManager toolManager();
-
 }

@@ -200,7 +200,7 @@ public class ADLSCORMValidator {
 		mValidatorType = iValidator;
 		mIsRootElement = false;
 		mSchemaLocExists = false;
-		mDeclaredNamespaces = new ArrayList<String>();
+		mDeclaredNamespaces = new ArrayList<>();
 
 		mLogger.exiting("ADLSCORMValidator", "ADLSCORMValidator()");
 	}

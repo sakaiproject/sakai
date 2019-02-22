@@ -299,7 +299,7 @@ public class DateTimeValidatorImpl extends DateTimeValidator implements Serializ
 		// Look for Time
 		if (!done) {
 			// Check for a hour
-			idx = iValue.indexOf("T");
+			idx = iValue.indexOf('T');
 
 			if (idx != -1) {
 				idx++;

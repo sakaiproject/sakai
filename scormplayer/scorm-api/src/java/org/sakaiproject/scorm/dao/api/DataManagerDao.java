@@ -19,11 +19,9 @@ import java.util.List;
 
 import org.adl.datamodels.IDataManager;
 
-public interface DataManagerDao {
-
+public interface DataManagerDao
+{
 	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber);
-
-	//public List<IDataManager> find(String courseId);
 
 	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId);
 
@@ -38,5 +36,4 @@ public interface DataManagerDao {
 	public void save(IDataManager dataManager);
 
 	public void update(IDataManager dataManager);
-
 }

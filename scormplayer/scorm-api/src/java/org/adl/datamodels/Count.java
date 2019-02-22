@@ -92,7 +92,7 @@ public class Count extends DMElement {
 			// Make sure there are no delimiters defined
 			if (iValue.getDelimiterCount() == 0) {
 				try {
-					int val = (Integer.valueOf(iValue.getValue())).intValue();
+					int val = (Integer.valueOf(iValue.getValue()));
 
 					if (val == mCount) {
 						result = DMErrorCodes.COMPARE_EQUAL;

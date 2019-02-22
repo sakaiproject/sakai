@@ -191,7 +191,7 @@ public class ADLSeqParser extends DOMParser {
 											String temp = getAttribute(curOrg, "objectivesGlobalToSystem");
 
 											if (temp != null) {
-												mGlobalToSystem = (Boolean.valueOf(temp)).booleanValue();
+												mGlobalToSystem = (Boolean.valueOf(temp));
 											}
 
 											// We found the default organization

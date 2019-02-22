@@ -106,6 +106,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo allocate(BucketAllocation iDescription) {
 		boolean okToProceed = true;
 		boolean okToUpdateDB = true;
@@ -118,7 +119,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 			// We have a bad call
 			okToProceed = false;
 
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 
 			iDescription.setAllocationStatus(SuccessStatus.FAILURE);
 		}
@@ -128,7 +129,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 			if (iDescription.getRequestedSizeInt() < iDescription.getMinimumSizeInt()) {
 				okToProceed = false;
 
-				status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.ALLOCATE_MIN_GREATER_MAX);
+				status.mErrorCode = SSP_DMErrorCodes.ALLOCATE_MIN_GREATER_MAX;
 
 				iDescription.setAllocationStatus(SuccessStatus.FAILURE);
 			}
@@ -150,13 +151,13 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 					// Bucket already allocated matching the parms - all OK
 					iDescription.setAllocationStatus(returnBucketAllocation.getAllocationStatus());
 
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+					status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 
 					// Update the managed bucket index.
 					boolean updateStatus = updateDBRecord(iDescription.getActivityID(), iDescription.getManagedBucketIndex());
 
 					if (updateStatus == false) {
-						status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.DATABASE_UPDATE_FAILURE);
+						status.mErrorCode = SSP_DMErrorCodes.DATABASE_UPDATE_FAILURE;
 					}
 				} else // Problem - bucket improperly declared
 				{
@@ -170,7 +171,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 						track(iDescription);
 					}
 
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+					status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 				}
 			}
 		}
@@ -193,6 +194,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo appendData(String ibucketID, byte[] iData, BucketAllocation iBucketAllocation) {
 		boolean operationSuccess = false;
 		boolean persisted = false;
@@ -232,7 +234,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				int newTotal = newData.length();
 
 				if (newTotal > totalSpace) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_SIZE_EXCEEDED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_SIZE_EXCEEDED_SET;
 				} else {
 					// store the result of this operation in the bucket.
 					try {
@@ -248,17 +250,17 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				}
 
 				if (operationSuccess && persisted) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+					status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 				}
 			} else {
 				if (iBucketAllocation.getAllocationStatus() == SuccessStatus.FAILURE) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_SET;
 				} else {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_SET;
 				}
 			}
 		} else {
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 		}
 
 		return status;
@@ -386,7 +388,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				System.out.println("Minimum size was used");
 			}
 		} else {
-			errorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+			errorCode = SSP_DMErrorCodes.NO_ERROR;
 
 			if (_Debug) {
 				System.out.println("Bucket was not created - could not allocate " + "requested space and could not reduce.");
@@ -402,7 +404,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 			persisted = persistBucket(bucket, iDescription);
 
 			if (!persisted) {
-				errorCode = Integer.valueOf(SSP_DMErrorCodes.CREATE_BUCKET_PERSIST);
+				errorCode = SSP_DMErrorCodes.CREATE_BUCKET_PERSIST;
 			}
 
 			if (_Debug) {
@@ -419,13 +421,13 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 			tracked = track(iDescription);
 
 			if (!tracked) {
-				errorCode = Integer.valueOf(SSP_DMErrorCodes.DATABASE_CREATE_FAILURE);
+				errorCode = SSP_DMErrorCodes.DATABASE_CREATE_FAILURE;
 			}
 
 		}
 
 		if (created && persisted && tracked) {
-			errorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+			errorCode = SSP_DMErrorCodes.NO_ERROR;
 		} else {
 			iDescription.setAllocationStatus(SuccessStatus.FAILURE);
 		}
@@ -454,201 +456,188 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 
 			int operationType = -1;
 
-			ObjectInputStream in = new ObjectInputStream(iRequest.getInputStream());
-
-			ObjectOutputStream out = new ObjectOutputStream(oResponse.getOutputStream());
-
-			SSP_ServletResponse sspResponse = new SSP_ServletResponse();
-
-			StatusInfo statusInfo = new StatusInfo();
-
-			// Read the SSP_ServletRequest object
-			SSP_ServletRequest request = (SSP_ServletRequest) in.readObject();
-
-			bucketAllocation.setBucketID(request.mBucketID);
-			bucketAllocation.setStudentID(request.mStudentID);
-			bucketAllocation.setCourseID(request.mCourseID);
-			bucketAllocation.setAttemptID(request.mAttemptID);
-			operationType = request.mOperationType;
-			bucketAllocation.setMinimum(request.mMinimumSize);
-			bucketAllocation.setRequested(request.mRequestedSize);
-			bucketAllocation.setReducible(request.mReducible);
-			bucketAllocation.setBucketType(request.mBucketType);
-			bucketAllocation.setPersistence(request.mPersistence);
-			bucketAllocation.setOffset(request.mOffset);
-			bucketAllocation.setSize(request.mSize);
-			bucketAllocation.setValue(request.mValue);
-			bucketAllocation.setManagedBucketIndex(request.mManagedBucketIndex);
-			bucketAllocation.setSCOID(request.mSCOID);
-
-			if (_Debug) {
-				System.out.println("@@@@@  DO POST  @@@@@");
-				System.out.println("@@   mBucketID = " + bucketAllocation.getBucketID());
-				System.out.println("@@   mStudentID = " + bucketAllocation.getStudentID());
-				System.out.println("@@   mCourseID = " + bucketAllocation.getCourseID());
-				System.out.println("@@   mSCOID = " + bucketAllocation.getSCOID());
-				System.out.println("@@   mAttemptID = " + bucketAllocation.getAttemptID());
-				System.out.println("@@   mOperationType = " + operationType);
-				System.out.println("@@   mManagedBucketIndex = " + bucketAllocation.getManagedBucketIndex());
-				System.out.println("@@@@@  DO POST  @@@@@");
-			}
-
-			// Verify that all parameters are of correct type
-			result = validateParameters(bucketAllocation, operationType);
-
-			if (result) {
+			ObjectOutputStream out;
+			try (ObjectInputStream in = new ObjectInputStream(iRequest.getInputStream()))
+			{
+				out = new ObjectOutputStream(oResponse.getOutputStream());
+				SSP_ServletResponse sspResponse = new SSP_ServletResponse();
+				StatusInfo statusInfo = new StatusInfo();
+				// Read the SSP_ServletRequest object
+				SSP_ServletRequest request = (SSP_ServletRequest) in.readObject();
+				bucketAllocation.setBucketID(request.mBucketID);
+				bucketAllocation.setStudentID(request.mStudentID);
+				bucketAllocation.setCourseID(request.mCourseID);
+				bucketAllocation.setAttemptID(request.mAttemptID);
+				operationType = request.mOperationType;
+				bucketAllocation.setMinimum(request.mMinimumSize);
+				bucketAllocation.setRequested(request.mRequestedSize);
+				bucketAllocation.setReducible(request.mReducible);
+				bucketAllocation.setBucketType(request.mBucketType);
+				bucketAllocation.setPersistence(request.mPersistence);
+				bucketAllocation.setOffset(request.mOffset);
+				bucketAllocation.setSize(request.mSize);
+				bucketAllocation.setValue(request.mValue);
+				bucketAllocation.setManagedBucketIndex(request.mManagedBucketIndex);
+				bucketAllocation.setSCOID(request.mSCOID);
 				if (_Debug) {
-					System.out.println("the parameters ARE valid");
-					System.out.println("mOperationType = " + operationType);
-				}
-
-				switch (operationType) {
-				case SSP_Operation.ALLOCATE: {
+					System.out.println("@@@@@  DO POST  @@@@@");
+					System.out.println("@@   mBucketID = " + bucketAllocation.getBucketID());
+					System.out.println("@@   mStudentID = " + bucketAllocation.getStudentID());
+					System.out.println("@@   mCourseID = " + bucketAllocation.getCourseID());
+					System.out.println("@@   mSCOID = " + bucketAllocation.getSCOID());
+					System.out.println("@@   mAttemptID = " + bucketAllocation.getAttemptID());
+					System.out.println("@@   mOperationType = " + operationType);
+					System.out.println("@@   mManagedBucketIndex = " + bucketAllocation.getManagedBucketIndex());
+					System.out.println("@@@@@  DO POST  @@@@@");
+				}	// Verify that all parameters are of correct type
+				result = validateParameters(bucketAllocation, operationType);
+				if (result) {
 					if (_Debug) {
-						System.out.println("have an allocate request");
+						System.out.println("the parameters ARE valid");
+						System.out.println("mOperationType = " + operationType);
 					}
-					statusInfo = allocate(bucketAllocation);
-
-					break;
-				}
-
-				case SSP_Operation.APPEND_DATA: {
-					if (_Debug) {
-						System.out.println("have an append data request");
+					
+					switch (operationType) {
+						case SSP_Operation.ALLOCATE: {
+							if (_Debug) {
+								System.out.println("have an allocate request");
+							}
+							statusInfo = allocate(bucketAllocation);
+							
+							break;
+						}
+						
+						case SSP_Operation.APPEND_DATA: {
+							if (_Debug) {
+								System.out.println("have an append data request");
+							}
+							
+							byte[] data = null;
+							
+							try {
+								data = bucketAllocation.getValue().getBytes(Bucket.CHARSET);
+							} catch (UnsupportedEncodingException uee) {
+								data = bucketAllocation.getValue().getBytes();
+								
+								System.out.println("UnsupportedEncodingException: " + Bucket.CHARSET + " is not a " + "supported encoding.  The default "
+										   + "encoding is being used");
+							}
+							
+							statusInfo = appendData(bucketAllocation.getBucketID(), data, bucketAllocation);
+							
+							break;
+						}
+						
+						case SSP_Operation.GET_DATA: {
+							if (_Debug) {
+								System.out.println("have a get data request");
+							}
+							
+							byte[] data = null;
+							
+							if ((bucketAllocation.getOffset() == null) && (bucketAllocation.getSize() == null)) {
+								statusInfo = getData(bucketAllocation.getBucketID(), data, bucketAllocation);
+							} else {
+								statusInfo = getData(bucketAllocation.getBucketID(), bucketAllocation.getOffsetInt(), bucketAllocation.getSizeInt(), data,
+																																			 bucketAllocation);
+							}
+							
+							// we use the mValue attribute since the out value (data)
+							// will most likely be null all the time.
+							sspResponse.mReturnValue = bucketAllocation.getValue();
+							
+							if (_Debug) {
+								System.out.println("DATA = [" + sspResponse.mReturnValue + "]");
+							}
+							
+							break;
+						}
+						
+						case SSP_Operation.GET_STATE: {
+							if (_Debug) {
+								System.out.println("have a get state request");
+							}
+							
+							BucketState state = new BucketState();
+							
+							statusInfo = getState(bucketAllocation.getBucketID(), state, bucketAllocation);
+							
+							sspResponse.mBucketState = state;
+							
+							break;
+						}
+						
+						case SSP_Operation.SET_DATA: {
+							if (_Debug) {
+								System.out.println("have an set data request");
+							}
+							
+							byte[] data = null;
+							
+							try {
+								data = bucketAllocation.getValue().getBytes(Bucket.CHARSET);
+							} catch (UnsupportedEncodingException uee) {
+								data = bucketAllocation.getValue().getBytes();
+								
+								System.out.println("UnsupportedEncodingException: " + Bucket.CHARSET + " is not a " + "supported encoding.  The default "
+										   + "encoding is being used");
+							}
+							
+							if (bucketAllocation.getOffset() == null) {
+								statusInfo = setData(bucketAllocation.getBucketID(), data, bucketAllocation);
+							} else {
+								statusInfo = setData(bucketAllocation.getBucketID(), bucketAllocation.getOffsetInt(), data, bucketAllocation);
+							}
+							
+							break;
+						}
+						
+						default: {
+							sspResponse.mReturnValue = null;
+						}
 					}
-
-					byte[] data = null;
-
-					try {
-						data = bucketAllocation.getValue().getBytes(Bucket.CHARSET);
-					} catch (UnsupportedEncodingException uee) {
-						data = bucketAllocation.getValue().getBytes();
-
-						System.out.println("UnsupportedEncodingException: " + Bucket.CHARSET + " is not a " + "supported encoding.  The default "
-						        + "encoding is being used");
+				} else {
+					switch (operationType) {
+						case SSP_Operation.ALLOCATE: {
+							statusInfo.mErrorCode = SSP_DMErrorCodes.INVALID_SET_PARMS;
+							
+							bucketAllocation.setAllocationStatus(SuccessStatus.FAILURE);
+							
+							break;
+						}
+						
+						case SSP_Operation.APPEND_DATA:
+						case SSP_Operation.SET_DATA: {
+							statusInfo.mErrorCode = SSP_DMErrorCodes.INVALID_SET_PARMS;
+							
+							break;
+						}
+						
+						case SSP_Operation.GET_DATA:
+						case SSP_Operation.GET_STATE: {
+							sspResponse.mReturnValue = "";
+							statusInfo.mErrorCode = SSP_DMErrorCodes.INVALID_GET_PARMS;
+							
+							break;
+						}
+						
+						default: {
+							sspResponse.mReturnValue = null;
+						}
 					}
-
-					statusInfo = appendData(bucketAllocation.getBucketID(), data, bucketAllocation);
-
-					break;
-				}
-
-				case SSP_Operation.GET_DATA: {
-					if (_Debug) {
-						System.out.println("have a get data request");
-					}
-
-					byte[] data = null;
-
-					if ((bucketAllocation.getOffset() == null) && (bucketAllocation.getSize() == null)) {
-						statusInfo = getData(bucketAllocation.getBucketID(), data, bucketAllocation);
-					} else {
-						statusInfo = getData(bucketAllocation.getBucketID(), bucketAllocation.getOffsetInt(), bucketAllocation.getSizeInt(), data,
-						        bucketAllocation);
-					}
-
-					// we use the mValue attribute since the out value (data)
-					// will most likely be null all the time.
-					sspResponse.mReturnValue = bucketAllocation.getValue();
-
-					if (_Debug) {
-						System.out.println("DATA = [" + sspResponse.mReturnValue + "]");
-					}
-
-					break;
-				}
-
-				case SSP_Operation.GET_STATE: {
-					if (_Debug) {
-						System.out.println("have a get state request");
-					}
-
-					BucketState state = new BucketState();
-
-					statusInfo = getState(bucketAllocation.getBucketID(), state, bucketAllocation);
-
-					sspResponse.mBucketState = state;
-
-					break;
-				}
-
-				case SSP_Operation.SET_DATA: {
-					if (_Debug) {
-						System.out.println("have an set data request");
-					}
-
-					byte[] data = null;
-
-					try {
-						data = bucketAllocation.getValue().getBytes(Bucket.CHARSET);
-					} catch (UnsupportedEncodingException uee) {
-						data = bucketAllocation.getValue().getBytes();
-
-						System.out.println("UnsupportedEncodingException: " + Bucket.CHARSET + " is not a " + "supported encoding.  The default "
-						        + "encoding is being used");
-					}
-
-					if (bucketAllocation.getOffset() == null) {
-						statusInfo = setData(bucketAllocation.getBucketID(), data, bucketAllocation);
-					} else {
-						statusInfo = setData(bucketAllocation.getBucketID(), bucketAllocation.getOffsetInt(), data, bucketAllocation);
-					}
-
-					break;
-				}
-
-				default: {
-					sspResponse.mReturnValue = null;
-				}
-				}
-			} else {
-				switch (operationType) {
-				case SSP_Operation.ALLOCATE: {
-					statusInfo.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.INVALID_SET_PARMS);
-
-					bucketAllocation.setAllocationStatus(SuccessStatus.FAILURE);
-
-					break;
-				}
-
-				case SSP_Operation.APPEND_DATA:
-				case SSP_Operation.SET_DATA: {
-					statusInfo.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.INVALID_SET_PARMS);
-
-					break;
-				}
-
-				case SSP_Operation.GET_DATA:
-				case SSP_Operation.GET_STATE: {
-					sspResponse.mReturnValue = "";
-					statusInfo.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.INVALID_GET_PARMS);
-
-					break;
-				}
-
-				default: {
-					sspResponse.mReturnValue = null;
-				}
-				}
+				}	sspResponse.mBucketID = request.mBucketID;
+				sspResponse.mStudentID = request.mStudentID;
+				sspResponse.mCourseID = request.mCourseID;
+				sspResponse.mSCOID = request.mSCOID;
+				sspResponse.mAttemptID = request.mAttemptID;
+				sspResponse.mManagedBucketInfo = new ManagedBucket(request.mBucketID);
+				sspResponse.mManagedBucketInfo.setSuccessStatus(bucketAllocation.getAllocationStatus());
+				sspResponse.mStatusInfo = statusInfo;
+				if (_Debug) {
+					System.out.println("about to write the response");
+				}	out.writeObject(sspResponse);
+				// Close the input and output streams
 			}
-			sspResponse.mBucketID = request.mBucketID;
-			sspResponse.mStudentID = request.mStudentID;
-			sspResponse.mCourseID = request.mCourseID;
-			sspResponse.mSCOID = request.mSCOID;
-			sspResponse.mAttemptID = request.mAttemptID;
-			sspResponse.mManagedBucketInfo = new ManagedBucket(request.mBucketID);
-			sspResponse.mManagedBucketInfo.setSuccessStatus(bucketAllocation.getAllocationStatus());
-
-			sspResponse.mStatusInfo = statusInfo;
-
-			if (_Debug) {
-				System.out.println("about to write the response");
-			}
-
-			out.writeObject(sspResponse);
-
-			// Close the input and output streams
-			in.close();
 			out.close();
 		} catch (ClassNotFoundException cnfe) {
 			cnfe.printStackTrace();
@@ -668,6 +657,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo getAllocationSuccess(String iBucketID, Integer oSuccessStatus) {
 		// This should never be called here in the servlet.
 		return null;
@@ -683,6 +673,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo getBucketIDs(String[] oBucketIDs) {
 		// This should never be called here in the servlet.
 
@@ -698,6 +689,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo getData(String iBucketID, byte[] oData, BucketAllocation iBucketAllocation) {
 		StatusInfo status = new StatusInfo();
 
@@ -719,16 +711,16 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 					}
 				}
 
-				status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+				status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 			} else {
 				if (iBucketAllocation.getAllocationStatus() == SuccessStatus.FAILURE) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_GET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_GET;
 				} else {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_GET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_GET;
 				}
 			}
 		} else {
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 		}
 
 		return status;
@@ -747,6 +739,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo getData(String iBucketID, int iOffset, int iSize, byte[] oData, BucketAllocation iBucketAllocation) {
 		StatusInfo status = new StatusInfo();
 
@@ -771,7 +764,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				String allData;
 
 				if (offset > (bucket.getUsed() / 2)) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.OFFSET_EXCEEDS_BUCKET_SIZE_GET);
+					status.mErrorCode = SSP_DMErrorCodes.OFFSET_EXCEEDS_BUCKET_SIZE_GET;
 				} else {
 					allDataRaw = bucket.getData();
 
@@ -789,20 +782,20 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 
 						if (total > used) {
 							reqData = "";
-							status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.REQUESTED_SIZE_EXCEEDED_AVAIL);
+							status.mErrorCode = SSP_DMErrorCodes.REQUESTED_SIZE_EXCEEDED_AVAIL;
 						} else {
 							reqData = allData.substring(offset, total);
 
-							status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+							status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 						}
 					} else if (iSize == -1) {
 						reqData = allData.substring(offset);
 
-						status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+						status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 					} else {
 						reqData = "";
 
-						status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+						status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 					}
 
 					try {
@@ -822,13 +815,13 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				}
 			} else {
 				if (iBucketAllocation.getAllocationStatus() == SuccessStatus.FAILURE) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_GET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_GET;
 				} else {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_GET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_GET;
 				}
 			}
 		} else {
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 		}
 
 		if (oData == null) {
@@ -853,6 +846,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo getState(String iBucketID, BucketState oState, BucketAllocation iBucketAllocation) {
 		StatusInfo status = new StatusInfo();
 
@@ -863,19 +857,19 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 
 			if (bucket != null) {
 				oState.mBucketType = bucket.getBucketType();
-				oState.mTotalSpace = Integer.valueOf(bucket.getTotalSpace());
-				oState.mUsed = Integer.valueOf(bucket.getUsed());
+				oState.mTotalSpace = bucket.getTotalSpace();
+				oState.mUsed = bucket.getUsed();
 
-				status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+				status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 			} else {
 				if (iBucketAllocation.getAllocationStatus() == SuccessStatus.FAILURE) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_GET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_GET;
 				} else {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_GET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_GET;
 				}
 			}
 		} else {
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 		}
 
 		return status;
@@ -904,11 +898,12 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 		bucketFile += ".obj";
 
 		try {
-			FileOutputStream fo = new FileOutputStream(bucketFile);
-			ObjectOutputStream out_file = new ObjectOutputStream(fo);
-			out_file.writeObject(iBucket);
-			out_file.close();
-			fo.close();
+			try (FileOutputStream fo = new FileOutputStream(bucketFile))
+			{
+				ObjectOutputStream out_file = new ObjectOutputStream(fo);
+				out_file.writeObject(iBucket);
+				out_file.close();
+			}
 			result = true;
 		} catch (Exception e) {
 			result = false;
@@ -955,11 +950,12 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 			}
 
 			try {
-				FileInputStream fis = new FileInputStream(bucketFile);
-				ObjectInputStream ois = new ObjectInputStream(fis);
-				bucket = (Bucket) ois.readObject();
-				ois.close();
-				fis.close();
+				try (FileInputStream fis = new FileInputStream(bucketFile))
+				{
+					ObjectInputStream ois = new ObjectInputStream(fis);
+					bucket = (Bucket) ois.readObject();
+					ois.close();
+				}
 			} catch (Exception exception) {
 				System.out.println("caught exception while accessing the " + "serialized file");
 				bucket = null;
@@ -1097,87 +1093,88 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 
 		try {
 			new SSP_DBHandler();
-			Connection conn = SSP_DBHandler.getConnection();
-			Statement stmtSelectSSP_BucketTbl = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-			String sqlSelectSSP_BucketTbl = "";
-
-			if (iLearnerID != null) {
-				sqlSelectSSP_BucketTbl = "LearnerID = '" + iLearnerID + "'";
-			}
-
-			if (iBucketID != null) {
-				if (sqlSelectSSP_BucketTbl != "") {
+			try (Connection conn = SSP_DBHandler.getConnection())
+			{
+				Statement stmtSelectSSP_BucketTbl = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+				
+				String sqlSelectSSP_BucketTbl = "";
+				
+				if (iLearnerID != null) {
+					sqlSelectSSP_BucketTbl = "LearnerID = '" + iLearnerID + "'";
+				}
+				
+				if (iBucketID != null) {
+					if (!"".equals( sqlSelectSSP_BucketTbl )) {
+						sqlSelectSSP_BucketTbl += " AND ";
+					}
+					sqlSelectSSP_BucketTbl += "BucketID = '" + iBucketID + "'";
+				}
+				
+				if (iCourseID != null) {
+					if (!"".equals( sqlSelectSSP_BucketTbl )) {
+						sqlSelectSSP_BucketTbl += " AND ";
+					}
+					sqlSelectSSP_BucketTbl += "CourseID = '" + iCourseID + "'";
+				}
+				
+				if (iSCOID != null) {
+					if (!"".equals( sqlSelectSSP_BucketTbl )) {
+						sqlSelectSSP_BucketTbl += " AND ";
+					}
+					sqlSelectSSP_BucketTbl += "SCOID = '" + iSCOID + "'";
+				}
+				
+				if (iManagedBucketIndex >= 0) {
+					if (!"".equals( sqlSelectSSP_BucketTbl )) {
+						sqlSelectSSP_BucketTbl += " AND ";
+					}
+					sqlSelectSSP_BucketTbl += "ManagedBucketIndex = " + iManagedBucketIndex;
+				}
+				
+				if (!"".equals( sqlSelectSSP_BucketTbl )) {
 					sqlSelectSSP_BucketTbl += " AND ";
 				}
-				sqlSelectSSP_BucketTbl += "BucketID = '" + iBucketID + "'";
-			}
-
-			if (iCourseID != null) {
-				if (sqlSelectSSP_BucketTbl != "") {
-					sqlSelectSSP_BucketTbl += " AND ";
+				sqlSelectSSP_BucketTbl += "ReallocateFailure = " + iReallocateFailure;
+				
+				if (iPersistence != -1) {
+					if (StringUtils.isNotEmpty(sqlSelectSSP_BucketTbl)) {
+						sqlSelectSSP_BucketTbl += " AND ";
+					}
+					sqlSelectSSP_BucketTbl += "Persistence = " + iPersistence;
 				}
-				sqlSelectSSP_BucketTbl += "CourseID = '" + iCourseID + "'";
-			}
 
-			if (iSCOID != null) {
-				if (sqlSelectSSP_BucketTbl != "") {
-					sqlSelectSSP_BucketTbl += " AND ";
+				sqlSelectSSP_BucketTbl = "SELECT * FROM SSP_BucketAllocateTbl WHERE " + sqlSelectSSP_BucketTbl;
+				
+				if (_Debug) {
+					System.out.println("SQL stmt in retieve record: " + sqlSelectSSP_BucketTbl);
 				}
-				sqlSelectSSP_BucketTbl += "SCOID = '" + iSCOID + "'";
-			}
-
-			if (iManagedBucketIndex >= 0) {
-				if (sqlSelectSSP_BucketTbl != "") {
-					sqlSelectSSP_BucketTbl += " AND ";
+				
+				synchronized (stmtSelectSSP_BucketTbl) {
+					rsSSP_BucketTbl = stmtSelectSSP_BucketTbl.executeQuery(sqlSelectSSP_BucketTbl);
 				}
-				sqlSelectSSP_BucketTbl += "ManagedBucketIndex = " + iManagedBucketIndex;
-			}
-
-			if (sqlSelectSSP_BucketTbl != "") {
-				sqlSelectSSP_BucketTbl += " AND ";
-			}
-			sqlSelectSSP_BucketTbl += "ReallocateFailure = " + iReallocateFailure;
-
-			if (iPersistence != -1) {
-				if (StringUtils.isNotEmpty(sqlSelectSSP_BucketTbl)) {
-					sqlSelectSSP_BucketTbl += " AND ";
+				
+				// determine how many records came back
+				int bucketCount = 0;
+				while (rsSSP_BucketTbl.next()) {
+					bucketCount++;
 				}
-				sqlSelectSSP_BucketTbl += "Persistence = " + iPersistence;
+				
+				if (bucketCount == 1) {
+					rsSSP_BucketTbl.first();
+					
+					result.setAllocationStatus(rsSSP_BucketTbl.getInt("Status"));
+					result.setBucketID(iBucketID);
+					result.setBucketType(rsSSP_BucketTbl.getString("BucketType"));
+					result.setMinimumSizeInt(rsSSP_BucketTbl.getInt("Min"));
+					result.setPersistence(rsSSP_BucketTbl.getInt("Persistence"));
+					result.setReducibleBoolean(rsSSP_BucketTbl.getBoolean("Reducible"));
+					result.setRequestedSizeInt(rsSSP_BucketTbl.getInt("Requested"));
+					result.setSCOID(iSCOID);
+					result.setActivityID(rsSSP_BucketTbl.getInt("ActivityID"));
+				}
+				
+				stmtSelectSSP_BucketTbl.close();
 			}
-
-			sqlSelectSSP_BucketTbl = "SELECT * FROM SSP_BucketAllocateTbl WHERE " + sqlSelectSSP_BucketTbl;
-
-			if (_Debug) {
-				System.out.println("SQL stmt in retieve record: " + sqlSelectSSP_BucketTbl);
-			}
-
-			synchronized (stmtSelectSSP_BucketTbl) {
-				rsSSP_BucketTbl = stmtSelectSSP_BucketTbl.executeQuery(sqlSelectSSP_BucketTbl);
-			}
-
-			// determine how many records came back
-			int bucketCount = 0;
-			while (rsSSP_BucketTbl.next()) {
-				bucketCount++;
-			}
-
-			if (bucketCount == 1) {
-				rsSSP_BucketTbl.first();
-
-				result.setAllocationStatus(rsSSP_BucketTbl.getInt("Status"));
-				result.setBucketID(iBucketID);
-				result.setBucketType(rsSSP_BucketTbl.getString("BucketType"));
-				result.setMinimumSizeInt(rsSSP_BucketTbl.getInt("Min"));
-				result.setPersistence(rsSSP_BucketTbl.getInt("Persistence"));
-				result.setReducibleBoolean(rsSSP_BucketTbl.getBoolean("Reducible"));
-				result.setRequestedSizeInt(rsSSP_BucketTbl.getInt("Requested"));
-				result.setSCOID(iSCOID);
-				result.setActivityID(rsSSP_BucketTbl.getInt("ActivityID"));
-			}
-
-			stmtSelectSSP_BucketTbl.close();
-			conn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1195,6 +1192,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo setData(String iBucketID, byte[] iData, BucketAllocation iBucketAllocation) {
 		boolean operationSuccess = false;
 		boolean persisted = false;
@@ -1222,7 +1220,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				int newTotal = incomingData.length();
 
 				if (newTotal > totalSpace) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_SIZE_EXCEEDED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_SIZE_EXCEEDED_SET;
 				} else {
 					// store the result of this operation in the bucket.
 					try {
@@ -1238,17 +1236,17 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 				}
 
 				if (operationSuccess && persisted) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+					status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 				}
 			} else {
 				if (iBucketAllocation.getAllocationStatus() == SuccessStatus.FAILURE) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_SET;
 				} else {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_SET;
 				}
 			}
 		} else {
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 		}
 
 		return status;
@@ -1266,6 +1264,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 	 *
 	 * @return - Status or result information about the outcome of this call.
 	 */
+	@Override
 	public StatusInfo setData(String iBucketID, int iOffset, byte[] iData, BucketAllocation iBucketAllocation) {
 		boolean operationSuccess = false;
 		boolean persisted = false;
@@ -1279,9 +1278,9 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 
 			if (bucket != null) {
 				if (offset > (bucket.getTotalSpace() / 2)) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.OFFSET_EXCEEDS_BUCKET_SIZE_SET);
+					status.mErrorCode = SSP_DMErrorCodes.OFFSET_EXCEEDS_BUCKET_SIZE_SET;
 				} else if (offset > (bucket.getUsed() / 2)) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_PACKED);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_PACKED;
 				} else {
 					String incomingData;
 
@@ -1319,7 +1318,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 					int newTotal = newData.length();
 
 					if (newTotal > totalSpace) {
-						status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_SIZE_EXCEEDED_SET);
+						status.mErrorCode = SSP_DMErrorCodes.BUCKET_SIZE_EXCEEDED_SET;
 					} else {
 						// store the result of this operation in the bucket.
 						try {
@@ -1335,18 +1334,18 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 					}
 
 					if (operationSuccess && persisted) {
-						status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.NO_ERROR);
+						status.mErrorCode = SSP_DMErrorCodes.NO_ERROR;
 					}
 				}
 			} else {
 				if (iBucketAllocation.getAllocationStatus() == SuccessStatus.FAILURE) {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_IMPROPERLY_DECLARED_SET;
 				} else {
-					status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_SET);
+					status.mErrorCode = SSP_DMErrorCodes.BUCKET_NOT_ALLOCATED_SET;
 				}
 			}
 		} else {
-			status.mErrorCode = Integer.valueOf(SSP_DMErrorCodes.TYPE_MISMATCH);
+			status.mErrorCode = SSP_DMErrorCodes.TYPE_MISMATCH;
 		}
 
 		return status;
@@ -1371,59 +1370,58 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 			}
 
 			new SSP_DBHandler();
-			Connection conn = SSP_DBHandler.getConnection();
-
-			PreparedStatement stmtInsertBucket;
-
-			if (iDescription.getReallocateFailure() == false) {
-				String sqlInsertBucket = "INSERT INTO SSP_BucketAllocateTbl (CourseID, LearnerID, " + "BucketID, BucketType, Persistence, Min, Requested, "
-				        + "Reducible, Status, AttemptID, ManagedBucketIndex, SCOID) " + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-				stmtInsertBucket = conn.prepareStatement(sqlInsertBucket);
-
-				synchronized (stmtInsertBucket) {
-					stmtInsertBucket.setString(1, iDescription.getCourseID());
-					stmtInsertBucket.setString(2, iDescription.getStudentID());
-					stmtInsertBucket.setString(3, iDescription.getBucketID());
-					stmtInsertBucket.setString(4, iDescription.getBucketType());
-					stmtInsertBucket.setInt(5, iDescription.getPersistence());
-					stmtInsertBucket.setInt(6, iDescription.getMinimumSizeInt());
-					stmtInsertBucket.setInt(7, iDescription.getRequestedSizeInt());
-					stmtInsertBucket.setBoolean(8, iDescription.getReducibleBoolean());
-					stmtInsertBucket.setInt(9, iDescription.getAllocationStatus());
-					stmtInsertBucket.setString(10, iDescription.getAttemptID());
-					stmtInsertBucket.setInt(11, iDescription.getManagedBucketIndex());
-					stmtInsertBucket.setString(12, iDescription.getSCOID());
-					stmtInsertBucket.executeUpdate();
+			try (Connection conn = SSP_DBHandler.getConnection())
+			{
+				PreparedStatement stmtInsertBucket;
+				
+				if (iDescription.getReallocateFailure() == false) {
+					String sqlInsertBucket = "INSERT INTO SSP_BucketAllocateTbl (CourseID, LearnerID, " + "BucketID, BucketType, Persistence, Min, Requested, "
+							+ "Reducible, Status, AttemptID, ManagedBucketIndex, SCOID) " + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					
+					stmtInsertBucket = conn.prepareStatement(sqlInsertBucket);
+					
+					synchronized (stmtInsertBucket) {
+						stmtInsertBucket.setString(1, iDescription.getCourseID());
+						stmtInsertBucket.setString(2, iDescription.getStudentID());
+						stmtInsertBucket.setString(3, iDescription.getBucketID());
+						stmtInsertBucket.setString(4, iDescription.getBucketType());
+						stmtInsertBucket.setInt(5, iDescription.getPersistence());
+						stmtInsertBucket.setInt(6, iDescription.getMinimumSizeInt());
+						stmtInsertBucket.setInt(7, iDescription.getRequestedSizeInt());
+						stmtInsertBucket.setBoolean(8, iDescription.getReducibleBoolean());
+						stmtInsertBucket.setInt(9, iDescription.getAllocationStatus());
+						stmtInsertBucket.setString(10, iDescription.getAttemptID());
+						stmtInsertBucket.setInt(11, iDescription.getManagedBucketIndex());
+						stmtInsertBucket.setString(12, iDescription.getSCOID());
+						stmtInsertBucket.executeUpdate();
+					}
+				} else {
+					String sqlInsertBucket = "INSERT INTO SSP_BucketAllocateTbl (CourseID, LearnerID, " + "BucketID, BucketType, Persistence, Min, Requested, "
+							+ "Reducible, Status, AttemptID, ManagedBucketIndex," + "SCOID, ReallocateFailure) " + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					
+					stmtInsertBucket = conn.prepareStatement(sqlInsertBucket);
+					
+					synchronized (stmtInsertBucket) {
+						stmtInsertBucket.setString(1, iDescription.getCourseID());
+						stmtInsertBucket.setString(2, iDescription.getStudentID());
+						stmtInsertBucket.setString(3, iDescription.getBucketID());
+						stmtInsertBucket.setString(4, iDescription.getBucketType());
+						stmtInsertBucket.setInt(5, iDescription.getPersistence());
+						stmtInsertBucket.setInt(6, iDescription.getMinimumSizeInt());
+						stmtInsertBucket.setInt(7, iDescription.getRequestedSizeInt());
+						stmtInsertBucket.setBoolean(8, iDescription.getReducibleBoolean());
+						stmtInsertBucket.setInt(9, iDescription.getAllocationStatus());
+						stmtInsertBucket.setString(10, iDescription.getAttemptID());
+						stmtInsertBucket.setInt(11, iDescription.getManagedBucketIndex());
+						stmtInsertBucket.setString(12, iDescription.getSCOID());
+						stmtInsertBucket.setBoolean(13, true);
+						stmtInsertBucket.executeUpdate();
+					}
 				}
-			} else {
-				String sqlInsertBucket = "INSERT INTO SSP_BucketAllocateTbl (CourseID, LearnerID, " + "BucketID, BucketType, Persistence, Min, Requested, "
-				        + "Reducible, Status, AttemptID, ManagedBucketIndex," + "SCOID, ReallocateFailure) " + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-				stmtInsertBucket = conn.prepareStatement(sqlInsertBucket);
-
-				synchronized (stmtInsertBucket) {
-					stmtInsertBucket.setString(1, iDescription.getCourseID());
-					stmtInsertBucket.setString(2, iDescription.getStudentID());
-					stmtInsertBucket.setString(3, iDescription.getBucketID());
-					stmtInsertBucket.setString(4, iDescription.getBucketType());
-					stmtInsertBucket.setInt(5, iDescription.getPersistence());
-					stmtInsertBucket.setInt(6, iDescription.getMinimumSizeInt());
-					stmtInsertBucket.setInt(7, iDescription.getRequestedSizeInt());
-					stmtInsertBucket.setBoolean(8, iDescription.getReducibleBoolean());
-					stmtInsertBucket.setInt(9, iDescription.getAllocationStatus());
-					stmtInsertBucket.setString(10, iDescription.getAttemptID());
-					stmtInsertBucket.setInt(11, iDescription.getManagedBucketIndex());
-					stmtInsertBucket.setString(12, iDescription.getSCOID());
-					stmtInsertBucket.setBoolean(13, true);
-					stmtInsertBucket.executeUpdate();
-				}
+				
+				// Close the statements
+				stmtInsertBucket.close();
 			}
-
-			// Close the statements
-			stmtInsertBucket.close();
-
-			conn.close();
 
 		} catch (Exception e) {
 			result = false;

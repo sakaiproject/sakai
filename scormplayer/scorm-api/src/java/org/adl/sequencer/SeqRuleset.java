@@ -170,15 +170,19 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		SeqRuleset other = (SeqRuleset) obj;
-		if (id != other.id)
+		if (id != other.id){
 			return false;
+		}
 		return true;
 	}
 
@@ -201,6 +205,7 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 	 * @return A sequencing request (<code>String</code>) or <code>null</code>.
 	 * @see org.adl.sequencer.SeqRuleset
 	 */
+	@Override
 	public String evaluate(int iType, ISeqActivity iThisActivity, boolean iRetry) {
 		if (_Debug) {
 			System.out.println("  :: SeqRuleset   --> BEGIN - evaluate");
@@ -251,9 +256,11 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 	    * 
 	    * @return The count of rollup rules in this set.
 	    */
+	@Override
 	public int size() {
-		if (mRules != null)
+		if (mRules != null){
 			return mRules.size();
+		}
 
 		return 0;
 	}

@@ -112,9 +112,10 @@ public class ManagedBucket implements Serializable {
 		// The range for this enumerated value is 0 - 3 based on the
 		// SuccessStatus enumeration class.  If the value is not in this range
 		// throw an IllegalArgumentException.
-		if (iSuccessStatus >= 4)
+		if (iSuccessStatus >= 4){
 			throw new IllegalArgumentException("The value provided for parameter (iSuccessStatus) is not in the "
-			        + "range of valid values provided in the SuccessStatus enumeration " + "class.");
+					+ "range of valid values provided in the SuccessStatus enumeration " + "class.");
+		}
 		mSuccessStatus = iSuccessStatus;
 	}
 
@@ -165,9 +166,10 @@ public class ManagedBucket implements Serializable {
 		// The range for this enumerated value is 0 - 3 based on the
 		// SuccessStatus enumeration class.  If the value is not in this range
 		// throw an IllegalArgumentException.
-		if (iSuccessStatus >= 4)
+		if (iSuccessStatus >= 4){
 			throw new IllegalArgumentException("The value provided for parameter (iSuccessStatus) is not in the "
-			        + "range of valid values provided in the SuccessStatus enumeration " + "class.");
+					+ "range of valid values provided in the SuccessStatus enumeration " + "class.");
+		}
 
 		mSuccessStatus = iSuccessStatus;
 	}

@@ -46,12 +46,14 @@ import java.lang.ref.SoftReference;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
+import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
+
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
-public class CompressingContentPackageResourceStream extends ContentPackageResourceStream {
-
+public class CompressingContentPackageResourceStream extends ContentPackageResourceStream
+{
 	private static final long serialVersionUID = 1L;
 
 	/** Cache for compressed data */
@@ -60,18 +62,22 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 	/** Timestamp of the cache */
 	private Time timeStamp = null;
 
-	public CompressingContentPackageResourceStream(ContentPackageResource resource) {
+	public CompressingContentPackageResourceStream(ContentPackageResource resource)
+	{
 		super(resource);
 	}
 
 	@Override
-	public InputStream getInputStream() throws ResourceStreamNotFoundException {
+	public InputStream getInputStream() throws ResourceStreamNotFoundException
+	{
 		return new ByteArrayInputStream(getCompressedContent());
 	}
 
-	private byte[] getCompressedContent() throws ResourceStreamNotFoundException {
+	private byte[] getCompressedContent() throws ResourceStreamNotFoundException
+	{
 		InputStream stream = super.getInputStream();
-		try {
+		try
+		{
 			byte ret[] = (byte[]) cache.get();
 			if (ret != null && timeStamp != null)
 			{
@@ -82,30 +88,33 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 			}
 
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			GZIPOutputStream zout = new GZIPOutputStream(out);
-			Streams.copy(stream, zout);
-			zout.close();
+			try (GZIPOutputStream zout = new GZIPOutputStream(out))
+			{
+				Streams.copy(stream, zout);
+			}
 			stream.close();
 			ret = out.toByteArray();
 			timeStamp = lastModifiedTime();
 			cache = new SoftReference(ret);
 			return ret;
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
-	public long length() 
+	public Bytes length()
 	{
-		try {
-	        return getCompressedContent().length;
-        } catch (ResourceStreamNotFoundException e) {
-        	// No content, return null
-	        return 0;
-        }
+		try
+		{
+			return Bytes.bytes(getCompressedContent().length);
+		}
+		catch (ResourceStreamNotFoundException e)
+		{
+			// No content, return null
+			return Bytes.bytes(0);
+		}
 	}
-
 }

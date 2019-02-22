@@ -26,112 +26,117 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class ZipWriter {
+import lombok.Getter;
 
-	public static class Entry {
-		String name;
+public class ZipWriter
+{
+	public static class Entry
+	{
+		@Getter String name;
+		@Getter InputStream contentStream;
 
-		InputStream contentStream;
-
-		public Entry(String name, InputStream contentStream) {
+		public Entry(String name, InputStream contentStream)
+		{
 			this.name = name;
 			this.contentStream = contentStream;
-		}
-
-		public InputStream getContentStream() {
-			return contentStream;
-		}
-
-		public String getName() {
-			return name;
 		}
 	}
 
 	private ZipInputStream inStream;
-
 	private ZipOutputStream outStream;
+	private Set<String> removeSet = new HashSet<>();
+	private List<Entry> addList = new LinkedList<>();
 
-	private Set<String> removeSet = new HashSet<String>();
-
-	private List<Entry> addList = new LinkedList<Entry>();
-
-	public ZipWriter(InputStream contentStream, OutputStream resultStream) {
+	public ZipWriter(InputStream contentStream, OutputStream resultStream)
+	{
 		this.inStream = new ZipInputStream(contentStream);
 		this.outStream = new ZipOutputStream(resultStream);
 	}
 
-	public void add(String name, InputStream entryStream) {
+	public void add(String name, InputStream entryStream)
+	{
 		addList.add(new Entry(name, entryStream));
 	}
 
-	private void addEntry(String entryName, InputStream contentStream) throws IOException {
+	private void addEntry(String entryName, InputStream contentStream) throws IOException
+	{
 		outStream.setMethod(ZipOutputStream.DEFLATED);
 		outStream.putNextEntry(new ZipEntry(entryName));
 		int len;
 		byte[] buf = new byte[1024];
 
-		while ((len = contentStream.read(buf)) > 0) {
+		while ((len = contentStream.read(buf)) > 0)
+		{
 			outStream.write(buf, 0, len);
 		}
-
-		//zipContentStream.close();
-
-		//outStream.closeEntry();
 	}
 
-	private void addEntry(ZipEntry entry, InputStream contentStream) throws IOException {
-		try {
+	private void addEntry(ZipEntry entry, InputStream contentStream) throws IOException
+	{
+		try
+		{
 			outStream.setMethod(ZipOutputStream.STORED);
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException e)
+		{
 			throw new IOException("IllegalArgumentException in " + this.getClass().getName() + ".addEntry() for " + entry.toString());
 		}
+
 		outStream.putNextEntry(entry);
 		int len;
 		byte[] buf = new byte[1024];
 
 		ZipInputStream zipContentStream = null;
 
-		if (contentStream instanceof ZipInputStream) {
+		if (contentStream instanceof ZipInputStream)
+		{
 			zipContentStream = (ZipInputStream) contentStream;
-		} else {
+		}
+		else
+		{
 			zipContentStream = new ZipInputStream(contentStream);
 		}
 
-		while ((len = zipContentStream.read(buf)) > 0) {
+		while ((len = zipContentStream.read(buf)) > 0)
+		{
 			outStream.write(buf, 0, len);
 		}
-
-		//zipContentStream.close();
-
-		//outStream.closeEntry();
 	}
 
-	public void process() throws IOException {
+	public void process() throws IOException
+	{
 		ZipEntry entry;
-
 		entry = inStream.getNextEntry();
-		while (entry != null) {
-			if (!removeSet.contains(entry.getName())) {
+		while (entry != null)
+		{
+			if (!removeSet.contains(entry.getName()))
+			{
 				addEntry(new ZipEntry(entry), inStream);
 			}
+
 			entry = inStream.getNextEntry();
 		}
-		for (Entry e : addList) {
+
+		for (Entry e : addList)
+		{
 			addEntry(e.getName(), e.getContentStream());
-			if (e.getContentStream() != null) {
+			if (e.getContentStream() != null)
+			{
 				e.getContentStream().close();
 			}
 		}
+
 		outStream.close();
 	}
 
-	public void remove(String name) {
+	public void remove(String name)
+	{
 		removeSet.add(name);
 	}
 
-	public void replace(String name, InputStream entryStream) {
+	public void replace(String name, InputStream entryStream)
+	{
 		add(name, entryStream);
 		remove(name);
 	}
-
 }

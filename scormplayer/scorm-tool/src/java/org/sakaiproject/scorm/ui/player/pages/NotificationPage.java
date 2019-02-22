@@ -15,8 +15,7 @@
  */
 package org.sakaiproject.scorm.ui.player.pages;
 
-
-public class NotificationPage extends BaseToolPage {
-	
+public class NotificationPage extends BaseToolPage
+{
 
 }

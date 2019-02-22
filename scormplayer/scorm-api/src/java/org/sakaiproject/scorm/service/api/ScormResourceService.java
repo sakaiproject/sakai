@@ -24,8 +24,8 @@ import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
-public interface ScormResourceService {
-
+public interface ScormResourceService
+{
 	public String convertArchive(String resourceId, String title) throws InvalidArchiveException, ResourceStorageException;
 
 	public Archive getArchive(String resourceId) throws ResourceStorageException;
@@ -43,5 +43,4 @@ public interface ScormResourceService {
 	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) throws ResourceStorageException;
 
 	public void removeResources(String collectionId) throws ResourceNotDeletedException;
-
 }

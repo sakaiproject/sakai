@@ -109,8 +109,8 @@ public class MDValidator extends ADLSCORMValidator {
 		mMetadataRulesValidator = new RulesValidator("metadata");
 		mTypeValue = "";
 		mNameValue = "";
-		mMetadataSchemaNodeList = new ArrayList<Node>();
-		mLifecycleContributeVocabList = new ArrayList<String>();
+		mMetadataSchemaNodeList = new ArrayList<>();
+		mLifecycleContributeVocabList = new ArrayList<>();
 	}
 
 	/**
@@ -676,7 +676,7 @@ public class MDValidator extends ADLSCORMValidator {
 		String msgText = "";
 
 		if (iCurrentChildName.equalsIgnoreCase("name")) {
-			if (!mTypeValue.equals("")) {
+			if (!mTypeValue.isEmpty()) {
 				if (mTypeValue.equals("operating system")
 				        && (!mNameValue.equals("pc-dos") && !mNameValue.equals("ms-windows") && !mNameValue.equals("macos") && !mNameValue.equals("unix")
 				                && !mNameValue.equals("multi-os") && !mNameValue.equals("none"))) {
@@ -849,7 +849,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 		if (iSPMRule != -1) {
 			if (elementValueLength > iSPMRule) {
-				msgText = Messages.getString("MDValidator.154", iElementName, Integer.valueOf(iSPMRule).toString());
+				msgText = Messages.getString("MDValidator.154", iElementName, Integer.toString(iSPMRule));
 				mLogger.info("WARNING: " + msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 			} else if (elementValueLength < 1) {
@@ -1202,7 +1202,7 @@ public class MDValidator extends ADLSCORMValidator {
 				// update the path for this child element
 				String path;
 
-				if (iPath.equals("") || parentNodeName.equalsIgnoreCase("lom")) {
+				if (iPath.isEmpty() || parentNodeName.equalsIgnoreCase("lom")) {
 					// the Node is a DOCUMENT OR
 					// the Node is a <lom>
 
@@ -1271,7 +1271,7 @@ public class MDValidator extends ADLSCORMValidator {
 						        || dataType.equalsIgnoreCase("nametypepair") || dataType.equalsIgnoreCase("datetime")
 						        || dataType.equalsIgnoreCase("metadataschema") || dataType.equalsIgnoreCase("duration")) {
 
-							if (!lastChildChecked.equals(currentChildName) || lastChildChecked.equals("")) {
+							if (!lastChildChecked.equals(currentChildName) || lastChildChecked.isEmpty()) {
 								lastChildChecked = currentChildName;
 								multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, currentChildName);
 								//get the min rule and convert to an int

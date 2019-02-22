@@ -24,85 +24,100 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.scorm.content.impl.ZipWriter;
 
-public class ZipWriterTest extends TestCase {
-
-	public void testOne() throws Exception {
-
+public class ZipWriterTest extends TestCase
+{
+	public void testOne() throws Exception
+	{
 		boolean testFailure = false;
-		StringBuffer msg = new StringBuffer();
+		StringBuilder msg = new StringBuilder();
 
 		String testFileName = System.getProperty("testZipFileName"); //defined in pom
-		
 		testFileName = (testFileName != null ? testFileName : "testZipFile.zip");
-
 		java.net.URL testURL = this.getClass().getClassLoader().getResource(testFileName);
 
-		if (testURL != null) {
+		if (testURL != null)
+		{
 			FileInputStream contentStream = null;
 			String path = testURL.getFile();
 			path = URLDecoder.decode(path, "UTF-8");
 			FileInputStream in = new FileInputStream(path);
-			String newName = path.substring(0, path.lastIndexOf("/") + 1) + "myresult.zip";
+			String newName = path.substring(0, path.lastIndexOf('/') + 1) + "myresult.zip";
 
 			FileOutputStream out = new FileOutputStream(newName);
-
 			ZipWriter writer = new ZipWriter(in, out);
 
 			testFileName = System.getProperty("testAddFileName"); //defined in pom
 			testFileName = (testFileName != null ? testFileName : "applicationContext.xml");
 			testURL = this.getClass().getClassLoader().getResource(testFileName);
 
-			if (testURL != null) {
+			if (testURL != null)
+			{
 				contentStream = new FileInputStream(path);
-
-				try {
+				try
+				{
 					writer.add("applicationContext.xml", contentStream);
-
-				} catch (UnsupportedOperationException wtf) {
-					msg.append("the add method is not supported by this list\n" + wtf.getMessage());
+				} 
+				catch (UnsupportedOperationException wtf)
+				{
+					msg.append( "the add method is not supported by this list\n" ).append(wtf.getMessage());
 					System.out.println("the add method is not supported by this list\n");
 					testFailure = true;
-				} catch (ClassCastException wtf) {
+				}
+				catch (ClassCastException wtf)
+				{
 					msg.append("the class of the specified element prevents it from being added to this list\n");
 					System.out.println("the class of the specified element prevents it from being added to this list\n" + wtf.getMessage());
 					testFailure = true;
-				} catch (NullPointerException npe) {
+				}
+				catch (NullPointerException npe)
+				{
 					msg.append("the specified element is null and this list does not support null elements\n");
 					System.out.println("the specified element is null and this list does not support null elements\n" + npe.getMessage());
 					testFailure = true;
-				} catch (IllegalArgumentException wtf) {
+				}
+				catch (IllegalArgumentException wtf)
+				{
 					msg.append("some aspect of this element prevents it from being added to this list\n");
 					System.out.println("some aspect of this element prevents it from being added to this list\n" + wtf.getMessage());
 					testFailure = true;
 				}
-				//writer.add("dir/file4.txt", contentStream);
-				//writer.remove("file.txt");
-				try {
+
+				try
+				{
 					writer.process();
-				} catch (IOException io) {
+				} 
+				catch (IOException io)
+				{
 					msg.append("IO Error\n");
 					System.out.println("IO Error\n" + io.getMessage());
 					testFailure = true;
-				} catch (Exception e) {
+				} 
+				catch (Exception e)
+				{
 					msg.append("General Exception during processing\n");
 					System.out.println("General Exception during processing\n" + e.getMessage());
 					testFailure = true;
 				}
 
-				if (contentStream != null) {
+				if (contentStream != null)
+				{
 					contentStream.close();
 				}
-			} else {
+			}
+			else
+			{
 				System.out.println("file not found: " + testFileName + "\n");
 				testFailure = true;
 			}
-		} else {///could not find test zip file
-			msg.append("file not found: " + testFileName + "\n");
+		}
+		else
+		{
+			///could not find test zip file
+			msg.append( "file not found: " ).append( testFileName ).append("\n");
 			System.out.println("file not found: " + testFileName + "\n");
 			testFailure = true;
 		}
 
 		assertFalse(msg.toString(), testFailure);
 	}
-
 }

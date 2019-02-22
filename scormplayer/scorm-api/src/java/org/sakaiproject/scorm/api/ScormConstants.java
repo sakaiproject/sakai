@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.scorm.api;
 
-public interface ScormConstants {
-
+public class ScormConstants
+{
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = "/scorm";
 
@@ -90,4 +90,24 @@ public interface ScormConstants {
 
 	public static final int VALIDATION_WRONGMIMETYPE = 8;
 
+	/** SCORM Player permission: configure */
+	public static final String PERM_CONFIG = "scorm.configure";
+
+	/** SCORM Player permission: delete */
+	public static final String PERM_DELETE = "scorm.delete";
+
+	/** SCORM Player permission: grade */
+	public static final String PERM_GRADE = "scorm.grade";
+
+	/** SCORM Player permission: launch */
+	public static final String PERM_LAUNCH = "scorm.launch";
+
+	/** SCORM Player permission: upload */
+	public static final String PERM_UPLOAD = "scorm.upload";
+
+	/** SCORM Player permission: validate */
+	public static final String PERM_VALIDATE = "scorm.validate";
+
+	/** SCORM Player permission: view results */
+	public static final String PERM_VIEW_RESULTS = "scorm.view.results";
 }

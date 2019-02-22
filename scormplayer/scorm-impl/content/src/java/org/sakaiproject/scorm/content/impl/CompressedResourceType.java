@@ -24,22 +24,22 @@ import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.ResourceProperties;
 
-public class CompressedResourceType extends BaseResourceType {
+public class CompressedResourceType extends BaseResourceType
+{
 	public static final String COMPRESSED_ITEM_LABEL = "Zip Entry";
-
 	public static final String COMPRESSED_ITEM_TYPE_ID = "org.sakaiproject.content.types.zipEntry";
-
 	public static final String COMPRESSED_ITEM_HELPER_ID = "sakai.zipentry.helper";
 
-	public CompressedResourceType() {
+	public CompressedResourceType()
+	{
 		List<String> requiredKeys = new ArrayList<>();
 		requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
 
-		ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, COMPRESSED_ITEM_TYPE_ID,
-				COMPRESSED_ITEM_HELPER_ID, requiredKeys) {
-
+		ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, COMPRESSED_ITEM_TYPE_ID, COMPRESSED_ITEM_HELPER_ID, requiredKeys)
+		{
 			@Override
-			public String getLabel() {
+			public String getLabel()
+			{
 				return "Add file(s)";
 			}
 		};
@@ -54,27 +54,38 @@ public class CompressedResourceType extends BaseResourceType {
 	}
 
 	@Override
-	public String getIconClass(ContentEntity entity) {
+	public String getIconClass(ContentEntity entity)
+	{
 		return "";
 	}
 
-	public String getId() {
+	@Override
+	public String getId()
+	{
 		return COMPRESSED_ITEM_TYPE_ID;
 	}
 
-	public String getLabel() {
+	@Override
+	public String getLabel()
+	{
 		return COMPRESSED_ITEM_LABEL;
 	}
 
-	public String getLocalizedHoverText(ContentEntity entity) {
+	@Override
+	public String getLocalizedHoverText(ContentEntity entity)
+	{
 		return COMPRESSED_ITEM_LABEL;
 	}
 
-	public String getLongSizeLabel(ContentEntity entity) {
+	@Override
+	public String getLongSizeLabel(ContentEntity entity)
+	{
 		return "files";
 	}
 
-	public String getSizeLabel(ContentEntity entity) {
+	@Override
+	public String getSizeLabel(ContentEntity entity)
+	{
 		return "files";
 	}
 }

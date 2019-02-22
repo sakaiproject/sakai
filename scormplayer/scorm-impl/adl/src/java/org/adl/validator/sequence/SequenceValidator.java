@@ -92,8 +92,8 @@ public class SequenceValidator {
 	public SequenceValidator() {
 		mRulesValidator = new RulesValidator("sequence");
 		mObjectiveInfo = new ObjectiveMap();
-		mReferencedObjectiveList = new ArrayList<String>();
-		mObjectivesIDList = new ArrayList<String>();
+		mReferencedObjectiveList = new ArrayList<>();
+		mObjectivesIDList = new ArrayList<>();
 
 	}
 
@@ -311,7 +311,7 @@ public class SequenceValidator {
 
 		int objNodesSize = objectivesList.size();
 
-		Set<String> objectiveIDList = new HashSet<String>();
+		Set<String> objectiveIDList = new HashSet<>();
 
 		for (int i = 0; i < objNodesSize; i++) {
 			Node currentChild = objectivesList.get(i);
@@ -625,7 +625,7 @@ public class SequenceValidator {
 				// update the path for this child element
 				String path;
 
-				if (iPath.equals("") || parentNodeName.equalsIgnoreCase("sequencing")) {
+				if (iPath.isEmpty() || parentNodeName.equalsIgnoreCase("sequencing")) {
 					// the Node is a DOCUMENT OR
 					// the Node is a <manifest>
 
@@ -702,7 +702,7 @@ public class SequenceValidator {
 							//This is a parent element
 
 							// special validation for sequencingCollection
-							if (currentChildName.equals("sequencingCollection") && iPath.equals("")) {
+							if (currentChildName.equals("sequencingCollection") && iPath.isEmpty()) {
 
 								result = checkSequencingcollection(currentChild) && result;
 							}

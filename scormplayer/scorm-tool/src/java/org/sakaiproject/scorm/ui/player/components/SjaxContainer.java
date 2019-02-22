@@ -15,19 +15,21 @@
  */
 package org.sakaiproject.scorm.ui.player.components;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.HiddenField;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
@@ -39,93 +41,76 @@ import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.behaviors.SjaxCall;
 
-public class SjaxContainer extends WebMarkupContainer implements IHeaderContributor {
-
+@Slf4j
+public class SjaxContainer extends WebMarkupContainer implements IHeaderContributor
+{
 	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(SjaxContainer.class);
-	
-	private static final ResourceReference SJAX = new JavascriptResourceReference(SjaxContainer.class, "res/scorm-sjax.js");
-	
+	private static final ResourceReference SJAX = new PackageResourceReference(SjaxContainer.class, "res/scorm-sjax.js");
+
 	@SpringBean
 	LearningManagementSystem lms;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormApplicationService")
 	ScormApplicationService applicationService;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	private UISynchronizerPanel synchronizerPanel;
 	private SjaxCall[] calls = new SjaxCall[8]; 
 	private HiddenField[] components = new HiddenField[8];
-	
-	public SjaxContainer(String id, final SessionBean sessionBean, final UISynchronizerPanel synchronizerPanel) {
+
+	public SjaxContainer(String id, final SessionBean sessionBean, final UISynchronizerPanel synchronizerPanel)
+	{
 		super(id, new Model(sessionBean));
 		this.synchronizerPanel = synchronizerPanel;
-		
-		this.setOutputMarkupId(true);
-		this.setMarkupId("sjaxContainer");
-		
-		
-		calls[0] = new ScormSjaxCall("Commit", 1);
-		
-		calls[1] = new ScormSjaxCall("GetDiagnostic", 1);
-	
-		calls[2] = new ScormSjaxCall("GetErrorString", 1);
-	
-		calls[3] = new ScormSjaxCall("GetLastError", 0);
-		
-		calls[4] = new ScormSjaxCall("GetValue", 1);
+		setOutputMarkupId(true);
+		setMarkupId("sjaxContainer");
 
-		calls[5] = new ScormSjaxCall("Initialize", 1) {
+		calls[0] = new ScormSjaxCall("Commit", 1);
+		calls[1] = new ScormSjaxCall("GetDiagnostic", 1);
+		calls[2] = new ScormSjaxCall("GetErrorString", 1);
+		calls[3] = new ScormSjaxCall("GetLastError", 0);
+		calls[4] = new ScormSjaxCall("GetValue", 1);
+		calls[5] = new ScormSjaxCall("Initialize", 1)
+		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected String callMethod(ScoBean blankScoBean, AjaxRequestTarget target, Object... args) {
-				
+			protected String callMethod(ScoBean blankScoBean, AjaxRequestTarget target, Object... args)
+			{
 				ScoBean scoBean = applicationService().produceScoBean("undefined", getSessionBean());
-				
 				String result = super.callMethod(scoBean, target, args);
-				
 				synchronizerPanel.synchronizeState(sessionBean, target);
-				
-				ActivityTree tree = synchronizerPanel.getTree();
-				if (tree != null && !tree.isEmpty()) {				
-					tree.selectNode();
-					tree.updateTree(target);
-				}
-				
 				return result;
 			}
 		};
 
 		calls[6] = new ScormSjaxCall("SetValue", 2);
-
-		calls[7] = new ScormSjaxCall("Terminate", 1) {
+		calls[7] = new ScormSjaxCall("Terminate", 1)
+		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
+			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args)
+			{
 				String result = super.callMethod(scoBean, target, args);
-						
-				ActivityTree tree = synchronizerPanel.getTree();
-				if (tree != null && !tree.isEmpty()) {
-					tree.selectNode();
-					tree.updateTree(target);
-				}
-				
 				if (scoBean != null)
+				{
 					applicationService.discardScoBean(scoBean.getScoId(), sessionBean, new LocalResourceNavigator());
-				
+				}
+
 				return result;
 			}
 		};
-		
-		
+
 		Form form = new Form("sjaxForm");
 		add(form);
-		
+
 		components[0] = addSjaxComponent("commitcall", calls[0], form);
 		components[1] = addSjaxComponent("getdiagnosticcall", calls[1], form);
 		components[2] = addSjaxComponent("geterrorstringcall", calls[2], form);
@@ -134,140 +119,158 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		components[5] = addSjaxComponent("initializecall", calls[5], form);
 		components[6] = addSjaxComponent("setvaluecall", calls[6], form);
 		components[7] = addSjaxComponent("terminatecall", calls[7], form);
-		
 	}
 
 	@Override
-	public void onBeforeRender() {
+	public void onBeforeRender()
+	{
 		super.onBeforeRender();
-		
-		for (int i=0;i<8;i++) {
+
+		for (int i = 0; i < 8; i++)
+		{
 			components[i].setModel(new Model(calls[i].getCallUrl().toString()));
 		}
 	}
-	
-	
-	private HiddenField addSjaxComponent(String callname, SjaxCall call, Form form) {
+
+	private HiddenField addSjaxComponent(String callname, SjaxCall call, Form form)
+	{
 		HiddenField cc = new HiddenField(callname); 
 		form.add(cc);
 		cc.setMarkupId(callname);
 		cc.add(call);
-		
 		return cc;
 	}
-	
-	
-	public void renderHead(IHeaderResponse response) {
-		response.renderJavascriptReference(SJAX);
-		
-		StringBuffer js = new StringBuffer();
-		
-		js.append("function APIAdapter() { };\n")	
+
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		response.render(JavaScriptHeaderItem.forReference(SJAX));
+
+		StringBuffer js = new StringBuffer()
+			.append("function APIAdapter() { };\n")
 			.append("var API_1484_11 = APIAdapter;\n")
 			.append("var api_result = new Array();\n")
 			.append("var call_number = 0;\n");
-		
-		for (int i=0;i<calls.length;i++) {
-			js.append(calls[i].getJavascriptCode()).append("\n");
+
+		for( SjaxCall call : calls )
+		{
+			js.append( call.getJavascriptCode() ).append( "\n" );
 		}
-		
-		response.renderJavascript(js.toString(), "SCORM_API");
+
+		response.render(JavaScriptHeaderItem.forScript(js.toString(), "SCORM_API"));
 	}
-	
-	public class ScormSjaxCall extends SjaxCall {
-		
+
+	public class ScormSjaxCall extends SjaxCall
+	{
 		private static final long serialVersionUID = 1L;
-		
-		public ScormSjaxCall(String event, int numArgs) {
+
+		public ScormSjaxCall(String event, int numArgs)
+		{
 			super(event, numArgs);
 		}
-		
+
 		@Override
-		protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
+		protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args)
+		{
 			String result = super.callMethod(scoBean, target, args);
-			if (log.isDebugEnabled()) {
+			if (log.isDebugEnabled())
+			{
 				String methodName = getEvent();
 				StringBuilder argDisplay = new StringBuilder();
-				for (int i=0;i<args.length;i++) {
+				for (int i = 0; i < args.length; i++)
+				{
 					argDisplay.append("'").append(args[i]).append("'");
-					if (i+1 < args.length)
+					if (i + 1 < args.length)
+					{
 						argDisplay.append(", ");
+					}
 				}
 				String display = new StringBuilder().append(methodName)
 					.append("(")
 					.append(argDisplay).append(")").append(" returns ")
 					.append("'").append(result).append("'").toString();
-				
+
 				log.debug(display);
 			}
-			
+
 			return result;
 		}
-		
+
 		@Override
-		protected void onEvent(final AjaxRequestTarget target) {
+		protected void onEvent(final AjaxRequestTarget target)
+		{
 			modelChanging();
 			super.onEvent(target);
 			modelChanged();
 		}
-		
+
 		@Override
-		protected SessionBean getSessionBean() {
+		protected SessionBean getSessionBean()
+		{
 			return (SessionBean)getDefaultModelObject();
 		}
-		
+
 		@Override
-		protected LearningManagementSystem lms() {
+		protected LearningManagementSystem lms()
+		{
 			return lms;
 		}
-		
+
 		@Override
-		protected ScormApplicationService applicationService() {
+		protected ScormApplicationService applicationService()
+		{
 			return applicationService;
 		}
 
 		@Override
-		protected ScormResourceService resourceService() {
+		protected ScormResourceService resourceService()
+		{
 			return resourceService;
 		}
-		
+
 		@Override
-		protected ScormSequencingService sequencingService() {
+		protected ScormSequencingService sequencingService()
+		{
 			return sequencingService;
 		}
-		
-		@Override
-		protected String getChannelName() {
+
+		protected String getChannelName()
+		{
 			return "1|s";
 		}
-		
+
 		@Override
-		protected INavigable getNavigationAgent() {
+		protected INavigable getNavigationAgent()
+		{
 			return new LocalResourceNavigator();
 		}
 	}
-	
-	
-	public class LocalResourceNavigator extends ResourceNavigator {
 
+	public class LocalResourceNavigator extends ResourceNavigator
+	{
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected ScormResourceService resourceService() {
+		protected ScormResourceService resourceService()
+		{
 			return SjaxContainer.this.resourceService;
 		}
-		
+
 		@Override
-		public Component getFrameComponent() {
+		public Component getFrameComponent()
+		{
 			if (synchronizerPanel != null && synchronizerPanel.getContentPanel() != null) 
+			{
 				return synchronizerPanel.getContentPanel();
+			}
+
 			return null;
 		}
-		
+
 		@Override
-		public boolean useLocationRedirect() {
+		public boolean useLocationRedirect()
+		{
 			return false;
 		}
-		
 	}
 }

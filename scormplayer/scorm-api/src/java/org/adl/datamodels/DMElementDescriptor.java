@@ -221,25 +221,31 @@ public class DMElementDescriptor implements Serializable, Cloneable {
 	}
 
 	private <T> List<T> cloneList(List<T> list) {
-		if (list != null)
-			return new ArrayList<T>(list);
+		if (list != null){
+			return new ArrayList<>(list);
+		}
 		return null;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		DMElementDescriptor other = (DMElementDescriptor) obj;
 		if (id == null) {
-			if (other.id != null)
+			if (other.id != null){
 				return false;
-		} else if (!id.equals(other.id))
+			}
+		} else if (!id.equals(other.id)){
 			return false;
+		}
 		return true;
 	}
 

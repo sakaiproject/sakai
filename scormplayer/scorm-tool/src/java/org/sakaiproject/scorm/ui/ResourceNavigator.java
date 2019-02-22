@@ -21,142 +21,155 @@ import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.util.string.AppendingStringBuffer;
+
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
-public abstract class ResourceNavigator implements INavigable, Serializable {
-
+@Slf4j
+public abstract class ResourceNavigator implements INavigable, Serializable
+{
 	private static final long serialVersionUID = 1L;
-	private static Log log = LogFactory.getLog(ResourceNavigator.class);
-	
+
 	protected abstract ScormResourceService resourceService();
-	
-	public boolean useLocationRedirect() {
+
+	public boolean useLocationRedirect()
+	{
 		return true;
 	}
-	
-	public void displayResource(final SessionBean sessionBean, Object target) {
+
+	@Override
+	public void displayResource(final SessionBean sessionBean, Object target)
+	{
 		if (null == sessionBean)
+		{
 			return;
-		
-		if (sessionBean.isEnded() && target != null) {		
-			((AjaxRequestTarget)target).appendJavascript("window.location.href='" + sessionBean.getCompletionUrl() + "';initResizing();");
 		}
-		
+
+		if (sessionBean.isEnded() && target != null)
+		{
+			((AjaxRequestTarget) target).appendJavaScript("window.location.href='" + sessionBean.getCompletionUrl() + "';initResizing();");
+		}
+
 		String url = getUrl(sessionBean);
-		
-		
+
 		// Don't bother to display anything if a null url is returned. 
 		if (null == url)
+		{
 			return;
+		}
 
-		if (log.isDebugEnabled())
-			log.debug("Going to " + url);
-		
+		log.debug("Going to {}", url);
+
 		Component component = getFrameComponent();
-		
-		WebRequest webRequest = (WebRequest)component.getRequest();
-		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
-
+		ServletWebRequest webRequest = (ServletWebRequest) component.getRequest();
+		HttpServletRequest servletRequest = webRequest.getContainerRequest();
 		String fullUrl = new StringBuilder(servletRequest.getContextPath()).append("/").append(url).toString();
-		
-		if (useLocationRedirect()) {
+
+		if (useLocationRedirect())
+		{
 			component.add(new AttributeModifier("src", new Model(fullUrl)));
-			
-			if (target != null) {
-				((AjaxRequestTarget)target).addComponent(component);
-				((AjaxRequestTarget)target).appendJavascript("initResizing();");
+
+			if (target != null)
+			{
+				((AjaxRequestTarget) target).add(component);
+				((AjaxRequestTarget) target).appendJavaScript("initResizing();");
 			}
-		} else if (target != null) {
+		}
+		else if (target != null)
+		{
 			// It's critical to the proper functioning of the tool that this logic be maintained for SjaxCall 
 			// This is due to a bug in Firefox's handling of Javascript when an iframe has control of the XMLHttpRequest
-			((AjaxRequestTarget)target).appendJavascript("parent.scormContent.location.href='" + fullUrl + "';initResizing();");
+			((AjaxRequestTarget) target).appendJavaScript("parent.scormContent.location.href='" + fullUrl + "';initResizing();");
+		}
+	}
+
+	public String getUrl(final SessionBean sessionBean)
+	{
+		if (sessionBean.getLaunchData() == null)
+		{
+			return null;
 		}
 
-	}
-	
-	public String getUrl(final SessionBean sessionBean) {
-		
-		if (sessionBean.getLaunchData() == null)
-			return null;
-		
-		String resourceId = sessionBean.getContentPackage().getResourceId();		
+		String resourceId = sessionBean.getContentPackage().getResourceId();
 		String launchLine = sessionBean.getLaunchData().getLaunchLine();
-		
+
 		if (StringUtils.isBlank(launchLine))
+		{
 			return null;
-		
-		if (launchLine.startsWith("/"))
-			launchLine = launchLine.substring(1);
-		if (resourceId.startsWith("/"))
-			resourceId = resourceId.substring(1);
-		
-		try {
-	        launchLine = URLDecoder.decode(launchLine, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-	        // Very unlikely, but report anyway.
-        	log.error("Error while URL decoding: '"+launchLine+"'", e);
-        }
-		/*StringBuilder nameBuilder = new StringBuilder(resourceId);
-		
-		if (!resourceId.endsWith("/") && !launchLine.startsWith("/")) 
-			nameBuilder.append("/");
-		
-		nameBuilder.append(launchLine);
-		
-		String resourceName = nameBuilder.toString();*/
-		
-		String resourceName = resourceService().getResourcePath(resourceId, launchLine);
-	
-		
-		
-		//ResourceReference reference = new ResourceReference(PlayerPage.class, resourceName);
-		
-		//Resource r = reference.getResource();
-		
-		//String url = "org.sakaiproject.scorm.ui.player.pages.PlayerPage/" + resourceName;
-			//RequestCycle.get().urlFor(reference).toString();
-			
-		//resourceService().getUrl(sessionBean);
-		
-		
-		String url = null;
-		
-		if (launchLine != null) {
-			ContentPackageResourceRequestTarget requestTarget = new ContentPackageResourceRequestTarget(resourceName);
-			ContentPackageResourceMountStrategy strategy = new ContentPackageResourceMountStrategy("contentpackages");
-			
-			//String resourceKey = Application.get().getSharedResources().resourceKey(PlayerPage.class, resourceName, null, null);
-			
-			//String resourceKey = Application.get().getSharedResources().resourceKey(PlayerPage.class, resourceName, null, null);
-			
-			//ResourceReference reference = new ResourceReference(resourceKey);
-			
-			//url = RequestCycle.get().urlFor(reference).toString();
-			
-			//Resource r = Application.get().getSharedResources().resourceKey(PlayerPage.class, resourceName, locale, style)
-			
-			url = strategy.encode(requestTarget).toString();
-			
-			//url = "contentPackages/resourceName/" + resourceName;
 		}
-			
-		
-		return url;
+
+		if (launchLine.startsWith("/"))
+		{
+			launchLine = launchLine.substring(1);
+		}
+		if (resourceId.startsWith("/"))
+		{
+			resourceId = resourceId.substring(1);
+		}
+
+		try
+		{
+			launchLine = URLDecoder.decode(launchLine, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// Very unlikely, but report anyway.
+			log.error("Error while URL decoding: '{}'", launchLine, e);
+		}
+
+		String resourceName = resourceService().getResourcePath(resourceId, launchLine);
+		final AppendingStringBuffer url = new AppendingStringBuffer(40);
+
+		if (launchLine != null)
+		{
+			url.append("contentpackages");
+			if (StringUtils.isNotBlank(resourceName))
+			{
+				if (!url.endsWith("/"))
+				{
+					url.append("/");
+				}
+
+				try
+				{
+					resourceName = URLDecoder.decode(resourceName, "UTF-8");
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					// Very unlikely, but report anyway.
+					log.error("Error while URL decoding: '{}'", resourceName, e);
+				}
+
+				url.append("resourceName");
+				if (!resourceName.startsWith("/"))
+				{
+					url.append("/");
+				}
+
+				url.append(resourceName);
+			}
+
+			if (log.isDebugEnabled())
+			{
+				log.debug("encode -----------> URL: {}", url);
+			}
+		}
+
+		return url.toString();
 	}
-	
-	
-	public Component getFrameComponent() {
+
+	public Component getFrameComponent()
+	{
 		return null;
 	}
-
 }

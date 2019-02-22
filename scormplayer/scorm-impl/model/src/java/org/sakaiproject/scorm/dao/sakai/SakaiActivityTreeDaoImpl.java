@@ -20,80 +20,88 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.adl.sequencer.ISeqActivityTree;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.scorm.dao.api.SeqActivityTreeDao;
 import org.sakaiproject.tool.api.ToolManager;
 
-public abstract class SakaiActivityTreeDaoImpl implements SeqActivityTreeDao {
-
-	private static Log log = LogFactory.getLog(SakaiActivityTreeDaoImpl.class);
-
+@Slf4j
+public abstract class SakaiActivityTreeDaoImpl implements SeqActivityTreeDao
+{
 	protected abstract ContentHostingService contentService();
+	protected abstract ToolManager toolManager();
 
-	public ISeqActivityTree find(long contentPackageId, String learnerId) {
+	@Override
+	public ISeqActivityTree find(long contentPackageId, String learnerId)
+	{
 		Object obj = getObject(getKey(contentPackageId, learnerId));
 		return (ISeqActivityTree) obj;
 	}
 
-	private String getKey(long contentPackageId, String learnerId) {
+	private String getKey(long contentPackageId, String learnerId)
+	{
 		return new StringBuilder(learnerId).append(":").append(contentPackageId).toString();
 	}
 
-	private Object getObject(String key) {
+	private Object getObject(String key)
+	{
 		Object object = null;
 
-		try {
+		try
+		{
 			ContentResource objectResource = contentService().getResource(key);
-
 			byte[] bytes = objectResource.getContent();
 
-			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-
-			ObjectInputStream ie = new ObjectInputStream(in);
-			object = ie.readObject();
-			ie.close();
-			in.close();
-
-		} catch (Exception ioe) {
+			try (ByteArrayInputStream in = new ByteArrayInputStream(bytes))
+			{
+				ObjectInputStream ie = new ObjectInputStream(in);
+				object = ie.readObject();
+				ie.close();
+			}
+		}
+		catch (Exception ioe)
+		{
 			log.error("Caught io exception reading manifest from file!", ioe);
 		}
 
 		return object;
 	}
 
-	private String putObject(String key, Object object) {
+	private String putObject(String key, Object object)
+	{
 		ContentResource resource = null;
 
 		String site = toolManager().getCurrentPlacement().getContext();
 		String tool = "scorm";
 		String type = "application/octet-stream";
 
-		try {
+		try
+		{
 			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(byteOut);
-			out.writeObject(object);
-			out.close();
+			try (ObjectOutputStream out = new ObjectOutputStream(byteOut))
+			{
+				out.writeObject(object);
+			}
 
 			resource = contentService().addAttachmentResource(key, site, tool, type, byteOut.toByteArray(), null);
-
 			return resource.getId();
-		} catch (Exception soe) {
+		}
+		catch (Exception soe)
+		{
 			log.error("Caught an exception adding an attachment resource!", soe);
 		}
 
 		return null;
 	}
 
-	public void save(ISeqActivityTree tree) {
+	@Override
+	public void save(ISeqActivityTree tree)
+	{
 		String key = getKey(tree.getContentPackageId(), tree.getLearnerID());
-
 		putObject(key, tree);
 	}
-
-	protected abstract ToolManager toolManager();
-
 }

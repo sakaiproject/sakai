@@ -95,6 +95,7 @@ public class SupportVerifier {
 		 * @return Object
 		 *
 		 */
+		@Override
 		public Object run() {
 			try {
 				mSPValue = System.getProperty(mSPKey);
@@ -164,7 +165,7 @@ public class SupportVerifier {
 	public void verifyEnvironmentVariable(String iKey) {
 		String value = EnvironmentVariable.getValue(iKey);
 
-		if (value.equals("")) {
+		if (value.isEmpty()) {
 			String title = "Environment Error";
 			String messageText = "The \"" + iKey + "\" Environment Variable could " + "not be detected.  This Environment\n Variable "
 			        + "must be set correctly for successful " + "operation of this software.";

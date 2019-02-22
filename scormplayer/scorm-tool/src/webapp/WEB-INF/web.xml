@@ -81,6 +81,10 @@
             <param-name>applicationBean</param-name>
             <param-value>toolWicketApplication</param-value>
         </init-param>
+        <init-param>
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
     </servlet>
 
     <servlet>
@@ -99,17 +103,11 @@
             <param-name>applicationBean</param-name>
             <param-value>scormSinglePackageApplication</param-value>
         </init-param>
+        <init-param>
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>sakai.scorm.tool</servlet-name>
-        <url-pattern>/tool/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
-        <url-pattern>/tool-single/*</url-pattern>
-    </servlet-mapping>
 
     <!--  The ToolListener causes this tool to be registered with Sakai.  -->
     <listener>

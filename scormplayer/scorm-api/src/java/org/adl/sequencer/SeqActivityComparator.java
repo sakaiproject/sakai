@@ -16,6 +16,7 @@ public class SeqActivityComparator implements Comparator<ActivityNode>, Serializ
 		super();
 	}
 
+	@Override
 	public int compare(ActivityNode o1, ActivityNode o2) {
 		DefaultMutableTreeNode n1 = o1;
 		DefaultMutableTreeNode n2 = o2;

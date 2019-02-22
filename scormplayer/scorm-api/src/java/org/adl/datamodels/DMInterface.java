@@ -133,7 +133,7 @@ public class DMInterface {
 
 		DMRequest request = null;
 
-		if (iRequest != null && !iRequest.equals("")) {
+		if (iRequest != null && !iRequest.isEmpty()) {
 			// Attempt to create a DMRequest using the provided value
 			try {
 				request = new DMRequest(iRequest, iAdmin, iDefDelimiters);
@@ -200,7 +200,7 @@ public class DMInterface {
 
 		DMRequest request = null;
 
-		if (iRequest != null && !iRequest.equals("")) {
+		if (iRequest != null && !iRequest.isEmpty()) {
 
 			if (iValue != null) {
 				// Attempt to create a DMRequest using the provided value

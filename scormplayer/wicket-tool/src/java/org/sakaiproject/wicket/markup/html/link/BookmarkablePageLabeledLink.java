@@ -15,31 +15,35 @@
  */
 package org.sakaiproject.wicket.markup.html.link;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 
-public class BookmarkablePageLabeledLink extends BookmarkablePageLink {
-
+public class BookmarkablePageLabeledLink extends BookmarkablePageLink
+{
 	private static final long serialVersionUID = 1L;
 
-	public BookmarkablePageLabeledLink(String id, Class pageClass, PageParameters parameters) {
+	public BookmarkablePageLabeledLink(String id, Class pageClass, PageParameters parameters)
+	{
 		super(id, pageClass, parameters);
 	}
 
-	public BookmarkablePageLabeledLink(String id, IModel model, Class pageClass) {
+	public BookmarkablePageLabeledLink(String id, IModel model, Class pageClass)
+	{
 		super(id, pageClass);
 		setModel(model);
 	}
-	
-	public BookmarkablePageLabeledLink(String id, IModel model, Class pageClass, PageParameters parameters) {
+
+	public BookmarkablePageLabeledLink(String id, IModel model, Class pageClass, PageParameters parameters)
+	{
 		super(id, pageClass, parameters);
 		setModel(model);
 	}
-	
-	protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag)
+
+	@Override
+	public void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag)
 	{
 		replaceComponentTagBody(markupStream, openTag, getDefaultModelObjectAsString());
 	}

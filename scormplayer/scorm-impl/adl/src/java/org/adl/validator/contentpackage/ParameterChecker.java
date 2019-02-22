@@ -145,13 +145,13 @@ public class ParameterChecker {
 			// that is is of the proper syntax
 
 			int crossHatchIndex = -1;
-			crossHatchIndex = iParameterString.lastIndexOf("#");
+			crossHatchIndex = iParameterString.lastIndexOf('#');
 
 			if (crossHatchIndex != -1) {
 				String crossHatchString = iParameterString.substring(crossHatchIndex);
 				// we have found a crosshatch, remove this from original string
 				iParameterString = iParameterString.substring(0, crossHatchIndex);
-				if (!crossHatchString.equals("")) {
+				if (!crossHatchString.isEmpty()) {
 					result = validateCrossHatch(crossHatchString) && result;
 				}
 			}
@@ -230,13 +230,13 @@ public class ParameterChecker {
 		// that is is of the proper syntax
 
 		int crossHatchIndex = -1;
-		crossHatchIndex = iParameterString.lastIndexOf("#");
+		crossHatchIndex = iParameterString.lastIndexOf('#');
 
 		if (crossHatchIndex != -1) {
 			String crossHatchString = iParameterString.substring(crossHatchIndex);
 			// we have found a crosshatch, remove this from original string
 			iParameterString = iParameterString.substring(0, crossHatchIndex);
-			if (!crossHatchString.equals("")) {
+			if (!crossHatchString.isEmpty()) {
 				result = validateCrossHatch(crossHatchString) && result;
 			}
 		}
@@ -295,12 +295,12 @@ public class ParameterChecker {
 			mLogger.info("String[0]: " + tempHolder[0]);
 			mLogger.info("String[1]: " + tempHolder[1]);
 
-			if (tempHolder[0].equals("")) {
+			if (tempHolder[0].isEmpty()) {
 				result = false;
 			} else {
 				result = (tempHolder[0]).matches(mPattern) && result;
 			}
-			if (tempHolder[1].equals("")) {
+			if (tempHolder[1].isEmpty()) {
 				result = false;
 			} else {
 				result = (tempHolder[1]).matches(mPattern) && result;

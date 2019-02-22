@@ -81,7 +81,7 @@ public class ADLDuration implements Serializable, IDuration {
 			double secs = 0.0;
 
 			try {
-				secs = (new Double(iValue)).doubleValue();
+				secs = (new Double(iValue));
 			} catch (Exception e) {
 				if (_Debug) {
 					System.out.print("  Invalid Format ::  " + iFormat + " // " + iValue);
@@ -100,27 +100,27 @@ public class ADLDuration implements Serializable, IDuration {
 			if (locStart != -1) {
 				locStart++;
 
-				loc = iValue.indexOf("H", locStart);
+				loc = iValue.indexOf('H', locStart);
 
 				if (loc != -1) {
 					hours = iValue.substring(locStart, loc);
-					mDuration = (Long.valueOf(hours)).longValue() * 3600;
+					mDuration = (Long.valueOf(hours)) * 3600;
 
 					locStart = loc + 1;
 				}
 
-				loc = iValue.indexOf("M", locStart);
+				loc = iValue.indexOf('M', locStart);
 				if (loc != -1) {
 					min = iValue.substring(locStart, loc);
-					mDuration += (Long.valueOf(min)).longValue() * 60;
+					mDuration += (Long.valueOf(min)) * 60;
 
 					locStart = loc + 1;
 				}
 
-				loc = iValue.indexOf("S", locStart);
+				loc = iValue.indexOf('S', locStart);
 				if (loc != -1) {
 					sec = iValue.substring(locStart, loc);
-					mDuration += (Long.valueOf(sec)).longValue();
+					mDuration += (Long.valueOf(sec));
 				}
 			} else {
 				if (_Debug) {
@@ -143,6 +143,7 @@ public class ADLDuration implements Serializable, IDuration {
 	 * 
 	 * @param iDur The duration value to add.
 	 */
+	@Override
 	public void add(IDuration durArg) {
 		ADLDuration iDur = (ADLDuration) durArg;
 		mDuration += iDur.mDuration;
@@ -162,6 +163,7 @@ public class ADLDuration implements Serializable, IDuration {
 	 *  <li> -999 if unknown</li>
 	 * </ul>
 	 */
+	@Override
 	public int compare(IDuration durArg) {
 		ADLDuration iDur = (ADLDuration) durArg;
 		int relation = IDuration.UNKNOWN;
@@ -179,15 +181,19 @@ public class ADLDuration implements Serializable, IDuration {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		ADLDuration other = (ADLDuration) obj;
-		if (id != other.id)
+		if (id != other.id){
 			return false;
+		}
 		return true;
 	}
 
@@ -201,6 +207,7 @@ public class ADLDuration implements Serializable, IDuration {
 	    * @return Returns a string representation of the duration, formatted
 	    * accordingly.
 	    */
+	@Override
 	public String format(int iFormat) {
 
 		String out = null;

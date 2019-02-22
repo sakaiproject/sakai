@@ -15,17 +15,18 @@
  */
 package org.sakaiproject.scorm.ui.reporting.pages;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
@@ -39,64 +40,65 @@ import org.sakaiproject.scorm.ui.reporting.components.LearnerDetailsPanel;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
 
-public abstract class BaseResultsPage extends ConsoleBasePage {
-
+@Slf4j
+public abstract class BaseResultsPage extends ConsoleBasePage
+{
 	private static final long serialVersionUID = 1L;
-	private static final Log LOG = LogFactory.getLog(BaseResultsPage.class);
 
-	private static final ResourceReference NEXT_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_right.png");
-	private static final ResourceReference PREV_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_left.png");
+	private static final ResourceReference NEXT_ICON = new PackageResourceReference(BaseResultsPage.class, "res/arrow_right.png");
+	private static final ResourceReference PREV_ICON = new PackageResourceReference(BaseResultsPage.class, "res/arrow_left.png");
 
 	@SpringBean
 	LearningManagementSystem lms;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 
 	private final RepeatingView attemptNumberLinks;
 
-	public BaseResultsPage(PageParameters pageParams) {
+	public BaseResultsPage(PageParameters pageParams)
+	{
 		super(pageParams);
 
-		long contentPackageId = pageParams.getLong("contentPackageId");
-		String learnerId = pageParams.getString("learnerId");
+		long contentPackageId = pageParams.get("contentPackageId").toLong();
+		String learnerId = pageParams.get("learnerId").toString();
 
-		if (learnerId == null) { // this is a student coming directly from the package list.
+		// this is a student coming directly from the package list.
+		if (learnerId == null)
+		{
 			learnerId = lms.currentLearnerId();
 		}
 
 		String learnerName = "[name unavailable]";
-
 		Learner learner;
 		boolean learnerFound = false;
-		try {
+		try
+		{
 			learner = lms.getLearner(learnerId);
 			learnerFound = true;
-		} catch (LearnerNotDefinedException lnde) {
-			LOG.error("Could not find learner for this id: " + learnerId, lnde);
+		}
+		catch (LearnerNotDefinedException lnde)
+		{
+			log.error("Could not find learner for this id: {}", learnerId, lnde);
 			learner = new Learner(learnerId, learnerName, "[id unavailable]");
 		}
 
-		LearnerDetailsPanel learnerDetailsPanel = new LearnerDetailsPanel("learnerDetails", new Model<Learner>(learner));
+		LearnerDetailsPanel learnerDetailsPanel = new LearnerDetailsPanel("learnerDetails", new Model<>(learner));
 		add(learnerDetailsPanel);
 		learnerDetailsPanel.setVisible(learnerFound);
 
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
-		String scoId = pageParams.getString("scoId");
-		String interactionId = pageParams.getString("interactionId");
+		String scoId = pageParams.get("scoId").toString();
+		String interactionId = pageParams.get("interactionId").toString();
 
 		int numberOfAttempts = resultService.getNumberOfAttempts(contentPackageId, learnerId);
-		long attemptNumber = 0;
-
-		/** @NOTE hide unnecessary bits */
-		if (pageParams.containsKey("attemptNumber")) 
-		{
-			attemptNumber = pageParams.getLong("attemptNumber");
-		}
-
+		long attemptNumber = pageParams.get("attemptNumber").toLong(0);
 		if (attemptNumber == 0)
 		{
 			attemptNumber = numberOfAttempts;
@@ -105,7 +107,8 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		this.attemptNumberLinks = new RepeatingView("attemptNumberLinks");
 		add(attemptNumberLinks);
 
-		for (long i=1;i<=numberOfAttempts;i++) {
+		for (long i = 1; i <= numberOfAttempts; i++)
+		{
 			addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber, contentPackage, scoId, learner);
 		}
 
@@ -132,26 +135,44 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		add(nextIcon);
 	}
 
-	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
-		Link link = new PageLink("previousLink", BaseResultsPage.class);
+	protected Link newPreviousLink(String previousId, PageParameters pageParams)
+	{
+		Link link = new Link("previousLink")
+		{
+			@Override
+			public void onClick()
+			{
+				setResponsePage(BaseResultsPage.class);
+			}
+		};
 		link.setVisible(false);
 		return link;
 	}
 
-	protected boolean isPreviousLinkVisible(String[] siblingIds) {
+	protected boolean isPreviousLinkVisible(String[] siblingIds)
+	{
 		boolean canGrade = lms.canGrade(lms.currentContext());
-		return canGrade && siblingIds[0] != null && !siblingIds[0].equals("");
+		return canGrade && siblingIds[0] != null && !siblingIds[0].isEmpty();
 	}
 
-	protected Link newNextLink(String nextId, PageParameters pageParams) {
-		Link link = new PageLink("nextLink", BaseResultsPage.class);
+	protected Link newNextLink(String nextId, PageParameters pageParams)
+	{
+		Link link = new Link("nextLink")
+		{
+			@Override
+			public void onClick()
+			{
+				setResponsePage(BaseResultsPage.class);
+			}
+		};
 		link.setVisible(false);
 		return link;
 	}
 
-	protected boolean isNextLinkVisible(String[] siblingIds) {
+	protected boolean isNextLinkVisible(String[] siblingIds)
+	{
 		boolean canGrade = lms.canGrade(lms.currentContext());
-		return canGrade && siblingIds[1] != null && !siblingIds[1].equals("");
+		return canGrade && siblingIds[1] != null && !siblingIds[1].isEmpty();
 	}
 
 	protected abstract void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams);
@@ -166,46 +187,49 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current, ContentPackage contentPackage, String scoId, Learner learner)
 	{
 		PageParameters newParams = new PageParameters(params);
-		newParams.put("attemptNumber", i);
+		newParams.add("attemptNumber", i);
 
 		BookmarkablePageLabeledLink link = newAttemptNumberLink(i, newParams);
 
-		if (i == current) {
+		if (i == current)
+		{
 			link.setEnabled(false);
-		} else {
+		}
+		else
+		{
 			link.setVisible(attemptExists(i, scoId, learner.getId(), contentPackage.getContentPackageId()));
 		}
 
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId());
 		item.setRenderBodyOnly(true);
 		item.add(link);
-
 		container.add(item);
 	}
 
-	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId) {
+	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId)
+	{
 		return true;
 	}
 
-	public class PercentageColumn extends DecoratedPropertyColumn {
-
+	public class PercentageColumn extends DecoratedPropertyColumn
+	{
 		private static final long serialVersionUID = 1L;
 
-		public PercentageColumn(IModel displayModel, String sortProperty, String propertyExpression) {
+		public PercentageColumn(IModel displayModel, String sortProperty, String propertyExpression)
+		{
 			super(displayModel, sortProperty, propertyExpression);
 		}
 
 		@Override
-		public Object convertObject(Object object) {
+		public Object convertObject(Object object)
+		{
 			Double d = (Double)object;
-			
 			return getPercentageString(d);
 		}
 
-		private String getPercentageString(double d) {
-
+		private String getPercentageString(double d)
+		{
 			double p = d * 100.0;
-
 			String percentage = "" + p + " %";
 
 			if (d < 0.0)

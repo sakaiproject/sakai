@@ -21,16 +21,18 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.scorm.content.impl.VirtualFileSystem;
 
-public class VirtualFileSystemTest extends TestCase {
-
-	private void printChildren(List<String> list) {
-		for (String name : list) {
+public class VirtualFileSystemTest extends TestCase
+{
+	private void printChildren(List<String> list)
+	{
+		for (String name : list)
+		{
 			System.out.println("NAME: " + name);
 		}
 	}
 
-	public void testOne() throws Exception {
-
+	public void testOne() throws Exception
+	{
 		VirtualFileSystem fs = new VirtualFileSystem("/content/group/asdfba/myzipfile.zip");
 
 		fs.addPath("this/is/a/file");
@@ -46,7 +48,5 @@ public class VirtualFileSystemTest extends TestCase {
 
 		System.out.println("this/is/a/" + fs.getCount("this/is/a/"));
 		printChildren(fs.getChildren("/this/is/a"));
-
 	}
-
 }

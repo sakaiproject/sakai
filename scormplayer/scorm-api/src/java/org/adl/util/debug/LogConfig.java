@@ -203,47 +203,47 @@ public class LogConfig {
 		String fileTimestampMisc = "";
 
 		try {
-			// Create InputStream of the adlog.properties file name
-			InputStream instream = new FileInputStream(propFile);
-			props.load(instream);
-			// Get the values set in adllog.properties for:
-			// Test Suite Logger
-			consoleOutputTestSuite = props.getProperty("org.adl.util.debug." + "print.console.testsuite");
-			consoleTimestampTestSuite = props.getProperty("org.adl.util.debug." + "timestamp.console.testsuite");
-			fileOutputTestSuite = props.getProperty("org.adl.util.debug.print." + "file.testsuite");
-			fileTimestampTestSuite = props.getProperty("org.adl.util.debug." + "timestamp.file.testsuite");
-
-			// Sequencer Logger
-			consoleOutputSequencer = props.getProperty("org.adl.util.debug." + "print.console.sequencer");
-			consoleTimestampSequencer = props.getProperty("org.adl.util.debug." + "timestamp.console.sequencer");
-			fileOutputSequencer = props.getProperty("org.adl.util.debug.print." + "file.sequencer");
-			fileTimestampSequencer = props.getProperty("org.adl.util.debug." + "timestamp.file.sequencer");
-
-			// SampleRTE Logger
-			consoleOutputSampleRTE = props.getProperty("org.adl.util.debug." + "print.console.samplerte");
-			consoleTimestampSampleRTE = props.getProperty("org.adl.util.debug." + "timestamp.console.samplerte");
-			fileOutputSampleRTE = props.getProperty("org.adl.util.debug.print." + "file.samplerte");
-			fileTimestampSampleRTE = props.getProperty("org.adl.util.debug." + "timestamp.file.samplerte");
-
-			// Validator Logger
-			consoleOutputValidator = props.getProperty("org.adl.util.debug." + "print.console.validator");
-			consoleTimestampValidator = props.getProperty("org.adl.util.debug." + "timestamp.console.validator");
-			fileOutputValidator = props.getProperty("org.adl.util.debug.print." + "file.validator");
-			fileTimestampValidator = props.getProperty("org.adl.util.debug." + "timestamp.file.validator");
-
-			// Data Model Logger
-			consoleOutputDataModel = props.getProperty("org.adl.util.debug." + "print.console.datamodel");
-			consoleTimestampDataModel = props.getProperty("org.adl.util.debug." + "timestamp.console.datamodel");
-			fileOutputDataModel = props.getProperty("org.adl.util.debug.print." + "file.datamodel");
-			fileTimestampDataModel = props.getProperty("org.adl.util.debug." + "timestamp.file.datamodel");
-
-			// Miscellaneous Catchall Loggers
-			consoleOutputMisc = props.getProperty("org.adl.util.debug.print." + "console.misc");
-			consoleTimestampMisc = props.getProperty("org.adl.util.debug." + "timestamp.console.misc");
-			fileOutputMisc = props.getProperty("org.adl.util.debug.print.file." + "misc");
-			fileTimestampMisc = props.getProperty("org.adl.util.debug.timestamp." + "file.misc");
-
-			instream.close();
+			try ( // Create InputStream of the adlog.properties file name
+					InputStream instream = new FileInputStream(propFile))
+			{
+				props.load(instream);
+				// Get the values set in adllog.properties for:
+				// Test Suite Logger
+				consoleOutputTestSuite = props.getProperty("org.adl.util.debug." + "print.console.testsuite");
+				consoleTimestampTestSuite = props.getProperty("org.adl.util.debug." + "timestamp.console.testsuite");
+				fileOutputTestSuite = props.getProperty("org.adl.util.debug.print." + "file.testsuite");
+				fileTimestampTestSuite = props.getProperty("org.adl.util.debug." + "timestamp.file.testsuite");
+				
+				// Sequencer Logger
+				consoleOutputSequencer = props.getProperty("org.adl.util.debug." + "print.console.sequencer");
+				consoleTimestampSequencer = props.getProperty("org.adl.util.debug." + "timestamp.console.sequencer");
+				fileOutputSequencer = props.getProperty("org.adl.util.debug.print." + "file.sequencer");
+				fileTimestampSequencer = props.getProperty("org.adl.util.debug." + "timestamp.file.sequencer");
+				
+				// SampleRTE Logger
+				consoleOutputSampleRTE = props.getProperty("org.adl.util.debug." + "print.console.samplerte");
+				consoleTimestampSampleRTE = props.getProperty("org.adl.util.debug." + "timestamp.console.samplerte");
+				fileOutputSampleRTE = props.getProperty("org.adl.util.debug.print." + "file.samplerte");
+				fileTimestampSampleRTE = props.getProperty("org.adl.util.debug." + "timestamp.file.samplerte");
+				
+				// Validator Logger
+				consoleOutputValidator = props.getProperty("org.adl.util.debug." + "print.console.validator");
+				consoleTimestampValidator = props.getProperty("org.adl.util.debug." + "timestamp.console.validator");
+				fileOutputValidator = props.getProperty("org.adl.util.debug.print." + "file.validator");
+				fileTimestampValidator = props.getProperty("org.adl.util.debug." + "timestamp.file.validator");
+				
+				// Data Model Logger
+				consoleOutputDataModel = props.getProperty("org.adl.util.debug." + "print.console.datamodel");
+				consoleTimestampDataModel = props.getProperty("org.adl.util.debug." + "timestamp.console.datamodel");
+				fileOutputDataModel = props.getProperty("org.adl.util.debug.print." + "file.datamodel");
+				fileTimestampDataModel = props.getProperty("org.adl.util.debug." + "timestamp.file.datamodel");
+				
+				// Miscellaneous Catchall Loggers
+				consoleOutputMisc = props.getProperty("org.adl.util.debug.print." + "console.misc");
+				consoleTimestampMisc = props.getProperty("org.adl.util.debug." + "timestamp.console.misc");
+				fileOutputMisc = props.getProperty("org.adl.util.debug.print.file." + "misc");
+				fileTimestampMisc = props.getProperty("org.adl.util.debug.timestamp." + "file.misc");
+			}
 		} catch (FileNotFoundException fnfe) {
 			System.out.println("FileNotFoundException " + fnfe);
 		} catch (IOException ioe) {

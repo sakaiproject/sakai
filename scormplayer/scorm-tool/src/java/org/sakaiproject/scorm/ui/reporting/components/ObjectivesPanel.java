@@ -22,51 +22,47 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.CompoundPropertyModel;
+
 import org.sakaiproject.scorm.model.api.Objective;
 
-public class ObjectivesPanel extends Panel {
-
+public class ObjectivesPanel extends Panel
+{
 	private static final long serialVersionUID = 1L;
 
 	private final RepeatingView objectivesView;
-	
-	
-	public ObjectivesPanel(String id, List<Objective> objectives) {
+
+	public ObjectivesPanel(String id, List<Objective> objectives)
+	{
 		super(id);
 
 		add(objectivesView = new RepeatingView("objectivesView"));
-		
-		for (Objective objective : objectives) {
+		for (Objective objective : objectives)
+		{
 			addObjective(objective, objectivesView);
 		}
-		
 	}
-	
+
 	/*
 	 * Copied the basic organization of this method from an Apache Wicket class
 	 * 	org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
 	 * originally authored by Igor Vaynberg (ivaynberg)
 	 */
-	private void addObjective(Objective objective, RepeatingView container) {
+	private void addObjective(Objective objective, RepeatingView container)
+	{
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId(), new CompoundPropertyModel(objective));
 		item.setRenderBodyOnly(true);
-		
+
 		Label descLabel = new Label("description");
 		Label successLabel = new Label("successStatus");
 		Label completionLabel = new Label("completionStatus");
-		
+
 		successLabel.setVisible(objective.getSuccessStatus() != null && objective.getSuccessStatus().trim().length() != 0);
 		completionLabel.setVisible(objective.getCompletionStatus() != null && objective.getCompletionStatus().trim().length() != 0);
-		
+
 		item.add(descLabel);
 		item.add(new ScorePanel("score", objective.getScore()));
 		item.add(successLabel);
 		item.add(completionLabel);
-		
 		container.add(item);
 	}
-	
-	
-	
-
 }

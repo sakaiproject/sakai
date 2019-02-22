@@ -16,6 +16,7 @@
 package org.sakaiproject.scorm.dao.sakai;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -45,16 +47,23 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-public abstract class SakaiLearnerDaoImpl implements LearnerDao {
+@Slf4j
+public abstract class SakaiLearnerDaoImpl implements LearnerDao
+{
+	protected abstract CourseManagementService cms();
+	protected abstract GroupProvider groupProvider();
+	protected abstract SiteService siteService();
+	protected abstract UserDirectoryService userDirectoryService();
 
-	private static Log log = LogFactory.getLog(SakaiLearnerDaoImpl.class);
-
-	private Learner addLearner(String userId, User user, Map<String, Learner> learnerMap) {
+	private Learner addLearner(String userId, User user, Map<String, Learner> learnerMap)
+	{
 		Learner learner;
-
-		if (learnerMap.containsKey(userId)) {
+		if (learnerMap.containsKey(userId))
+		{
 			learner = learnerMap.get(userId);
-		} else {
+		}
+		else
+		{
 			learner = new Learner(userId);
 		}
 
@@ -65,78 +74,98 @@ public abstract class SakaiLearnerDaoImpl implements LearnerDao {
 		ResourceProperties resprops = user.getProperties();
 		Properties props = new Properties();
 
-		for (Iterator<String> it = resprops.getPropertyNames(); it.hasNext();) {
+		for (Iterator<String> it = resprops.getPropertyNames(); it.hasNext();)
+		{
 			String name = it.next();
 			Object value = resprops.get(name);
 			props.put(name, value);
 		}
 
 		learnerMap.put(userId, learner);
-
 		return learner;
 	}
 
-	private void addLearnersFromEnrollmentSet(Map<String, Learner> learnerMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet) {
-		if (enrollmentSet != null) {
+	private void addLearnersFromEnrollmentSet(Map<String, Learner> learnerMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet)
+	{
+		if (enrollmentSet != null)
+		{
 			Set<Enrollment> enrollments = cms().getEnrollments(enrollmentSet.getEid());
-			for (Enrollment e : enrollments) {
-				try {
+			for (Enrollment e : enrollments)
+			{
+				try
+				{
 					User user = userDirectoryService().getUserByEid(e.getUserId());
 					String userId = user.getId();
 					Member member = realm.getMember(userId);
-					if (member != null && member.isProvided()) {
-						try {
+					if (member != null && member.isProvided())
+					{
+						try
+						{
 							addLearner(userId, user, learnerMap);
-						} catch (Exception ee) {
-							log.warn("Unable to add learner from enrollment " + userId, ee);
+						}
+						catch (Exception ee)
+						{
+							log.warn("Unable to add learner from enrollment {}", userId, ee);
 						}
 					}
-				} catch (UserNotDefinedException exception) {
+				} 
+				catch (UserNotDefinedException exception)
+				{
 					// deal with missing user quietly without throwing a
 					// warning message
-					log.warn("Failed to find user with id " + e.getUserId(), exception);
+					log.warn("Failed to find user with id {}", e.getUserId(), exception);
 				}
 			}
 		}
 	}
 
-	private void addLearnersFromMemberships(Map<String, Learner> learnerMap, AuthzGroup realm, String providerCourseEid, Set<Membership> memberships) {
-		if (memberships != null) {
-			for (Membership m : memberships) {
-				try {
+	private void addLearnersFromMemberships(Map<String, Learner> learnerMap, AuthzGroup realm, String providerCourseEid, Set<Membership> memberships)
+	{
+		if (memberships != null)
+		{
+			for (Membership m : memberships)
+			{
+				try
+				{
 					User user = userDirectoryService().getUserByEid(m.getUserId());
 					String userId = user.getId();
 					Member member = realm.getMember(userId);
-					if (member != null && member.isProvided()) {
+					if (member != null && member.isProvided())
+					{
 						addLearner(userId, user, learnerMap);
 					}
-				} catch (UserNotDefinedException exception) {
+				}
+				catch (UserNotDefinedException exception)
+				{
 					// deal with missing user quietly without throwing a
 					// warning message
-					log.warn("Failed to find user with id " + m.getUserId(), exception);
+					log.warn("Failed to find user with id {}", m.getUserId(), exception);
 				}
 			}
 		}
 	}
 
-	protected abstract CourseManagementService cms();
-
-	public List<Learner> find(String context) {
+	@Override
+	public List<Learner> find(String context)
+	{
 		String realmId = siteService().siteReference(context);
+		Map<String, Learner> learnerMap = new ConcurrentHashMap<>();
 
-		Map<String, Learner> learnerMap = new ConcurrentHashMap<String, Learner>();
-		try {
+		try
+		{
 			AuthzGroup realm = ComponentManager.get( AuthzGroupService.class ).getAuthzGroup(realmId);
 			String providerGroupId = realm.getProviderGroupId();
-
 			List<String> providerCourseList = getProviderCourseList(StringUtils.trimToNull(providerGroupId));
 
 			// iterate through the provider list first
-			for (String providerCourseEid : providerCourseList) {
-				if (cms().isSectionDefined(providerCourseEid)) {
+			for (String providerCourseEid : providerCourseList)
+			{
+				if (cms().isSectionDefined(providerCourseEid))
+				{
 					// in case of Section eid
 					EnrollmentSet enrollmentSet = cms().getSection(providerCourseEid).getEnrollmentSet();
 					addLearnersFromEnrollmentSet(learnerMap, realm, providerCourseEid, enrollmentSet);
+
 					// add memberships
 					Set<Membership> memberships = cms().getSectionMemberships(providerCourseEid);
 					addLearnersFromMemberships(learnerMap, realm, providerCourseEid, memberships);
@@ -145,47 +174,56 @@ public abstract class SakaiLearnerDaoImpl implements LearnerDao {
 
 			// now for those not provided users
 			Set<Member> members = realm.getMembers();
-			for (Member member : members) {
-				if (!member.isProvided() && member.isActive()) {
-					try {
+			for (Member member : members)
+			{
+				if (!member.isProvided() && member.isActive())
+				{
+					try
+					{
 						User user = userDirectoryService().getUserByEid(member.getUserEid());
 						String userId = user.getId();
 						addLearner(userId, user, learnerMap);
-
-					} catch (UserNotDefinedException e) {
+					}
+					catch (UserNotDefinedException e)
+					{
 						// deal with missing user quietly without throwing a warning message
-						log.warn("Couldn't find user '" + member.getUserEid() + "' while looping over members of " + realm.getReference());
+						log.warn("Couldn't find user '{}' while looping over members of {}", member.getUserEid(), realm.getReference());
 					}
 				}
 			}
 
-		} catch (GroupNotDefinedException ee) {
-			log.warn(this + "  IdUnusedException " + realmId);
+		} 
+		catch (GroupNotDefinedException ee)
+		{
+			log.warn("IdUnusedException {}", realmId, ee);
 		}
 
-		return new ArrayList<Learner>(learnerMap.values());
+		return new ArrayList<>(learnerMap.values());
 	}
 
-	private List<String> getProviderCourseList(String id) {
-		List<String> rv = new ArrayList<String>();
+	private List<String> getProviderCourseList(String id)
+	{
+		List<String> rv = new ArrayList<>();
 		if (StringUtils.isEmpty(id))
+		{
 			return rv;
+		}
+
 		// Break Provider Id into course id parts
 		String[] courseIds = groupProvider().unpackId(id);
 
 		// Iterate through course ids
-		for (String courseId : courseIds) {
-			rv.add(courseId);
-		}
+		rv.addAll( Arrays.asList( courseIds ) );
+
 		return rv;
 	}
 
-	protected abstract GroupProvider groupProvider();
-
-	public Learner load(String id) throws LearnerNotDefinedException {
+	@Override
+	public Learner load(String id) throws LearnerNotDefinedException
+	{
 		Learner learner = null;
-
-		try {
+		try
+		{
 			User user = userDirectoryService().getUser(id);
 
 			learner = new Learner(id, user.getDisplayName(), user.getDisplayId());
@@ -194,20 +232,19 @@ public abstract class SakaiLearnerDaoImpl implements LearnerDao {
 			ResourceProperties resprops = user.getProperties();
 			Properties props = new Properties();
 
-			for (Iterator<String> it = resprops.getPropertyNames(); it.hasNext();) {
+			for (Iterator<String> it = resprops.getPropertyNames(); it.hasNext();)
+			{
 				String name = it.next();
 				Object value = resprops.get(name);
 				props.put(name, value);
 			}
 
-		} catch (UserNotDefinedException e) {
+		}
+		catch (UserNotDefinedException e)
+		{
 			throw new LearnerNotDefinedException("There is no learner in the lms with this id " + id);
 		}
 
 		return learner;
 	}
-
-	protected abstract SiteService siteService();
-
-	protected abstract UserDirectoryService userDirectoryService();
 }

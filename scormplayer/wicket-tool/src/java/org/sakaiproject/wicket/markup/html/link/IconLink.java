@@ -15,55 +15,55 @@
  */
 package org.sakaiproject.wicket.markup.html.link;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.request.resource.ResourceReference;
 
-public class IconLink extends Panel {
-
+public class IconLink extends Panel
+{
 	private static final long serialVersionUID = 1L;
 
-	
-	public IconLink(String id, Class<?> pageClass, PageParameters params, 
-			ResourceReference iconReference) {
+	public IconLink(String id, Class<?> pageClass, PageParameters params, ResourceReference iconReference)
+	{
 		this(id, pageClass, params, iconReference, null);
 	}
-	
-	public IconLink(String id, Class<?> pageClass, PageParameters params, 
-			ResourceReference iconReference, String popupWindowName) {
+
+	public IconLink(String id, Class<?> pageClass, PageParameters params, ResourceReference iconReference, String popupWindowName)
+	{
 		super(id);
-		
 		add(newLink("link", pageClass, params, iconReference, popupWindowName));
 	}
-	
-	private BookmarkablePageLink newLink(String baseId, Class<?> destPage, 
-			PageParameters params, final ResourceReference icon, String popupWindowName) {
+
+	private BookmarkablePageLink newLink(String baseId, Class<?> destPage, PageParameters params, final ResourceReference icon, String popupWindowName)
+	{
 		BookmarkablePageLink actionLink = new BookmarkablePageLink(baseId, destPage, params);
 
 		// Add the passed icon 
-		if (icon != null) {
+		if (icon != null)
+		{
 			String iconId = new StringBuilder().append(baseId).append("Icon").toString();
 			Image iconImage = new Image(iconId)
 			{
 				private static final long serialVersionUID = 1L;
 	
+				@Override
 				protected ResourceReference getImageResourceReference()
 				{
 					return icon;
 				}
 			};
-				
+
 			actionLink.add(iconImage);
 		}
-		
+
 		if (popupWindowName != null)
-			actionLink.setPopupSettings(new PopupSettings(PopupSettings.RESIZABLE | 
-					PopupSettings.SCROLLBARS).setWindowName(popupWindowName));
-		
+		{
+			actionLink.setPopupSettings(new PopupSettings(PopupSettings.RESIZABLE | PopupSettings.SCROLLBARS).setWindowName(popupWindowName));
+		}
+
 		return actionLink;
 	}
-	
 }

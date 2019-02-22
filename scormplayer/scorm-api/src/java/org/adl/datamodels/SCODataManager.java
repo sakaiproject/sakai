@@ -100,7 +100,7 @@ public class SCODataManager implements IDataManager {
 		this.activityId = activityId;
 		this.userId = userId;
 		this.title = title;
-		this.mDataModels = new Hashtable<String, DataModel>();
+		this.mDataModels = new Hashtable<>();
 		this.beginDate = new Date();
 		this.lastModifiedDate = new Date();
 		this.attemptNumber = attemptNumber;
@@ -118,6 +118,7 @@ public class SCODataManager implements IDataManager {
 	 * 
 	 * @param iModel  Describes the run-time data model to be added.
 	 */
+	@Override
 	public DataModel addDM(int iModel, IValidatorFactory validatorFactory) {
 		// Create the indicated data model
 		DataModel dm = DMFactory.createDM(iModel, validatorFactory);
@@ -125,7 +126,7 @@ public class SCODataManager implements IDataManager {
 		if (dm != null) {
 			// Make sure this data model isn't already being managed
 			if (mDataModels == null) {
-				mDataModels = new Hashtable<String, DataModel>();
+				mDataModels = new Hashtable<>();
 
 				mDataModels.put(dm.getDMBindingString(), dm);
 			} else {
@@ -148,6 +149,7 @@ public class SCODataManager implements IDataManager {
 	 * @return A data model error code indicating the result of this
 	 *         operation.
 	 */
+	@Override
 	public int equals(DMRequest iRequest) {
 
 		// Assume no processing errors
@@ -185,18 +187,23 @@ public class SCODataManager implements IDataManager {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj){
 			return true;
-		if (obj == null)
+		}
+		if (obj == null){
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()){
 			return false;
+		}
 		SCODataManager other = (SCODataManager) obj;
 		if (id == null) {
-			if (other.id != null)
+			if (other.id != null){
 				return false;
-		} else if (!id.equals(other.id))
+			}
+		} else if (!id.equals(other.id)){
 			return false;
+		}
 		return true;
 	}
 
@@ -204,10 +211,12 @@ public class SCODataManager implements IDataManager {
 		return activityId;
 	}
 
+	@Override
 	public long getAttemptNumber() {
 		return attemptNumber;
 	}
 
+	@Override
 	public Date getBeginDate() {
 		return beginDate;
 	}
@@ -216,6 +225,7 @@ public class SCODataManager implements IDataManager {
 		return contentPackageId;
 	}
 
+	@Override
 	public String getCourseId() {
 		return courseId;
 	}
@@ -230,6 +240,7 @@ public class SCODataManager implements IDataManager {
 	    * @return The <code>DataModel</code> object associated with the
 	    *         requested data model.
 	    */
+	@Override
 	public DataModel getDataModel(String iDataModel) {
 		DataModel dm = null;
 
@@ -240,26 +251,32 @@ public class SCODataManager implements IDataManager {
 		return dm;
 	}
 
+	@Override
 	public Map<String, DataModel> getDataModels() {
 		return mDataModels;
 	}
 
+	@Override
 	public Long getId() {
 		return id;
 	}
 
+	@Override
 	public Date getLastModifiedDate() {
 		return lastModifiedDate;
 	}
 
+	@Override
 	public String getScoId() {
 		return scoId;
 	}
 
+	@Override
 	public String getTitle() {
 		return title;
 	}
 
+	@Override
 	public String getUserId() {
 		return userId;
 	}
@@ -274,6 +291,7 @@ public class SCODataManager implements IDataManager {
 	    * @return A data model error code indicating the result of this
 	    *         operation.
 	    */
+	@Override
 	public int getValue(DMRequest iRequest, DMProcessingInfo oInfo) {
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;
@@ -318,6 +336,7 @@ public class SCODataManager implements IDataManager {
 	/** 
 	    * Initializes all data models being managed for this SCO.
 	    */
+	@Override
 	public void initialize() {
 		if (mDataModels != null) {
 			for (DataModel dm : mDataModels.values()) {
@@ -330,10 +349,12 @@ public class SCODataManager implements IDataManager {
 		this.activityId = activityId;
 	}
 
+	@Override
 	public void setAttemptNumber(long attemptNumber) {
 		this.attemptNumber = attemptNumber;
 	}
 
+	@Override
 	public void setBeginDate(Date beginDate) {
 		this.beginDate = beginDate;
 	}
@@ -342,22 +363,27 @@ public class SCODataManager implements IDataManager {
 		this.contentPackageId = contentPackageId;
 	}
 
+	@Override
 	public void setCourseId(String courseId) {
 		this.courseId = courseId;
 	}
 
+	@Override
 	public void setDataModels(Map<String, DataModel> dataModels) {
 		this.mDataModels = dataModels;
 	}
 
+	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+	@Override
 	public void setLastModifiedDate(Date lastModifiedDate) {
 		this.lastModifiedDate = lastModifiedDate;
 	}
 
+	@Override
 	public void setScoId(String scoId) {
 		this.scoId = scoId;
 	}
@@ -366,6 +392,7 @@ public class SCODataManager implements IDataManager {
 		this.title = title;
 	}
 
+	@Override
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
@@ -378,6 +405,7 @@ public class SCODataManager implements IDataManager {
 	    * @return A data model error code indicating the result of this
 	    *         operation.
 	    */
+	@Override
 	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory) {
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;
@@ -414,6 +442,7 @@ public class SCODataManager implements IDataManager {
 	/** 
 	    * Terminates all data models being managed for this SCO.
 	    */
+	@Override
 	public void terminate(IValidatorFactory validatorFactory) {
 		if (mDataModels != null) {
 			for (DataModel dm : mDataModels.values()) {
@@ -430,6 +459,7 @@ public class SCODataManager implements IDataManager {
 	    * @return A data model error code indicating the result of this
 	    *         operation.
 	    */
+	@Override
 	public int validate(DMRequest iRequest) {
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;

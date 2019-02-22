@@ -17,19 +17,21 @@ package org.sakaiproject.wicket.model;
 
 import org.apache.wicket.model.PropertyModel;
 
-public abstract class DecoratedPropertyModel extends PropertyModel {
-
+public abstract class DecoratedPropertyModel<T> extends PropertyModel
+{
 	private static final long serialVersionUID = 1L;
-	
-	public DecoratedPropertyModel(Object modelObject, String expression) {
+
+	public DecoratedPropertyModel(Object modelObject, String expression)
+	{
 		super(modelObject, expression);
 	}
 
-	public Object getObject() {
+	@Override
+	public Object getObject()
+	{
 		Object propertyValue = super.getObject();
 		return convertObject(propertyValue);
 	}
-	
-	public abstract Object convertObject(Object object);
 
+	public abstract Object convertObject(Object object);
 }

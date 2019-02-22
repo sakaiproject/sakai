@@ -15,40 +15,62 @@
  */
 package org.sakaiproject.scorm.ui.player;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.tool.cover.ToolManager;
+import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings("deprecation")
-public class ScormSecurityAdvisor implements SecurityAdvisor {
-	private static Log log = LogFactory.getLog(ScormSecurityAdvisor.class);
-	public SecurityAdvice isAllowed(String userId, String function, String reference) {
-		log.debug("isAllowed: userId="+userId+", function="+function+", reference="+reference);
-		if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
-			if (SecurityService.unlock(userId, "scorm.launch", currentSiteReference()) || SecurityService.unlock(userId, "scorm.upload", currentSiteReference())) {
-				return SecurityAdvice.ALLOWED;
-			}
-		} else if (ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)) {
-			if (SecurityService.unlock(userId, "scorm.launch", currentSiteReference()) || SecurityService.unlock(userId, "scorm.upload", currentSiteReference())) {
-				return SecurityAdvice.ALLOWED;
-			}
-		} else if (ContentHostingService.AUTH_RESOURCE_ADD.equals(function) || ContentHostingService.AUTH_RESOURCE_WRITE_ANY.equals(function) || ContentHostingService.AUTH_RESOURCE_WRITE_OWN.equals(function)) {
-			if (SecurityService.unlock(userId, "scorm.upload", currentSiteReference())) {
-				return SecurityAdvice.ALLOWED;
-			}
-		} else if (ContentHostingService.AUTH_RESOURCE_REMOVE_ANY.equals(function) || ContentHostingService.AUTH_RESOURCE_REMOVE_OWN.equals(function)) {
-			if (SecurityService.unlock(userId, "scorm.delete", currentSiteReference())) {
-				return SecurityAdvice.ALLOWED;
-			}
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_ADD;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_HIDDEN;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_READ;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_REMOVE_ANY;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_REMOVE_OWN;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_WRITE_ANY;
+import static org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_WRITE_OWN;
+import static org.sakaiproject.scorm.api.ScormConstants.PERM_DELETE;
+import static org.sakaiproject.scorm.api.ScormConstants.PERM_LAUNCH;
+import static org.sakaiproject.scorm.api.ScormConstants.PERM_UPLOAD;
+import org.sakaiproject.tool.api.ToolManager;
+
+@Slf4j
+public class ScormSecurityAdvisor implements SecurityAdvisor
+{
+	private static final SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+	private static final ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
+
+	@Override
+	public SecurityAdvice isAllowed(String userId, String function, String reference)
+	{
+		log.debug("isAllowed: userId={}, function={}, reference={}", userId, function, reference);
+		if (AUTH_RESOURCE_READ.equals(function) && (unlock(userId, PERM_LAUNCH) || unlock(userId, PERM_UPLOAD)))
+		{
+			return SecurityAdvice.ALLOWED;
 		}
+		else if (AUTH_RESOURCE_HIDDEN.equals(function) && (unlock(userId, PERM_LAUNCH) || unlock(userId, PERM_UPLOAD)))
+		{
+			return SecurityAdvice.ALLOWED;
+		}
+		else if ((AUTH_RESOURCE_ADD.equals(function) || AUTH_RESOURCE_WRITE_ANY.equals(function) || AUTH_RESOURCE_WRITE_OWN.equals(function)) && unlock(userId, PERM_UPLOAD))
+		{
+			return SecurityAdvice.ALLOWED;
+		}
+		else if ((AUTH_RESOURCE_REMOVE_ANY.equals(function) || AUTH_RESOURCE_REMOVE_OWN.equals(function)) && unlock(userId, PERM_DELETE))
+		{
+			return SecurityAdvice.ALLOWED;
+		}
+
 		return SecurityAdvice.PASS;
 	}
-	private String currentSiteReference() {
-		String siteId = ToolManager.getCurrentPlacement().getContext();
-		String reference = "/site/"+siteId;
+
+	private boolean unlock(String userID, String fuction)
+	{
+		return securityService.unlock(userID, fuction, currentSiteReference());
+	}
+
+	private String currentSiteReference()
+	{
+		String siteId = toolManager.getCurrentPlacement().getContext();
+		String reference = "/site/" + siteId;
 		return reference;
 	}
 }

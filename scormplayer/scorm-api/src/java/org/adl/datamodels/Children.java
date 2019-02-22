@@ -24,10 +24,10 @@
 
 package org.adl.datamodels;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.adl.datamodels.ieee.IValidatorFactory;
 
@@ -78,7 +78,9 @@ public class Children extends DMElement {
 		if (iChildren.size() > 0) {
 			mChildrenList = iChildren;
 		} else
+		{
 			throw new IllegalArgumentException("No Children Specified");
+		}
 	}
 
 	/**
@@ -100,7 +102,9 @@ public class Children extends DMElement {
 			mChildrenList = iChildren;
 			mRandomize = iRandom;
 		} else
+		{
 			throw new IllegalArgumentException("No Children Specified");
+		}
 	}
 
 	/**
@@ -133,8 +137,9 @@ public class Children extends DMElement {
 
 				// Make sure we are looking for all of the children
 				if (st.countTokens() == mChildrenList.size()) {
-					Vector<Boolean> found = new Vector<Boolean>();
-					for (int i = 0; i < mChildrenList.size(); i++) {
+					List<Boolean> found = new ArrayList<>();
+					for( String mChildrenList1 : mChildrenList )
+					{
 						found.add(false);
 					}
 
@@ -147,13 +152,13 @@ public class Children extends DMElement {
 							String child = (mChildrenList).get(i);
 
 							if ((tok.trim()).equals(child.trim())) {
-								Boolean already = found.elementAt(i);
+								Boolean already = found.get(i);
 
-								if (!(already.booleanValue())) {
-									found.setElementAt(true, i);
+								if (!already) {
+									found.add(i, true);
 									located = true;
 
-									already = found.elementAt(i);
+									already = found.get(i);
 
 									break;
 								} else {
@@ -171,9 +176,9 @@ public class Children extends DMElement {
 
 					if (result != DMErrorCodes.COMPARE_NOTEQUAL) {
 						for (int i = 0; i < mChildrenList.size(); i++) {
-							Boolean ok = found.elementAt(i);
+							Boolean ok = found.get(i);
 
-							if (!(ok.booleanValue())) {
+							if (!(ok)) {
 								result = DMErrorCodes.COMPARE_NOTEQUAL;
 								break;
 							}
@@ -236,25 +241,26 @@ public class Children extends DMElement {
 			int rand = -1;
 			int num = -1;
 
-			Vector<Integer> usedSet = new Vector<Integer>();
+			List<Integer> usedSet = new ArrayList<>();
 			boolean ok = false;
 
 			int lookUp;
 
-			for (int i = 0; i < mChildrenList.size(); i++) {
+			for( String mChildrenList1 : mChildrenList )
+			{
 				// Pick an unselected child
 				ok = false;
 				while (!ok) {
 					rand = gen.nextInt();
 					num = Math.abs(rand % mChildrenList.size());
 
-					lookUp = usedSet.indexOf(Integer.valueOf(num));
+					lookUp = usedSet.indexOf(num);
 
 					// Add the new element to the list
 					if (lookUp == -1) {
-						usedSet.add(Integer.valueOf(num));
+						usedSet.add(num);
 
-						if (oInfo.mValue.equals("")) {
+						if (oInfo.mValue.isEmpty()) {
 							oInfo.mValue += (mChildrenList).get(num);
 						} else {
 							oInfo.mValue += ",";
@@ -268,7 +274,7 @@ public class Children extends DMElement {
 			}
 		} else {
 			for (int i = 0; i < mChildrenList.size(); i++) {
-				if (oInfo.mValue.equals("")) {
+				if (oInfo.mValue.isEmpty()) {
 					oInfo.mValue += (mChildrenList).get(i);
 				} else {
 					oInfo.mValue += ",";

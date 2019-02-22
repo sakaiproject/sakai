@@ -193,7 +193,7 @@ public class SeqObjectiveTracking implements Serializable {
 
 					if (map.mWriteStatus) {
 						if (mWriteStatus == null) {
-							mWriteStatus = new Vector<String>();
+							mWriteStatus = new Vector<>();
 						}
 
 						mWriteStatus.add(map.mGlobalObjID);
@@ -201,7 +201,7 @@ public class SeqObjectiveTracking implements Serializable {
 
 					if (map.mWriteMeasure) {
 						if (mWriteMeasure == null) {
-							mWriteMeasure = new Vector<String>();
+							mWriteMeasure = new Vector<>();
 						}
 
 						mWriteMeasure.add(map.mGlobalObjID);
@@ -503,7 +503,7 @@ public class SeqObjectiveTracking implements Serializable {
 			double val = -999.0;
 
 			try {
-				val = (new Double(ret)).doubleValue();
+				val = (new Double(ret));
 			} catch (Exception e) {
 				if (_Debug) {
 					System.out.println("  ::--> ERROR: Bad measure value");
@@ -607,7 +607,7 @@ public class SeqObjectiveTracking implements Serializable {
 
 			if (NumberUtils.isNumber(measure)) {
 				try {
-					val = (new Double(measure)).doubleValue();
+					val = (new Double(measure));
 				} catch (Exception e) {
 					if (_Debug) {
 						System.out.println("  ::--> ERROR: Bad measure value");

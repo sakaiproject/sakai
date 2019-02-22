@@ -20,46 +20,52 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.scorm.api.ScormConstants;
+
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 
-public class AccessStatusColumn extends AbstractColumn implements ScormConstants {
-
+public class AccessStatusColumn extends AbstractColumn
+{
 	private static final long serialVersionUID = 1L;
-	
-	public AccessStatusColumn(IModel displayModel, String sortProperty) {
+
+	public AccessStatusColumn(IModel displayModel, String sortProperty)
+	{
 		super(displayModel, sortProperty);
 	}
-	
-	public void populateItem(Item item, String componentId, IModel model) {
+
+	@Override
+	public void populateItem(Item item, String componentId, IModel model)
+	{
 		item.add(new Label(componentId, createLabelModel(model)));
 	}
-	
+
 	protected IModel createLabelModel(IModel embeddedModel)
 	{
 		String resourceId = "access.status.not.accessed";
 		Object target = embeddedModel.getObject();
-		
-		if (target instanceof LearnerExperience) {
+
+		if (target instanceof LearnerExperience)
+		{
 			LearnerExperience experience = (LearnerExperience)target;
-			
-			switch (experience.getStatus()) {
-			case NOT_ACCESSED:
-				resourceId = "access.status.not.accessed";
-				break;
-			case INCOMPLETE:
-				resourceId = "access.status.incomplete";
-				break;
-			case COMPLETED:
-				resourceId = "access.status.completed";
-				break;
-			case GRADED:
-				resourceId = "access.status.graded";
-				break;
+
+			switch (experience.getStatus())
+			{
+				case ScormConstants.NOT_ACCESSED:
+					resourceId = "access.status.not.accessed";
+					break;
+				case ScormConstants.INCOMPLETE:
+					resourceId = "access.status.incomplete";
+					break;
+				case ScormConstants.COMPLETED:
+					resourceId = "access.status.completed";
+					break;
+				case ScormConstants.GRADED:
+					resourceId = "access.status.graded";
+					break;
 			};
 		}
-		
-		
+
 		return new ResourceModel(resourceId);
 	}
 }

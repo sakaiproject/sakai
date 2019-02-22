@@ -15,8 +15,8 @@
  */
 package org.sakaiproject.scorm.service.sakai.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.scorm.api.ScormConstants;
@@ -34,155 +34,182 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-public abstract class SakaiStatefulService implements LearningManagementSystem, ScormConstants {
+@Slf4j
+public abstract class SakaiStatefulService implements LearningManagementSystem
+{
+	protected abstract ServerConfigurationService configurationService();
+	protected abstract LearnerDao learnerDao();
+	protected abstract ScormContentService scormContentService();
+	protected abstract ScormResultService scormResultService();
+	protected abstract SecurityService securityService();
+	protected abstract SessionManager sessionManager();
+	protected abstract SiteService siteService();
+	protected abstract ToolManager toolManager();
+	protected abstract UserDirectoryService userDirectoryService();
 
-	private static Log log = LogFactory.getLog(SakaiStatefulService.class);
-
-	public boolean canConfigure(String context) {
-		return hasPermission(context, "scorm.configure");
+	@Override
+	public boolean canConfigure(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_CONFIG);
 	}
 
-	public boolean canDelete(String context) {
-		return hasPermission(context, "scorm.delete");
+	@Override
+	public boolean canDelete(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_DELETE);
 	}
 
-	public boolean canGrade(String context) {
-		return hasPermission(context, "scorm.grade");
+	@Override
+	public boolean canGrade(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_GRADE);
 	}
-	
-	public boolean canLaunch(ContentPackage contentPackage) {
+
+	@Override
+	public boolean canLaunch(ContentPackage contentPackage)
+	{
 		return canLaunchAttemptInternal(contentPackage, -1);
 	}
 
-	public boolean canLaunchAttempt(ContentPackage contentPackage, long attemptNumber) {
+	@Override
+	public boolean canLaunchAttempt(ContentPackage contentPackage, long attemptNumber)
+	{
 		return canLaunchAttemptInternal(contentPackage, attemptNumber);
 	}
 
-	protected boolean canLaunchAttemptInternal(ContentPackage contentPackage, long attemptNumber) {
-	    if (contentPackage == null) {
+	protected boolean canLaunchAttemptInternal(ContentPackage contentPackage, long attemptNumber)
+	{
+		if (contentPackage == null)
+		{
 			return false;
 		}
 
 		String context = contentPackage.getContext();
-		if (canModify(context)) {
+		if (canModify(context))
+		{
 			return true;
-		} else if (hasPermission(context, "scorm.launch")) {
-
+		}
+		else if (hasPermission(context, ScormConstants.PERM_LAUNCH))
+		{
 			int status = scormContentService().getContentPackageStatus(contentPackage);
-			if (status != ScormConstants.CONTENT_PACKAGE_STATUS_OPEN && status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE) {
+			if (status != ScormConstants.CONTENT_PACKAGE_STATUS_OPEN && status != ScormConstants.CONTENT_PACKAGE_STATUS_OVERDUE)
+			{
 				return false;
 			}
-			if (attemptNumber == -1) {
+
+			if (attemptNumber == -1)
+			{
 				attemptNumber = scormResultService().countAttempts(contentPackage.getContentPackageId(), currentLearnerId());
 			}
+
 			// If the numberOfTries is not Unlimited then verify that we haven't hit the max
-			if (contentPackage.getNumberOfTries() != -1 && attemptNumber != -1) {
+			if (contentPackage.getNumberOfTries() != -1 && attemptNumber != -1)
+			{
 				// attemptNumber starts at 1, so no + 1 needed here. 
-				if (attemptNumber > contentPackage.getNumberOfTries()) {
+				if (attemptNumber > contentPackage.getNumberOfTries())
+				{
 					return false;
 				}
 			}
 		}
-		return true;
-    }
 
-	public boolean canLaunchNewWindow() {
 		return true;
 	}
 
-	public boolean canModify(String context) {
+	@Override
+	public boolean canLaunchNewWindow()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean canModify(String context)
+	{
 		return canConfigure(context) || canDelete(context) || canGrade(context);
 	}
 
-	public boolean canUpload(String context) {
-		return hasPermission(context, "scorm.upload");
+	@Override
+	public boolean canUpload(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_UPLOAD);
 	}
 
-	public boolean canUseRelativeUrls() {
+	@Override
+	public boolean canUseRelativeUrls()
+	{
 		return false;
 	}
 
-	public boolean canValidate(String context) {
-		return hasPermission(context, "scorm.validate");
+	@Override
+	public boolean canValidate(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_VALIDATE);
 	}
 
-	public boolean canViewResults(String context) {
-		return hasPermission(context, "scorm.view.results");
+	@Override
+	public boolean canViewResults(String context)
+	{
+		return hasPermission(context, ScormConstants.PERM_VIEW_RESULTS);
 	}
 
-	protected abstract ServerConfigurationService configurationService();
-
-	public String currentContext() {
+	@Override
+	public String currentContext()
+	{
 		return toolManager().getCurrentPlacement().getContext();
 	}
 
-	public String currentLearnerId() {
-		String learnerId = sessionManager().getCurrentSessionUserId();
-
-		return learnerId;
+	@Override
+	public String currentLearnerId()
+	{
+		return sessionManager().getCurrentSessionUserId();
 	}
 
-	public Learner getLearner(String learnerId) throws LearnerNotDefinedException {
+	@Override
+	public Learner getLearner(String learnerId) throws LearnerNotDefinedException
+	{
 		return learnerDao().load(learnerId);
 	}
 
-	public String getLearnerName(String learnerId) {
+	@Override
+	public String getLearnerName(String learnerId)
+	{
 		String displayName = null;
-		try {
+		try
+		{
 			User user = userDirectoryService().getUser(learnerId);
-
-			if (user != null) {
+			if (user != null)
+			{
 				displayName = user.getDisplayName();
 			}
-
-		} catch (UserNotDefinedException e) {
-			log.error("Could not determine display name for user " + learnerId, e);
+		} 
+		catch (UserNotDefinedException e)
+		{
+			log.error("Could not determine display name for user {}", learnerId, e);
 		}
 
 		return displayName;
 	}
 
-	protected boolean hasPermission(String context, String lock) {
+	protected boolean hasPermission(String context, String lock)
+	{
 		String reference = siteService().siteReference(context);
-
 		return unlockCheck(lock, reference);
 	}
 
-	public boolean isOwner() {
+	@Override
+	public boolean isOwner()
+	{
 		return true;
 	}
 
-	protected abstract LearnerDao learnerDao();
-
-	protected abstract ScormContentService scormContentService();
-
-	protected abstract ScormResultService scormResultService();
-
-	protected abstract SecurityService securityService();
-
-	protected abstract SessionManager sessionManager();
-
-	protected abstract SiteService siteService();
-
-	protected abstract ToolManager toolManager();
-
-	protected boolean unlockCheck(String lock, String ref) {
+	protected boolean unlockCheck(String lock, String ref)
+	{
 		boolean isAllowed = securityService().isSuperUser();
-		if (!isAllowed) {
-			// make a reference from the resource id, if specified
-			/*String ref = null;
-			if (id != null)
-			{
-				ref = siteService().siteReference(id);
-			}*/
-
+		if (!isAllowed)
+		{
 			isAllowed = ref != null && securityService().unlock(lock, ref);
 		}
 
 		return isAllowed;
-
 	}
-
-	protected abstract UserDirectoryService userDirectoryService();
-
 }

@@ -160,9 +160,10 @@ public class IntRangeValidator extends DMTypeValidator implements Serializable {
 		// Assume the value is valid
 		int valid = DMErrorCodes.NO_ERROR;
 
-		if (iValue == null)
+		if (iValue == null){
 			// A null value can never be valid
 			return DMErrorCodes.UNKNOWN_EXCEPTION;
+		}
 
 		try {
 			int value = Integer.parseInt(iValue);

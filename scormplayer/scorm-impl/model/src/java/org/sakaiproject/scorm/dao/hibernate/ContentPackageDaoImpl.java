@@ -21,35 +21,40 @@ import java.util.regex.Pattern;
 
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.model.api.ContentPackage;
+
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-public class ContentPackageDaoImpl extends HibernateDaoSupport implements ContentPackageDao {
-
-	public int countContentPackages(String context, String name) {
+public class ContentPackageDaoImpl extends HibernateDaoSupport implements ContentPackageDao
+{
+	@Override
+	public int countContentPackages(String context, String name)
+	{
 		int count = 1;
-
 		List<ContentPackage> contentPackages = find(context);
+		Pattern p = Pattern.compile(name + "\\s*\\(?\\d*\\)?");
 
-		for (ContentPackage cp : contentPackages) {
-
-			Pattern p = Pattern.compile(name + "\\s*\\(?\\d*\\)?");
+		for (ContentPackage cp : contentPackages)
+		{
 			Matcher m = p.matcher(cp.getTitle());
-			if (m.matches()) {
+			if (m.matches())
+			{
 				count++;
 			}
-
 		}
 
 		return count;
 	}
 
-	public List<ContentPackage> find(String context) {
+	@Override
+	public List<ContentPackage> find(String context)
+	{
 		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where context = ? and deleted = ? ").toString();
-
 		return (List<ContentPackage>) getHibernateTemplate().find(statement, new Object[] { context, false });
 	}
 
-	public ContentPackage load(long id) {
+	@Override
+	public ContentPackage load(long id)
+	{
 		return (ContentPackage) getHibernateTemplate().load(ContentPackage.class, id);
 	}
 
@@ -58,10 +63,12 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	 * @return 
 	 * @see org.sakaiproject.scorm.dao.api.ContentPackageDao#loadByResourceId(java.lang.String)
 	 */
-	public ContentPackage loadByResourceId(String resourceId) {
+	@Override
+	public ContentPackage loadByResourceId(String resourceId)
+	{
 		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where resourceId = ? and deleted = ? ").toString();
-
 		List<ContentPackage> result = (List<ContentPackage>) getHibernateTemplate().find(statement, new Object[] { resourceId, false });
+
 		if (result.isEmpty())
 		{
 			return null;
@@ -72,13 +79,16 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 		}
 	}
 
-	public void remove(ContentPackage contentPackage) {
+	@Override
+	public void remove(ContentPackage contentPackage)
+	{
 		contentPackage.setDeleted(true);
 		getHibernateTemplate().saveOrUpdate(contentPackage);
 	}
 
-	public void save(ContentPackage contentPackage) {
+	@Override
+	public void save(ContentPackage contentPackage)
+	{
 		getHibernateTemplate().saveOrUpdate(contentPackage);
 	}
-
 }

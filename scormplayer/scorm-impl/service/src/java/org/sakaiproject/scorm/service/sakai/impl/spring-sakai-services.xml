@@ -6,7 +6,7 @@
 	<!-- Grab the learner information from Sakai -->
 	<bean id="org.sakaiproject.scorm.service.api.LearningManagementSystem"
 		class="org.sakaiproject.scorm.service.sakai.impl.SakaiStatefulService">
-		
+
 		<!-- Sakai API Services -->
 		<lookup-method name="configurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />

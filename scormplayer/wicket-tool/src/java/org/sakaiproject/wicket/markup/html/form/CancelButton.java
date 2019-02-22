@@ -18,21 +18,22 @@ package org.sakaiproject.wicket.markup.html.form;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.form.Button;
 
-public class CancelButton extends Button {
-
+public class CancelButton extends Button
+{
 	private static final long serialVersionUID = 1L;
 
 	private Class<? extends Page> destination;
-	
-	public CancelButton(String id, Class<? extends Page> destination) {
+
+	public CancelButton(String id, Class<? extends Page> destination)
+	{
 		super(id);
 		this.destination = destination;
 		setDefaultFormProcessing(false);
 	}
-	
+
 	@Override
-	public void onSubmit() {
+	public void onSubmit()
+	{
 		setResponsePage(destination);
 	}
-
 }

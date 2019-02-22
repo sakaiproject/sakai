@@ -15,35 +15,54 @@
  */
 package org.sakaiproject.wicket.protocol.http;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.wicket.core.request.handler.PageProvider;
+import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
+
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.settings.ExceptionSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+
+import org.sakaiproject.wicket.markup.html.ErrorPage;
 import org.sakaiproject.wicket.markup.html.SakaiSessionExpiredPage;
 
-public abstract class SakaiWebApplication extends WebApplication {
-	private static Log log = LogFactory.getLog(SakaiWebApplication.class);
-	
+@Slf4j
+public abstract class SakaiWebApplication extends WebApplication
+{
+	@Override
 	protected void init()
 	{
-		addComponentInstantiationListener(new SpringComponentInjector(this));
-		getResourceSettings().setThrowExceptionOnMissingResource(true);
-		//getDebugSettings().setAjaxDebugModeEnabled(log.isDebugEnabled());	
-		getApplicationSettings().setPageExpiredErrorPage(SakaiSessionExpiredPage.class);
-	}
-	
-	/**
-	 * Overriding this method to obfuscate all urls
-	 */
-	/*protected IRequestCycleProcessor newRequestCycleProcessor()
-	{
-	    return new WebRequestCycleProcessor()
-	    {
-	        protected IRequestCodingStrategy newRequestCodingStrategy()
-	        {
-	            return new CryptedUrlWebRequestCodingStrategy(new WebRequestCodingStrategy());
-	        }
-	    };
-	}*/
+		// Configure for Spring injection
+		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
+		// Throw an exception if we are missing a property
+		getResourceSettings().setThrowExceptionOnMissingResource(true);
+
+		// Remove the wicket specific tags from the generated markup
+		getMarkupSettings().setStripWicketTags(true);
+
+		// On Wicket session timeout, redirect to the SakaiSessionExpiredPage
+		getApplicationSettings().setPageExpiredErrorPage(SakaiSessionExpiredPage.class);
+
+		// Cleanup the HTML
+		getMarkupSettings().setStripWicketTags(true);
+		getMarkupSettings().setStripComments(true);
+		getMarkupSettings().setCompressWhitespace(true);
+
+		getExceptionSettings().setUnexpectedExceptionDisplay(ExceptionSettings.SHOW_INTERNAL_ERROR_PAGE);
+
+		// Intercept any unexpected error stacktrace and take to our ErrorPage
+		getRequestCycleListeners().add(new AbstractRequestCycleListener()
+		{
+			@Override
+			public IRequestHandler onException(final RequestCycle cycle, final Exception e)
+			{
+				return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e)));
+			}
+		});
+	}
 }

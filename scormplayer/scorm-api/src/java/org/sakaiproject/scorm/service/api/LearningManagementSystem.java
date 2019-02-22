@@ -19,8 +19,8 @@ import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 
-public interface LearningManagementSystem {
-
+public interface LearningManagementSystem
+{
 	public boolean canConfigure(String context);
 
 	public boolean canDelete(String context);
@@ -52,5 +52,4 @@ public interface LearningManagementSystem {
 	public String getLearnerName(String learnerId);
 
 	public boolean isOwner();
-
 }

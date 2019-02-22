@@ -15,23 +15,24 @@
  */
 package org.sakaiproject.scorm.exceptions;
 
-public class LearnerNotDefinedException extends Exception {
-
+public class LearnerNotDefinedException extends Exception
+{
 	private static final long serialVersionUID = 1L;
 
-	public LearnerNotDefinedException() {
-	}
+	public LearnerNotDefinedException() {}
 
-	public LearnerNotDefinedException(String message) {
+	public LearnerNotDefinedException(String message)
+	{
 		super(message);
 	}
 
-	public LearnerNotDefinedException(String message, Throwable cause) {
+	public LearnerNotDefinedException(String message, Throwable cause)
+	{
 		super(message, cause);
 	}
 
-	public LearnerNotDefinedException(Throwable cause) {
+	public LearnerNotDefinedException(Throwable cause)
+	{
 		super(cause);
 	}
-
 }

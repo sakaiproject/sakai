@@ -84,7 +84,7 @@ public class DurationValidator extends DMTypeValidator implements Serializable {
 			Double secs2 = numSec(iSecond);
 
 			if (secs1 != null && secs2 != null) {
-				equal = Double.compare(secs1.doubleValue(), secs2.doubleValue()) == 0;
+				equal = Double.compare(secs1, secs2) == 0;
 			} else {
 				equal = false;
 			}
@@ -248,9 +248,9 @@ public class DurationValidator extends DMTypeValidator implements Serializable {
 			if (Double.compare(Double.NaN, subSec) != 0) {
 				subSec = Math.floor(subSec * 100.0) / 100.0;
 
-				total = new Double(subSec + sec);
+				total = subSec + sec;
 			} else {
-				total = new Double(sec);
+				total = sec;
 			}
 		}
 		return total;

@@ -16,25 +16,22 @@
 package org.sakaiproject.wicket.model;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class SimpleDateFormatPropertyModel extends DecoratedPropertyModel {
-
+public class SimpleDateFormatPropertyModel<Date> extends DecoratedPropertyModel
+{
 	private static final long serialVersionUID = 1L;
 
 	private SimpleDateFormat dateFormat;
-	
-	public SimpleDateFormatPropertyModel(Object modelObject, String expression) {
+
+	public SimpleDateFormatPropertyModel(Object modelObject, String expression)
+	{
 		super(modelObject, expression);
 		this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 	}
 
 	@Override
-	public Object convertObject(Object object) {
-		if (object instanceof Date) {
-			return dateFormat.format(object);
-		}
-		return null;
+	public Date convertObject(Object object)
+	{
+		return object == null ? null : (Date) object;
 	}
-
 }

@@ -138,18 +138,18 @@ public class DMTimeUtility {
 			mTimeString += "P";
 		}
 		if (mFirstTime[0] != 0) {
-			Integer tempInt = Integer.valueOf(mFirstTime[0]);
+			Integer tempInt = mFirstTime[0];
 			mTimeString += tempInt.toString();
 			mTimeString += "Y";
 		}
 		if (mFirstTime[1] != 0) {
-			Integer tempInt = Integer.valueOf(mFirstTime[1]);
+			Integer tempInt = mFirstTime[1];
 			mTimeString += tempInt.toString();
 			mTimeString += "M";
 		}
 
 		if (mFirstTime[2] != 0) {
-			Integer tempInt = Integer.valueOf(mFirstTime[2]);
+			Integer tempInt = mFirstTime[2];
 			mTimeString += tempInt.toString();
 			mTimeString += "D";
 		}
@@ -159,19 +159,19 @@ public class DMTimeUtility {
 		}
 
 		if (mFirstTime[3] != 0) {
-			Integer tempInt = Integer.valueOf(mFirstTime[3]);
+			Integer tempInt = mFirstTime[3];
 			mTimeString += tempInt.toString();
 			mTimeString += "H";
 		}
 
 		if (mFirstTime[4] != 0) {
-			Integer tempInt = Integer.valueOf(mFirstTime[4]);
+			Integer tempInt = mFirstTime[4];
 			mTimeString += tempInt.toString();
 			mTimeString += "M";
 		}
 
 		if (mFirstTime[5] != 0) {
-			Integer tempInt = Integer.valueOf(mFirstTime[5]);
+			Integer tempInt = mFirstTime[5];
 			mTimeString += tempInt.toString();
 		}
 
@@ -183,7 +183,7 @@ public class DMTimeUtility {
 			if (mFirstTime[6] < 10) {
 				mTimeString += "0";
 			}
-			Integer tempInt2 = Integer.valueOf(mFirstTime[6]);
+			Integer tempInt2 = mFirstTime[6];
 			mTimeString += tempInt2.toString();
 		}
 		if ((mFirstTime[5] != 0) || (mFirstTime[6] != 0)) {

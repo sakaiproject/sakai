@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.scorm.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -25,12 +28,12 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ScormEntity implements Comparable<ScormEntity>
 {
-    private String siteID;
-    private String toolID;
-    private String contentPackageID;
-    private String resourceID;
-    private String title;
-    private String titleEncoded;
+    @Getter @Setter private String siteID;
+    @Getter @Setter private String toolID;
+    @Getter @Setter private String contentPackageID;
+    @Getter @Setter private String resourceID;
+    @Getter @Setter private String title;
+    @Getter @Setter private String titleEncoded;
 
     // Constructors
     public ScormEntity() {}
@@ -50,13 +53,6 @@ public class ScormEntity implements Comparable<ScormEntity>
         return ObjectUtils.compare( entity.getID(), this.getID() );
     }
 
-    // Getters
-    public String getSiteID()           { return this.siteID; }
-    public String getToolID()           { return this.toolID; }
-    public String getContentPackageID() { return this.contentPackageID; }
-    public String getResourceID()       { return this.resourceID; }
-    public String getTitle()            { return this.title; }
-    public String getTitleEncoded()     { return this.titleEncoded; }
     public String getID()
     {
         if( StringUtils.isNotBlank( toolID ) && StringUtils.isNotBlank( contentPackageID ) && StringUtils.isNotBlank( resourceID ) )
@@ -67,17 +63,7 @@ public class ScormEntity implements Comparable<ScormEntity>
                    resourceID       + ScormEntityProvider.ENTITY_PARAM_DELIMITER + 
                    titleEncoded;
         }
-        else
-        {
-            return null;
-        }
-    }
 
-    // Setters
-    public void setSiteID           ( String siteID )           { this.siteID = siteID; }
-    public void setToolID           ( String toolID )           { this.toolID = toolID; }
-    public void setContentPackageID ( String contentPackageID ) { this.contentPackageID = contentPackageID; }
-    public void setResourceID       ( String resourceID )       { this.resourceID = resourceID; }
-    public void setTitle            ( String title )            { this.title = title; }
-    public void setTitleEncoded     ( String titleEncoded )     { this.titleEncoded = titleEncoded; }
+        return null;
+    }
 }

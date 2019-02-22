@@ -25,24 +25,24 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.ResourceReference;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.DownloadLink;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.file.Files;
-import static org.sakaiproject.scorm.api.ScormConstants.*;
+
+import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ActivityReport;
 import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -60,24 +60,22 @@ import org.sakaiproject.scorm.ui.console.components.AttemptNumberAction;
 import org.sakaiproject.scorm.ui.console.components.ContentPackageDetailPanel;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
-import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
+import org.sakaiproject.wicket.ajax.markup.html.table.SakaiDataTable;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.util.EnhancedDataProvider;
 
-public class ResultsListPage extends ConsoleBasePage {
-
+@Slf4j
+public class ResultsListPage extends ConsoleBasePage
+{
 	private static final long serialVersionUID = 1L;
-
-	private static final ResourceReference PAGE_ICON = new ResourceReference(LearnerResultsPage.class, "res/report.png");
-
-	@SuppressWarnings("unused")
-	private static final Log LOG = LogFactory.getLog(ResultsListPage.class);
 
 	@SpringBean
 	LearningManagementSystem lms;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
+
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
 
@@ -90,10 +88,11 @@ public class ResultsListPage extends ConsoleBasePage {
 	private static final String OBJECTIVE_INDENT	= INTERACTION_INDENT + INTERACTION_INDENT + EMPTY_CELL;
 	private static		 String CSV_HEADERS;
 
-	public ResultsListPage(PageParameters pageParams) {
+	public ResultsListPage(PageParameters pageParams)
+	{
 		super(pageParams);
 
-		final long contentPackageId = pageParams.getLong("contentPackageId");
+		final long contentPackageId = pageParams.get("contentPackageId").toLong();
 		final ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 
 		// SCO-94 - deny users who do not have scorm.view.results permission
@@ -108,7 +107,7 @@ public class ResultsListPage extends ConsoleBasePage {
 
 		// SCO-127
 		buildExportHeaders();
-		AbstractReadOnlyModel<File> fileModel = new AbstractReadOnlyModel<File>()
+		IModel<File> fileModel = new IModel<File>()
 		{
 			@Override
 			public File getObject()
@@ -122,7 +121,7 @@ public class ResultsListPage extends ConsoleBasePage {
 				}
 				catch( IOException ex )
 				{
-					LOG.error( "Could not generate results export: ", ex );
+					log.error( "Could not generate results export: {}", ex );
 				}
 
 				return tempFile;
@@ -146,9 +145,8 @@ public class ResultsListPage extends ConsoleBasePage {
 
 			addBreadcrumb(new Model(contentPackage.getTitle()), ResultsListPage.class, new PageParameters(), false);
 
-			EnhancedDataPresenter presenter = new EnhancedDataPresenter("attemptPresenter", getColumns(), dataProvider);
-
-			add(presenter);
+			SakaiDataTable table = new SakaiDataTable("resultsTable", getColumns(), dataProvider, true);
+			add(table);
 
 			add(new ContentPackageDetailPanel("details", contentPackage));
 		}
@@ -313,19 +311,19 @@ public class ResultsListPage extends ConsoleBasePage {
 	{
 		switch( status )
 		{
-			case NOT_ACCESSED:
+			case ScormConstants.NOT_ACCESSED:
 			{
 				return getLocalizer().getString( "access.status.not.accessed", this );
 			}
-			case INCOMPLETE:
+			case ScormConstants.INCOMPLETE:
 			{
 				return getLocalizer().getString( "access.status.incomplete", this );
 			}
-			case COMPLETED:
+			case ScormConstants.COMPLETED:
 			{
 				return getLocalizer().getString( "access.status.completed", this );
 			}
-			case GRADED:
+			case ScormConstants.GRADED:
 			{
 				return getLocalizer().getString( "access.status.graded", this );
 			}
@@ -334,13 +332,14 @@ public class ResultsListPage extends ConsoleBasePage {
 		return "";
 	}
 
-	private List<IColumn> getColumns() {
+	private List<IColumn> getColumns()
+	{
 		IModel learnerNameHeader = new ResourceModel("column.header.learner.name");
 		IModel attemptedHeader = new ResourceModel("column.header.attempted");
 		IModel statusHeader = new ResourceModel("column.header.status");
 		IModel numberOfAttemptsHeader = new ResourceModel("column.header.attempt.number");
 
-		List<IColumn> columns = new LinkedList<IColumn>();
+		List<IColumn> columns = new ArrayList<>(4);
 
 		ActionColumn actionColumn = new ActionColumn(learnerNameHeader, "learnerName", "learnerName");
 
@@ -351,7 +350,6 @@ public class ResultsListPage extends ConsoleBasePage {
 		columns.add(actionColumn);
 
 		columns.add(new DecoratedDatePropertyColumn(attemptedHeader, "lastAttemptDate", "lastAttemptDate"));
-
 		columns.add(new AccessStatusColumn(statusHeader, "status"));
 
 		ActionColumn attemptNumberActionColumn = new ActionColumn(numberOfAttemptsHeader, "numberOfAttempts", "numberOfAttempts");
@@ -361,22 +359,24 @@ public class ResultsListPage extends ConsoleBasePage {
 		return columns;
 	}
 
-	public class AttemptDataProvider extends EnhancedDataProvider {
-
+	public class AttemptDataProvider extends EnhancedDataProvider
+	{
 		private static final long serialVersionUID = 1L;
 		private final List<LearnerExperience> learnerExperiences;
 		private final LearnerExperienceComparator comp = new LearnerExperienceComparator();
 
-		public AttemptDataProvider(long contentPackageId) {
+		public AttemptDataProvider(long contentPackageId)
+		{
 			this.learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
-			setSort( "learnerName", true );
+			setSort( "learnerName", SortOrder.ASCENDING );
 		}
 
-		public Iterator<LearnerExperience> iterator(int first, int count) {
-
+		@Override
+		public Iterator<LearnerExperience> iterator(long first, long count)
+		{
 			// Get the sort type
 			SortParam sort = getSort();
-			String sortProp = sort.getProperty();
+			String sortProp = (String) sort.getProperty();
 			boolean sortAsc = sort.isAscending();
 
 			// Set the sort type in the comparator
@@ -408,25 +408,21 @@ public class ResultsListPage extends ConsoleBasePage {
 			}
 
 			// Return sub list of sorted collection
-			return learnerExperiences.subList(first, first + count).iterator();
+			return learnerExperiences.subList((int) first, (int) first + (int) count).iterator();
 		}
 
-		public int size() {
+		@Override
+		public long size()
+		{
 			return learnerExperiences.size();
 		}
 
 		@Override
-		public List<NameValuePair> getFilterList() {
-			List<NameValuePair> list = new LinkedList<NameValuePair>();
-
-			list.add(new NameValuePair("All Groups / Sections", "ALL_GROUPS"));
-
+		public List<NameValuePair> getFilterList()
+		{
+			List<NameValuePair> list = new LinkedList<>();
+			list.add(new NameValuePair(getString( "filter.all" ), "ALL_GROUPS"));
 			return list;
 		}
-	}
-
-	@Override
-	protected ResourceReference getPageIconReference() {
-		return PAGE_ICON;
 	}
 }

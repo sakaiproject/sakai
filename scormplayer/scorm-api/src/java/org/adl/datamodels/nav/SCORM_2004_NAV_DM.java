@@ -86,9 +86,9 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable {
 		DMElementDescriptor desc = null;
 		DMDelimiterDescriptor del = null;
 
-		mElements = new Hashtable<String, DMElement>();
+		mElements = new Hashtable<>();
 
-		children = new ArrayList<DMElementDescriptor>();
+		children = new ArrayList<>();
 
 		// request
 		String[] vocab = { "continue", "previous", "choice", "exit", "exitAll", "abandon", "abandonAll", "suspendAll", "_none_" };
@@ -98,12 +98,12 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable {
 		// The 'choice' request will include a delimiter
 		del = new DMDelimiterDescriptor("target", null, new URIValidator());
 
-		desc.mDelimiters = new ArrayList<DMDelimiterDescriptor>();
+		desc.mDelimiters = new ArrayList<>();
 		desc.mDelimiters.add(del);
 
 		children.add(desc);
 
-		List<DMElementDescriptor> subChildren = new ArrayList<DMElementDescriptor>();
+		List<DMElementDescriptor> subChildren = new ArrayList<>();
 
 		// continue
 		String[] status = { "true", "false", "unknown" };

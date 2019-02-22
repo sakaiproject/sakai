@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.sakaiproject.scorm.model.api.Attempt;
 
-public interface AttemptDao {
-
+public interface AttemptDao
+{
 	public int count(long contentPackageId, String learnerId);
 
 	public List<Attempt> find(long contentPackageId);
@@ -38,5 +38,4 @@ public interface AttemptDao {
 	public Attempt lookupNewest(long contentPackageId, String learnerId);
 
 	public void save(Attempt attempt);
-
 }

@@ -28,89 +28,104 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.service.impl.AbstractResourceService;
 
-public class StandaloneResourceService extends AbstractResourceService {
-
+@Slf4j
+public class StandaloneResourceService extends AbstractResourceService
+{
 	private final String storagePath = "contentPackages";
 
-	private static Log log = LogFactory.getLog(StandaloneResourceService.class);
-
-	public Archive getArchive(String resourceId) {
+	@Override
+	public Archive getArchive(String resourceId)
+	{
 		File dir = getContentPackageDirectory(resourceId);
-
-		FilenameFilter zipFilter = new FilenameFilter() {
-
-			public boolean accept(File dir, String name) {
+		FilenameFilter zipFilter = new FilenameFilter()
+		{
+			@Override
+			public boolean accept(File dir, String name)
+			{
 				return name.endsWith(".zip");
 			}
 		};
 
-		FilenameFilter imsmanifestFilter = new FilenameFilter() {
-
-			public boolean accept(File dir, String name) {
+		FilenameFilter imsmanifestFilter = new FilenameFilter()
+		{
+			@Override
+			public boolean accept(File dir, String name)
+			{
 				return name.equals("imsmanifest.xml");
 			}
 		};
 
 		File[] files = dir.listFiles(zipFilter);
-
 		File[] imsmanifests = dir.listFiles(imsmanifestFilter);
 
-		if (files.length >= 1) {
+		if (files.length >= 1)
+		{
 			Archive archive = new Archive(resourceId, files[0].getName());
 
-			if (imsmanifests.length >= 1) {
+			if (imsmanifests.length >= 1)
+			{
 				archive.setValidated(true);
-			} else {
+			}
+			else
+			{
 				archive.setValidated(false);
 			}
 
 			archive.setMimeType("application/zip");
 			archive.setPath(dir.getAbsolutePath());
-
 			return archive;
 		}
 
 		return null;
 	}
 
-	public InputStream getArchiveStream(String resourceId) {
+	@Override
+	public InputStream getArchiveStream(String resourceId)
+	{
 		File dir = getContentPackageDirectory(resourceId);
-
-		FilenameFilter filter = new FilenameFilter() {
-
-			public boolean accept(File dir, String name) {
+		FilenameFilter filter = new FilenameFilter()
+		{
+			@Override
+			public boolean accept(File dir, String name)
+			{
 				return name.endsWith(".zip");
 			}
 		};
 
 		File[] files = dir.listFiles(filter);
-
-		if (files.length >= 1) {
-			try {
+		if (files.length >= 1)
+		{
+			try
+			{
 				FileInputStream fis = new FileInputStream(files[0]);
-
 				return fis;
-			} catch (FileNotFoundException e) {
-				log.error("Unable to create stream for zip file for resourceId: " + resourceId);
+			}
+			catch (FileNotFoundException e)
+			{
+				log.error("Unable to create stream for zip file for resourceId: {}", resourceId, e);
 			}
 		}
 
 		return null;
 	}
 
-	private File getContentPackageDirectory(String uuid) {
+	private File getContentPackageDirectory(String uuid)
+	{
 		File storageDir = new File(getRootDirectory(), uuid);
+
 		// Ensure that this directory exists
-		if (!storageDir.exists()) {
-			if (!storageDir.mkdirs()) {
-				log.error("Cannot create storageDir: " + storageDir);
+		if (!storageDir.exists())
+		{
+			if (!storageDir.mkdirs())
+			{
+				log.error("Cannot create storageDir: {}", storageDir);
 			}
 		}
 
@@ -118,28 +133,35 @@ public class StandaloneResourceService extends AbstractResourceService {
 	}
 
 	@Override
-	protected String getContentPackageDirectoryPath(String uuid) {
+	protected String getContentPackageDirectoryPath(String uuid)
+	{
 		return getContentPackageDirectory(uuid).getAbsolutePath();
 	}
 
-	private List<ContentPackageResource> getContentPackageFilesRecursive(String archiveResourceId, File directory, String path) {
-		List<ContentPackageResource> files = new LinkedList<ContentPackageResource>();
-
+	private List<ContentPackageResource> getContentPackageFilesRecursive(String archiveResourceId, File directory, String path)
+	{
+		List<ContentPackageResource> files = new LinkedList<>();
 		File[] filesInDirectory = directory.listFiles();
 
-		for (File file : filesInDirectory) {
+		for (File file : filesInDirectory)
+		{
 			StringBuilder pathBuilder = new StringBuilder(path);
-			if (path.equals("")) {
+			if (path.isEmpty())
+			{
 				pathBuilder.append(file.getName());
-			} else {
+			}
+			else
+			{
 				pathBuilder.append(File.separatorChar).append(file.getName());
 			}
 
 			String filePath = pathBuilder.toString();
-
-			if (file.isDirectory()) {
+			if (file.isDirectory())
+			{
 				files.addAll(getContentPackageFilesRecursive(archiveResourceId, file, filePath));
-			} else {
+			}
+			else
+			{
 				files.add(new ContentPackageFile(archiveResourceId, getResourcePath(archiveResourceId, filePath), file));
 			}
 		}
@@ -147,56 +169,54 @@ public class StandaloneResourceService extends AbstractResourceService {
 		return files;
 	}
 
-	public int getMaximumUploadFileSize() {
+	@Override
+	public int getMaximumUploadFileSize()
+	{
 		return 2000;
 	}
 
 	@Override
-	public String getResourcePath(String resourceId, String launchLine) {
-		/*File contentPackageDirectory = getContentPackageDirectory(resourceId);
-		
-		File resource = new File(contentPackageDirectory, launchLine);
-		
-		String path = resource.getAbsolutePath();
-		
-		return path.replace(" ", "%20");*/
-
+	public String getResourcePath(String resourceId, String launchLine)
+	{
 		String fullPath = new StringBuilder().append(File.separatorChar).append(resourceId).append(File.separatorChar).append(launchLine).toString();
-
-		if (log.isDebugEnabled()) {
-			log.debug("getResourcePath = " + fullPath);
-		}
-
+		log.debug("getResourcePath = {}", fullPath);
 		return fullPath.replace(" ", "%20");
 	}
 
-	public List<ContentPackageResource> getResources(String archiveResourceId) {
+	@Override
+	public List<ContentPackageResource> getResources(String archiveResourceId)
+	{
 		File dir = getContentPackageDirectory(archiveResourceId);
-
 		return getContentPackageFilesRecursive(archiveResourceId, dir, "");
 	}
 
-	private File getRootDirectory() {
+	private File getRootDirectory()
+	{
 		File rootDir = new File(storagePath);
-
 		return rootDir;
 	}
 
 	@Override
-	protected String getRootDirectoryPath() {
+	protected String getRootDirectoryPath()
+	{
 		return getRootDirectory().getAbsolutePath();
 	}
 
-	public List<Archive> getUnvalidatedArchives() {
-		return new LinkedList<Archive>();
+	@Override
+	public List<Archive> getUnvalidatedArchives()
+	{
+		return new LinkedList<>();
 	}
 
 	@Override
-	protected String newFolder(String uuid, ZipEntry entry) {
+	protected String newFolder(String uuid, ZipEntry entry)
+	{
 		File file = new File(getContentPackageDirectory(uuid), entry.getName());
-		if (!file.exists()) {
-			if (!file.mkdirs()) {
-				log.error("Cannot create directory: " + file);
+		if (!file.exists())
+		{
+			if (!file.mkdirs())
+			{
+				log.error("Cannot create directory: {}", file);
 			}
 		}
 
@@ -204,28 +224,39 @@ public class StandaloneResourceService extends AbstractResourceService {
 	}
 
 	@Override
-	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) {
+	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry)
+	{
 		File file = new File(getContentPackageDirectory(uuid), entry.getName());
-
 		FileOutputStream fileStream = null;
-		try {
+		try
+		{
 			fileStream = new FileOutputStream(file);
 			byte[] buffer = new byte[1024];
 			int length;
 
-			while ((length = zipStream.read(buffer)) > 0) {
+			while ((length = zipStream.read(buffer)) > 0)
+			{
 				fileStream.write(buffer, 0, length);
 			}
-		} catch (FileNotFoundException fnfe) {
-			log.error("Could not write to file " + file.getAbsolutePath(), fnfe);
-		} catch (IOException ioe) {
+		}
+		catch (FileNotFoundException fnfe)
+		{
+			log.error("Could not write to file {}", file.getAbsolutePath(), fnfe);
+		} 
+		catch (IOException ioe)
+		{
 			log.error("Could not read from zip stream ", ioe);
-		} finally {
-			if (null != fileStream) {
-				try {
+		} finally
+		{
+			if (null != fileStream)
+			{
+				try
+				{
 					fileStream.close();
-				} catch (IOException e) {
-					log.error(e);
+				} 
+				catch (IOException e)
+				{
+					log.error(e.getMessage());
 				}
 			}
 		}
@@ -233,47 +264,54 @@ public class StandaloneResourceService extends AbstractResourceService {
 		return file.getAbsolutePath();
 	}
 
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) {
+	@Override
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority)
+	{
 		String uuid = UUID.randomUUID().toString();
-
 		String fileName = new StringBuilder(name).toString();
 		File archiveFile = new File(getContentPackageDirectory(uuid), fileName);
 
-		try {
+		try
+		{
 			FileOutputStream fileStream = new FileOutputStream(archiveFile);
 
 			byte[] buffer = new byte[1024];
 			int length;
 
-			while ((length = stream.read(buffer)) > 0) {
+			while ((length = stream.read(buffer)) > 0)
+			{
 				fileStream.write(buffer, 0, length);
 			}
 
-			if (null != fileStream) {
+			if (null != fileStream)
+			{
 				fileStream.close();
 			}
-
-		} catch (Exception e) {
-			log.error("Unable to write archive to disk " + fileName, e);
+		}
+		catch (Exception e)
+		{
+			log.error("Unable to write archive to disk {}", fileName, e);
 		}
 
 		return uuid;
 	}
 
-	private void removeAll(File dir) {
-		log.warn("Removing all files under the directory " + dir.getAbsolutePath());
+	// TODO: this does nothing... huh?
+	private void removeAll(File dir)
+	{
+		log.warn("Removing all files under the directory {}", dir.getAbsolutePath());
 	}
 
-	public void removeArchive(String resourceId) {
+	public void removeArchive(String resourceId)
+	{
 		File dir = getContentPackageDirectory(resourceId);
-
 		removeAll(dir);
 	}
 
-	public void removeResources(String collectionId) throws ResourceNotDeletedException {
+	@Override
+	public void removeResources(String collectionId) throws ResourceNotDeletedException
+	{
 		File dir = getContentPackageDirectory(collectionId);
-
 		removeAll(dir);
 	}
-
 }

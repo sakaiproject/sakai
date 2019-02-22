@@ -18,13 +18,13 @@ package org.sakaiproject.wicket.markup.html.repeater.data.table;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.ResourceReference;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.html.resources.CompressedResourceReference;
+import org.apache.wicket.request.resource.PackageResourceReference;
 
 /**
  * This class provides associated markup for the {@link ActionColumn} class. 
@@ -32,50 +32,54 @@ import org.apache.wicket.markup.html.resources.CompressedResourceReference;
  * 
  * @author jrenfro
  */
-public class ActionPanel extends Panel implements IHeaderContributor {
-
+public class ActionPanel extends Panel implements IHeaderContributor
+{
 	private static final long serialVersionUID = 1L;
-	
-	private static final ResourceReference CONSOLE_CSS = new CompressedResourceReference(ActionPanel.class, "res/ActionPanel.css");
 
-	
-	public ActionPanel(String id, List<Action> actions, Object bean) {
+	private static final PackageResourceReference CONSOLE_CSS = new PackageResourceReference(ActionPanel.class, "res/ActionPanel.css");
+
+	public ActionPanel(String id, List<Action> actions, Object bean)
+	{
 		super(id);
-		
 		Action primaryAction = actions.get(0);
-		
 		add(primaryAction.newLink("action", bean));
-		
-		if (actions.size() > 1) {
-			List<Action> secondaryActions = new ArrayList<Action>(actions.subList(1, actions.size()));
- 			add(new ActionListView("actionItemList", secondaryActions, bean));
-		} else {
+
+		if (actions.size() > 1)
+		{
+			List<Action> secondaryActions = new ArrayList<>(actions.subList(1, actions.size()));
+			add(new ActionListView("actionItemList", secondaryActions, bean));
+		}
+		else
+		{
 			ActionListView listView = new ActionListView("actionItemList", null, bean);
 			listView.setVisible(false);
 			add(listView);
 		}
 	}
 
-	public class ActionListView extends ListView {
+	public class ActionListView extends ListView
+	{
 		private static final long serialVersionUID = 1L;
-		
-		private Object bean; 
-		
-		public ActionListView(String id, List<Action> actions, Object bean) {
+		private Object bean;
+
+		public ActionListView(String id, List<Action> actions, Object bean)
+		{
 			super(id, actions);
 			this.bean = bean;
 			this.setRenderBodyOnly(true);
- 		}
- 		
- 		@Override
-		protected void populateItem(ListItem item) {
+		}
+
+		@Override
+		protected void populateItem(ListItem item)
+		{
 			Action action = (Action)item.getModelObject();
 			item.add(action.newLink("actionItem", bean));
 		}
 	}
-	
-	public void renderHead(IHeaderResponse response) {
-		response.renderCSSReference(CONSOLE_CSS);
+
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		response.render(CssHeaderItem.forReference(CONSOLE_CSS));
 	}
-	
 }

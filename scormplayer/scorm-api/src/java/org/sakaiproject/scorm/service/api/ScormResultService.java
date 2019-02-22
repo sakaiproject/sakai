@@ -24,8 +24,8 @@ import org.sakaiproject.scorm.model.api.Interaction;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
 
-public interface ScormResultService {
-
+public interface ScormResultService
+{
 	public boolean existsActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
 
 	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
@@ -39,9 +39,9 @@ public interface ScormResultService {
 	public List<Attempt> getAttempts(long contentPackageId);
 
 	public List<Attempt> getAttempts(long contentPackageId, String learnerId);
-	
+
 	public Attempt getNewstAttempt(long contentPackageId, String learnerId);
-	
+
 	public int countAttempts(long contentPackageId, String learnerId);
 
 	public List<Attempt> getAttempts(String courseId, String learnerId);
@@ -57,5 +57,4 @@ public interface ScormResultService {
 	public String[] getSiblingIds(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);
 
 	public void saveAttempt(Attempt attempt);
-
 }

@@ -18,7 +18,9 @@ package org.sakaiproject.scorm.ui.reporting.util;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 import org.sakaiproject.scorm.model.api.ActivitySummary;
@@ -26,22 +28,25 @@ import org.sakaiproject.scorm.model.api.comparator.ActivitySummaryComparator;
 import org.sakaiproject.scorm.model.api.comparator.ActivitySummaryComparator.CompType;
 import org.sakaiproject.wicket.markup.html.repeater.util.EnhancedDataProvider;
 
-public class SummaryProvider extends EnhancedDataProvider {
-
+public class SummaryProvider extends EnhancedDataProvider
+{
 	private static final long serialVersionUID = 1L;
+
 	private final List<ActivitySummary> summaries;
 	private final ActivitySummaryComparator comp = new ActivitySummaryComparator();
 
-	public SummaryProvider(List<ActivitySummary> summaries) {
+	public SummaryProvider(List<ActivitySummary> summaries)
+	{
 		this.summaries = summaries;
-		setSort( "title", true );
+		setSort( "title", SortOrder.ASCENDING );
 	}
-	
-	public Iterator<ActivitySummary> iterator(int first, int count) {
 
+	@Override
+	public Iterator<ActivitySummary> iterator(long first, long count)
+	{
 		// Get the sort type
 		SortParam sort = getSort();
-		String sortProp = sort.getProperty();
+		String sortProp = (String) sort.getProperty();
 		boolean sortAsc = sort.isAscending();
 
 		// Set the sort type in the comparator
@@ -73,10 +78,12 @@ public class SummaryProvider extends EnhancedDataProvider {
 		}
 
 		// Return sub list of sorted collection
-		return summaries.subList(first, first + count).iterator();
+		return summaries.subList((int) first, (int) first + (int) count).iterator();
 	}
 
-	public int size() {
+	@Override
+	public long size()
+	{
 		return summaries.size();
 	}
 }

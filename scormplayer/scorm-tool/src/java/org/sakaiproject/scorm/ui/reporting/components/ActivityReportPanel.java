@@ -20,26 +20,21 @@ import java.util.ArrayList;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+
 import org.sakaiproject.scorm.model.api.ActivityReport;
-import org.sakaiproject.scorm.model.api.Objective;
 
-public class ActivityReportPanel extends Panel {
-
+public class ActivityReportPanel extends Panel
+{
 	private static final long serialVersionUID = 1L;
 
-	public ActivityReportPanel(String id, ActivityReport report) {
+	public ActivityReportPanel(String id, ActivityReport report)
+	{
 		super(id, new CompoundPropertyModel(report));
-		
+
 		add(new Label("title"));
-		
 		add(new ScorePanel("score", report.getScore()));
-		
 		add(new ProgressPanel("progress", report.getProgress()));
-		
-		add(new ObjectivesPanel("objectives", new ArrayList<Objective>(report.getObjectives().values())));
-		
+		add(new ObjectivesPanel("objectives", new ArrayList<>(report.getObjectives().values())));
 		add(new CMIDataGraph("cmiDataGraph", report.getCmiData()));
-	
 	}
-	
 }

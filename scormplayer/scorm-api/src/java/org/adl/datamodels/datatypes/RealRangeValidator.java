@@ -178,9 +178,10 @@ public class RealRangeValidator extends DMTypeValidator implements Serializable 
 
 		boolean done = false;
 
-		if (iValue == null)
+		if (iValue == null){
 			// A null value can never be valid
 			return DMErrorCodes.UNKNOWN_EXCEPTION;
+		}
 
 		try {
 			double value = Double.parseDouble(iValue);
@@ -193,19 +194,19 @@ public class RealRangeValidator extends DMTypeValidator implements Serializable 
 			if (done != true) {
 				// Test with a min and no max; this defaults the max to infinity
 				if (mMin != null && mMax == null) {
-					if (value < mMin.doubleValue()) {
+					if (value < mMin) {
 						valid = DMErrorCodes.VALUE_OUT_OF_RANGE;
 					}
 				}
 				// Test with a max and not min; this defaults the min to 0
 				else if (mMin == null && mMax != null) {
-					if (value < 0 || value > mMax.doubleValue()) {
+					if (value < 0 || value > mMax) {
 						valid = DMErrorCodes.VALUE_OUT_OF_RANGE;
 					}
 				}
 				// Test with a max and a min
 				else if (mMin != null && mMax != null) {
-					if (value < mMin.doubleValue() || value > mMax.doubleValue()) {
+					if (value < mMin || value > mMax) {
 						valid = DMErrorCodes.VALUE_OUT_OF_RANGE;
 					}
 				}

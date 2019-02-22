@@ -106,16 +106,15 @@ public class ServletProxy {
 				System.out.println("Before postObjects()");
 			}
 
-			ObjectInputStream in = ServletWriter.postObjects(mServletURL, data);
-
-			if (_Debug) {
-				System.out.println("Back In " + "ServletProxy::postLMSRequest()");
-				System.out.println("Attempting to read servlet " + "response now...");
+			try (ObjectInputStream in = ServletWriter.postObjects(mServletURL, data))
+			{
+				if (_Debug) {
+					System.out.println("Back In " + "ServletProxy::postLMSRequest()");
+					System.out.println("Attempting to read servlet " + "response now...");
+				}
+				
+				response = (SSP_ServletResponse) in.readObject();
 			}
-
-			response = (SSP_ServletResponse) in.readObject();
-
-			in.close();
 		} catch (Exception e) {
 			if (_Debug) {
 				System.out.println("Exception caught in " + "ServletProxy::postLMSRequest()");
