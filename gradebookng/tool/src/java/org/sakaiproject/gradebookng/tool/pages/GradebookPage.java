@@ -575,6 +575,10 @@ public class GradebookPage extends BasePage {
 		response.render(
 				JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.bootstrap.min.css')", null));
 
+		//Feedback reminder for instructors
+		response.render(
+				JavaScriptHeaderItem.forScript("includeWebjarLibrary('awesomplete')", null));
+
 		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem
 				.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));

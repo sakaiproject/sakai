@@ -44,6 +44,8 @@ $Id$
 
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+    <script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
+    <script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
     
     <script type="text/JavaScript">   
       jQuery(window).load(function(){
@@ -72,6 +74,19 @@ $Id$
           }catch(err){}
           
         }); 
+
+        var sakaiReminder = new SakaiReminder();
+        $('textarea.awesomplete').each(function() {
+          new Awesomplete(this, {
+            list: sakaiReminder.getAll()
+          });
+        });
+        $('#editStudentResults').submit(function(e) {
+          $('textarea.awesomplete').each(function() {
+            sakaiReminder.new($(this).val());
+          });
+        });
+
       });
     </script>
 
@@ -182,7 +197,7 @@ function toPoint(id)
 <div class="form-group row">
    <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
    <div class="col-md-6">
-     <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"/>
+     <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30" styleClass="awesomplete"/>
    </div>
 </div>
 
@@ -368,7 +383,7 @@ function toPoint(id)
           <h:panelGrid columns="2" border="0" >
             <h:outputLabel value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
             <h:outputText value="&#160;" escape="false" />
-            <h:inputTextarea value="#{question.gradingComment}" rows="4" cols="40"/>
+            <h:inputTextarea value="#{question.gradingComment}" rows="4" cols="40" styleClass="awesomplete"/>
             <%@ include file="/jsf/evaluation/gradeStudentResultAttachment.jsp" %>
           </h:panelGrid>
           </div>

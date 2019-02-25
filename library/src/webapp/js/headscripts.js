@@ -794,6 +794,10 @@ function includeWebjarLibrary(library) {
 	} else if (library == 'ckeditor') {
 		libraryVersion = "4.11.1";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
+	} else if (library == 'awesomplete') {
+		libraryVersion = "1.1.4";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
