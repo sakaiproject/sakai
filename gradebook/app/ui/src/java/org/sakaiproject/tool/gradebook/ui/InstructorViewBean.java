@@ -273,7 +273,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			}
 		}
 
-		if (updatedGradeRecords.isEmpty()) {
+		if (!updatedGradeRecords.isEmpty()) {
 			getGradebookBean().postEvent("gradebook.updateItemScores",
 					"/gradebook/" + getGradebookId() + "/" + updatedGradeRecords.size() + "/" + getAuthzLevel(), true);
 		}

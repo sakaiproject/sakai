@@ -594,12 +594,27 @@ public class SelectActionListener
     Date retractDate = f.getRetractDate();
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
 
+    if (dueDate == null && (retractDate != null && acceptLateSubmission)) {
+        dueDate = retractDate;
+    }
+
     if (!Integer.valueOf(1).equals(status)) {
     	return false;
     }
     
     if (startDate != null && startDate.after(currentDate)) {
     	return false;
+    }
+
+    int totalSubmitted = 0;
+
+    //boolean notSubmitted = false;
+    if (h.get(f.getPublishedAssessmentId()) != null){
+      totalSubmitted = ((Integer) h.get(f.getPublishedAssessmentId()));
+    }
+    
+    if (acceptLateSubmission && (dueDate != null && dueDate.before(currentDate)) && retractDate == null && totalSubmitted == 0) {
+      return true;
     }
     
     if (acceptLateSubmission
@@ -620,12 +635,6 @@ public class SelectActionListener
     int numberRetake = 0;
     if (numberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
     	numberRetake = (((StudentGradingSummaryData) numberRetakeHash.get(f.getPublishedAssessmentId())).getNumberRetake());
-    }
-    int totalSubmitted = 0;
-    
-    //boolean notSubmitted = false;
-    if (h.get(f.getPublishedAssessmentId()) != null){
-      totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId()));
     }
     
       //2. time to go through all the criteria

@@ -29,6 +29,7 @@ import java.io.Writer;
 import lombok.extern.slf4j.Slf4j;
 import org.radeox.Messages;
 import org.radeox.api.macro.MacroParameter;
+import org.radeox.util.Encoder;
 
 /*
  * Displays a mail to link. @author stephan @team sonicteam
@@ -56,7 +57,7 @@ public class MailToMacro extends LocalePreserved
 
 		if (params.getLength() == 1)
 		{
-			String mail = params.get("0"); //$NON-NLS-1$
+			String mail = Encoder.escape(params.get("0")); //$NON-NLS-1$
 			writer.write("<a href=\"mailto:" + mail + "\">" + mail + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return;

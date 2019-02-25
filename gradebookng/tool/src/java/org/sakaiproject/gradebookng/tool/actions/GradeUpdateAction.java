@@ -38,6 +38,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.util.NumberUtil;
 
 public class GradeUpdateAction extends InjectableAction implements Serializable {
 
@@ -134,7 +135,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		final String rawNewGrade = params.get("newScore").textValue();
 
 		if (StringUtils.isNotBlank(rawNewGrade)
-				&& (!FormatHelper.isValidDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
+				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
 			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
 
 			return new ArgumentErrorResponse("Grade not valid");

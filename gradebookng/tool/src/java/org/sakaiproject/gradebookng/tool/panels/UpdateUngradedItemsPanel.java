@@ -46,6 +46,7 @@ import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.NumberUtil;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -99,7 +100,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 				final Assignment assignment = UpdateUngradedItemsPanel.this.businessService.getAssignment(assignmentId);
 
 				try {
-					if(!FormatHelper.isValidDouble(override.getGrade())){
+					if(!NumberUtil.isValidLocaleDouble(override.getGrade())){
 						throw new NumberFormatException();
 					}
 					final Double overrideValue = FormatHelper.validateDouble(override.getGrade());
