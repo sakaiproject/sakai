@@ -32,8 +32,8 @@ public class Result { // This is all output-only
 	public String id;
 	@JsonProperty("scoreOf")
 	public String scoreOf;
-	@JsonProperty("userId")
-	public String userId;
+	@JsonProperty("userId")  // TODO: LTI13 quirk should be subject
+	public String userId;  // TODO: LTI13 quirk should be subject
 	@JsonProperty("resultScore")
 	public Double resultScore;
 	@JsonProperty("resultMaximum")

@@ -1309,15 +1309,24 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 	@Override
 	public void updatePermissionsForUser(final String gradebookUid, final String userId, List<PermissionDefinition> permissionDefinitions) {
 		Long gradebookId = getGradebook(gradebookUid).getId();
-		
+
+		if (permissionDefinitions.isEmpty()) {
+			PermissionDefinition noPermDef = new PermissionDefinition();
+			noPermDef.setFunction(GraderPermission.NONE.toString());
+			noPermDef.setUserId(userId);
+			permissionDefinitions.add(noPermDef);
+		}
+
 		//get the current list of permissions
 		final List<Permission> currentPermissions = getPermissionsForUser(gradebookId, userId);
 		
 		//convert PermissionDefinition to Permission
 		final List<Permission> newPermissions = new ArrayList<>();
 		for(PermissionDefinition def: permissionDefinitions) {
-			
-			if(!StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.GRADE.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
+			if(!StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.GRADE.toString())
+					&& !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW.toString())
+					&& !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())
+					&& !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.NONE.toString())) {
 				throw new IllegalArgumentException("Invalid function for permission definition: " + def.getFunction());
 			}
 			
@@ -1351,6 +1360,16 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
     	};
 
     	getHibernateTemplate().execute(hc);
+	}
+
+	public void clearPermissionsForUser(final String gradebookUid, final String userId) {
+		Long gradebookId = getGradebook(gradebookUid).getId();
+
+		// remove all current permissions for user
+		final List<Permission> currentPermissions = getPermissionsForUser(gradebookId, userId);
+		for (Permission currentPermission : currentPermissions) {
+			getHibernateTemplate().getSessionFactory().getCurrentSession().delete(currentPermission);
+		}
 	}
 
 	

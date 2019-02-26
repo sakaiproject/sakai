@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.ImportedCell;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn.Type;
@@ -36,7 +36,6 @@ public class CommentValidator
 
     private static final String SAK_PROP_MAX_COMMENT_LENGTH = "gradebookng.maxCommentLength";
     private static final int SAK_PROP_MAX_COMMENT_LENGTH_DEFAULT = 20000;
-    public static final int MAX_COMMENT_LENGTH = ServerConfigurationService.getInt(SAK_PROP_MAX_COMMENT_LENGTH, SAK_PROP_MAX_COMMENT_LENGTH_DEFAULT);
 
     /**
      * Validate the comments contained within the list of imported rows.
@@ -45,7 +44,7 @@ public class CommentValidator
      * @param columns the list of parsed columns, so we can access the column type and name
      * @return the {@link CommentValidationReport}
      */
-    public CommentValidationReport validate( List<ImportedRow> rows, List<ImportedColumn> columns )
+    public CommentValidationReport validate( List<ImportedRow> rows, List<ImportedColumn> columns, ServerConfigurationService serverConfigService )
     {
         report = new CommentValidationReport();
 
@@ -61,7 +60,7 @@ public class CommentValidator
                     if( cell != null )
                     {
                         String studentIdentifier = row.getStudentEid();
-                        validateComment( columnTitle, studentIdentifier, cell.getComment() );
+                        validateComment( columnTitle, studentIdentifier, cell.getComment(), serverConfigService );
                     }
                 }
             }
@@ -77,7 +76,7 @@ public class CommentValidator
      * @param studentIdentifer
      * @param comment
      */
-    private void validateComment( String columnTitle, String studentIdentifer, String comment )
+    private void validateComment( String columnTitle, String studentIdentifer, String comment, ServerConfigurationService serverConfigService )
     {
         // Empty comments are valid
         if( StringUtils.isBlank( comment ) )
@@ -85,7 +84,7 @@ public class CommentValidator
             return;
         }
 
-        if( isCommentInvalid( comment ) )
+        if( isCommentInvalid( comment, serverConfigService ) )
         {
             report.addInvalidComment( columnTitle, studentIdentifer );
         }
@@ -98,8 +97,19 @@ public class CommentValidator
      * @param comment the comment string to test
      * @return true if the given comment is invalid; false otherwise
      */
-    public static boolean isCommentInvalid( String comment )
+    public static boolean isCommentInvalid( String comment, ServerConfigurationService serverConfigService )
     {
-        return StringUtils.length(comment) > MAX_COMMENT_LENGTH;
+        return StringUtils.length( comment ) > getMaxCommentLength( serverConfigService );
+    }
+
+    /**
+     * Retrieve the max comment length from sakai.properties
+     * 
+     * @param serverConfigService the object used to retrieve the value
+     * @return the current value of "gradebookng.maxCommentLength" sakai.property; defaults to 20,000
+     */
+    public static int getMaxCommentLength( ServerConfigurationService serverConfigService )
+    {
+        return serverConfigService.getInt( SAK_PROP_MAX_COMMENT_LENGTH, SAK_PROP_MAX_COMMENT_LENGTH_DEFAULT );
     }
 }

@@ -38,16 +38,16 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.text.WordUtils;
 import org.imgscalr.Scalr;
-
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ProfileUtils {
@@ -429,7 +429,7 @@ public class ProfileUtils {
 		String stripped = FormattedText.convertFormattedTextToPlaintext(s);
 		
 		//so we escape anything that is left
-		return StringEscapeUtils.escapeHtml(stripped);
+		return StringEscapeUtils.escapeHtml3(stripped);
 	}
 
 	/**

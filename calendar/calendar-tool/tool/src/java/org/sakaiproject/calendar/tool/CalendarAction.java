@@ -147,12 +147,12 @@ extends VelocityPortletStateAction
 	private static final String CALENDAR_INIT_PARAMETER = "calendar";
 	private static final int HOURS_PER_DAY = 24;
 	static int tempHours = ServerConfigurationService.getInt("calendar.hoursPerPage", 10);
-	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 24 ? 24 : (tempHours < 10 ? 10 : tempHours);
+	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 16 ? 16 : (tempHours < 8 ? 8 : tempHours);
 	private static final int NUMBER_OF_SECTIONS = (NUMBER_HOURS_PER_PAGE*2)-1;
 
 	private static final int FIRST_PAGE_START_HOUR = 0;
 	private static final int SECOND_PAGE_START_HOUR = 8;
-	private static final int THIRD_PAGE_START_HOUR = 14;
+	private static final int THIRD_PAGE_START_HOUR = 24-NUMBER_HOURS_PER_PAGE;
 	
 	private static final String STATE_YEAR = "calYear";
 	private static final String STATE_MONTH = "calMonth";
@@ -3561,6 +3561,7 @@ extends VelocityPortletStateAction
 		context.put("calObj", calObj);
 		context.put("tlang",rb);
 		context.put("numberOfSections",NUMBER_OF_SECTIONS);
+		context.put("numberHoursPerPage",NUMBER_HOURS_PER_PAGE);
 		state.setState("day");
 		context.put("message", state.getState());
 		
@@ -4138,7 +4139,7 @@ extends VelocityPortletStateAction
 					// Each monthObj contains dayObjs for the number of the days in the month.
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					eventList = CalendarEventVectorObj.getEvents(TimeService.newTimeRange(startTime,endTime,true,true));
@@ -4156,7 +4157,7 @@ extends VelocityPortletStateAction
 					// fill empty spaces for the first days in the first week in the month before reach the first day of the month
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
@@ -4185,7 +4186,7 @@ extends VelocityPortletStateAction
 						dateObj.setFlag(1);
 					
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					
@@ -4210,7 +4211,7 @@ extends VelocityPortletStateAction
 						m_calObj.nextDate();
 						dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 						
-						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 						endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 						
 						timeRange = TimeService.newTimeRange(startTime,endTime,true,true);

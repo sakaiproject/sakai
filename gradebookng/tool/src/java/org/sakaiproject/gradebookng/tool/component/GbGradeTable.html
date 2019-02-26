@@ -42,7 +42,9 @@
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                            <li><a href="javascript:void(0);" class="gb-set-zero-score" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+                            {if settings.isSetUngradedToZeroEnabled}
+                                <li><a href="javascript:void(0);" class="gb-set-zero-score" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
+                            {/if}
                             {if !settings.isCategoryTypeWeighted}
                                 <li>
                                     <a href="javascript:void(0);" class="gb-toggle-points" role="menuitem">
@@ -235,6 +237,33 @@
                         ${studentNumber}
                     </div>
                 </div>
+            </div>
+        </script>
+        <script id="sectionsHeaderTemplate" type="text/template">
+            <div class="relative">
+                <div class="colHeader">
+                    <a class="gb-title">
+                        <wicket:message key="column.header.sections"/>
+                    </a>
+                </div>
+            </div>
+        </script>
+        <script id="sectionsCellTemplate" type="text/template">
+            <div class="gb-value">
+              {if sections.length > 0}
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  ${sections[0]}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                {for s in sections}
+                  <div>${s}</div>
+                {/for}
+                </div>
+              </div>
+              {else}
+                <wicket:message key="sections.label.none"/>
+              {/if}
             </div>
         </script>
         <script id="cellTemplate" type="text/template">

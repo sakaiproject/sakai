@@ -149,8 +149,15 @@
 				<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
 				<em>
 					$plagiarismNote
-					#if ($plagiarismFileTypes)
-						$plagiarismFileTypes
+					#if ($plagiarismFileTypes || $plagiarismFileSize)
+						<ul>
+							#if ($plagiarismFileTypes)
+								<li>$plagiarismFileTypes</li>
+							#end
+							#if ($plagiarismFileSize)
+								$plagiarismFileSize
+							#end
+						</ul>
 					#end
 					#if ($plagiarismStudentPreview)
 						$plagiarismStudentPreview

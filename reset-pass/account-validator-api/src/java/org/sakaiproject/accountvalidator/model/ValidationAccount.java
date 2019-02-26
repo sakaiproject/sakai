@@ -169,7 +169,7 @@ public class ValidationAccount {
 		
 	}
 	
-	public void setvalidationReceived(Date d) {
+	public void setValidationReceived(Date d) {
 		validationReceived = d;
 	}
 	

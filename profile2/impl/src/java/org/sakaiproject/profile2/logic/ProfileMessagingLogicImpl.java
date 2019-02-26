@@ -22,10 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -33,6 +30,9 @@ import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of ProfileMessagingLogic for Profile2.

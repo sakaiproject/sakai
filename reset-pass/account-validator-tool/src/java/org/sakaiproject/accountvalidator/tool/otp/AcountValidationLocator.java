@@ -340,7 +340,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				userDirectoryService.commitEdit(u);
 				
 				//update the Validation object
-				item.setvalidationReceived(new Date());
+				item.setValidationReceived(new Date());
 				item.setStatus(ValidationAccount.STATUS_CONFIRMED);
 				log.debug("Saving now ...");
 				

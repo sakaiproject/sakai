@@ -161,7 +161,7 @@ import org.sakaiproject.util.FormattedText;
               .forEach(p -> p.getItemContents().stream()
                       .filter(Objects::nonNull)
                       .forEach(i -> {
-                          i.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + i.getItemData().getItemId()));
+                          i.setHasAssociatedRubric(rubricsService.hasAssociatedRubric(RubricsConstants.RBCS_TOOL_SAMIGO, RubricsConstants.RBCS_PUBLISHED_ASSESSMENT_ENTITY_PREFIX + publishedId + "." + i.getItemData().getItemId()));
                           i.getItemGradingDataArray()
                                   .forEach(d -> itemContentsMap.put(d.getItemGradingId(), i));
                       }));

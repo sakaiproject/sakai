@@ -30,6 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.wicket.Component;
 import org.apache.wicket.model.StringResourceModel;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -54,6 +56,27 @@ public class GbGradebookData {
 
 	private final int NULL_SENTINEL = 127;
 
+	private static final String SAK_PROP_SHOW_SET_ZERO_SCORE = "gradebookng.showSetZeroScore";
+	private static final boolean SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT = true;
+
+	private final List<StudentDefinition> students;
+	private final List<ColumnDefinition> columns;
+	private final List<GbStudentGradeInfo> studentGradeInfoList;
+	private final List<CategoryDefinition> categories;
+	private final GradebookInformation settings;
+	private final GradebookUiSettings uiSettings;
+	private final GbRole role;
+	private final boolean isUserAbleToEditAssessments;
+	private final Map<String, String> toolNameIconCSSMap;
+	private final String defaultIconCSS;
+	private final Map<String, Double> courseGradeMap;
+	private final Map<String, Boolean> hasAssociatedRubricMap;
+	private final boolean isStudentNumberVisible;
+	private final boolean isSectionsVisible;
+	private final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
+
+	private final Component parent;
+
 	@Data
 	private class StudentDefinition {
 		private String eid;
@@ -68,6 +91,7 @@ public class GbGradebookData {
 
 		private String studentNumber;
 		private String hasDroppedScores;
+		private List<String> sections;
 	}
 
 	private interface ColumnDefinition {
@@ -189,23 +213,6 @@ public class GbGradebookData {
 		}
 	}
 
-	private final List<StudentDefinition> students;
-	private final List<ColumnDefinition> columns;
-	private final List<GbStudentGradeInfo> studentGradeInfoList;
-	private final List<CategoryDefinition> categories;
-	private final GradebookInformation settings;
-	private final GradebookUiSettings uiSettings;
-	private final GbRole role;
-	private final boolean isUserAbleToEditAssessments;
-	private final Map<String, String> toolNameIconCSSMap;
-	private final String defaultIconCSS;
-	private final Map<String, Double> courseGradeMap;
-	private final Map<String, Boolean> hasAssociatedRubricMap;
-	private final boolean isStudentNumberVisible;
-	private final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
-
-	private final Component parent;
-
 	public GbGradebookData(final GbGradeTableData gbGradeTableData, final Component parentComponent) {
 		this.parent = parentComponent;
 		this.categories = gbGradeTableData.getCategories();
@@ -214,11 +221,12 @@ public class GbGradebookData {
 		this.settings = gbGradeTableData.getGradebookInformation();
 		this.uiSettings = gbGradeTableData.getUiSettings();
 		this.role = gbGradeTableData.getRole();
-		this.isUserAbleToEditAssessments = gbGradeTableData.getisUserAbleToEditAssessments();
+		this.isUserAbleToEditAssessments = gbGradeTableData.isUserAbleToEditAssessments();
 
 		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
 
 		this.isStudentNumberVisible = gbGradeTableData.isStudentNumberVisible();
+		this.isSectionsVisible = gbGradeTableData.isSectionsVisible();
 
 		this.studentGradeInfoList = gbGradeTableData.getGrades();
 
@@ -386,6 +394,8 @@ public class GbGradebookData {
 		result.put("showPoints", this.uiSettings.getShowPoints());
 		result.put("isUserAbleToEditAssessments", isUserAbleToEditAssessments());
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
+		result.put("isSectionsVisible", this.isSectionsVisible && ServerConfigurationService.getBoolean("gradebookng.showSections", true));
+		result.put("isSetUngradedToZeroEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SET_ZERO_SCORE, SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT));
 
 		return result;
 	};
@@ -483,6 +493,8 @@ public class GbGradebookData {
 				zeroes.append("0");
 			}
 			studentDefinition.setHasConcurrentEdit(zeroes.toString());
+
+			studentDefinition.setSections(student.getSections());
 
 			result.add(studentDefinition);
 		}

@@ -76,6 +76,7 @@
 				##and finally - the labels work, but having commas in the id does not validate. Can we concatenate or replace with underscore? Here is reqs on ids and labels: an id attribute value must begin with a letter (A-Z or a-z) and consist of the following characters: (A-Z), (a-z), (0-9), hyphens (-), underscores (_), colons (:), and periods (.).
 				#set($crosslisted=0)	
 				#set($courseNumber=0)
+				#set($hasRosters=false)
 				#foreach($courseObject in $termCourseList)
 					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0"  summary="$tlang.getString("nscourse.courselist.summary")" border="0" style="width:auto">
 					<tr>	
@@ -91,6 +92,7 @@
 					</th>
 					</tr>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
+						#set($hasRosters=true)
 						<tr class="exclude"><td colspan="3" style="white-space:nowrap">
 						#if ($providerCourseList) 
 							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size() - $!providerCourseList.size())
@@ -235,6 +237,19 @@
 					#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
 					/>
+				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled
+				#if( $!contNoRosterEnabled )
+				<input
+					#if( !$hasRosters ) class="active" #end
+					type="submit"
+					accesskey="x"
+					name="Cancel"
+					id="cancelButton"
+					value="$tlang.getString('nscourse.no_rosters')"
+					aria-label="$tlang.getString('nscourse.no_rosters')"
+					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='norosters'; document.addCourseForm.submit(); return false;"
+					/>
+				#end
 				<input
 					type="submit" 
 					accesskey="b"
@@ -251,17 +266,6 @@
 					value="$tlang.getString('gen.cancel')"
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
 					/>
-				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled
-				#if( $!contNoRosterEnabled )
-				<input
-					type="submit" 
-					accesskey="x"
-					name="Cancel" 
-					id="cancelButton" 
-					value="$tlang.getString('nscourse.no_rosters')"
-					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='norosters'; document.addCourseForm.submit(); return false;"
-					/>
-				#end
 				</p>
 			#else
 				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)

@@ -22,12 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Data;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -49,6 +45,10 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+
+import lombok.Data;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Entity provider for the Roster tool
