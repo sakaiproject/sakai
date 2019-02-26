@@ -25,10 +25,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,18 +76,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-
-	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
-	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	@Setter protected SqlService sqlService = null;
 
 	/**
 	 * Configuration: set the table name for the container.
@@ -163,8 +153,8 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_mailarchive");
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_mailarchive_2_6_0");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_mailarchive");
+				sqlService.ddl(this.getClass().getClassLoader(), "sakai_mailarchive_2_6_0");
 			}
 
 			super.init();
@@ -214,7 +204,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 		public DbStorage(DoubleStorageUser user)
 		{
 			super(m_cTableName, "CHANNEL_ID", m_rTableName, "MESSAGE_ID", "CHANNEL_ID", "MESSAGE_DATE", "OWNER", "DRAFT",
-					"PUBVIEW", FIELDS, SEARCH_FIELDS, m_locksInDb, "channel", "message", user, m_sqlService);
+					"PUBVIEW", FIELDS, SEARCH_FIELDS, m_locksInDb, "channel", "message", user, sqlService);
 			m_locksAreInTable = false;
 		} // DbStorage
         
@@ -403,13 +393,13 @@ public class DbMailArchiveService extends BaseMailArchiveService
 		try
 		{
 			// get a connection
-			final Connection connection = m_sqlService.borrowConnection();
+			final Connection connection = sqlService.borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			// read all message records that need conversion
 			String sql = "select CHANNEL_ID, MESSAGE_ID, XML from " + m_rTableName /* + " where OWNER is null" */;
-			m_sqlService.dbRead(connection, sql, null, new SqlReader()
+			sqlService.dbRead(connection, sql, null, new SqlReader()
 			{
 				private int count = 0;
 
@@ -446,7 +436,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 						fields[1] = (draft ? "1" : "0");
 						fields[2] = channelId;
 						fields[3] = messageId;
-						boolean ok = m_sqlService.dbWrite(connection, update, fields);
+						boolean ok = sqlService.dbWrite(connection, update, fields);
 
 						if (!ok)
 							log.info("convertToDraft: channel: " + channelId + " message: " + messageId + " owner: "
@@ -468,7 +458,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			sqlService.returnConnection(connection);
 		}
 		catch (Exception t)
 		{

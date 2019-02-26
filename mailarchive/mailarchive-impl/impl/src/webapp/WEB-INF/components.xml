@@ -22,6 +22,7 @@
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
 
  		<property name="containerTableName"><value>MAILARCHIVE_CHANNEL</value></property>
  		<property name="resourceTableName"><value>MAILARCHIVE_MESSAGE</value></property>
