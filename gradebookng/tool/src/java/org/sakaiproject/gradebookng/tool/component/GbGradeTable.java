@@ -127,5 +127,12 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 		response.render(OnDomReadyHeaderItem.forScript(String.format("GbGradeTable.renderTable('%s', tableData)",
 				component.getMarkupId())));
+
+		int sectionsColumnWidth = serverConfigService.getInt("gradebookng.sectionsColumnWidth", 140);
+		int studentNumberColumnWidth = serverConfigService.getInt("gradebookng.studentNumberColumnWidth", 140);
+		StringBuilder sb = new StringBuilder();
+		sb.append("var sectionsColumnWidth = ").append(sectionsColumnWidth);
+		sb.append(", studentNumberColumnWidth = ").append(studentNumberColumnWidth).append(";");
+		response.render(JavaScriptHeaderItem.forScript(sb.toString(), null));
 	}
 }
