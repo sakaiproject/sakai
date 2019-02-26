@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
@@ -56,7 +57,23 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 
 		return c.list();
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public List<Object[]> findByProviderGroupedBySite(Integer providerId) {
+
+		Criteria c = sessionFactory.getCurrentSession()
+				.createCriteria(ContentReviewItem.class)
+				.add(Restrictions.eq("providerId", providerId))
+				.setProjection( Projections.projectionList()
+							.add(Projections.distinct(Projections.property("siteId")))
+							.add(Projections.property("contentId"))
+						)
+				.addOrder(Order.desc("contentId"))
+				.setMaxResults(999);
+
+		return c.list();
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<ContentReviewItem> findByProviderAwaitingReports(Integer providerId) {
 
