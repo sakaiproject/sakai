@@ -21,6 +21,7 @@
 
 package org.sakaiproject.mailarchive.api;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.sakaiproject.message.api.MessageHeaderEdit;
@@ -54,8 +55,17 @@ public interface MailArchiveMessageHeaderEdit extends MailArchiveMessageHeader, 
 	 * 
 	 * @param sent
 	 *        The the date: sent of the message.
+	 * @deprecated {@link #setDateSent(Time)}
 	 */
 	public void setDateSent(Time sent);
+	
+	/**
+	 * Set the date: sent of the message.
+	 * 
+	 * @param sent
+	 *        The the date: sent of the message.
+	 */
+	public void setInstantSent(Instant sent);
 
 	/**
 	 * Set the entire set of mail headers of the message.
