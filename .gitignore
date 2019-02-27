@@ -21,3 +21,4 @@ rebel.xml
 rsf/sakai-rsf-web/templates/overlays
 rsf/sakai-rsf-web/test/overlays
 .mvn/wrapper/maven-wrapper.jar
+.checkstyle
