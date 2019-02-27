@@ -364,28 +364,23 @@
         <property name="searchIndexBuilder"><ref bean="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" /></property>
     </bean>
 
-
-
    <!--  Add a job to auto-submit assessments -->
-   <bean id="AutoSubmitAssessments" class="org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob" 
-   	init-method="init" destroy-method="destroy">
+   <bean id="AutoSubmitAssessments"
+         class="org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob">
        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+       <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
        <property name="samigoETSProvider" ref="org.sakaiproject.samigo.api.SamigoETSProvider"/>
+       <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+       <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+       <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
    </bean>
 
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AutoSubmitAssessments"
-      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-      init-method="init">
-      <property name="beanId">
-         <value>AutoSubmitAssessments</value>
-      </property>
-      <property name="jobName">
-      	 <!--  this is how the job is listed in the jobscheduler UI -->
-         <value>Auto Submit Assessments Job</value>
-      </property>
-      <property name="schedulerManager">
-         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-      </property>
+         class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+         init-method="init">
+      <property name="beanId" value="AutoSubmitAssessments"/>
+      <property name="jobName" value="Auto Submit Assessments Job"/>
+      <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
    </bean>
 
     <bean id="BackfillItemHashesJob" class="org.sakaiproject.tool.assessment.services.BackfillItemHashesJob">
