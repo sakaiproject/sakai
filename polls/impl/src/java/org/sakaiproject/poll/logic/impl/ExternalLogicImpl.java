@@ -487,6 +487,10 @@ public class ExternalLogicImpl implements ExternalLogic {
         return new LRS_Statement(student, verb, lrsObject);
     }
 
+    private String getPollRef(String pollId) {
+        return "poll" + getCurrentLocationReference() + "/poll/" + pollId;
+    }
+
     /**
      * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, org.sakaiproject.poll.model.Vote)
      */
@@ -494,19 +498,20 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void registerStatement(String pollText, Vote vote) {
         if (null != learningResourceStoreService) {
             LRS_Statement statement = getStatementForUserVotedInPoll(pollText, vote);
-            Event event = eventTrackingService.newEvent("poll.vote", "vote", null, true, NotificationService.NOTI_OPTIONAL, statement);
+            Event event = eventTrackingService.newEvent("poll.vote", getPollRef(vote.getPollId().toString()), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
         }
     }
 
     /**
-     * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, boolean)
+     * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, boolean, java.lang.String)
      */
     @Override
-    public void registerStatement(String pollText, boolean newPoll) {
+    public void registerStatement(String pollText, boolean newPoll, String pollId) {
         if (null != learningResourceStoreService) {
             LRS_Statement statement = getStatementForUserEditPoll(pollText, newPoll);
-            Event event = eventTrackingService.newEvent("poll.edit", "edit poll", null, true, NotificationService.NOTI_OPTIONAL, statement);
+            String eventType = newPoll ? "poll.add" : "poll.update";
+            Event event = eventTrackingService.newEvent(eventType, getPollRef(pollId), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
         }
     }
