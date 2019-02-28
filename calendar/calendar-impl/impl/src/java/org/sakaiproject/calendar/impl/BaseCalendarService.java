@@ -5731,10 +5731,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 
 		// Extract the alias name to use for the filename.
-		List alias =  m_aliasService.getAliases(calRef);
+		List<Alias> alias =  m_aliasService.getAliases(calRef);
 		String aliasName = "schedule.ics";
 		if ( ! alias.isEmpty() )
-			aliasName =  ((Alias)alias.get(0)).getId();
+			aliasName =  alias.get(0).getId();
 		
 		List<String> referenceList = getCalendarReferences(ref.getContext());
 		Time modDate = m_timeService.newTime(0);
