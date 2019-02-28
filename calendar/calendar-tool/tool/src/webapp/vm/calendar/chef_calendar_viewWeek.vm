@@ -804,7 +804,6 @@
     #end ## #foreach($nx in [0..$numberOfSections])
 
 #elseif($page== "third" )
-        ## JS -- set start time to be 2 PM 
         #set($timer = $thirdPageStartHour)
 
         #set($fractiontime ="false")
