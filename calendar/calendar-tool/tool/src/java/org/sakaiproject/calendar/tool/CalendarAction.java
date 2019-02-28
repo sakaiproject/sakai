@@ -3716,7 +3716,7 @@ extends VelocityPortletStateAction
 			{
 				eventVector1 = new Vector();
 				// JS -- the third page starts at 2PM(14 o'clock), and lasts 20 half-hour
-				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,THIRD_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
+				eventVector1 = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,THIRD_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				
 				for(int index = 0;index<eventVector1.size();index++)
 				{
@@ -3760,6 +3760,9 @@ extends VelocityPortletStateAction
 			if (i > dayofweek)
 				calObj.nextDate();
 		}
+
+		//Since the third page start time is dynamic, need to add it to the context
+		context.put("thirdPageStartHour", THIRD_PAGE_START_HOUR);
 		
 		calObj.setDay(yearObj.getYear(),monthObj1.getMonth(),dayObj.getDay());
 		context.put("week", weekObj);
