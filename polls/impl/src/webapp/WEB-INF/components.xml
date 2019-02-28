@@ -56,6 +56,29 @@
 		<property name="emailTemplates" ref="org.sakaiproject.poll.emailtemplates.List" />
 	</bean>
 
+	<!-- Job to back-fill Poll options' order -->
+	<bean id="pollOrderOptionBackFillJob" class="org.sakaiproject.poll.logic.impl.PollOrderOptionBackFillJob">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="pollService" ref="org.sakaiproject.poll.logic.PollListManager" />
+	</bean>
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.pollOrderOptionBackFillJob"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+
+		<property name="beanId">
+			<value>pollOrderOptionBackFillJob</value>
+		</property>
+
+		<property name="jobName">
+			<value>Backfill all existing poll options' order based on their original ID</value>
+		</property>
+
+		<property name="schedulerManager">
+			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		</property>
+	</bean>
+
 	<!-- Setup email templates -->
 	<bean id="org.sakaiproject.poll.emailtemplates.List" class="java.util.ArrayList">
 		<constructor-arg>

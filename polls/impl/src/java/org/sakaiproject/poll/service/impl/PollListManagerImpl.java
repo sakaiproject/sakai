@@ -36,7 +36,9 @@ import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
+
 import org.springframework.dao.DataAccessException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -280,7 +282,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
-        search.addOrder(new Order("optionId"));
+        search.addOrder(new Order("optionOrder"));
         List<Option> optionList = dao.findBySearch(Option.class, search);
         return optionList;
     }
@@ -569,7 +571,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 				        while (fromOptions.hasNext()){
 				        	Option fromOption = (Option) fromOptions.next();
 				        	Option toOption = (Option) new Option();
-				        	toOption.setOptionText(fromOption.getOptionText());
+				        	toOption.setText(fromOption.getText());
 				        	toOption.setStatus(fromOption.getStatus());
 				        	toOption.setPollId(toPoll.getPollId());
 				        	toOption.setDeleted(fromOption.getDeleted());

@@ -209,11 +209,11 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		
 	    Option option1 = new Option();
 	    option1.setPollId(poll1.getPollId());
-	    option1.setOptionText("asdgasd");
+	    option1.setText("asdgasd");
 	    
 	    Option option2 = new Option();
 	    option2.setPollId(poll1.getPollId());
-	    option2.setOptionText("zsdbsdfb");
+	    option2.setText("zsdbsdfb");
 	    
 	    pollListManager.saveOption(option2);
 	    pollListManager.saveOption(option1);
