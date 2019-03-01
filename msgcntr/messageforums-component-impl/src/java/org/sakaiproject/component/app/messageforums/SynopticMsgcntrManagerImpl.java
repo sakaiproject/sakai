@@ -134,7 +134,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 	
 	public void deleteSynopticMsgcntrItem(SynopticMsgcntrItem item){
-		getHibernateTemplate().delete(item);
+		getHibernateTemplate().delete(getHibernateTemplate().merge(item));
 	}
 	
 	public void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId){
