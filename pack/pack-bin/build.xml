@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<project name="package.binary">
+	
+	<!-- Main target -->
+	<target name="pack.bin" depends="prep,deploy,delete,licenses,tar,zip,cleanup" />
+	
+	<target name="prep" description="Delete target directories.">
+		<echo message="[INFO] prep for sakai-bin-${sakai.version} archive creation." />
+		<!-- Property check -->
+		<echo message="basedir=${basedir}" />
+		<echo message="sakai.skip.tests=${sakai.skip.tests}" />
+		<echo message="sakai.tomcat.version=${sakai.tomcat.version}" />
+		<echo message="sakai.version=${sakai.version}" />
+		
+	    <echo message="[INFO] clear the deploy area." />
+	    <delete dir="${basedir}/target/pack" />
+	    <delete dir="${basedir}/target/pack-stage/" />
+		
+		<echo message="[INFO] Clear out old artifacts." />
+		<delete file="${basedir}/sakai-bin-${sakai.version}.tar.gz" />
+		<delete file="${basedir}/sakai-bin-${sakai.version}.zip" />
+		<delete file="${basedir}/sakai-bin-${sakai.version}.tar.gz.MD5" />
+		<delete file="${basedir}/sakai-bin-${sakai.version}.tar.gz.SHA1" />
+		<delete file="${basedir}/sakai-bin-${sakai.version}.zip.MD5" />
+		<delete file="${basedir}/sakai-bin-${sakai.version}.zip.SHA1" />
+	</target>
+	
+	<target name="deploy" depends="prep" description="Build and deploy to target directory.">
+	    <echo message="[INFO] build and deploy Sakai artifacts to /target/pack (faux Tomcat deployment)." />
+    	    <echo>Your OS name is: ${os.name}. If sakai doesn't start to install you might need to add it to the list of OSes.</echo>
+	    <mkdir dir="${basedir}\target\pack"/>
+	    <mkdir dir="${basedir}\target\pack\lib"/>
+	    <exec dir="../../" executable="mvn" failonerror="true" os="Mac OS X,Linux,FreeBSD,Solaris">
+	        <arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
+	        <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
+	        <!-- 
+	        <arg value="-Dkeystore=${keystore}" />
+	        <arg value="-Dalias=${alias}" /> 
+	        <arg value="-Dstorepass=${storepass}" /> 
+	        -->
+	        <arg value="clean" />
+	        <arg value="install" />
+	        <arg value="sakai:deploy" />
+	    </exec>
+	    <!-- osfamily Tested on Windows 7 , (Fill in others) -->
+            <exec dir="../../" executable="cmd" failonerror="true" osfamily="windows">
+                <arg value="/c" />
+                <arg value="mvn" />
+                <arg value="-Dmaven.tomcat.home=${basedir}\target\pack" />
+                <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
+                <!-- next 3 lines *may* be optional so leaving them out, add back in if needed for windows build
+                <arg value="-Dkeystore=${keystore}" />
+                <arg value="-Dalias=${alias}" />
+                <arg value="-Dstorepass=${storepass}" />
+                -->
+                <arg value="clean" />
+                <arg value="install" />
+                <arg value="sakai:deploy" />
+	    </exec>
+
+	</target>
+	
+	<target name="delete" depends="deploy" description="Delete extraneous directories.">
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/bin" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/target" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/m2-target" />
+		</delete>
+		
+		<!-- .svn is included in Ant's defaultexcludes so use the defaultexcludes flag. -->
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/.svn" defaultexcludes="false"/>
+		</delete>
+		
+		<!-- Other /pack-* artifacts -->
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.tar.gz" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.zip" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.MD5" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.SHA1" />
+		</delete>
+	</target>
+	
+	<target name="licenses" depends="delete" description="Copy licenses to target directory.">
+	    <echo message="[INFO] add third-party licenses." />
+	    <copy
+	        todir="${basedir}/target/pack/licenses/">
+	        <fileset
+	            dir="${basedir}/../../licenses">
+	            <exclude name=".svn/**" />
+	            <exclude name="CVS/**" />
+	        </fileset>
+	    </copy>
+	
+	    <echo message="[INFO] add ECL license." />
+	    <copy file="${basedir}/../../LICENSE"
+	        tofile="${basedir}/target/pack/LICENSE"
+	        overwrite="true" />
+	</target>
+	
+	<target name="tar" depends="licenses" description="Tar recursively and create checksums.">
+	    <echo message="[INFO] creating sakai-bin-${sakai.version}.tar.gz." />
+	    <delete file="sakai-bin-${sakai.version}.tar.gz" />
+		<delete file="sakai-bin-${sakai.version}.tar.gz.MD5" />
+		<delete file="sakai-bin-${sakai.version}.tar.gz.SHA1" />
+	    <tar destfile="sakai-bin-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
+	        <tarfileset
+	            dir="${basedir}/target/pack/common"
+	            prefix="/common" dirmode="750"
+	            filemode="750" erroronmissingdir="false"  />
+	        <tarfileset
+	            dir="${basedir}/target/pack/components"
+	            prefix="/components" dirmode="750"
+	            filemode="750" />
+	        <tarfileset
+	            dir="${basedir}/target/pack/licenses"
+	            prefix="/licenses" dirmode="750"
+	            filemode="750" />
+	        <tarfileset
+	            dir="${basedir}/target/pack/server"
+	            prefix="/server" dirmode="750"
+	            filemode="750" erroronmissingdir="false" />
+	        <tarfileset
+	            dir="${basedir}/target/pack/shared"
+	            prefix="/shared" dirmode="750"
+	            filemode="750" erroronmissingdir="false"  />
+	        <tarfileset
+	            dir="${basedir}/target/pack/lib"
+	            prefix="/lib" dirmode="750"
+	            filemode="750" />
+	        <tarfileset
+	            dir="${basedir}/target/pack/webapps"
+	            prefix="/webapps" dirmode="750"
+	            filemode="750" />
+	        <tarfileset
+	            dir="${basedir}/target/pack/"
+	            prefix="/">
+	            <include name="LICENSE" />
+	        </tarfileset>
+	    </tar>
+	
+	    <echo message="[INFO] create sakai-bin-${sakai.version}.tar.gz md5 and SHA1 checksums." />
+	    <checksum file="sakai-bin-${sakai.version}.tar.gz" forceOverwrite="true" />
+	    <checksum file="sakai-bin-${sakai.version}.tar.gz" forceOverwrite="true" algorithm="SHA1" />
+	</target>
+	
+	<target name="zip" depends="tar" description="Zip recursively and create checksums.">
+	    <echo message="[INFO] creating sakai-bin-${sakai.version}.zip." />
+	    <delete file="sakai-bin-${sakai.version}.zip" />
+		<delete file="sakai-bin-${sakai.version}.zip.MD5" />
+		<delete file="sakai-bin-${sakai.version}.zip.SHA1" />
+	    <zip destfile="sakai-bin-${sakai.version}.zip" compress="yes">
+	        <zipfileset
+	            dir="${basedir}/target/pack/common"
+	            prefix="/common" dirmode="750"
+	            filemode="750" erroronmissingdir="false" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/components"
+	            prefix="/components" dirmode="750"
+	            filemode="750" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/licenses"
+	            prefix="/licenses" dirmode="750"
+	            filemode="750" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/server"
+	            prefix="/server" dirmode="750"
+	            filemode="750" erroronmissingdir="false" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/shared"
+	            prefix="/shared" dirmode="750"
+	            filemode="750" erroronmissingdir="false" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/lib"
+	            prefix="/lib" dirmode="750"
+	            filemode="750" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/webapps"
+	            prefix="/webapps" dirmode="750"
+	            filemode="750" />
+	        <zipfileset
+	            dir="${basedir}/target/pack/"
+	            prefix="/">
+	            <include name="LICENSE" />
+	        </zipfileset>
+	    </zip>
+	
+	    <echo message="[INFO] create sakai-bin-${sakai.version}.zip md5 and SHA1 checksums." />
+	    <checksum file="sakai-bin-${sakai.version}.zip" forceOverwrite="true" />
+	    <checksum file="sakai-bin-${sakai.version}.zip" forceOverwrite="true" algorithm="SHA1" />
+	</target>
+	
+	<target name="cleanup" depends="zip" description="Move artifacts and delete target directories.">
+	    <echo message="[INFO] moving BIN artifacts to /pack-stage." />
+	    <move file="${basedir}/target/pack" tofile="${basedir}/target/pack-stage" overwrite="true" />
+	
+	    <echo message="[INFO] delete target directories." />
+	    <delete dir="${basedir}/target/pack/" />
+	    <delete dir="${basedir}/target/pack-stage/" />
+	
+	    <echo message="[INFO] sakai-bin-${sakai.version} archives created." />
+	</target>
+</project>
