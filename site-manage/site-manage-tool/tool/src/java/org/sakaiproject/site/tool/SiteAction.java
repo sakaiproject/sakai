@@ -2116,8 +2116,11 @@ public class SiteAction extends PagedResourceActionII {
 				allowUpdateSite = SiteService.allowUpdateSite(site.getId());
 				isMyWorkspace = isSiteMyWorkspace(site);
 				boolean allowUpdateGroupMembership = SiteService.allowUpdateGroupMembership(site.getId());
+				allowViewRoster = SiteService.allowViewRoster(site.getId());
+
 				context.put("allowUpdate", allowUpdateSite);
 				context.put("additionalAccess", getAdditionRoles(site));
+				context.put("viewRoster", allowViewRoster);
 
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.SITE_INFO);
