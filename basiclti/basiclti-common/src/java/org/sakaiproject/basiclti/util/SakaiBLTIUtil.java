@@ -928,7 +928,6 @@ public class SakaiBLTIUtil {
 		boolean isLTI13 = isLTI13(tool, content);
 
 		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
-		System.out.println("toolVersion={} isLTI1={} isLTI13={}"+toolVersion+isLTI1+isLTI13);
 
 		// If we are doing LTI2, We will need a ToolProxyBinding
 		ToolProxyBinding toolProxyBinding = null;
