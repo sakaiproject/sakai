@@ -302,7 +302,7 @@
 		#if (!$desc || $desc.length() == 0|| $desc ==" "|| $desc =="&nbsp;" || $desc =="" || $desc =="<br>" || $desc =="<br/>" || $desc.isEmpty() || $validator.escapeHtml($desc)=="&lt;br type=&quot;_moz&quot; /&gt;" )
 		#else
 
-			<h4 style="padding:5px 0">
+			<h4>
 				$tlang.getString("sitegen.siteinfolist.sitedes")
 			</h4>
 			<div style="padding:5px 0">
@@ -446,7 +446,7 @@
 			#end
 		</div>
 		<div>
-			<h4 style="padding:5px 0">
+			<h4>
 			#if ($!viewRoster && !$!isMyWorkspace)
 				$tlang.getFormattedMessage("sinfo.manage.participants.moved", "?sakai_action=doMenu_siteInfo_manageParticipants")
 			#end
