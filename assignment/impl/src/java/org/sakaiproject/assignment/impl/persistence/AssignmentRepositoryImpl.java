@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -211,9 +212,22 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                         canRemove.forEach(s -> deleteSubmission(s.getId()));
                         return submissions.get(0);
                     default:
-                        log.warn("For assignment {} {} submissions found for user: {}, can only remove {} which is not enough to create a unique submission.", assignmentId, submissions.size(), userId, canRemove.size());
+                        log.error("For assignment {} {} submissions found for user: {}, can only remove {} which is not enough to create a unique submission.", assignmentId, submissions.size(), userId, canRemove.size());
+
+                        // delete those we can remove
+                        submissions.removeAll(canRemove);
                         canRemove.forEach(s -> deleteSubmission(s.getId()));
-                        throw new NonUniqueResultException(sizeDiff);
+
+                        // for the rest we don't actually remove the submission but disassociate it from the submitter
+                        // and use the first submission as the one to return to the ui
+                        submissions.sort(Comparator.comparing(AssignmentSubmission::getDateCreated));
+                        List<AssignmentSubmission> duplicates = submissions.subList(1, submissions.size());
+                        duplicates.forEach(s -> s.getSubmitters().forEach(u -> u.setSubmitter(StringUtils.abbreviate(u.getSubmitter(), "-duplicate", 99))));
+                        duplicates.forEach(this::updateSubmission);
+                        duplicates.forEach(s -> log.error("Changing submitter for the submission: {}", s));
+
+                        // finally return the 1st
+                        return submissions.get(0);
                 }
         }
     }
