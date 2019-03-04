@@ -38,6 +38,6 @@ public class JobBeanWrapperRegistrar {
     }
 
     public void init() {
-        jobBeans.stream().forEach(wrapper -> schedulerManager.registerBeanJob(wrapper.getJobType(), wrapper));
+        jobBeans.forEach(wrapper -> schedulerManager.registerBeanJob(wrapper.getJobName(), wrapper));
     }
 }
