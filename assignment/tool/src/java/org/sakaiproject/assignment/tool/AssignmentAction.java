@@ -1239,6 +1239,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 break;
             case MODE_INSTRUCTOR_GRADE_SUBMISSION:
                 context.put("site", s);
+                context.put("allowAddAssignment", allowAddAssignment);
+                context.put("showStudentPhoto", serverConfigurationService.getBoolean("assignment.show.official.photo", true));
                 if (allowGradeSubmission != null && (Boolean) allowGradeSubmission) {
                     // if allowed for grading, disable auto-updates while leaving the list view
                     justDelivered(state);
@@ -3305,6 +3307,7 @@ public class AssignmentAction extends PagedResourceActionII {
             final String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
+            context.put("submitterId", s.getSubmitters().iterator().next().getSubmitter());
 
             if (assignment.isPresent()) {
                 Assignment a = assignment.get();
