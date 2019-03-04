@@ -62,7 +62,6 @@ import org.sakaiproject.mailsender.MailsenderException;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -81,8 +80,6 @@ public class ExternalLogicImplTest {
 
 	@Mock
 	FunctionManager functionManager;
-	@Mock
-	TimeService timeService;
 	@Mock
 	MailArchiveService mailArchiveService;
 	@Mock
@@ -132,7 +129,6 @@ public class ExternalLogicImplTest {
 
 		impl = new ExternalLogicImpl();
         impl.setEmailService(emailService);
-		impl.setTimeService(timeService);
 		impl.setFunctionManager(functionManager);
 		impl.setMailArchiveService(mailArchiveService);
 		impl.setSecurityService(securityService);

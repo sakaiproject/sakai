@@ -164,7 +164,7 @@ public class SakaiJob extends AbstractWebService {
         JobDataMap map = jd.getJobDataMap();
 
         map.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
-        map.put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+        map.put(JobBeanWrapper.JOB_NAME, job.getJobName());
 
         return jd;
     }

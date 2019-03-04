@@ -27,6 +27,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  * <p>
  * MailArchiveService is a static Cover for the {@link org.sakaiproject.mailarchive.api.MailArchiveService MailArchiveService}; see that interface for usage details.
  * </p>
+ * @deprecated
  */
 public class MailArchiveService
 {

@@ -16,7 +16,9 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -30,39 +32,22 @@ import org.sakaiproject.user.api.User;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Getter
 public class GbStudentGradeInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Getter
 	private String studentUuid;
-
-	@Getter
 	private String studentDisplayId;
-
-	@Getter
 	private String studentDisplayName;
-
-	@Getter
 	private String studentFirstName;
-
-	@Getter
 	private String studentLastName;
-
-	@Getter
 	private String studentEid;
-	
-	@Getter
 	private String studentNumber;
-
-	@Getter
 	@Setter
 	private GbCourseGrade courseGrade;
-
-	@Getter
 	private Map<Long, GbGradeInfo> grades;
-
-	@Getter
 	private Map<Long, Double> categoryAverages;
+	private List<String> sections;
 
 	public GbStudentGradeInfo() {
 	}
@@ -81,6 +66,7 @@ public class GbStudentGradeInfo implements Serializable {
 		studentNumber = u.getStudentNumber();
 		grades = new HashMap<>();
 		categoryAverages = new HashMap<>();
+		sections = u.getSections();
 	}
 
 	public GbStudentGradeInfo(final User u, final String studentNumber) {
@@ -93,6 +79,7 @@ public class GbStudentGradeInfo implements Serializable {
 		this.studentNumber = studentNumber;
 		this.grades = new HashMap<>();
 		this.categoryAverages = new HashMap<>();
+		sections = new ArrayList<>();
 	}
 
 	/**

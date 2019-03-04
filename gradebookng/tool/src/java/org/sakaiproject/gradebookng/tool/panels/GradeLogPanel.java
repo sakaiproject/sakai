@@ -73,7 +73,7 @@ public class GradeLogPanel extends BasePanel {
 				final String grade = gradeLog.getGrade();
 
 				final GbUser grader = GradeLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());
-				final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
+				final String graderDisplayId = (grader != null) ? grader.getDisplayName() + " (" +  grader.getDisplayId() + ")" : getString("unknown.user.id");
 
 				// add the entry
 				item.add(new Label("entry",

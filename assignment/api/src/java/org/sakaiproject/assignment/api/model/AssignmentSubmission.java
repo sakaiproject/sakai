@@ -35,6 +35,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -101,14 +102,14 @@ public class AssignmentSubmission {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "ATTACHMENT", length = 1024)
-    @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(columnList = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
     private Set<String> attachments = new HashSet<>();
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT", length = 1024)
-    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACH", joinColumns = @JoinColumn(name = "SUBMISSION_ID"), indexes = @Index(columnList = "SUBMISSION_ID"))
     @Fetch(FetchMode.SUBSELECT)
     private Set<String> feedbackAttachments = new HashSet<>();
 

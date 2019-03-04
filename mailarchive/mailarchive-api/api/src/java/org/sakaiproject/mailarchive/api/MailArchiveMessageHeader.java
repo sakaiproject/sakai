@@ -21,6 +21,7 @@
 
 package org.sakaiproject.mailarchive.api;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.sakaiproject.message.api.MessageHeader;
@@ -51,8 +52,16 @@ public interface MailArchiveMessageHeader extends MessageHeader
 	 * Access the date: sent of the message.
 	 * 
 	 * @return The date: sent of the message.
+	 * @deprecated {@link getInstantSent}
 	 */
 	public Time getDateSent();
+	
+	/**
+	 * Access the date: sent of the message.
+	 * 
+	 * @return The date: sent of the message.
+	 */
+	public Instant getInstantSent();
 
 	/**
 	 * Access the entire set of mail headers the message.

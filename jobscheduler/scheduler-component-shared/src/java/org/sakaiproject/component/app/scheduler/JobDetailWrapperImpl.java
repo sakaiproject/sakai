@@ -106,7 +106,7 @@ public class JobDetailWrapperImpl implements JobDetailWrapper
   }
 
    public String getJobType() {
-      String jobType = (String) getJobDetail().getJobDataMap().get(JobBeanWrapper.JOB_TYPE);
+      String jobType = (String) getJobDetail().getJobDataMap().get(JobBeanWrapper.JOB_NAME);
       if (jobType != null) {
          return jobType;
       }

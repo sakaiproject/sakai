@@ -960,6 +960,10 @@ public abstract class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 				.getRequest();
 		return (String) request.getAttribute("sakai.tool.placement.id");
 	}
+	
+	public void setIframeId(String iframeId) {
+
+	}
 
 	public String getCustomLocation() {
 		return customLocation;

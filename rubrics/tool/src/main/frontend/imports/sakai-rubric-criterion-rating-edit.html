@@ -26,7 +26,7 @@
               <label for="rating-title">
                 <sr-lang key="rating_title">Rating Title</sr-lang>
               </label>
-              <input type="text" id="rating-title" class="form-control" value="{{ratingDataClone.title::input}}">
+              <input type="text" id="rating-title" class="form-control" value="{{ratingDataClone.title::input}}" maxlength="255">
             </div>
             <div class="form-group points">
               <label for="rating-points">
@@ -39,7 +39,7 @@
           <label for="">
             <sr-lang key="rating_description">Rating Description</sr-lang>
           </label>
-          <textarea name="" id="" class="form-control" value="{{ratingDataClone.description::input}}"></textarea>
+          <textarea name="" id="" class="form-control" value="{{ratingDataClone.description::input}}" maxlength="255"></textarea>
         </div>
       </div>
     </div>

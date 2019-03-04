@@ -337,8 +337,6 @@
 	#end
 
     #set ($du = $endTime.getTime().intValue() - $startTime.getTime().intValue())
-    ## The Real non-fudged endtime
-    #set ($dureal = $endTime.getTime().intValue() - $startTime.getTime().intValue())
     #set($dhour = $helper.getduration($du.longValue(),3600000))
     #set($dminute = $helper.getFractionIn($du.longValue(),$dhour))
 
@@ -372,7 +370,7 @@
     	#set ($rowspan = $rowspan + 1)
     #end
     ## This endtime may have been fudged, if so it will need an extra row as it's being returned from getNewEvents
-    #if ($endTime != $endTimeActual)
+    #if ($endTime == $endTimeActual)
     	#set ($rowspan = $rowspan + 1)
     #end
     
@@ -503,7 +501,7 @@
                 <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
-                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        #if ($timer == 0) #set($timer=12) #end
                         $timer
                     #elseif ($format == "a")
                         #if ($temp2 >= 12) $pmString
@@ -806,8 +804,7 @@
     #end ## #foreach($nx in [0..$numberOfSections])
 
 #elseif($page== "third" )
-        ## JS -- set start time to be 2 PM 
-        #set($timer = 14)
+        #set($timer = $thirdPageStartHour)
 
         #set($fractiontime ="false")
         #set($e = $timer - 3)
@@ -823,7 +820,7 @@
                 <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
-                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        #if ($timer == 0) #set($timer=12) #end
                         $timer
                     #elseif ($format == "a")
                         #if ($temp2 >= 12) $pmString
@@ -861,7 +858,7 @@
                 <th align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite" scope="row">
                 #foreach ($format in $timeFormat)
                     #if ($format == "h")
-                        #if ($timer == 0 && $temp2 == 12) #set($timer=12) #end
+                        #if ($timer == 0) #set($timer=12) #end
                         $timer
                     #elseif ($format == "a")
                         #if ($temp2 >= 12) $pmString

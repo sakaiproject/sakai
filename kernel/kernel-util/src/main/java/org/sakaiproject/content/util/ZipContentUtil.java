@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
@@ -35,6 +36,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,6 +96,45 @@ public class ZipContentUtil {
         return MAX_ZIP_EXTRACT_FILES;
     }
 
+    public void compressSelectedResources(String siteTitle, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse response) {
+		Map<String, ContentResource> resourcesToZip = new HashMap<>();
+
+		try {
+			// Add any files in the selected folders to the files to be in the zip.
+			if (selectedFolderIds.size() > 0) {
+				for (String selectedFolder : selectedFolderIds) {
+					List<ContentResource> folderContents = ContentHostingService.getAllResources(selectedFolder);
+					for (ContentResource folderFile : folderContents) {
+						resourcesToZip.put(folderFile.getId(), folderFile);
+					}
+				}
+			}
+
+			// Add any selected files to the list of resources to be in the zip.
+			for (String selectedFile : selectedFiles) {
+				ContentResource contentFile = ContentHostingService.getResource(selectedFile);
+				resourcesToZip.put(contentFile.getId(), contentFile);
+			}
+		} catch (IdUnusedException | PermissionException | TypeException e) {
+			// shouldn't happen by this stage.
+			log.error(e.getMessage(), e);
+		}
+
+		try (OutputStream zipOut = response.getOutputStream(); ZipOutputStream out = new ZipOutputStream(zipOut)) {
+			response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+			response.setContentType("application/zip");
+			
+			for (ContentResource contentResource: resourcesToZip.values()) {
+				// Find the file path.
+				String rootId = contentResource.getId().substring(0, contentResource.getId().lastIndexOf('/') + 1);
+				storeContentResource(rootId, contentResource, out);
+			}
+		} catch (IOException ioe) {
+			log.error(ioe.getMessage(), ioe);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+	}
 	/**
 	 * Compresses a ContentCollection to a new zip archive with the same folder name
 	 * 
@@ -516,7 +557,7 @@ public class ZipContentUtil {
 	 * @param out
 	 * @throws Exception
 	 */
-	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {		
+	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
 		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
 		//Inorder to have username as the folder name rather than having eids
 		if(ContentHostingService.isInDropbox(rootId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {

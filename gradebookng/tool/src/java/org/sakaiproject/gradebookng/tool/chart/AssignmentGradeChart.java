@@ -36,75 +36,83 @@ public class AssignmentGradeChart extends BaseChart {
 	@Override
 	protected GbChartData getData() {
 
-		final GradingType gradingType = GradingType.valueOf(this.businessService.getGradebook().getGrade_type());
-		final Assignment assignment = this.businessService.getAssignment(this.assignmentId);
-		final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
+		try {
+			// so students can get grade stats
+			addAdvisor();
 
-		// get all grades for this assignment
-		final List<Double> allGrades = new ArrayList<>();
-		for (int i = 0; i < gradeInfo.size(); i++) {
-			final GbStudentGradeInfo studentGradeInfo = gradeInfo.get(i);
+			final GradingType gradingType = GradingType.valueOf(this.businessService.getGradebook().getGrade_type());
+			final Assignment assignment = this.businessService.getAssignment(this.assignmentId);
+			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
 
-			final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
-			final GbGradeInfo grade = studentGrades.get(this.assignmentId);
+			// get all grades for this assignment
+			final List<Double> allGrades = new ArrayList<>();
+			for (int i = 0; i < gradeInfo.size(); i++) {
+				final GbStudentGradeInfo studentGradeInfo = gradeInfo.get(i);
 
-			if (grade == null || grade.getGrade() == null) {
-				continue;
+				final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+				final GbGradeInfo grade = studentGrades.get(this.assignmentId);
+
+				if (grade == null || grade.getGrade() == null) {
+					continue;
+				}
+
+				allGrades.add(Double.valueOf(grade.getGrade()));
+			}
+			Collections.sort(allGrades);
+
+			final GbChartData data = new GbChartData();
+
+			// Add 0-50% range
+			data.addZeroed(buildRangeLabel(0, 50));
+
+			// Add all ranges from 50 up to 100 in increments of 10.
+			final int range = 10;
+			for (int start = 50; start < 100; start = start + range) {
+				data.addZeroed(buildRangeLabel(start, start + range));
 			}
 
-			allGrades.add(Double.valueOf(grade.getGrade()));
+			for (final Double grade : allGrades) {
+				if (isExtraCredit(grade, assignment, gradingType)) {
+					data.add(getString("label.statistics.chart.extracredit"));
+					continue;
+				}
+
+				final double percentage;
+				if (GradingType.PERCENTAGE.equals(gradingType)) {
+					percentage = grade;
+				} else {
+					percentage = grade / assignment.getPoints() * 100;
+				}
+
+				// determine key for this grade
+				final int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
+
+				int start = total * range;
+				if (start == 100) {
+					start = start - range;
+				}
+
+				String key;
+				if (start < 50) {
+					key = buildRangeLabel(0, 50);
+				} else {
+					key = buildRangeLabel(start, start + range);
+				}
+
+				data.add(key);
+			}
+
+			data.setChartTitle(MessageHelper.getString("label.statistics.chart.title"));
+			data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.xaxis"));
+			data.setYAxisLabel(MessageHelper.getString("label.statistics.chart.yaxis"));
+			data.setChartType("bar");
+			data.setChartId(this.getMarkupId());
+
+			return data;
+
+		} finally {
+			removeAdvisor();
 		}
-		Collections.sort(allGrades);
-
-		final GbChartData data = new GbChartData();
-
-		// Add 0-50% range
-		data.addZeroed(buildRangeLabel(0, 50));
-
-		// Add all ranges from 50 up to 100 in increments of 10.
-		final int range = 10;
-		for (int start = 50; start < 100; start = start + range) {
-			data.addZeroed(buildRangeLabel(start, start + range));
-		}
-
-		for (final Double grade : allGrades) {
-			if (isExtraCredit(grade, assignment, gradingType)) {
-				data.add(getString("label.statistics.chart.extracredit"));
-				continue;
-			}
-
-			final double percentage;
-			if (GradingType.PERCENTAGE.equals(gradingType)) {
-				percentage = grade;
-			} else {
-				percentage = grade / assignment.getPoints() * 100;
-			}
-
-			// determine key for this grade
-			final int total = Double.valueOf(Math.ceil(percentage) / range).intValue();
-
-			int start = total * range;
-			if (start == 100) {
-				start = start - range;
-			}
-
-			String key;
-			if (start < 50) {
-				key = buildRangeLabel(0, 50);
-			} else {
-				key = buildRangeLabel(start, start + range);
-			}
-
-			data.add(key);
-		}
-
-		data.setChartTitle(MessageHelper.getString("label.statistics.chart.title"));
-		data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.xaxis"));
-		data.setYAxisLabel(MessageHelper.getString("label.statistics.chart.yaxis"));
-		data.setChartType("bar");
-		data.setChartId(this.getMarkupId());
-
-		return data;
 	}
 
 	/**

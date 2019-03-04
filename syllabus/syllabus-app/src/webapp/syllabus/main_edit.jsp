@@ -201,38 +201,7 @@
         	}
         </script>
 
-		<h:form id="syllabusMainEdit">
-		<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
-				<h:panelGroup rendered="#{SyllabusTool.addItem == 'true'}">
-					<f:verbatim>
-						<li class="firstToolBarItem" role="menuitem">
-							<span>
-					</f:verbatim>
-								<h:commandLink action="#{SyllabusTool.processListNew}" styleClass="actionLink" onmousedown="assignWarningClick(this);"
-										rendered="#{SyllabusTool.addItem == 'true'}">
-									<h:outputText value="#{msgs.bar_new}"/>
-								</h:commandLink>
-					<f:verbatim>
-							</span>
-						</li>
-					</f:verbatim>
-				</h:panelGroup>
-				<h:panelGroup rendered="#{SyllabusTool.bulkAddItem == 'true'}">
-					<f:verbatim>
-						<li role="menuitem">
-							<span>
-					</f:verbatim>
-								<h:commandLink action="#{SyllabusTool.processListNewBulkMainEdit}" onmousedown="assignWarningClick(this);"
-										rendered="#{SyllabusTool.bulkAddItem == 'true'}">
-									<h:outputText value="#{msgs.bar_new_bulk}"/>
-								</h:commandLink>
-					<f:verbatim>
-							</span>
-						</li>
-					</f:verbatim>
-				</h:panelGroup>
-			<f:verbatim></ul></f:verbatim>
-   	      
+        <h:form id="syllabusMainEdit">  	      
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />

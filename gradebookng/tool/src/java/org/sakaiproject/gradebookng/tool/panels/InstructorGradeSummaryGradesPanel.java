@@ -155,20 +155,31 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		addOrReplace(new Label("courseGradeNotReleasedFlag", getString("label.studentsummary.coursegradenotreleasedflag")) {
 			@Override
 			public boolean isVisible() {
-				return !gradebook.isCourseGradeDisplayed()
-						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
+				return showDisplayCourseGradeToStudent(gradebook, userRole, isCourseGradeVisible);
 			}
 		});
 
 		addOrReplace(new Label("courseGradeNotReleasedMessage", getString("label.studentsummary.coursegradenotreleasedmessage")) {
 			@Override
 			public boolean isVisible() {
-				return !gradebook.isCourseGradeDisplayed()
-						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
+				return showDisplayCourseGradeToStudent(gradebook, userRole, isCourseGradeVisible);
 			}
 		});
 
 		add(new AttributeModifier("data-studentid", userId));
+	}
+
+	/**
+	 * Determine if the 'Display Course Grade to Student' setting should be visible for the user.
+	 * @param gradebook
+	 * @param userRole
+	 * @param isCourseGradeVisible
+	 * @return
+	 */
+	private boolean showDisplayCourseGradeToStudent(Gradebook gradebook,GbRole userRole, boolean isCourseGradeVisible) {
+		return !gradebook.isCourseGradeDisplayed()
+						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible)
+						&& serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
 	}
 
 	/**

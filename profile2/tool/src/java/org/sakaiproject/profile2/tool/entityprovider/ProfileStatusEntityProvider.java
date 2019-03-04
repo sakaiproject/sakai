@@ -17,9 +17,7 @@ package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.util.Map;
 
-import lombok.Setter;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -35,6 +33,8 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfileStatus;
+
+import lombok.Setter;
 
 /**
  * This is the entity provider for a user's profile status.

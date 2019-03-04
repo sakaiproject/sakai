@@ -43,7 +43,6 @@ import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.string.StringValue;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
@@ -151,7 +150,8 @@ public class GradebookPage extends BasePage {
 
 			// no perms
 			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
-			if (this.permissions.isEmpty()) {
+			if (this.permissions.isEmpty()
+					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunction(), GraderPermission.NONE.toString()))) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
@@ -560,7 +560,7 @@ public class GradebookPage extends BasePage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+		final String version = serverConfigService.getString("portal.cdn.version", "");
 
 		// Drag and Drop/Date Picker (requires jQueryUI)
 		response.render(JavaScriptHeaderItem

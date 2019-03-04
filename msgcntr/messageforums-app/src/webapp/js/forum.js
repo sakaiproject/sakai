@@ -428,6 +428,8 @@ $(document).ready(function() {
                 toggleFinished = true;
             });
         }
+        e.preventDefault();
+        return false;
     });
 });
 

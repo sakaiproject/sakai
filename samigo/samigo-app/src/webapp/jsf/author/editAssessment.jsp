@@ -111,7 +111,7 @@ $(window).load( function() {
     <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_q} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize == 1}" />
     <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_qs} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize == 0}" />
     <h:outputText value="#{assessmentBean.totalScore}">
-      <f:convertNumber maxFractionDigits="2"/>
+      <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
     </h:outputText>
     <h:outputText value="&#160;" escape="false" />
     <h:outputText value="#{authorMessages.total_pts}" rendered="#{assessmentBean.totalScore > 1}" />

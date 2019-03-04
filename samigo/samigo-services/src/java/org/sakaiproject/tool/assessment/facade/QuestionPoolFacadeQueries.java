@@ -731,7 +731,7 @@ public class QuestionPoolFacadeQueries
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().delete(qpi);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(qpi));
         retryCount = 0;
       }
       catch (Exception e) {
@@ -752,7 +752,7 @@ public class QuestionPoolFacadeQueries
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().delete(qpi);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(qpi));
         retryCount = 0;
       }
       catch (Exception e) {
@@ -1387,7 +1387,7 @@ public class QuestionPoolFacadeQueries
   public void removeQuestionPoolAccess(Tree tree, String user, final Long questionPoolId, Long accessTypeId) {	  
 	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
 
-	  getHibernateTemplate().delete(qpad);
+	  getHibernateTemplate().delete(getHibernateTemplate().merge(qpad));
 
 	  Iterator citer = (tree.getChildList(questionPoolId)).iterator();
 	  while (citer.hasNext()) {

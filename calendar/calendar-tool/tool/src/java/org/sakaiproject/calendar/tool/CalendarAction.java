@@ -147,12 +147,12 @@ extends VelocityPortletStateAction
 	private static final String CALENDAR_INIT_PARAMETER = "calendar";
 	private static final int HOURS_PER_DAY = 24;
 	static int tempHours = ServerConfigurationService.getInt("calendar.hoursPerPage", 10);
-	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 24 ? 24 : (tempHours < 10 ? 10 : tempHours);
+	private static final int NUMBER_HOURS_PER_PAGE = tempHours > 16 ? 16 : (tempHours < 8 ? 8 : tempHours);
 	private static final int NUMBER_OF_SECTIONS = (NUMBER_HOURS_PER_PAGE*2)-1;
 
 	private static final int FIRST_PAGE_START_HOUR = 0;
 	private static final int SECOND_PAGE_START_HOUR = 8;
-	private static final int THIRD_PAGE_START_HOUR = 14;
+	private static final int THIRD_PAGE_START_HOUR = 24-NUMBER_HOURS_PER_PAGE;
 	
 	private static final String STATE_YEAR = "calYear";
 	private static final String STATE_MONTH = "calMonth";
@@ -3561,6 +3561,7 @@ extends VelocityPortletStateAction
 		context.put("calObj", calObj);
 		context.put("tlang",rb);
 		context.put("numberOfSections",NUMBER_OF_SECTIONS);
+		context.put("numberHoursPerPage",NUMBER_HOURS_PER_PAGE);
 		state.setState("day");
 		context.put("message", state.getState());
 		
@@ -3702,7 +3703,6 @@ extends VelocityPortletStateAction
 		{
 			
 			Vector eventVector = new Vector();
-			Vector eventVector1;
 			dateObj2 =	new MyDate();
 			dateObj2.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
 			dateObj2.setDayName(calendarUtilGetDay(calObj.getDay_Of_Week(true)));
@@ -3713,15 +3713,7 @@ extends VelocityPortletStateAction
 			
 			if(state.getCurrentPage().equals("third"))
 			{
-				eventVector1 = new Vector();
-				// JS -- the third page starts at 2PM(14 o'clock), and lasts 20 half-hour
 				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,THIRD_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
-				
-				for(int index = 0;index<eventVector1.size();index++)
-				{
-					eventVector.add(eventVector.size(),eventVector1.get(index));
-				}
-				
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), THIRD_PAGE_START_HOUR, 0, 0, 0);
 				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), THIRD_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
@@ -3737,15 +3729,7 @@ extends VelocityPortletStateAction
 			}
 			else
 			{
-				eventVector1 = new Vector();
-				// JS -- the first page starts at 12AM(0 o'clock), and lasts 20 half-hour
-				eventVector1 = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData, FIRST_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
-				
-				for(int index = 0;index<eventVector1.size();index++)
-				{
-					eventVector.insertElementAt(eventVector1.get(index),index);
-				}
-				
+				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData, FIRST_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), 0, 0, 0, 0);
 				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), FIRST_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
@@ -3759,6 +3743,9 @@ extends VelocityPortletStateAction
 			if (i > dayofweek)
 				calObj.nextDate();
 		}
+
+		//Since the third page start time is dynamic, need to add it to the context
+		context.put("thirdPageStartHour", THIRD_PAGE_START_HOUR);
 		
 		calObj.setDay(yearObj.getYear(),monthObj1.getMonth(),dayObj.getDay());
 		context.put("week", weekObj);
@@ -4138,7 +4125,7 @@ extends VelocityPortletStateAction
 					// Each monthObj contains dayObjs for the number of the days in the month.
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					eventList = CalendarEventVectorObj.getEvents(TimeService.newTimeRange(startTime,endTime,true,true));
@@ -4156,7 +4143,7 @@ extends VelocityPortletStateAction
 					// fill empty spaces for the first days in the first week in the month before reach the first day of the month
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 					
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					timeRange = TimeService.newTimeRange(startTime,endTime,true,true);
@@ -4185,7 +4172,7 @@ extends VelocityPortletStateAction
 						dateObj.setFlag(1);
 					
 					dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
-					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+					startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 					endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 					
 					
@@ -4210,7 +4197,7 @@ extends VelocityPortletStateAction
 						m_calObj.nextDate();
 						dateObj.setTodayDate(m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),m_calObj.getYear());
 						
-						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,001);
+						startTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),00,00,00,000);
 						endTime = TimeService.newTimeLocal(m_calObj.getYear(),m_calObj.getMonthInteger(),m_calObj.getDayOfMonth(),23,59,59,999);
 						
 						timeRange = TimeService.newTimeRange(startTime,endTime,true,true);

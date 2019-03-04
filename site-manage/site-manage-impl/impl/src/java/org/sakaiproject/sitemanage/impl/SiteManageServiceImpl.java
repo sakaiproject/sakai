@@ -177,8 +177,8 @@ public class SiteManageServiceImpl implements SiteManageService {
                 List<ToolConfiguration> pageToolList = page.getTools();
                 if ((pageToolList != null) && !pageToolList.isEmpty()) {
                     Tool tool = pageToolList.get(0).getTool();
-                    String toolId = tool != null ? tool.getId() : "";
-                    if (toolId.equalsIgnoreCase("sakai.resources")) {
+                    String toolId = tool.getId();
+                    if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
                         // special handleling for resources
                         transversalMap.putAll(
                                 transferCopyEntities(toolId,
@@ -187,25 +187,23 @@ public class SiteManageServiceImpl implements SiteManageService {
                                         false));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
 
-                    } else if (toolId.equalsIgnoreCase(SiteManageConstants.SITE_INFO_TOOL_ID)) {
+                    } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
                         // handle Home tool specially, need to update the site infomration display url if needed
                         String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
                         site.setInfoUrl(newSiteInfoUrl);
                         saveSite(site);
-                    } else {
-                        // other
-                        // tools
-                        // SAK-19686 - added if statement and toolsCopied.add
+                    } else if (StringUtils.isNotBlank(toolId)) {
+                        // all other tools
                         if (!toolsCopied.contains(toolId)) {
                             transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
                             toolsCopied.add(toolId);
                         }
                     }
-
-                    updateEntityReferences(toolId, nSiteId, transversalMap, site);
                 }
             }
+            // after all site pages have been processed time to update references for each tool copied
+            toolsCopied.forEach(t -> updateEntityReferences(t, nSiteId, transversalMap, site));
         }
 
         if (bypassSecurity) {
@@ -349,7 +347,7 @@ public class SiteManageServiceImpl implements SiteManageService {
             for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
                 String toolId = toolIds.get(i);
 
-                if (toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId)) {
+                if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID) && importTools.containsKey(toolId)) {
                     List<String> importSiteIds = importTools.get(toolId);
 
                     for (String fromSiteId : importSiteIds) {
@@ -367,7 +365,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 
             // import other tools then
             for (String toolId : toolIds) {
-                if (!toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId)) {
+                if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID) && importTools.containsKey(toolId)) {
                     List<String> importSiteIds = importTools.get(toolId);
 
                     for (String fromSiteId : importSiteIds) {

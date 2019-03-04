@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 import org.w3c.dom.Document;
@@ -42,7 +43,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -630,10 +630,29 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			{
 				throw new GroupNotDefinedException(azGroup.getId());
 			}
+			// complete the save
+			completeSave(azGroup);
+		} else {
+			// complete the save
+			completeExistingGroupSave(azGroup, m_storage.get(azGroup.getId()));
+		}
+	}
+
+	private void completeExistingGroupSave(AuthzGroup updatedAuthzGroup, AuthzGroup existingAuthzGroup) {
+
+		Set<String> existingUsers = existingAuthzGroup.getUsers();
+		Set<String> updatedUsers = updatedAuthzGroup.getUsers();
+
+		Set<String> removedUsers
+			= existingUsers.stream().filter(eu -> !updatedUsers.contains(eu)).collect(Collectors.toSet());
+		try {
+			((SakaiSecurity) securityService()).notifyMembersRemovedFromRealm(removedUsers, existingAuthzGroup.getReference());
+		} catch (Exception e) {
+			log.warn("Failure while trying to notify SS about realm removal for AZG("
+						+ existingAuthzGroup.getId() + "): " + e, e);
 		}
 
-		// complete the save
-		completeSave(azGroup);
+		completeSave(updatedAuthzGroup);
 	}
 
 	/**
@@ -738,7 +757,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 
 	/**
-	 * Add member to a group, once id and security checks have been cleared.
+	 * Remove member from a group, once id and security checks have been cleared.
 	 * 
 	 * @param azGroup
 	 */
