@@ -201,7 +201,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 						statsWindow.getContentId(),
 						Model.of(StudentGradeSummaryGradesPanel.this
 								.getCurrentSiteId()),
-						statsWindow));
+						statsWindow, courseGrade));
 				statsWindow.show(target);
 			}
 

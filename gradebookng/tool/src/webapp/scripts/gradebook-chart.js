@@ -141,7 +141,7 @@ function renderChart(gbChartData) {
 		for (i = 0; i < labels.length; i++) {
 			backgroundColour.push('#15597e');
 		}
-		backgroundColour[index] = '#7fc464';
+		backgroundColour[index] = '#5bc0de'; // this is the highlight colour for the student's grade
 	} else {
 		backgroundColour = '#15597e';
 	}
