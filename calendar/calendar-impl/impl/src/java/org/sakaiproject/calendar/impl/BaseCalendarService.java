@@ -5720,15 +5720,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	protected void handleAccessIcalCommon(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
 			throws EntityPermissionException, PermissionException, IOException {
-		
-		// Extract the alias name to use for the filename.
-		List alias =  m_aliasService.getAliases(calRef);
-		String aliasName = "schedule.ics";
-		if ( ! alias.isEmpty() )
-			aliasName =  ((Alias)alias.get(0)).getId();
-		
-		List<String> referenceList = getCalendarReferences(ref.getContext());
-		Time modDate = m_timeService.newTime(0);
+
 		// Ok so we need to check to see if we've handled this reference before.
 		// This is to prevent loops when including calendars
 		// that currently includes other calendars we only do the check in here.
@@ -5737,6 +5729,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			log.warn("Reject internal request for: "+ calRef);
 			return;
 		}
+
+		// Extract the alias name to use for the filename.
+		List<Alias> alias =  m_aliasService.getAliases(calRef);
+		String aliasName = "schedule.ics";
+		if ( ! alias.isEmpty() )
+			aliasName =  alias.get(0).getId();
+		
+		List<String> referenceList = getCalendarReferences(ref.getContext());
+		Time modDate = m_timeService.newTime(0);
+
 		// update date/time reference
 		for (String curCalRef: referenceList)
 		{
