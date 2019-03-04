@@ -30,7 +30,7 @@ should be included in file importing DeliveryMessages
   <!-- 1. print out the matching choices -->
   <t:dataList layout="orderedList" styleClass="noListStyle" value="#{question.itemData.itemTextArraySorted[0].answerArrayWithDistractorSorted}" var="answer" rendered="#{question.itemData.itemTextArraySorted[0].sequence==1}">
     <h:outputText escape="false" value="#{answer.label}." styleClass="author_mcLabelText" />
-    <h:outputText escape="false" value="#{answer.text}" />
+    <h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText" />
   </t:dataList>
 
   <!-- 2. print out the matching text -->
@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
           <f:selectItem itemValue="" itemLabel="B"/>
           <f:selectItem itemValue="" itemLabel="C"/>
         </h:selectOneMenu>
-        <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" />
+        <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" styleClass="mcAnswerText" />
 
         <h:outputText value="" />
 

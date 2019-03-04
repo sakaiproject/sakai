@@ -37,7 +37,7 @@ should be included in file importing DeliveryMessages
     <h:panelGroup>
       <h:dataTable value="#{question.matchingArray}" var="matching">
         <h:column>
-          <h:outputText value="#{matching.text}" escape="false"/>
+          <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText" />
         </h:column>
       </h:dataTable>
     </h:panelGroup>
@@ -46,7 +46,7 @@ should be included in file importing DeliveryMessages
     <h:panelGroup>
       <h:dataTable styleClass="inputBlock" value="#{question.answers}" var="answer">
         <h:column>
-          <h:outputText value="#{answer}" escape="false" />
+          <h:outputText value="#{answer}" escape="false" styleClass="mcAnswerText" />
         </h:column>
       </h:dataTable>
     </h:panelGroup>
