@@ -20,21 +20,24 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.scheduler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.*;
+import java.util.List;
+
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class runs some quartz jobs automatically at startup.
  */
+@Slf4j
 public class AutoRun {
-
-    private static final Log log = LogFactory.getLog(AutoRun.class);
 
     private SchedulerManager schedulerManager;
     private ServerConfigurationService serverConfigurationService;
@@ -66,19 +69,19 @@ public class AutoRun {
                 try {
                     JobDataMap jobData = new JobDataMap();
                     jobData.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
-                    jobData.put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+                    jobData.put(JobBeanWrapper.JOB_NAME, job.getJobName());
 
                     JobDetail jobDetail = JobBuilder.newJob(job.getJobClass())
-                            .withIdentity(job.getJobType(), null)
+                            .withIdentity(job.getJobName(), null)
                             .setJobData(jobData)
                             .build();
 
                     // Non durable job that will get removed
                     scheduler.addJob(jobDetail, true, true);
                     scheduler.triggerJob(jobDetail.getKey());
-                    log.info("Triggered job: " + job.getJobType());
+                    log.info("Triggered job: {}", job.getJobName());
                 } catch (SchedulerException se) {
-                    log.warn("Failed to run job: " + startup, se);
+                    log.warn("Failed to run job: {}", startup, se);
                 }
 
             }

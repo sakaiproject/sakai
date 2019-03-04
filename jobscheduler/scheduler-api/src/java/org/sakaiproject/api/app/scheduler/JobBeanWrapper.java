@@ -23,7 +23,7 @@ import org.quartz.Job;
 public interface JobBeanWrapper {
 
    String SPRING_BEAN_NAME = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.bean";
-   String JOB_TYPE = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType";
+   String JOB_NAME = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType";
 
    /**
     * @return The Spring Bean ID to retrieve from the application context.
@@ -40,6 +40,6 @@ public interface JobBeanWrapper {
     * This is the name that is displayed in the interface for the job.
     * @return A summary of the job.
      */
-   String getJobType();
+   String getJobName();
 
 }

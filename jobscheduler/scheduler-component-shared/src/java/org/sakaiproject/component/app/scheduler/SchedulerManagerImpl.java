@@ -31,6 +31,8 @@ import java.util.*;
 
 import javax.sql.DataSource;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.quartz.spi.JobFactory;
@@ -50,6 +52,8 @@ import org.quartz.TriggerListener;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.Lifecycle;
 
 import org.sakaiproject.api.app.scheduler.ConfigurableJobProperty;
@@ -57,7 +61,6 @@ import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationExcep
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidator;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper;
 import org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule;
@@ -65,49 +68,36 @@ import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
 
 @Slf4j
-public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory, Lifecycle
+public class SchedulerManagerImpl implements ApplicationContextAware, Lifecycle, SchedulerFactory, SchedulerManager
 {
-  public final static String
-        SCHEDULER_LOADJOBS      = "scheduler.loadjobs";
-  private DataSource dataSource;
-  private String serverId;
-  private Set<String> qrtzJobs;
-  private Map<String, String> qrtzQualifiedJobs = new TreeMap<String, String>(); // map for SelectItems
-  /** The properties file from the classpath */
-  private String qrtzPropFile;
-  /** The properties file from sakai.home */
-  private String qrtzPropFileSakai;
-  private TriggerListener globalTriggerListener;
-  private Boolean autoDdl;
-  private boolean startScheduler = true;
-  private Map<String, JobBeanWrapper> beanJobs = new Hashtable<String, JobBeanWrapper>();
-
+  private static final String SCHEDULER_LOADJOBS = "scheduler.loadjobs";
   private static final String JOB_INTERFACE = "org.quartz.Job";
   private static final String STATEFULJOB_INTERFACE = "org.quartz.StatefulJob";
-  
 
-  // Service dependencies
-  private ServerConfigurationService serverConfigurationService;
-  private SqlService sqlService;
+  @Setter         private ApplicationContext applicationContext;
+  @Setter         private Boolean autoDdl = false;
+  @Getter         private Map<String, JobBeanWrapper> beanJobs = new Hashtable<>();
+  @Getter @Setter private DataSource dataSource;
+  @Getter         private LinkedList<SpringInitialJobSchedule> initialJobSchedules = new LinkedList<>();
+  @Setter         private JobFactory jobFactory;
+  @Setter         private HashMap<String,Class<? extends Job>> migration;
+  @Getter @Setter private Set<String> qrtzJobs;
+  @Getter @Setter private String qrtzPropFile; // properties file from the classpath
+  @Setter         private String qrtzPropFileSakai; // properties file from sakai.home
+  @Getter @Setter private Map<String, String> qrtzQualifiedJobs = new TreeMap<>(); // map for SelectItems
+  @Getter @Setter private Scheduler scheduler;
+  @Setter         private ServerConfigurationService serverConfigurationService;
+  @Getter @Setter private String serverId;
+  @Setter         private boolean startScheduler = true;
+  @Setter         private int startSchedulerDelayMinutes = 5;
+  @Setter         private SqlService sqlService;
 
-  private Scheduler scheduler;
-  private JobFactory jobFactory;
-
-  private LinkedList<TriggerListener>
-      globalTriggerListeners = new LinkedList<TriggerListener>();
-  private LinkedList<JobListener>
-      globalJobListeners = new LinkedList<JobListener>();
-
-  private LinkedList<SpringInitialJobSchedule>
-      initialJobSchedule = new LinkedList<>();
-
-
-  // Map from a spring bean ID to a job class.
-  private HashMap<String,Class<? extends Job>> migration;
-  // is null before we know.
+  private TriggerListener globalTriggerListener;
+  private LinkedList<TriggerListener> globalTriggerListeners = new LinkedList<>();
+  private LinkedList<JobListener> globalJobListeners = new LinkedList<>();
   private Boolean isInitialStartup;
 
-    public void init()
+  public void init()
   {
     try
     {
@@ -148,8 +138,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           }
         }
       }
-   // run ddl
-      if (autoDdl.booleanValue()){
+      if (autoDdl) {
         try
         {
            sqlService.ddl(this.getClass().getClassLoader(), "quartz2");
@@ -161,7 +150,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
       }
 
       isInitialStartup = isInitialStartup();
-      if (isInitialStartup && autoDdl.booleanValue())
+      if (isInitialStartup && autoDdl)
       {
     	  log.info("Performing initial population of the Quartz tables.");
     	  sqlService.ddl(this.getClass().getClassLoader(), "init_locks2");
@@ -182,7 +171,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
           // We now have jobs that don't explicitly reference a spring bean
           if (bean != null && !bean.isEmpty()) {
-            Job job = (Job) ComponentManager.get(bean);
+            Job job = (Job) applicationContext.getBean(bean);
             if (job == null) {
                 // See if we should be migrating this job.
                 Class<? extends Job> newClass = migration.get(bean);
@@ -399,7 +388,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           SpringJobBeanWrapper
               wrapper = sched.getJobBeanWrapper();
 
-          log.debug ("Loading schedule for preconfigured job \"" + wrapper.getJobType() + "\"");
+          log.debug ("Loading schedule for preconfigured job \"{}\"", wrapper.getJobName());
 
           JobDetail jd = JobBuilder.newJob(wrapper.getJobClass())
                   .withIdentity(sched.getJobName(), Scheduler.DEFAULT_GROUP)
@@ -410,7 +399,7 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
           JobDataMap map = jd.getJobDataMap();
 
           map.put(JobBeanWrapper.SPRING_BEAN_NAME, wrapper.getBeanId());
-          map.put(JobBeanWrapper.JOB_TYPE, wrapper.getJobType());
+          map.put(JobBeanWrapper.JOB_NAME, wrapper.getJobName());
 
           if (SpringConfigurableJobBeanWrapper.class.isAssignableFrom(wrapper.getClass()))
           {
@@ -508,20 +497,16 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
   }
 
 
-  public List<SpringInitialJobSchedule> getInitialJobSchedules()
-  {
-      return initialJobSchedule;
-  }
-
   public void setInitialJobSchedules(List<SpringInitialJobSchedule> jobSchedule)
   {
       if(jobSchedule == null || jobSchedule.size() < 1)
         return;
       
-      this.initialJobSchedule = new LinkedList<SpringInitialJobSchedule> ();
+      this.initialJobSchedules = new LinkedList<SpringInitialJobSchedule> ();
 
-      initialJobSchedule.addAll(jobSchedule);
+      initialJobSchedules.addAll(jobSchedule);
   }
+
   /**
    * @deprecated use {@link #setGlobalTriggerListeners(Set<TriggerListener>)}
    * @return Returns the globalTriggerListener.
@@ -580,112 +565,6 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
       return Collections.unmodifiableList(globalJobListeners);
   }
 
-  /**
-   * @return Returns the serverId.
-   */
-  public String getServerId()
-  {
-    return serverId;
-  }
-
-  /**
-   * @param serverId The serverId to set.
-   */
-  public void setServerId(String serverId)
-  {
-    this.serverId = serverId;
-  }
-
-  /**
-   * @return Returns the dataSource.
-   */
-  public DataSource getDataSource()
-  {
-    return dataSource;
-  }
-
-  /**
-   * @param dataSource The dataSource to set.
-   */
-  public void setDataSource(DataSource dataSource)
-  {
-    this.dataSource = dataSource;
-  }
-
-  public void setSqlService(SqlService sqlService)
-  {
-    this.sqlService = sqlService;
-  }
-
-  /**
-   * @return Returns the qrtzQualifiedJobs.
-   */
-  public Map<String, String> getQrtzQualifiedJobs()
-  {
-    return qrtzQualifiedJobs;
-  }
-
-  /**
-   * @param qrtzQualifiedJobs The qrtzQualifiedJobs to set.
-   */
-  public void setQrtzQualifiedJobs(Map<String, String> qrtzQualifiedJobs)
-  {
-    this.qrtzQualifiedJobs = qrtzQualifiedJobs;
-  }
-
-  /**
-   * @return Returns the qrtzJobs.
-   */
-  public Set<String> getQrtzJobs()
-  {
-    return qrtzJobs;
-  }
-
-  /**
-   * @param qrtzJobs The qrtzJobs to set.
-   */
-  public void setQrtzJobs(Set<String> qrtzJobs)
-  {
-    this.qrtzJobs = qrtzJobs;
-  }
-
-  /**
-   * @return Returns the qrtzPropFile.
-   */
-  public String getQrtzPropFile()
-  {
-    return qrtzPropFile;
-  }
-
-  /**
-   * @param qrtzPropFile The qrtzPropFile to set.
-   */
-  public void setQrtzPropFile(String qrtzPropFile)
-  {
-    this.qrtzPropFile = qrtzPropFile;
-  }
-
-  public void setQrtzPropFileSakai(String qrtzPropFileSakai)
-  {
-    this.qrtzPropFileSakai = qrtzPropFileSakai;
-  }
-
-  /**
-   * @return Returns the scheduler.
-   */
-  public Scheduler getScheduler()
-  {
-    return scheduler;
-  }
-
-  /**
-   * @param scheduler The sched to set.
-   */
-  public void setScheduler(Scheduler scheduler)
-  {
-    this.scheduler = scheduler;
-  }
-
   @Override
   public Scheduler getScheduler(String schedName) throws SchedulerException
   {
@@ -701,26 +580,6 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
   {
     return Collections.singleton(getScheduler());
   }
-
-  /**
-   * @param serverConfigurationService The ServerConfigurationService to get our configuation from.
-   */
-  public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
-  {
-    this.serverConfigurationService = serverConfigurationService;
-  }
-
-  /**
-   * @see org.sakaiproject.api.app.scheduler.SchedulerManager#setAutoDdl(java.lang.Boolean)
-   */
-  public void setAutoDdl(Boolean b)
-  {
-    autoDdl = b;
-  }
-
-   public Map<String, JobBeanWrapper> getBeanJobs() {
-      return beanJobs;
-   }
 
    public void registerBeanJob(String jobName, JobBeanWrapper job) {
       getBeanJobs().put(jobName, job);
@@ -746,32 +605,17 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
         return loadInitSchedules;
     }
 
-    public void setJobFactory(JobFactory jobFactory) {
-        this.jobFactory = jobFactory;
-    }
-
-    public void setMigration(HashMap<String, Class<? extends Job>> migration) {
-        this.migration = migration;
-    }
-
-    public boolean isStartScheduler() {
-       return startScheduler;
-   }
-
-   public void setStartScheduler(boolean startScheduler) {
-       this.startScheduler = startScheduler;
-   }
-
     @Override
     public void start() {
-        if (isStartScheduler()) {
+        if (startScheduler) {
             try {
-                scheduler.start();
+                scheduler.startDelayed(startSchedulerDelayMinutes * 60);
+                log.info("Scheduler will start in {} minutes", startSchedulerDelayMinutes);
             } catch (SchedulerException e) {
                 log.error("Failed to start the scheduler.", e);
             }
         } else {
-            log.info("Scheduler Not Started, startScheduler=false");
+            log.info("Scheduler is disabled");
         }
     }
 
