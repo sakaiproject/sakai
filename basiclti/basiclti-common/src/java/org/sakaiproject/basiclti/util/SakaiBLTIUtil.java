@@ -1453,8 +1453,6 @@ public class SakaiBLTIUtil {
 		boolean isLTI13 = isLTI13(tool, null);
 
 		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
-		System.out.println("2 toolVersion={} isLTI1={} isLTI13={}"+toolVersion+isLTI1+isLTI13);
-
 
 		if (!isLTI13 && (secret == null || consumerkey == null)) {
 			return postError("<p>" + getRB(rb, "error.tool.partial", "Tool is incomplete, missing a key and secret.") + "</p>");
