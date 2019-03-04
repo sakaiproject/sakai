@@ -269,7 +269,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	{
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-		String login_hint = req.getRequestURI().toString();
+		String login_hint = req.getRequestURI();
 		String query_string = req.getQueryString();
 
 		if ( StringUtils.isNotEmpty(query_string)) {
@@ -327,6 +327,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String deployStr = refId.substring(7);
 					Long deployKey = SakaiBLTIUtil.getLongKey(deployStr);
 					if ( deployKey >= 0 ) deploy = ltiService.getDeployDao(deployKey);
+					if ( deploy == null ) {
+						throw new EntityNotDefinedException("Could not load deployment");
+					}
 					String placementId = req.getParameter("placement");
 					log.debug("deployStr={} deployKey={} placementId={}", deployStr, deployKey, placementId);
 					log.debug(deploy.toString());
@@ -342,7 +345,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				}
 				else if ( refId.startsWith("tool:") && refId.length() > 5 )
 				{
-					Map<String,Object> tool = null;
+					Map<String,Object> tool;
 
 					String toolStr = refId.substring(5);
 					String contentReturn = req.getParameter("contentReturn");
@@ -357,69 +360,77 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						propData.setProperty(key,value);
 					}
 					Long toolKey = SakaiBLTIUtil.getLongKey(toolStr);
-					if ( toolKey >= 0 )
-					{
-						tool = ltiService.getToolDao(toolKey, ref.getContext());
-						if ( tool != null ) {
-							// Save for LTI 13 Issuer
-							String orig_site_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI_SITE_ID));
-							if ( orig_site_id == null ) {
-								tool.put("orig_site_id_null", "true");
-							}
-							tool.put(LTIService.LTI_SITE_ID, ref.getContext());
-						}
-						String state = req.getParameter("state");
-						String nonce = req.getParameter("nonce");
-
-						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
-						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
-
-						if (StringUtils.isNotBlank(oidc_endpoint) &&
-								( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
-							redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
-						}
-						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
+					if (toolKey < 1 ) {
+						throw new EntityNotDefinedException("Could not load tool");
 					}
+
+					tool = ltiService.getToolDao(toolKey, ref.getContext());
+					if (tool == null ) {
+						throw new EntityNotDefinedException("Could not load tool");
+					}
+
+					// Save for LTI 13 Issuer
+					String orig_site_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI_SITE_ID));
+					if ( orig_site_id == null ) {
+						tool.put("orig_site_id_null", "true");
+					}
+					tool.put(LTIService.LTI_SITE_ID, ref.getContext());
+
+					String state = req.getParameter("state");
+					String nonce = req.getParameter("nonce");
+
+					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
+
+					if (SakaiBLTIUtil.isLTI13(tool, null) && StringUtils.isNotBlank(oidc_endpoint) &&
+							( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
+						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
+						return;
+					}
+					retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
+
 				}
 				else if ( refId.startsWith("content:") && refId.length() > 8 )
 				{
-					Map<String,Object> content = null;
+					Map<String,Object> content;
 					Map<String,Object> tool = null;
 
 					String contentStr = refId.substring(8);
 					Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
-					if ( contentKey >= 0 )
-					{
-						content = ltiService.getContentDao(contentKey,ref.getContext());
-						if ( content != null )
-						{
-							String siteId = (String) content.get(LTIService.LTI_SITE_ID);
-							if ( siteId == null || ! siteId.equals(ref.getContext()) )
-							{
-								content = null;
-							}
-						}
-						if ( content != null )
-						{
-							Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-							if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
-							if ( tool != null )
-							{
-								// SITE_ID can be null for the tool
-								String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
-								if ( siteId != null && ! siteId.equals(ref.getContext()) )
-								{
-									tool = null;
-								}
-							}
-						}
-
-						ltiService.filterContent(content, tool);
+					if (contentKey < 1 ) {
+						throw new EntityNotDefinedException("Could not load content item");
 					}
+
+					content = ltiService.getContentDao(contentKey,ref.getContext());
+					if (content == null ) {
+						throw new EntityNotDefinedException("Could not load content item");
+					}
+
+					String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+					if ( siteId == null || ! siteId.equals(ref.getContext()) )
+					{
+						throw new EntityNotDefinedException("Incorrect site");
+					}
+
+
+					Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+					if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
+					if ( tool != null )
+					{
+						// SITE_ID can be null for the tool
+						siteId = (String) tool.get(LTIService.LTI_SITE_ID);
+						if ( siteId != null && ! siteId.equals(ref.getContext()) )
+						{
+							tool = null;
+						}
+					}
+
+					ltiService.filterContent(content, tool);
+
 					String splash = null;
 					if ( tool != null ) splash = (String) tool.get("splash");
 					String splashParm = req.getParameter("splash");
-					String siteId = null;
+					siteId = null;
 					if ( tool != null ) siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 					if ( splashParm == null && splash != null && splash.trim().length() > 1 )
 					{
@@ -431,11 +442,14 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String state = req.getParameter("state");
 					String nonce = req.getParameter("nonce");
 
-					String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
-					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
-					if (StringUtils.isNotBlank(oidc_endpoint) &&
-							(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
-						redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
+					if ( tool != null ) {
+						String oidc_endpoint = (String) tool.get(LTIService.LTI13_OIDC_ENDPOINT);
+						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
+						if (SakaiBLTIUtil.isLTI13(tool, content) && StringUtils.isNotBlank(oidc_endpoint) &&
+								(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
+							redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
+							return;
+						}
 					}
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 				}

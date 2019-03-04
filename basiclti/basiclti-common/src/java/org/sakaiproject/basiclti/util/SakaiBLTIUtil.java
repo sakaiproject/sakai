@@ -913,14 +913,8 @@ public class SakaiBLTIUtil {
 		proxyBinding = ltiService.getProxyBindingDao(toolKey, context);
 
 		// See if there are the necessary items
-		String secret = (String) content.get(LTIService.LTI_SECRET);
-		if (secret == null) {
-			secret = (String) tool.get(LTIService.LTI_SECRET);
-		}
-		String key = (String) content.get(LTIService.LTI_CONSUMERKEY);
-		if (key == null) {
-			key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-		}
+		String secret = getSecret(tool, content);
+		String key = getKey(tool, content);
 
 		if (LTIService.LTI_SECRET_INCOMPLETE.equals(key) && LTIService.LTI_SECRET_INCOMPLETE.equals(secret)) {
 			return postError("<p>" + getRB(rb, "error.tool.partial", "Tool item is incomplete, missing a key and secret.") + "</p>");
@@ -928,16 +922,10 @@ public class SakaiBLTIUtil {
 
 		// Picking the launch is a little tricky...
 		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));  // LTI 1.x OR 2.x
-		// 0=inherit from tool, 1=LTI 1.1, 2=LTI 1.3
-		Long contentLTI13 = getLongNull(content.get(LTIService.LTI13));
-		Long toolLTI13 = getLongNull(tool.get(LTIService.LTI13));
 
 		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
 		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
-		boolean isLTI13 = Objects.equals(toolLTI13, 1L) && !Objects.equals(contentLTI13, 1L);
-		if (secret == null || key == null && Objects.equals(toolLTI13, 1L)) {
-			isLTI13 = true;  // No way to launch LTI 1.1
-		}
+		boolean isLTI13 = isLTI13(tool, content);
 
 		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
 
@@ -1462,13 +1450,8 @@ public class SakaiBLTIUtil {
 		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
 		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
 		boolean isLTI2 = !isLTI1;  // In case there is an LTI 3
+		boolean isLTI13 = isLTI13(tool, null);
 
-		// LTI 1.3 is a variation on  LTI 1.1
-		Long toolLTI13 = getLongNull(tool.get(LTIService.LTI13));
-		boolean isLTI13 = Objects.equals(toolLTI13, 1L);
-		if (secret == null || consumerkey == null && Objects.equals(toolLTI13, 1L)) {
-			isLTI13 = true;  // No way to launch LTI 1.1
-		}
 		log.debug("toolVersion={} isLTI1={} isLTI13={}", toolVersion, isLTI1, isLTI13);
 
 		if (!isLTI13 && (secret == null || consumerkey == null)) {
@@ -2857,4 +2840,47 @@ user_id: admin
 		}
 	}
 
+	/**
+	 *  Check if we are an LTI 1.3 launch or not
+	 */
+	public static boolean isLTI13(Map<String, Object> tool, Map<String, Object> content) {
+		// 0=inherit from tool, 1=LTI 1.1, 2=LTI 1.3
+		if ( content != null ) {
+			Long contentLTI13 = getLong(content.get(LTIService.LTI13));
+			if ( contentLTI13.equals(2L)) return true;
+			if ( contentLTI13.equals(1L)) return false;
+		}
+
+		if ( tool == null ) return false;
+		Long toolLTI13 = getLong(tool.get(LTIService.LTI13));
+		return toolLTI13.equals(1L);
+	}
+
+	/**
+	 * Get the secret based on inheritance rules
+	 */
+	public static String getSecret(Map<String, Object> tool, Map<String, Object> content) {
+		String secret = null;
+		if ( content != null ) {
+			secret = (String) content.get(LTIService.LTI_SECRET);
+		}
+		if (secret == null) {
+			secret = (String) tool.get(LTIService.LTI_SECRET);
+		}
+		return secret;
+	}
+
+	/**
+	 * Get the consumer key based on inheritance rules
+	 */
+	public static String getKey(Map<String, Object> tool, Map<String, Object> content) {
+		String key = null;
+		if ( content != null ) {
+			key = (String) content.get(LTIService.LTI_CONSUMERKEY);
+		}
+		if (key == null) {
+			key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+		}
+		return key;
+	}
 }
