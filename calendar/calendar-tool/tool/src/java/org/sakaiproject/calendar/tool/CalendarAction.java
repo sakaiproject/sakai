@@ -6183,7 +6183,7 @@ extends VelocityPortletStateAction
 				if(returnState.compareTo(CalendarAction.STATE_INITED) == 0) {
 					returnState = this.defaultStateView;
 				}
-				if (returnState.endsWith("!!!fromDescription"))
+				if (StringUtils.endsWith(returnState, "!!!fromDescription"))
 				{
 					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 					state.setState("description");
