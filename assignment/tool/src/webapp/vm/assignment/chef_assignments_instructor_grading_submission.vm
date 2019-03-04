@@ -561,7 +561,7 @@
                         <p class="form-group">
                             <label for="gradeChecked">
                                 <input name="$name_grade" type="checkbox" value="Checked"
-                                    #if ($!value_grade.equals("Checked"))
+                                    #if ($!value_grade.equals($tlang.getString("gen.checked")))
                                        checked="checked"
                                     #end
                                     id="gradeChecked"/>
@@ -638,7 +638,7 @@
                                                 </option>
                                                 #foreach ($i in ["Pass", "Fail"])
                                                     <option value="$i"
-                                                        #if ($!group_value_grade.equalsIgnoreCase($i))
+                                                        #if ($!group_value_grade.equalsIgnoreCase($tlang.getString($i.toLowerCase())))
                                                             selected="selected"
                                                         #end>
                                                         #if ($i=="Pass")
@@ -658,7 +658,7 @@
                                             <span>$tlang.getString("gen.grade.override")</span>
                                             <label for="$group_name_grade">
                                                 <input name="$group_name_grade" type="checkbox" value="Checked"
-                                                   #if ($!group_value_grade.equals("Checked"))checked="checked"#end
+                                                   #if ($!group_value_grade.equals($tlang.getString("gen.checked")))checked="checked"#end
                                                    id="$group_name_grade"/>
                                                 $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
                                             </label>

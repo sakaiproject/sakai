@@ -3268,7 +3268,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     for (String userId : users.keySet()) {
                         String userGrade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + userId);
                         if (userGrade != null) {
-                            grades.put(userId, assignmentService.getGradeDisplay(userGrade, gradeType, a.getScaleFactor()));
+                            grades.put(userId, userGrade);
                         }
                     }
                     context.put("value_grades", grades);
@@ -3363,8 +3363,7 @@ public class AssignmentAction extends PagedResourceActionII {
         if (BooleanUtils.isTrue((Boolean) state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT))) {
             context.put("value_grade", (String) state.getAttribute(GRADE_SUBMISSION_GRADE));
         } else {
-            // format to show one decimal place in grade
-            context.put("value_grade", assignmentService.getGradeDisplay((String) state.getAttribute(GRADE_SUBMISSION_GRADE), gradeType, assignment.isPresent() ? assignment.get().getScaleFactor() : null));
+            context.put("value_grade", state.getAttribute(GRADE_SUBMISSION_GRADE));
         }
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
@@ -10056,19 +10055,17 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(ATTACHMENTS, v);
                 state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, v);
                 String grade = assignmentService.getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor());
+                state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 
                 // populate grade overrides if they exist
-                for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
-                    String gradeOverride = assignmentService.getGradeDisplay(assignmentService.getGradeForSubmitter(s, submitter.getSubmitter()), a.getTypeOfGrade(), a.getScaleFactor());
-                    if (!StringUtils.equals(grade, gradeOverride)) {
-                        if (a.getIsGroup()) {
-                            state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
-                        } else {
-                            grade = gradeOverride;
-                        }
-                    }
+                if (a.getIsGroup()) {
+	                for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
+	                    String gradeOverride = assignmentService.getGradeForSubmitter(s, submitter.getSubmitter());
+	                    if (!StringUtils.equals(grade, gradeOverride)) {
+	                        state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
+	                    }
+	                }
                 }
-                state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 
                 // put the resubmission info into state
                 assignment_resubmission_option_into_state(a, s, state);

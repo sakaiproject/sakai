@@ -2326,9 +2326,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             // otherwise use grade maintained by assignments or is considered externally mananged or is not released
             grade = submission.getGrade(); // start with submission grade
-            Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
-            if (submissionSubmitter.isPresent()) {
-                grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
+            if (assignment.getIsGroup()) {
+	            Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
+	            if (submissionSubmitter.isPresent()) {
+	                grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
+	            }
             }
         }
 
