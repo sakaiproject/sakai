@@ -45,8 +45,6 @@
 		<p class="act">
 			<input type="submit" accesskey ="s" class="active" name="$doAction" 
 				value="$tlang.getString('gen.save')" />
-			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;">
 		</p>
 	</form>
 <script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
