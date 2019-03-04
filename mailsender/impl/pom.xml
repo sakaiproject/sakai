@@ -64,8 +64,7 @@
         <!-- provided commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3
-            </artifactId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- parse html to text -->
