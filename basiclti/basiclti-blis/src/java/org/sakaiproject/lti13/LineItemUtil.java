@@ -178,10 +178,10 @@ public class LineItemUtil {
 			}
 		} catch (GradebookNotFoundException e) {
 			failure = "GradebookNotFoundException";
-			e.printStackTrace();
+			log.error("Gradebook not found", e);
 		} catch (Throwable e) {
 			failure = "Unexpected Throwable " + e.getMessage();
-			e.printStackTrace();
+			log.error("Unexpected Throwable", e);
 		}  finally {
 			popAdvisor();
 		}
@@ -277,7 +277,6 @@ public class LineItemUtil {
 			retval = null;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
-			e.printStackTrace();
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -332,7 +331,6 @@ public class LineItemUtil {
 			retval = null;
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
-			e.printStackTrace();
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -416,7 +414,6 @@ public class LineItemUtil {
 			log.error("Gradebook not found context_id={}", context_id);
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
-			e.printStackTrace();
 		} finally {
 			popAdvisor();
 		}
@@ -465,7 +462,6 @@ public class LineItemUtil {
 			contents = l.getContents("lti_content.tool_id = "+tool_id, null,0,5000, context_id);
 		} catch (Exception e) {
 			log.error("Unexpected Exception", e.getMessage());
-			e.printStackTrace();
 		} finally {
 			popAdvisor();
 		}

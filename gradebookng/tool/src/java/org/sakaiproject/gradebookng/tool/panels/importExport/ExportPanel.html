@@ -48,14 +48,14 @@
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" wicket:id="includeStudentDisplayId">
-                                        <wicket:message key="importExport.export.advancedOption.includeStudentDisplayId"/>
+                                        <input type="checkbox" wicket:id="includeStudentName">
+                                        <wicket:message key="importExport.export.advancedOption.includeStudentName"/>
                                     </label>
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" wicket:id="includeStudentName">
-                                        <wicket:message key="importExport.export.advancedOption.includeStudentName"/>
+                                        <input type="checkbox" wicket:id="includeStudentDisplayId">
+                                        <wicket:message key="importExport.export.advancedOption.includeStudentDisplayId"/>
                                     </label>
                                 </div>
                                 <wicket:enclosure child="includeStudentNumber">
@@ -66,6 +66,12 @@
                                         </label>
                                     </div>
                                 </wicket:enclosure>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" wicket:id="includeSectionMembership">
+                                        <wicket:message key="importExport.export.advancedOption.includeSectionMembership"/>
+                                    </label>
+                                </div>
                                 <wicket:enclosure child="includePoints">
                                     <div class="checkbox">
                                         <label>

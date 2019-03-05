@@ -162,8 +162,8 @@
 
                         <div class="onoffswitch" style="display: none">
                             <button role="switch" aria-checked="true" aria-labelledby="autofav-description" class="btn btn-lg" id="autoFavoritesEnabled">
-                                <span class="onoffswitch-inner">${rloader.moresite_favorites_on}</span>
-                                <span class="onoffswitch-switch">${rloader.moresite_favorites_off}</span>
+                                <span class="onoffswitch-inner">${rloader.moresite_favorites_off}</span>
+                                <span class="onoffswitch-switch">${rloader.moresite_favorites_on}</span>
                             </button>
                         </div>
                     </div>

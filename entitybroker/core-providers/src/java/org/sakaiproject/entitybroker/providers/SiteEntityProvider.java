@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.azeckoski.reflectutils.ReflectUtils;
@@ -91,46 +93,19 @@ import org.sakaiproject.util.FormattedText;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @Slf4j
+@Setter
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
 RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
+    @Getter
     private int maxDepth = 7;
-    public void setMaxDepth(int maxDepth) {
-        this.maxDepth = maxDepth;
-    }
-    public int getMaxDepth() {
-        return maxDepth;
-    }
 
     private SiteService siteService;
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
     private AuthzGroupService authzGroupService;
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
-
     private FunctionManager functionManager;
-    public void setFunctionManager(FunctionManager functionManager) {
-        this.functionManager = functionManager;
-    }
-
     private UserEntityProvider userEntityProvider;
-    public void setUserEntityProvider(UserEntityProvider userEntityProvider) {
-        this.userEntityProvider = userEntityProvider;
-    }
-    
     private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
     private SecurityService securityService;
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
 
     public static String PREFIX = "site";
     public String getEntityPrefix() {
@@ -228,7 +203,8 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     }
 
     @EntityCustomAction(action = "perms", viewKey = EntityView.VIEW_SHOW)
-    public Map<String, Set<String>> handlePerms(EntityView view) {
+    public ActionReturn handlePerms(EntityView view, Map<String, Object> params) {
+
         // expects site/siteId/perms[/:PREFIX:]
         String prefix = view.getPathSegment(3);
 
@@ -241,10 +217,10 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         String siteId = view.getEntityReference().getId();
         Site site = getSiteById(siteId);
         Set<Role> roles = site.getRoles();
-        Map<String, Set<String>> perms = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> on = new HashMap<>();
         for (Role role : roles) {
             Set<String> functions = role.getAllowedFunctions();
-            Set<String> filteredFunctions = new TreeSet<String>();
+            Set<String> filteredFunctions = new TreeSet<>();
             if (prefix != null) {
                 for (String function : functions) {
                     if (function.startsWith(prefix)) {
@@ -254,9 +230,18 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             } else {
                 filteredFunctions = functions;
             }
-            perms.put(role.getId(), filteredFunctions);
+            on.put(role.getId(), filteredFunctions);
         }
-        return perms;
+
+        if (params.getOrDefault("includeAvailable", "false").equals("true")) {
+            List<String> available = functionManager.getRegisteredFunctions(prefix);
+            Map<String, Object> data = new HashMap<>();
+            data.put("on", on);
+            data.put("available", available);
+            return new ActionReturn(data);
+        } else {
+            return new ActionReturn(on);
+        }
     }
 
     @EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)

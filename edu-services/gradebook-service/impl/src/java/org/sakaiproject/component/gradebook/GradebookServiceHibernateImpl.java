@@ -17,6 +17,7 @@
 package org.sakaiproject.component.gradebook;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -47,7 +48,7 @@ import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -105,6 +106,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	private Authz authz;
 	private GradebookPermissionService gradebookPermissionService;
 	protected SiteService siteService;
+
+	@Setter
+	protected ServerConfigurationService serverConfigService;
 
 	@Getter @Setter
 	private RubricsService rubricsService;
@@ -2342,7 +2346,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			// Try to get the assignment by id
 			if (NumberUtils.isCreatable(assignmentName)) {
 				final Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
-				score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+				try {
+					score = getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+				} catch (AssessmentNotFoundException anfe) {
+					log.debug("Assessment could not be found for gradebook id {} and assignment id {} and student id {}", gradebookUid, assignmentName, studentUid);
+				}
 			}
 		}
 		return score;
@@ -3202,9 +3210,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 					// calculated grade
 					// may be null if no grade entries to calculate
-					final Double calculatedGrade = gr.getAutoCalculatedGrade();
+					Double calculatedGrade = gr.getAutoCalculatedGrade();
 					if (calculatedGrade != null) {
 						cg.setCalculatedGrade(calculatedGrade.toString());
+
+						// SAK-33997 Adjust the rounding of the calculated grade so we get the appropriate
+						// grade mapping
+						BigDecimal bd = new BigDecimal(calculatedGrade)
+								.setScale(10, RoundingMode.HALF_UP)
+								.setScale(2, RoundingMode.HALF_UP);
+						calculatedGrade = bd.doubleValue();
 					}
 
 					// mapped grade
@@ -3270,8 +3285,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 
 		// set grade type, but only if sakai.property is true OR user is admin
-		final boolean gradeTypeAvailForNonAdmins = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins",
-				true);
+		final boolean gradeTypeAvailForNonAdmins = serverConfigService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true);
 		if (gradeTypeAvailForNonAdmins || SecurityService.isSuperUser()) {
 			gradebook.setGrade_type(gbInfo.getGradeType());
 		}

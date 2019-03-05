@@ -49,6 +49,7 @@ public class LTI13KeySetUtil {
 
 			JSONObject kobj = (JSONObject) JSONValue.parse(keyStr);
 			kobj.put("kid", (String) entry.getKey());
+			kobj.put("use", "sig");
 			jar.add(kobj);
 		}
 

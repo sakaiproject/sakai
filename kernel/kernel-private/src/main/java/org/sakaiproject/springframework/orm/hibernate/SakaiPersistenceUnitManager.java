@@ -4,8 +4,10 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 
 import lombok.Setter;
+
 import org.hibernate.cfg.AvailableSettings;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 
@@ -33,9 +35,9 @@ public class SakaiPersistenceUnitManager extends DefaultPersistenceUnitManager {
             pui.setNonJtaDataSource(dataSource);
         }
 
-//        TODO register AssignableUUIDGenerator
-//        AssignableUUIDGenerator.setServerConfigurationService(serverConfigurationService);
-//        pui.getIdentifierGeneratorFactory().register("uuid2", AssignableUUIDGenerator.class);
+        // override default UUIDGenerator with AssignableUUIDGenerator
+        pui.addProperty(org.hibernate.jpa.AvailableSettings.IDENTIFIER_GENERATOR_STRATEGY_PROVIDER, SakaiIdentifierGeneratorProvider.class.getName());
+        AssignableUUIDGenerator.setServerConfigurationService(serverConfigurationService);
 
         postProcessPersistenceUnitInfo(pui);
 

@@ -25,8 +25,8 @@ import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -705,7 +705,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sb.append(this.MIME_ADVISORY);
 				sb.append(this.BOUNDARY_LINE);
 				sb.append(this.PLAIN_TEXT_HEADERS);
-				sb.append(StringEscapeUtils.escapeHtml(message));
+				sb.append(StringEscapeUtils.escapeHtml3(message));
 				sb.append(this.BOUNDARY_LINE);
 				sb.append(this.HTML_HEADERS);
 				sb.append(htmlPreamble(subject));

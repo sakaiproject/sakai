@@ -95,7 +95,6 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.apache.commons.lang.StringUtils;
 import org.tsugi.ags2.objects.LineItem;
 import org.tsugi.ags2.objects.Result;
 import org.tsugi.lti13.objects.LaunchLIS;
@@ -177,7 +176,7 @@ public class LTI13Servlet extends HttpServlet {
 		if (parts.length == 6 && "lineitem".equals(parts[3]) && "results".equals(parts[5]) ) {
 			String signed_placement = parts[4];
 			String lineItem = null;
-			handleLineItemsDetail(signed_placement, lineItem, true /*results */, request, response);
+			handleLineItemsDetail(signed_placement, lineItem, true /*results */, null /* user_id */, request, response);
 			return;
 		}
 
@@ -186,7 +185,7 @@ public class LTI13Servlet extends HttpServlet {
 		if (parts.length == 6 && "lineitems".equals(parts[3])) {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
-			handleLineItemsDetail(signed_placement, lineItem, false /*results */, request, response);
+			handleLineItemsDetail(signed_placement, lineItem, false /*results */, null /* user_id */, request, response);
 			return;
 		}
 
@@ -194,14 +193,15 @@ public class LTI13Servlet extends HttpServlet {
 		if (parts.length == 7 && "lineitems".equals(parts[3]) && "results".equals(parts[6])) {
 			String signed_placement = parts[4];
 			String lineItem = parts[5];
-			handleLineItemsDetail(signed_placement, lineItem, true /*results */, request, response);
+			handleLineItemsDetail(signed_placement, lineItem, true /*results */, null /* user_id */, request, response);
 			return;
 		}
 
-		// TODO: Remove this after transition to new servlet is complete.
-		// /imsblis/lti13/oidc_auth?state=42&login_hint=/access/basiclti/site/92e..e8e67/content:6
-		if (parts.length == 4 && "oidc_auth".equals(parts[3]) ) {
-			handleOIDCAuthorization(request, response);
+		// /imsblis/lti13/lineitems/{signed-placement}/{lineitem-id}/results/{user-id}
+		if (parts.length == 8 && "lineitems".equals(parts[3]) && "results".equals(parts[6])) {
+			String signed_placement = parts[4];
+			String lineItem = parts[5];
+			handleLineItemsDetail(signed_placement, lineItem, true /*results */, parts[7], request, response);
 			return;
 		}
 
@@ -392,7 +392,7 @@ public class LTI13Servlet extends HttpServlet {
 		String body = LTI13JwtUtil.rawJwtBody(client_assertion);
 		if (body == null) {
 			LTI13Util.return400(response, "Could not find Jwt Body in client_assertion");
-			log.error("Could not find Jwy Body in client_assertion\n{}", client_assertion);
+			log.error("Could not find Jwt Body in client_assertion\n{}", client_assertion);
 			return;
 		}
 
@@ -558,7 +558,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Long scoreGiven = SakaiBLTIUtil.getLongNull(jso.get("scoreGiven"));
 		Long scoreMaximum = SakaiBLTIUtil.getLongNull(jso.get("scoreMaximum"));
-		String userId = (String) jso.get("userId");
+		String userId = (String) jso.get("userId");  // TODO: LTI13 quirk - should be subject
 		String comment = (String) jso.get("comment");
 		log.debug("scoreGivenStr={} scoreMaximumStr={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
@@ -585,6 +585,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		String context_id = site.getId();
+		userId = SakaiBLTIUtil.parseSubject(userId);
 		if (!checkUserInSite(site, userId)) {
 			log.warn("User {} not found in siteId={}", userId, context_id);
 			LTI13Util.return400(response, "User does not belong to site");
@@ -613,15 +614,19 @@ public class LTI13Servlet extends HttpServlet {
 		}
 	}
 
+	// https://github.com/IMSGlobal/LTI-spec-Names-Role-Provisioning/blob/develop/docs/names-role-provisioning-spec.md
 	/*
 	{
   "id" : "https://lms.example.com/sections/2923/memberships/?rlid=49566-rkk96",
+
+  "context" : {
+      "id": "2923-abc",
+      "label": "CPS 435",
+      "title": "CPS 435 Learning Analytics",
+  }
   "members" : [
     {
       "status" : "Active",
-      "context_id": "2923-abc",
-      "context_label": "CPS 435",
-      "context_title": "CPS 435 Learning Analytics",
       "name": "Jane Q. Public",
       "picture" : "https://platform.example.edu/jane.jpg",
       "given_name" : "Jane",
@@ -698,11 +703,18 @@ public class LTI13Servlet extends HttpServlet {
 			assignment_name = null;
 		}
 
+		JSONObject context_obj = new JSONObject();
+		context_obj.put("id", site.getId());
+		context_obj.put("title", site.getTitle());
+
 		String maintainRole = site.getMaintainRole();
 
 		PrintWriter out = response.getWriter();
 		out.println("{");
-		out.println(" \"id\" : \"http://TODO.wtf.com/\",");
+		out.println(" \"id\" : \"http://TODO.wtf.com/we_eliminated_json_ld_but_forgot_to_remove_this\",");
+		out.println(" \"context\" : ");
+		out.print(JacksonUtil.prettyPrint(context_obj));
+		out.println(",");
 		out.println(" \"members\": [");
 
 		SakaiBLTIUtil.pushAdvisor();
@@ -731,9 +743,10 @@ public class LTI13Servlet extends HttpServlet {
 			for (User user : users) {
 				JSONObject jo = new JSONObject();
 				jo.put("status", "Active");
-				jo.put("context_id", site.getId());
-				jo.put("context_title", site.getTitle());
-				jo.put("user_id", user.getId());
+				String lti11_legacy_user_id = user.getId();
+				jo.put("lti11_legacy_user_id", lti11_legacy_user_id);
+				String subject = SakaiBLTIUtil.getSubject(lti11_legacy_user_id, site.getId());
+				jo.put("user_id", subject);   // TODO: Should be subject - LTI13 Quirk
 				jo.put("lis_person_sourcedid", user.getEid());
 
 				if (releaseName != 0) {
@@ -803,6 +816,7 @@ public class LTI13Servlet extends HttpServlet {
 		String authorization = request.getHeader("authorization");
 
 		if (authorization == null || !authorization.startsWith("Bearer")) {
+			log.error("Invalid authorization {}", authorization);
 			LTI13Util.return400(response, "invalid_authorization");
 			return null;
 		}
@@ -1023,6 +1037,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		Object js = JSONValue.parse(jsonString);
 		if (js == null || !(js instanceof JSONObject)) {
+			log.error("Badly formatted JSON");
 			LTI13Util.return400(response, "Badly formatted JSON");
 			return null;
 		}
@@ -1039,6 +1054,7 @@ public class LTI13Servlet extends HttpServlet {
 			return retval;
 		} catch (IOException ex) {
 			String error = "Could not parse input as " + whichClass.getSimpleName();
+			log.error(error);
 			LTI13Util.return400(response, error);
 			return null;
 		}
@@ -1085,13 +1101,15 @@ public class LTI13Servlet extends HttpServlet {
 			return;  // No need - error is already set
 		}
 		if (!sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS)) {
-			LTI13Util.return400(response, "Scope lineitems not in access token");
 			log.error("Scope lineitems not in access token");
+			LTI13Util.return400(response, "Scope lineitems not in access token");
 			return;
 		}
 
 		LineItem item = (LineItem) getObjectFromPOST(request, response, LineItem.class);
-		if ( item == null ) return; // Error alredy handled
+		if ( item == null )  {
+			return; // Error alredy handled
+		}
 
 
 		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
@@ -1113,7 +1131,8 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			retval = LineItemUtil.createLineItem(site, sat.tool_id, null /*content*/, item);
 		} catch (Exception e) {
-			LTI13Util.return400(response, "Counld not create lineitem: "+e.getMessage());
+			log.error("Could not create lineitem: "+e.getMessage());
+			LTI13Util.return400(response, "Could not create lineitem: "+e.getMessage());
 			return;
 		}
 
@@ -1124,7 +1143,9 @@ public class LTI13Servlet extends HttpServlet {
 		response.setContentType(LineItem.MIME_TYPE);
 
 		PrintWriter out = response.getWriter();
-		out.print(JacksonUtil.prettyPrint(item));
+		String json_out = JacksonUtil.prettyPrint(item);
+		log.debug("response={}", json_out);
+		out.print(json_out);
 	}
 
 	/**
@@ -1182,7 +1203,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			retval = LineItemUtil.updateLineItem(site, sat.tool_id, assignment_id, item);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 			LTI13Util.return400(response, "Could not update lineitem: "+e.getMessage());
 			return;
 		}
@@ -1293,7 +1314,9 @@ public class LTI13Servlet extends HttpServlet {
 	 * @param request
 	 * @param response
 	 */
-	private void handleLineItemsDetail(String signed_placement, String lineItem, boolean results, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void handleLineItemsDetail(String signed_placement, String lineItem, boolean results, String user_id,
+		HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
 		log.debug("signed_placement={}", signed_placement);
 
 		// Make sure the lineItem id is a long
@@ -1313,13 +1336,13 @@ public class LTI13Servlet extends HttpServlet {
 		if (sat == null) {
 			return;
 		}
-
+/*
 		if (! (sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS_READONLY) || sat.hasScope(SakaiAccessToken.SCOPE_LINEITEMS) )) {
 			LTI13Util.return400(response, "Scope lineitems.readonly not in access token");
 			log.error("Scope lineitems.readonly not in access token");
 			return;
 		}
-
+*/
 		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			LTI13Util.return400(response, "Could not load content from signed placement");
@@ -1352,7 +1375,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		if ( a == null ) {
 			LTI13Util.return400(response, "Could not load assignment");
-			log.error("Could not load assignment");
+			log.error("Could not load assignment_id={}", assignment_id);
 			return;
 		}
 
@@ -1361,18 +1384,21 @@ public class LTI13Servlet extends HttpServlet {
 			LineItem item = getLineItem(signed_placement, a);
 
 			response.setContentType(LineItem.MIME_TYPE);
+			String json_out = JacksonUtil.prettyPrint(item);
+			log.debug("Returning {}", json_out);
 			PrintWriter out = response.getWriter();
-			out.print(JacksonUtil.prettyPrint(item));
+			out.print(json_out);
 			return;
 		}
 
-		resultsForAssignment(signed_placement, site, a, assignment_id, request, response);
+		resultsForAssignment(signed_placement, site, a, assignment_id, user_id, request, response);
 
 	}
 
 	private void resultsForAssignment(String signed_placement, Site site, Assignment a,
-			Long assignment_id, HttpServletRequest request, HttpServletResponse response)
+			Long assignment_id, String user_id, HttpServletRequest request, HttpServletResponse response)
 	{
+		log.debug("signed_placement={} user_id={}", signed_placement, user_id);
 		// TODO: Is the outer container an array or an object - the spec and swagger doc disagree
 		/*
 			[{
@@ -1408,10 +1434,13 @@ public class LTI13Servlet extends HttpServlet {
 			List<Map<String, Object>> lm = new ArrayList<>();
 
 			// Get users for each of the members. UserDirectoryService.getUsers will skip any undefined users.
-			Set<Member> members = site.getMembers();
 			Map<String, Member> memberMap = new HashMap<>();
 			List<String> userIds = new ArrayList<>();
+
+			// TODO: Make this faster
+			Set<Member> members = site.getMembers();
 			for (Member member : members) {
+				if ( user_id != null && ! user_id.equals(member.getUserId()) ) continue;
 				userIds.add(member.getUserId());
 				memberMap.put(member.getUserId(), member);
 			}
@@ -1420,10 +1449,12 @@ public class LTI13Servlet extends HttpServlet {
 			boolean first = true;
 			PrintWriter out = response.getWriter();
 
-			out.println("{ \"results\" : [");
+			if ( user_id == null ) out.println("[");
 			for (User user : users) {
 				Result result = new Result();
-				result.userId = user.getId();
+                                String lti11_legacy_user_id = user.getId();
+                                String subject = SakaiBLTIUtil.getSubject(lti11_legacy_user_id, context_id);
+				result.userId = subject;
 				result.resultMaximum = a.getPoints();
 
 				if ( signed_placement != null ) {
@@ -1442,29 +1473,42 @@ public class LTI13Servlet extends HttpServlet {
 						result.comment = commentDef.getCommentText();
 					}
 				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
-					e.printStackTrace();  // Unexpected
+					log.error(e.getMessage(), e);  // Unexpected
 					break;
 				}
 
+				String actualGrade = null;
+				result.resultScore = null;
 				try {
-					String actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
-					Double dGrade = new Double(actualGrade);
-					result.resultScore = dGrade;
-				} catch(NumberFormatException | AssessmentNotFoundException | GradebookNotFoundException e) {
-					result.resultScore = null;
+					actualGrade = g.getAssignmentScoreString(context_id, a.getId(), user.getId());
+				} catch(AssessmentNotFoundException | GradebookNotFoundException e) {
+					log.error(e.getMessage(), e);  // Unexpected
+					break;
+				}
+
+				if ( actualGrade != null ) {
+					try {
+						Double dGrade = new Double(actualGrade);
+						result.resultScore = dGrade;
+					} catch(NumberFormatException e) {
+						log.error("Could not parse grade="+actualGrade);
+						result.resultScore = null;
+					}
 				}
 
 				if (!first) {
 					out.println(",");
 				}
 				first = false;
-				out.print(JacksonUtil.prettyPrint(result));
+				String json_out = JacksonUtil.prettyPrint(result);
+				out.print(json_out);
 
 			}
-			out.println("");
-			out.println("] }");
+			if ( user_id == null ) {
+				out.println("]");
+			}
 		} catch (Throwable t) {
-			t.printStackTrace();
+			log.error(t.getMessage(), t);
 		} finally {
 			SakaiBLTIUtil.popAdvisor();
 		}
@@ -1530,51 +1574,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		LTI13Util.return400(response, "Could not delete assignment "+assignment_id);
 		log.error("Could delete assignment={}", assignment_id);
-	}
-
-	/**
-	 * Process the returned OIDC Authorization request
-	 * @param signed_placement
-	 * @param lineItem - Can be null
-	 * @param results
-	 * @param request
-	 * @param response
-	 */
-	private void handleOIDCAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-		String state = (String) request.getParameter("state");
-		state = StringUtils.trimToNull(state);
-
-		String login_hint = (String) request.getParameter("login_hint");
-		if ( StringUtils.isEmpty(login_hint) ) state = null;
-
-		String nonce = (String) request.getParameter("nonce");
-		nonce = StringUtils.trimToNull(nonce);
-
-		if ( state == null || login_hint == null || nonce == null ) {
-			LTI13Util.return400(response, "Missing login_hint, nonce or state parameter");
-			log.error("Missing login_hint or state parameter");
-			return;
-		}
-
-		if ( ! login_hint.startsWith("/access/basiclti/site/") ) {
-			LTI13Util.return400(response, "Bad format for login_hint");
-			log.error("Bad format for login_hint");
-			return;
-		}
-
-		String redirect = login_hint;
-		redirect += ( redirect.contains("?") ? "&" : "?");
-		redirect += "state=" + java.net.URLEncoder.encode(state);
-		redirect += "&nonce=" + java.net.URLEncoder.encode(nonce);
-		log.debug("redirect={}", redirect);
-
-		try {
-			response.sendRedirect(redirect);
-		} catch (IOException unlikely) {
-			log.error("failed redirect {}", unlikely.getMessage());
-		}
-
 	}
 
 }

@@ -19,6 +19,7 @@ package org.sakaiproject.mailsender.logic.impl;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.PROTOCOL_SMTP;
 
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -59,7 +60,6 @@ import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -81,7 +81,6 @@ public class ExternalLogicImpl implements ExternalLogic
 	private SiteService siteService;
 	private MailArchiveService mailArchiveService;
 	private UserDirectoryService userDirectoryService;
-	private TimeService timeService;
 	private EmailService emailService;
 	private ServerConfigurationService configService;
 	private EventTrackingService eventService;
@@ -325,7 +324,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			header.replaceAttachments(null);
 			header.setSubject(subject);
 			header.setFromAddress(sender);
-			header.setDateSent(timeService.newTime());
+			header.setInstantSent(Instant.now());
 			header.setMailHeaders(mailHeaders);
 			// List of references needed.
 			List<Reference> refs = new ArrayList<Reference>();
@@ -513,11 +512,6 @@ public class ExternalLogicImpl implements ExternalLogic
 	public void setFunctionManager(FunctionManager functionManager)
 	{
 		this.functionManager = functionManager;
-	}
-
-	public void setTimeService(TimeService timeService)
-	{
-		this.timeService = timeService;
 	}
 
 	public void setMailArchiveService(MailArchiveService mailArchiveService)

@@ -50,7 +50,6 @@
 		<dependency>
 		  <groupId>javax.servlet</groupId>
 		  <artifactId>jstl</artifactId>
-		  <version>${sakai.jstl.version}</version>
 		  <scope>runtime</scope>
 		</dependency>
 		<dependency>

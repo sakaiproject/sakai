@@ -20,8 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import lombok.Data;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +29,7 @@ import lombok.Setter;
  * Represents the settings for the gradebook
  *
  */
+@Data
 public class GradebookInformation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -62,16 +62,10 @@ public class GradebookInformation implements Serializable {
 	@Setter
 	private boolean displayReleasedGradeItemsToStudents;
 
-	@Getter
-	@Setter
 	private int gradeType;
 
-	@Getter
-	@Setter
 	private int categoryType;
 
-	@Getter
-	@Setter
 	private List<CategoryDefinition> categories;
 
 	/**
@@ -112,20 +106,11 @@ public class GradebookInformation implements Serializable {
 	/**
 	 * Are assignment stats to be shown to students?
 	 */
-	@Getter
-	@Setter
 	private boolean assignmentStatsDisplayed;
 
 	/**
 	 * Are course grade stats to be shown to students?
 	 */
-	@Getter
-	@Setter
 	private boolean courseGradeStatsDisplayed;
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-	}
 
 }

@@ -15,27 +15,24 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.quartz.PersistJobDataAfterExecution;
 
 /**
  * This is the wrapper that tells quartz that is should make the jobs stateful.
  * @see SpringJobBeanWrapper
  */
-public class SpringStatefulJobBeanWrapper extends SpringJobBeanWrapper implements StatefulJob {
+@DisallowConcurrentExecution
+@PersistJobDataAfterExecution
+public class SpringStatefulJobBeanWrapper extends SpringJobBeanWrapper implements Job {
 
-	public SpringStatefulJobBeanWrapper() {
-		super();
-	}
-
-	public void execute(JobExecutionContext jobExecutionContext) throws 
-	JobExecutionException {
-		String beanId = 
-			jobExecutionContext.getJobDetail().getJobDataMap().getString(SPRING_BEAN_NAME);
-		Job job = (Job) ComponentManager.get(beanId);
+	@Override
+	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+		String beanId = jobExecutionContext.getJobDetail().getJobDataMap().getString(SPRING_BEAN_NAME);
+		Job job = (Job) applicationContext.getBean(beanId);
 		job.execute(jobExecutionContext);
 	}
 }

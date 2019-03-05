@@ -3558,7 +3558,7 @@ public class DeliveryBean
     String siteId = fromUrl ? publishedAssessment.getOwnerSiteId() : AgentFacade.getCurrentSiteId();
     return PersistenceService.getInstance()
         .getAuthzQueriesFacade()
-        .hasPrivilege("assessment.takeAssessment", siteId);
+        .hasPrivilege(SamigoConstants.AUTHZ_TAKE_ASSESSMENT, siteId);
   }
 
   private boolean isRemoved(){

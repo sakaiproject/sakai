@@ -238,7 +238,7 @@
 			</p>	
 		#end
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
-		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="assignmentId" value="$assignmentReference" />
 			<div class="act">
 				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>

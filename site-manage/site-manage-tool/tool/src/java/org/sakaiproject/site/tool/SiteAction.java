@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -117,6 +118,8 @@ import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.site.api.Group;
@@ -232,6 +235,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
 	
 	private PreferencesService preferencesService = (PreferencesService)ComponentManager.get(PreferencesService.class);
+
+	private MemoryService memoryService = (MemoryService) ComponentManager.get(MemoryService.class);
+	private Cache m_userSiteCache = memoryService.newCache("org.sakaiproject.site.api.SiteService.userSiteCache");
 
 	private static DeveloperHelperService devHelperService = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
 
@@ -405,6 +411,9 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String[] PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicChangeable");
 	private final static String[] PUBLIC_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicOnly");
 	private final static String[] PRIVATE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.privateOnly");
+
+	private static final String SAK_PROP_DEFAULT_SITE_VIS = "wsetup.defaultSiteVisibility";
+	private static final boolean SAK_PROP_DEFAULT_SITE_VIS_DFLT = true;
 
 	private final static String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
 	
@@ -798,7 +807,13 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String CONTEXT_HAS_TERMS = "hasTerms";
 	
 	private static final String SAK_PROP_AUTO_FILTER_TERM = "site.setup.autoFilterTerm";
-	
+
+	private static final String SAK_PROP_RM_STLTH_ON_DUP = "site.duplicate.removeStealthTools";
+	private static final boolean SAK_PROP_RM_STLTH_ON_DUP_DEFAULT = false;
+
+	private static final String SAK_PROP_ALLOW_DEL_LAST_ROSTER = "site.setup.allowDelLastRoster";
+	private static final boolean SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT = false;
+
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
 	// state variable for lti tools
@@ -813,7 +828,7 @@ public class SiteAction extends PagedResourceActionII {
 	private String m_filePath;
 	private String moreInfoPath;
 	private String libraryPath;
-	
+
 	private static final String STATE_HARD_DELETE = "hardDelete";
 	
 	private static final String STATE_CREATE_FROM_ARCHIVE = "createFromArchive";
@@ -1524,8 +1539,10 @@ public class SiteAction extends PagedResourceActionII {
 			// If we're in the restore view
 			context.put("showRestore", SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED)));
 
-			if (SecurityService.isSuperUser()) {
+			boolean isSuperUser = SecurityService.isSuperUser();
+			if (isSuperUser) {
 				context.put("superUser", Boolean.TRUE);
+				context.put("canDelSoftDel", Boolean.TRUE);
 			} else {
 				context.put("superUser", Boolean.FALSE);
 			}
@@ -1640,9 +1657,20 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("portalUrl", portalUrl);
 
 			List<Site> allSites = prepPage(state);
-						
 			state.setAttribute(STATE_SITES, allSites);
 			context.put("sites", allSites);
+
+			if (!isSuperUser) {
+				boolean canDelSoftDel = false;
+				for (Site s : allSites) {
+					canDelSoftDel = SecurityService.unlock("site.del.softly.deleted", s.getReference());
+					if (canDelSoftDel) {
+						break;
+					}
+				}
+
+				context.put("canDelSoftDel", canDelSoftDel);
+			}
 
 			context.put("totalPageNumber", Integer.valueOf(totalPageNumber(state)));
 			context.put("searchString", state.getAttribute(STATE_SEARCH));
@@ -2107,8 +2135,11 @@ public class SiteAction extends PagedResourceActionII {
 				allowUpdateSite = SiteService.allowUpdateSite(site.getId());
 				isMyWorkspace = isSiteMyWorkspace(site);
 				boolean allowUpdateGroupMembership = SiteService.allowUpdateGroupMembership(site.getId());
+				allowViewRoster = SiteService.allowViewRoster(site.getId());
+
 				context.put("allowUpdate", allowUpdateSite);
 				context.put("additionalAccess", getAdditionRoles(site));
+				context.put("viewRoster", allowViewRoster);
 
 				// Add the menus to vm
 				MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.SITE_INFO);
@@ -3408,6 +3439,7 @@ public class SiteAction extends PagedResourceActionII {
 			// Add the menus to vm
 			MenuBuilder.buildMenuForSiteInfo(portlet, data, state, context, site, rb, siteTypeProvider, SiteInfoActiveTab.EDIT_CLASS_ROSTERS);
 
+			context.put("allowAddSite", SiteService.allowAddSite(site.getId()));
 			context.put("siteTitle", site.getTitle());
 			coursesIntoContext(state, context, site);
 
@@ -5445,6 +5477,7 @@ public class SiteAction extends PagedResourceActionII {
 		boolean hardDelete = false;
 		if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_HARD_DELETE), Boolean.TRUE.toString())) {
 			hardDelete = true;
+			state.removeAttribute(STATE_HARD_DELETE);
 		}
 		
 		if (!chosenList.isEmpty()) {
@@ -7697,6 +7730,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// go to site info list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, SiteConstants.SITE_INFO_TEMPLATE_INDEX);
 		} else {
+			if ("8".equals(currentIndex)) {
+				state.removeAttribute(STATE_HARD_DELETE);
+			}
 			// go to WSetup list view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
 		}
@@ -9008,6 +9044,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						}
 				}
 				authzGroupService.save(realmEdit);
+
+				// SAK-41181
+				usersDeleted.stream().map(ud -> ud.substring(4)).collect(Collectors.toList()).forEach(ud -> {
+					log.debug("Removing user uuid {} from the user site cache", ud);
+					m_userSiteCache.remove(ud);
+				});
 				
 				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 				// but seems to be a better solution than call this multiple time for every update
@@ -9505,6 +9547,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (forward) {
 				if (getStateSite(state) == null)
 				{
+					boolean siteVisibilityDefault = ServerConfigurationService.getBoolean(SAK_PROP_DEFAULT_SITE_VIS, SAK_PROP_DEFAULT_SITE_VIS_DFLT);
+					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+					siteInfo.include = siteVisibilityDefault;
+
 					// alerts after clicking Continue but not Back
 					if (!forward) {
 						// removing previously selected template site
@@ -9736,7 +9782,55 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 							Site site = SiteService.addSite(newSiteId,
 									getStateSite(state));
-							
+
+							boolean removeStealthToolsFromDup = ServerConfigurationService.getBoolean(SAK_PROP_RM_STLTH_ON_DUP, SAK_PROP_RM_STLTH_ON_DUP_DEFAULT);
+							if (removeStealthToolsFromDup) {
+								List<SitePage> pageList = site.getPages();
+								if (CollectionUtils.isNotEmpty(pageList)) {
+									List<SitePage> rmPageList = new ArrayList<>();
+
+									// Check if each tool is stealthed; if so, queue for removal
+									for (SitePage page : pageList) {
+										List<ToolConfiguration> pageToolList = page.getTools();
+										if (CollectionUtils.isNotEmpty(pageToolList)) {
+											List<ToolConfiguration> rmToolList = new ArrayList<>();
+
+											for (ToolConfiguration toolConf : pageToolList) {
+												Tool tool = toolConf.getTool();
+												String toolId = StringUtils.trimToEmpty(tool.getId());
+
+												if (StringUtils.isNotBlank(toolId) && !notStealthOrHiddenTool(toolId)) {
+													// Found a stealthed tool, queue for removal
+													log.debug("found stealthed tool {}", toolId);
+													rmToolList.add(toolConf);
+												}
+											}
+
+											// Remove stealthed tools from page
+											if (!rmToolList.isEmpty()) {
+												for (ToolConfiguration rmToolConf : rmToolList) {
+													page.removeTool(rmToolConf);
+												}
+
+												if (page.getTools().isEmpty()) {
+													// Queue page for removal if no tools remain
+													log.debug("queueing page for removal: {}", page.getId());
+													rmPageList.add(page);
+												}
+											}
+										}
+									}
+
+									// Remove now-empty pages from site
+									if (!rmPageList.isEmpty()) {
+										for (SitePage rmPage : rmPageList) {
+											log.debug("removing {} from site", rmPage.getId());
+											site.removePage(rmPage);
+										}
+									}
+								}
+							}
+
 							// An event for starting the "duplicate site" action
 							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 
@@ -10257,11 +10351,19 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							hasNonProvidedMainroleUser = true;
 					}
 				}
+
+				String currentUserId = SessionManager.getCurrentSessionUserId();
+				boolean allowDelLastRoster = ServerConfigurationService.getBoolean(SAK_PROP_ALLOW_DEL_LAST_ROSTER, SAK_PROP_ALLOW_DEL_LAST_ROSTER_DFLT);
+				if (allowDelLastRoster && !hasNonProvidedMainroleUser && realmEdit1.hasRole(currentUserId, maintainRoleString)) {
+					realmEdit1.addMember(currentUserId, maintainRoleString, true, false);
+					hasNonProvidedMainroleUser = true;
+				}
+
 				if (!hasNonProvidedMainroleUser)
 				{
 					// if after the removal, there is no provider id, and there is no maintain role user anymore, show alert message and don't save the update
 					addAlert(state, rb.getString("sitegen.siteinfolist.nomaintainuser")
-							+ maintainRoleString + ".");
+							+ " " + maintainRoleString + ".");
 				}
 				else
 				{

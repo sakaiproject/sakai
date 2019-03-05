@@ -21,6 +21,7 @@ package org.sakaiproject.accountvalidator.impl.jobs;
 
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -34,15 +35,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 @Slf4j
 public class CheckAccountsJob implements Job {
 
-	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService uds) {
-		userDirectoryService = uds;
-	}
-
-	private ValidationLogic validationLogic;
-	public void setValidationLogic(ValidationLogic vl) {
-		validationLogic = vl;
-	}
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private ValidationLogic validationLogic;
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		

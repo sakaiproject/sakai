@@ -133,21 +133,21 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				}
 			}
 			// get the category scores and mark any dropped items
-			for (String catName : categoryNamesToAssignments.keySet()) {
+			for (final String catName : categoryNamesToAssignments.keySet()) {
 				if (catName.equals(getString(GradebookPage.UNCATEGORISED))) {
 					continue;
 				}
 
-				List<Assignment> catItems = categoryNamesToAssignments.get(catName);
+				final List<Assignment> catItems = categoryNamesToAssignments.get(catName);
 				if (!catItems.isEmpty()) {
-					Long catId = catItems.get(0).getCategoryId();
+					final Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
+						this.businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
 							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
 			}
-			categoriesMap = businessService.getGradebookCategoriesForStudent(userId).stream()
+			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 			Collections.sort(categoryNames);
 		}
@@ -184,10 +184,46 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		};
 		addOrReplace(noAssignments);
 
+		// course grade panel
+		final WebMarkupContainer courseGradePanel = new WebMarkupContainer("course-grade-panel") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return StudentGradeSummaryGradesPanel.this.serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+			}
+		};
+		addOrReplace(courseGradePanel);
+
 		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
+
+		final GbAjaxLink courseGradeStatsLink = new GbAjaxLink(
+				"courseGradeStatsLink") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+
+				statsWindow.setContent(new StudentCourseGradeStatisticsPanel(
+						statsWindow.getContentId(),
+						Model.of(StudentGradeSummaryGradesPanel.this
+								.getCurrentSiteId()),
+						statsWindow));
+				statsWindow.show(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return StudentGradeSummaryGradesPanel.this.courseGradeStatsEnabled
+						&& courseGrade != null;
+			}
+		};
+
+		courseGradePanel.add(courseGradeStatsLink);
 
 		final GbAjaxLink courseGradeStatsLink = new GbAjaxLink(
 				"courseGradeStatsLink") {
@@ -236,11 +272,11 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	 * @return
 	 */
 	private boolean isCategoryWeightEnabled() {
-		return configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
+		return this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY;
 	}
 
-	private void storeAvgAndMarkIfDropped(CategoryScoreData avg, Long catId, Map<Long, Double> categoryAverages,
-		Map<Long, GbGradeInfo> grades) {
+	private void storeAvgAndMarkIfDropped(final CategoryScoreData avg, final Long catId, final Map<Long, Double> categoryAverages,
+		final Map<Long, GbGradeInfo> grades) {
 
 		categoryAverages.put(catId, avg.score);
 

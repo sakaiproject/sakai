@@ -23,6 +23,7 @@ package org.sakaiproject.lti13;
  */
 import java.io.IOException;
 import java.io.PrintWriter;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -96,7 +97,12 @@ public class OIDCServlet extends HttpServlet {
 		String state = (String) request.getParameter("state");
 		state = StringUtils.trimToNull(state);
 
-		String login_hint = (String) request.getParameter("login_hint");
+		String redirect_uri = (String) request.getParameter("redirect_uri");
+		redirect_uri = StringUtils.trimToNull(redirect_uri);
+
+                String encoded_login_hint = (String) request.getParameter("login_hint");
+                byte[] valueDecoded = Base64.decodeBase64(encoded_login_hint);
+                String login_hint = new String(valueDecoded);
 		if (StringUtils.isEmpty(login_hint)) {
 			state = null;
 		}
@@ -123,6 +129,7 @@ public class OIDCServlet extends HttpServlet {
 		redirect += (redirect.contains("?") ? "&" : "?");
 		redirect += "state=" + java.net.URLEncoder.encode(state);
 		redirect += "&nonce=" + java.net.URLEncoder.encode(nonce);
+		redirect += "&redirect_uri=" + java.net.URLEncoder.encode(redirect_uri);
 		log.debug("redirect={}", redirect);
 
 		// Check if we need to generate a page to re-grab the cookie

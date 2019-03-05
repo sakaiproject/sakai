@@ -71,7 +71,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>

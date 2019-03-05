@@ -28,12 +28,9 @@ public class SettingsStatisticsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	IModel<GbSettings> model;
+	private final IModel<GbSettings> model;
 
 	private boolean expanded;
-
-	AjaxCheckBox assignmentStats;
-	AjaxCheckBox courseGradeStats;
 
 	public SettingsStatisticsPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);

@@ -56,8 +56,6 @@ public class PollVoteManagerImpl implements PollVoteManager {
 			saveVote(vote);
             externalLogic.registerStatement(pollListManager.getPollById(pollId).getText(), vote);
 		}
-
-		externalLogic.postEvent("poll.vote", "poll/site/" + externalLogic.getCurrentLocationReference() +"/poll/" +  pollId, true);
 	}
 
 	public boolean saveVote(Vote vote)  {

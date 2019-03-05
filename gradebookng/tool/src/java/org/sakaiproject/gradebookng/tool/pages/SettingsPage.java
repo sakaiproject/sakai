@@ -27,7 +27,6 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.SettingsHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -62,11 +61,11 @@ public class SettingsPage extends BasePage {
 	private static final String SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS = "gradebook.settings.gradeEntry.showToNonAdmins";
 	private static final boolean SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT = true;
 
-	SettingsGradeEntryPanel gradeEntryPanel;
-	SettingsGradeReleasePanel gradeReleasePanel;
-	SettingsStatisticsPanel statisticsPanel;
-	SettingsCategoryPanel categoryPanel;
-	SettingsGradingSchemaPanel gradingSchemaPanel;
+	private SettingsGradeEntryPanel gradeEntryPanel;
+	private SettingsGradeReleasePanel gradeReleasePanel;
+	private SettingsStatisticsPanel statisticsPanel;
+	private SettingsCategoryPanel categoryPanel;
+	private SettingsGradingSchemaPanel gradingSchemaPanel;
 
 	public SettingsPage() {
 
@@ -89,7 +88,7 @@ public class SettingsPage extends BasePage {
 	}
 
 	private void setShowGradeEntryToNonAdmins() {
-		this.showGradeEntryToNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
+		this.showGradeEntryToNonAdmins = this.serverConfigService.getBoolean(SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS, SAK_PROP_SHOW_GRADE_ENTRY_TO_NON_ADMINS_DEFAULT);
 	}
 
 	@Override
@@ -279,7 +278,7 @@ public class SettingsPage extends BasePage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
-		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+		final String version = this.serverConfigService.getString("portal.cdn.version", "");
 
 		// Drag and Drop (requires jQueryUI)
 		response.render(

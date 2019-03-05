@@ -43,7 +43,7 @@
                 dataType: "json",
                 cache: false,
                 success: function (p) {
-                    callback(p.data);
+                    callback(p);
                 },
                 error: function (xmlHttpRequest, stat, error) {
                     alert("Failed to get permissions. Status: " + stat + ". Error: " + error);

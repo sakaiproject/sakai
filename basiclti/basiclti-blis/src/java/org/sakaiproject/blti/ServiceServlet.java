@@ -107,17 +107,10 @@ public class ServiceServlet extends HttpServlet {
 		"<body>\n" + 
 		"<script language=\"javascript\">\n" + 
 		"$message = '<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\"><p>MESSAGE</p>';\n" +
-		"$closeText = '<p><a href=\"javascript: self.close()\">CLOSETEXT</a></p>';\n" +
-		"$gotMessage = GOTMESSAGE;\n" +
+		"$closeText = '<p>CLOSETEXT</p>'\n" +
+		"document.write($message);\n" +
 		"if(self.location==top.location) {\n" + 
-		"  if ( $gotMessage ) {\n" +
-		"    document.write($message);\n" +
-		"    document.write($closeText);\n" +
-		"  } else {\n" + 
-		"    self.close();\n" +
-		"  }\n" + 
-		"} else {\n" +
-		"  document.write($message);\n" +
+		"  document.write($closeText);\n" +
 		"}\n" +
 		"</script>\n" + 
 		"</div></body>\n" + 
@@ -174,13 +167,10 @@ public class ServiceServlet extends HttpServlet {
 		if ( lti_msg != null ) log.info(lti_msg);
 		
 		String message = rb.getString("outcome.tool.finished");
-		String gotMessage = "false";
 		if ( lti_msg != null ) {
 			message = rb.getString("outcome.tool.lti_msg") + " " + lti_msg;
-			gotMessage = "true";
 		} else if ( lti_errormsg != null ) {
 			message = rb.getString("outcome.tool.lti_errormsg") + " " + lti_errormsg;
-			gotMessage = "true";
 		}
 
 		String rpi = request.getPathInfo();
@@ -188,7 +178,6 @@ public class ServiceServlet extends HttpServlet {
 		String portalUrl = ServerConfigurationService.getPortalUrl();
 		portalUrl = portalUrl + rpi;
 		String output = returnHTML.replace("URL",portalUrl);
-		output = output.replace("GOTMESSAGE",gotMessage);
 		output = output.replace("MESSAGE",message);
 		output = output.replace("CLOSETEXT",rb.getString("outcome.tool.close.window"));
 		response.setContentType("text/html");
