@@ -159,14 +159,14 @@
             <f:facet name="header">
                 <h:outputText value="#{authorMessages.matching_choice_col}"  />
             </f:facet>
-          <h:outputText escape="false" value="#{pair.choice}"  />
+          <h:outputText escape="false" value="#{pair.choice}" styleClass="mcAnswerText"  />
         </h:column>
 
         <h:column>
             <f:facet name="header">
                 <h:outputText value="#{authorMessages.matching_match_col}"  />
             </f:facet>
-            <h:outputText escape="false" value="#{pair.match}"  />
+            <h:outputText escape="false" value="#{pair.match}" styleClass="mcAnswerText"  />
         </h:column>
         
         <h:column>
