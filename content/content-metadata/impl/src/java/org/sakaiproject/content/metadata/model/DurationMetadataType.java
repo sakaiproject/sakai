@@ -21,8 +21,8 @@
 
 package org.sakaiproject.content.metadata.model;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.content.metadata.model.MetadataConverter;
 import org.sakaiproject.content.metadata.model.MetadataRenderer;
 import org.sakaiproject.content.metadata.model.MetadataType;

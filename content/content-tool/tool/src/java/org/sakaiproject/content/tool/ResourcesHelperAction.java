@@ -44,12 +44,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.exception.IdLengthException;
-import org.sakaiproject.util.FileItem;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -57,19 +52,31 @@ import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.*;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.api.MultiFileUploadPipe;
+import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -81,12 +88,13 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.event.api.NotificationEdit;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
