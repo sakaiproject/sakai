@@ -25,9 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * A Gradebook is the top-level object in the Sakai Gradebook tool.  Only one
  * Gradebook should be associated with any particular course (or site, as they
@@ -118,6 +115,3 @@ public class Gradebook implements Serializable {
 	private boolean courseGradeStatsDisplayed;
 
 }
-
-
-
