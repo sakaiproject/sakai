@@ -212,31 +212,6 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 						statsWindow.getContentId(),
 						Model.of(StudentGradeSummaryGradesPanel.this
 								.getCurrentSiteId()),
-						statsWindow));
-				statsWindow.show(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return StudentGradeSummaryGradesPanel.this.courseGradeStatsEnabled
-						&& courseGrade != null;
-			}
-		};
-
-		courseGradePanel.add(courseGradeStatsLink);
-
-		final GbAjaxLink courseGradeStatsLink = new GbAjaxLink(
-				"courseGradeStatsLink") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(final AjaxRequestTarget target) {
-
-				statsWindow.setContent(new StudentCourseGradeStatisticsPanel(
-						statsWindow.getContentId(),
-						Model.of(StudentGradeSummaryGradesPanel.this
-								.getCurrentSiteId()),
 						statsWindow, courseGrade));
 				statsWindow.show(target);
 			}
@@ -248,7 +223,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			}
 		};
 
-		add(courseGradeStatsLink);
+		courseGradePanel.add(courseGradeStatsLink);
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
