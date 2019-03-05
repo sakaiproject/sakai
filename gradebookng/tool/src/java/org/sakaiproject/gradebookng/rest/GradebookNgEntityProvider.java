@@ -21,8 +21,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -285,33 +283,5 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	@Setter
 	private GradebookNgBusinessService businessService;
-
-	/**
-	 * DO NOT COMMIT THIS
-	 */
-	@SuppressWarnings("unused")
-	@EntityCustomAction(action = "perm", viewKey = EntityView.VIEW_LIST)
-	public String perm(final EntityView view, final Map<String, Object> params) {
-
-		// get siteId
-		final String siteId = view.getPathSegment(2);
-
-		// check siteId supplied
-		if (StringUtils.isBlank(siteId)) {
-			throw new IllegalArgumentException(
-					"Site ID must be set in order to access GBNG data.");
-		}
-		checkValidSite(siteId);
-
-		final SecurityAdvisor gbAdvisor = (final String userId, final String function, final String reference) -> SecurityAdvice.ALLOWED;
-		this.securityService.pushAdvisor(gbAdvisor);
-
-		// check instructor or TA
-		checkInstructorOrTA(siteId);
-
-		this.securityService.popAdvisor(gbAdvisor);
-
-		return "ok";
-	}
 
 }
