@@ -36,6 +36,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.commons.api.CommonsEvents;
@@ -88,6 +89,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private AnnouncementService announcementService;
     @Setter
     private AssignmentService assignmentService;
+    @Inject
+    private AuthzGroupService authzGroupService;
     @Inject
     private CommonsManager commonsManager;
     @Setter
@@ -260,11 +263,16 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 Site site = siteService.getSite(siteId);
                                 String title = assignment.getTitle();
                                 String url = assignmentService.getDeepLink(siteId, assignmentId);
+                                Set<String> groupIds = assignment.getGroups();
+                                Collection<String> groupsUsers = authzGroupService.getAuthzUsersInGroups(groupIds);
                                 // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
+                                for (String to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+                                    //  If this is a grouped assignment, is 'to' in one of the groups?
+                                    if (groupIds.size() == 0 || groupsUsers.contains(to)) {
+                                        if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                                            doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
+                                            countCache.remove(to);
+                                        }
                                     }
                                 }
                             }
