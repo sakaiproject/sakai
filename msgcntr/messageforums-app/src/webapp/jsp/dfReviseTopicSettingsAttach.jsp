@@ -87,15 +87,7 @@
 		}
 	}
 	</script>
-<!-- RUBRICS JAVASCRIPT -->
-<script>
-  var imports = [
-	'/rubrics-service/imports/sakai-rubric-association.html',
-	'/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
-</script>
+<!-- RUBRICS VARIABLES -->
 <%
 	FacesContext fcontext = FacesContext.getCurrentInstance();
 	Application appl = fcontext.getApplication();
@@ -104,8 +96,7 @@
 	String stateDetails = forumTool.getRbcsStateDetails();
 	String entityId = "top." + forumTool.getSelectedTopic().getTopic().getId();
 %>
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<!-- END RUBRICS JAVASCRIPT -->
+<!-- END RUBRICS VARIABLES -->
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
     <h:form id="revise">
@@ -393,21 +384,22 @@
 
 		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none"
 
-			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
-			dont-associate-value="0"
-			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
-			associate-value="1"
+			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+			dontAssociateLabel='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
+			dontAssociateValue="0"
+			associateLabel='<h:outputText value="#{msgs.topic_associate_label}" />'
+			associateValue="1"
 
-			tool-id="sakai.forums"
+			toolId="sakai.forums"
 			<% if(entityId != null && !"".equals(entityId)){ %>
-				entity-id=<%= entityId %>
+				entityId=<%= entityId %>
 			<%}%>
 			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
-				state-details=<%= stateDetails %>
+				stateDetails=<%= stateDetails %>
 			<%}%>
 
-			config-fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
-			config-hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
+			fineTunePoints='<h:outputText value="#{msgs.option_pointsoverride}" />'
+			hideStudentPreview='<h:outputText value="#{msgs.option_studentpreview}" />'
 
 		></sakai-rubric-association>
 			  

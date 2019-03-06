@@ -90,39 +90,22 @@ function toPoint(id)
 <script>
   // rubrics-specific code
   var rubricChanged = false;
-  rubricsEventHandlers = function() {   
-    $('body').on('rubrics-event', function(e, payload){
-      var itemId = $(e.target).parent().attr("item-id");
-      if (payload.event == "total-points-updated") {
-        handleRubricsTotalPointChange(itemId, payload.value);
-      }
-      if (payload.event == "rubric-ratings-changed") {
-        rubricChanged = true;
-      }
-    });
 
-    console.log('Rubrics event handlers loaded');
-  }
-  
-  // handles point changes for assignments, updating the grade field if it exists.
-  handleRubricsTotalPointChange = function(itemId, points) {   
+  $('body').on('rubrics-event', function (e) {
+    rubricChanged = true;
+  });
+
+  $('body').on('total-points-updated', function (e) {
+
+    e.stopPropagation();
+
+    var itemId = $(e.target).parent().attr("itemId");
     var gradeField = $('.adjustedScore' + itemId);
-    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || rubricChanged)) {
-      gradeField.val(points);
+    if (gradeField) {
+      gradeField.val(e.detail.value);
     }
-  }
+  });
 </script>
-
-<script>
-  var imports = [
-    '/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = <h:outputText value="'#{submissionStatus.rbcsToken}'"/>;
-  rubricsEventHandlers();
-</script>
-
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
 <div class="portletBody container-fluid">
 <h:form id="editStudentResults">
@@ -351,13 +334,14 @@ function toPoint(id)
           <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              tool-id="sakai.samigo"
-              entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              item-id='<h:outputText value="#{question.itemData.itemId}"/>'
+              token='<h:outputText value="#{submissionStatus.rbcsToken}"/>'
+              toolId="sakai.samigo"
+              entityId='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+              evaluatedItemId='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
+              itemId='<h:outputText value="#{question.itemData.itemId}"/>'
 
               <h:panelGroup rendered="#{question.rubricStateDetails != ''}">
-                state-details='<h:outputText value="#{question.rubricStateDetails}"/>'
+                stateDetails='<h:outputText value="#{question.rubricStateDetails}"/>'
               </h:panelGroup>>
             </sakai-rubric-grading>
           </div>
