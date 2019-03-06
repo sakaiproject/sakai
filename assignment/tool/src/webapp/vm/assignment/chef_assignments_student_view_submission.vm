@@ -26,18 +26,6 @@ $(document).ready(function(){
 ## Include other javascript specific to this page
 #javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
-<!-- RUBRICS JAVASCRIPT -->
-<script>
-  var imports = [
-    '/rubrics-service/imports/sakai-rubric-student.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = "$!rbcs-token";
-</script>
-
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<!-- END RUBRICS JAVASCRIPT -->
-
 <div class="portletBody">
 ## submission times
 	#set($dateReturned=false)
@@ -385,9 +373,10 @@ $(document).ready(function(){
 
 			#if ($submission.Graded && ($submission.GradeReleased || $returned))
 			<sakai-rubric-student
-				tool-id="sakai.assignment"
-				entity-id="$assignment.Id"
-				evaluated-item-id="$submission.Id"
+				token="$!rbcs-token"
+				toolId="sakai.assignment"
+				entityId="$assignment.Id"
+				evaluatedItemId="$submission.Id"
 			></sakai-rubric-student>
 			#end
 

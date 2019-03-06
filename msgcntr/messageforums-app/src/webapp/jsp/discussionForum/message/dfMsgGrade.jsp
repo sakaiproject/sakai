@@ -13,11 +13,13 @@
 
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/javascript">includeWebjarLibrary('ckeditor')</script>
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/messages.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script>includeWebjarLibrary('ckeditor')</script>
+		<script src="/rubrics-service/webcomponents/sakai-rubrics.js"></script>
+		<script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js"></script>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -69,6 +71,9 @@
 		String stateDetails = forumTool.getRbcsStateDetails();
 		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
 		String entityId = forumTool.getRubricAssociationId();
+
+		if (userId == null) userId = forumTool.getUserId();
+
 		String rbcsEvaluationId = userId+".";
 		if (forumTool.getSelectedMessage() != null) {
 			rbcsEvaluationId += forumTool.getSelectedMessage().getMessage().getUuid();
@@ -101,15 +106,8 @@
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<!-- RUBRICS JAVASCRIPT -->
 		<script>
-		  var imports = [
-			'/rubrics-service/imports/sakai-rubric-grading.html'
-		  ];
-		  var Polymerdom = 'shady';
-		  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
 		  rubricsEventHandlers();
 		</script>
-
-		<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 		<!-- END RUBRICS JAVASCRIPT -->
 
 		<span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
@@ -196,18 +194,16 @@
 				</h:panelGroup>	
     </h:panelGrid>
 	
-	<% if(hasAssociatedRubric){ %>
-		<sakai-rubric-grading id="rubric-grading" 
-			grade-field-id="dfMsgGradeGradePoint"
-
-			tool-id="sakai.forums"
-			entity-id=<%= entityId %>
-			evaluated-item-id=<%= rbcsEvaluationId %>
-			
-			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
-				state-details=<%= stateDetails %>
+	<% if (hasAssociatedRubric) { %>
+		<sakai-rubric-grading
+		    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
+			gradeFieldId="dfMsgGradeGradePoint"
+			toolId="sakai.forums"
+			entityId='<%= entityId %>'
+			evaluatedItemId='<%= rbcsEvaluationId %>'
+			<% if (stateDetails != null && !"".equals(stateDetails)) { %>
+				stateDetails='<%= stateDetails %>'
 			<%}%>
-
 		></sakai-rubric-grading>
 	<%}%>
 	
