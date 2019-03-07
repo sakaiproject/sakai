@@ -51,20 +51,15 @@ export class SakaiItemDelete extends SakaiElement {
   render() {
 
     return html`
-
-      ${this.criterion ?
-        html`<span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_criterion_${this.criterion.id}" tabindex="0" title="${tr("remove")} ${tr(this.type)} ${this.criterion.title}" class="delete fa fa-times" @click="${this.deleteItem}"></span>`
-        : html`<span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_rubric_${this.rubric.id}" tabindex="0" title="${tr("remove")} ${tr(this.type)} ${this.rubric.title}" class="delete fa fa-times" @click="${this.deleteItem}"></span>`
-      }
-
-      <div id="delete_rubric_${this.item.id}" class="popover rubric-delete-popover left">
+      <span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove")} ${tr(this.type)} ${this.item.title}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
+      <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
         <div class="arrow"></div>
         <div class="popover-title" tabindex="0">
           <sr-lang key="confirm_remove">Are you sure you want to remove </sr-lang> ${this.item.title}?
         </div>
         <div class="popover-content">
           <div class="buttons text-right">
-            <button title="${tr("confirm_remove")}" class="btn-primary save" @click="${this.saveDelete}">
+            <button title="${tr("confirm_remove")}" class="btn btn-danger save" @click="${this.saveDelete}">
               <sr-lang key="remove">Remove</sr-lang>
             </button>
             <button class="cancel" @click="${this.cancelDelete}">
@@ -92,7 +87,7 @@ export class SakaiItemDelete extends SakaiElement {
 
       this.classList.add("show-tooltip");
 
-      var popover = $(`#delete_rubric_${this.item.id}`);
+      var popover = $(`#delete_${this.type}_${this.item.id}`);
 
       var target = this.querySelector(".fa-times");
 
@@ -108,7 +103,7 @@ export class SakaiItemDelete extends SakaiElement {
     } else {
       this.popoverOpen = "false";
       this.hideToolTip();
-      $(`#delete_rubric_${this.item.id}`).hide();
+      $(`#delete_${this.type}_${this.item.id}`).hide();
     }
   }
 
@@ -120,7 +115,7 @@ export class SakaiItemDelete extends SakaiElement {
 
     e.stopPropagation();
     this.hideToolTip();
-    $(`#delete_rubric_${this.item.id}`).hide();
+    $(`#delete_${this.type}_${this.item.id}`).hide();
   }
 
   saveDelete(e) {
@@ -151,7 +146,7 @@ export class SakaiItemDelete extends SakaiElement {
 
     this.dispatchEvent(new CustomEvent('delete-item', {detail: this.item, bubbles: true, composed: true}));
     this.hideToolTip();
-    $(`#delete_rubric_${this.item.id}`).hide();
+    $(`#delete_${this.type}_${this.item.id}`).hide();
   }
 }
 
