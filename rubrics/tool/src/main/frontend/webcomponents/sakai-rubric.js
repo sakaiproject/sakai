@@ -62,7 +62,7 @@ export class SakaiRubric extends SakaiElement {
       <div class="rubric-title" @click="${this.toggleRubric}">
         <div>
           <span class="rubric-name" id="rubric_toggle_${this.rubric.id}" aria-expanded="${this.rubricExpanded}" role="tab" title="${tr("toggle_details")} ${this.rubric.title}" tabindex="0" >
-            <span class="fa fa-chevron-down"></span>
+            <span class="fa fa-chevron-right"></span>
             ${this.rubric.title}
           </span>
 
@@ -105,7 +105,7 @@ export class SakaiRubric extends SakaiElement {
         </div>
       </div>
 
-      <div role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_${this.rubric.id}">
+      <div class="collapse-details" role="tabpanel" aria-labelledby="rubric_toggle_${this.rubric.id}" id="collapse_${this.rubric.id}">
         <div class="rubric-details style-scope sakai-rubric">
           ${this.rubric.metadata.locked ?
             html`<sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criterions)}" token="${this.token}"></sakai-rubric-criteria-readonly>`
