@@ -59,7 +59,7 @@ export class SakaiItemDelete extends SakaiElement {
         </div>
         <div class="popover-content">
           <div class="buttons text-right">
-            <button title="${tr("confirm_remove")}" class="btn btn-danger save" @click="${this.saveDelete}">
+            <button title="${tr("confirm_remove")}" class="btn-primary save" @click="${this.saveDelete}">
               <sr-lang key="remove">Remove</sr-lang>
             </button>
             <button class="cancel" @click="${this.cancelDelete}">
