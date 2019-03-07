@@ -723,3 +723,9 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
 div.wicket-modal div.w_content_container {
   overflow: initial !important;
 }
+
+.form-vertical div.awesomplete {
+  width: 100%;
+  margin-bottom: 15px;
+}
+

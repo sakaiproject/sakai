@@ -2,6 +2,8 @@ GbGradeTable = {};
 
 GbGradeTable._onReadyCallbacks = [];
 
+var sakaiReminder = new SakaiReminder();
+
 GbGradeTable.unpack = function (s, rowCount, columnCount) {
   if (/^packed:/.test(s)) {
       return GbGradeTable.unpackPackedScores(s, rowCount, columnCount);
@@ -3314,6 +3316,10 @@ GbGradeTable.findIndex = function(array, predicateFunction) {
         }
     }
     return index;
+}
+
+GbGradeTable.saveNewPrediction = function(prediction) {
+    sakaiReminder.new(prediction);
 }
 
 /**************************************************************************************

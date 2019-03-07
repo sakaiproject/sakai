@@ -93,6 +93,9 @@ public class EditGradeCommentPanel extends BasePanel {
 					// update member var
 					EditGradeCommentPanel.this.comment = updatedComment.getGradeComment();
 
+					// store the instructor feedback comment
+					target.appendJavaScript(String.format("GbGradeTable.saveNewPrediction('%s');", updatedComment.getGradeComment()));
+
 					// trigger a close
 					EditGradeCommentPanel.this.window.close(target);
 				} else {

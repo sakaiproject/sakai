@@ -18,6 +18,8 @@
 		<script src="/messageforums-tool/js/messages.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script>includeWebjarLibrary('ckeditor')</script>
+		<script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
+		<script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
 		<script src="/rubrics-service/webcomponents/sakai-rubrics.js"></script>
 		<script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js"></script>
   <h:form id="msgForum">
@@ -110,6 +112,20 @@
 		</script>
 		<!-- END RUBRICS JAVASCRIPT -->
 
+		<script>
+			$(document).ready(function() {
+			  var sakaiReminder = new SakaiReminder();
+			  new Awesomplete($('.awesomplete')[0], {
+			    list: sakaiReminder.getAll()
+			  });
+			  $('#msgForum').submit(function(e) {
+			    $('textarea.awesomplete').each(function() {
+			      sakaiReminder.new($(this).val());
+			    });
+			  });
+			});
+		</script>
+
 		<span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
 		<h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
 			<h4>
@@ -190,6 +206,7 @@
 				<h:panelGroup>
 					<h:outputLabel  for="comments" value="#{msgs.cdfm_comments}" rendered="#{!ForumTool.selGBItemRestricted}"/>
        <h:inputTextarea id="comments" value="#{ForumTool.gradeComment}" rows="5" cols="50"
+            styleClass="awesomplete"
        		rendered="#{!ForumTool.selGBItemRestricted}" readonly="#{!ForumTool.allowedToGradeItem}"/>
 				</h:panelGroup>	
     </h:panelGrid>
