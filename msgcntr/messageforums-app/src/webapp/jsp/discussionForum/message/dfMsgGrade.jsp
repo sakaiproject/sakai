@@ -13,7 +13,6 @@
 
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-
 		<script>includeLatestJQuery("msgcntr");</script>
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
@@ -23,7 +22,6 @@
 		<script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
 		<script src="/rubrics-service/webcomponents/sakai-rubrics.js"></script>
 		<script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js"></script>
-
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
