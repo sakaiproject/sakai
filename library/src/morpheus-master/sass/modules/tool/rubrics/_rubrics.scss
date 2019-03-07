@@ -86,6 +86,10 @@
         color: $rubrics-link-color;
     }
 
+    .collapse-details {
+      display: none;
+    }
+
     .rubric-details {
         padding: $standard-spacing;
     }
