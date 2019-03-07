@@ -24,7 +24,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
     var oldValue = this._criterion;
     this._criterion = newValue;
-    this._criterion.comments = (newValue.comments.indexOf("<p>null</p>") === 0) ? "" : newValue.comments;
+    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("<p>null</p>") === 0) ? "" : newValue.comments;
     this.requestUpdate("criterion", oldValue);
   }
 
