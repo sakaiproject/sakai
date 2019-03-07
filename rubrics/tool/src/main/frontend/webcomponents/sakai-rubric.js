@@ -110,7 +110,7 @@ export class SakaiRubric extends SakaiElement {
           ${this.rubric.metadata.locked ?
             html`<sakai-rubric-criteria-readonly criteria="${JSON.stringify(this.rubric.criterions)}" token="${this.token}"></sakai-rubric-criteria-readonly>`
             :
-            html`<sakai-rubric-criteria rubricId="${this.rubric.id}" criteria="${JSON.stringify(this.rubric.criterions)}" token="${this.token}"></sakai-rubric-criteria>`
+            html`<sakai-rubric-criteria rubric-id="${this.rubric.id}" criteria="${JSON.stringify(this.rubric.criterions)}" token="${this.token}"></sakai-rubric-criteria>`
           }
         </div>
       </div>
