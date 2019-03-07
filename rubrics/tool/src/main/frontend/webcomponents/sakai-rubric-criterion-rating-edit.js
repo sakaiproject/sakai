@@ -15,7 +15,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
 
     return {
       rating: { type: Object },
-      criterionId: { type: String },
+      criterionId: { attribute: "criterion-id", type: String },
       minpoints: { type: Number },
       maxpoints: { type: Number },
     };
