@@ -128,12 +128,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- incorporated jstl-shared-deploy pom.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- quartz scheduler -->
         <dependency>

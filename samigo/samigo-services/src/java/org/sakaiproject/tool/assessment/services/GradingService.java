@@ -2217,15 +2217,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  acceptableVariance = new BigDecimal(varianceString);
 	  }
 	  
-	  String userAnswerString = data.getAnswerText().replaceAll(",", "").trim();
+	  String userAnswerString = data.getAnswerText().replaceAll(",|[\\s]+", "");
 	  BigDecimal userAnswer;
 	  try {
 		  userAnswer = new BigDecimal(userAnswerString);
 	  } catch(NumberFormatException nfe) {
 		  return totalScore; // zero because it's not even a number!
 	  }
-	  //double userAnswer = Double.valueOf(userAnswerString);
-	  
 	  
 	  // this compares the correctAnswer against the userAnsewr
 	  BigDecimal answerDiff = (correctAnswer.subtract(userAnswer));
@@ -2263,7 +2261,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  acceptableVariance = new BigDecimal(varianceString);
 	  }
 
-	  String userAnswerString = data.getAnswerText().replaceAll(",", "").trim();
+	  String userAnswerString = data.getAnswerText().replaceAll(",|[\\s]+", "");
 	  BigDecimal userAnswer;
 	  try {
 		  userAnswer = new BigDecimal(userAnswerString);

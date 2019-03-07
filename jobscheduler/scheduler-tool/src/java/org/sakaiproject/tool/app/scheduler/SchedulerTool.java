@@ -34,7 +34,6 @@ import javax.faces.validator.ValidatorException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
 import org.quartz.InterruptableJob;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -174,7 +173,7 @@ public class SchedulerTool
 
       if (configurableJobResources == null)
       {
-          log.error ("no resource bundle provided for jobs of type: " + job.getJobType() + ". Labels will not be rendered correctly in the scheduler UI");
+          log.error ("No resource bundle provided for jobs of type: {}. Labels will not be rendered correctly in the scheduler UI", job.getJobName());
       }
 
 
@@ -215,20 +214,20 @@ public class SchedulerTool
 
                   if (labelKey == null)
                   {
-                      log.error ("no resource key provided for property label - NullPointerExceptions may occur in scheduler when processing jobs of type " + job.getJobType());
+                      log.error ("No resource key provided for property label - NullPointerExceptions may occur in scheduler when processing jobs {}", job.getJobName());
                   }
                   else if (configurableJobResources.get(labelKey) == null)
                   {
-                      log.warn("no resource string provided for the property label key '" + labelKey + "' for the job type " + job.getJobType());
+                      log.warn("No resource string provided for the property label key '{}' for the job {}", labelKey, job.getJobName());
                   }
 
                   if (descKey == null)
                   {
-                      log.warn ("no resource key provided for property description in job type " + job.getJobType());
+                      log.warn ("No resource key provided for property description in job {}", job.getJobName());
                   }
                   else if (configurableJobResources.get(descKey) == null)
                   {
-                      log.warn("no resource string provided for the property description key '" + descKey + "' for the job type " + job.getJobType());
+                      log.warn("No resource string provided for the property description key '{}' for the job {}", descKey, job.getJobName());
                   }
               }
           }
@@ -568,7 +567,7 @@ public class SchedulerTool
           map = jd.getJobDataMap();
 
       map.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
-      map.put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+      map.put(JobBeanWrapper.JOB_NAME, job.getJobName());
 
       return jd;
   }

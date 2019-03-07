@@ -15,7 +15,6 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService"/>

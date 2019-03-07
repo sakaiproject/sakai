@@ -3703,7 +3703,6 @@ extends VelocityPortletStateAction
 		{
 			
 			Vector eventVector = new Vector();
-			Vector eventVector1;
 			dateObj2 =	new MyDate();
 			dateObj2.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
 			dateObj2.setDayName(calendarUtilGetDay(calObj.getDay_Of_Week(true)));
@@ -3714,15 +3713,7 @@ extends VelocityPortletStateAction
 			
 			if(state.getCurrentPage().equals("third"))
 			{
-				eventVector1 = new Vector();
-				// JS -- the third page starts at 2PM(14 o'clock), and lasts 20 half-hour
 				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData,THIRD_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
-				
-				for(int index = 0;index<eventVector1.size();index++)
-				{
-					eventVector.add(eventVector.size(),eventVector1.get(index));
-				}
-				
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), THIRD_PAGE_START_HOUR, 0, 0, 0);
 				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), THIRD_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
@@ -3738,15 +3729,7 @@ extends VelocityPortletStateAction
 			}
 			else
 			{
-				eventVector1 = new Vector();
-				// JS -- the first page starts at 12AM(0 o'clock), and lasts 20 half-hour
-				eventVector1 = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData, FIRST_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
-				
-				for(int index = 0;index<eventVector1.size();index++)
-				{
-					eventVector.insertElementAt(eventVector1.get(index),index);
-				}
-				
+				eventVector = getNewEvents(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), state, runData, FIRST_PAGE_START_HOUR,NUMBER_OF_SECTIONS,context,CalendarEventVectorObj);
 				// Reminder: weekview vm is using 0..6
 				pageStartTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), 0, 0, 0, 0);
 				pageEndTime[i-1] = TimeService.newTimeLocal(calObj.getYear(),calObj.getMonthInteger(),calObj.getDayOfMonth(), FIRST_PAGE_START_HOUR+NUMBER_HOURS_PER_PAGE, 59, 0, 0);
@@ -3760,6 +3743,9 @@ extends VelocityPortletStateAction
 			if (i > dayofweek)
 				calObj.nextDate();
 		}
+
+		//Since the third page start time is dynamic, need to add it to the context
+		context.put("thirdPageStartHour", THIRD_PAGE_START_HOUR);
 		
 		calObj.setDay(yearObj.getYear(),monthObj1.getMonth(),dayObj.getDay());
 		context.put("week", weekObj);
@@ -6198,7 +6184,7 @@ extends VelocityPortletStateAction
 				if(returnState.compareTo(CalendarAction.STATE_INITED) == 0) {
 					returnState = this.defaultStateView;
 				}
-				if (returnState.endsWith("!!!fromDescription"))
+				if (StringUtils.endsWith(returnState, "!!!fromDescription"))
 				{
 					state.setReturnState(returnState.substring(0, returnState.indexOf("!!!fromDescription")));
 					state.setState("description");

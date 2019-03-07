@@ -231,6 +231,6 @@ public interface ExternalLogic {
     /**
      * Register a statement with the system LearningResourceStoreService
      */
-    public void registerStatement(String pollText, boolean newPoll);
+    public void registerStatement(String pollText, boolean newPoll, String pollId);
 
 }

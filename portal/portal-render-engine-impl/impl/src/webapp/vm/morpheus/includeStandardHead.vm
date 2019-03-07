@@ -66,7 +66,9 @@
         <link href="${pageWebjarsPath}pnotify/3.2.1/pnotify.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}pnotify/3.2.1/pnotify.buttons.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}fontawesome/4.7.0/css/font-awesome.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+        <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.22.2/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>

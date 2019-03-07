@@ -100,7 +100,7 @@ import org.w3c.dom.Element;
 @Slf4j
 public class RubricsServiceImpl implements RubricsService, EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator {
 
-    protected static ResourceLoader rb = new ResourceLoader("rubricsMessages");
+    protected static ResourceLoader rb = new ResourceLoader("org.sakaiproject.rubrics.bundle.Messages");
 
     private static final String RBCS_PERMISSIONS_EVALUATOR = "rubrics.evaluator";
     private static final String RBCS_PERMISSIONS_EDITOR = "rubrics.editor";

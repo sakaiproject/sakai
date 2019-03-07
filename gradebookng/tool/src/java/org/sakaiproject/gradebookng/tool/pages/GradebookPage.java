@@ -185,10 +185,6 @@ public class GradebookPage extends BasePage {
 		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
 
-		String rubricsToken = rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
-		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsToken));
-		this.form.add(rubricsTokenHiddenField);
-
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
 
