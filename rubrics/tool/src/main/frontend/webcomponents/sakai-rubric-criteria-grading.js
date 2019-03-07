@@ -78,9 +78,8 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
             </div>
             ${this.rubricAssociation.parameters.fineTunePoints ? 
               html`<input type="number" min="0" max="${c.pointrange.high}"
-                      @keypress="${this.allowOnlyNumbersAndTab(event)}"
-                      @input="${this.restrictValuesRange(event,this)}"
                       title="${tr("point_override_details")}"
+                      data-criterion-id="${c.id}"
                       class="fine-tune-points form-control hide-input-arrows"
                       id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                       name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
@@ -103,25 +102,12 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
     `;
   }
 
-  allowOnlyNumbersAndTab(e) {
+  validateInput(e) {
 
     if (!(( e.charCode >= 48 && e.charCode <= 57 ) || e.charCode === 9 )){
       e.preventDefault();
       return false;
     }
-  }
-
-  restrictValuesRange(e, element) {
-
-    var max = parseInt(element.getAttribute("max"));
-    var value = parseInt(element.value);
-
-    if ( value > max){
-      element.value = max;
-      e.preventDefault();
-      return false;
-    }
-    return true;
   }
 
   updateComment(e) {
@@ -168,10 +154,6 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
           c.comments = sd.comments;
         }
       });
-
-      if (sd.rid) {
-        //document.getElementById(`rating-item-${sd.rid}`).classList.addClass("selected");  
-      }
     });
 
     this.updateTotalPoints();
@@ -210,19 +192,24 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
 
   finetuneRating(e) {
 
-    var cindex = this.$.criterion.indexForElement(e.target);
-    var citem = this.$.criterion.itemForElement(e.target);
+    var max = parseInt(e.target.getAttribute("max"));
+    var value = parseInt(e.target.value);
 
-    this.criteria[cindex].pointoverride = e.target.value;
-    if (citem.selectedvalue) {
-      this.totalPoints = this.totalPoints - citem.selectedvalue + parseInt(citem.pointoverride);
+    if ( value > max){
+      e.target.value = max;
+      e.preventDefault();
+    }
+
+    var criterion = this.criteria.find(c => c.id == e.target.dataset.criterionId);
+
+    criterion.pointoverride = e.target.value;
+    if (criterion.selectedvalue) {
+      this.totalPoints = this.totalPoints - criterion.selectedvalue + parseInt(criterion.pointoverride);
     } else {
-      this.totalPoints = this.totalPoints + parseInt(citem.pointoverride);
+      this.totalPoints = this.totalPoints + parseInt(criterion.pointoverride);
     }
     
-    this.rubricsEvent({
-      event: 'rubric-ratings-changed'
-    });
+    this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
 
     this.updateTotalPoints();
   }

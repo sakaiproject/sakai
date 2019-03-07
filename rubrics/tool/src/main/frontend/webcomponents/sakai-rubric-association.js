@@ -45,16 +45,6 @@ class SakaiRubricAssociation extends SakaiElement {
     if (this.token && this.toolId) {
       this.getAssociation();
     }
-
-
-    /*
-    if (name.indexOf("config-") != -1) {
-      this.configurationOptions.push({
-        key: rubrics.toCamelCase(name.replace('config-','')),
-        label: newValue
-      });
-    }
-    */
   }
 
   render() {

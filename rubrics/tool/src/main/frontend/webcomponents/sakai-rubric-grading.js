@@ -71,6 +71,7 @@ export class SakaiRubricGrading extends SakaiElement {
       headers: {"authorization": this.token}
     })
     .done(data => {
+
       this.association = data._embedded['rubric-associations'][0];
       var rubricId = data._embedded['rubric-associations'][0].rubricId;
       this.getRubric(rubricId);
