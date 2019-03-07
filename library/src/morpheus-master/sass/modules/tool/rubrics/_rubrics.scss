@@ -206,17 +206,6 @@
                     cursor: -moz-grabbing;
                 }
             }
-            .criterion-ratings {
-                .rating-item {
-                    sakai-rubric-criterion-rating-edit {
-                        visibility: hidden;
-                    }
-
-                    &:hover sakai-rubric-criterion-rating-edit, &.active sakai-rubric-criterion-rating-edit {
-                        visibility: visible;
-                    }
-                }
-            }
 
             .add-criterion-item {
                 display: none;
