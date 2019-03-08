@@ -377,15 +377,18 @@ sakai-rubric-student-comment {
         }
     }
 
-    .form-group {
-        &.title {
-            display: inline-block;
-            width: 70%;
+    .first-row {
+        @include display-flex;
+
+        .title {
+          display: inline-block;
+          flex: auto;
         }
 
-        &.points {
-            display: inline-block;
-            width: 28%;
+        .points {
+          display: inline-block;
+          margin-left: 10px;
+          flex: 28%;
         }
     }
 }
