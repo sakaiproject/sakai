@@ -79,7 +79,7 @@ function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
   pauseTiming = 'false';
-  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
+  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=${delivery.timeElapse};
  }
 }
 
@@ -144,11 +144,6 @@ function saveTime()
 	disabled="#{delivery.actionString=='previewAssessment'}" 
     />
 
-    <h:commandButton value="#{deliveryMessages.button_close_window}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
-       style="act" onclick="javascript:window.close();" />
-    
-
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
@@ -173,7 +168,7 @@ function saveTime()
               && delivery.navigation ne '1'}" 
     />
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-     action="#{delivery.save_work}" onclick="disableSave();" 
+     action="#{delivery.save_work}"
      style="display:none"
      rendered="#{delivery.actionString=='previewAssessment'
                   || delivery.actionString=='takeAssessment'

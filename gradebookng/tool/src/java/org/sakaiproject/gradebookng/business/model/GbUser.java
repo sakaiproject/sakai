@@ -17,11 +17,16 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
+import lombok.experimental.Accessors;
 import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.user.api.User;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * DTO for a user. Enhance as required.
@@ -29,30 +34,29 @@ import org.sakaiproject.user.api.User;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Getter
 public class GbUser implements Serializable, Comparable<GbUser> {
 
 	private static final long serialVersionUID = 1L;
 
-	@Getter
 	private final String userUuid;
 
 	/**
 	 * If displaying an eid, this is the one to display
 	 */
-	@Getter
 	private final String displayId;
 
-	@Getter
 	private final String displayName;
 
-	@Getter
 	private final String firstName;
 
-	@Getter
 	private final String lastName;
 
-	@Getter
 	private final String studentNumber;
+
+	@Setter
+	@Accessors(chain = true)
+	private List<String> sections;
 
 	public GbUser(final User u) {
 		this(u, "");
@@ -65,6 +69,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.firstName = u.getFirstName();
 		this.lastName = u.getLastName();
 		this.studentNumber = studentNumber;
+		this.sections = Collections.emptyList();
 	}
 
 	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber) {
@@ -74,6 +79,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.studentNumber = studentNumber;
+		this.sections = Collections.emptyList();
 	}
 
 	public static GbUser forDisplayOnly(final String displayID, final String displayName) {

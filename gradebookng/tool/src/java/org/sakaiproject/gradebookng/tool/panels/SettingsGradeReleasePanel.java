@@ -51,6 +51,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 	AjaxCheckBox letterGrade;
 	AjaxCheckBox percentage;
 
+	WebMarkupContainer displayCourseGradeContainer;
 	WebMarkupContainer courseGradeType;
 
 	public SettingsGradeReleasePanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
@@ -99,6 +100,19 @@ public class SettingsGradeReleasePanel extends BasePanel {
 		displayReleased.setOutputMarkupId(true);
 		settingsGradeReleasePanel.add(displayReleased);
 
+		// display course grade to students container
+		this.displayCourseGradeContainer = new WebMarkupContainer("displayCourseGradeContainer") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+			}
+
+		};
+		this.displayCourseGradeContainer.setOutputMarkupPlaceholderTag(true);
+		settingsGradeReleasePanel.add(this.displayCourseGradeContainer);
+
 		// display course grade
 		final AjaxCheckBox displayCourseGrade = new AjaxCheckBox("displayCourseGrade",
 				new PropertyModel<Boolean>(this.model, "gradebookInformation.courseGradeDisplayed")) {
@@ -131,7 +145,7 @@ public class SettingsGradeReleasePanel extends BasePanel {
 			}
 		};
 		displayCourseGrade.setOutputMarkupPlaceholderTag(true);
-		settingsGradeReleasePanel.add(displayCourseGrade);
+		displayCourseGradeContainer.add(displayCourseGrade);
 
 		// course grade type container
 		this.courseGradeType = new WebMarkupContainer("courseGradeType") {

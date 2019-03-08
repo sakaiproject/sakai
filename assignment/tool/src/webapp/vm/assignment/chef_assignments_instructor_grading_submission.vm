@@ -21,15 +21,9 @@
 
 <!-- RUBRICS JAVASCRIPT -->
 <script>
-  var imports = [
-    '/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = "$!rbcs-token";
   ASN.rubricsEventHandlers();
 </script>
 
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 <!-- END RUBRICS JAVASCRIPT -->
 
 <div class="portletBody">
@@ -114,6 +108,11 @@
                 </fieldset>
             </div>
         </div>
+        #if( $allowAddAssignment && $showStudentPhoto )
+	        #if (!$!assignment.IsGroup && !$value_CheckAnonymousGrading)
+                <span class="student-picture" role="presentation" style="background-image:url('/direct/profile/$!submitterId/image/official?siteId=$!assignment.Context');"></span>
+	        #end
+        #end
         ## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
         #set ($submissionType = $!assignment.TypeOfSubmission.ordinal())
         <table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
@@ -491,6 +490,7 @@
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
                 ## grade-field-id="grade"
+                token="$!rbcs-token"
                 tool-id="sakai.assignment"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"
@@ -566,7 +566,7 @@
                         <p class="form-group">
                             <label for="gradeChecked">
                                 <input name="$name_grade" type="checkbox" value="Checked"
-                                    #if ($!value_grade.equals("Checked"))
+                                    #if ($!value_grade.equals($tlang.getString("gen.checked")))
                                        checked="checked"
                                     #end
                                     id="gradeChecked"/>
@@ -643,7 +643,7 @@
                                                 </option>
                                                 #foreach ($i in ["Pass", "Fail"])
                                                     <option value="$i"
-                                                        #if ($!group_value_grade.equalsIgnoreCase($i))
+                                                        #if ($!group_value_grade.equalsIgnoreCase($tlang.getString($i.toLowerCase())))
                                                             selected="selected"
                                                         #end>
                                                         #if ($i=="Pass")
@@ -661,10 +661,10 @@
                                         <label>$!submitterName</label>
                                         <div class="assignment-checkbox-inline">
                                             <span>$tlang.getString("gen.grade.override")</span>
-                                            <label for="gradeChecked">
+                                            <label for="$group_name_grade">
                                                 <input name="$group_name_grade" type="checkbox" value="Checked"
-                                                   #if ($!group_value_grade.equals("Checked"))checked="checked"#end
-                                                   id="gradeChecked"/>
+                                                   #if ($!group_value_grade.equals($tlang.getString("gen.checked")))checked="checked"#end
+                                                   id="$group_name_grade"/>
                                                 $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
                                             </label>
                                         </div>

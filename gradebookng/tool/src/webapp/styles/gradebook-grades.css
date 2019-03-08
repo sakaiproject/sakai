@@ -446,6 +446,15 @@ div.wicket-modal div.w_right > div {
 .gb-summary-grade-title {
   font-weight: normal;
 }
+
+.gb-summary-grade-panel .gb-summary-grade-stats:before {
+  font-family: 'gradebook-icons';
+  content: '\f080';
+  text-decoration: none;
+  float: right;
+  font-weight: normal;
+}
+
 .gb-summary-grade-panel .gb-summary-category-toggle:before {
   font-family: 'gradebook-icons';
   content: '\f078';
@@ -710,4 +719,9 @@ div.wicket-modal {
 
 div.wicket-mask-transparent, div.wicket-mask-dark {
   z-index: 998 !important;
+}
+
+.form-vertical div.awesomplete {
+  width: 100%;
+  margin-bottom: 15px;
 }

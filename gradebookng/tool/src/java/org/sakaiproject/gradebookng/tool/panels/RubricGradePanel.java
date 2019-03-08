@@ -61,6 +61,7 @@ public class RubricGradePanel extends BasePanel {
         sakaiRubricGrading.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
         sakaiRubricGrading.add(AttributeModifier.append("entity-id", assignmentId));
         sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
+		sakaiRubricGrading.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
         form.add(sakaiRubricGrading);
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {

@@ -26,15 +26,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
@@ -49,6 +51,9 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 	// ResourceBundle _not_ ResourceLoader -- we want the site's default locale
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
 
+	private EntityManager entityManager = ComponentManager.get(EntityManager.class);
+	private SiteService siteService = ComponentManager.get(SiteService.class);
+	
 	/**
 	 * Construct.
 	 */
@@ -78,16 +83,31 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 	protected List getHeaders(Event event)
 	{
 		// send most of the headers from the original message, removing some
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
 		List headers = hdr.getMailHeaders();
 
 		List filteredHeaders = super.getHeaders(event);
 
+		String title = (getSite() != null) ? getSite() : ref.getContext();
+		try
+		{
+			Site site = siteService.getSite(title);
+			title = site.getTitle();
+		}
+		catch (Exception ignore) {}
+
 		for (int i = 0; i < headers.size(); i++)
 		{
 			String headerStr = (String) headers.get(i);
+
+			if (headerStr.startsWith(MailArchiveService.HEADER_SUBJECT))
+			{
+				StringBuilder sb = new StringBuilder(headerStr);
+				sb.replace(0, 8, MailArchiveService.HEADER_SUBJECT + ": [" + title + "] "); // 0, 8 is the length of "Subject:"
+				headerStr = sb.toString();
+			}
 
 			if (headerStr.regionMatches(true, 0, MailArchiveService.HEADER_RETURN_PATH, 0, MailArchiveService.HEADER_RETURN_PATH.length())) 
 				continue;
@@ -134,7 +154,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		StringBuilder buf = new StringBuilder();
 
 		// get the message
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
 
@@ -167,7 +187,7 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		StringBuilder buf = new StringBuilder();
 
 		// get the message
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
 

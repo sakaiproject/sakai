@@ -320,6 +320,6 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 	public boolean isFromCategoryReadOnly(String secUuid) {
 		CourseSection section=getSectionManager().getSection(secUuid);
 		SectionDecorator sc=new SectionDecorator(section, true);
-		return sc.isReadOnly() && !section.isLocked();
+		return sc.isReadOnlyCategory();
     }
 }

@@ -72,10 +72,13 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 @Setter
 public class ExternalLogicImpl implements ExternalLogic {
+	
+	private static final ResourceLoader RB = new ResourceLoader("notifyDeletedOption");
 
 	 private static final String
 	 	/* Email template constants */
@@ -390,6 +393,14 @@ public class ExternalLogicImpl implements ExternalLogic {
 				replacementValues.put("recipientDisplayName", user.getDisplayName());
 				replacementValues.put("pollQuestion", pollQuestion);
 				replacementValues.put("siteTitle", siteTitle); 
+				
+				// Values of "src/bundle/notifyDeletedOption.properties"
+				replacementValues.put("subject", RB.getString("subject"));
+				replacementValues.put("message1", RB.getString("message1"));
+				replacementValues.put("message2", RB.getString("message2"));
+				replacementValues.put("message3", RB.getString("message3"));
+				replacementValues.put("message4", RB.getString("message4"));
+				replacementValues.put("message5", RB.getString("message5"));				
 
 				RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION,
 						user.getReference(), replacementValues);
@@ -476,6 +487,10 @@ public class ExternalLogicImpl implements ExternalLogic {
         return new LRS_Statement(student, verb, lrsObject);
     }
 
+    private String getPollRef(String pollId) {
+        return "poll" + getCurrentLocationReference() + "/poll/" + pollId;
+    }
+
     /**
      * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, org.sakaiproject.poll.model.Vote)
      */
@@ -483,19 +498,20 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void registerStatement(String pollText, Vote vote) {
         if (null != learningResourceStoreService) {
             LRS_Statement statement = getStatementForUserVotedInPoll(pollText, vote);
-            Event event = eventTrackingService.newEvent("poll.vote", "vote", null, true, NotificationService.NOTI_OPTIONAL, statement);
+            Event event = eventTrackingService.newEvent("poll.vote", getPollRef(vote.getPollId().toString()), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
         }
     }
 
     /**
-     * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, boolean)
+     * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, boolean, java.lang.String)
      */
     @Override
-    public void registerStatement(String pollText, boolean newPoll) {
+    public void registerStatement(String pollText, boolean newPoll, String pollId) {
         if (null != learningResourceStoreService) {
             LRS_Statement statement = getStatementForUserEditPoll(pollText, newPoll);
-            Event event = eventTrackingService.newEvent("poll.edit", "edit poll", null, true, NotificationService.NOTI_OPTIONAL, statement);
+            String eventType = newPoll ? "poll.add" : "poll.update";
+            Event event = eventTrackingService.newEvent(eventType, getPollRef(pollId), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
         }
     }

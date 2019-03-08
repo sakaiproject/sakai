@@ -1026,13 +1026,13 @@ public class HistogramListener
 
                     public int compare(String o1, String o2) {
                         Integer a1 = Integer.valueOf(o1.substring(0, o1.indexOf("-")));
-                        Integer a2 = Integer.valueOf(o2.substring(0, o1.indexOf("-")));
+                        Integer a2 = Integer.valueOf(o2.substring(0, o2.indexOf("-")));
                         int val = a1.compareTo(a2);
                         if(val != 0){
                             return val;
                         }
                         a1 = Integer.valueOf(o1.substring(o1.indexOf("-")+1));
-                        a2 = Integer.valueOf(o2.substring(o1.indexOf("-")+1));
+                        a2 = Integer.valueOf(o2.substring(o2.indexOf("-")+1));
                         return a1.compareTo(a2);
                     }
                 });

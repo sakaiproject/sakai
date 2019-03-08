@@ -41,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -106,7 +107,21 @@ public class LoginServlet
     // As this class is only used for taking assessment via URL, 
     // there should not be any assessment grading data at this point
     delivery.setAssessmentGrading(null);
-    delivery.setActionString("takeAssessmentViaUrl");
+
+    PublishedAssessmentService service = new PublishedAssessmentService();
+    PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
+
+    String siteId = pub.getOwnerSiteId();
+
+    boolean isInstructor = PersistenceService.getInstance()
+        .getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_EDIT_ASSESSMENT_ANY, siteId);
+
+    if (isInstructor) {
+        delivery.setActionString("previewAssessment");
+    } else {
+        delivery.setActionString("takeAssessmentViaUrl");
+    }
 
     // reset timer in case this is a timed assessment
     delivery.setTimeElapse("0");
@@ -125,8 +140,6 @@ public class LoginServlet
     // 2. If so, goto welcome.faces
     // 3. If not, goto login.faces
     // both pages will set agentId and then direct user to BeginAssessment
-    PublishedAssessmentService service = new PublishedAssessmentService();
-    PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
 
     if (pub==null){
 		log.warn("The published URL you have entered is incorrect. Please check in Published Settings.");
@@ -190,7 +203,6 @@ public class LoginServlet
         // Assessment is available for taking
         else if ("safeToProceed".equals(nextAction)){
           // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
-          listener.processAction(null);
           path = "/jsf/delivery/beginTakingAssessment_viaurl.faces";
         }
         // Assessment is currently not available (eg., retracted for edit, due date has passed, submission limit has been reached, etc)

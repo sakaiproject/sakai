@@ -6,7 +6,7 @@
       <meta http-equiv="Content-Style-Type" content="text/css" />
      <title>${rlb.jsp_search}: ${pageTitle}</title>
       <link href="/sakai-search-tool/styles/${skin}/searchStyle.css" type="text/css" rel="stylesheet" media="all" />
-      <link href="/library/js/jquery/ui/1.12.1/themes/ui-lightness/jquery-ui.min.css" type="text/css" rel="stylesheet" media="all" />
+      <link href="/library/webjars/jquery-ui-themes/1.12.1/ui-lightness/jquery-ui.min.css" type="text/css" rel="stylesheet" media="all" />
 
 		   ${sakaiheader}
   			<script type="text/javascript" src="/sakai-search-tool/scripts/search.js"> </script>
@@ -20,7 +20,7 @@
            href="${searchModel.openSearchUrl}"
            title="${rlb.jsp_worksite_search}" />
     ${includeLatestJQuery}
-    <script src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
+    <script type="text/javascript">includeLatestJQuery('search');</script>
 
     <script type="text/javascript" >
         function searchLocalAddSherlock() {

@@ -21,7 +21,7 @@
       var viewType = null;
       var viewGap = 0;
       var headerHeight;
-      var routePrefix = "";
+      var routePrefix = "../delivery/";
       var routeSuffix = "";
       var ajaxQuery = {
           "ajax": true

@@ -283,11 +283,12 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		sakaiRubricAssociation.add(AttributeModifier.append("dont-associate-value", "0"));
 		sakaiRubricAssociation.add(AttributeModifier.append("associate-label", new ResourceModel("rubrics.associate_label")));
 		sakaiRubricAssociation.add(AttributeModifier.append("associate-value", "1"));
-		sakaiRubricAssociation.add(AttributeModifier.append("config-fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
-		sakaiRubricAssociation.add(AttributeModifier.append("config-hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
+		sakaiRubricAssociation.add(AttributeModifier.append("fine-tune-points", new ResourceModel("rubrics.option_pointsoverride")));
+		sakaiRubricAssociation.add(AttributeModifier.append("hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
 		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-		
-    if (assignment.getId() != null) {
+		sakaiRubricAssociation.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+
+		if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
 		}
 		add(sakaiRubricAssociation);

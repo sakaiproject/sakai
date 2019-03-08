@@ -67,6 +67,7 @@ public class ExportPanel extends BasePanel {
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
 	boolean includeStudentNumber = false;
+	private boolean includeSectionMembership = false;
 	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
@@ -131,6 +132,16 @@ public class ExportPanel extends BasePanel {
 			public boolean isVisible()
 			{
 				return stuNumVisible;
+			}
+		});
+
+		add(new AjaxCheckBox("includeSectionMembership", Model.of(this.includeSectionMembership)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeSectionMembership = !ExportPanel.this.includeSectionMembership;
+				setDefaultModelObject(ExportPanel.this.includeSectionMembership);
 			}
 		});
 
@@ -280,14 +291,17 @@ public class ExportPanel extends BasePanel {
 				if (!isCustomExport || this.includeStudentId) {
 					header.add(getString("importExport.export.csv.headers.studentId"));
 				}
-				if (isCustomExport && this.includeStudentDisplayId) {
-					header.add(getString("importExport.export.csv.headers.studentDisplayId"));
-				}
 				if (!isCustomExport || this.includeStudentName) {
 					header.add(getString("importExport.export.csv.headers.studentName"));
 				}
+				if (isCustomExport && this.includeStudentDisplayId) {
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentDisplayId")));
+				}
 				if (isCustomExport && this.includeStudentNumber) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
+				}
+				if (isCustomExport && this.includeSectionMembership) {
+					header.add(getString("importExport.export.csv.headers.studentSection"));
 				}
 
 				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
@@ -352,15 +366,19 @@ public class ExportPanel extends BasePanel {
 					if (!isCustomExport || this.includeStudentId) {
 						line.add(studentGradeInfo.getStudentEid());
 					}
-					if (isCustomExport && this.includeStudentDisplayId) {
-						line.add(studentGradeInfo.getStudentDisplayId());
-					}
 					if (!isCustomExport || this.includeStudentName) {
 						line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+					}
+					if (isCustomExport && this.includeStudentDisplayId) {
+						line.add(studentGradeInfo.getStudentDisplayId());
 					}
 					if (isCustomExport && this.includeStudentNumber)
 					{
 						line.add(studentGradeInfo.getStudentNumber());
+					}
+					List<String> userSections = studentGradeInfo.getSections();
+					if (isCustomExport && this.includeSectionMembership) {
+						line.add((userSections.size() > 0) ? userSections.get(0) : getString("sections.label.none"));
 					}
 					if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
 						assignments.forEach(assignment -> {

@@ -386,7 +386,7 @@ public class ImportGradesHelper {
 		}
 
 		// Perform comment validation; present error message with invalid gradebook items and corresponding student identifiers on current page
-		CommentValidationReport commentReport = new CommentValidator().validate(rows, columns);
+		CommentValidationReport commentReport = new CommentValidator().validate(rows, columns, businessService.getServerConfigService());
 		SortedMap<String, List<String>> invalidCommentsMap = commentReport.getInvalidComments();
 		if (!invalidCommentsMap.isEmpty()) {
 			List<String> badCommentEntries = new ArrayList<>();
@@ -397,7 +397,7 @@ public class ImportGradesHelper {
 			}
 
 			String badComments = StringUtils.join(badCommentEntries, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.invalidComments", CommentValidator.MAX_COMMENT_LENGTH, badComments));
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidComments", CommentValidator.getMaxCommentLength(businessService.getServerConfigService()), badComments));
 			hasValidationErrors = true;
 		}
 

@@ -60,7 +60,8 @@ public class AsinMacro extends BaseLocaleMacro
 
 		if (params.getLength() == 1)
 		{
-			AsinServices.getInstance().appendUrl(writer, params.get("0")); //$NON-NLS-1$
+			String asin = params.get("0").replaceAll("[^0-9A-Za-z]", "");
+			AsinServices.getInstance().appendUrl(writer, asin); //$NON-NLS-1$
 			return;
 		}
 		else

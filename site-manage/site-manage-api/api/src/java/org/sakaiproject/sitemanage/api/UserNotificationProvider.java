@@ -70,8 +70,10 @@ public interface UserNotificationProvider {
 	 * @param courseSite
 	 * @param termTitle
 	 * @param requestEmail
+     * @param sendToRequestEmail if the email should be sent to requestEmail given.
+	 * @param sendToUser if the email should be sent to the user who created the site
 	 */
-	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail);
+	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail, boolean sendToRequestEmail, boolean sendToUser);
 	
 	/**
 	 * send course site request information to course authorizer

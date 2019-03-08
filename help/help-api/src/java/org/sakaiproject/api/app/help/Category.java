@@ -21,6 +21,9 @@
 
 package org.sakaiproject.api.app.help;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+
+import java.util.Comparator;
 import java.util.Set;
 
 /** 
@@ -29,6 +32,20 @@ import java.util.Set;
  */
 public interface Category
 {
+
+
+  /**
+   * get id
+   * @return Returns the id.
+   */
+  public Long getId();
+
+  /**
+   * set id
+   * @param id The id to set.
+   */
+  public void setId(Long id);
+
   /**
    * get name
    * @return name
@@ -76,7 +93,22 @@ public interface Category
    * @param cat
    */
   public void setParent(Category cat);
-  
+
+  /**
+   * Get Comparator for sorting Categories.
+   * @param serverConfigurationService The server configuration service.
+   * @return A suitable comparator.
+   */
+  static Comparator<Category> comparator(ServerConfigurationService serverConfigurationService) {
+    // This is a static method in the API so that you can inject the ServerConfigurationService in a test
+    // setup rather then have the whole Sakai Component Manager started up. It needs to be here as it's used in
+    // both the component and the tool
+    if (!"".equals(serverConfigurationService.getString("help.location"))) {
+      return Comparator.comparing(Category::getId);
+    } else {
+      return  Comparator.comparing(Category::getName);
+    }
+  }
 }
 
 

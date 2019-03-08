@@ -75,6 +75,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
 
     // SAK-23495
     protected boolean readOnly;
+    protected boolean isReadOnlyCategory;
     private static Set<String> readOnlyCategories;
 
     protected boolean lockedForDeletion;
@@ -104,6 +105,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
             }
         }
         this.readOnly = readOnlyCategories.contains(section.getCategory()) || section.isLocked();  
+        this.isReadOnlyCategory = readOnlyCategories.contains(section.getCategory());
         this.lockedForDeletion = section.isLockedForDeletion();  
     }
 
@@ -142,6 +144,14 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
     public boolean isReadOnly() {
     	return readOnly;
     }
+    public boolean isReadOnlyCategory() {
+        return isReadOnlyCategory;
+    }
+
+    public void setReadOnlyCategory(boolean isReadOnlyCategory) {
+        this.isReadOnlyCategory = isReadOnlyCategory;
+    }
+
     public boolean isLockedForDeletion() {
         return lockedForDeletion;
     }

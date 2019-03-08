@@ -2003,7 +2003,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
-						    else if(!lengthOk(height) && lengthOk(width)) {
+						    else if(!lengthOk(height) && lengthOk(width) && ("px".equals(width.unit) || "".equals(width.unit))) {
 							    // Youtube seems to use aspect ratio of 16*9 from 2015 on
 							    int youtubeDerivedHeight = (int) Math.ceil(new Double(width.getOld()) * 9 / 16);
 							    item.decorate(new UIFreeAttributeDecorator("height", youtubeDerivedHeight + ""));
@@ -5067,6 +5067,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "open_date_string", "#{simplePageBean.peerEvalOpenDate}");
 		UIOutput.make(form, "open_date_dummy");
 
+		UIOutput.make(form, "peer_eval_due_date_label", messageLocator.getMessage("simplepage.peer-eval.due_date"));
+       
 		UIOutput dueDateField = UIOutput.make(form, "peer_eval_due_date:");
 		UIInput.make(form, "due_date_string", "#{simplePageBean.peerEvalDueDate}");
 		UIOutput.make(form, "due_date_dummy");

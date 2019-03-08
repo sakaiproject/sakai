@@ -5,8 +5,9 @@
 	<wicket:panel>
 
 		<form class="form-vertical" wicket:id="form">
-		
-			<textarea wicket:id="comment" rows="4" class="form-control form-group"></textarea>
+			<div wicket:id="editCommentFeedback"></div>
+
+			<textarea wicket:id="comment" id="gradeComment" rows="4" class="form-control awesomplete"></textarea>
 			
 			<div class="">
 				<input type="submit" wicket:id="submit" wicket:message="value:button.savecomment" />
@@ -14,6 +15,16 @@
 			</div>
 		
 		</form>
+
+		<script>
+			$(document).ready(function(){
+				var sakaiReminder = new SakaiReminder();
+				var input = document.getElementById('gradeComment');
+				new Awesomplete(input, {
+					list: sakaiReminder.getAll()
+				});
+			});
+		</script>
 
 	</wicket:panel>
 </body>

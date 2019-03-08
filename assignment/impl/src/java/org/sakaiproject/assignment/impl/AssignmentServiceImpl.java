@@ -133,6 +133,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -1389,6 +1390,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
+    @Transactional
     public AssignmentSubmission getSubmission(String assignmentId, User person) throws PermissionException {
         return getSubmission(assignmentId, person.getId());
     }
@@ -2325,9 +2327,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             // otherwise use grade maintained by assignments or is considered externally mananged or is not released
             grade = submission.getGrade(); // start with submission grade
-            Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
-            if (submissionSubmitter.isPresent()) {
-                grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
+            if (assignment.getIsGroup()) {
+	            Optional<AssignmentSubmissionSubmitter> submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(submitter)).findAny();
+	            if (submissionSubmitter.isPresent()) {
+	                grade = StringUtils.defaultIfBlank(submissionSubmitter.get().getGrade(), grade); // if there is a grade override use that
+	            }
             }
         }
 
@@ -3534,7 +3538,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     // gradebook-integration link
                     String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                    if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
+                    if (StringUtils.isBlank(associatedGradebookAssignment)) {
+                        // if the association property is empty then set gradebook integration to not integrated
+                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                    } else {
                         // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
                         boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
                         if (isExternalAssignmentDefined) {
@@ -3543,6 +3550,30 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             // later when user posts the assignment, the corresponding assignment will be created in gradebook.
                             nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                             nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                        } else {
+                            // if this is an internal gradebook item then it should be associated with the assignment
+                            boolean gradebookItemFound = false;
+
+                            try {
+                                org.sakaiproject.service.gradebook.shared.Assignment
+                                        gbAssignment = gradebookService.getAssignmentByNameOrId(nAssignment.getContext(), associatedGradebookAssignment);
+                                if (gbAssignment != null) {
+                                    // migrate to gradebook assignment id (vs title)
+                                    associatedGradebookAssignment = gbAssignment.getId().toString();
+                                    gradebookItemFound = true;
+                                }
+                            } catch (AssessmentNotFoundException anfe) {
+                                log.info("While importing assignment {} the associated gradebook item {} was missing, " +
+                                        "switching assignment linkage to added by assignments", nAssignmentId, associatedGradebookAssignment);
+                            }
+
+                            if (gradebookItemFound) {
+                                nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associatedGradebookAssignment);
+                            } else {
+                                nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference());
+                                nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+                            }
                         }
                     }
 

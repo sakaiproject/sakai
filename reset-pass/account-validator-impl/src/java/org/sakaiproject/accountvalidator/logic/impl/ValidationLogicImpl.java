@@ -30,12 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
-
 import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.logic.dao.ValidationDao;
@@ -47,8 +45,8 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
@@ -69,6 +67,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.util.ResourceLoader;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class ValidationLogicImpl implements ValidationLogic {
 
@@ -88,6 +89,17 @@ public class ValidationLogicImpl implements ValidationLogic {
 
 	private static ResourceLoader rl = new ResourceLoader();
 
+	@Setter private IdManager idManager;
+	@Setter private ValidationDao dao;
+	@Setter private EmailTemplateService emailTemplateService;	
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private AuthzGroupService authzGroupService;
+	@Setter private SiteService siteService;
+	@Setter private DeveloperHelperService developerHelperService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SecurityService securityService;
+	@Setter private GroupProvider groupProvider;
+	
 	public void init(){
 		log.info("init()");
 
@@ -107,61 +119,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 			groupProvider = (GroupProvider) ComponentManager.get(GroupProvider.class.getName());
 		}
 	}
-
-	private IdManager idManager;
-	public void setIdManager(IdManager idm) {
-		idManager = idm;
-	}
 	
-	private ValidationDao dao;
-	public void setDao(ValidationDao dao) {
-		this.dao = dao;
-	}
-	
-	private EmailTemplateService emailTemplateService;	
-	public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
-		this.emailTemplateService = emailTemplateService;
-	}
-
-	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	
-	private AuthzGroupService authzGroupService;
-	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService = authzGroupService;
-	}
-	
-	private SiteService siteService;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(
-			DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
-	
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	
-	private SecurityService securityService;
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-	private GroupProvider groupProvider;
-	public void setGroupProvider(GroupProvider groupProvider) {
-		this.groupProvider = groupProvider;
-	}
-
 	public ValidationAccount getVaLidationAcountById(Long id) {
 		Search search = new Search();
 		Restriction rest = new Restriction("id", id);
@@ -248,7 +206,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 				// it's been too long, so invalidate the token and return
 				va.setStatus(ValidationAccount.STATUS_EXPIRED);
 				Calendar cal = new GregorianCalendar();
-				va.setvalidationReceived(cal.getTime());
+				va.setValidationReceived(cal.getTime());
 				dao.save(va);
 				return true;
 			}

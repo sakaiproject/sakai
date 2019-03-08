@@ -36,9 +36,10 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Resource;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.jsf.util.LocaleUtil;
 
 /**
@@ -152,7 +153,8 @@ public class ContextSensitiveTreeRender extends Renderer
       writer.write("</h1>");
 
       writer.write("<ol class=\"docs\">");
-      Set subCategories = new TreeSet(category.getCategories());
+      Set subCategories = new TreeSet(Category.comparator(ComponentManager.get(ServerConfigurationService.class)));
+      subCategories.addAll(category.getCategories());
       encodeRecursive(writer, subCategories, helpDocId);
       if (resources != null)
       {

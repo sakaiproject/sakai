@@ -296,6 +296,7 @@ public class Assignments extends AbstractWebService {
     		assign.setTitle(title);
     		assign.setDraft(false);
     		assign.setDueDate(dt);
+    		assign.setDropDeadDate(dt);
     		assign.setOpenDate(ot);
     		assign.setCloseDate(ct);
     		
