@@ -58,9 +58,9 @@ public class RubricGradePanel extends BasePanel {
 
         final WebMarkupContainer sakaiRubricGrading = new WebMarkupContainer("sakai-rubric-grading");
         sakaiRubricGrading.add(AttributeModifier.append("id", assignmentId));
-        sakaiRubricGrading.add(AttributeModifier.append("toolId", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
-        sakaiRubricGrading.add(AttributeModifier.append("entityId", assignmentId));
-        sakaiRubricGrading.add(AttributeModifier.append("evaluatedItemId", assignmentId + "." + studentUuid));
+        sakaiRubricGrading.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+        sakaiRubricGrading.add(AttributeModifier.append("entity-id", assignmentId));
+        sakaiRubricGrading.add(AttributeModifier.append("evaluated-item-id", assignmentId + "." + studentUuid));
 		sakaiRubricGrading.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
         form.add(sakaiRubricGrading);
 

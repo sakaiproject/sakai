@@ -20,6 +20,7 @@
 		<script>includeWebjarLibrary('ckeditor')</script>
 		<script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
 		<script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
+		<script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 		<script src="/rubrics-service/webcomponents/sakai-rubrics.js"></script>
 		<script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js"></script>
   <h:form id="msgForum">
@@ -214,12 +215,12 @@
 	<% if (hasAssociatedRubric) { %>
 		<sakai-rubric-grading
 		    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
-			gradeFieldId="dfMsgGradeGradePoint"
-			toolId="sakai.forums"
-			entityId='<%= entityId %>'
-			evaluatedItemId='<%= rbcsEvaluationId %>'
+			grade-field-id="dfMsgGradeGradePoint"
+			tool-id="sakai.forums"
+			entity-id='<%= entityId %>'
+			evaluated-item-id='<%= rbcsEvaluationId %>'
 			<% if (stateDetails != null && !"".equals(stateDetails)) { %>
-				stateDetails='<%= stateDetails %>'
+				state-details='<%= stateDetails %>'
 			<%}%>
 		></sakai-rubric-grading>
 	<%}%>
