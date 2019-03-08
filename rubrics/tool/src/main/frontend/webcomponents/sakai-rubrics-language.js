@@ -19,20 +19,6 @@ export class SakaiRubricsLanguage extends SakaiElement {
   translate(key) {
 
     return tr(key, this.values);
-
-    //if (rubrics && rubrics.i18n) {
-    //  var translation = rubrics.i18n[this.key];
-    //} else {
-    //var translation = window.sakai.translations["rubrics"][this.key];
-    //}
-
-    /*
-    for (var i in this.values) {
-      translation = translation.replace("{}", typeof this.values[i] === "string" ? this.values[i] : "" );
-    }
-
-    return translation;
-    */
   }
 
   static loadTranslations() {

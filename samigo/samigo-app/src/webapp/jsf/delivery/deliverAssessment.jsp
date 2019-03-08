@@ -329,9 +329,9 @@ document.links[newindex].onclick();
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student
            token='<h:outputText value="#{delivery.rbcsToken}" />'
-           toolId="sakai.samigo"
-           entityId='<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}"/>'
-           evaluatedItemId='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
+           tool-id="sakai.samigo"
+           entity-id='<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}"/>'
+           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
          </sakai-rubric-student>
        </h:panelGroup>
 

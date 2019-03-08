@@ -385,21 +385,21 @@
 		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none"
 
 			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
-			dontAssociateLabel='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
-			dontAssociateValue="0"
-			associateLabel='<h:outputText value="#{msgs.topic_associate_label}" />'
-			associateValue="1"
+			dont-associate-label='<h:outputText value="#{msgs.topic_dont_associate_label}" />'
+			dont-associate-value="0"
+			associate-label='<h:outputText value="#{msgs.topic_associate_label}" />'
+			associate-value="1"
 
-			toolId="sakai.forums"
+			tool-id="sakai.forums"
 			<% if(entityId != null && !"".equals(entityId)){ %>
-				entityId=<%= entityId %>
+				entity-id=<%= entityId %>
 			<%}%>
 			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
-				stateDetails=<%= stateDetails %>
+				state-details=<%= stateDetails %>
 			<%}%>
 
-			fineTunePoints='<h:outputText value="#{msgs.option_pointsoverride}" />'
-			hideStudentPreview='<h:outputText value="#{msgs.option_studentpreview}" />'
+			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
+			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 
 		></sakai-rubric-association>
 			  
