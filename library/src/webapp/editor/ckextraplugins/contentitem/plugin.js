@@ -31,6 +31,7 @@ CKEDITOR.plugins.add( 'contentitem',
                     {
                         // Dialog onOk callback.
                         // console.log(ContentItemIFrameWindow.returned_content_item);
+                        var editor = this._.editor;
                         var items = ContentItemIFrameWindow.returned_content_item;
 			if ( items ) for(var i=0; i < items.length; i++) {
                             var item = items[i];
