@@ -9,11 +9,11 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
     return {
       criteria: { type: Array},
       totalPoints: { type: Number },
-      rubricAssociation: { type: Object },
-      stateDetails: { type: String },
-      evaluationDetails: { type: Array },
+      rubricAssociation: { attribute: "rubric-association", type: Object },
+      stateDetails: { attribute: "state-details", type: String },
+      evaluationDetails: { attribute: "evaluation-details", type: Array },
       preview: { type: Boolean },
-      entityId: { type: String },
+      entityId: { attribute: "entity-id", type: String },
     };
   }
 
