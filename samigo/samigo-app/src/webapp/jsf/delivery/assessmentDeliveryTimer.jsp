@@ -42,7 +42,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     timeUpMessage="#{deliveryMessages.time_up}"
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble}">
@@ -50,7 +50,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapseAfterFileUpload}"
     timeUpMessage="#{deliveryMessages.time_up}"
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 </h:panelGroup>
 
 <f:verbatim>  </span></f:verbatim>

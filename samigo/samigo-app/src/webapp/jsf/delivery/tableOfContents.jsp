@@ -65,9 +65,9 @@ function saveTime()
   //showElements(document.forms[0]);
   if((typeof (document.forms[0].elements['tableOfContentsForm:elapsed'])!=undefined) && ((document.forms[0].elements['tableOfContentsForm:elapsed'])!=null) ){
   pauseTiming = 'true';
-  // loaded is in 1/10th sec and elapsed is in sec, so need to divide by 10
-  if (self.loaded) {
-	document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded/10;
+  var timeElapse = ${delivery.timeElapse};
+  if (timeElapse) {
+	document.forms[0].elements['tableOfContentsForm:elapsed'].value=timeElapse;
   }
  }
 }
@@ -116,7 +116,7 @@ function clickSubmitForGrade(){
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     timeUpMessage="#{deliveryMessages.time_up}"
-    expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true';" />
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 <f:verbatim>  </span></f:verbatim>
 
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="#{deliveryMessages.hide_show}" />

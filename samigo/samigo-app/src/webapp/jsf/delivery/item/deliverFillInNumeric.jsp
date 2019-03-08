@@ -132,24 +132,26 @@ should be included in file importing DeliveryMessages
 
 <script>
 //Setup qtips
-$('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
-    $(this).qtip({
-        content: {
-            text: $(this).next('div') // Use the "div" element after this for the content
-        },
-        position: {
-          target: 'mouse', 
-          adjust: {
-            mouse: false
-          }
-       },
-       style: {
-         classes: 'qtip-tipped qtip-shadow qtipBodyContent',
-       },
-       show: 'click',
-       hide: 'unfocus click'
-      });
-});
+window.onload = function() {
+	$('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
+	    $(this).qtip({
+	        content: {
+	            text: $(this).next('div') // Use the "div" element after this for the content
+	        },
+	        position: {
+	          target: 'mouse', 
+	          adjust: {
+	            mouse: false
+	          }
+	       },
+	       style: {
+	         classes: 'qtip-tipped qtip-shadow qtipBodyContent',
+	       },
+	       show: 'click',
+	       hide: 'unfocus click'
+	      });
+	});
+};
 
 includeWebjarLibrary('mathjs');
 var finFormatError = '<h:outputText value="#{deliveryMessages.fin_invalid_characters_error}" escape="false"/>';

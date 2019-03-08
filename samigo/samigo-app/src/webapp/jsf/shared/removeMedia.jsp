@@ -36,6 +36,7 @@
  <!-- content... -->
 
  <h:form>
+   <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
    <h:inputHidden id="mediaId" value="#{mediaBean.mediaId}"/>
    <h3> <h:outputText  value="#{deliveryMessages.remove_media_conf}" /></h3>
    <div class="validation tier1">
@@ -55,6 +56,9 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
       </h:commandButton>
    </p>
+   <!-- HEADING -->
+   <%@ include file="/jsf/delivery/questionProgress.jspf" %>
+   <%@ include file="/jsf/delivery/assessmentDeliveryTimer.jsp" %>
  </h:form>
  <!-- end content -->
 <!-- end content -->
