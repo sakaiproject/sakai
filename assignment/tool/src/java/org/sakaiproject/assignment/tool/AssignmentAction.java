@@ -3307,7 +3307,7 @@ public class AssignmentAction extends PagedResourceActionII {
             final String submitterNames = users.values().stream().map(u -> u.getDisplayName() + " (" + u.getDisplayId() + ")").collect(Collectors.joining(", "));
             context.put("submitterNames", formattedText.escapeHtml(submitterNames));
             context.put("submissionStatus", assignmentService.getSubmissionStatus(s.getId()));
-            context.put("submitterId", s.getSubmitters().iterator().next().getSubmitter());
+            s.getSubmitters().stream().findAny().ifPresent(u -> context.put("submitterId", u.getSubmitter()));
 
             if (assignment.isPresent()) {
                 Assignment a = assignment.get();
