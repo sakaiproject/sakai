@@ -350,13 +350,13 @@ function toPoint(id)
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               token='<h:outputText value="#{submissionStatus.rbcsToken}"/>'
-              toolId="sakai.samigo"
-              entityId='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
-              evaluatedItemId='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
-              itemId='<h:outputText value="#{question.itemData.itemId}"/>'
+              tool-id="sakai.samigo"
+              entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+              evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
+              item-id='<h:outputText value="#{question.itemData.itemId}"/>'
 
               <h:panelGroup rendered="#{question.rubricStateDetails != ''}">
-                stateDetails='<h:outputText value="#{question.rubricStateDetails}"/>'
+                state-details='<h:outputText value="#{question.rubricStateDetails}"/>'
               </h:panelGroup>>
             </sakai-rubric-grading>
           </div>
