@@ -256,7 +256,11 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
       criterion.selectedvalue = rating.points;
       criterion.selectedRatingId = rating.id;
     }
-    this.querySelector(`#rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${criterionId}`).value = rating.points;
+
+    var pointsInput = this.querySelector(`#rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${criterionId}`);
+    if (pointsInput) {
+      pointsInput.value = rating.points;
+    }
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
     var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterionId, value: criterion.selectedvalue };
