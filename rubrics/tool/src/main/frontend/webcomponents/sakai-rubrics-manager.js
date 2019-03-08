@@ -57,7 +57,7 @@ class SakaiRubricsManager extends SakaiElement {
 
         <div role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics">
           <div id="sharedlist">
-            <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list"></sakai-rubrics-shared-list>
+            <sakai-rubrics-shared-list token="Bearer ${this.token}" id="sakai-rubrics-shared-list" @copy-share-site="${this.copyShareSite}" ></sakai-rubrics-shared-list>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ class SakaiRubricsManager extends SakaiElement {
   }
 
   copyShareSite() {
-    this.querySelector("sakai-rubrics-list").ready();
+    this.querySelector("sakai-rubrics-list").refresh();
   }
 
   toggleSiteRubrics() {

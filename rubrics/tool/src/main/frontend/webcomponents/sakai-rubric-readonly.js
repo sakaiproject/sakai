@@ -42,7 +42,7 @@ export class SakaiRubricReadonly extends SakaiElement {
         <div class="actions">
           <div class="action-container">
             <span class="hidden-sm hidden-xs sr-only"><sr-lang key="clone_label">clone_label</sr-lang> </span>
-            <span role="button" title="${tr("clone")} ${this.rubric.title}" tabindex="0" class="clone fa fa-copy" on-tap="cloneRubric"></span>
+            <span role="button" title="${tr("clone")} ${this.rubric.title}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@ export class SakaiRubricReadonly extends SakaiElement {
   copyToSite(e) {
 
     e.stopPropagation();
-    this.dispatchEvent(new CustomEvent('copy-to-site', { detail: this.rubric }));
+    this.dispatchEvent(new CustomEvent('copy-to-site', { detail: this.rubric.id }));
   }
 }
 
