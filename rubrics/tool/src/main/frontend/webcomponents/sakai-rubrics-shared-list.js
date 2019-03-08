@@ -1,15 +1,9 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricReadonly} from "./sakai-rubric-readonly.js";
+import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
 export class SakaiRubricsSharedList extends SakaiElement {
-
-  constructor() {
-
-    super();
-
-    this.rubrics = [];
-  }
 
   static get properties() {
 
@@ -24,8 +18,12 @@ export class SakaiRubricsSharedList extends SakaiElement {
     super.attributeChangedCallback(name, oldValue, newValue);
 
     if ("token" === name) {
-      this.getSharedRubrics();
+      this.getSharedRubrics(newValue);
     }
+  }
+
+  shouldUpdate(changedProperties) {
+    return changedProperties.has("rubrics");
   }
 
   render() {
@@ -34,7 +32,7 @@ export class SakaiRubricsSharedList extends SakaiElement {
       <div role="tablist">
       ${this.rubrics.map(r => html`
         <div class="rubric-item" id="rubric_item_${r.id}">
-          <sakai-rubric-readonly token="${this.token}" rubric="${JSON.stringify(r)}"></sakai-rubric-readonly>
+          <sakai-rubric-readonly token="${this.token}" rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}"></sakai-rubric-readonly>
         </div>
       `)}
       </div>
@@ -42,34 +40,22 @@ export class SakaiRubricsSharedList extends SakaiElement {
   }
 
   refresh() {
-    this.getSharedRubrics();
+    this.getSharedRubrics(this.token);
   }
 
-  getSharedRubrics() {
+  getSharedRubrics(token) {
 
-    $.ajax({
-      url: "/rubrics-service/rest/rubrics/search/shared-only?projection=inlineRubric",
-      headers: {"authorization": this.token}
-    })
-    .done(data => {
+    var params = {"projection": "inlineRubric"};
 
-      this.rubrics = data._embedded.rubrics;
-      this.requestUpdate();
-    })
-    .fail((jqXHR, textStatus, error) => { console.log(textStatus); console.log(error); });
+    SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics/search/shared-only", token, { params })
+      .then(data => this.rubrics = data._embedded.rubrics );
   }
 
-  copyShareToSite(e) {
+  copyToSite(e) {
 
-    $.ajax({
-      url: "/rubrics-service/rest/rubrics/",
-      headers: { "x-copy-source": e.detail.id, "authorization": this.token },
-      contentType: "application/json",
-      method: "POST",
-      data: "{}"
-    })
-    .done(data => this.dispatchEvent(new CustomEvent('copy-share-site')) )
-    .fail((jqXHR, textStatus, error) => { console.log(textStatus); console.log(error); });
+    var options = { extraHeaders: { "x-copy-source": e.detail, "lang": portal.locale  } };
+    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, options)
+      .then(data => this.dispatchEvent(new CustomEvent("copy-share-site")));
   }
 }
 

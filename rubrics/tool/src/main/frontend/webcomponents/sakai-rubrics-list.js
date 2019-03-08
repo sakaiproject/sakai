@@ -47,11 +47,23 @@ export class SakaiRubricsList extends SakaiElement {
     `;
   }
 
-  getRubrics(token) {
+  refresh() {
+    this.getRubrics(this.token);
+  }
 
-    SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics?projection=inlineRubric", this.token)
+  getRubrics(token, extraParams = {}) {
+
+    var params = {"projection": "inlineRubric"};
+    Object.assign(params, extraParams);
+
+    SakaiRubricsHelpers.get("/rubrics-service/rest/rubrics", token, { params })
       .then(data => {
+
         this.rubrics = data._embedded.rubrics;
+
+        if (data.page.size <= this.rubrics.length){
+          this.getRubrics(token, { "size": this.rubrics.length + 25 });
+        }
       });
   }
 
@@ -71,6 +83,7 @@ export class SakaiRubricsList extends SakaiElement {
     this.rubrics = tmp;
 
     this.requestUpdate();
+    this.updateComplete.then(() => { this.querySelector(`#rubric_item_${nr.id} sakai-rubric`).toggleRubric(); });
   }
 
   deleteRubric(e) {
@@ -89,8 +102,7 @@ export class SakaiRubricsList extends SakaiElement {
 
   cloneRubric(e) {
 
-    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", {
-      token: this.token,
+    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, {
       extraHeaders: {"x-copy-source": e.detail.id, "lang": portal.locale}
     })
     .then(data => this.createRubricResponse(data));
@@ -98,8 +110,7 @@ export class SakaiRubricsList extends SakaiElement {
 
   createNewRubric() {
 
-    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", {
-      token: this.token,
+    SakaiRubricsHelpers.post("/rubrics-service/rest/rubrics/", this.token, {
       extraHeaders: {"x-copy-source" :"default", "lang": portal.locale}
     })
     .then(data => this.createRubricResponse(data));
