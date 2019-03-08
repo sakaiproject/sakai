@@ -72,12 +72,13 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
           <div class="criterion-actions">
             <sakai-rubric-grading-comment @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluated-item-id="${this.evaluatedItemId}" entity-id="${this.entityId}"></sakai-rubric-grading-comment>
             <div>
-              <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
+              <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
                 ${c.selectedvalue}
               </strong>
             </div>
             ${this.rubricAssociation.parameters.fineTunePoints ? 
               html`<input type="number" min="0" max="${c.pointrange.high}"
+                      @keypress="${this.validateInput}"
                       title="${tr("point_override_details")}"
                       data-criterion-id="${c.id}"
                       class="fine-tune-points form-control hide-input-arrows"
@@ -240,7 +241,7 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
 
     criterion.selectedvalue = rating.points;
     criterion.selectedRatingId = rating.id;
-    //criterion.pointoverride = rating.points.toString();
+    criterion.pointoverride = rating.points.toString();
 
     var criterionRow = this.querySelector(`#criterion_row_${criterion.id}`);
     var ratingElements = criterionRow.querySelectorAll('.rating-item');
@@ -255,10 +256,14 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
       criterion.selectedvalue = rating.points;
       criterion.selectedRatingId = rating.id;
     }
+    this.querySelector(`#rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${criterionId}`).value = rating.points;
+    this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
     var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterionId, value: criterion.selectedvalue };
     this.dispatchEvent(new CustomEvent("rubric-rating-changed", {detail: detail, bubbles: true, composed: true}));
 
+    // Dispatch an event for each rating. We have to do this to give tools like
+    // Samigo a chance to build their form inputs properly.
     this.criteria.filter(c => c.id != criterionId).forEach(c => {
       let points = this.querySelector(`#criterion_row_${c.id} > .criterion-actions > div > .points-display`).innerHTML;
       detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: c.id, value: parseInt(points) };
