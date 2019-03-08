@@ -718,18 +718,14 @@ div.wicket-modal div.w_right > div {
 div.wicket-modal {
   z-index: 999 !important;
   max-width: 100%;
+  position: absolute;
 }
 
 div.wicket-mask-transparent, div.wicket-mask-dark {
   z-index: 998 !important;
 }
 
-div.wicket-modal div.w_content_container {
-  overflow: initial !important;
-}
-
 .form-vertical div.awesomplete {
   width: 100%;
   margin-bottom: 15px;
 }
-
