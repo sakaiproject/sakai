@@ -118,7 +118,7 @@ var rubrics = {
 
     this.css(rubrics.lightbox[0], {height: rubrics.windowRef.window.innerHeight + "px", width: rubrics.windowRef.window.innerWidth + "px", top: scrollTop + "px"})
 
-    $("sakai-rubric-preview", rubrics.windowRef.document)[0].setAttribute("rubricId", id);
+    $("sakai-rubric-preview", rubrics.windowRef.document)[0].setAttribute("rubric-id", id);
     this.css(rubrics.lightbox[0], {"display": "block"});
   },
 };

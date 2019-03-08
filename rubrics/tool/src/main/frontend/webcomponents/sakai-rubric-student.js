@@ -2,6 +2,7 @@ import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricCriterionStudent} from "./sakai-rubric-criterion-student.js";
 import {SakaiRubricStudentComment} from "./sakai-rubric-student-comment.js";
+import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
 
 class SakaiRubricStudent extends SakaiElement {
 
@@ -10,19 +11,20 @@ class SakaiRubricStudent extends SakaiElement {
     super();
 
     this.options = {};
+    SakaiRubricsLanguage.loadTranslations();
   }
 
   static get properties() {
 
     return {
       token: { type: String},
-      entityId: { type: String},
-      toolId: { type: String},
+      entityId: { attribute: "entity-id", type: String},
+      toolId: { attribute: "tool-id", type: String},
       gradeFieldId: { type: String},
       stateDetails: { type: String},
       preview: { type: Boolean},
       instructor: { type: Boolean},
-      evaluatedItemId: { type: String},
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String},
       rubric: { type: Object },
     };
   }
@@ -55,12 +57,12 @@ class SakaiRubricStudent extends SakaiElement {
 
       <sakai-rubric-criterion-student
         criteria="${JSON.stringify(this.rubric.criterions)}"
-        gradeFieldId="${this.gradeFieldId}"
-        rubricAssociation="${JSON.stringify(this.association)}"
-        stateDetails="${this.stateDetails}"
-        evaluationDetails="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+        grade-field-id="${this.gradeFieldId}"
+        rubric-association="${JSON.stringify(this.association)}"
+        state-details="${this.stateDetails}"
+        evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
         preview="${this.preview}"
-        entityId="${this.entityId}"
+        entity-id="${this.entityId}"
         ></sakai-rubric-criterion-student>
     `;
   }

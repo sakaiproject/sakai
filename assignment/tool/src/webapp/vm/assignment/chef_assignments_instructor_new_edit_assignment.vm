@@ -1338,22 +1338,22 @@
 
 		<sakai-rubric-association style="display:none;"
 			token="$!rbcs-token"
-			dontAssociateLabel="$tlang.getString("dont.associate.label")"
-			dontAssociateValue="0"
-			associateLabel="$tlang.getString("associate.label")"
-			associateValue="1"
-			toolId="sakai.assignment"
+			dont-associate-label="$tlang.getString("dont.associate.label")"
+			dont-associate-value="0"
+			associate-label="$tlang.getString("associate.label")"
+			associate-value="1"
+			tool-id="sakai.assignment"
 
 			#if("$!assignment.Id" != "")
-			entityId="$assignment.Id"
+			entity-id="$assignment.Id"
 			#end
 
 			#if($rbcs-state-details && "$!rbcs-state-details" != "")
-			stateDetails="$rbcs-state-details"
+			state-details="$rbcs-state-details"
 			#end
 
-			fineTunePoints="$tlang.getString("option.pointsoverride")"
-			hideStudentPreview="$tlang.getString("option.studentpreview")"
+			fine-tune-points="$tlang.getString("option.pointsoverride")"
+			hide-student-preview="$tlang.getString("option.studentpreview")"
 		></sakai-rubric-association>
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled

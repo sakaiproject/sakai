@@ -19,7 +19,7 @@ export class SakaiRubricPreview extends SakaiElement {
     return {
       token: String,
       rubric: {type: Object},
-      rubricId: Number,
+      rubricId: { attribute: "rubric-id", type: Number },
       gradeFieldId: String,
     };
   }
@@ -28,7 +28,7 @@ export class SakaiRubricPreview extends SakaiElement {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ("rubricid" == name) {
+    if ("rubric-id" == name) {
       this.idChanged();
     }
   }

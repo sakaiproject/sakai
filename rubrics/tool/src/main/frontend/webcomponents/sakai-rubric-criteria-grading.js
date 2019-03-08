@@ -8,13 +8,13 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
 
     return {
       criteria: { type: Array},
-      gradeFieldId: { type: Number},
-      rubricAssociation: { type: Object },
+      gradeFieldId: { attribute: "grade-field-id", type: Number},
+      rubricAssociation: { attribute: "rubric-association", type: Object },
       stateDetailsJson: { type: String},
-      entityId: { type: String},
-      evaluatedItemId: { type: String },
+      entityId: { attribute: "entity-id", type: String},
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String },
       totalPoints: { type: Number },
-      evaluationDetails: { type: Array },
+      evaluationDetails: { attribute: "evaluation-details", type: Array },
       selectedRatings: { type: Array },
     };
   }
@@ -70,7 +70,7 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
             </div>
           </div>
           <div class="criterion-actions">
-            <sakai-rubric-grading-comment @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluatedItemId="${this.evaluatedItemId}" entityId="${this.entityId}"></sakai-rubric-grading-comment>
+            <sakai-rubric-grading-comment @update-comment="${this.updateComment}" criterion="${JSON.stringify(c)}" evaluated-item-id="${this.evaluatedItemId}" entity-id="${this.entityId}"></sakai-rubric-grading-comment>
             <div>
               <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
                 ${c.selectedvalue}

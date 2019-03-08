@@ -15,8 +15,8 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
     return {
       criterion: { type: Object },
-      entityId: { type: String },
-      evaluatedItemId: { type: String },
+      entityId: { attribute: "entity-id", type: String },
+      evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     };
   }
 

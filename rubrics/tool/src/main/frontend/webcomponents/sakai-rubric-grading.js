@@ -24,11 +24,11 @@ export class SakaiRubricGrading extends SakaiElement {
 
     return {
       token: String,
-      entityId: {type: String},
-      toolId: {type: String},
-      gradeFieldId: String,
-      stateDetails: String,
-      evaluatedItemId: String,
+      entityId: {attribute: "entity-id", type: String},
+      toolId: {attribute: "tool-id", type: String},
+      gradeFieldId: {attribute: "grade-field-id", type: String},
+      stateDetails: {attribute: "state-details", type: String},
+      evaluatedItemId: {attribute: "evaluated-item-id", type: String},
       rubric: {type: Object},
       evaluation: {type: Object},
     };
@@ -54,12 +54,12 @@ export class SakaiRubricGrading extends SakaiElement {
 
       <sakai-rubric-criteria-grading
         criteria="${JSON.stringify(this.rubric.criterions)}"
-        gradeFieldId="${this.gradeFieldId}"
-        rubricAssociation="${JSON.stringify(this.association)}"
-        stateDetails="${this.stateDetails}"
-        entityId="${this.entityId}"
-        evaluatedItemId="${this.evaluatedItemId}"
-        evaluationDetails="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+        grade-field-id="${this.gradeFieldId}"
+        rubric-association="${JSON.stringify(this.association)}"
+        state-details="${this.stateDetails}"
+        entity-id="${this.entityId}"
+        evaluated-item-id="${this.evaluatedItemId}"
+        evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
         ></sakai-rubric-criteria-grading>
     `;
   }
