@@ -19,16 +19,14 @@ package org.sakaiproject.contentreview.logic;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.contentreview.compilatio.CompilatioReviewServiceImpl;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-@ContextConfiguration({"/hibernate-test.xml", "/spring-hibernate.xml"})
+import lombok.extern.slf4j.Slf4j;
+
+@ContextConfiguration({"/hibernate-test.xml", "/spring-hibernate.xml"}) @Slf4j
 public class CompilatioTest extends AbstractTransactionalJUnit4SpringContextTests {
-	private static final Log log = LogFactory.getLog(CompilatioTest.class);
 
 	@Test
 	public void testFileEscape() {
