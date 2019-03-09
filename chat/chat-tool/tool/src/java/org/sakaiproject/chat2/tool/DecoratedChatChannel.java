@@ -24,7 +24,7 @@ package org.sakaiproject.chat2.tool;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.sakaiproject.chat2.model.ChatChannel;
 
 public class DecoratedChatChannel {

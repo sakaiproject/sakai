@@ -47,7 +47,7 @@ import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
