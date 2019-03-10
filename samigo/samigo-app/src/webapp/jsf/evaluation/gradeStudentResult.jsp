@@ -114,7 +114,7 @@ function toPoint(id)
 
     e.stopPropagation();
 
-    var itemId = $(e.target).parent().attr("itemId");
+    var itemId = $(e.target).parent().attr("item-id");
     var gradeField = $('.adjustedScore' + itemId);
     if (gradeField) {
       gradeField.val(e.detail.value);

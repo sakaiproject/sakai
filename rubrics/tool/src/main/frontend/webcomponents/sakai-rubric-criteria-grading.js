@@ -239,28 +239,28 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
     var criterion = this.criteria.filter(c => c.id == criterionId)[0];
     var rating = criterion.ratings.filter(r => r.id == ratingId)[0];
 
-    criterion.selectedvalue = rating.points;
-    criterion.selectedRatingId = rating.id;
-    criterion.pointoverride = rating.points.toString();
-
-    var criterionRow = this.querySelector(`#criterion_row_${criterion.id}`);
-    var ratingElements = criterionRow.querySelectorAll('.rating-item');
     var clickedRatingElement = this.querySelector(`#rating-item-${ratingId}`);
     if (clickedRatingElement.classList.contains("selected")) {
       clickedRatingElement.classList.remove("selected");
       criterion.selectedvalue = 0;
       criterion.selectedRatingId = "";
+      criterion.pointoverride = "0";
     } else {
+      var ratingElements = this.querySelectorAll(`#criterion_row_${criterion.id} .rating-item`);
       ratingElements.forEach(i => i.classList.remove('selected'));
       clickedRatingElement.classList.add("selected");
       criterion.selectedvalue = rating.points;
       criterion.selectedRatingId = rating.id;
+      criterion.pointoverride = rating.points.toString();
     }
 
-    var pointsInput = this.querySelector(`#rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${criterionId}`);
-    if (pointsInput) {
-      pointsInput.value = rating.points;
-    }
+    var selector
+      = `#rbcs-${this.evaluatedItemId.replace(/./g, "\\.")}-${this.entityId.replace(/./g, "\\.")}-criterion-override-${criterionId}`;
+    var overrideInput = this.querySelector(selector);
+    if (overrideInput) overrideInput.value = rating.points;
+
+    // Whenever a rating is clicked, either to select or deselect, it cancels out any override so we
+    // remove the strike out from the clicked points value
     this.querySelector(`#points-display-${criterionId}`).classList.remove("strike");
 
     var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterionId, value: criterion.selectedvalue };
