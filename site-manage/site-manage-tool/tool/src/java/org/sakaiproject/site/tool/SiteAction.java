@@ -2120,6 +2120,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				context.put("allowUpdate", allowUpdateSite);
 				context.put("additionalAccess", getAdditionRoles(site));
+				context.put("isMyWorkspace", isMyWorkspace);
 				context.put("viewRoster", allowViewRoster);
 
 				// Add the menus to vm
