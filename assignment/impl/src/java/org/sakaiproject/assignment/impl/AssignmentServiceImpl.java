@@ -472,7 +472,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 try {
                                     Assignment a = getAssignment(refReckoner.getId());
                                     String filename = a.getTitle() + "_" + date;
-                                    res.setContentType("application/zip");
+                                    res.setContentType("application/zip;charset=utf8");
                                     res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
 
                                     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
