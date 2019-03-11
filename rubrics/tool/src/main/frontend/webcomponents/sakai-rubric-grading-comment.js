@@ -38,7 +38,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
     return html`
       <!-- edit icon -->
-      <div class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleEditor}" title="${tr("criterion_comment")}"></div>
+      <div style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleEditor}" title="${tr("criterion_comment")}"></div>
 
       <!-- popover -->
       <div id="criterion-editor-${this.criterion.id}" class="popover criterion-edit-popover left">
