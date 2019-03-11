@@ -102,4 +102,6 @@ export class SakaiRubricGrading extends SakaiElement {
   }
 }
 
-customElements.define("sakai-rubric-grading", SakaiRubricGrading);
+try {
+  customElements.define("sakai-rubric-grading", SakaiRubricGrading);
+} catch (error) { /* That's okay */ }
