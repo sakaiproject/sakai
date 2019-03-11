@@ -60,7 +60,7 @@ function downloadAll(url){
   $('body').on('total-points-updated', function (e) {
 
     e.stopPropagation();
-    var itemId = e.target.parentElement.getAttribute("itemid");
+    var itemId = e.target.parentElement.getAttribute("item-id");
 
     var points = e.detail.value;
 
