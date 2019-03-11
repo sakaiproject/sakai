@@ -15,12 +15,15 @@
  */
  package org.sakaiproject.citation.impl;
 
-import org.apache.commons.lang.*;
-import org.sakaiproject.citation.api.*;
-
 import java.util.Arrays;
 import java.util.List;
-import org.sakaiproject.component.cover.*;
+
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.citation.api.CitationCollection;
+import org.sakaiproject.citation.api.CitationCollectionOrder;
+import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.citation.api.CitationValidator;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * Created by nickwilson on 9/29/15.
