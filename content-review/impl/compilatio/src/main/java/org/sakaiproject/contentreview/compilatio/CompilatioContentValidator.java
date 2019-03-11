@@ -22,19 +22,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.ResourceProperties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class contains the implementation of 
  * {@link ContentReviewService.isAcceptableContent}.
  *
  */
+@Slf4j
 public class CompilatioContentValidator {
-	private static final Log log = LogFactory.getLog(CompilatioContentValidator.class);
 	
 	ContentReviewService contentReviewService = null;
 	public void setContentReviewService(ContentReviewService contentReviewService) {
