@@ -59,16 +59,16 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object[]> findByProviderGroupedBySite(Integer providerId) {
+	public List<String[]> findByProviderGroupedBySite(Integer providerId) {
 
 		Criteria c = sessionFactory.getCurrentSession()
 				.createCriteria(ContentReviewItem.class)
 				.add(Restrictions.eq("providerId", providerId))
 				.setProjection( Projections.projectionList()
 							.add(Projections.distinct(Projections.property("siteId")))
-							.add(Projections.property("contentId"))
+							.add(Projections.property("id"))
 						)
-				.addOrder(Order.desc("contentId"))
+				.addOrder(Order.desc("id"))
 				.setMaxResults(999);
 
 		return c.list();

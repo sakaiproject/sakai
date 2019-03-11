@@ -2923,11 +2923,11 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 		log.info("Running Turnitin Roster Sync");
 
-		List<Object[]> items = crqs.getContentReviewItemsGroupedBySite(getProviderId());
-		for (Object[] o : items) {
-			log.debug("Turnitin roster sync site: {}" + java.util.Arrays.toString(o));
+		List<String[]> items = crqs.getContentReviewItemsGroupedBySite(getProviderId());
+		for (String[] s : items) {
+			log.debug("Turnitin roster sync site: {}", Arrays.toString(s));
 			try {
-				String siteId = (String) o[0];
+				String siteId = s[0];
 				syncSiteWithTurnitin(siteId);
 			} catch (Exception e) {
 				log.error("Unable to complete Turnitin Roster Sync for site", e);
