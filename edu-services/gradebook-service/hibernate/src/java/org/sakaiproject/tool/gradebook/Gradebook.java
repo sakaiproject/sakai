@@ -115,6 +115,3 @@ public class Gradebook implements Serializable {
 	private boolean courseGradeStatsDisplayed;
 
 }
-
-
-

@@ -51,7 +51,7 @@ public class CourseGradeStatisticsPanel extends BasePanel {
 
 		CourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final CourseGradeChart chart = new CourseGradeChart("gradingSchemaChart", siteId);
+		final CourseGradeChart chart = new CourseGradeChart("gradingSchemaChart", siteId, null);
 		add(chart);
 
 		final CourseGradeStatistics stats = new CourseGradeStatistics("stats", getData(siteId));

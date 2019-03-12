@@ -47,6 +47,15 @@ public class GbChartData {
 	@Setter
 	private String chartId;
 
+	/**
+	 * The label (letter grade or percentage range) that the student's grade sits within. 
+	 * Providing this value is optional and sets that bar in the graph to a different 
+	 * colour so a student can see where their mark fits in comparison to others.
+	 */
+	@Getter
+	@Setter
+	private String studentGradeRange;
+
 	public GbChartData() {
 		this.dataset = new LinkedHashMap<>();
 	}

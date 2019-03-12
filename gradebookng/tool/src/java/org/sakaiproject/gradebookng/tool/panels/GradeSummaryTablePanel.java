@@ -257,7 +257,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 												assignmentStatsWindow
 														.getContentId(),
 												Model.of(assignment),
-												assignmentStatsWindow));
+												assignmentStatsWindow, rawGrade));
 								assignmentStatsWindow.show(target);
 
 							}
