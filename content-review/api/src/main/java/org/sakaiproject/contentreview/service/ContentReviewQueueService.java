@@ -158,7 +158,7 @@ public interface ContentReviewQueueService {
 	/**
 	 * Gets all items grouped by site, order by most recent items descending
 	 * @param providerId the id of content review implementation
-	 * @return {@code List<String[]>} list containing siteIds ordered by most recently used sites
+	 * @return {@code List<String>} list containing siteIds ordered by most recently used sites
 	 */
 	List<String> getContentReviewItemsGroupedBySite(Integer providerId);
 
