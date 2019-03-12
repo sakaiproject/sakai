@@ -9,6 +9,7 @@ export function loadProperties(options) {
   }
 
   var defaults = {
+    lang: "en",
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     resourceBundle: "org.sakaiproject.".concat(options.namespace).concat(".bundle.Messages"),
     namespace: options.namespace
@@ -17,57 +18,59 @@ export function loadProperties(options) {
   options = Object.assign(defaults, options);
 
   if (options.debug) {
+    console.log('lang: ' + options.lang);
     console.log('resourceClass: ' + options.resourceClass);
     console.log('resourceBundle: ' + options.resourceBundle);
     console.log('namespace: ' + options.namespace);
   }
 
-  //portal.i18n.translations[options.namespace] = portal.i18n.translations[options.namespace] || {};
   window.sakai.translations[options.namespace] = window.sakai.translations[options.namespace] || {};
 
-  //var storageKey = portal.locale + options.resourceClass + options.resourceBundle;
-  var storageKey = "en" + options.resourceClass + options.resourceBundle;
+  var storageKey = options.lang + options.resourceClass + options.resourceBundle;
   if (sessionStorage.getItem(storageKey) !== null) {
     if (options.debug) {
       console.log("Returning " + storageKey + " from sessions storage ...");
     }
     window.sakai.translations[options.namespace] = JSON.parse(sessionStorage[storageKey]);
-    if (options.callback) {
-      options.callback();
-    }
+    return Promise.resolve(true);
   } else {
     if (options.debug) {
       console.log(storageKey + " not in sessions storage. Pulling from webservice ...");
     }
 
     var params = new URLSearchParams();
-    params.append("locale", "en");
+    params.append("locale", options.lang);
     params.append("resourceclass", options.resourceClass);
     params.append("resourcebundle", options.resourceBundle);
 
-    fetch(`/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`, {
+    var fetchPromise = fetch(`/sakai-ws/rest/i18n/getI18nProperties?${params.toString()}`, {
       headers: { "Content-Type": "application/text" },
-    }).then(r => r.text()).then(data => {
+    });
 
-      data.split("\n").forEach(function (pair) {
+    return new Promise(resolve => {
 
-        var keyValue = pair.split('=');
-        if (keyValue.length == 2) {
-          window.sakai.translations[options.namespace][keyValue[0]] = keyValue[1];
-        }
+      fetchPromise.then(r => r.text()).then(data => {
+
+        data.split("\n").forEach(function (pair) {
+
+          var keyValue = pair.split('=');
+          if (keyValue.length == 2) {
+            window.sakai.translations[options.namespace][keyValue[0]] = keyValue[1];
+          }
+
+          if (options.debug) {
+            console.log('Updated translations: ');
+            console.log(window.sakai.translations[options.namespace]);
+          }
+        });
 
         if (options.debug) {
-          console.log('Updated translations: ');
-          console.log(window.sakai.translations[options.namespace]);
+          console.log(`Caching translations for ${options.namespace} against key ${storageKey} in sessionStorage ...`);
         }
-      });
-      sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.namespace]);
-
-        if (options.callback) {
-          options.callback();
-        }
-    })
-    .catch(error => console.log(error));
+        sessionStorage[storageKey] = JSON.stringify(window.sakai.translations[options.namespace]);
+        resolve(true);
+      }).catch(error => { console.log(error); resolve(false); } );
+    });
   }
 } // loadProperties
 

@@ -12,14 +12,14 @@ export class SakaiRubricSiteTitle extends SakaiElement {
   }
 
   static get properties() {
-    return { siteId: {type: String}, siteTitle: {attribute: true, type: String} };
+    return { siteId: {attribute: "site-id", type: String}, siteTitle: {attribute: true, type: String} };
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ("siteid" === name) {
+    if ("site-id" === name) {
       this.setSiteTitle();
     }
   }

@@ -11,7 +11,7 @@ class SakaiRubricStudent extends SakaiElement {
     super();
 
     this.options = {};
-    SakaiRubricsLanguage.loadTranslations();
+    SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result);
   }
 
   static get properties() {
@@ -45,7 +45,7 @@ class SakaiRubricStudent extends SakaiElement {
   get token() { return this._token; }
 
   shouldUpdate(changedProperties) {
-    return changedProperties.has("rubric") && (this.instructor || !this.options.hideStudentPreview);
+    return this.i18nLoaded && changedProperties.has("rubric") && (this.instructor || !this.options.hideStudentPreview);
   }
 
   render() {
