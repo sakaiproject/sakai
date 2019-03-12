@@ -203,7 +203,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String soFar = (String) state.getAttribute(STATE_MESSAGE);
 		if (soFar != null)
 		{
-			soFar = soFar + "\n\n" + message;
+			soFar = soFar + "<br/>" + message;
 		}
 		else
 		{

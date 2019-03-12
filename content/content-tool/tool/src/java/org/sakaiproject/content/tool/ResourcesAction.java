@@ -110,7 +110,6 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.copyright.api.CopyrightInfo;
 import org.sakaiproject.content.copyright.api.CopyrightItem;
-import org.sakaiproject.content.exception.ZipMaxSingleFileSizeException;
 import org.sakaiproject.content.exception.ZipMaxTotalSizeException;
 import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.entity.api.Entity;
@@ -135,6 +134,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -788,6 +788,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** the site title */
 	private static final String STATE_SITE_TITLE = PREFIX + REQUEST + "site_title";
 
+	/** the site ID */
+	private static final String STATE_SITE_ID = PREFIX + REQUEST + "site_id";
+
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + REQUEST + "sort_asc";
 
@@ -869,7 +872,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** the interval (in days) the the soft-deleted content will be automatically permanently removed **/
 	public static final String STATE_CLEANUP_DELETED_CONTENT_INTERVAL= "state_cleanup_deleted_content_interval";
-	
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
 	{
@@ -8508,6 +8510,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_SITE_TITLE, title);
 		}
 
+		if (state.getAttribute(STATE_SITE_ID) == null)
+		{
+			String id = "";
+			try
+			{
+				id = ((Site) siteService.getSite(toolManager.getCurrentPlacement().getContext())).getId();
+			}
+			catch (IdUnusedException e)
+			{	// ignore
+			}
+			state.setAttribute(STATE_SITE_ID, id);
+		}
+
 		getExpandedCollections(state).clear();
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new HashMap());
 		
@@ -10377,6 +10392,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	protected void zipDownloadItems(SessionState state, Set<String> zipDownloadIdSet)
 	{
 		List<ListItem> zipDownloadItems = new ArrayList<>();
+		// Set to hold the names of files that exceed that maximum size for zipping. 
+		Set<String> zipSingleFileSizeExceeded = new HashSet<>();
 
 		long zipMaxIndividualFileSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0"));
 		long zipMaxTotalSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxtotalsize","0"));
@@ -10385,70 +10402,57 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		ContentHostingService contentService = contentHostingService;
 
-		for(String showId : zipDownloadIdSet)
-		{
+		for (String showId : zipDownloadIdSet) {
 			ContentEntity entity = null;
-			try
-			{
-				if(contentService.isCollection(showId)) 
-				{
+			try {
+				if (contentService.isCollection(showId)) {
 					if (contentService.allowGetCollection(showId)) {
 						entity = contentService.getCollection(showId);
-						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize);
+						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
 					}
-				}
-				else if(contentService.allowGetResource(showId))
-				{
+				} else if (contentService.allowGetResource(showId)) {
 					entity = contentService.getResource(showId);
-					currentEntitySize = ((ContentResource)entity).getContentLength();
+					currentEntitySize = ((ContentResource) entity).getContentLength();
+					if (currentEntitySize > zipMaxIndividualFileSize) {
+						// Work out the file path without the site ID.
+						String filePath = entity.getId().replace("/group/" + toolManager.getCurrentPlacement().getContext(), "");
+						zipSingleFileSizeExceeded.add(filePath);
+					}
 				}
 
 				accumulatedSize = accumulatedSize + currentEntitySize;
 
-				if (accumulatedSize > zipMaxTotalSize)
-				{
+				if (accumulatedSize > zipMaxTotalSize) {
 					throw new ZipMaxTotalSizeException();
 				}
 
 				ListItem item = new ListItem(entity);
-				if(item.isCollection() && contentService.allowGetCollection(showId))
-				{
+				if (item.isCollection() && contentService.allowGetCollection(showId)) {
 					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
 					zipDownloadItems.add(item);
-				}
-				else if(!item.isCollection() && contentService.allowGetResource(showId))
-				{
+				} else if (!item.isCollection() && contentService.allowGetResource(showId)) {
 					zipDownloadItems.add(item);
 				}
-			}
-			catch (ZipMaxSingleFileSizeException sfe)
-			{
-				for (String maxSingleFileSize: sfe.getResourceIds()) {
-					addAlert(state, trb.getFormattedMessage("zipdownload.maxIndividualSizeInFolder", maxSingleFileSize, getFileSizeString(zipMaxIndividualFileSize, rb)));
-				}
-				state.setAttribute(STATE_MODE, MODE_LIST);
-			}
-			catch (ZipMaxTotalSizeException tse)
-			{
+			} catch (ZipMaxTotalSizeException tse) {
 				addAlert(state, trb.getFormattedMessage("zipdownload.maxTotalSize", getFileSizeString(zipMaxTotalSize, rb)));
 				state.setAttribute(STATE_MODE, MODE_LIST);
 				// abort loop so alert not repeated.
 				break;
-			}
-			catch (IdUnusedException ide)
-			{
+			} catch (IdUnusedException ide) {
 				log.warn("IdUnusedException", ide);
-			}
-			catch (TypeException te)
-			{
+			} catch (TypeException te) {
 				log.warn("TypeException", te);
-			}
-			catch (PermissionException pe)
-			{
+			} catch (PermissionException pe) {
 				log.warn("PermissionException", pe);
 			}
 		}
-
+		if (!zipSingleFileSizeExceeded.isEmpty()) {
+			// We want to alert about all files that exceed the individual zip size so need to process the whole zipDownloadIdSet before alerting.
+			for (String zipSingleFile : zipSingleFileSizeExceeded) {
+				addAlert(state, trb.getFormattedMessage("zipdownload.maxIndividualSizeInFolder", zipSingleFile, getFileSizeString(zipMaxIndividualFileSize, rb)));
+			}
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
 		state.setAttribute (STATE_ZIPDOWNLOAD_SET, zipDownloadItems);
 	}
 
@@ -10492,114 +10496,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 
-		// Use the site title for the zip name, replace spaces with hyphens though.
+		// Use the site title for the zip name, remove spaces though.
 		String siteTitle = (String) state.getAttribute(STATE_SITE_TITLE);
-		siteTitle = siteTitle.replace(' ', '-');
-		new ZipContentUtil().compressSelectedResources(siteTitle, selectedFolderIds, selectedFiles, response);
+		siteTitle = siteTitle.replace(" ", "");
+		new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
 	}
 
-	protected void compressResource(ZipOutputStream zipOut, String collectionId, String rootFolderName, String resourceId) throws Exception
-	{
-		if (contentHostingService.isCollection(resourceId))
-		{
-			try
-			{
-				ContentCollection collection = contentHostingService.getCollection(resourceId);
-				List<String> children = collection.getMembers();
-				if(children != null)
-				{
-					for(int i = children.size() - 1; i >= 0; i--)
-					{
-						String child = children.get(i);
-						compressResource(zipOut,collectionId,rootFolderName,child);
-					}
-				}
-			}
-			catch (PermissionException e)
-			{
-				//Ignore
-			}
-		}
-		else
-		{
-			try
-			{
-				ContentResource resource = contentHostingService.getResource(resourceId);
-				String displayName = isolateName(resource.getId());
-				displayName = escapeInvalidCharsEntry(displayName);
-
-				InputStream content = resource.streamContent();
-				byte data[] = new byte[1024 * 10];
-				BufferedInputStream bContent = null;
-
-				try
-				{
-					bContent = new BufferedInputStream(content, data.length);
-					
-					String entryName = (resource.getContainingCollection().getId() + displayName);
-					entryName=entryName.replace(collectionId,rootFolderName+"/");
-					entryName = escapeInvalidCharsEntry(entryName);
-
-					ZipEntry resourceEntry = new ZipEntry(entryName);
-					zipOut.putNextEntry(resourceEntry); //A duplicate entry throw ZipException here.
-					int bCount;
-					while ((bCount = bContent.read(data, 0, data.length)) != -1)
-					{
-						zipOut.write(data, 0, bCount);
-					}
-
-					try
-					{
-						zipOut.closeEntry();
-					}
-					catch (IOException ioException)
-					{
-						log.error("IOException when closing zip file entry",ioException);
-					}
-				}
-				catch (IllegalArgumentException iException)
-				{
-					log.error("IllegalArgumentException while creating zip file",iException);
-				}
-				catch (java.util.zip.ZipException e)
-				{
-					//Duplicate entry: ignore and continue.
-					try
-					{
-						zipOut.closeEntry();
-					}
-					catch (IOException ioException)
-					{
-						log.error("IOException when closing zip file entry",ioException);
-					}
-				}
-				finally
-				{
-					if (bContent != null)
-					{
-						try
-						{
-							bContent.close();
-						}
-						catch (IOException ioException)
-						{
-							log.error("IOException when closing zip file",ioException);
-						}
-					}
-				}
-			}
-			catch (PermissionException e)
-			{
-				//Ignore
-			}
-		}
-	}
-
-	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize) throws ZipMaxSingleFileSizeException, ZipMaxTotalSizeException
+	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded) throws ZipMaxTotalSizeException
 	{
 		long total=0;
-		Set<String> maxSingleFileSizeSet = new HashSet<>();
-		
+
 		List items = currentCollection.getMemberResources();
 		Iterator it = items.iterator();
 		while(it.hasNext())
@@ -10611,35 +10517,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if (tempSize > maxIndividualFileSize) {
 					// Work out the file path without the site ID.
 					String filePath = myElement.getId().replace("/group/" + toolManager.getCurrentPlacement().getContext(), "");
-					maxSingleFileSizeSet.add(filePath);
+
+					zipSingleFileSizeExceeded.add(filePath);
 				}
 				else {total=total+tempSize;}
 			}
 			else if (myElement.isCollection())
 			{
-				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize);
+				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+
 				if (tempSize > zipMaxTotalSize) {
 					throw new ZipMaxTotalSizeException();
 				}
 				else {total=total+tempSize;}
 			}
 		}
-		if (!maxSingleFileSizeSet.isEmpty()) {
-			throw new ZipMaxSingleFileSizeException(maxSingleFileSizeSet);
-		}
 		return total;
 	}
 
-	private String removeRootCollectionId(String resource)
-	{
-		for (int i=0;i<3;i++) {resource=resource.substring(resource.indexOf('/')+1,resource.length());}
-		return resource;
-	}
-
-	private String escapeInvalidCharsEntry(String accentedString)
-	{
-		String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
-		String cleanString = decomposed.replaceAll( "\\p{InCombiningDiacriticalMarks}+", "");
-		return cleanString;
-	}
 }	// ResourcesAction

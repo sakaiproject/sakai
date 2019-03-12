@@ -96,7 +96,7 @@ public class ZipContentUtil {
         return MAX_ZIP_EXTRACT_FILES;
     }
 
-    public void compressSelectedResources(String siteTitle, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse response) {
+    public void compressSelectedResources(String siteId, String siteTitle, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse response) {
 		Map<String, ContentResource> resourcesToZip = new HashMap<>();
 
 		try {
@@ -121,12 +121,24 @@ public class ZipContentUtil {
 		}
 
 		try (OutputStream zipOut = response.getOutputStream(); ZipOutputStream out = new ZipOutputStream(zipOut)) {
-			response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+			// If in dropbox need to add the word Dropbox to the end of the zip filename - use the first entry in the resourcesToZip map to find if we are in the dropthe user ID.
+			if (!resourcesToZip.isEmpty()) {
+				String firstContentResourceId = resourcesToZip.entrySet().iterator().next().getKey();
+				if (ContentHostingService.isInDropbox(firstContentResourceId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
+					response.setHeader("Content-disposition", "inline; filename=" + siteId + "DropBox.zip");
+				} else {
+					response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+				}
+			} else {
+				// Return an empty zip.
+				response.setHeader("Content-disposition", "inline; filename=" + siteTitle + ".zip");
+			}
 			response.setContentType("application/zip");
-			
-			for (ContentResource contentResource: resourcesToZip.values()) {
+
+			for (ContentResource contentResource : resourcesToZip.values()) {
 				// Find the file path.
-				String rootId = contentResource.getId().substring(0, contentResource.getId().lastIndexOf('/') + 1);
+				int siteIdPosition = contentResource.getId().indexOf(siteId);
+				String rootId = contentResource.getId().substring(0, siteIdPosition) + siteId + "/";
 				storeContentResource(rootId, contentResource, out);
 			}
 		} catch (IOException ioe) {

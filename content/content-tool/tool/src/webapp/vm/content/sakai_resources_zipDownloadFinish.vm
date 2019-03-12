@@ -1,7 +1,7 @@
 <!-- sakai_resources_zipDownloadFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <script src="/library/js/spinner.js" type="text/javascript"></script>
 <div class="portletBody">
-    <div class="instruction">$tlang.getString("zipdownload.sure")</div><div style="display:block;clear:both" ></div>
+    <div class="instruction">$tlang.getString("zipdownload.sure")</div>
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
     
     <form action="#toolForm("ResourcesAction")" id="zipDownloadFileForm" name="zipDownloadFileForm" method="post" >
