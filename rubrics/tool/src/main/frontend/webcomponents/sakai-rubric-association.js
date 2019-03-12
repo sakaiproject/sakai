@@ -10,7 +10,8 @@ class SakaiRubricAssociation extends SakaiElement {
     super();
 
     this.configurationOptions = [];
-    SakaiRubricsLanguage.loadTranslations();
+
+    SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result );
   }
 
   set token(newValue) {
@@ -44,6 +45,10 @@ class SakaiRubricAssociation extends SakaiElement {
     if (this.token && this.toolId) {
       this.getAssociation();
     }
+  }
+
+  shouldUpdate(changedProperties) {
+    return this.i18nLoaded;
   }
 
   render() {

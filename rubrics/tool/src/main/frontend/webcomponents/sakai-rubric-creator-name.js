@@ -12,14 +12,14 @@ export class SakaiRubricCreatorName extends SakaiElement {
   }
 
   static get properties() {
-    return { creatorId: String, creatorName: String };
+    return { creatorId: {attribute: "creator-id", type: String}, creatorName: String };
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if (name === "creatorid") {
+    if (name === "creator-id") {
       this.setCreatorName();
     }
   }
