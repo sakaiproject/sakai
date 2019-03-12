@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.ContentReviewProviderException;

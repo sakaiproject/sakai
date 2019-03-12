@@ -19,7 +19,7 @@ package org.sakaiproject.contentreview.compilatio;
 
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.assignment.api.AssignmentService;
