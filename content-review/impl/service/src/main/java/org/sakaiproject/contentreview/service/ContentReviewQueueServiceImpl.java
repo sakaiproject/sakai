@@ -151,7 +151,7 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 	 */
 	@Override
 	@Transactional(readOnly=true)
-	public List<String[]> getContentReviewItemsGroupedBySite(Integer providerId) {
+	public List<String> getContentReviewItemsGroupedBySite(Integer providerId) {
 		Objects.requireNonNull(providerId, "providerId cannot be null");
 
 		log.debug("Returning list of items grouped by site");

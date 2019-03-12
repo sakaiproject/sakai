@@ -17,7 +17,9 @@ package org.sakaiproject.contentreview.dao;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
@@ -59,7 +61,7 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String[]> findByProviderGroupedBySite(Integer providerId) {
+	public List<String> findByProviderGroupedBySite(Integer providerId) {
 
 		Criteria c = sessionFactory.getCurrentSession()
 				.createCriteria(ContentReviewItem.class)
@@ -71,7 +73,8 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 				.addOrder(Order.desc("id"))
 				.setMaxResults(999);
 
-		return c.list();
+		List<Object[]> listOfObjects = c.list();
+		return listOfObjects.stream().map(o -> o[0]).map(Objects::toString).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")

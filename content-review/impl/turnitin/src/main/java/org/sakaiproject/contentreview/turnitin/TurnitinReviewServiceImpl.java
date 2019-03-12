@@ -2666,7 +2666,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			studentIds.add(studUID);
 		}
 
-		Map togo = new HashMap<String, List<String>>();
+		Map<String, List<String>> togo = new HashMap<>();
 		togo.put("instructor", instructorIds);
 		togo.put("student", studentIds);
 
@@ -2831,7 +2831,7 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	@SuppressWarnings("unchecked")
 	private Map getAllUsers(String siteId, String role) {
 		String ROLE = "section.role."+role;
-		Map<String,String> users = new HashMap();
+		Map<String,String> users = new HashMap<>();
 		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
@@ -2923,11 +2923,10 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 
 		log.info("Running Turnitin Roster Sync");
 
-		List<String[]> items = crqs.getContentReviewItemsGroupedBySite(getProviderId());
-		for (String[] s : items) {
-			log.debug("Turnitin roster sync site: {}", Arrays.toString(s));
+		List<String> items = crqs.getContentReviewItemsGroupedBySite(getProviderId());
+		for (String siteId : items) {
+			log.debug("Turnitin roster sync site: {}", siteId);
 			try {
-				String siteId = s[0];
 				syncSiteWithTurnitin(siteId);
 			} catch (Exception e) {
 				log.error("Unable to complete Turnitin Roster Sync for site", e);
