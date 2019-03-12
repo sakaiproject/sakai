@@ -17,8 +17,8 @@
 
 package org.sakaiproject.lti.impl;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,19 +26,16 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.lti.api.LTISearchData;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.lti.impl.FoormMapRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>

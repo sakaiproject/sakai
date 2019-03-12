@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util.foorm;
 
+import java.sql.ResultSetMetaData;	
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,19 +29,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.Properties;
+import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.lang.Number;
-import java.sql.ResultSetMetaData;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 

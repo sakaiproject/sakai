@@ -18,106 +18,89 @@
  */
 package org.sakaiproject.basiclti.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import java.util.Properties;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.Objects;
-
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.Key;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.json.simple.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Precision;
 import org.json.simple.JSONArray;
-
-import org.tsugi.jackson.JacksonUtil;
-
-import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.BasicLTIConstants;
-
-import org.tsugi.lti2.LTI2Constants;
-import org.tsugi.lti2.LTI2Vars;
-import org.tsugi.lti2.LTI2Caps;
-import org.tsugi.lti2.LTI2Util;
-import org.tsugi.lti2.LTI2Messages;
-import org.tsugi.lti2.ToolProxy;
-import org.tsugi.lti2.ToolProxyBinding;
-import org.tsugi.lti2.ContentItem;
-import org.tsugi.lti2.LTI2Config;
-
+import org.json.simple.JSONObject;
+import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti2.SakaiLTI2Config;
-
-import org.tsugi.lti13.LTI13Util;
-
-import org.tsugi.lti13.objects.LaunchJWT;
-import org.tsugi.lti13.objects.ResourceLink;
-import org.tsugi.lti13.objects.Context;
-import org.tsugi.lti13.objects.ToolPlatform;
-import org.tsugi.lti13.objects.LaunchLIS;
-import org.tsugi.lti13.objects.BasicOutcome;
-
-import io.jsonwebtoken.Jwts;
-import java.net.MalformedURLException;
-
-import java.security.Key;
-import javax.servlet.http.HttpServletResponse;
-
+import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.api.privacy.PrivacyManager;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.GroupProvider;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.portal.util.CSSUtils;
-import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.linktool.LinkToolUtil;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-
-import net.oauth.OAuth;
-import org.apache.commons.lang.StringUtils;
-
-import org.apache.commons.math3.util.Precision;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.tsugi.basiclti.BasicLTIConstants;
+import org.tsugi.basiclti.BasicLTIUtil;
+import org.tsugi.jackson.JacksonUtil;
 import org.tsugi.lti13.DeepLinkResponse;
 import org.tsugi.lti13.LTI13KeySetUtil;
+import org.tsugi.lti13.LTI13Util;
+import org.tsugi.lti13.objects.BasicOutcome;
+import org.tsugi.lti13.objects.Context;
 import org.tsugi.lti13.objects.DeepLink;
 import org.tsugi.lti13.objects.Endpoint;
+import org.tsugi.lti13.objects.LaunchJWT;
+import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
+import org.tsugi.lti13.objects.ResourceLink;
+import org.tsugi.lti13.objects.ToolPlatform;
+import org.tsugi.lti2.ContentItem;
+import org.tsugi.lti2.LTI2Caps;
+import org.tsugi.lti2.LTI2Config;
+import org.tsugi.lti2.LTI2Constants;
+import org.tsugi.lti2.LTI2Messages;
+import org.tsugi.lti2.LTI2Util;
+import org.tsugi.lti2.LTI2Vars;
+import org.tsugi.lti2.ToolProxy;
+import org.tsugi.lti2.ToolProxyBinding;
+
+import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
+import net.oauth.OAuth;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI This is mostly code to support the

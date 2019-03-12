@@ -21,21 +21,19 @@
 
 package org.sakaiproject.lti.impl;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIExportService;
 import org.sakaiproject.lti.api.LTIExporter;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class LTIExportServiceImpl implements LTIExportService {
