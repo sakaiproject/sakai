@@ -30,12 +30,12 @@ export class SakaiRubricCriteria extends SakaiElement {
       animation: "200",
     };
 
-    document.querySelectorAll(".cr-table").forEach(cr => new Sortable(cr, sortableOptions));
+    this.querySelectorAll(".cr-table").forEach(cr => new Sortable(cr, sortableOptions));
 
     sortableOptions.onUpdate = (e) => this.handleSortedCriteria(e);
     sortableOptions.draggable = ".criterion-row";
 
-    document.querySelectorAll(".criterion").forEach(c => new Sortable(c, sortableOptions));
+    this.querySelectorAll(".criterion").forEach(c => new Sortable(c, sortableOptions));
 
     if (changedProperties.has("criteria")) {
       this.criteriaMap = new Map(this.criteria.map(c => [c.id, c]));
@@ -45,9 +45,9 @@ export class SakaiRubricCriteria extends SakaiElement {
   render() {
 
     return html`
-      <div class="criterion style-scope sakai-rubric-criterion">
+      <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
       ${this.criteria.map(c => html`
-        <div id="criterion_row_${c.id}" class="criterion-row">
+        <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row">
           <div class="criterion-detail">
             <h4 class="criterion-title">
               <span tabindex="0" role="button" title="${tr("drag_order")}" class="reorder-icon fa fa-bars"></span>
@@ -62,9 +62,9 @@ export class SakaiRubricCriteria extends SakaiElement {
             </div>
           </div>
           <div class="criterion-ratings">
-            <div class="cr-table" data-criterion-id="${c.id}">
+            <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
             ${c.ratings.map((r,i) => html`
-              <div class="rating-item" id="rating_item_${r.id}">
+              <div class="rating-item" data-rating-id="${r.id}" id="rating_item_${r.id}">
                 <h5 class="criterion-item-title">
                   ${r.title}
                   <sakai-rubric-criterion-rating-edit criterion-id="${c.id}" @save-rating="${this.saveRating}" @delete-rating="${this.deleteRating}" minpoints="${c.pointrange ? c.pointrange.low : 0}" maxpoints="${c.pointrange ? c.pointrange.high : 0}" rating="${JSON.stringify(r)}"></sakai-rubric-criterion-rating-edit>
@@ -102,12 +102,9 @@ export class SakaiRubricCriteria extends SakaiElement {
 
   handleSortedCriteria(e) {
 
-    var tmp = this.criteria[e.newIndex];
-    this.criteria[e.newIndex] = this.criteria[e.oldIndex];
-    this.criteria[e.oldIndex] = tmp;
-
     var baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/criterions/`;
-    const urlList = this.criteria.slice().reverse().reduce((a, c) => { return `${baseUrl}${c.id}\n${a}` }, '');
+    var sortedIds = Array.from(this.querySelectorAll(".criterion-row")).map(c => c.dataset.criterionId);
+    const urlList = sortedIds.reverse().reduce((a, id) => { return `${baseUrl}${id}\n${a}` }, '');
 
     $.ajax({
       url: `/rubrics-service/rest/rubrics/${this.rubricId}/criterions`,
@@ -116,7 +113,7 @@ export class SakaiRubricCriteria extends SakaiElement {
       contentType: "text/uri-list",
       data: urlList
     })
-    .done(() => this.letShareKnow())
+    .done(() => this.letShareKnow() )
     .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
 
     this.letShareKnow();
@@ -133,12 +130,13 @@ export class SakaiRubricCriteria extends SakaiElement {
     var criterionId = e.target.dataset.criterionId;
     var criterion = this.criteria.find(c => c.id == criterionId);
 
-    var tmp = criterion.ratings[e.newIndex];
-    criterion.ratings[e.newIndex] = criterion.ratings[e.oldIndex];
-    criterion.ratings[e.oldIndex] = tmp;
+    var sortedIds = Array.from(this.querySelectorAll(`#cr-table-${criterionId} .rating-item`)).map(r => r.dataset.ratingId);
+
+    // Reorder the ratings based on the sort result
+    criterion.ratings = sortedIds.map(id => criterion.ratings.find(r => r.id == id));
 
     var baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/ratings/`;
-    const urlList = criterion.ratings.slice().reverse().reduce((a, r) => { return `${baseUrl}${r.id}\n${a}` }, '');
+    const urlList = sortedIds.reverse().reduce((a, id) => { return `${baseUrl}${id}\n${a}` }, '');
     var url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
     this.updateRatings(url, urlList);
 
@@ -156,7 +154,7 @@ export class SakaiRubricCriteria extends SakaiElement {
       method: "PATCH",
       data: JSON.stringify(e.detail)
     })
-    .done((data) => {
+    .done(data => {
 
       this.criteria.forEach(c => {
         if (c.id == e.detail.criterionId) {
@@ -255,7 +253,7 @@ export class SakaiRubricCriteria extends SakaiElement {
       method: "POST",
       data: "{}"
     })
-    .done((data) => this.createCriterionResponse(data))
+    .done(data => this.createCriterionResponse(data))
     .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
   }
 
@@ -303,7 +301,7 @@ export class SakaiRubricCriteria extends SakaiElement {
       method: "POST",
       data: "{}"
     })
-    .done((data) => this.createCriterionResponse(data))
+    .done(data => this.createCriterionResponse(data))
     .fail((jqXHR, error, message) => { console.log(error); console.log(message); });
   }
 
