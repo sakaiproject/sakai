@@ -91,7 +91,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
+                            <arguments>install --unsafe-perm</arguments>
                         </configuration>
                     </execution>
                 </executions>
