@@ -407,9 +407,9 @@
     #if ($submission.Graded && ($submission.GradeReleased || $returned))
     <sakai-rubric-student
         token="$!rbcs-token"
-        toolId="sakai.assignment"
-        entityId="$assignment.Id"
-        evaluatedItemId="$submission.Id"
+        tool-id="sakai.assignment"
+        entity-id="$assignment.Id"
+        evaluated-item-id="$submission.Id"
     ></sakai-rubric-student>
     #end
 
