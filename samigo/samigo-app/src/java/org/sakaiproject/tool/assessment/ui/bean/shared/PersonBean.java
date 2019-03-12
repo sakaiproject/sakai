@@ -36,6 +36,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -131,6 +133,8 @@ public class PersonBean implements Serializable
     	previewFromPage = null;
     	return "author";
     }
+    Session session = SessionManager.getCurrentSession();
+    session.removeAttribute("LESSONBUILDER_RETURNURL_SAMIGO");
     return "editAssessment";
   }  
 
