@@ -14,11 +14,15 @@ class SakaiRubricsManager extends SakaiElement {
     this.siteRubricsExpanded = "false";
     this.sharedRubricsExpanded = "false";
 
-    SakaiRubricsLanguage.loadTranslations();
+    SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result );
   }
 
   static get properties() {
-    return { token: String };
+    return { token: String, i18nLoaded: Boolean };
+  }
+
+  shouldUpdate(changedProperties) {
+    return this.i18nLoaded;
   }
 
   render() {

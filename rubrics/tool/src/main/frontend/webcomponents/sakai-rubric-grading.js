@@ -3,7 +3,6 @@ import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricCriteriaGrading} from "./sakai-rubric-criteria-grading.js";
 import {SakaiRubricGradingComment} from "./sakai-rubric-grading-comment.js";
 import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
-import {loadProperties, tr} from "/webcomponents/sakai-i18n.js";
 
 export class SakaiRubricGrading extends SakaiElement {
 
@@ -11,7 +10,7 @@ export class SakaiRubricGrading extends SakaiElement {
 
     super();
 
-    loadProperties({namespace: "rubrics"});
+    SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result );
   }
 
   set token(newValue) {
@@ -44,7 +43,7 @@ export class SakaiRubricGrading extends SakaiElement {
   }
 
   shouldUpdate(changedProperties) {
-    return changedProperties.has("rubric");
+    return this.i18nLoaded && changedProperties.has("rubric");
   }
 
   render() {
