@@ -4,13 +4,6 @@ import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricCriterionRatingEdit extends SakaiElement {
 
-  constructor() {
-
-    super();
-
-    this._rating;
-  }
-
   static get properties() {
 
     return {
@@ -23,9 +16,6 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
 
   set rating(newValue) {
 
-    if (newValue.new) {
-      newValue.title = "New Rating";
-    }
     var oldValue = this._rating;
     this._rating = newValue;
     this.requestUpdate("rating", oldValue);
@@ -97,7 +87,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
 
       rubrics.css(popover[0], {
         'top': e.target.offsetTop + 20 + "px",
-        'left': (e.target.offsetLeft + e.target.offsetWidth/2 - popover[0].offsetWidth/2) + "px",
+        'left': (e.target.offsetLeft - popover.width()/2) + "px",
       });
 
       popover.show();
