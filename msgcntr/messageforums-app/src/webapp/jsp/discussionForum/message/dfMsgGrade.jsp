@@ -115,15 +115,19 @@
 
 		<script>
 			$(document).ready(function() {
-			  var sakaiReminder = new SakaiReminder();
-			  new Awesomplete($('.awesomplete')[0], {
-			    list: sakaiReminder.getAll()
-			  });
-			  $('#msgForum').submit(function(e) {
-			    $('textarea.awesomplete').each(function() {
-			      sakaiReminder.new($(this).val());
+			  try{
+			    var sakaiReminder = new SakaiReminder();
+			    new Awesomplete($('.awesomplete')[0], {
+			      list: sakaiReminder.getAll()
 			    });
-			  });
+			    $('#msgForum').submit(function(e) {
+			      $('textarea.awesomplete').each(function() {
+			        sakaiReminder.new($(this).val());
+			      });
+			    });
+			  } catch(err){
+				  //Just ignore the exception, happens when a gradebook item is not selected.
+			  }
 			});
 		</script>
 
