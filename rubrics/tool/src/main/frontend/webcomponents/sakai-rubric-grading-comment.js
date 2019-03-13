@@ -43,9 +43,13 @@ export class SakaiRubricGradingComment extends SakaiElement {
       <!-- popover -->
       <div id="criterion-editor-${this.criterion.id}" class="popover criterion-edit-popover left">
         <div class="arrow"></div>
-        <div class="popover-title">
-          <label class="criterion-title" for=""><sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}">Comment for Criterion</sr-lang></label>
-          <div class="buttons">
+        <div class="popover-title" style="display: flex;">
+          <div style="flex: auto;">
+            <label class="criterion-title" for="">
+              <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}">Comment for Criterion</sr-lang>
+            </label>
+          </div>
+          <div class="buttons" style="flex: 0">
             <button class="btn btn-primary btn-xs done" @click="${this.hideTooltip}">
               <sr-lang key="done">Done</sr-lang>
             </button>
@@ -73,7 +77,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
       rubrics.css(popover[0], {
         'left': e.target.offsetLeft - 270 + "px",
-        'top': (e.target.offsetTop + e.target.offsetHeight/2 - popover.height()/2) + "px",
+        'top': ((e.target.offsetTop + e.target.offsetHeight/2 + 20) - popover.height()/2) + "px",
       });
       popover.show();
     } else {
@@ -102,7 +106,8 @@ export class SakaiRubricGradingComment extends SakaiElement {
           // ['Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink'],
           ['Bold', 'Italic', 'Underline'],
           ['NumberedList','BulletedList', 'Blockquote']
-        ]
+        ],
+        height: 40,
       });
 
       commentEditor.on('change', (e) => this.criterion.comments = commentEditor.getData() );
