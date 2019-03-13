@@ -1,5 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {css,html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import {SakaiRubricEdit} from "./sakai-rubric-edit.js";
 import {SakaiItemDelete} from "./sakai-item-delete.js";
 import {SakaiRubricCriterionEdit} from "./sakai-rubric-criterion-edit.js";
@@ -46,7 +47,7 @@ export class SakaiRubricCriteria extends SakaiElement {
 
     return html`
       <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
-      ${this.criteria.map(c => html`
+      ${repeat(this.criteria, (c) => c.id, c => html`
         <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row">
           <div class="criterion-detail">
             <h4 class="criterion-title">
@@ -63,7 +64,7 @@ export class SakaiRubricCriteria extends SakaiElement {
           </div>
           <div class="criterion-ratings">
             <div id="cr-table-${c.id}" class="cr-table" data-criterion-id="${c.id}">
-            ${c.ratings.map((r,i) => html`
+            ${repeat(c.ratings, (r) => r.id, (r, i) => html`
               <div class="rating-item" data-rating-id="${r.id}" id="rating_item_${r.id}">
                 <h5 class="criterion-item-title">
                   ${r.title}
@@ -115,8 +116,6 @@ export class SakaiRubricCriteria extends SakaiElement {
     })
     .done(() => this.letShareKnow() )
     .fail((jqXHR, error, message) => {console.log(error); console.log(message); });
-
-    this.letShareKnow();
   }
 
   letShareKnow() {
@@ -139,6 +138,8 @@ export class SakaiRubricCriteria extends SakaiElement {
     const urlList = sortedIds.reverse().reduce((a, rid) => { return `${baseUrl}${rid}\n${a}` }, '');
     var url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
     this.updateRatings(url, urlList);
+
+    this.criteria = [...this.criteria];
 
     this.letShareKnow();
   }
@@ -191,7 +192,7 @@ export class SakaiRubricCriteria extends SakaiElement {
 
     $.ajax({
       url: "/rubrics-service/rest/ratings",
-      headers: {"Content-Type": "application/json" , "x-copy-source": "default", "authorization": this.token},
+      headers: {"Content-Type": "application/json" , "x-copy-source": "default", "authorization": this.token, "lang": portal.locale},
       method: "POST",
       data: "{}"
     })
@@ -297,7 +298,7 @@ export class SakaiRubricCriteria extends SakaiElement {
 
     $.ajax({
       url: "/rubrics-service/rest/criterions/",
-      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token},
+      headers: {"Content-Type": "application/json", "x-copy-source": "default", "authorization": this.token, "lang": portal.locale},
       method: "POST",
       data: "{}"
     })
