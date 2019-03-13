@@ -17,10 +17,14 @@ export class SakaiRubricStudentComment extends SakaiElement {
       <!-- popover -->
       <div id="criterion-comment-viewer-${this.criterion.id}" class="popover criterion-edit-popover left">
         <div class="arrow"></div>
-        <div class="popover-title">
-          <label class="criterion-title" for=""><sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}">Comment for Criterion</sr-lang></label>
-          <div class="buttons">
-            <button class="btn btn-primary btn-xs done" @click="${this.toggleComment}">Done</button>
+        <div class="popover-title" style="display: flex;">
+          <div style="flex: auto;">
+            <label class="criterion-title" for="">
+              <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}" />
+            </label>
+          </div>
+          <div class="buttons" style="flex: 0;">
+            <button class="btn btn-primary btn-xs done" @click="${this.toggleComment}"><sr-lang key="done" /></button>
           </div>
         </div>
         <div class="popover-content">
