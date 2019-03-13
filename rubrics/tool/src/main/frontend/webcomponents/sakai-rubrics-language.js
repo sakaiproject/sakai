@@ -22,7 +22,7 @@ export class SakaiRubricsLanguage extends SakaiElement {
   }
 
   static loadTranslations() {
-    return loadProperties({ namespace: "rubrics", lang: portal.locale });
+    return loadProperties({ namespace: "rubrics", lang: parent.portal.locale });
   }
 }
 
