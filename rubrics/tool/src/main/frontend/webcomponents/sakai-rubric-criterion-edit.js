@@ -101,7 +101,7 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
       var popover = $(`#edit_criterion_${this.criterion.id}`);
       rubrics.css(popover[0], {
         'top': e.target.offsetTop + 20 + "px",
-        'left': (e.target.offsetLeft + e.target.offsetWidth/2 - popover[0].offsetWidth/2) + "px",
+        'left': (e.target.offsetLeft - popover.width()/2) + "px",
       });
 
       // and highlight the title
