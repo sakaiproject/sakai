@@ -265,7 +265,7 @@
       });
 
       function leaveAssessment() {
-	      window.open("submitted" + routeSuffix, "_self");
+	      window.open("../delivery/submitted" + routeSuffix, "_self");
       }
 
       timeoutDialog.dialog({
