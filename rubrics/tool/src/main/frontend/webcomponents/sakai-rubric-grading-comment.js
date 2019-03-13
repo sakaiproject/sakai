@@ -46,13 +46,11 @@ export class SakaiRubricGradingComment extends SakaiElement {
         <div class="popover-title" style="display: flex;">
           <div style="flex: auto;">
             <label class="criterion-title" for="">
-              <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}">Comment for Criterion</sr-lang>
+              <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}" />
             </label>
           </div>
           <div class="buttons" style="flex: 0">
-            <button class="btn btn-primary btn-xs done" @click="${this.hideTooltip}">
-              <sr-lang key="done">Done</sr-lang>
-            </button>
+            <button class="btn btn-primary btn-xs done" @click="${this.hideTooltip}"><sr-lang key="done" /></button>
           </div>
         </div>
         <div class="popover-content form">
