@@ -55,6 +55,10 @@
       <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" type="submit" action="takeAssessment">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
       </h:commandButton>
+      <h:commandButton id="save" styleClass="hidden" type="submit" value="#{commonMessages.action_save}"
+          action="#{delivery.save_work}" rendered="#{delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment'
+                 || delivery.actionString=='takeAssessmentViaUrl'}" />
    </p>
    <!-- HEADING -->
    <%@ include file="/jsf/delivery/questionProgress.jspf" %>
