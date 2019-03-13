@@ -8,8 +8,6 @@ export class SakaiRubricEdit extends SakaiElement {
 
     super();
 
-    //this.token = "";
-    //this.rubric = {};
     this.popoverOpen = "false";
     this.rubricClone = {};
   }
@@ -21,10 +19,7 @@ export class SakaiRubricEdit extends SakaiElement {
     if ("rubric" === name) {
       this.rubricClone = JSON.parse(newValue);
       if (this.rubricClone.new) {
-        this.rubricClone.title = "New Rubric";
-        setTimeout(function () {
-          this.querySelector(".edit").click();
-        }.bind(this),99);
+        this.updateComplete.then(() => this.querySelector(".edit").click() );
       }
     }
   }
