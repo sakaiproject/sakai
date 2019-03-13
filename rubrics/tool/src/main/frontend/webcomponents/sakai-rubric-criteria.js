@@ -104,7 +104,7 @@ export class SakaiRubricCriteria extends SakaiElement {
 
     var baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/criterions/`;
     var sortedIds = Array.from(this.querySelectorAll(".criterion-row")).map(c => c.dataset.criterionId);
-    const urlList = sortedIds.reverse().reduce((a, id) => { return `${baseUrl}${id}\n${a}` }, '');
+    const urlList = sortedIds.reverse().reduce((a, cid) => { return `${baseUrl}${cid}\n${a}` }, '');
 
     $.ajax({
       url: `/rubrics-service/rest/rubrics/${this.rubricId}/criterions`,
@@ -136,7 +136,7 @@ export class SakaiRubricCriteria extends SakaiElement {
     criterion.ratings = sortedIds.map(id => criterion.ratings.find(r => r.id == id));
 
     var baseUrl = `${window.location.protocol}//${window.location.host}/rubrics-service/rest/ratings/`;
-    const urlList = sortedIds.reverse().reduce((a, id) => { return `${baseUrl}${id}\n${a}` }, '');
+    const urlList = sortedIds.reverse().reduce((a, rid) => { return `${baseUrl}${rid}\n${a}` }, '');
     var url = `/rubrics-service/rest/criterions/${criterionId}/ratings`;
     this.updateRatings(url, urlList);
 
