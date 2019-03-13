@@ -1677,7 +1677,9 @@ GbGradeTable.applyColumnFilter = function(data) {
     var column = GbGradeTable.columns[i];
     if (column.hidden) {
       for(var row=0; row<data.length; row++) {
-        data[row] = data[row].slice(0,i+GbGradeTable.FIXED_COLUMN_OFFSET).concat(data[row].slice(i+3))
+        data[row] = data[row]
+          .slice(0, i + GbGradeTable.FIXED_COLUMN_OFFSET)
+          .concat(data[row].slice(i + (GbGradeTable.FIXED_COLUMN_OFFSET + 1)));
       }
     }
   } 
