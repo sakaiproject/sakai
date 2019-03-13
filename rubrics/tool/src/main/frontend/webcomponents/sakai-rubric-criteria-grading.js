@@ -49,14 +49,14 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
   render() {
 
     return html`
-      <div class="criterion grading style-scope sakai-rubric-criterion-grading">
+      <div class="criterion grading style-scope sakai-rubric-criterion-grading" style="margin-bottom: 10px;">
       ${this.criteria.map(c => html`
         <div id="criterion_row_${c.id}" class="criterion-row">
           <div class="criterion-detail">
             <h4 class="criterion-title">${c.title}</h4>
             <p>${c.description}</p>
           </div>
-          <div class="criterion-ratings">
+          <div class="criterion-ratings" style="margin-bottom: 15px !important;">
             <div class="cr-table">
               <div class="cr-table-row">
               ${c.ratings.map(r => html`
@@ -92,7 +92,7 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
         </div>
       `)}
       </div>
-      <div class="rubric-totals">
+      <div class="rubric-totals" style="margin: 10px 0px 10px 0px;">
         <input type="hidden" aria-labelledby="${tr("total")}" id="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" name="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints" .value="${this.totalPoints}">
         <div class="total-points">
           <sr-lang key="total">Total</sr-lang>: <strong id="sakai-rubrics-total-points">${this.totalPoints}</strong>
