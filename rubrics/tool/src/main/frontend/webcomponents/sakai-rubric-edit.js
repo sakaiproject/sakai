@@ -59,7 +59,7 @@ export class SakaiRubricEdit extends SakaiElement {
             <label for="rubric_title_edit">
               <sr-lang key="rubric_title">Rubric Title</sr-lang>
             </label>
-            <input title="${tr("rubric_title")}" name="rubric_title_edit" type="text" class="form-control" value="${this.rubricClone.title}">
+            <input title="${tr("rubric_title")}" name="rubric_title_edit" type="text" class="form-control" value="${this.rubricClone.title}" maxlength="255">
           </div>
         </div>
       </div>

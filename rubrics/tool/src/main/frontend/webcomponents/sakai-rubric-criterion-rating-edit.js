@@ -62,7 +62,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
                 <label for="rating-title">
                   <sr-lang key="rating_title">Rating Title</sr-lang>
                 </label>
-                <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}">
+                <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
               </div>
               <div class="form-group points">
                 <label for="rating-points">
@@ -75,7 +75,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
             <label for="">
               <sr-lang key="rating_description">Rating Description</sr-lang>
             </label>
-            <textarea name="" id="rating-description-${this.rating.id}" class="form-control">${this.rating.description}</textarea>
+            <textarea name="" id="rating-description-${this.rating.id}" class="form-control" maxlength="255">${this.rating.description}</textarea>
           </div>
         </div>
       </div>
