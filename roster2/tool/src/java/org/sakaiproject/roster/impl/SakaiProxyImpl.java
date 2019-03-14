@@ -45,6 +45,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -52,7 +54,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.commons.lang.ArrayUtils;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -601,7 +602,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 // Now strip out any unauthorised info
                 if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, site.getReference())) {
                     m.setEmail(null);
-                }
+                } else {
+                    if (StringUtils.isEmpty(m.getEmail())) {
+                        try {
+                            m.setEmail(userDirectoryService.getUser(m.getUserId()).getEmail());
+                        } catch (UserNotDefinedException unde) {
+                            // This ain't gonna happen
+                        }
+                    }
+				}
 			}
 		}
 		
