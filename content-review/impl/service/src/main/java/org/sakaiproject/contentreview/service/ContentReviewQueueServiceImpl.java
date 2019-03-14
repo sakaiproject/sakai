@@ -146,7 +146,19 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 		return itemDao.findByProviderGroupedBySiteAndTask(providerId);
 	}
 
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.contentreview.common.service.ContentReviewCommonService#getAllContentReviewItems(java.lang.Integer, java.lang.String, java.lang.String)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public List<String> getContentReviewItemsGroupedBySite(Integer providerId) {
+		Objects.requireNonNull(providerId, "providerId cannot be null");
+
+		log.debug("Returning list of items grouped by site");
+
+		return itemDao.findByProviderGroupedBySite(providerId);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.contentreview.common.service.ContentReviewCommonService#resetUserDetailsLockedItems(java.lang.Integer, java.lang.String)
 	 */

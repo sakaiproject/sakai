@@ -583,6 +583,11 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 
 		log.info("Finished fetching reports from Compilatio : "+success+" success items, "+inprogress+" in progress, "+errors+" errors");
 	}
+
+	@Override
+	public void syncRosters() {
+		// Auto-generated method stub
+	}
 	
 	@Override
 	public boolean allowAllContent() {
