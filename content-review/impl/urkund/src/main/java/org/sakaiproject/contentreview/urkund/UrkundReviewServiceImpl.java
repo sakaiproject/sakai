@@ -514,6 +514,11 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	@Override
+	public void syncRosters() {
+		// Auto-generated method stub
+	}
+
+	@Override
 	public boolean allowAllContent() {
 		return serverConfigurationService.getBoolean(PROP_ACCEPT_ALL_FILES, false);
 	}

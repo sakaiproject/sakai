@@ -148,6 +148,13 @@ public interface ContentReviewService {
 	 *  Check for reports for all submitted items that don't have reports yet 
 	 */
 	public void checkForReports();
+
+	/**
+	 *  Sync roster information with services that depend on membership information.
+	 *  For example, Turnitin Sakai API expects the creation of courses, assignments, 
+	 *  user accounts, and instructor assignments.
+	 */
+	public void syncRosters();
 	
 	
 	/**

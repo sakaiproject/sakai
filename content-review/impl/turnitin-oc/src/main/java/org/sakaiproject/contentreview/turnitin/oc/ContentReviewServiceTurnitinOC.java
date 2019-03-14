@@ -392,6 +392,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	@Override
+	public void syncRosters() {
+		// Auto-generated method stub
+	}
+
+	@Override
 	public void createAssignment(final String contextId, final String assignmentRef, final Map opts)
 			throws SubmissionException, TransientSubmissionException {
 		// Auto-generated method stub
