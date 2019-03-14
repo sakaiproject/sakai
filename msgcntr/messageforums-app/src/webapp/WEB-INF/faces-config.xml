@@ -323,12 +323,7 @@
         	<from-outcome>dfMessageReplyThread</from-outcome>
         	<to-view-id>/jsp/dfMessageReplyThread.jsp</to-view-id>
         	<redirect/>
-        </navigation-case>                                                       
-        <navigation-case>
-            <from-outcome>dfTopicReply</from-outcome>
-            <to-view-id>/jsp/dfTopicReply.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>                                                                     
+        </navigation-case>
         <navigation-case>
             <from-outcome>dfMsgRevise</from-outcome>
             <to-view-id>/jsp/dfMsgRevise.jsp</to-view-id>
@@ -511,11 +506,6 @@
             <description>Anonymous Manager</description>
             <property-name>anonymousManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.AnonymousManager"]}</value>
-        </managed-property>
-        <managed-property>
-            <description>Learning Resource Store Service</description>
-            <property-name>learningResourceStoreService</property-name>
-            <value>#{Components["org.sakaiproject.event.api.LearningResourceStoreService"]}</value>
         </managed-property>
         <managed-property>
             <description>Event Tracking Service</description>
