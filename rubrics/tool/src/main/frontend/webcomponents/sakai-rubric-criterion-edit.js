@@ -66,7 +66,7 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
             <label>
               <sr-lang key="criterion_description">Criterion Description</sr-lang>
             </label>
-            <textarea id="criterion-description-field-${this.criterion.id}" class="form-control" maxlength="255">${this.criterionClone.description}</textarea>
+            <textarea id="criterion-description-field-${this.criterion.id}" class="form-control">${this.criterionClone.description}</textarea>
           </div>
         </div>
       </div>
