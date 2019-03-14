@@ -51,10 +51,11 @@ public class LastJobRun extends Panel {
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
-		if(!allowed) {
+		boolean allowedView = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowedOwn = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsOwn(siteId);
+		if(!allowedView && !allowedOwn) {
 			setResponsePage(NotAuthorizedPage.class);
-		}		
+		}
 	}
 	
 	@Override

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -32,6 +33,7 @@ import org.apache.wicket.model.ResourceModel;
 
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.SitePresence;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.report.Report;
@@ -46,6 +48,7 @@ public class VisitsWidget extends Panel {
 
 	/** The site id. */
 	private String					siteId				= null;
+	private String					currentUserId		= null;
 	
 	private Set<String>				siteUsers			= null;
 	private Set<String>				usersWithVisits		= null;
@@ -56,21 +59,37 @@ public class VisitsWidget extends Panel {
 	 * @param id The wicket:id
 	 * @param siteId The related site id
 	 */
-	public VisitsWidget(String id, final String siteId) {
+	public VisitsWidget(String id, final String siteId, final String currentUserId) {
 		super(id);
 		this.siteId = siteId;
+		this.currentUserId = currentUserId;
 		setRenderBodyOnly(true);
 		setOutputMarkupId(true);
+
+		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
+		boolean siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
+		boolean siteStatsOwn = statsAuthz.isUserAbleToViewSiteStatsOwn(siteId);
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
-		widgetMiniStats.add(getMiniStatVisits());
-		widgetMiniStats.add(getMiniStatUniqueVisits());
-		widgetMiniStats.add(getMiniStatEnrolledUsers());
-		widgetMiniStats.add(getMiniStatEnrolledUsersWithVisits());
-		widgetMiniStats.add(getMiniStatEnrolledUsersWithoutVisits());
-		if(Locator.getFacade().getStatsManager().isEnableSitePresences()) {
-			widgetMiniStats.add(getMiniStatAveragePresenceTime());
+		boolean isEnableSitePresences = Locator.getFacade().getStatsManager().isEnableSitePresences();
+
+		if (siteStatsView) {
+			widgetMiniStats.add(getMiniStatVisits());
+			widgetMiniStats.add(getMiniStatUniqueVisits());
+			widgetMiniStats.add(getMiniStatEnrolledUsers());
+			widgetMiniStats.add(getMiniStatEnrolledUsersWithVisits());
+			widgetMiniStats.add(getMiniStatEnrolledUsersWithoutVisits());
+			if(isEnableSitePresences) {
+				widgetMiniStats.add(getMiniStatAveragePresenceTime());
+			}
+
+		} else if (siteStatsOwn) {
+			widgetMiniStats.add(getMiniStatMyTotalVisits());
+			if(isEnableSitePresences) {
+				widgetMiniStats.add(getMiniStatMyPresenceTime(true));
+				widgetMiniStats.add(getMiniStatMyPresenceTime(false));
+			}
 		}
 		
 		// Tabs
@@ -93,8 +112,11 @@ public class VisitsWidget extends Panel {
 		// Final Widget object		
 		String icon = StatsManager.SILK_ICONS_DIR + "user_gray.png";
 		String title = (String) new ResourceModel("overview_title_visits").getObject();
-		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
-		add(widget);
+		if (siteStatsView) {
+			add(new Widget("widget", icon, title, widgetMiniStats, tabs, siteId));
+		} else {
+			add(new StudentVisitsWidget("widget", widgetMiniStats));
+		}
 	}
 
 	// -------------------------------------------------------------------------------	
@@ -463,7 +485,7 @@ public class VisitsWidget extends Panel {
 				totalsBy.add(StatsManager.T_SITE);
 				rp.setHowTotalsBy(totalsBy);
 				r.setReportParams(rp);
-				Report report = Locator.getFacade().getReportManager().getReport(r, true);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true, null);
 				double duration = 0;;
 				if(report.getReportData().size() > 0) {
 					duration = (double) ((SitePresence)(report.getReportData().get(0))).getDuration();
@@ -487,7 +509,7 @@ public class VisitsWidget extends Panel {
 				rp.setHowSortBy(StatsManager.T_DATE);
 				r.setReportParams(rp);
 				PagingPosition paging = new PagingPosition();
-				Report report = Locator.getFacade().getReportManager().getReport(r, true, paging, false);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true, paging, false, null);
 				Date firstDate = new Date();
 				if(report.getReportData().size() > 0) {
 					firstDate = ((SitePresence)(report.getReportData().get(0))).getDate();
@@ -497,9 +519,123 @@ public class VisitsWidget extends Panel {
 			
 		};
 	}
-	
-	// -------------------------------------------------------------------------------
-	
+
+	/**
+	 * MiniStat: Get current user total visits in site
+	 * @return my total visits
+	 */
+	private WidgetMiniStat getMiniStatMyTotalVisits() {
+		return new WidgetMiniStat() {
+			private static final long	serialVersionUID	= 1L;
+			@Override
+			public String getValue() {
+				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteVisitsForUser(siteId, currentUserId));
+			}
+			@Override
+			public String getSecondValue() {
+				return "fa-eye";
+			}
+			@Override
+			public String getTooltip() {
+				return null;
+			}
+			@Override
+			public boolean isWiderText() {
+				return false;
+			}
+			@Override
+			public String getLabel() {
+				return (String) new ResourceModel("overview_title_visits_sum").getObject();
+			}
+			@Override
+			public ReportDef getReportDefinition() {
+				return null;
+			}
+		};
+	}
+
+	/**
+	 * MiniStat: Get current user presence time
+	 * @param avg return my average presence time instead my total presence time
+	 * @return my total presence time or average presence time
+	 */
+	private WidgetMiniStat getMiniStatMyPresenceTime(boolean avg) {
+		return new WidgetMiniStat() {
+			private static final long	serialVersionUID	= 1L;
+			@Override
+			public String getValue() {
+				long durationInMs = getTotalTimeInSiteInMs();
+				if (avg) {
+					long myTotalVisits = Locator.getFacade().getStatsManager().getTotalSiteVisitsForUser(siteId, currentUserId);
+					return this.msToString(durationInMs/myTotalVisits);
+				} else {
+					return this.msToString(durationInMs);
+				}
+			}
+			@Override
+			public String getSecondValue() {
+				if (avg) return "fa-hourglass-end";
+                                else return "fa-clock-o";
+			}
+			@Override
+			public String getTooltip() {
+				return null;
+			}
+			@Override
+			public boolean isWiderText() {
+				return false;
+			}
+			@Override
+			public String getLabel() {
+				if (avg) return (String) new ResourceModel("overview_title_presence_time_avg").getObject();
+				else return (String) new ResourceModel("overview_title_presence_time").getObject();
+			}
+			@Override
+			public ReportDef getReportDefinition() {
+				return null;
+			}
+			private long getTotalTimeInSiteInMs() {
+				ReportDef r = new ReportDef();
+				r.setId(0);
+				r.setSiteId(siteId);
+				ReportParams rp = new ReportParams(siteId);
+				rp.setWhat(ReportManager.WHAT_PRESENCES);
+				rp.setWhen(ReportManager.WHEN_ALL);
+				rp.setWho(ReportManager.WHO_ALL);
+				List<String> totalsBy = new ArrayList<String>();
+				totalsBy.add(StatsManager.T_SITE);
+				rp.setHowTotalsBy(totalsBy);
+				r.setReportParams(rp);
+				List<String> userList = new ArrayList<>();
+				userList.add(currentUserId);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true, userList);
+				long duration = 0;
+				if(report.getReportData().size() > 0) {
+					duration = ((SitePresence)(report.getReportData().get(0))).getDuration();
+				}
+				return duration;
+			}
+			private String msToString(long ms) {
+				StringJoiner time = new StringJoiner(" ");
+				String hoursAbbr = (String) new ResourceModel("hours_abbr").getObject();
+				String minsAbbr = (String) new ResourceModel("minutes_abbr").getObject();
+				String secsAbbr = (String) new ResourceModel("seconds_abbr").getObject();
+				long totalSecs = ms/1000;
+				long hours = (totalSecs / 3600);
+				long mins = (totalSecs / 60) % 60;
+				long secs = totalSecs % 60;
+				String minsString = (mins == 0) ? "0" : Long.toString(mins);
+				String secsString = (secs == 0) ? "0" : Long.toString(secs);
+				if (hours > 0)
+					time.add(Long.toString(hours)).add(hoursAbbr).add(minsString).add(minsAbbr).add(secsString).add(secsAbbr);
+				else if (mins > 0)
+					time.add(Long.toString(mins)).add(minsAbbr).add(secsString).add(secsAbbr);
+				else time.add(secsString).add(secsAbbr);
+				return time.toString();
+			}
+		};
+	}
+
 	/** WidgetTab: By date */
 	protected WidgetTabTemplate getWidgetTabByDate(String panelId) {
 		WidgetTabTemplate wTab = new WidgetTabTemplate(panelId, VisitsWidget.this.siteId) {

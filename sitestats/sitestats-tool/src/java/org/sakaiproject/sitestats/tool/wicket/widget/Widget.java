@@ -38,7 +38,9 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.report.ReportDef;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadFragment;
 import org.sakaiproject.sitestats.tool.wicket.components.ExternalImage;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
@@ -57,14 +59,18 @@ public class Widget extends Panel {
 	private String					title				= "";
 	private List<WidgetMiniStat>	widgetMiniStats		= null;
 	private List<AbstractTab>		tabs				= null;
+	private boolean siteStatsView						= false;
 
 
-	public Widget(String id, String iconUrl, String title, List<WidgetMiniStat> widgetMiniStats, List<AbstractTab> widgetTabs) {
+	public Widget(String id, String iconUrl, String title, List<WidgetMiniStat> widgetMiniStats, List<AbstractTab> widgetTabs, String siteId) {
 		super(id);
 		this.iconUrl = iconUrl;
 		this.title = title;
 		this.widgetMiniStats = widgetMiniStats;
 		this.tabs = widgetTabs;
+
+		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
+		siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
 	}
 	
 	@Override
@@ -86,9 +92,11 @@ public class Widget extends Panel {
 		// Show more/less links
 		ExternalLink showMore = new ExternalLink("showMore", "#");
 		showMore.setOutputMarkupId(true);
+		showMore.setVisible(siteStatsView);
 		add(showMore);
 		ExternalLink showLess = new ExternalLink("showLess", "#");
 		showLess.setOutputMarkupId(true);
+		showLess.setVisible(siteStatsView);
 		add(showLess);
 		
 		// Content details (middle)
@@ -111,7 +119,7 @@ public class Widget extends Panel {
 				loadingComp.append("<div class=\"ministat load\">");
 				loadingComp.append("  <img src=\"");
 				loadingComp.append(RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, null));
-				loadingComp.append("\"/>");
+				loadingComp.append("\" alt=\"" + (String) new ResourceModel("statistics_loading").getObject() + "\"/>");
 				loadingComp.append("</div>");
 				return new Label(markupId, loadingComp.toString()).setEscapeModelStrings(false);
 			}

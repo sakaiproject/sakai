@@ -22,6 +22,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
@@ -39,7 +40,9 @@ public class OverviewPage extends BasePage {
 
 	private String						realSiteId;
 	private String						siteId;
-	
+	private String						currentUserId;
+
+	private boolean						siteStatsView = false;
 	
 	public OverviewPage() {
 		this(null);
@@ -53,8 +56,11 @@ public class OverviewPage extends BasePage {
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
-		if(allowed) {
+		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
+		siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
+		boolean siteStatsOwn = statsAuthz.isUserAbleToViewSiteStatsOwn(siteId);
+		currentUserId = statsAuthz.getCurrentSessionUserId();
+		if(siteStatsView || siteStatsOwn) {
 			renderBody();
 			Locator.getFacade().getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}else{
@@ -83,14 +89,14 @@ public class OverviewPage extends BasePage {
 		// Visits
 		boolean visitsVisible = statsManager.isEnableSiteVisits() && statsManager.isVisitsInfoAvailable();
 		if(visitsVisible) {
-			add(new VisitsWidget("visitsWidget", siteId));
+			add(new VisitsWidget("visitsWidget", siteId, currentUserId));
 		}else{
 			add(new WebMarkupContainer("visitsWidget").setRenderBodyOnly(true));
 		}
 		
 		// Activity
 		boolean activityVisible = statsManager.isEnableSiteActivity();
-		if(activityVisible) {
+		if(activityVisible && siteStatsView) {
 			add(new ActivityWidget("activityWidget", siteId));
 		}else{
 			add(new WebMarkupContainer("activityWidget").setRenderBodyOnly(true));
@@ -104,7 +110,7 @@ public class OverviewPage extends BasePage {
 		}catch(Exception e) {
 			resourcesVisible = false;
 		}
-		if(resourcesVisible) {
+		if(resourcesVisible && siteStatsView) {
 			add(new ResourcesWidget("resourcesWidget", siteId));
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
@@ -119,7 +125,7 @@ public class OverviewPage extends BasePage {
 			lessonsVisible = false;
 		}
 
-		if (lessonsVisible) {
+		if (lessonsVisible && siteStatsView) {
 			add(new LessonsWidget("lessonsWidget", siteId));
 		}else{
 			add(new WebMarkupContainer("lessonsWidget").setRenderBodyOnly(true));
