@@ -58,7 +58,7 @@ import lombok.NonNull;
         "criterionOutcomes", "metadata"})
 @NoArgsConstructor
 @Table(name = "rbc_evaluation",
-    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluator_id" })
+    uniqueConstraints = @UniqueConstraint(columnNames = { "association_id", "evaluated_item_id", "evaluated_item_owner_id" })
 )
 @ToString(exclude = {"toolItemRubricAssociation", "criterionOutcomes"})
 public class Evaluation implements Modifiable, Serializable {

@@ -67,6 +67,17 @@ public interface EvaluationRepository extends MetadataRepository<Evaluation, Lon
             "and resource.toolItemRubricAssociation.itemId = :itemId and " + QUERY_CONTEXT_CONSTRAINT)
     List<Evaluation> findByToolIdAndAssociationItemId(@Param("toolId") String toolId, @Param("itemId") String itemId);
 
+    @RestResource(path = "by-tool-item-and-associated-item-and-evaluated-item-and-item-owner-ids", rel = "by-tool-item-and-associated-item-and-evaluated-item-and-item-owner-ids")
+    @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
+    @Query("select resource from Evaluation resource where " +
+            "resource.evaluatedItemId = :evaluatedItemId " +
+            "and resource.evaluatedItemOwnerId = :evaluatedItemOwnerId " +
+            "and resource.toolItemRubricAssociation.toolId = :toolId " +
+            "and resource.toolItemRubricAssociation.itemId = :itemId " +
+            "and (" + EVALUATOR_CONSTRAINT + " or " + EVALUEE_CONSTRAINT + ")")
+    List<Evaluation> findByToolIdAndAssociationItemIdAndEvaluatedItemIdAndEvaluatedItemOwnerId(@Param("toolId") String toolId,
+            @Param("itemId") String itemId, @Param("evaluatedItemId") String evaluatedItemId, @Param("evaluatedItemOwnerId") String evaluatedItemOwnerId);
+
     @RestResource(path = "by-tool-item-and-associated-item-and-evaluated-item-ids", rel = "by-tool-item-and-associated-item-and-evaluated-item-ids")
     @PreAuthorize("hasAnyRole('ROLE_EVALUATOR', 'ROLE_EVALUEE')")
     @Query("select resource from Evaluation resource where " +

@@ -350,7 +350,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 Traverson traverson = new Traverson(apiBaseUrl, MediaTypes.HAL_JSON);
 
                 Traverson.TraversalBuilder builder = traverson.follow("evaluations", "search",
-                        "by-tool-item-and-associated-item-and-evaluated-item-ids");
+                        "by-tool-item-and-associated-item-and-evaluated-item-and-item-owner-ids");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Authorization", String.format("Bearer %s", generateJsonWebToken(toolId)));
@@ -361,6 +361,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 parameters.put("itemId", associatedItemId);
                 parameters.put("evaluatedItemId", evaluatedItemId);
                 parameters.put("evaluatorId", evaluatorId);
+                parameters.put("evaluatedItemOwnerId", evaluatedItemOwnerId);
 
                 Resources<Resource<Evaluation>> evaluationResources = builder.withTemplateParameters(parameters).toObject(
                         resourceParameterizedTypeReference);
