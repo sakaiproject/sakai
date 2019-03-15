@@ -35,36 +35,28 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
         <div class="arrow"></div>
         <div class="popover-title">
           <div class="buttons">
-            <button class="btn btn-primary btn-xs save" @click="${this.saveEdit}">
+            <button class="btn btn-primary btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
-            <button class="delete" @click="${this.deleteRating}">
-              <sr-lang key="remove">Remove</sr-lang>
-            </button>
-            <button class="btn btn-link btn-xs cancel" @click="${this.cancelEdit}">
-              <sr-lang key="cancel">Cancel</sr-lang>
+            <button class="delete" title="${tr("remove")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove" /></button>
+            <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
+              <sr-lang key="cancel" />
             </button>
           </div>
         </div>
         <div class="popover-content form">
           <div class="first-row">
               <div class="form-group title">
-                <label for="rating-title">
-                  <sr-lang key="rating_title">Rating Title</sr-lang>
-                </label>
+                <label for="rating-title"><sr-lang key="rating_title" /></label>
                 <input type="text" id="rating-title-${this.rating.id}" class="form-control" .value="${this.rating.title}" maxlength="255">
               </div>
               <div class="form-group points">
-                <label for="rating-points">
-                  <sr-lang key="points">Points</sr-lang>
-                </label>
+                <label for="rating-points"><sr-lang key="points" /></label>
                 <input type="number" id="rating-points-${this.rating.id}" class="form-control hide-input-arrows" name="quantity" .value="${this.rating.points}" min="${this.minpoints}" max="${this.maxpoints}">
               </div>
           </div>
           <div class="form-group">
-            <label for="">
-              <sr-lang key="rating_description">Rating Description</sr-lang>
-            </label>
+            <label for=""><sr-lang key="rating_description" /></label>
             <textarea name="" id="rating-description-${this.rating.id}" class="form-control">${this.rating.description}</textarea>
           </div>
         </div>

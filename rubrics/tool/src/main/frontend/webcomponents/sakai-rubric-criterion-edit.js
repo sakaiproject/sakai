@@ -30,10 +30,7 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
     if ("criterion" === name) {
       this.criterionClone = JSON.parse(newValue);
       if (this.criterionClone.new) {
-        this.criterionClone.title = "New Criterion";
-        setTimeout(function () {
-          this.querySelector(".edit").click();
-        }.bind(this),99);
+        this.updateComplete.then(() => this.querySelector(".edit").click() );
       }
     }
   }

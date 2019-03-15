@@ -41,8 +41,8 @@ export class SakaiRubricReadonly extends SakaiElement {
 
         <div class="actions">
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="clone_label">clone_label</sr-lang> </span>
-            <span role="button" title="${tr("clone")} ${this.rubric.title}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
+            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
+            <span role="button" title="${tr("copy_to_site", [this.rubric.title])}" tabindex="0" class="clone fa fa-copy" @click="${this.copyToSite}"></span>
           </div>
         </div>
       </div>

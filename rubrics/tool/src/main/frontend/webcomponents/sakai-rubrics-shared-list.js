@@ -1,5 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import {SakaiRubricReadonly} from "./sakai-rubric-readonly.js";
 import {SakaiRubricsHelpers} from "./sakai-rubrics-helpers.js";
 
@@ -30,7 +31,7 @@ export class SakaiRubricsSharedList extends SakaiElement {
 
     return html`
       <div role="tablist">
-      ${this.rubrics.map(r => html`
+      ${repeat(this.rubrics, r => r.id, r => html`
         <div class="rubric-item" id="rubric_item_${r.id}">
           <sakai-rubric-readonly token="${this.token}" rubric="${JSON.stringify(r)}" @copy-to-site="${this.copyToSite}"></sakai-rubric-readonly>
         </div>
