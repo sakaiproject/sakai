@@ -86,16 +86,16 @@ export class SakaiRubric extends SakaiElement {
                 html`<sr-lang key="share_label">share_label</sr-lang>`
               }
             </span>
-            <span role="button" title="${tr(this.shareTitleKey, this.shareValues)}" tabindex="0" class="share fa ${this.shareIcon}" @click="${this.sharingChange}"></span>
+            <span role="button" title="${tr(this.shareTitleKey, [this.shareValues])}" tabindex="0" class="share fa ${this.shareIcon}" @click="${this.sharingChange}"></span>
           </div>
           <div class="action-container">
-            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="clone_label">clone_label</sr-lang> </span>
-            <span role="button" title="${tr("clone")} ${this.rubric.title}" tabindex="0" class="clone fa fa-copy" @click="${this.cloneRubric}"></span>
+            <span class="hidden-sm hidden-xs sr-only"><sr-lang key="copy" /></span>
+            <span role="button" title="${tr("copy")} ${this.rubric.title}" tabindex="0" class="clone fa fa-copy" @click="${this.cloneRubric}"></span>
           </div>
           ${!this.rubric.metadata.locked ?
             html`
             <div class="action-container">
-              <span class="hidden-sm hidden-xs sr-only"><sr-lang key="remove_label">remove_label</sr-lang> </span>
+              <span class="hidden-sm hidden-xs sr-only"><sr-lang key="remove_label" /></span>
               <sakai-item-delete token="${this.token}" rubric="${JSON.stringify(this.rubric)}" class="sakai-rubric"></sakai-item-delete>
             </div>
             `
@@ -182,7 +182,7 @@ export class SakaiRubric extends SakaiElement {
       this.shareicon = "share";
       this.shareIcon = "fa-upload";
     }
-    this.shareValues = [this.rubric.title];
+    this.shareValues = this.rubric.title;
   }
 
   updateRubric() {

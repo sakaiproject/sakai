@@ -47,7 +47,7 @@ export class SakaiRubricCriteria extends SakaiElement {
 
     return html`
       <div data-rubric-id="${this.rubricId}" class="criterion style-scope sakai-rubric-criterion">
-      ${repeat(this.criteria, (c) => c.id, c => html`
+      ${repeat(this.criteria, c => c.id, c => html`
         <div id="criterion_row_${c.id}" data-criterion-id="${c.id}" class="criterion-row">
           <div class="criterion-detail">
             <h4 class="criterion-title">
@@ -87,7 +87,7 @@ export class SakaiRubricCriteria extends SakaiElement {
             </div>
           </div>
           <div class="criterion-actions">
-            <span tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("clone")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
+            <span tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
             <sakai-item-delete criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
           </div>
         </div>
