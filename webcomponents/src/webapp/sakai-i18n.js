@@ -12,22 +12,28 @@ export function loadProperties(options) {
     lang: "en",
     resourceClass: "org.sakaiproject.i18n.InternationalizedMessages",
     resourceBundle: "org.sakaiproject.".concat(options.namespace).concat(".bundle.Messages"),
-    namespace: options.namespace
+    namespace: options.namespace,
+    getFromSessionCache: true,
   };
 
   options = Object.assign(defaults, options);
+
+  if (typeof options.getFromSessionCache === "undefined") {
+    options.getFromSessionCache = true;
+  }
 
   if (options.debug) {
     console.log('lang: ' + options.lang);
     console.log('resourceClass: ' + options.resourceClass);
     console.log('resourceBundle: ' + options.resourceBundle);
     console.log('namespace: ' + options.namespace);
+    console.log('getFromSessionCache: ' + options.getFromSessionCache);
   }
 
   window.sakai.translations[options.namespace] = window.sakai.translations[options.namespace] || {};
 
   var storageKey = options.lang + options.resourceClass + options.resourceBundle;
-  if (sessionStorage.getItem(storageKey) !== null) {
+  if (options.getFromSessionCache && sessionStorage.getItem(storageKey) !== null) {
     if (options.debug) {
       console.log("Returning " + storageKey + " from sessions storage ...");
     }
@@ -35,7 +41,7 @@ export function loadProperties(options) {
     return Promise.resolve(true);
   } else {
     if (options.debug) {
-      console.log(storageKey + " not in sessions storage. Pulling from webservice ...");
+      console.log(storageKey + " not in sessions storage or getFromSessionCache is false. Pulling from webservice ...");
     }
 
     var params = new URLSearchParams();

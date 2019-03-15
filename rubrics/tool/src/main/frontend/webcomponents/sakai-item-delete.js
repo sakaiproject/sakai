@@ -51,16 +51,14 @@ export class SakaiItemDelete extends SakaiElement {
   render() {
 
     return html`
-      <span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove")} ${tr(this.type)} ${this.item.title}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
+      <span role="button" aria-haspopup="true" aria-expanded="${this.popoverOpen}" aria-controls="delete_${this.type}_${this.item.id}" tabindex="0" title="${tr("remove")} ${this.item.title}" class="delete fa fa-times" @click="${this.deleteItem}"></span>
       <div id="delete_${this.type}_${this.item.id}" class="popover rubric-delete-popover left">
         <div class="arrow"></div>
-        <div class="popover-title" tabindex="0">
-          <sr-lang key="confirm_remove">Are you sure you want to remove </sr-lang> ${this.item.title}?
-        </div>
+        <div class="popover-title" tabindex="0">${tr("confirm_remove")} ${this.item.title}</div>
         <div class="popover-content">
           <div class="buttons text-right">
             <button title="${tr("confirm_remove")}" class="btn-primary save" @click="${this.saveDelete}">
-              <sr-lang key="remove">Remove</sr-lang>
+              <sr-lang key="remove" />
             </button>
             <button class="cancel" @click="${this.cancelDelete}">
               <sr-lang key="cancel">Cancel</sr-lang>
