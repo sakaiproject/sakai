@@ -115,7 +115,7 @@ function downloadAll(url){
     var gradingId = e.detail.evaluatedItemId.split(".")[0];
 
     var inputs = document.getElementById(gradingId + "-inputs");
-    var ratingInputId = "rating-" + e.detail.criterionId;
+    var ratingInputId = gradingId +"-rating-" + e.detail.criterionId;
     var ratingInput = document.getElementById(ratingInputId);
 
     if (!ratingInput) {
