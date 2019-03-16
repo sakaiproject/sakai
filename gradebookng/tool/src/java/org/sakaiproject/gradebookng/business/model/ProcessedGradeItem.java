@@ -23,7 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 
 /**
  * Holds the data about a grade item that is imported from the spreadsheet as well as any edits that happen through the wizard

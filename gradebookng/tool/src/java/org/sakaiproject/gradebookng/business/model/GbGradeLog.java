@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.business.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 
 import lombok.Getter;

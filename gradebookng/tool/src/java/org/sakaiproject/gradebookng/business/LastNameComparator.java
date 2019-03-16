@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.business;
 import java.text.Collator;
 import java.util.Comparator;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.user.api.User;
 
 /**

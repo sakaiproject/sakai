@@ -17,7 +17,7 @@ package org.sakaiproject.gradebookng.business;
 
 import java.util.Comparator;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 
 /**
