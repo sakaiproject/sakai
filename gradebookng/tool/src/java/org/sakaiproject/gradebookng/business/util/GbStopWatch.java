@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 
 import lombok.extern.slf4j.Slf4j;
 
