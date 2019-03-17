@@ -18,6 +18,8 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -70,7 +72,11 @@ public class GradeLogPanel extends BasePanel {
 				final GbGradeLog gradeLog = item.getModelObject();
 
 				final String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
-				final String grade = gradeLog.getGrade();
+				String grade = gradeLog.getGrade();
+				//If it's not a number, try to look up the message bundle value
+				if (!NumberUtils.isCreatable(grade)) {
+					grade = new StringResourceModel(grade, null).getString();
+				}
 
 				final GbUser grader = GradeLogPanel.this.businessService.getUser(gradeLog.getGraderUuid());
 				final String graderDisplayId = (grader != null) ? grader.getDisplayName() + " (" +  grader.getDisplayId() + ")" : getString("unknown.user.id");
