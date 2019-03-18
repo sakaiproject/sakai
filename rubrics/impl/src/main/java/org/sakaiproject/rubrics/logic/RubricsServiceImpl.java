@@ -734,7 +734,6 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
 
             try(OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes("UTF-8"));
-                os.close();
             }
 
             // read the response

@@ -30,10 +30,6 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
   get criterion() { return this._criterion; }
 
-  firstUpdated(cp) {
-    this.setupEditor();
-  }
-
   render() {
 
     return html`
@@ -77,6 +73,9 @@ export class SakaiRubricGradingComment extends SakaiElement {
         'left': e.target.offsetLeft - 270 + "px",
         'top': ((e.target.offsetTop + e.target.offsetHeight/2 + 20) - popover.height()/2) + "px",
       });
+
+      this.setupEditor();
+
       popover.show();
     } else {
       this.hideTooltip();
