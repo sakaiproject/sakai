@@ -107,7 +107,7 @@ label.checklistLabel:hover .checklist-checkbox:checked ~ span.checklist-checkbox
     background-image: url("../images/green_checkmark.png");
 }
 .checklistLabel {
-    line-height: 2em;
+    line-height: 1.5em;
 }
 .hideNameCheckbox {
     margin: 1em .5em 0 4em !important;
