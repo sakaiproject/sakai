@@ -91,6 +91,7 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
 }
 .checklist-checkbox-label {
     padding: 0.5em 0.5em 0.5em 22px;
+    margin-left: -5%;
 }
 label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: none;
