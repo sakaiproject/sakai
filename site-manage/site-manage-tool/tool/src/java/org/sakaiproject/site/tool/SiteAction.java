@@ -793,6 +793,9 @@ public class SiteAction extends PagedResourceActionII {
 	//SAK-22432 Template descriptions are not copied
 	private final static String SAK_PROP_COPY_TEMPLATE_DESCRIPTION = "site.setup.copy.template.description";
 
+	private static final String SAK_PROP_SHOW_ROSTER_EID = "wsetup.showRosterEIDs";
+	private static final boolean SAK_PROP_SHOW_ROSTER_EID_DEFAULT = false;
+
 	//Setup property to require (or not require) authorizer
 	private static final String SAK_PROP_REQUIRE_AUTHORIZER = "wsetup.requireAuthorizer";
 	//Setup property to email authorizer (default to true)
@@ -3302,6 +3305,9 @@ public class SiteAction extends PagedResourceActionII {
 			List ll = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
 			context.put("termCourseList", state
 					.getAttribute(STATE_TERM_COURSE_LIST));
+
+			Boolean showRosterEIDs = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ROSTER_EID, SAK_PROP_SHOW_ROSTER_EID_DEFAULT);
+			context.put("showRosterEIDs", showRosterEIDs);
 
 			// SAK-29000
 			Boolean isAuthorizationRequired = ServerConfigurationService.getBoolean( SAK_PROP_REQUIRE_AUTHORIZER, Boolean.TRUE );
@@ -14083,14 +14089,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	public class CourseObject {
 		public String eid;
-
 		public String title;
-
+		public String description;
 		public List courseOfferingObjects;
 
 		public CourseObject(CourseOffering offering, List courseOfferingObjects) {
 			this.eid = offering.getEid();
 			this.title = offering.getTitle();
+			this.description = offering.getDescription();
 			this.courseOfferingObjects = courseOfferingObjects;
 		}
 
@@ -14100,6 +14106,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		public String getTitle() {
 			return title;
+		}
+
+		public String getDescription() {
+			return description;
 		}
 
 		public List getCourseOfferingObjects() {
