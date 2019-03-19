@@ -73,6 +73,7 @@
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
+
 <div class="tier2">
 <h:panelGrid columns="1" border="0">
 	<!--  Due Message -->
@@ -193,7 +194,6 @@
 	<h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}"/>
 </h:panelGroup>
     <h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_required}" styleClass="alertMessage" style="display:none"/>
-
 
 <p class="act">
 
