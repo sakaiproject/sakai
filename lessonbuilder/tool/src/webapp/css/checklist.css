@@ -86,12 +86,13 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
 }
 .checklist-checkbox:checked ~ span.checklist-checkbox-label {
     background-image: url("../images/green_checkmark.png");
-    background-position: left center;
+    background-position: left top 8px;
     background-repeat: no-repeat;
 }
 .checklist-checkbox-label {
     padding: 0.5em 0.5em 0.5em 22px;
-    display: block;
+    display: inline-block;
+    vertical-align: top;
 }
 label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: none;
@@ -160,8 +161,10 @@ legend.no-border {
 }
 
 .checklistLabel.disabled:hover .externally-linked {
-    margin-right: -19px;
+    margin-right: -22px;
     display: inline-block;
+    vertical-align: 20px;
+    margin-top: 8px;
 }
 
 .tooltip-content {
