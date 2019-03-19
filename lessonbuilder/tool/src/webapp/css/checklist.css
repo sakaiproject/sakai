@@ -81,7 +81,7 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
 }
 .checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: url("../images/gray_unchecked.png");
-    background-position: left top 12px;
+    background-position: left top 8px;
     background-repeat: no-repeat;
 }
 .checklist-checkbox:checked ~ span.checklist-checkbox-label {
@@ -99,7 +99,7 @@ label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-ch
 }
 label.checklistLabel:hover .checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: url("../images/gray_checkmark.png");
-    background-position: left center;
+    background-position: left top 8px;
     background-repeat: no-repeat;
     cursor: pointer;
 }
