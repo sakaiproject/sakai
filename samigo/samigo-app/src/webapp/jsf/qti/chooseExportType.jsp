@@ -83,7 +83,11 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
 		<br />
       </p>
       <p class="text-warning">
-        <h:outputText value="#{authorImportExport.export_imagemap_message}" escape="false" />
+        <h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false" />
+        <ul class="text-warning">
+            <li><h:outputText value="#{authorImportExport.importExport_warning1}" escape="false" /></li>
+            <li><h:outputText value="#{authorImportExport.importExport_warning2}" escape="false" /></li>
+        </ul>
       </p>
     </div>
     <br />
@@ -103,6 +107,7 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
      <div class="text-warning">
        <h:outputText value="#{authorImportExport.cp_message}"/>
      </div>
+     <br/>
     </h:panelGroup>
 
     <br/>
