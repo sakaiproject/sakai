@@ -89,6 +89,25 @@ function downloadAll(url){
     totalPointsInput.setAttribute("value", points);
   });
 
+  $('body').on('update-comment', function (e) {
+      var gradingId = e.target.evaluatedItemId.split(".")[0];
+
+      var inputs = document.getElementById(gradingId + "-inputs");
+      var commentInputId = gradingId + "-comment-" + e.detail.criterionId;
+      var commentInput = document.getElementById(commentInputId);
+
+      if (!commentInput) {
+          commentInput = document.createElement("input");
+          commentInput.setAttribute("id", commentInputId);
+          commentInput.setAttribute("type", "hidden");
+          var name = "rbcs-" + e.target.evaluatedItemId + "-" + e.target.entityId + "-criterion-comment-" + e.detail.criterionId;
+          commentInput.setAttribute("name", name);
+          inputs.appendChild(commentInput);
+      }
+
+      commentInput.setAttribute("value", e.detail.comments);
+  });
+
   $('body').on('rubric-rating-changed', function (e) {
 
     rubricChanged = true;
@@ -131,15 +150,15 @@ function downloadAll(url){
     stateInput.setAttribute("value", e.detail.value);
   });
 
-  function initRubricDialog(itemId) {
+  function initRubricDialog(gradingId) {
 
-    var modalId = "modal" + itemId;
-    var previousScore =  $('.adjustedScore' + itemId).val();
+    var modalId = "modal" + gradingId;
+    var previousScore =  $('.adjustedScore' + gradingId).val();
     $("#" + modalId).dialog({
       modal: true,
       buttons: [
         {
-          text: <h:outputText value="'#{evaluationMessages.saver}'"/>,
+          text: <h:outputText value="'#{evaluationMessages.save_cont}'"/>,
           click: function () { $(this).dialog("close"); }
         },
         {
@@ -147,7 +166,7 @@ function downloadAll(url){
           click: function () {
 
             $(this).dialog("close");
-              $('.adjustedScore' + itemId).val(previousScore);
+              $('.adjustedScore' + gradingId).val(previousScore);
             }
         }
       ],
@@ -157,33 +176,6 @@ function downloadAll(url){
       title: <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
     });
   }
-
-  $(document).ready(function() {
-
-    //set back the values from the modals to the hidden inputs
-    $('#editTotalResults').submit(function (e) {
-
-      //e.preventDefault();
-
-      /*
-      $('[id^=modal').each(function () {
-
-        var modId = $(this).attr('id').replace('cloned','');
-
-        var myregex = /\|[^\|]*\|/g;
-        $(this).find('textarea').each(function () {
-          for( var instance in CKEDITOR.instances){
-            var ckname = CKEDITOR.instances[instance].name.replace(myregex, '');
-            var textareaid = $(this).attr('id').replace(myregex, '');
-            if(ckname == textareaid){
-              CKEDITOR.instances[instance].setData($(this).val());
-            }
-          }
-        });
-      });
-      */
-    });
-  });
 </script>
 
 <!-- content... -->
@@ -1390,7 +1382,7 @@ function downloadAll(url){
 
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
-   <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="questionScores" type="submit" >
+   <h:commandButton styleClass="active" value="#{evaluationMessages.saver}" action="questionScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
       <f:actionListener
