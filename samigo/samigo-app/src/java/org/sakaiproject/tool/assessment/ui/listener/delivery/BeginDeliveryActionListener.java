@@ -103,7 +103,7 @@ public class BeginDeliveryActionListener implements ActionListener
       // e.g. take assessment via url, actionString is set by LoginServlet.
       // preview and take assessment is set by the parameter in the jsp pages
       delivery.setActionString(actionString);
-      if("reviewAssessment".equals(actionString)){
+      if ("reviewAssessment".equals(actionString) || "takeAssessment".equals(actionString)) {
         delivery.setRbcsToken(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_SAMIGO));
       }
     }

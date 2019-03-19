@@ -24,6 +24,7 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
+
 <h:outputText value="#{question.text}"  escape="false"/>
 
 <!-- ATTACHMENTS -->
@@ -67,6 +68,7 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <f:verbatim><br /></f:verbatim>
+
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty}" >

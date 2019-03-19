@@ -42,7 +42,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
-import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -51,8 +50,6 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 public class GradeSummaryTablePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	private GbModalWindow rubricStudentWindow;
 
 	private boolean isGroupedByCategory;
 	private boolean assignmentStatsEnabled;
@@ -91,8 +88,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		final String studentUuid = (String) data.get("studentUuid");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
-		final ModalWindow assignmentStatsWindow = new ModalWindow(
-				"assignmentStatsWindow");
+		final ModalWindow assignmentStatsWindow = new ModalWindow("assignmentStatsWindow");
 		add(assignmentStatsWindow);
 
 		if (getPage() instanceof GradebookPage) {
@@ -100,9 +96,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 			final GradebookUiSettings settings = page.getUiSettings();
 			this.isGroupedByCategory = settings.isGradeSummaryGroupedByCategory();
 		}
-
-		this.rubricStudentWindow = new GbModalWindow("rubricStudentWindow");
-		addOrReplace(this.rubricStudentWindow);
 
 		final WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
 		toggleActions.setVisible(categoriesEnabled);
@@ -321,71 +314,33 @@ public class GradeSummaryTablePanel extends BasePanel {
 								}
 							});
 							gradeScore.add(new Label("outOf").setVisible(false));
-							final Label rubricIcon = new Label("rubricIcon");
-							rubricIcon.setVisible(false);
-							gradeScore.add(rubricIcon);
+
+							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-preview-button");
+							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
+							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+
+							if (assignment.getId() != null) {
+								sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
+							}
+
+							gradeScore.add(sakaiRubricPreview);
 						} else {
 							gradeScore.add(
 									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
 									new StringResourceModel("label.studentsummary.outof", null, assignment.getPoints())));
-							final GbAjaxLink rubricIcon = new GbAjaxLink("rubricIcon") {
-								@Override
-								public void onClick(final AjaxRequestTarget target) {
-									final GbModalWindow window = GradeSummaryTablePanel.this.getRubricStudentWindow();
 
-									window.setTitle(new ResourceModel("rubrics.option.graderubric"));
-									final RubricStudentPanel rubricStudentPanel = new RubricStudentPanel(window.getContentId(), null, window);
-									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
-										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_ASSIGNMENT);
-										final String[] bits = assignment.getExternalId().split("/");
-										final String assignmentId = bits[bits.length-1];
-										final String submissionId = GradeSummaryTablePanel.this.rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
-										if(StringUtils.isEmpty(submissionId)){
-											setVisible(false);
-										}
-										rubricStudentPanel.setAssignmentId(assignmentId);
-										rubricStudentPanel.setStudentUuid(submissionId);
-									} else {
-										rubricStudentPanel.setToolId(RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
-										rubricStudentPanel.setAssignmentId(String.valueOf(assignment.getId()));
-										rubricStudentPanel.setStudentUuid(assignment.getId() + "." + studentUuid);
-									}
-									if(GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
-										rubricStudentPanel.setInstructor(true);
-									}
-									window.setContent(rubricStudentPanel);
-									window.setComponentToReturnFocusTo(this);
-									window.show(target);
-								}
-							};
-							rubricIcon.setVisible(false);
-							rubricIcon.add(new AttributeModifier("title", new ResourceModel("rubrics.browse_grading_criteria")));
-							if (StringUtils.isNotBlank(rawGrade)) {
-								try {
-									String tool = RubricsConstants.RBCS_TOOL_GRADEBOOKNG;
-									String assignmentId = assignment.getId().toString();
-									if(assignment.isExternallyMaintained()){//this only works for Assignments atm
-										tool = RubricsConstants.RBCS_TOOL_ASSIGNMENT;
-										final String[] bits = assignment.getExternalId().split("/");
-										assignmentId = bits[bits.length-1];
-									}
-									final Optional<ToolItemRubricAssociation> rubricAssociation = GradeSummaryTablePanel.this.rubricsService.getRubricAssociation(tool, assignmentId);
-									if (rubricAssociation.isPresent()) {
-										if(showingStudentView || !GradeSummaryTablePanel.this.businessService.isUserAbleToEditAssessments()){
-											final boolean hidePreview = rubricAssociation.get().getParameter("hideStudentPreview") == null ? false : rubricAssociation.get().getParameter("hideStudentPreview");
-											rubricIcon.setVisible(!hidePreview);
-										} else {
-											rubricIcon.setVisible(true);
-										}
-									} else {
-										rubricIcon.setVisible(false);
-									}
-								} catch (final Exception ex) {
-									rubricIcon.setVisible(false);
-								}
+							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-preview-button");
+							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
+							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+
+							if (assignment.getId() != null) {
+								sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
 							}
-							gradeScore.add(rubricIcon);
+
+							gradeScore.add(sakaiRubricPreview);
 						}
 						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore()) {
 							gradeScore.add(AttributeModifier.append("class", "gb-summary-grade-score-dropped"));
@@ -408,7 +363,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 				});
 			}
 		});
-
 	}
 
 	private final class DropInfoPair {
@@ -429,8 +383,5 @@ public class GradeSummaryTablePanel extends BasePanel {
 		}
 
 		return pair;
-	}
-	public GbModalWindow getRubricStudentWindow() {
-		return this.rubricStudentWindow;
 	}
 }
