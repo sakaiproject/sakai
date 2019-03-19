@@ -371,6 +371,11 @@ $(document).ready(function(){
 				</div>
 			#end
 
+			<sakai-rubric-student-preview-button
+				token="$!rbcs-token"
+				tool-id="sakai.assignment"
+				entity-id="$assignment.Id"></sakai-rubric-student-preview-button>
+
 			#if ($submission.Graded && ($submission.GradeReleased || $returned))
 			<sakai-rubric-student
 				token="$!rbcs-token"

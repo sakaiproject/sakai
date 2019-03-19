@@ -335,6 +335,13 @@ document.links[newindex].onclick();
          </sakai-rubric-student>
        </h:panelGroup>
 
+       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment'}">
+           <sakai-rubric-student-preview-button
+                token="<h:outputText value="#{delivery.rbcsToken}" />"
+                tool-id="sakai.samigo"
+                entity-id="<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}" />"></sakai-rubric-student-preview-button>
+       </h:panelGroup>
+
        <div class="samigo-question-callout">
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
