@@ -52,7 +52,7 @@ public class PollUtil {
 
         element.setAttribute("id", option.getUuid());
         element.setAttribute("optionid", option.getOptionId().toString());
-        element.setAttribute("title", option.getOptionText());
+        element.setAttribute("title", option.getText());
         element.setAttribute("deleted", option.getDeleted().toString());
         stack.pop();
 
@@ -69,7 +69,7 @@ public class PollUtil {
                 //LOG THIS
             }
         }
-        option.setOptionText(element.getAttribute(TEXT));
+        option.setText(element.getAttribute(TEXT));
         option.setDeleted(Boolean.parseBoolean(element.getAttribute(DELETED)));
         return option;
     }

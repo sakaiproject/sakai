@@ -8,9 +8,9 @@
 		<!-- create the primary key id, using native is typically the best way
 			to do this -->
 		<id name="optionId" type="long" column="OPTION_ID">
-	    	<generator class="native">
-                <param name="sequence">POLL_OPTION_ID_SEQ</param>
-	    	</generator>
+			<generator class="native">
+				<param name="sequence">POLL_OPTION_ID_SEQ</param>
+			</generator>
 		</id>
 		<!-- The remaining properties should just match the properties
 			of your value object.
@@ -20,18 +20,19 @@
 			Column names are optional but people often specify them. -->
 
 		<property name="pollId" type="long" not-null="true">
-            <column name="OPTION_POLL_ID"/>
-        </property>
-		<property name="optionText" type="materialized_clob" length="255" not-null="true">
-            <column name="OPTION_TEXT"/>
-        </property>
-        <property name="Uuid" type="string" length="255" not-null="true">
-        	<column name="OPTION_UUID" />
-        </property>
-        <property name="deleted" type="java.lang.Boolean">
-        	<column name="DELETED" />
-        </property>
-     </class>
-    
-	
+			<column name="OPTION_POLL_ID"/>
+		</property>
+		<property name="text" type="materialized_clob" length="255" not-null="true">
+			<column name="OPTION_TEXT"/>
+		</property>
+		<property name="Uuid" type="string" length="255" not-null="true">
+			<column name="OPTION_UUID" />
+		</property>
+		<property name="deleted" type="java.lang.Boolean">
+			<column name="DELETED" />
+		</property>
+		<property name="optionOrder" type="int" not-null="true">
+			<column name="OPTION_ORDER" />
+		</property>
+	</class>
 </hibernate-mapping>

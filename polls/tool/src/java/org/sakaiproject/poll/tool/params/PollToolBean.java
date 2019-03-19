@@ -274,30 +274,24 @@ public class PollToolBean {
 		if ("cancel".equals(submissionStatus))
 			return "cancel";
 		
-		log.debug("adding option with text " + option.getOptionText());
-		if (option.getOptionText() == null || option.getOptionText().trim().length()==0) {
+		log.debug("adding option with text " + option.getText());
+		if (option.getText() == null || option.getText().trim().length()==0) {
 			//errors.reject("vote_closed","vote closed");
 			// return null;
 		}
 		StringBuilder sb = new StringBuilder();
-		option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), sb, true, true));
+		option.setText(FormattedText.processFormattedText(option.getText(), sb, true, true));
 
-		String text = option.getOptionText();
-		text = PollUtils.cleanupHtmlPtags(text);
-
-		option.setOptionText(text);
+		String text = PollUtils.cleanupHtmlPtags(option.getText());
+		option.setText(text);
+		option.setOptionOrder(manager.getOptionsForPoll(option.getPollId()).size());
 		manager.saveOption(option);
 		log.debug("Succesuly save option with id" + option.getId());
 
-		//voteBean.poll = manager.getPollById(option.getPollId());
-
-		
 		if ("option".equals(submissionStatus))
 			return "option";
 		else 
 			return "Saved";
-
-		
 	}
 
 	
