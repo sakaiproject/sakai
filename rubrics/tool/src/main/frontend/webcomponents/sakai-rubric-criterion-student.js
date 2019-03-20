@@ -1,5 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {repeat} from "/webcomponents/assets/lit-html/directives/repeat.js";
 import {SakaiRubricStudentComment} from "./sakai-rubric-student-comment.js";
 
 export class SakaiRubricCriterionStudent extends SakaiElement {
@@ -10,7 +11,6 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
       criteria: { type: Array},
       totalPoints: { type: Number },
       rubricAssociation: { attribute: "rubric-association", type: Object },
-      stateDetails: { attribute: "state-details", type: String },
       evaluationDetails: { attribute: "evaluation-details", type: Array },
       preview: { type: Boolean },
       entityId: { attribute: "entity-id", type: String },
@@ -29,18 +29,32 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
       c.pointrange = rubrics.getHighLow(c.ratings, "points");
     });
 
-    this.requestUpdate('criteria', oldVal);
-    this.updateComplete.then(() => this.handleEvaluationDetails());
+    if (this.evaluationDetails) {
+      this.handleEvaluationDetails();
+    }
   }
 
   get criteria() { return this._criteria; }
 
+  set evaluationDetails(newValue) {
+
+    this._evaluationDetails = newValue;
+
+    if (this.criteria) {
+      this.handleEvaluationDetails();
+    }
+  }
+
+  get evaluationDetails() { return this._evaluationDetails; }
+  
+  shouldUpdate(changedProperties) {
+    return (this.preview && this.criteria) || this.ready;
+  }
+
   render() {
 
-    this.preview = false;
-
     return html`
-      <div class="criterion grading style-scope sakai-rubric-criterion-student">
+      <div class="criterion grading style-scope sakai-rubric-criterion-student" style="margin-bottom: 20px;">
         ${this.criteria.map(c => html`
           <div id="criterion_row_${c.id}" class="criterion-row">
             <div class="criterion-detail">
@@ -50,8 +64,8 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
             <div class="criterion-ratings">
               <div class="cr-table">
                 <div class="cr-table-row">
-                ${c.ratings.map(r => html`
-                  <div class="rating-item student" id="rating_item_${r.id}">
+                ${repeat(c.ratings, r => r.id, r => html`
+                  <div class="rating-item student ${r.selected ? "selected" : ""}" id="rating-item-${r.id}">
                     <h5 class="criterion-item-title">${r.title}</h5>
                     <p>${r.description}</p>
                     <span class="points">${r.points} Points</span>
@@ -66,10 +80,10 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
               <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
                 &nbsp;
                 ${c.selectedvalue}
-                ${!c.selectedRadingId ? html`0` : ``}
+                ${!c.selectedRadingId ? "0" : ""}
                 &nbsp;
               </strong>
-              ${this.showOverridden(c.pointoverride,c.selectedvalue) ?
+              ${this.isOverridden(c.pointoverride,c.selectedvalue) ?
                 html`<strong class="points-display">${c.pointoverride}</strong>`
                 : html``}
             ` : html``}
@@ -78,51 +92,11 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
         `)}
       </div>
       ${!this.preview ? html`
-      <div class="rubric-totals">
+      <div class="rubric-totals" style="margin-bottom: 5px;">
         <div class="total-points">Total: <strong>${this.totalPoints}</strong></div>
       </div>
       ` : html``}
-      <input name="rbcs-${this.entityId}-state-details" id="rbcs-${this.entityId}-state-details" type="hidden" value="${this.stateDetails}">
     `;
-  }
-
-  updateStateDetails() {
-
-    this.stateDetails =
-      this.criteria.map(c => {
-        return {
-          cid: c.id,
-          pval: c.selectedvalue || "",
-          rid: c.selectedRatingId || "",
-          povrd: c.pointoverride || "",
-          comments: c.comments || ""
-        };
-      });
-
-    // This will trigger a render to the input element
-    //this.stateDetailsJson = escape(JSON.stringify(this.stateDetails));
-  }
-
-  handleStateDetails() {
-
-    this.stateDetails.forEach(sd => {
-
-      this.criteria.forEach(c => {
-
-        if (sd.cid === c.id && (sd.povrd || sd.pval)) {
-          c.selectedvalue = sd.pval;
-          c.selectedRatingId = sd.rid;
-          c.pointoverride = sd.povrd;
-          c.comments = sd.comments;
-        }
-      });
-
-      if (sd.rid) {
-        document.getElementById(`rating-item-${sd.rid}`).classList.addClass("selected");
-      }
-    });
-
-    this.updateTotalPoints();
   }
 
   handleEvaluationDetails() {
@@ -134,6 +108,7 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
         if (ed.criterionId === c.id) {
 
           var ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
+          ratingItem.selected = true;
 
           c.selectedRadingId = ed.selectedRatingId;
           if (ed.pointsAdjusted) {
@@ -147,27 +122,22 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
           c.comments = ed.comments;
         }
       });
-      document.getElementById(`rating_item_${ed.selectedRatingId}`).classList.add("selected");
     });
 
     this.updateTotalPoints();
   }
 
-  isOverridden(ovrdvl,selected) {
+  isOverridden(ovrdvl, selected) {
 
     if (!this.rubricAssociation.parameters.fineTunePoints) {
-      return '';
+      return false;
     }
 
     if ((ovrdvl || ovrdvl === 0) && (parseInt(ovrdvl) !== parseInt(selected))) {
-      return 'strike';
+      return true;
     } else {
-      return '';
+      return false;
     }
-  }
-
-  showOverridden(ovrdvl,selected) {
-    return (this.isOverridden(ovrdvl,selected) === 'strike');
   }
 
   updateTotalPoints() {
@@ -183,7 +153,7 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
       }
     }, 0);
 
-    this.dispatchEvent(new CustomEvent("state-details"));
+    this.ready = true;
   }
 
   getOverriddenClass(ovrdvl,selected) {
@@ -198,24 +168,6 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
       return '';
     }
   }
-
-  /*
-  rubricReady() {
-
-    this.options = this.rubricAssociation.parameters;
-    this.criterions = this.rubric.criterions;
-    setTimeout(function () {
-
-      if (this.stateDetails) {
-        this.handleStateDetails();
-      } else if (this.evaluationDetails) {
-        this.handleEvaluationDetails();
-      } else {
-        this.dispatchEvent(new CustomEvent("state-details"));
-      }
-    }.bind(this))
-  }
-  */
 }
 
 customElements.define("sakai-rubric-criterion-student", SakaiRubricCriterionStudent);

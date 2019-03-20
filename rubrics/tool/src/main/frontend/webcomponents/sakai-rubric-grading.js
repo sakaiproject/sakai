@@ -1,7 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 import {SakaiRubricCriteriaGrading} from "./sakai-rubric-criteria-grading.js";
-import {SakaiRubricGradingComment} from "./sakai-rubric-grading-comment.js";
 import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricGrading extends SakaiElement {
@@ -25,7 +24,6 @@ export class SakaiRubricGrading extends SakaiElement {
       token: String,
       entityId: {attribute: "entity-id", type: String},
       toolId: {attribute: "tool-id", type: String},
-      gradeFieldId: {attribute: "grade-field-id", type: String},
       stateDetails: {attribute: "state-details", type: String},
       evaluatedItemId: {attribute: "evaluated-item-id", type: String},
       rubric: {type: Object},
@@ -49,11 +47,10 @@ export class SakaiRubricGrading extends SakaiElement {
   render() {
 
     return html`
-      <h3>${this.rubric.title}</h3>
+      <h3 style="margin-bottom: 10px;">${this.rubric.title}</h3>
 
       <sakai-rubric-criteria-grading
         criteria="${JSON.stringify(this.rubric.criterions)}"
-        grade-field-id="${this.gradeFieldId}"
         rubric-association="${JSON.stringify(this.association)}"
         state-details="${this.stateDetails}"
         entity-id="${this.entityId}"

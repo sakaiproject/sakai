@@ -313,9 +313,10 @@ public class GradeSummaryTablePanel extends BasePanel {
 									return StringUtils.isNotBlank(rawGrade);
 								}
 							});
+
 							gradeScore.add(new Label("outOf").setVisible(false));
 
-							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-preview-button");
+							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
@@ -326,14 +327,16 @@ public class GradeSummaryTablePanel extends BasePanel {
 
 							gradeScore.add(sakaiRubricPreview);
 						} else {
+
 							gradeScore.add(
 									new Label("grade", FormatHelper.convertEmptyGradeToDash(FormatHelper.formatGradeForDisplay(rawGrade))));
 							gradeScore.add(new Label("outOf",
 									new StringResourceModel("label.studentsummary.outof", null, assignment.getPoints())));
 
-							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-preview-button");
+							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+							sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
 							if (assignment.getId() != null) {
