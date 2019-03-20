@@ -331,7 +331,7 @@
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}" styleClass="btn-group pull-right">
-                        <h:panelGroup rendered="#{(author.isGradeable && assessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
+                        <h:panelGroup rendered="#{(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
                             <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
@@ -369,7 +369,7 @@
                             </t:dataList>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{(author.isGradeable && assessment.submittedCount > 0) && (author.isEditable && !(!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
+                        <h:panelGroup rendered="#{(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && !(!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
                             <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
@@ -400,7 +400,7 @@
                             </t:dataList>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{!(author.isGradeable && assessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
+                        <h:panelGroup rendered="#{!(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
                             <f:verbatim><button class="btn btn-xs dropdown-toggle" aria-expanded="false" data-toggle="dropdown" title="</f:verbatim>
                                 <h:outputText value="#{authorMessages.actions_for} " />
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
