@@ -35,8 +35,8 @@ export class SakaiRubricReadonly extends SakaiElement {
           </span>
         </div>
 
-        <div class="hidden-xs"><site-title siteId="${this.rubric.metadata.ownerId}"></site-title></div>
-        <div class="hidden-xs"><creator-name creatorId="${this.rubric.metadata.creatorId}"></creator-name></div>
+        <div class="hidden-xs"><site-title site-id="${this.rubric.metadata.ownerId}"></site-title></div>
+        <div class="hidden-xs"><creator-name creator-id="${this.rubric.metadata.creatorId}"></creator-name></div>
         <div class="hidden-xs"><modified-date modified="${this.rubric.metadata.modified}"></modified-date></div>
 
         <div class="actions">
