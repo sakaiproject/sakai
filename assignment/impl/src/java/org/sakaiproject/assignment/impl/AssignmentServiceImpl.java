@@ -1157,6 +1157,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
 
         assignment.setDateModified(Instant.now());
+        assignment.setModifier(sessionManager.getCurrentSessionUserId());
         assignmentRepository.update(assignment);
 
     }
