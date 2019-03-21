@@ -250,8 +250,14 @@
 										#if ($assignment.getContentReview())
 											<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 										#end
+
 										#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
-											<i class="fa fa-table" aria-hidden="true" title="$tlang.getString("asn.list.userubric")"></i>
+										<sakai-rubric-student-button
+											token="$!rbcs-token"
+											tool-id="sakai.assignment"
+											evaluated-item-id="$submission.Id"
+											entity-id="$assignment.Id">
+										</sakai-rubric-student-button>
 										#end
 
 									</strong>
@@ -367,6 +373,12 @@
 													#end
 												</strong>
 											#end
+											<sakai-rubric-student-button
+												token="$!rbcs-token"
+												tool-id="sakai.assignment"
+												evaluated-item-id="$submission.Id"
+												entity-id="$assignment.Id">
+											</sakai-rubric-student-button>
 											#if ($taggable && $allowAddAssignment)
 												<div class="itemAction">
 													#set($prevAction=false)

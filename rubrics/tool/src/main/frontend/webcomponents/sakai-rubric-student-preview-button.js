@@ -27,8 +27,8 @@ export class SakaiRubricStudentPreviewButton extends SakaiElement {
 
   set token(newValue) {
 
+    rubrics.initLightbox(newValue);
     this._token = "Bearer " + newValue;
-    rubrics.initLightbox(this._token);
   }
 
   get token() { return this._token; }
@@ -51,8 +51,8 @@ export class SakaiRubricStudentPreviewButton extends SakaiElement {
     return html`
       ${this.display === "button" ?
       html`<h3><sr-lang key="grading_rubric" /></h3>
-      <button onclick="rubrics.previewRubric('${this.rubricId}'); return false;"><sr-lang key="preview_rubric" /></button>`
-      : html`<span class="fa fa-table" style="cursor: pointer;" title="${tr("preview_rubric")}" onclick="rubrics.previewRubric('${this.rubricId}')" />`
+      <button @click="${this.showRubric}"><sr-lang key="preview_rubric" /></button>`
+      : html`<span class="fa fa-table" style="cursor: pointer;" title="${tr("preview_rubric")}" @click="${this.showRubric}" />`
       }
     `;
   }
@@ -64,8 +64,17 @@ export class SakaiRubricStudentPreviewButton extends SakaiElement {
 
       const association = data._embedded["rubric-associations"][0];
       if (!association.parameters.hideStudentPreview) {
-        this.rubricId = association.rubricId};
+        this.rubricId = association.rubricId;
+      }
     });
+  }
+
+  showRubric(e) {
+
+    e.preventDefault();
+
+    rubrics.showRubric(this.rubricId);
+    return false;
   }
 }
 

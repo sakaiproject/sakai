@@ -151,6 +151,7 @@
         <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js$!{portalCDNQuery}"></script>
         <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-association.js$!{portalCDNQuery}"></script>
         <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student-preview-button.js$!{portalCDNQuery}"></script>
+        <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student-button.js$!{portalCDNQuery}"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>

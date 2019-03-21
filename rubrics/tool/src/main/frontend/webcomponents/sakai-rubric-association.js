@@ -1,6 +1,5 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
-import {SakaiRubricPreview} from "./sakai-rubric-preview.js";
 import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
 
 class SakaiRubricAssociation extends SakaiElement {
@@ -15,6 +14,8 @@ class SakaiRubricAssociation extends SakaiElement {
   }
 
   set token(newValue) {
+
+    rubrics.initLightbox(newValue);
     this._token = "Bearer " + newValue;
   }
 
@@ -80,7 +81,7 @@ class SakaiRubricAssociation extends SakaiElement {
             </select>
 
             <!-- <a href="#">Create a Rubric</a> -->
-            <button @click="${this.previewRubric}" id="preview-rubric" class="btn btn-link ${this.enabledClass}">
+            <button @click="${this.showRubric}" id="preview-rubric" class="btn btn-link ${this.enabledClass}">
               <sr-lang key="preview_rubric">Preview Rubric</sr-lang>
             </button>
           </div>
@@ -152,7 +153,7 @@ class SakaiRubricAssociation extends SakaiElement {
     }
     if (this.rubrics.length) {
 
-      rubrics.initLightbox(this.token);
+      //rubrics.initLightbox(this.token);
  
       setTimeout(function() {
 
@@ -201,11 +202,11 @@ class SakaiRubricAssociation extends SakaiElement {
 
   }
 
-  previewRubric(e) {
+  showRubric(e) {
 
     e.preventDefault();
     if (this.isAssociated) {
-      rubrics.previewRubric(document.getElementById("rbcs-rubricslist").value);
+      rubrics.showRubric(document.getElementById("rbcs-rubricslist").value);
     } else {
       e.target.blur();
     }
