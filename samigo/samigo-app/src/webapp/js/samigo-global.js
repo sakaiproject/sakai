@@ -93,6 +93,14 @@ function resizeFrame(updown) {
     }
 }
 
+function returnToHostUrl(url) {
+
+  if (url) {
+    parent.location.href = url;
+    return false;
+  }
+}
+
 // SAK-38320: add scope to the table. Maybe can add these direct to the JSF table after JSF 2.3 upgrade?
 $( document ).ready(function() {
 	$('table.matrixTable th.matrixSurvey').attr('scope', 'col');
