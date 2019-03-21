@@ -215,7 +215,6 @@
 	<% if (hasAssociatedRubric) { %>
 		<sakai-rubric-grading
 		    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
-			grade-field-id="dfMsgGradeGradePoint"
 			tool-id="sakai.forums"
 			entity-id='<%= entityId %>'
 			evaluated-item-id='<%= rbcsEvaluationId %>'

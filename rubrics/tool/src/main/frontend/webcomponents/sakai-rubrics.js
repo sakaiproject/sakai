@@ -96,29 +96,55 @@ var rubrics = {
 
   initLightbox(token) {
 
+    if (rubrics.lightbox) {
+      return;
+    }
+
     $(document.body).on("click", ".rubrics-lightbox a", (e) => {
       e.preventDefault();
       rubrics.closeLightbox();
     });
+
     var scrollTop = rubrics.windowRef.pageYOffset || rubrics.windowRef.document.documentElement.scrollTop;
-    this.appendStringAsNodes(rubrics.windowRef.document.body, '<div class="rubrics-lightbox" style="display:none"><div class="container"><a href="#" class=>&times;</a><sakai-rubric-preview token="' + token + '"></sakai-rubric-preview></div></div>');
+    this.appendStringAsNodes(rubrics.windowRef.document.body, '<div class="rubrics-lightbox" style="display:none"><div class="container"><a href="#" class=>&times;</a><sakai-rubric-student token="' + token + '"></sakai-rubric-student></div></div>');
     rubrics.lightbox = $(".rubrics-lightbox", rubrics.windowRef.document);
   },
 
   closeLightbox() {
 
+    var el = $("sakai-rubric-student", rubrics.windowRef.document)[0];
+    el.removeAttribute("rubric-id");
+    el.removeAttribute("preview");
+    el.removeAttribute("tool-id");
+    el.removeAttribute("entity-id");
+    el.removeAttribute("evaluated-item-id");
+
     this.css(rubrics.lightbox[0], {"display": "none"});
     this.css(rubrics.windowRef.document.body, {"overflow": "auto"});
   },
 
-  previewRubric(id) {
+  showRubric(id, attributes) {
 
     this.css(rubrics.windowRef.document.body, {"overflow": "hidden"});
     var scrollTop = rubrics.windowRef.pageYOffset || rubrics.windowRef.document.documentElement.scrollTop;
 
     this.css(rubrics.lightbox[0], {height: rubrics.windowRef.window.innerHeight + "px", width: rubrics.windowRef.window.innerWidth + "px", top: scrollTop + "px"})
 
-    $("sakai-rubric-preview", rubrics.windowRef.document)[0].setAttribute("rubric-id", id);
+    var el = $("sakai-rubric-student", rubrics.windowRef.document)[0];
+
+    if (!attributes) {
+      el.setAttribute("rubric-id", id);
+      el.setAttribute("preview", true);
+      el.removeAttribute("tool-id");
+      el.removeAttribute("entity-id");
+      el.removeAttribute("evaluated-item-id");
+    } else {
+      el.removeAttribute("rubric-id");
+      el.removeAttribute("preview");
+      el.setAttribute("tool-id", attributes["tool-id"]);
+      el.setAttribute("entity-id", attributes["entity-id"]);
+      el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
+    }
     this.css(rubrics.lightbox[0], {"display": "block"});
   },
 };

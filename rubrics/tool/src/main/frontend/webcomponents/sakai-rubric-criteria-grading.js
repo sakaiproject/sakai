@@ -1,5 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {SakaiRubricGradingComment} from "./sakai-rubric-grading-comment.js";
 import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricCriteriaGrading extends SakaiElement {
@@ -8,7 +9,6 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
 
     return {
       criteria: { type: Array},
-      gradeFieldId: { attribute: "grade-field-id", type: Number},
       rubricAssociation: { attribute: "rubric-association", type: Object },
       stateDetailsJson: { type: String},
       entityId: { attribute: "entity-id", type: String},
@@ -291,14 +291,6 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
       }
     }, 0);
 
-    setTimeout(function() {
-
-      var field = document.getElementById(this.gradeFieldId);
-      if (this.gradeFieldId && field) {
-        field.value = this.totalPoints;
-      }
-    }.bind(this));
-    
     var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, value: this.totalPoints };
     this.dispatchEvent(new CustomEvent('total-points-updated', {detail: detail, bubbles: true, composed: true}));
 

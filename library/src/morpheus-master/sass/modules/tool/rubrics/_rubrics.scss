@@ -121,7 +121,7 @@
 
 .rubrics-lightbox {
     position: absolute;
-    z-index: 999;
+    z-index: 10000;
     background: rgba(0,0,0,0.5);
 
     sakai-rubric-criterion-preview {

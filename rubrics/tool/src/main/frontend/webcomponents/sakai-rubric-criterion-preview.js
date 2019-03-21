@@ -3,25 +3,10 @@ import {html} from "/webcomponents/assets/lit-element/lit-element.js";
 
 export class SakaiRubricCriterionPreview extends SakaiElement {
 
-  constructor() {
-
-    super();
-
-    this.totalPoints = 0;
-    this.pointsCalculation = "";
-    this.gradeFieldId = 0;
-    this.rubricAssociation = {};
-    this.criteria = [];
-  }
-
   static get properties() {
 
     return {
       criteria: { type: Array },
-      totalPoints: Number,
-      pointsCalculation: String,
-      gradeFieldId: Number,
-      rubricAssociation: { type: Object },
     };
   }
 

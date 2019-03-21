@@ -1,5 +1,6 @@
 import {SakaiElement} from "/webcomponents/sakai-element.js";
 import {html} from "/webcomponents/assets/lit-element/lit-element.js";
+import {SakaiRubricCriterionPreview} from "./sakai-rubric-criterion-preview.js";
 import {SakaiRubricCriterionStudent} from "./sakai-rubric-criterion-student.js";
 import {SakaiRubricStudentComment} from "./sakai-rubric-student-comment.js";
 import {SakaiRubricsLanguage} from "./sakai-rubrics-language.js";
@@ -9,6 +10,8 @@ class SakaiRubricStudent extends SakaiElement {
   constructor() {
 
     super();
+
+    this.preview = false;
 
     this.options = {};
     SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result);
@@ -20,12 +23,12 @@ class SakaiRubricStudent extends SakaiElement {
       token: { type: String},
       entityId: { attribute: "entity-id", type: String},
       toolId: { attribute: "tool-id", type: String},
-      gradeFieldId: { type: String},
       stateDetails: { type: String},
       preview: { type: Boolean},
       instructor: { type: Boolean},
       evaluatedItemId: { attribute: "evaluated-item-id", type: String},
       rubric: { type: Object },
+      rubricId: { attribute: "rubric-id", type: String },
     };
   }
 
@@ -35,6 +38,8 @@ class SakaiRubricStudent extends SakaiElement {
 
     if (this.token && this.toolId && this.entityId) {
       this.init();
+    } else if (this.token && this.preview && this.rubricId) {
+      this.setRubric();
     }
   }
 
@@ -55,16 +60,33 @@ class SakaiRubricStudent extends SakaiElement {
 
       <h3>${this.rubric.title}</h3>
 
-      <sakai-rubric-criterion-student
-        criteria="${JSON.stringify(this.rubric.criterions)}"
-        grade-field-id="${this.gradeFieldId}"
-        rubric-association="${JSON.stringify(this.association)}"
-        state-details="${this.stateDetails}"
-        evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
-        preview="${this.preview}"
-        entity-id="${this.entityId}"
-        ></sakai-rubric-criterion-student>
+      ${this.preview ?
+        html`<sakai-rubric-criterion-preview
+          criteria="${JSON.stringify(this.rubric.criterions)}"
+          ></sakai-rubric-criterion-preview>
+        `
+        :
+        html`<sakai-rubric-criterion-student
+          criteria="${JSON.stringify(this.rubric.criterions)}"
+          rubric-association="${JSON.stringify(this.association)}"
+          evaluation-details="${JSON.stringify(this.evaluation.criterionOutcomes)}"
+          ?preview="${this.preview}"
+          entity-id="${this.entityId}"
+          ></sakai-rubric-criterion-student>
+        `
+      }
     `;
+  }
+
+  setRubric() {
+
+    $.ajax({
+      url: `/rubrics-service/rest/rubrics/${this.rubricId}?projection=inlineRubric`,
+      headers: {"authorization": this.token},
+      contentType: "application/json"
+    })
+    .done(data => this.rubric = data )
+    .fail((jqXHR, textStatus, errorThrown) => { console.log(textStatus); console.log(errorThrown); });
   }
 
   init() {
@@ -98,6 +120,7 @@ class SakaiRubricStudent extends SakaiElement {
 
             if (data._embedded.evaluations.length) {
               this.evaluation = data._embedded.evaluations[0];
+              this.preview = false;
             } else {
               this.evaluation = { criterionOutcomes: [] };
               this.preview = true;
