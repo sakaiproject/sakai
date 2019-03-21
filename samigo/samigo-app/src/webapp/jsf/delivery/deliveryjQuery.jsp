@@ -33,9 +33,12 @@
      var selector = "input[value='" + submitButtonValue + "']";
 
      var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
-     var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";     
+     var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";
+     var time_expired = "<h:outputText value="#{deliveryMessages.time_expired2} " />";
+     var time_left = "<h:outputFormat value="#{deliveryMessages.time_left}"><f:param value="#{delivery.minutesLeft}"/><f:param value="#{delivery.secondsLeft}"/></h:outputFormat>";
+
      var newAttemptAutoSubmitWarning = "<h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}" rendered="#{delivery.scoringType == 4}" /><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last} " rendered="#{delivery.scoringType == 2}" />";
-     
+
      $(document).ready(function(){
 
                 var timerSave = false;
@@ -90,5 +93,13 @@
 			showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
 		}
 	});
+
+    function timeExpired(){
+	    alert(time_expired);
+    }
+
+    function timeLeft(){
+	    alert(time_left);
+    }
 
 </script>
