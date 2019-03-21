@@ -64,7 +64,7 @@ function removeOptionalAttributeBlock(elem) {
 				#end
 				#if(!$user)
 					## creating new account
-					<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+					<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="username" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
 				#else
 					## modifying existing account
 					#if($!superUser)
@@ -80,7 +80,7 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("usecre.firnam")
 				</label>	
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
+				<input type="text" name="first-name" id="first-name" autocomplete="given-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
 			#else
 				#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
 			#end
@@ -90,7 +90,7 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("usecre.lasnam")
 				</label>
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
-				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
+				<input type="text" name="last-name" id="last-name" autocomplete="family-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
 			#else
 				#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
 			#end
@@ -100,7 +100,7 @@ function removeOptionalAttributeBlock(elem) {
 					$tlang.getString("useconrem.ema")
 				</label>
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="email" #if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
                 <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			#else
 				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
@@ -113,7 +113,7 @@ function removeOptionalAttributeBlock(elem) {
             <label for="user_pwcur">
                 <span class="reqStar">*</span> $tlang.getString("usecre.vercurpass")
             </label>
-            <input type="password" name="pwcur" id="user_pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="off" />
+            <input type="password" name="pwcur" id="user_pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="current-password" />
         </div>
     #else
         &nbsp;
@@ -124,7 +124,7 @@ function removeOptionalAttributeBlock(elem) {
 				<label for="user_pw">
 					$tlang.getString("usecre.crenewpass")
 				</label>
-				<input type="password" name="pw" id="user_pw" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+				<input type="password" name="pw" id="user_pw" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="new-password" />
                 <div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
                 <div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
 				<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
@@ -138,7 +138,7 @@ function removeOptionalAttributeBlock(elem) {
 				<label for="user_pw0">
 					$tlang.getString("usecre.vernewpass")
 				</label>
-				<input type="password" name="pw0" id="user_pw0" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.verifyPasswordsMatch();" autocomplete="off" />
+				<input type="password" name="pw0" id="user_pw0" onkeyup="USER.verifyPasswordsMatch()" onblur="USER.verifyPasswordsMatch();" autocomplete="new-password" />
                 <div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
                 <div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
 			</div>
