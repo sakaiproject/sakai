@@ -1182,63 +1182,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.refreshSummaryLabels();
   GbGradeTable.setupDragAndDrop();
 
-  // Patch HandsonTable getWorkspaceWidth for improved scroll performance on big tables
-  var origGetWorkspaceWidth = WalkontableViewport.prototype.getWorkspaceWidth;
-
-  (function () {
-    var cachedWidth = undefined;
-    WalkontableViewport.prototype.getWorkspaceWidth = function () {
-      var self = this;
-      if (!cachedWidth) {
-        cachedWidth = origGetWorkspaceWidth.bind(self)();
-      }
-
-      return cachedWidth;
-    }
-  }());
-
-  // Patch HandsonTable adjustColumnWidths for improved scroll performance
-  var origAdjustColumnWidths = WalkontableTableRenderer.prototype.adjustColumnWidths;
-
-  (function () {
-    WalkontableTableRenderer.prototype.adjustColumnWidths = function (columnsToRender) {
-      var sourceInstance = this.wot.cloneSource ? this.wot.cloneSource : this.wot;
-      var mainHolder = sourceInstance.wtTable.holder;
-      if (this.wot.cachedScrollbarCompensation === undefined) {
-        this.wot.cachedScrollbarCompensation = 0;
-        if (mainHolder.offsetHeight < mainHolder.scrollHeight) {
-          // NYU: Hacked this!  was getScrollbarWidth();
-          this.wot.cachedScrollbarCompensation = 0;
-        }
-      }
-
-      var scrollbarCompensation = this.wot.cachedScrollbarCompensation;
-
-      this.wot.wtViewport.columnsRenderCalculator.refreshStretching(this.wot.wtViewport.getViewportWidth() - scrollbarCompensation);
-      var rowHeaderWidthSetting = this.wot.getSetting('rowHeaderWidth');
-      if (rowHeaderWidthSetting != null) {
-        for (var i = 0; i < this.rowHeaderCount; i++) {
-          var oldWidth = this.COLGROUP.childNodes[i].style.width;
-          var newWidth = (isNaN(rowHeaderWidthSetting) ? rowHeaderWidthSetting[i] : rowHeaderWidthSetting) + 'px';
-
-          // NYU: Added these conditionals
-          if (oldWidth != newWidth) {
-            this.COLGROUP.childNodes[i].style.width = (isNaN(rowHeaderWidthSetting) ? rowHeaderWidthSetting[i] : rowHeaderWidthSetting) + 'px';
-          }
-        }
-      }
-      for (var renderedColIndex = 0; renderedColIndex < columnsToRender; renderedColIndex++) {
-        var oldWidth = this.COLGROUP.childNodes[renderedColIndex + this.rowHeaderCount].style.width;
-        var width = this.wtTable.getStretchedColumnWidth(this.columnFilter.renderedToSource(renderedColIndex));
-
-        // NYU: Added these conditionals
-        if (oldWidth != width) {
-          this.COLGROUP.childNodes[renderedColIndex + this.rowHeaderCount].style.width = width + 'px';
-        }
-      }
-    }
-  }());
-
   GbGradeTable.runReadyCallbacks();
 };
 
