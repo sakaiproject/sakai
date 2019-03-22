@@ -62,7 +62,12 @@ class SakaiRubricStudentButton extends SakaiElement {
     .then(data => {
 
       const association = data._embedded["rubric-associations"][0];
-      this.hidden = association.parameters.hideStudentPreview;
+
+      if (!association) {
+        this.hidden = true;
+      } else {
+        this.hidden = association.parameters.hideStudentPreview;
+      }
     });
   }
 }
