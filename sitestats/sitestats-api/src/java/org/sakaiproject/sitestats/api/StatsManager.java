@@ -473,6 +473,14 @@ public interface StatsManager {
 	public long getTotalSiteVisits(String siteId, Date iDate, Date fDate);
 
 	/**
+	 * Get total site visits for a user.
+	 * @param siteId Site identifier
+	 * @param userId User identifier
+	 * @return Total visits.
+	 */
+	public long getTotalSiteVisitsForUser(String siteId, String userId);
+
+	/**
 	 * Get total site unique visits on a specific date interval.
 	 * @param siteId Site identifier
 	 * @param iDate Initial date

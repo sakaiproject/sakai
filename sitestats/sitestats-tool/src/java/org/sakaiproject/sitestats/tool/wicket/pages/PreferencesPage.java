@@ -109,7 +109,9 @@ public class PreferencesPage extends BasePage {
 		// Section: General
 		CheckBox listToolEventsOnlyAvailableInSite = new CheckBox("listToolEventsOnlyAvailableInSite");
 		form.add(listToolEventsOnlyAvailableInSite);
-		
+
+		CheckBox showOwnStatisticsToStudents = new CheckBox("showOwnStatisticsToStudents");
+		form.add(showOwnStatisticsToStudents);
 		
 		// Section: Chart
 		WebMarkupContainer chartPrefs = new WebMarkupContainer("chartPrefs");

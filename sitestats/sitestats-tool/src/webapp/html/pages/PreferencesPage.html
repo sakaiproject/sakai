@@ -54,8 +54,18 @@
 		                            <p class="instruction">
 		                                <wicket:message key="instructions_prefs_general">[instructions_prefs_general]</wicket:message>
 		                            </p>
-		                            <input wicket:id="listToolEventsOnlyAvailableInSite" type="checkbox" />
-		                            <wicket:message key="prefs_listToolEventsOnlyAvailableInSite">[prefs_listToolEventsOnlyAvailableInSite]</wicket:message>
+		                            <div>
+		                                <label>
+		                                    <input wicket:id="listToolEventsOnlyAvailableInSite" type="checkbox" />
+		                                    <wicket:message key="prefs_listToolEventsOnlyAvailableInSite">[prefs_listToolEventsOnlyAvailableInSite]</wicket:message>
+		                                </label>
+		                            </div>
+		                            <div>
+		                                <label>
+		                                    <input wicket:id="showOwnStatisticsToStudents" type="checkbox" />
+		                                    <wicket:message key="prefs_showOwnStatisticsToStudents">[prefs_showOwnStatisticsToStudents]</wicket:message>
+		                                </label>
+		                            </div>
 		                            
 		                            <p/>
 		                            
@@ -72,8 +82,10 @@
 		                                <wicket:message key="prefs_3dCharts">[prefs_3dCharts]</wicket:message>
 		                                <br/>
 		                                -->
-		                                <input wicket:id="itemLabelsVisible" type="checkbox" />
-		                                <wicket:message key="prefs_itemLabelsVisible">[prefs_itemLabelsVisible]</wicket:message>
+		                                <label>
+		                                	<input wicket:id="itemLabelsVisible" type="checkbox" />
+		                                	<wicket:message key="prefs_itemLabelsVisible">[prefs_itemLabelsVisible]</wicket:message>
+		                                </label>
 		                                <p/>
 		                                <wicket:message key="prefs_chartTransparency">[prefs_chartTransparency]</wicket:message>:
 		                                <select wicket:id="chartTransparency">

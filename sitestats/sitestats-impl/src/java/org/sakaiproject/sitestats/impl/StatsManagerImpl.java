@@ -3254,6 +3254,35 @@ if (log.isDebugEnabled()) {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getTotalSiteVisits(java.lang.String)
+	 */
+	public long getTotalSiteVisitsForUser(String siteId, String userId) {
+		if(siteId == null || userId == null){
+			throw new IllegalArgumentException("Null siteId or userId");
+		}else{
+			final String hql = "select sum(es.count) " +
+					"from EventStatImpl as es " +
+					"where es.siteId = :siteid " +
+					"and es.userId = :userid " +
+					"and es.eventId = 'pres.begin' ";
+
+			HibernateCallback<Long> hcb = session -> {
+				Query q = session.createQuery(hql);
+				q.setString("siteid", siteId);
+				q.setString("userid", userId);
+				List<Long> res = q.list();
+				if(res.size() > 0) return res.get(0);
+				else return 0L;
+			};
+			try{
+				return getHibernateTemplate().execute(hcb);
+			}catch(ClassCastException e) {
+				return getHibernateTemplate().execute(hcb);
+			}
+		}
+	}
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getTotalSiteUniqueVisits(java.lang.String, boolean)
 	 */
 	public long getTotalSiteUniqueVisits(final String siteId) {

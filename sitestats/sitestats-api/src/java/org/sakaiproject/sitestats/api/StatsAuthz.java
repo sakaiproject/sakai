@@ -23,6 +23,7 @@ public interface StatsAuthz {
 	/** Permissions */
 	public static final String	PERMISSION_SITESTATS_VIEW		= "sitestats.view";
 	public static final String	PERMISSION_SITESTATS_ADMIN_VIEW	= "sitestats.admin.view";
+	public static final String	PERMISSION_SITESTATS_OWN		= "sitestats.own";
 
 	// ################################################################
 	// Public methods
@@ -39,9 +40,21 @@ public interface StatsAuthz {
 	 */
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId);
 
+	/**
+	 * Check if current user has permission to access own SiteStats tool.
+	 * @param siteId The site id to check against.
+	 */
+	public boolean isUserAbleToViewSiteStatsOwn(String siteId);
+
 	/** Check if current tool is an instance of the SiteStats tool. */
 	public boolean isSiteStatsPage();
 	
 	/** Check if current tool is an instance of the SiteStats Admin tool. */
 	public boolean isSiteStatsAdminPage();
+
+	/**
+	 * Find the current user id
+	 * @return current user id
+	 */
+	public String getCurrentSessionUserId();
 }
