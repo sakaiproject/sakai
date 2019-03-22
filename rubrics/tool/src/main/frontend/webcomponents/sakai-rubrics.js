@@ -118,6 +118,7 @@ var rubrics = {
     el.removeAttribute("tool-id");
     el.removeAttribute("entity-id");
     el.removeAttribute("evaluated-item-id");
+    el.removeAttribute("instructor");
 
     this.css(rubrics.lightbox[0], {"display": "none"});
     this.css(rubrics.windowRef.document.body, {"overflow": "auto"});
@@ -138,12 +139,14 @@ var rubrics = {
       el.removeAttribute("tool-id");
       el.removeAttribute("entity-id");
       el.removeAttribute("evaluated-item-id");
+      el.removeAttribute("instructor");
     } else {
       el.removeAttribute("rubric-id");
       el.removeAttribute("preview");
       el.setAttribute("tool-id", attributes["tool-id"]);
       el.setAttribute("entity-id", attributes["entity-id"]);
       el.setAttribute("evaluated-item-id", attributes["evaluated-item-id"]);
+      el.setAttribute("instructor", attributes["instructor"]);
     }
     this.css(rubrics.lightbox[0], {"display": "block"});
   },

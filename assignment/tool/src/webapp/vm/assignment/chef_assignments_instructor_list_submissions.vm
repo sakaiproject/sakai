@@ -692,7 +692,8 @@ function printView(url) {
 										 token="$!rbcs-token"
 										 tool-id="sakai.assignment"
 										 evaluated-item-id="$submission.Id"
-										 entity-id="$assignment.Id">
+										 entity-id="$assignment.Id"
+										 instructor="true">
 									</sakai-rubric-student-button>
 								</td>
 							#end	
@@ -899,7 +900,7 @@ function printView(url) {
 		</ul>
 	#end
 	#if ($taggable)
-	   	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
+		#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 	#end
 	</div>	
 </div>

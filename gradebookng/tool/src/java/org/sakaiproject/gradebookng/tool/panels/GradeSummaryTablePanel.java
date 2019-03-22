@@ -34,6 +34,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -319,7 +320,13 @@ public class GradeSummaryTablePanel extends BasePanel {
 							final WebMarkupContainer sakaiRubricPreview = new WebMarkupContainer("sakai-rubric-student-button");
 							sakaiRubricPreview.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
+							sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+
+							if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
+										|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
+								sakaiRubricPreview.add(AttributeModifier.append("instructor", true));
+							}
 
 							if (assignment.getId() != null) {
 								sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
@@ -338,6 +345,11 @@ public class GradeSummaryTablePanel extends BasePanel {
 							sakaiRubricPreview.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 							sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 							sakaiRubricPreview.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
+
+							if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
+										|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
+								sakaiRubricPreview.add(AttributeModifier.append("instructor", true));
+							}
 
 							if (assignment.getId() != null) {
 								sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignment.getId()));
