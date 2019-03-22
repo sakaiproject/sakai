@@ -46,10 +46,6 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
   }
 
   get evaluationDetails() { return this._evaluationDetails; }
-  
-  shouldUpdate(changedProperties) {
-    return (this.preview && this.criteria) || this.ready;
-  }
 
   render() {
 
@@ -80,7 +76,7 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
               <strong class="points-display ${this.getOverriddenClass(c.pointoverride,c.selectedvalue)}">
                 &nbsp;
                 ${c.selectedvalue}
-                ${!c.selectedRadingId ? "0" : ""}
+                ${!c.selectedRatingId ? "0" : ""}
                 &nbsp;
               </strong>
               ${this.isOverridden(c.pointoverride,c.selectedvalue) ?
@@ -107,13 +103,16 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
 
         if (ed.criterionId === c.id) {
 
-          var ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
-          ratingItem.selected = true;
+          var selectedRatingItem;
+          c.ratings.forEach(r => {
+            r.selected = (r.id == ed.selectedRatingId);
+            selectedRatingItem = r;
+          });
 
-          c.selectedRadingId = ed.selectedRatingId;
+          c.selectedRatingId = ed.selectedRatingId;
           if (ed.pointsAdjusted) {
             c.pointoverride = ed.points;
-            c.selectedvalue = ratingItem.points;
+            c.selectedvalue = selectedRatingItem.points;
           } else {
             c.pointoverride = "";
             c.selectedvalue = ed.points;

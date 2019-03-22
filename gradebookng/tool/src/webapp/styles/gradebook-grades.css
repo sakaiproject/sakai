@@ -447,6 +447,10 @@ div.wicket-modal div.w_right > div {
   font-weight: normal;
 }
 
+.gb-summary-grade-score sakai-rubric-student-button {
+    float: right;
+}
+
 .gb-summary-grade-panel .gb-summary-grade-stats:before {
   font-family: 'gradebook-icons';
   content: '\f080';
