@@ -256,7 +256,8 @@
 											token="$!rbcs-token"
 											tool-id="sakai.assignment"
 											evaluated-item-id="$submission.Id"
-											entity-id="$assignment.Id">
+											entity-id="$assignment.Id"
+											instructor="true">
 										</sakai-rubric-student-button>
 										#end
 
