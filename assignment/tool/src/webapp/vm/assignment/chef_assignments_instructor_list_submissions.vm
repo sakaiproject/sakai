@@ -686,6 +686,12 @@ function printView(url) {
 									#else
 										$!service.getGradeForSubmitter($submission, $userSubmission.User.Id)
 									#end
+									<sakai-rubric-student-button
+										 token="$!rbcs-token"
+										 tool-id="sakai.assignment"
+										 evaluated-item-id="$submission.Id"
+										 entity-id="$assignment.Id">
+									</sakai-rubric-student-button>
 								</td>
 							#end	
 							#if ($allowReviewService && $assignment.ContentReview)
