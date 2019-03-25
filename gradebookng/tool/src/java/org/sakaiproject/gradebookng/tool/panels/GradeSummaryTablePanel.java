@@ -356,8 +356,9 @@ public class GradeSummaryTablePanel extends BasePanel {
 								String[] bits = assignment.getExternalId().split("/");
 								if (bits != null && bits.length >= 1) {
 									String assignmentId = bits[bits.length-1];
-									sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", studentUuid));
-									sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignmentId));//this only works for Assignments atm
+									String submissionId = rubricsService.getRubricEvaluationObjectId(assignmentId, studentUuid, RubricsConstants.RBCS_TOOL_ASSIGNMENT);
+									sakaiRubricPreview.add(AttributeModifier.append("entity-id", assignmentId));
+									sakaiRubricPreview.add(AttributeModifier.append("evaluated-item-id", submissionId));
 								} else {
 									log.warn(assignment.getExternalId() + " is not a valid assignment reference");
 								}
