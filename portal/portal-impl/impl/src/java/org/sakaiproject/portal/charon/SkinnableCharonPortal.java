@@ -41,9 +41,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -133,6 +132,7 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**

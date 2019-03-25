@@ -16,18 +16,26 @@
 package org.sakaiproject.portal.service;
 
 import java.time.Instant;
-import java.util.*;
-import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import javax.inject.Inject;
 
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Projections;
-import org.hibernate.HibernateException;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -43,17 +51,15 @@ import org.sakaiproject.commons.api.CommonsEvents;
 import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
-import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.BullhornService;
@@ -63,19 +69,14 @@ import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.transaction.TransactionStatus;
-
-import javax.inject.Inject;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

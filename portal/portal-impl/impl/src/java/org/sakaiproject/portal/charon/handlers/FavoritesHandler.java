@@ -15,44 +15,42 @@
  */
 package org.sakaiproject.portal.charon.handlers;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalHandlerException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.cover.PreferencesService;
-import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.user.api.Preferences;
-import java.util.Collections;
-import org.sakaiproject.tool.cover.SessionManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.entity.ContentType;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.PreferencesService;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
