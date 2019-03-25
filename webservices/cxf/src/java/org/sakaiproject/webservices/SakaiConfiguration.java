@@ -30,19 +30,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.BasicConfigItem;
 import org.sakaiproject.util.Xml;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by IntelliJ IDEA.
