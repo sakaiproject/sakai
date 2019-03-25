@@ -16,7 +16,7 @@
 package org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis;
 
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.app.scheduler.jobs.cm.processor.BaseCsvFileProcessor;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
