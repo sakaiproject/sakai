@@ -284,6 +284,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         String owner = "";
         String ownerType = "";
         String creatorId = "";
+        Long oldRubricId=null;
         Map <String,Boolean> oldParams = new HashMap<>();
 
         try {
@@ -296,6 +297,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 ownerType = association.getMetadata().getOwnerType();
                 creatorId = association.getMetadata().getCreatorId();
                 oldParams = association.getParameters();
+                oldRubricId = association.getRubricId();
             }
 
             //we will create a new one or update if the parameter rbcs-associate is true
@@ -311,8 +313,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                 } else {
                     String input = "{\"toolId\" : \""+tool+"\",\"itemId\" : \"" + id + "\",\"rubricId\" : " + params.get(RubricsConstants.RBCS_LIST) + ",\"metadata\" : {\"created\" : \"" + created + /*"\",\"modified\" : \"" + nowTime +*/ "\",\"ownerId\" : \"" + owner +
 					"\",\"ownerType\" : \"" + ownerType + "\",\"creatorId\" : \"" + creatorId + "\"},\"parameters\" : {" + setConfigurationParameters(params,oldParams) + "}}";
-                    log.debug("Existing association update" + input);
-                    deleteRubricEvaluationsForAssociation(associationHref, tool);
+                    log.debug("Existing association update " + input);
+                    if(Long.valueOf(params.get(RubricsConstants.RBCS_LIST)) != oldRubricId){
+                        deleteRubricEvaluationsForAssociation(associationHref, tool);
+                    }
                     String resultPut = putRubricResource(associationHref, input, tool);
                     //update the actual one.
                     log.debug("resultPUT: " +  resultPut);
