@@ -107,6 +107,8 @@ export class SakaiRubricCriterionStudent extends SakaiElement {
             if (r.id == ed.selectedRatingId) {
               r.selected = true;
               selectedRatingItem = r;
+            } else {
+              r.selected = false;
             }
           });
 
