@@ -16,10 +16,12 @@
 
 package org.sakaiproject.chat2.model.impl;
 
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.Data;
 import lombok.Setter;
@@ -47,6 +49,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -55,15 +58,16 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
+@Setter
 public class ChatMessageEntityProvider implements CoreEntityProvider,
 		AutoRegisterEntityProvider, Outputable, Inputable, Resolvable,
 		Describeable, Createable, Deleteable, CollectionResolvable, ActionsExecutable {
 
+
 	private ChatManager chatManager;
-	
-	@Setter private UserDirectoryService userDirectoryService;
-	@Setter private SessionManager sessionManager;
-	@Setter private FormattedText formattedText;
+	private UserDirectoryService userDirectoryService;
+	private SessionManager sessionManager;
+	private FormattedText formattedText;
 
 	public final static String ENTITY_PREFIX = "chat-message";
 
@@ -145,14 +149,6 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		return ENTITY_PREFIX;
 	}
 
-	public ChatManager getChatManager() {
-		return chatManager;
-	}
-
-	public void setChatManager(ChatManager chatManager) {
-		this.chatManager = chatManager;
-	}
-
 	public String[] getHandledOutputFormats() {
 		return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
 	}
@@ -167,22 +163,24 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 
 	public String createEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
-		
+
 		SimpleChatMessage inmsg = (SimpleChatMessage) entity;
 
 		String channelId = inmsg.getChatChannelId();
 		String context = inmsg.getContext();
-		
+
 		ChatChannel channel = null;
-		
+
 		if (channelId != null) {
 			channel = chatManager.getChatChannel(channelId);
+			if (channel == null) {
+				throw new EntityException("This channel does not exist", null, HttpServletResponse.SC_NOT_FOUND);
+			}
 		} else if (context != null) {
 			channel = chatManager.getDefaultChannel(context, null);
-		}
-		
-		if (channel == null) {
-			throw new IllegalArgumentException("Invalid channel id");
+			if (channel == null) {
+				throw new IllegalArgumentException("Invalid context");
+			}
 		}
 
 		if (inmsg.getBody() == null || "".equals(inmsg.getBody().trim())) {
@@ -192,7 +190,7 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		ChatMessage message;
 		
 		try {
-			message = getChatManager().createNewMessage(channel,
+			message = chatManager.createNewMessage(channel,
 					sessionManager.getCurrentSessionUserId());
 		} catch (PermissionException e) {
 			throw new SecurityException("No permission to post in this channel");
@@ -327,6 +325,11 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		log.debug("channelId: {}, siteId: {}, sessionKey: {}", channelId, siteId, chatManager.getSessionKey());
 		
 		ChatChannel channel = chatManager.getChatChannel(channelId);
+
+		if (channel == null) {
+			throw new EntityException("This channel does not exist", null, HttpServletResponse.SC_NOT_FOUND);
+		}
+
 		if (!chatManager.getCanReadMessage(channel)) {
 			throw new SecurityException("You do not have permission to access this channel");
 		}

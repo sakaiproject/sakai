@@ -49,7 +49,7 @@
 							<h:outputText  styleClass="skip" value=" #{channel.chatChannel.title}: " /> <h:outputText value="#{msgs.delete_room_messages}" />
 						</h:commandLink>
 					</f:subview>
-					<f:subview id="defaultLink" rendered="#{(!channel.chatChannel.placementDefaultChannel || ChatTool.toolString != channel.chatChannel.placement) && ChatTool.maintainer}">
+					<f:subview id="defaultLink" rendered="#{(!channel.chatChannel.placementDefaultChannel || ChatTool.placementId != channel.chatChannel.placement) && ChatTool.maintainer}">
 						<h:commandLink action="#{channel.processActionSetAsDefaultRoom}" 
 							title="#{channel.setAsDefaultText}">
 							<h:outputText  styleClass="skip" value=" #{channel.chatChannel.title}: " /> <h:outputText value="#{msgs.set_default}" />

@@ -656,9 +656,7 @@
         if (!roster.currentUserPermissions.rosterExport) {
             button.hide();
         } else {
-            button.show();
-
-            $('#roster-export-button').click(function (e) {
+            button.show().click(function (e) {
 
                 e.preventDefault();
 
@@ -766,7 +764,7 @@
             success: function (data) {
                 roster.searchIndex = data.data;
                 roster.searchIndexKeys = Object.keys(data.data);
-                roster.searchIndexValues = Object.values(data.data);
+                roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
                 // Now switch into the requested state
                 roster.switchState(roster.state, roster);
             },
