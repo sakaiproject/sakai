@@ -609,7 +609,7 @@
 								</td>
 								<!-- due col -->
 								<td>
-									$!service.getUsersLocalDateTimeString($!assignment.PeerAssessmentPeriodDate)
+									<span class="highlight">$!service.getUsersLocalDateTimeString($!assignment.PeerAssessmentPeriodDate)</span>
 								</td>
 								<!-- the following are empty columns as place holders -->
 								#if ($!allowGradeSubmission)
