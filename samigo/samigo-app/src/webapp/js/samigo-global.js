@@ -57,7 +57,7 @@ function whichradio(el) {
 		// determine current column
 		for(var i = 0; i < parts.length; ++i) {
 			if(parts[i] === 'matrixSurveyRadioTable') {
-				var dynId = parts[i+2];
+				var dynId = parts[i+3];
 				curCol = dynId.substring(dynId.lastIndexOf('_')+1, dynId.length);
 				colId = curCol + ':myRadioId';
 				break;
