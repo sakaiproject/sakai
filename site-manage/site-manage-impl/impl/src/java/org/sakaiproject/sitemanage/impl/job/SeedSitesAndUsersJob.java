@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -51,6 +52,9 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -60,6 +64,7 @@ import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserPermissionException;
+
 
 import com.github.javafaker.Faker;
 
@@ -97,11 +102,14 @@ public class SeedSitesAndUsersJob implements Job {
 	private ContentHostingService contentHostingService;
 	@Setter
 	private SqlService sqlService;
+	@Setter
+	private GradebookService gradebookService;
 
 	private int numberOfSites = 5;
 	private int numberOfStudents = 100;
 	private int numberOfEnnrollmentsPerSite = 50;
 	private int numberOfInstructorsPerSite = 1;
+	private int numberOfGradebookItems = 20;
 	private String emailDomain = "mailinator.com";
 
 	private long repositorySize = 10485760;        //  10 MB
@@ -125,6 +133,7 @@ public class SeedSitesAndUsersJob implements Job {
 		numberOfStudents = serverConfigurationService.getInt("site.seed.create.students", 100);
 		numberOfEnnrollmentsPerSite = serverConfigurationService.getInt("site.seed.enrollments.per.site", 50);
 		numberOfInstructorsPerSite = serverConfigurationService.getInt("site.seed.instructors.per.site", 1);
+		numberOfGradebookItems = serverConfigurationService.getInt("site.seed.create.gradebookitems", 20);
 		emailDomain = serverConfigurationService.getString("site.seed.email.domain", "mailinator.com");
 
 		try {
@@ -187,6 +196,33 @@ public class SeedSitesAndUsersJob implements Job {
 			}
 		}
 	}
+
+	private void addGradebookItems() {
+
+		for (Site site : sites.values()) {
+
+			String siteId = site.getId();
+			for (int i = 0;i < numberOfGradebookItems;i++) {
+				Assignment ass = new Assignment();
+				String name = "Item " + Integer.toString(i);
+				try {
+					ass.setName(name);
+					ass.setPoints(20D);
+					Long aid = gradebookService.addAssignment(siteId, ass);
+					for (Member m : site.getMembers()) {
+						gradebookService.saveGradeAndCommentForStudent(siteId, aid, m.getUserId(), "10", "");
+					}
+					if (i % 10 == 0) {
+						log.info("Created {} gradebook items", i);
+					}
+				} catch (ConflictingAssignmentNameException cane) {
+					// Don't know why this can happen. Transaction related, perhaps. Not
+					// that important, anyway.
+					log.warn("Failed to set gb item name to: {}", name);
+				}
+			}
+		}
+	}
 	
 	private long getSizeOfResources() {
 		StringBuffer sb = new StringBuffer();
@@ -244,6 +280,7 @@ public class SeedSitesAndUsersJob implements Job {
 		site.addPage().addTool("sakai.search");
 		site.addPage().addTool("sakai.resources");
 		site.addPage().addTool("sakai.siteinfo");
+		site.addPage().addTool("sakai.gradebookng");
 		siteService.save(site);
 		sites.put(site.getId(), site);
 		log.info("created site: {}", site.getId());
@@ -324,9 +361,9 @@ public class SeedSitesAndUsersJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("SeedSitesAndUsersJob started.");
 		
-		students = new HashMap<String, User>();
-		instructors = new HashMap<String, User>();
-		sites = new HashMap<String, Site>();
+		students = new HashMap<>();
+		instructors = new HashMap<>();
+		sites = new HashMap<>();
 
 		Session session = sessionManager.getCurrentSession();
 		String currentUser = session.getUserId();
@@ -342,6 +379,8 @@ public class SeedSitesAndUsersJob implements Job {
 			createInstructors();
 			createStudents();
 			createEnrollments();
+
+			addGradebookItems();
 
 			seedData();
 		} catch (Exception e) {
