@@ -28,12 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
-import uk.org.ponder.messageutil.MessageLocator;
-
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -42,6 +37,9 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.util.Validator;
+
+import lombok.extern.slf4j.Slf4j;
+import uk.org.ponder.messageutil.MessageLocator;
 
 /*
  * set up as a singleton, but CCExport is not.
@@ -301,11 +299,11 @@ public class AssignmentExport {
 		// assumption here is that if the user entered a URL, it's in valid syntax
 		// if we generate it from file location, it needs to be escaped
 		if (URL != null) {
-		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(URL) + "</a>\n");
+		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml3(URL) + "</a>\n");
 		} else {
 		    URL = prefix + Validator.escapeUrl(location);  // else it's in the normal site content
 		    URL = URL.replaceAll("//", "/");
-		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>\n");
+		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml3(lastAtom) + "</a><br/>\n");
 		    bean.addDependency(resource, sakaiId);
 		}
 	    }
