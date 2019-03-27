@@ -19,9 +19,7 @@
  *
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import java.io.IOException;
-import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -30,21 +28,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.PrePopulateBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
-import uk.ac.cam.caret.sakai.rwiki.tool.command.SaveCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 

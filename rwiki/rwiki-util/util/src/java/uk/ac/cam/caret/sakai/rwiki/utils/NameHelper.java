@@ -25,7 +25,7 @@ import java.nio.CharBuffer;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
