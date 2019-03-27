@@ -30,12 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import uk.org.ponder.localeutil.LocaleGetter;  
-import uk.org.ponder.messageutil.MessageLocator;                                                                                        
+import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;                                                               
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
@@ -111,6 +111,7 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		    if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
 			URL = "/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
 
+		   //TODO commons-lang3
 		    String js = "window.location = \"" + StringEscapeUtils.escapeJavaScript(URL) + "\"";
 		    if (params.getRefresh())
 			js = "window.top.opener.location.reload(true);" + js;

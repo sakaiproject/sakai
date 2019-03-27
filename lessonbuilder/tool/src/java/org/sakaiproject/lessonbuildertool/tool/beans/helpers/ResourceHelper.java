@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.lessonbuildertool.tool.beans.helpers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.util.BaseResourceProperties;
