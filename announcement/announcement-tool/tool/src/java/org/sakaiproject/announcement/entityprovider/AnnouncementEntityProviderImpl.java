@@ -772,7 +772,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 					}
 				}
 
-				if(!announcementService.isMessageViewable(msg)) {
+				if (msg.getHeader().getDraft() || !announcementService.isMessageViewable(msg)) {
 					return false;
 				}
 			}
