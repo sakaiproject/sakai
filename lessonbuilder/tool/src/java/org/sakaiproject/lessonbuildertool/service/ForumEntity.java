@@ -851,7 +851,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text));
 		shortText = text;
 	    }
-	    shortText = org.apache.commons.lang.StringUtils.abbreviate(shortText,254);
+	    shortText = org.apache.commons.lang3.StringUtils.abbreviate(shortText,254);
 
 	    ourTopic.setShortDescription(shortText);
 

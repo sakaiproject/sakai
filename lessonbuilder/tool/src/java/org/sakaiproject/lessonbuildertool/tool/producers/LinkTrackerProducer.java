@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import uk.org.ponder.localeutil.LocaleGetter;  
 import uk.org.ponder.messageutil.MessageLocator;
@@ -111,8 +111,7 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		    if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
 			URL = "/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
 
-		   //TODO commons-lang3
-		    String js = "window.location = \"" + StringEscapeUtils.escapeJavaScript(URL) + "\"";
+		    String js = "window.location = \"" + StringEscapeUtils.escapeEcmaScript(URL) + "\"";
 		    if (params.getRefresh())
 			js = "window.top.opener.location.reload(true);" + js;
 		    UIVerbatim.make(tofill, "redirect", js);
