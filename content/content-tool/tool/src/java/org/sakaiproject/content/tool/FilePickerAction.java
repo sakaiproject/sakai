@@ -3080,7 +3080,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		String wsId = siteService.getUserSiteId(userId);
 		String wsCollectionId = contentService.getSiteCollection(wsId);
 		
-		if(! collectionId.equals(wsCollectionId))
+		if(! collectionId.equals(wsCollectionId) && !userDirectoryService.ADMIN_ID.equals(userId))
 		{
             try
             {
