@@ -8,4 +8,9 @@
         padding: 0 5px;
         background: url(/library/image/sakai/new_item_back_inst.png) center left no-repeat;
     }
+
+    div.alertMessage {
+        display: none;
+        clear: both;
+    }
 }
