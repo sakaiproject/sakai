@@ -32,10 +32,50 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-		       		<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
+			<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
 			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			
+			<script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var notEmptyTableTd = $("#prefs_pvt_form\\:pvtmsgs td:not(:empty)").length;
+
+            if (notEmptyTableTd > 0) {
+                var table = $("#prefs_pvt_form\\:pvtmsgs").DataTable({
+                    "paging": false,
+                    "aaSorting": [[4, "desc"]],
+                    "columns": [
+                        {"bSortable": false, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": false},
+                        {"bSortable": false, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": true},
+                        {"bSortable": true, "bSearchable": false},
+                        {"bSortable": true, "bSearchable": false}
+                    ],
+                    "language": {
+                        "search": <h:outputText value="'#{msgs.datatables_sSearch}'" />,
+                        "zeroRecords": <h:outputText value="'#{msgs.datatables_zeroRecords}'" />,
+                        "info": <h:outputText value="'#{msgs.datatables_info}'" />,
+                        "infoEmpty": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
+                        "infoFiltered": <h:outputText value="'#{msgs.datatables_infoFiltered}'" />,
+                        "emptyTable": <h:outputText value="'#{msgs.datatables_infoEmpty}'" />,
+                        "paginate": {
+                            "next": <h:outputText value="'#{msgs.datatables_paginate_next}'" />,
+                            "previous": <h:outputText value="'#{msgs.datatables_paginate_previous}'" />,
+                        },
+                        "aria": {
+                            "sortAscending": <h:outputText value="'#{msgs.datatables_aria_sortAscending}'" />,
+                            "sortDescending": <h:outputText value="'#{msgs.datatables_aria_sortDescending}'" />,
+                        }
+                    }
+                });
+            }
+    });
+    </script>
+
 			<sakai:tool_bar>
                 <h:commandLink id="composeMessage"
                     action="#{PrivateMessagesTool.processPvtMsgCompose}" immediate="true">
@@ -48,15 +88,15 @@
  			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
  			<!-- Display successfully moving checked messsages to Deleted folder -->
   			<h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
-  			
+
   		<%@ include file="msgHeader.jsp"%>
-		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>	
+		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>
 	  <div class="table-responsive">
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
 					 columnClasses="check,attach,reply,specialLink,created,date,bogus">
-	  	                
+
 		  <h:column>
 		    <f:facet name="header">
 				<h:panelGroup>
@@ -68,21 +108,12 @@
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
 		  <h:column>
-		    <f:facet name="header">					
-			  <h:commandLink>
+		    <f:facet name="header">
 		        <h:graphicImage value="/images/attachment.gif"
 		                        title="#{msgs.sort_attachment}" 
 		                        alt="#{msgs.sort_attachment}" />
-		        <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                        title="#{msgs.sort_attachment_asc}" alt="#{msgs.sort_attachment_asc}"
-    	                        rendered="#{PrivateMessagesTool.sortType == 'attachment_asc'}"/>
-    	        <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
-    	                        title="#{msgs.sort_attachment_desc}" alt=" #{msgs.sort_attachment_desc}"
-    	                        rendered="#{PrivateMessagesTool.sortType == 'attachment_desc'}"/>    	                       
-    	        <f:param name="sortColumn" value="attachment"/>
-    	      </h:commandLink>
 			</f:facet>
-			<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
+			<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
@@ -92,20 +123,11 @@
 			</f:facet>
 			<h:graphicImage value="/images/replied_flag.png" rendered="#{rcvdItems.replied}"
 								title="#{msgs.pvt_replied}"
-								alt="#{msgs.pvt_replied}" />			 
+								alt="#{msgs.pvt_replied}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:commandLink value="#{msgs.pvt_subject}"
-		                      title="#{msgs.sort_subject}">
-		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                         title="#{msgs.sort_subject_asc}" alt="#{msgs.sort_subject_asc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'subject_asc'}"/>
-    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
-    	                         title="#{msgs.sort_subject_desc}" alt="#{msgs.sort_subject_desc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'subject_desc'}"/>
-    	         <f:param name="sortColumn" value="subject"/>
-    	       </h:commandLink>
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_subject}"/></h:outputLink>
 		    </f:facet>
 			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" title="#{rcvdItems.msg.title}" immediate="true">
 
@@ -114,55 +136,36 @@
 			<h:outputText styleClass="skip" value="#{msgs.pvt_openb}#{msgs.pvt_unread}#{msgs.pvt_closeb}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
-		  </h:column>			
+		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
-		       <h:commandLink value="#{msgs.pvt_authby}"
-		                      title="#{msgs.sort_author}">
-		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                         title="#{msgs.sort_author_asc}" alt="#{msgs.sort_author_asc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'author_asc'}"/>
-    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
-    	                         title="#{msgs.sort_author_desc}" alt="#{msgs.sort_author_desc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'author_desc'}"/>
-    	         <f:param name="sortColumn" value="author"/>
-    	       </h:commandLink>
-		    </f:facet>		     		    
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_authby}"/></h:outputLink>
+		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title == 'pvt_sent'}">
 		    <f:facet name="header">
-   		     <h:commandLink value="#{msgs.pvt_to}"
-		                      title="#{msgs.sort_to}">
-		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                       title="#{msgs.sort_to_asc}" alt="#{msgs.sort_to_asc}"
-    	                       rendered="#{PrivateMessagesTool.sortType == 'to_asc'}"/>
-    	       <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
-    	                       title="#{msgs.sort_to_desc}" alt="#{msgs.sort_to_desc}"
-    	                       rendered="#{PrivateMessagesTool.sortType == 'to_desc'}"/>
-    	       <f:param name="sortColumn" value="to"/>
-    	     </h:commandLink>
-		    </f:facet>		     		    
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_to}"/></h:outputLink>
+		    </f:facet>
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}" />
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>	
-		  	  
+		  </h:column>
+
 		  <h:column>
 		    <f:facet name="header">
-		       <h:commandLink value="#{msgs.pvt_date}"
-		                      title="#{msgs.sort_date}">
-		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                         title="#{msgs.sort_date_asc}" alt="#{msgs.sort_date_asc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'date_asc'}"/>
-    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
-    	                         title="#{msgs.sort_date_desc}" alt="#{msgs.sort_date_desc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'date_desc'}"/>    	                       
-    	         <f:param name="sortColumn" value="date"/>
-    	       </h:commandLink>
+				<h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_date}"/></h:outputLink>
 		    </f:facet>
+			 <%-- This hidden date is for sorting purposes using datetables --%>
+		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}" styleClass="hidden">
+			     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
 			     <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
+			 </h:outputText>
+			 <%-- This hidden date is for sorting purposes using datetables --%>
+			 <h:outputText value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}" styleClass="hidden">
+			     <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
 			 </h:outputText>
 		   <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
 			   <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
@@ -170,22 +173,13 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		       <h:commandLink value="#{msgs.pvt_label}"
-		                      title="#{msgs.sort_label}">
-		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                         title="#{msgs.sort_label_asc}" alt="#{msgs.sort_label_asc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'label_asc'}"/>
-    	         <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
-    	                         title="#{msgs.sort_label_desc}" alt="#{msgs.sort_label_desc}"
-    	                         rendered="#{PrivateMessagesTool.sortType == 'label_desc'}"/>    	                       
-    	         <f:param name="sortColumn" value="label"/>
-    	       </h:commandLink>
+			   <h:outputLink value="#" onclick="return false;"><h:outputText value="#{msgs.pvt_label}"/></h:outputLink>
 		    </f:facet>
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</h:dataTable>
 	</div>
-	  <div class="table-responsive">	
+	  <div class="table-responsive">
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
@@ -204,19 +198,19 @@
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />								
+					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
+				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />
 			</h:column>
 			<h:column>
-				<f:facet name="header">					
+				<f:facet name="header">
 		        	<h:graphicImage value="/images/replied_menu.png"
 			                        title="#{msgs.pvt_msgs_replied}" 
 			                        alt="#{msgs.pvt_msgs_replied}" />
 				</f:facet>
 				<h:graphicImage value="/images/replied_flag.png" rendered="#{rcvdItems.replied}"
 									title="#{msgs.pvt_replied}"
-									alt="#{msgs.pvt_replied}" />			 
+									alt="#{msgs.pvt_replied}" />
 		  	</h:column>
 			<h:column id="_msg_subject">
 		    <f:facet name="header">
@@ -227,21 +221,21 @@
             <h:outputText styleClass="unreadMsg" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
-		  </h:column>			
+		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
-		    </f:facet>		     		    
+		    </f:facet>
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title == 'pvt_sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_to}"/>
-		    </f:facet>		     		    
+		    </f:facet>
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}"/>
 		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
-		  </h:column>		  
+		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_date}"/>
@@ -281,6 +275,6 @@
 }
 %>
 
-		 </h:form>
+		</h:form>
 	</sakai:view>
 </f:view>
