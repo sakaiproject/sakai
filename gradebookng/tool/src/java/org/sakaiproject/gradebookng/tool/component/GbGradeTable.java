@@ -117,9 +117,8 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
 
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/0.26.1/dist/handsontable.full.min.js%s", version)));
-
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/0.26.1/dist/handsontable.full.min.css%s", version)));
+				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.js?version=%s", version)));
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/webjars/handsontable/6.2.2/handsontable.full.min.css?version=%s", version)));
 
 		final GbGradebookData gradebookData = new GbGradebookData(
 				gbGradeTableData,
