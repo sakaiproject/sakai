@@ -424,14 +424,11 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 ba.setSiteId(siteId);
                 ba.setEventDate(eventDate.toInstant());
                 ba.setUrl(url);
-
-                boolean deferred = false;
                 try {
-                    deferred = !siteService.getSite(siteId).isPublished();
+                    ba.setDeferred(!siteService.getSite(siteId).isPublished());
                 } catch (IdUnusedException iue) {
-                    log.warn("Failed to find site with id '" + siteId + "'. deferred will be false.");
+                    log.warn("Failed to find site with id {} while setting deferred to published", siteId);
                 }
-                ba.setDeferred(deferred);
 
                 sessionFactory.getCurrentSession().persist(ba);
             }

@@ -12,15 +12,18 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Type;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "BULLHORN_ALERTS")
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BullhornAlert {
 
     @Id
     @Column(name = "ID", nullable = false)
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "ALERT_TYPE", length = 8, nullable = false)
@@ -52,7 +55,7 @@ public class BullhornAlert {
     private Instant eventDate;
 
     @Column(name="DEFERRED", nullable=false)
-    private Boolean deferred;
+    private Boolean deferred = Boolean.FALSE;
 
     @Transient
     private String fromDisplayName;
