@@ -6024,13 +6024,13 @@ public class SimplePageBean {
 		// doesn't seem to make sense to use ellipses for less than length of 8. better just to truncate
 		// if possible, truncate the base
 		if (base.length() > (overage + 8)) {
-		    ret[0] = org.apache.commons.lang.StringUtils.abbreviateMiddle(name, "_", maxname - extension.length());
+		    ret[0] = org.apache.commons.lang3.StringUtils.abbreviateMiddle(name, "_", maxname - extension.length());
 		    return ret;
 		}
 
 		// but what about b.eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, or more likely, .xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		if (extension.length() > (overage + 8)) {
-		    ret[1] = org.apache.commons.lang.StringUtils.abbreviateMiddle(extension, "_", maxname - base.length());
+		    ret[1] = org.apache.commons.lang3.StringUtils.abbreviateMiddle(extension, "_", maxname - base.length());
 		    return ret;
 		}
 
@@ -6042,7 +6042,7 @@ public class SimplePageBean {
 
 		// base has to be larger than maxname, so final length will be maxname
 		if (maxname > 8) {
-		    ret[0] = org.apache.commons.lang.StringUtils.abbreviateMiddle(base, "_", maxname);
+		    ret[0] = org.apache.commons.lang3.StringUtils.abbreviateMiddle(base, "_", maxname);
 		    return ret;
 		}
 
@@ -6065,7 +6065,7 @@ public class SimplePageBean {
 		// for owned pages, use the same kind of hierarchy. One exception: use site name as basedir
 		if (pageOwner != null) {
 		    String title = getCurrentSite().getTitle();
-		    baseDir = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(title,"_",30));
+		    baseDir = Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(title,"_",30));
 		}		    
 
 		// if (pageOwner == null) {
@@ -6112,7 +6112,7 @@ public class SimplePageBean {
 			    // 33 is a name of length 30 and -NN for duplicates
 			    // actual length is 255, but I worry about weird characters I don't understand
 			    if (title.length() > (250 - collectionId.length() - 33)) {
-				title = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(getPageTitle(),"_",30)) + "/";
+				title = Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(getPageTitle(),"_",30)) + "/";
 			    }
 			    
 			    // make sure folder names are unique
@@ -6201,7 +6201,7 @@ public class SimplePageBean {
 	    seen.add(page.getPageId());
 	    List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(page.getPageId()));
 	    if (items == null || items.isEmpty()) {
-		return new Path(0, Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		return new Path(0, Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
 	    }
 	    else {
 		int minlevel = 9999;
@@ -6223,8 +6223,8 @@ public class SimplePageBean {
 		    }
 		}
 		if (bestPath.equals(""))
-		    return new Path(0, Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
-		return new Path(minlevel + 1, bestPath + Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		    return new Path(0, Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		return new Path(minlevel + 1, bestPath + Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
 	    }
 	}
 
