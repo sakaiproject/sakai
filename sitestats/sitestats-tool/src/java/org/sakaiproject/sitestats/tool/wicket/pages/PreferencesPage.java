@@ -214,6 +214,14 @@ public class PreferencesPage extends BasePage {
 	public boolean isListToolEventsOnlyAvailableInSite() {
 		return getPrefsdata().isListToolEventsOnlyAvailableInSite();
 	}
+
+	public void setShowOwnStatisticsToStudents(boolean showOwnStatisticsToStudents) {
+		prefsdata.setShowOwnStatisticsToStudents(showOwnStatisticsToStudents);
+	}
+
+	public boolean isShowOwnStatisticsToStudents() {
+		return getPrefsdata().isShowOwnStatisticsToStudents();
+	}
 	
 	public void setChartIn3D(boolean chartIn3D) {
 		prefsdata.setChartIn3D(chartIn3D);

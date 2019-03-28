@@ -567,7 +567,8 @@ public class VisitsWidget extends Panel {
 				long durationInMs = getTotalTimeInSiteInMs();
 				if (avg) {
 					long myTotalVisits = Locator.getFacade().getStatsManager().getTotalSiteVisitsForUser(siteId, currentUserId);
-					return this.msToString(durationInMs/myTotalVisits);
+					if (myTotalVisits == 0l) return "0";
+					else return this.msToString(durationInMs/myTotalVisits);
 				} else {
 					return this.msToString(durationInMs);
 				}
