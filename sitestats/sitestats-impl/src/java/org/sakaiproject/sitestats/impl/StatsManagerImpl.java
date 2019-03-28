@@ -3271,13 +3271,14 @@ if (log.isDebugEnabled()) {
 				q.setString("siteid", siteId);
 				q.setString("userid", userId);
 				List<Long> res = q.list();
-				if(res.size() > 0) return res.get(0);
+				if(res.size() > 0 && res.get(0) != null) return res.get(0);
 				else return 0L;
 			};
 			try{
 				return getHibernateTemplate().execute(hcb);
 			}catch(ClassCastException e) {
-				return getHibernateTemplate().execute(hcb);
+				log.error("Cannot get total site visits for user: {} on site: {}", userId, siteId);
+				return 0l;
 			}
 		}
 	}
