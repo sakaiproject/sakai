@@ -152,7 +152,7 @@ public class SamigoExport {
 	String publishedAssessmentString = samigoId.substring(i+1);
 	Long publishedAssessmentId = new Long(publishedAssessmentString);
 
-	PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString);
+	PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString, true);
 
 	List<ItemDataIfc> publishedItemList = preparePublishedItemList(assessment);
 
