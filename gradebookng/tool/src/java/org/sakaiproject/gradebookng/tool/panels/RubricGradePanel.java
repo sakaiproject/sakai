@@ -21,6 +21,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
@@ -28,6 +29,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
@@ -53,6 +55,14 @@ public class RubricGradePanel extends BasePanel {
         final Long assignmentId = (Long) modelData.get("assignmentId");
         final String studentUuid = (String) modelData.get("studentUuid");
         final GbUser student = businessService.getUser(studentUuid);
+
+        // Set the JS rubricGradingPoints variable to the current grade, if set.
+        Map<Long, GbGradeInfo> grades = businessService.getGradesForStudent(studentUuid);
+        String grade = grades.get(assignmentId).getGrade();
+        if (grade == null) grade = "0";
+        Label initPointsScript = new Label("initPointsScript", "<script>rubricGradingPoints = " + grade + ";</script>");
+        initPointsScript.setEscapeModelStrings(false);
+        add(initPointsScript);
 
         final Form form = new Form("sakaiRubricGradingForm");
 
