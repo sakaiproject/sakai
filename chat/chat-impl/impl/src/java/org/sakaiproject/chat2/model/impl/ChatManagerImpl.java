@@ -337,7 +337,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public List<ChatMessage> getChannelMessages(ChatChannel channel, String context, Date date, int start, int max, boolean sortAsc) throws PermissionException {
         if (channel == null) {
-            List<ChatMessage> allMessages = new ArrayList<ChatMessage>();
+            List<ChatMessage> allMessages = new ArrayList<>();
             List<ChatChannel> channels = getContextChannels(context, true);
             for (Iterator<ChatChannel> i = channels.iterator(); i.hasNext();) {
                 ChatChannel tmpChannel = i.next();
@@ -364,7 +364,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     @SuppressWarnings("unchecked")
     protected List<ChatMessage> getChannelMessages(ChatChannel channel, Date date, int start, int max, boolean sortAsc) throws PermissionException {
 
-        List<ChatMessage> messages = new ArrayList<ChatMessage>();
+        List<ChatMessage> messages = new ArrayList<>();
         if (channel == null || max == 0) {
             // no channel or no items causes nothing to be returned
             return messages;
@@ -407,13 +407,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         // Always sort desc so we get the newest messages, reorder after we get the final list
         c.addOrder(Order.desc("messageDate"));
 
-        if (localMax != 0) {
-            if (localMax > 0) {
-                c.setMaxResults(localMax);
-            }
-            if (localStart > 0) {
-                c.setFirstResult(localStart);
-            }
+        if (localStart > 0) {
+            c.setFirstResult(localStart);
+        }
+
+        // Date settings should always override the max message setting
+        if (localDate == null && localMax > 0) {
+            c.setMaxResults(localMax);
+        }
+
+        if (localDate != null || localMax > 0) {
             messages = c.list();
         }
 
@@ -432,13 +435,6 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     public int countChannelMessages(ChatChannel channel) {
         return getChannelMessagesCount(channel, null, null);
-        // use getChannelMessagesCount since it is more efficient
-//        Criteria c = this.getSession().createCriteria(ChatMessage.class);
-//        if (channel != null) {
-//            c.add(Expression.eq("chatChannel", channel));      
-//        }
-//        List<ChatMessage> messages = c.list();
-//        return messages.size();
     }
 
     /* (non-Javadoc)

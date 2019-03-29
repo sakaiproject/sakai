@@ -1113,7 +1113,7 @@ public class ChatTool {
       if (numMessages > getChatManager().getMessagesMax()) {
           numMessages = getChatManager().getMessagesMax();
       }
-      List<ChatMessage> messages = new ArrayList<ChatMessage>();
+      List<ChatMessage> messages = new ArrayList<>();
       try {
          ChatChannel channel = (currentChannel==null) ? null : currentChannel.getChatChannel();
          messages = getChatManager().getChannelMessages(channel, context, limitDate, 0, numMessages, sortAsc);
@@ -1122,7 +1122,7 @@ public class ChatTool {
          setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_READ});
       }
       
-      List<DecoratedChatMessage> decoratedMessages = new ArrayList<DecoratedChatMessage>();
+      List<DecoratedChatMessage> decoratedMessages = new ArrayList<>();
       
       for (ChatMessage message : messages) {         
          DecoratedChatMessage decoratedMessage = new DecoratedChatMessage(this, message, chatManager);
