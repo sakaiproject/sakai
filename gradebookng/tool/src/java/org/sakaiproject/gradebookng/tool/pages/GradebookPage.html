@@ -24,13 +24,13 @@
     <div wicket:id="courseGradeStatisticsWindow" />
     <div wicket:id="bulkEditItemsWindow" />
     
-    <div wicket:id="rubricGradeWindow" />
     <script>
         rubricGradingPoints = 0;
         $('body').on('total-points-updated', function (e) {
           rubricGradingPoints = e.detail.value;
         });
     </script>
+    <div wicket:id="rubricGradeWindow" />
 
     <div wicket:id="gradeTableArea">
         <div wicket:id="noAssignments" class="gb-noGbItems">
