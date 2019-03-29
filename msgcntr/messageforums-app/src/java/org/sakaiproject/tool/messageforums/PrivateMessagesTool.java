@@ -3876,11 +3876,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
           dbean.setReplied(el.getReplied().booleanValue());
         }
       }
-      //Add decorate 'TO' String for sent message
-      if(PVTMSG_MODE_SENT.equals(msgNavMode))
-      {
-        dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean)); 
-      }
+        dbean.setSendToStringDecorated(createDecoratedSentToDisplay(dbean));
 
       decLs.add(dbean) ;
     }
