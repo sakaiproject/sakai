@@ -12,7 +12,7 @@ export class SakaiRubricStudentComment extends SakaiElement {
   render() {
 
     return html`
-      <div class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleComment}" title="${tr("criterion_comment_student")}"></div>
+      <div style="${this.criterion.comments ? "cursor: pointer;" : ""}" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleComment}" title="${tr("criterion_comment_student")}"></div>
 
       <!-- popover -->
       <div id="criterion-comment-viewer-${this.criterion.id}" class="popover criterion-edit-popover left">
@@ -38,6 +38,10 @@ export class SakaiRubricStudentComment extends SakaiElement {
 
     e.stopPropagation();
     e.preventDefault();
+
+    if (!this.criterion.comments) {
+      return;
+    }
 
     var popover = $(`#criterion-comment-viewer-${this.criterion.id}`);
 
