@@ -1,4 +1,4 @@
-<!-- Javascript for the Question Progress Panel-->
+/* Javascript for the Question Progress Panel */
 (function (questionProgress, $, undefined) {
 	var origWrapWidth = 0;
 	var CLICK_PANEL_WIDTH = 299;
@@ -8,6 +8,7 @@
 	var arrowSuffix = "']";
 	var rightArrowSuffix = ":rightArrow";
 	var downArrowSuffix = ":downArrow";
+	var qPToggleOnNoStorage = false;
 
 	$('#questionProgressClick').click(function () {
 		toggle(400);
@@ -48,12 +49,19 @@
 	}
 
 	function getQPToggleOn() {
+		if(localStorage === null) {
+			return qPToggleOnNoStorage;
+		}
 		var value = localStorage.getItem('QPToggleOn');
 		return value == '1';
 	}
 
 	function setQPToggleOn(QPToggleOn) {
-		localStorage.setItem('QPToggleOn', (QPToggleOn ? '1' : '0'));
+		if(localStorage !== null) {
+			localStorage.setItem('QPToggleOn', (QPToggleOn ? '1' : '0'));
+		} else {
+			qPToggleOnNoStorage = !qPToggleOnNoStorage;
+		}
 	}
 
 	function partLinkClickEvent(event) {
