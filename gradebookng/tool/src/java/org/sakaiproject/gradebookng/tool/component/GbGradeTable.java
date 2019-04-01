@@ -132,8 +132,10 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 		int sectionsColumnWidth = serverConfigService.getInt("gradebookng.sectionsColumnWidth", 140);
 		int studentNumberColumnWidth = serverConfigService.getInt("gradebookng.studentNumberColumnWidth", 140);
+		boolean allowColumnResizing = serverConfigService.getBoolean("gradebookng.allowColumnResizing", false);
 		StringBuilder sb = new StringBuilder();
 		sb.append("var sectionsColumnWidth = ").append(sectionsColumnWidth);
+		sb.append(", allowColumnResizing = ").append(allowColumnResizing);
 		sb.append(", studentNumberColumnWidth = ").append(studentNumberColumnWidth).append(";");
 		response.render(JavaScriptHeaderItem.forScript(sb.toString(), null));
 	}

@@ -723,6 +723,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     colWidths: GbGradeTable.getColumnWidths(),
     autoRowSize: true,
     autoColSize: false,
+    manualColumnResize: allowColumnResizing,
     height: GbGradeTable.calculateIdealHeight(),
     width: GbGradeTable.calculateIdealWidth(),
     fillHandle: false,
