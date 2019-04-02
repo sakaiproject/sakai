@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PortletConfig;
@@ -40,7 +40,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.Message;
@@ -53,7 +52,8 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.apache.commons.lang.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
