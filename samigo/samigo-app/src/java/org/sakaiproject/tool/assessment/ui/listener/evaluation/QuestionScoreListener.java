@@ -985,6 +985,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			for (int s = 0; s < thisItemOptions.length; s++) {
 				int endOfCheckmark = thisItemOptions[s].indexOf(">");
 				int colonAt = thisItemOptions[s].indexOf(":");
+				if(endOfCheckmark==-1||colonAt==-1) {
+					continue;
+				}
 				String thisSequence = thisItemOptions[s].substring(endOfCheckmark, colonAt);
 				StringBuilder editItemBuffer = new StringBuilder();
 				editItemBuffer.append(thisSequence).append("|").append(thisItemOptions[s]);
@@ -994,7 +997,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			StringBuilder optionBuffer = new StringBuilder();
 			for (String thisItemOption : thisItemOptions) {
 				int dlmIndex = thisItemOption.indexOf('|');
-				optionBuffer.append(thisItemOption.substring(dlmIndex + 1)).append("<br/>");
+				if (dlmIndex != -1) {
+					optionBuffer.append(thisItemOption.substring(dlmIndex + 1)).append("<br/>");
+				}
 			}
 			log.debug("sortedOptions{}", optionBuffer);
 			thisAgentResult.setAnswer(optionBuffer.toString());
