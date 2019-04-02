@@ -190,7 +190,7 @@
 					#else
 						<a href="#toolLinkParam("FilePickerAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
 							<span class="fa fa-expand" aria-hidden="true"></span>
-							<span class="sr-only">$tlang.getString('label.expand.all')</span>
+							<span class="sr-only">$stlang.getString('label.expand.all')</span>
 						</a>								 
 					#end
 					<a href="#toolLinkParam("FilePickerAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
