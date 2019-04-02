@@ -36,8 +36,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -477,8 +477,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("containerText", containerText);
 		rcontext.put("loginContainerUrl", loginContainerUrl);
 
-		String eid = StringEscapeUtils.escapeHtml(request.getParameter("eid"));
-		String pw = StringEscapeUtils.escapeHtml(request.getParameter("pw"));
+		String eid = StringEscapeUtils.escapeHtml3(request.getParameter("eid"));
+		String pw = StringEscapeUtils.escapeHtml3(request.getParameter("pw"));
 
 		if (eid == null)
 			eid = "";
