@@ -169,4 +169,36 @@
 	    }
 	}
 
+	.dataTable {
+		thead {
+			.sorting_asc, .sorting_desc {
+				a {
+					position: relative;
+					margin-right: 11px;
+
+					&::after {
+						content: " ";
+						width: 11px;
+						height: 11px;
+						position: absolute;
+						bottom: 2px;
+						right: -14px;
+					}
+				}
+			}
+
+			.sorting_asc {
+				a::after {
+					background: url(/library/image/sakai/sortascending.gif?panel=Main);
+				}
+			}
+
+			.sorting_desc {
+				a::after {
+					background: url(/library/image/sakai/sortdescending.gif?panel=Main);
+				}
+			}
+		}
+	}
+
 }
