@@ -52,7 +52,10 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 		Objects.requireNonNull(siteId, "siteId cannot be null");
 		Objects.requireNonNull(taskId, "taskId cannot be null");
 		Objects.requireNonNull(content, "content cannot be null");
-				
+		
+		boolean errorsPresent = false;
+		StringBuilder errors = new StringBuilder();
+		String delim = "";
 		for (ContentResource resource : content) {
 			String contentId = resource.getId();
 			
@@ -66,7 +69,10 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 			Optional<ContentReviewItem> existingItem = itemDao.findByProviderAndContentId(providerId, contentId);
 			
 			if (existingItem.isPresent()) {
-				throw new QueueException("Content " + contentId + " is already queued");
+				errorsPresent = true;
+				errors.append(delim).append("Content " + contentId + " is already queued");
+				delim = ", ";
+				continue;
 			}
 			
 			ContentReviewItem item = new ContentReviewItem(contentId, userId, siteId, taskId, new Date(), ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE, providerId);
@@ -74,6 +80,11 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 			log.debug("Adding content: " + contentId + " from site " + siteId + " and user: " + userId + " for task: " + taskId + " to submission queue");
 			
 			itemDao.create(item);
+		}
+
+		if (errorsPresent)
+		{
+			throw new QueueException(errors.toString());
 		}
 	}
 	
