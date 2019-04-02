@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.faces.context.FacesContext;
@@ -54,7 +55,7 @@ public class ResetQuestionScoreListener implements ActionListener
     AbortProcessingException
   {
     QuestionScoresBean bean = (QuestionScoresBean) cu.lookupBean("questionScores");
-    bean.setAgents(null);
+    bean.setAgents(new ArrayList());
     bean.setItemScoresMap(new HashMap());
     bean.setPublishedAssessment(null);
   }
