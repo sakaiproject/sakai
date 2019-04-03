@@ -53,7 +53,6 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 		Objects.requireNonNull(taskId, "taskId cannot be null");
 		Objects.requireNonNull(content, "content cannot be null");
 		
-		boolean errorsPresent = false;
 		StringBuilder errors = new StringBuilder();
 		String delim = "";
 		for (ContentResource resource : content) {
@@ -69,7 +68,6 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 			Optional<ContentReviewItem> existingItem = itemDao.findByProviderAndContentId(providerId, contentId);
 			
 			if (existingItem.isPresent()) {
-				errorsPresent = true;
 				errors.append(delim).append("Content " + contentId + " is already queued");
 				delim = ", ";
 				continue;
@@ -82,7 +80,7 @@ public class ContentReviewQueueServiceImpl implements ContentReviewQueueService 
 			itemDao.create(item);
 		}
 
-		if (errorsPresent)
+		if (errors.length() > 0)
 		{
 			throw new QueueException(errors.toString());
 		}
