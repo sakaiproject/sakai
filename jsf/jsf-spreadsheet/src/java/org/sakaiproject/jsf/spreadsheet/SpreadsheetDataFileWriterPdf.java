@@ -1,5 +1,16 @@
 package org.sakaiproject.jsf.spreadsheet;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Cell;
 import com.lowagie.text.Chunk;
@@ -14,19 +25,7 @@ import com.lowagie.text.Table;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfWriter;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 @Slf4j
 public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
