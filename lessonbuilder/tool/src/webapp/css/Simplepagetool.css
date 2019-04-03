@@ -1484,7 +1484,7 @@ padding:1px;
 color: #666;
 }
 .calendar-div{
-max-width: 550px;
+max-width: 650px;
 border: solid #999 1px;
 border-radius: 0px 0px 10px 10px;
 }
@@ -1499,9 +1499,6 @@ list-style-type: none;
 .fc-event{
 cursor: pointer;
 margin-bottom: 6px; /*to add space between two events*/
-}
-.fc-today-button{
-background-color: #eee !important;
 }
 .fc-state-default {
 color: #333 !important;

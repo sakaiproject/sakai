@@ -226,7 +226,7 @@
 	@include sakai_primary_button();
 }
 
-.button, button.ui-state-default, .btn.btn-default {
+button:not(.fc-button), .button, button.ui-state-default, .btn.btn-default {
 	@include sakai_secondary_button();
 }
 
