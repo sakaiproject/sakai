@@ -30,9 +30,7 @@ import java.util.Set;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
@@ -41,7 +39,8 @@ import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-import org.sakaiproject.tool.section.jsf.backingbean.EditManagersBean;
+
+import lombok.extern.slf4j.Slf4j;
 /**
  * Controls the edit students page (where students are assigned to sections).
  * 

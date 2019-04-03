@@ -30,13 +30,13 @@ import java.util.Map;
 
 import javax.faces.model.SelectItem;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class FilteredSectionListingBean extends CourseDependentBean implements Serializable {
