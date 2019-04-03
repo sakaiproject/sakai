@@ -21,25 +21,23 @@
 package org.sakaiproject.tool.section.jsf;
 
 import java.sql.Time;
+import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.jsf.util.ConversionUtil;
-import org.sakaiproject.tool.section.jsf.MessagingBean;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A utility to help deal with common tasks in JSF.
