@@ -67,10 +67,10 @@ public class ContentReviewItemDao extends HibernateCommonDao<ContentReviewItem> 
 				.createCriteria(ContentReviewItem.class)
 				.add(Restrictions.eq("providerId", providerId))
 				.setProjection( Projections.projectionList()
-							.add(Projections.distinct(Projections.property("siteId")))
-							.add(Projections.property("id"))
+							.add(Projections.groupProperty("siteId"))
+							.add(Projections.max("id").as("maxId"))
 						)
-				.addOrder(Order.desc("id"))
+				.addOrder(Order.desc("maxId"))
 				.setMaxResults(999);
 
 		List<Object[]> listOfObjects = c.list();
