@@ -52,6 +52,7 @@
                         {"bSortable": false, "bSearchable": false},
                         {"bSortable": true, "bSearchable": true},
                         {"bSortable": true, "bSearchable": true},
+                        <h:outputText value="{\"bSortable\": true, \"bSearchable\": false}," rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_received' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_drafts' && PrivateMessagesTool.selectedTopic.topic.title != 'pvt_deleted' }"/>
                         {"bSortable": true, "bSearchable": false},
                         {"bSortable": true, "bSearchable": false}
                     ],
