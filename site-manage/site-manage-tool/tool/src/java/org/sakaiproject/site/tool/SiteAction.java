@@ -2454,10 +2454,6 @@ public class SiteAction extends PagedResourceActionII {
 				if (SiteTypeUtil.isProjectSite(siteType)) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
-
-				if (StringUtils.trimToNull(siteInfo.iconUrl) != null) {
-					context.put(FORM_ICON_URL, siteInfo.iconUrl);
-				}
 			}
 
 			// about skin and icon selection
@@ -2470,6 +2466,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("title", siteInfo.title);
 			context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
 			context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
+			context.put(FORM_ICON_URL, siteInfo.iconUrl);
 			context.put("description", siteInfo.description);
 			context.put("short_description", siteInfo.short_description);
 			context.put("form_site_contact_name", siteInfo.site_contact_name);
