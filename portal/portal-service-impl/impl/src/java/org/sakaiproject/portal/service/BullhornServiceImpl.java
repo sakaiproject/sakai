@@ -15,45 +15,27 @@
  */
 package org.sakaiproject.portal.service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
+import java.util.function.Function;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
-import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.commons.api.CommonsEvents;
-import org.sakaiproject.commons.api.CommonsManager;
-import org.sakaiproject.commons.api.datamodel.Comment;
-import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -63,21 +45,21 @@ import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.portal.api.BullhornHandler;
 import org.sakaiproject.portal.api.BullhornService;
 import org.sakaiproject.portal.beans.BullhornAlert;
-import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.logic.ProfileLinkLogic;
-import org.sakaiproject.profile2.logic.ProfileStatusLogic;
-import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
+
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -88,25 +70,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private static final List<String> HANDLED_EVENTS = new ArrayList<>();
 
     @Inject
-    private AnnouncementService announcementService;
-    @Inject
-    private AssignmentService assignmentService;
-    @Inject
-    private AuthzGroupService authzGroupService;
-    @Inject
-    private CommonsManager commonsManager;
-    @Inject
-    private EntityManager entityManager;
-    @Inject
     private EventTrackingService eventTrackingService;
     @Inject
     private MemoryService memoryService;
-    @Inject
-    private ProfileConnectionsLogic profileConnectionsLogic;
-    @Inject
-    private ProfileLinkLogic profileLinkLogic;
-    @Inject
-    private ProfileStatusLogic profileStatusLogic;
     @Inject
     private UserDirectoryService userDirectoryService;
     @Inject
@@ -124,20 +90,20 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private Cache<String, Map> countCache = null;
 
+    @Autowired
+    private List<BullhornHandler> handlers;
+
+    private Map<String, BullhornHandler> handlerMap;
+
     public void init() {
 
         if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
-            HANDLED_EVENTS.add(ProfileConstants.EVENT_STATUS_UPDATE);
-            HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_REQUEST);
-            HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_CONFIRM);
-            HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_IGNORE);
-            HANDLED_EVENTS.add(ProfileConstants.EVENT_MESSAGE_SENT);
-            HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
-            HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
-            HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
-            HANDLED_EVENTS.add(CommonsEvents.COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
+
+            HANDLED_EVENTS.addAll(handlers.stream().map(h -> h.getHandledEvent()).collect(Collectors.toList()));
+            handlerMap = handlers.stream().collect(Collectors.toMap(BullhornHandler::getHandledEvent, Function.identity()));
+
             eventTrackingService.addLocalObserver(this);
         }
 
@@ -158,156 +124,21 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 String from = e.getUserId();
                 long at = e.getEventTime().getTime();
                 try {
-                    if (ProfileConstants.EVENT_STATUS_UPDATE.equals(event)) {
-                        // Get all the posters friends
-                        List<User> connections = profileConnectionsLogic.getConnectedUsersForUserInsecurely(from);
-                        for (User connection : connections) {
-                            String to = connection.getId();
-                            String url = profileLinkLogic.getInternalDirectUrlToUserProfile(to, from);
-                            doSocialInsert(from, to, event, ref, e.getEventTime(), url);
-                            countCache.remove(to);
-                        }
-                    } else if (ProfileConstants.EVENT_FRIEND_REQUEST.equals(event)) {
-                        String to = pathParts[2];
-                        String siteId = "~" + to;
-                        Site site = siteService.getSite(siteId);
-                        String toolId = site.getToolForCommonId("sakai.profile2").getId();
-                        String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
-                                                                    + "/tool/" + toolId + "/connections";
-                        doSocialInsert(from, to, event, ref, e.getEventTime(), url);
-                        countCache.remove(to);
-                    } else if (ProfileConstants.EVENT_FRIEND_CONFIRM.equals(event)
-                                || ProfileConstants.EVENT_FRIEND_IGNORE.equals(event)) {
-                        String to = pathParts[2];
-                        Session session = sessionFactory.openSession();
-                        Transaction tx = session.beginTransaction();
-                        try {
-                            session.createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
-                                .setString("event", ProfileConstants.EVENT_FRIEND_REQUEST)
-                                .setString("fromUser", to).executeUpdate();
-                            tx.commit();
-                        } catch (Exception e1) {
-                            log.error("Failed to delete bullhorn request event", e1);
-                            tx.rollback();
-                        } finally {
-                            session.close();
-                        }
-                        String url = profileLinkLogic.getInternalDirectUrlToUserConnections(to);
-                        doSocialInsert(from, to, event, ref, e.getEventTime(), url);
-                        countCache.remove(from);
-                        countCache.remove(to);
-                    } else if (ProfileConstants.EVENT_MESSAGE_SENT.equals(event)) {
-                        String to = pathParts[2];
-                        String siteId = "~" + to;
-                        Site site = siteService.getSite(siteId);
-                        String toolId = site.getToolForCommonId("sakai.profile2").getId();
-                        String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
-                                                                    + "/tool/" + toolId + "/messages";
-                        doSocialInsert(from, to, event, ref, e.getEventTime(), url);
-                        countCache.remove(to);
-                    } else if (CommonsEvents.COMMENT_CREATED.equals(event)) {
-                        String type = pathParts[2];
-                        String postId = pathParts[4];
-                        // To is always going to be the author of the original post
-                        Post post = commonsManager.getPost(postId, true);
-                        if (post != null) {
-                            Set<String> tos = new HashSet<>();
-                            String siteId = post.getSiteId();
-                            String to = post.getCreatorId();
-                            tos.add(to);
-                            for (Comment comment : post.getComments()) {
-                                to = comment.getCreatorId();
-                                tos.add(to);
-                            }
-                            doCommonsCommentInserts(from, event, ref, e, siteId, postId, tos);
-                        }
-                    } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event)) {
-                        String siteId = pathParts[3];
-                        String announcementId = pathParts[pathParts.length - 1];
+                    BullhornHandler handler = handlerMap.get(event);
 
-                        SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ});
-                        try {
-                            AnnouncementMessage message
-                                = (AnnouncementMessage) announcementService.getMessage(
-                                                                entityManager.newReference(ref));
+                    if (handler != null ) {
+                        Optional<List<BullhornData>> result = handler.handleEvent(e, countCache);
+                        if (result.isPresent()) {
+                            result.get().forEach(bd -> System.out.println(bd.getTo() + " : " + bd.getTitle()));
+                            result.get().forEach(bd -> {
 
-                            if (announcementService.isMessageViewable(message)) {
-                                Site site = siteService.getSite(siteId);
-                                String toolId = site.getToolForCommonId("sakai.announcements").getId();
-                                String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
-                                                    + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
-
-                                // In this case title = announcement subject
-                                String title
-                                    = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
-
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
-                                    }
+                                if (bd.isSocial()) {
+                                    doSocialInsert(bd.getFrom(), bd.getTo(), event, ref, e.getEventTime(), bd.getUrl());
+                                } else {
+                                    doAcademicInsert(from, bd.getTo(), event, ref, bd.getTitle(),
+                                                    bd.getSiteId(), e.getEventTime(), bd.getUrl());
                                 }
-                            }
-                        } catch (IdUnusedException idue) {
-                            log.error("No site with id '" + siteId + "'", idue);
-                        } finally {
-                            lock(sa);
-                        }
-                    } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
-                        String siteId = pathParts[3];
-                        String assignmentId = pathParts[pathParts.length - 1];
-                        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
-                        try {
-                            Assignment assignment = assignmentService.getAssignment(assignmentId);
-                            Instant openTime = assignment.getOpenDate();
-                            if (openTime == null || openTime.isBefore(Instant.now())) {
-                                Site site = siteService.getSite(siteId);
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignmentId);
-                                Set<String> groupIds = assignment.getGroups();
-                                Collection<String> groupsUsers = authzGroupService.getAuthzUsersInGroups(groupIds);
-                                // Get all the members of the site with read ability
-                                for (String to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                                    //  If this is a grouped assignment, is 'to' in one of the groups?
-                                    if (groupIds.size() == 0 || groupsUsers.contains(to)) {
-                                        if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                            doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                            countCache.remove(to);
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (IdUnusedException idue) {
-                            log.error("Failed to find either the assignment or the site", idue);
-                        } finally {
-                            lock(sa);
-                        }
-                    } else if (AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION.equals(event)) {
-                        String siteId = pathParts[3];
-                        String submissionId = pathParts[pathParts.length - 1];
-                        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
-                                                        , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
-                                                        , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
-
-                        // Without hacking assignment's permissions model, this is only way to
-                        // get a submission, other than switching to the submitting user.
-                        try {
-                            AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
-                            if (submission.getGradeReleased()) {
-                                Site site = siteService.getSite(siteId);
-                                Assignment assignment = submission.getAssignment();
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignment.getId());
-                                submission.getSubmitters().forEach(to -> {
-                                    doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
-                                    countCache.remove(to.getSubmitter());
-                                });
-                            }
-                        } catch (IdUnusedException idue) {
-                            log.error("Failed to find either the submission or the site", idue);
-                        } finally {
-                            lock(sa);
+                            });
                         }
                     } else if (LessonBuilderEvents.COMMENT_CREATE.equals(event)) {
                         try {
@@ -379,37 +210,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
         }
     }
 
-    /**
-     * Supply null to this and everything will be allowed. Supply
-     * a list of functions and only they will be allowed.
-     */
-    private SecurityAdvisor unlock(final String[] functions) {
-
-        SecurityAdvisor securityAdvisor = new SecurityAdvisor() {
-                public SecurityAdvice isAllowed(String userId, String function, String reference) {
-
-                    if (functions != null) {
-                        if (Arrays.asList(functions).contains(function)) {
-                            return SecurityAdvice.ALLOWED;
-                        } else {
-                            return SecurityAdvice.NOT_ALLOWED;
-                        }
-                    } else {
-                        return SecurityAdvice.ALLOWED;
-                    }
-                }
-            };
-        securityService.pushAdvisor(securityAdvisor);
-        return securityAdvisor;
-    }
-
-    private void lock(SecurityAdvisor securityAdvisor) {
-        securityService.popAdvisor(securityAdvisor);
-    }
-
     private void doAcademicInsert(String from, String to, String event, String ref
                                             , String title, String siteId, Date eventDate, String url) {
-
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
@@ -457,39 +259,6 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 sessionFactory.getCurrentSession().persist(ba);
             }
         });
-    }
-
-    private void doCommonsCommentInserts(String from, String event, String ref, Event e, String siteId, String postId, Set<String> tos) {
-
-        log.debug("Inserting Commons comment alerts: from is {}, tos is {}, siteId is {}", from, tos, siteId);
-        boolean isSocial = siteId.equals("SOCIAL");
-        for (String to : tos) {
-            // If we're commenting on our own post, no alert needed
-            if (!from.equals(to)) {
-                String mySiteId = siteId;
-                if (isSocial) {
-                    mySiteId = "~" + to;
-                }
-                Site site = null;
-                try {
-                    site = siteService.getSite(mySiteId);
-                } catch (IdUnusedException ex) {
-                    log.error("Couldn't find site " + mySiteId, ex);
-                }
-                if (site != null) {
-                    String toolId = site.getToolForCommonId("sakai.commons").getId();
-                    String url = serverConfigurationService.getPortalUrl() + "/directtool/"
-                                 + toolId + "/posts/" + postId;
-                    if (isSocial) {
-                        doSocialInsert(from, to, event, ref, e.getEventTime(), url);
-                    } else {
-                        String title = "";
-                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                    }
-                    countCache.remove(to);
-                }
-            }
-        }
     }
 
     @Transactional
