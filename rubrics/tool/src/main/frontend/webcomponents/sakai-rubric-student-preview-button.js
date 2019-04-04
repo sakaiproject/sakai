@@ -63,7 +63,7 @@ export class SakaiRubricStudentPreviewButton extends SakaiElement {
     .then(data => {
 
       const association = data._embedded["rubric-associations"][0];
-      if (!association.parameters.hideStudentPreview) {
+      if (association && !association.parameters.hideStudentPreview) {
         this.rubricId = association.rubricId;
       }
     });
