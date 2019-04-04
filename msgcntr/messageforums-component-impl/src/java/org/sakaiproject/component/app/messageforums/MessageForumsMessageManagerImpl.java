@@ -1322,18 +1322,12 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         getHibernateTemplate().saveOrUpdate(message);
 
-        if (logEvent) {
+        if (logEvent && !isMessageFromForums(message)) { // Forums handles events itself
         	if (isNew) {
-        		if (isMessageFromForums(message))
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message, toolId, userId, contextId), false));
-        		else
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message, toolId, userId, contextId), false));
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message, toolId, userId, contextId), false));
         	} else {
-        		if (isMessageFromForums(message))
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
-        		else
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
-        	}           
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
+        	}
         }
         
         log.debug("message " + message.getId() + " saved successfully");

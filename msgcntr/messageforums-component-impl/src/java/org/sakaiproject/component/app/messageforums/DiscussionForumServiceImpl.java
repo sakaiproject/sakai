@@ -1349,7 +1349,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 							if(updateTopic){
 								//update forum
-								dfManager.saveTopic(topic, topic.getDraft(), false, currentUserId);
+								dfManager.saveTopic(topic, topic.getDraft(), null, currentUserId);
 							}
 						}						
 					}
