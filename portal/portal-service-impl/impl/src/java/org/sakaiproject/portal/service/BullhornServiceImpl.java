@@ -29,6 +29,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
@@ -86,37 +87,37 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
     private static final List<String> HANDLED_EVENTS = new ArrayList<>();
 
-    @Setter
+    @Inject
     private AnnouncementService announcementService;
-    @Setter
+    @Inject
     private AssignmentService assignmentService;
     @Inject
     private AuthzGroupService authzGroupService;
     @Inject
     private CommonsManager commonsManager;
-    @Setter
+    @Inject
     private EntityManager entityManager;
-    @Setter
+    @Inject
     private EventTrackingService eventTrackingService;
-    @Setter
+    @Inject
     private MemoryService memoryService;
-    @Setter
+    @Inject
     private ProfileConnectionsLogic profileConnectionsLogic;
-    @Setter
+    @Inject
     private ProfileLinkLogic profileLinkLogic;
-    @Setter
+    @Inject
     private ProfileStatusLogic profileStatusLogic;
-    @Setter
+    @Inject
     private UserDirectoryService userDirectoryService;
-    @Setter
+    @Inject
     private SecurityService securityService;
-    @Setter
+    @Inject
     private ServerConfigurationService serverConfigurationService;
-    @Setter
+    @Inject @Named("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
     private SimplePageToolDao simplePageToolDao;
-    @Setter
+    @Inject
     private SiteService siteService;
-    @Setter
+    @Inject @Named("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
     @Setter
     private TransactionTemplate transactionTemplate;
