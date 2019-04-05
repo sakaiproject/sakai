@@ -21,7 +21,7 @@
       var viewType = null;
       var viewGap = 0;
       var headerHeight;
-      var routePrefix = "";
+      var routePrefix = "../delivery/";
       var routeSuffix = "";
       var ajaxQuery = {
           "ajax": true
@@ -265,7 +265,7 @@
       });
 
       function leaveAssessment() {
-	      window.open("submitted" + routeSuffix, "_self");
+	      window.open("../delivery/submitted" + routeSuffix, "_self");
       }
 
       timeoutDialog.dialog({

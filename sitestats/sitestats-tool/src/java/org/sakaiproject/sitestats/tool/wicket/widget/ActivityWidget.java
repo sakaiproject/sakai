@@ -97,7 +97,7 @@ public class ActivityWidget extends Panel {
 		// Final Widget object		
 		String icon = StatsManager.SILK_ICONS_DIR + "chart_pie.png";
 		String title = (String) new ResourceModel("overview_title_activity").getObject();
-		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
+		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 
@@ -245,7 +245,7 @@ public class ActivityWidget extends Panel {
 					rp.setHowSort(true);
 					rp.setHowSortBy(StatsManager.T_TOTAL);
 					rp.setHowSortAscending(false);
-					Report r = Locator.getFacade().getReportManager().getReport(rd, true, null, false);
+					Report r = Locator.getFacade().getReportManager().getReport(rd, true, null, false, null);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -374,7 +374,7 @@ public class ActivityWidget extends Panel {
 			
 			private void processData() {
 				if(mostActiveUser == null) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {

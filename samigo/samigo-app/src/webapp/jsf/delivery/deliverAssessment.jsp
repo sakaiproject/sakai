@@ -41,14 +41,8 @@
 
     <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment'}">
       <script>
-        var imports = [
-          '/rubrics-service/imports/sakai-rubric-student.html'
-        ];
-        var Polymerdom = 'shady';
         var rbcstoken = '<h:outputText value="#{delivery.rbcsToken}" />';
       </script>
-
-      <script src="/rubrics-service/js/sakai-rubrics.js"></script>
     </h:panelGroup>
 
 	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
@@ -129,7 +123,7 @@ function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
   pauseTiming = 'false';
-  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
+  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=${delivery.timeElapse};
  }
 }
 function disableRationale(){
@@ -334,10 +328,18 @@ document.links[newindex].onclick();
 
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student
+           token='<h:outputText value="#{delivery.rbcsToken}" />'
            tool-id="sakai.samigo"
            entity-id='<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}"/>'
            evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'>
          </sakai-rubric-student>
+       </h:panelGroup>
+
+       <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment'}">
+           <sakai-rubric-student-preview-button
+                token="<h:outputText value="#{delivery.rbcsToken}" />"
+                tool-id="sakai.samigo"
+                entity-id="<h:outputText value="pub.#{delivery.assessmentId}.#{question.itemData.itemId}" />"></sakai-rubric-student-preview-button>
        </h:panelGroup>
 
        <div class="samigo-question-callout">

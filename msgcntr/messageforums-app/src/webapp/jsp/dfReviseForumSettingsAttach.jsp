@@ -68,15 +68,7 @@
 		});		
 	}
 	</script>
-<!-- RUBRICS JAVASCRIPT -->
-<script>
-  var imports = [
-	'/rubrics-service/imports/sakai-rubric-association.html',
-	'/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
-</script>
+<!-- RUBRICS VARIABLES -->
 <%
 	FacesContext fcontext = FacesContext.getCurrentInstance();
 	Application appl = fcontext.getApplication();
@@ -85,8 +77,7 @@
 	String stateDetails = forumTool.getRbcsStateDetails();
 	String entityId = "for." + forumTool.getSelectedForum().getForum().getId();
 %>
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
-<!-- END RUBRICS JAVASCRIPT -->
+<!-- END RUBRICS VARIABLES -->
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
     <h:form id="revise">
@@ -330,6 +321,7 @@
 			
 		<sakai-rubric-association styleClass="checkbox" style="margin-left:10px;display:none;"
 
+			token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
 			dont-associate-label='<h:outputText value="#{msgs.forum_dont_associate_label}" />'
 			dont-associate-value="0"
 			associate-label='<h:outputText value="#{msgs.forum_associate_label}" />'
@@ -343,8 +335,8 @@
 				state-details=<%= stateDetails %>
 			<%}%>
 
-			config-fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
-			config-hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
+			fine-tune-points='<h:outputText value="#{msgs.option_pointsoverride}" />'
+			hide-student-preview='<h:outputText value="#{msgs.option_studentpreview}" />'
 
 		></sakai-rubric-association>
 

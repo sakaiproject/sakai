@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LocalSectionModel implements CourseSection, Serializable {

@@ -32,6 +32,14 @@
 				<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.forum_restricted_message}" alt="#{msgs.forum_restricted_message}" rendered="#{ForumTool.selectedForum.forum.availability == 'false'}" style="margin-right:.5em"/>
 				<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true'}" style="margin-right:.5em"/>	
 				<%-- Rubrics marker --%>
+				<h:panelGroup rendered="#{ForumTool.selectedForum.hasRubric == 'true'}">
+					<sakai-rubric-student-preview-button
+						display="icon"
+						token="<h:outputText value="#{ForumTool.rbcsToken}" />"
+						tool-id="sakai.forums"
+						entity-id="<h:outputText value="top.#{ForumTool.selectedTopic.topic.id}" />">
+					</sakai-rubric-student-preview-button>
+				</h:panelGroup>
 				<h:outputText styleClass="fa fa-table" id="rubrics-forum-icon" rendered="#{ForumTool.selectedForum.hasRubric == 'true'}" style="margin-right:.5em" title="#{msgs.cdfm_forum_rubric}"/>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title}" styleClass="title"/>
 				<h:outputText value=" "  styleClass="actionLinks"/>

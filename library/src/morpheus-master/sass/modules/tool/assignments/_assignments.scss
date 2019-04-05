@@ -501,4 +501,20 @@
 		}
 		margin-bottom: 0;
 	}
+
+	.student-picture {
+		background-position: center center;
+		background-size: cover;
+		border-radius: 80px;
+		border: 1px solid $background-color-secondary;
+		float: left;
+		height: 80px;
+		padding: 5px 0px;
+		margin: 0.8em $standard-spacing 0 0;
+		width: 80px;
+	}
+
+  #submissionList sakai-rubric-student-button {
+    float: right;
+  }
 }

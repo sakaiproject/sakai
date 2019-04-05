@@ -18,6 +18,7 @@
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
     </bean>
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.rubrics"

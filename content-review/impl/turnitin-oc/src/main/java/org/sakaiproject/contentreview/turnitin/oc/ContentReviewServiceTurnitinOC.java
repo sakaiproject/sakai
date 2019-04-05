@@ -48,7 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -392,6 +392,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	@Override
+	public void syncRosters() {
+		// Auto-generated method stub
+	}
+
+	@Override
 	public void createAssignment(final String contextId, final String assignmentRef, final Map opts)
 			throws SubmissionException, TransientSubmissionException {
 		// Auto-generated method stub
@@ -620,7 +625,18 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Send request:
 		int responseCode = connection.getResponseCode();
 		String responseMessage = connection.getResponseMessage();
-		String responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+		String responseBody;
+		if (responseCode < 200 || responseCode >= 300)
+		{
+			// getInputStream() throws an exception in this case, but getErrorStream() has the information necessary for troubleshooting
+			responseBody = IOUtils.toString(connection.getErrorStream(), StandardCharsets.UTF_8);
+			log.warn("Turnitin response code: " + responseCode + "; message: " + responseMessage + "; body:\n" + responseBody);
+		}
+		else
+		{
+			responseBody = IOUtils.toString(connection.getInputStream(), StandardCharsets.UTF_8);
+			log.debug("Turnitin response code: " + responseCode + "; message: " + responseMessage + "; body:\n" + responseBody);
+		}
 		
 		HashMap<String, Object> response = new HashMap<String, Object>();
 		response.put(RESPONSE_CODE, responseCode);

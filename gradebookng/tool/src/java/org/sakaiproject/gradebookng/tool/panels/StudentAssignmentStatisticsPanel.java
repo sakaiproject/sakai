@@ -29,10 +29,14 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
+	private String studentGrade;
 
-	public StudentAssignmentStatisticsPanel(final String id, final IModel<Assignment> model, final ModalWindow window) {
+	public StudentAssignmentStatisticsPanel(final String id,
+			final IModel<Assignment> model, final ModalWindow window,
+			String studentGrade) {
 		super(id, model);
 		this.window = window;
+		this.studentGrade = studentGrade;
 	}
 
 	@Override
@@ -45,7 +49,8 @@ public class StudentAssignmentStatisticsPanel extends BasePanel {
 				new StringResourceModel("label.statistics.title.assignment",
 						getDefaultModel(), null, assignment.getName()).getString());
 
-		final AssignmentGradeChart chart = new AssignmentGradeChart("chart", assignment.getId());
+		final AssignmentGradeChart chart = new AssignmentGradeChart("chart",
+				assignment.getId(), studentGrade);
 		add(chart);
 
 		add(new GbAjaxLink<Void>("done") {

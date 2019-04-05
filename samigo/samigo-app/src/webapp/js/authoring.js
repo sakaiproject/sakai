@@ -765,7 +765,7 @@ function resetSelectMenus(){
 function clickInsertLink(field){
   var insertlinkid = field.id.replace("changeQType", "hiddenlink");
   var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
-  $(hiddenSelector).click();
+  $(hiddenSelector)[0].click()
 }
 
 // Show MathJax warning messages if applicable

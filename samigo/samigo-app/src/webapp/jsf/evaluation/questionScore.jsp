@@ -53,90 +53,130 @@ function downloadAll(url){
 
 </script>
 <script>
-// RUBRICS CODE
+
+  // RUBRICS CODE
   var rubricChanged = false;
-  rubricsEventHandlers = function() {
-    $('body').on('rubrics-event', function(e, payload){	
-      var itemId = $(e.target).parent().attr("item-id");
-      if (payload.event == "total-points-updated") {
-        handleRubricsTotalPointChange(itemId, payload.value);
-      }
-      if (payload.event == "rubric-ratings-changed") {
-        rubricChanged = true;
-      }
-    });
-     console.log('Rubrics event handlers loaded');
-  }
-  
-  // handles point changes for assignments, updating the grade field if it exists.
-  handleRubricsTotalPointChange = function(itemId, points) {
+
+  $('body').on('total-points-updated', function (e) {
+
+    e.stopPropagation();
+    var itemId = e.target.parentElement.getAttribute("item-id");
+
+    var points = e.detail.value;
+
+    // handles point changes for assignments, updating the grade field if it exists.
     var gradeField = $('.adjustedScore' + itemId);
-    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || rubricChanged)) {
+    if (gradeField) {
       gradeField.val(points);
     }
-  }
 
-  var imports = [
-    '/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = <h:outputText value="'#{submissionStatus.rbcsToken}'"/>;
-  rubricsEventHandlers();
-  //opens rubric modal
-  function initRubricDialog(itemId) {
-	var modalId = "modal"+itemId;
-	var previousScore =  $('.adjustedScore' + itemId).val();
-	var modalclonedid = modalId+'cloned';
-	var cloned;
-	if($('#'+modalclonedid).length>0){
-		cloned = $('#'+modalclonedid);
-	} else {
-		cloned = $('#'+modalId).clone().attr('id',modalclonedid);
-	}
-	cloned.dialog({
-		modal: true,
-		buttons: [{
-			text:<h:outputText value="'#{evaluationMessages.saver}'"/>,
-			click: function () {
-				$(this).dialog("close");
-            }},{
-				text: <h:outputText value="'#{evaluationMessages.cancel}'"/>,
-				click: function () {
-				$(this).dialog("close");
-					cloned.remove();                
-					$('.adjustedScore' + itemId).val(previousScore);				
-				}                    
-			}],	 
-		height: "auto",
-		margin: 100,
-		width: 1100,
-		title: <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
-	});
-  }
-  $(document).ready(function() {
-	//set back the values from the modals to the hidden inputs
-	$('#editTotalResults').submit(function (e){
-		$('[id$=cloned').each(function(){
-			var modId = $(this).attr('id').replace('cloned','');
-			$(this).find('input').each(function() {
-				var name = $(this).attr('name');
-				$('#'+modId+ ' [name="' + name + '"]').val($(this).val());			
-			});
-			var myregex = /\|[^\|]*\|/g;
-			$(this).find('textarea').each(function () {
-				for( var instance in CKEDITOR.instances){
-					var ckname = CKEDITOR.instances[instance].name.replace(myregex, '');
-					var textareaid = $(this).attr('id').replace(myregex, '');
-					if(ckname == textareaid){
-						CKEDITOR.instances[instance].setData($(this).val());
-					}
-				}
-			});
-		});
-	});
+    var gradingId = e.detail.evaluatedItemId.split(".")[0];
+
+    var inputs = document.getElementById(gradingId + "-inputs");
+
+    var totalPointsInputId = gradingId + "-totalpoints";
+    var totalPointsInput = document.getElementById(totalPointsInputId);
+
+    if (!totalPointsInput) {
+      totalPointsInput = document.createElement("input");
+      totalPointsInput.setAttribute("id", totalPointsInputId);
+      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-totalpoints";
+      totalPointsInput.setAttribute("type", "hidden");
+      totalPointsInput.setAttribute("name", name);
+      inputs.appendChild(totalPointsInput);
+    }
+
+    totalPointsInput.setAttribute("value", points);
   });
+
+  $('body').on('update-comment', function (e) {
+      var gradingId = e.target.evaluatedItemId.split(".")[0];
+
+      var inputs = document.getElementById(gradingId + "-inputs");
+      var commentInputId = gradingId + "-comment-" + e.detail.criterionId;
+      var commentInput = document.getElementById(commentInputId);
+
+      if (!commentInput) {
+          commentInput = document.createElement("input");
+          commentInput.setAttribute("id", commentInputId);
+          commentInput.setAttribute("type", "hidden");
+          var name = "rbcs-" + e.target.evaluatedItemId + "-" + e.target.entityId + "-criterion-comment-" + e.detail.criterionId;
+          commentInput.setAttribute("name", name);
+          inputs.appendChild(commentInput);
+      }
+
+      commentInput.setAttribute("value", e.detail.comments);
+  });
+
+  $('body').on('rubric-rating-changed', function (e) {
+
+    rubricChanged = true;
+
+    var gradingId = e.detail.evaluatedItemId.split(".")[0];
+
+    var inputs = document.getElementById(gradingId + "-inputs");
+    var ratingInputId = gradingId +"-rating-" + e.detail.criterionId;
+    var ratingInput = document.getElementById(ratingInputId);
+
+    if (!ratingInput) {
+      ratingInput = document.createElement("input");
+      ratingInput.setAttribute("id", ratingInputId);
+      ratingInput.setAttribute("type", "hidden");
+      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-criterion-" + e.detail.criterionId;
+      ratingInput.setAttribute("name", name);
+      inputs.appendChild(ratingInput);
+    }
+
+    ratingInput.setAttribute("value", e.detail.value);
+  });
+
+  $('body').on('update-state-details', function (e) {
+
+    var gradingId = e.detail.evaluatedItemId.split(".")[0];
+
+    var inputs = document.getElementById(gradingId + "-inputs");
+    var stateInputId = "state-" + e.detail.evaluatedItemId ;
+    var stateInput = document.getElementById(stateInputId);
+
+    if (!stateInput) {
+      stateInput = document.createElement("input");
+      stateInput.setAttribute("id", stateInputId);
+      stateInput.setAttribute("type", "hidden");
+      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-state-details";
+      stateInput.setAttribute("name", name);
+      inputs.appendChild(stateInput);
+    }
+
+    stateInput.setAttribute("value", e.detail.value);
+  });
+
+  function initRubricDialog(gradingId) {
+
+    var modalId = "modal" + gradingId;
+    var previousScore =  $('.adjustedScore' + gradingId).val();
+    $("#" + modalId).dialog({
+      modal: true,
+      buttons: [
+        {
+          text: <h:outputText value="'#{evaluationMessages.save_cont}'"/>,
+          click: function () { $(this).dialog("close"); }
+        },
+        {
+          text: <h:outputText value="'#{evaluationMessages.cancel}'"/>,
+          click: function () {
+
+            $(this).dialog("close");
+              $('.adjustedScore' + gradingId).val(previousScore);
+            }
+        }
+      ],
+      height: "auto",
+      margin: 100,
+      width: 1100,
+      title: <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
+    });
+  }
 </script>
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
 <!-- content... -->
 <div class="portletBody container-fluid">
@@ -997,7 +1037,7 @@ function downloadAll(url){
 	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
 	  	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon3" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
-	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
+       <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
     </h:column>
 
     <!-- ANSWER -->
@@ -1342,7 +1382,7 @@ function downloadAll(url){
 
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
-   <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="questionScores" type="submit" >
+   <h:commandButton styleClass="active" value="#{evaluationMessages.saver}" action="questionScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
       <f:actionListener

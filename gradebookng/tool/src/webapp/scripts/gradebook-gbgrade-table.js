@@ -2,6 +2,8 @@ GbGradeTable = {};
 
 GbGradeTable._onReadyCallbacks = [];
 
+var sakaiReminder = new SakaiReminder();
+
 GbGradeTable.unpack = function (s, rowCount, columnCount) {
   if (/^packed:/.test(s)) {
       return GbGradeTable.unpackPackedScores(s, rowCount, columnCount);
@@ -688,6 +690,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     colWidths: GbGradeTable.getColumnWidths(),
     autoRowSize: true,
     autoColSize: false,
+    manualColumnResize: allowColumnResizing,
     height: GbGradeTable.calculateIdealHeight(),
     width: GbGradeTable.calculateIdealWidth(),
     fillHandle: false,
@@ -1180,63 +1183,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.refreshSummaryLabels();
   GbGradeTable.setupDragAndDrop();
 
-  // Patch HandsonTable getWorkspaceWidth for improved scroll performance on big tables
-  var origGetWorkspaceWidth = WalkontableViewport.prototype.getWorkspaceWidth;
-
-  (function () {
-    var cachedWidth = undefined;
-    WalkontableViewport.prototype.getWorkspaceWidth = function () {
-      var self = this;
-      if (!cachedWidth) {
-        cachedWidth = origGetWorkspaceWidth.bind(self)();
-      }
-
-      return cachedWidth;
-    }
-  }());
-
-  // Patch HandsonTable adjustColumnWidths for improved scroll performance
-  var origAdjustColumnWidths = WalkontableTableRenderer.prototype.adjustColumnWidths;
-
-  (function () {
-    WalkontableTableRenderer.prototype.adjustColumnWidths = function (columnsToRender) {
-      var sourceInstance = this.wot.cloneSource ? this.wot.cloneSource : this.wot;
-      var mainHolder = sourceInstance.wtTable.holder;
-      if (this.wot.cachedScrollbarCompensation === undefined) {
-        this.wot.cachedScrollbarCompensation = 0;
-        if (mainHolder.offsetHeight < mainHolder.scrollHeight) {
-          // NYU: Hacked this!  was getScrollbarWidth();
-          this.wot.cachedScrollbarCompensation = 0;
-        }
-      }
-
-      var scrollbarCompensation = this.wot.cachedScrollbarCompensation;
-
-      this.wot.wtViewport.columnsRenderCalculator.refreshStretching(this.wot.wtViewport.getViewportWidth() - scrollbarCompensation);
-      var rowHeaderWidthSetting = this.wot.getSetting('rowHeaderWidth');
-      if (rowHeaderWidthSetting != null) {
-        for (var i = 0; i < this.rowHeaderCount; i++) {
-          var oldWidth = this.COLGROUP.childNodes[i].style.width;
-          var newWidth = (isNaN(rowHeaderWidthSetting) ? rowHeaderWidthSetting[i] : rowHeaderWidthSetting) + 'px';
-
-          // NYU: Added these conditionals
-          if (oldWidth != newWidth) {
-            this.COLGROUP.childNodes[i].style.width = (isNaN(rowHeaderWidthSetting) ? rowHeaderWidthSetting[i] : rowHeaderWidthSetting) + 'px';
-          }
-        }
-      }
-      for (var renderedColIndex = 0; renderedColIndex < columnsToRender; renderedColIndex++) {
-        var oldWidth = this.COLGROUP.childNodes[renderedColIndex + this.rowHeaderCount].style.width;
-        var width = this.wtTable.getStretchedColumnWidth(this.columnFilter.renderedToSource(renderedColIndex));
-
-        // NYU: Added these conditionals
-        if (oldWidth != width) {
-          this.COLGROUP.childNodes[renderedColIndex + this.rowHeaderCount].style.width = width + 'px';
-        }
-      }
-    }
-  }());
-
   GbGradeTable.runReadyCallbacks();
 };
 
@@ -1675,7 +1621,9 @@ GbGradeTable.applyColumnFilter = function(data) {
     var column = GbGradeTable.columns[i];
     if (column.hidden) {
       for(var row=0; row<data.length; row++) {
-        data[row] = data[row].slice(0,i+GbGradeTable.FIXED_COLUMN_OFFSET).concat(data[row].slice(i+3))
+        data[row] = data[row]
+          .slice(0, i + GbGradeTable.FIXED_COLUMN_OFFSET)
+          .concat(data[row].slice(i + (GbGradeTable.FIXED_COLUMN_OFFSET + 1)));
       }
     }
   } 
@@ -3247,7 +3195,7 @@ GbGradeTable.setupStudentNumberColumn = function() {
           return student.studentNumber || "";
         }),
         editor: false,
-        width: 140,
+        width: studentNumberColumnWidth,
     });
 };
 
@@ -3295,7 +3243,7 @@ GbGradeTable.setupSectionsColumn = function () {
         return student.sections || "";
       }),
       editor: false,
-      width: 140,
+      width: sectionsColumnWidth,
     });
 };
 
@@ -3314,6 +3262,10 @@ GbGradeTable.findIndex = function(array, predicateFunction) {
         }
     }
     return index;
+}
+
+GbGradeTable.saveNewPrediction = function(prediction) {
+    sakaiReminder.new(prediction);
 }
 
 /**************************************************************************************

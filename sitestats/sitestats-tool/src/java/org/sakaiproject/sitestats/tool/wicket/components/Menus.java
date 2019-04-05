@@ -54,6 +54,7 @@ public class Menus extends Panel {
 		setRenderBodyOnly(true);
 		
 		boolean isSiteStatsAdminPage = Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
+		boolean isSiteStatsView = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		boolean isBrowsingThisSite = siteId.equals(realSiteId);
 		
 		// admin menu
@@ -76,9 +77,12 @@ public class Menus extends Panel {
 			}else{
 				standardMenuContainer.setVisible(false);
 			}
-		}else{
+		}else if(isSiteStatsView){
 			adminMenu.setVisible(false);
 			standardMenuContainer.setVisible(true);
+		}else{
+			adminMenu.setVisible(false);
+			standardMenuContainer.setVisible(false);
 		}
 	}
 }

@@ -66,6 +66,8 @@
        </h:panelGroup>
    </div>
     <br/>
+    <h:outputText escape="false" value="#{authorImportExport.importExport_warning2}"/>
+    <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.import_action}" type="submit"

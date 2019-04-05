@@ -14,9 +14,6 @@
  * limitations under the License.
  *
  */
-
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
@@ -1670,38 +1667,30 @@ public class AssessmentSettingsBean
 		try {
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
-			// List sections = sectionAwareness.getSections(site.getId());
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
-
-			// Treemaps are used here because they auto-sort
-			TreeMap studentTargets = new TreeMap<>();
+			Map<String, String> studentTargets = new HashMap<>();
+			Map<String, String> orderedStudents = new HashMap<>();
 
 			// Add students to target set
 			if (enrollments != null && enrollments.size() > 0) {
 				for (Iterator iter = enrollments.iterator(); iter.hasNext();) {
 					EnrollmentRecord enrollmentRecord = (EnrollmentRecord) iter.next();
 					String userId = enrollmentRecord.getUser().getUserUid();
-					String userDisplayName = enrollmentRecord.getUser().getSortName();
-					studentTargets.put(userDisplayName, userId);
+					String userDisplayName = enrollmentRecord.getUser().getSortName() + " (" + enrollmentRecord.getUser().getDisplayId() + ")";
+					studentTargets.put(userId, userDisplayName);
 				}
 			}
 
-			// Add targets to selectItem array. We put the alpha name in as the
-			// key so it would
-			// be alphabetized. Now we pull it out and build the select item
-			// list.
-			int listSize = 1 + studentTargets.size();
+			// Order students map
+			orderedStudents = ContextUtil.sortByValue(studentTargets);
+
+			// Add in students to select item list
+			int listSize = 1 + orderedStudents.size();
 			usersInSite = new SelectItem[listSize];
 			usersInSite[0] = new SelectItem("", assessmentSettingMessages.getString("extendedTime_select_User"));
 			int selectCount = 1;
-
-			// Add in students to select item list
-			Set keySet = studentTargets.keySet();
-			Iterator iter = keySet.iterator();
-			while (iter.hasNext()) {
-				String alphaName = (String) iter.next();
-				String sakaiId = (String) studentTargets.get(alphaName);
-				usersInSite[selectCount++] = new SelectItem(sakaiId, alphaName);
+			for (Map.Entry<String,String> student : orderedStudents.entrySet()) {
+				usersInSite[selectCount++] = new SelectItem(student.getKey(), student.getValue());
 			}
 
 		} catch (IdUnusedException ex) {

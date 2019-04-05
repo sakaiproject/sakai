@@ -35,8 +35,6 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -177,20 +175,20 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		//UIOutput.make(form,"option-label",messageLocator.getMessage("new_poll_option"));
 
 
-		if (option.getOptionText() == null)
-			option.setOptionText("");
+		if (option.getText() == null)
+			option.setText("");
 
 		
 		if (!externalLogic.isMobileBrowser())
 		{
 			// show WYSIWYG editor
-		UIInput optText = UIInput.make(form,"optText:","#{option.optionText}",option.getOptionText());
+		UIInput optText = UIInput.make(form,"optText:","#{option.text}",option.getText());
 		richTextEvolver.evolveTextInput(optText);
 		}
 		else
 		{
 			// do not show WYSIWYG editor in the mobile view
-			UIInput optText = UIInput.make(form,"optText_mobile","#{option.optionText}",option.getOptionText());
+			UIInput.make(form,"optText_mobile","#{option.text}",option.getText());
 		}
 
 		form.parameters.add(new UIELBinding("#{option.pollId}",

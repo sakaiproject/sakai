@@ -111,12 +111,12 @@ public class TestDataPreload {
 		
 		//add some options
 		Option option1 = new Option();
-		option1.setOptionText("Option 1");
+		option1.setText("Option 1");
 		option1.setPollId(poll1.getPollId());
 		dao.save(option1);
 		
 		Option option2 = new Option();
-		option2.setOptionText("Option 2");
+		option2.setText("Option 2");
 		option2.setPollId(poll1.getPollId());
 		dao.save(option2);
 		

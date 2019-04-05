@@ -686,6 +686,13 @@ function printView(url) {
 									#else
 										$!service.getGradeForSubmitter($submission, $userSubmission.User.Id)
 									#end
+									<sakai-rubric-student-button
+										 token="$!rbcs-token"
+										 tool-id="sakai.assignment"
+										 evaluated-item-id="$submission.Id"
+										 entity-id="$assignment.Id"
+										 instructor="true">
+									</sakai-rubric-student-button>
 								</td>
 							#end	
 							#if ($allowReviewService && $assignment.ContentReview)
@@ -891,7 +898,7 @@ function printView(url) {
 		</ul>
 	#end
 	#if ($taggable)
-	   	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
+		#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 	#end
 	</div>	
 </div>

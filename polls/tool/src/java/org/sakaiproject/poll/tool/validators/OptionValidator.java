@@ -42,22 +42,20 @@ public class OptionValidator implements Validator {
 
 	public void validate(Object obj, Errors errors) {
 
-
 		Option option = (Option) obj;
 		
 		// SAK-14725 : BugFix
 		String stripText = null;
 		
-		if(null != option.getOptionText()) {
-			stripText = FormattedText.convertFormattedTextToPlaintext(option.getOptionText()).trim();
+		if(null != option.getText()) {
+			stripText = FormattedText.convertFormattedTextToPlaintext(option.getText()).trim();
 		}
 		
 		log.debug("validating Option with id:" + option.getOptionId());
 		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete")))
 			return;
 
-
-		if (option.getOptionText() == null || option.getOptionText().trim().length()==0 ||
+		if (option.getText() == null || option.getText().trim().length()==0 ||
 				stripText == null || stripText.length()==0) {
 			log.debug("OptionText is empty!");
 			errors.reject("option_empty","option empty");
@@ -65,9 +63,7 @@ public class OptionValidator implements Validator {
 		}
 
 		//if where here option is not null or empty but could be something like "&nbsp;&nbsp;"
-		String text = option.getOptionText();
-		
-
+		String text = option.getText();
 		text = PollUtils.cleanupHtmlPtags(text);
 		text = text.replace("&nbsp;", "");
 		text = StringEscapeUtils.unescapeHtml3(text).trim();
@@ -77,12 +73,5 @@ public class OptionValidator implements Validator {
 			errors.reject("option_empty","option empty");
 			return;
 		}
-
-
-
 	}
-
-
-
-
 }

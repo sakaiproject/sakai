@@ -248,7 +248,7 @@ button.btn-primary, .act .active {
 	@include sakai_primary_button();
 }
 
-.button_color, button, .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link {
+.button_color, button:not(.fc-button), .button, a[href].button, button.ui-state-default, .btn-group .btn, .btn.btn-default, .button.link, a.btn-link, button.btn-link {
 	@include sakai_secondary_button();
 }
 

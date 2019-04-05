@@ -21,20 +21,17 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.text.DateFormatSymbols;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controls the edit and delete sections pages.

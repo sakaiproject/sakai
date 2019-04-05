@@ -79,7 +79,7 @@ function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
   pauseTiming = 'false';
-  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded/10;
+  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=${delivery.timeElapse};
  }
 }
 
@@ -168,7 +168,7 @@ function saveTime()
               && delivery.navigation ne '1'}" 
     />
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-     action="#{delivery.save_work}" onclick="disableSave();" 
+     action="#{delivery.save_work}"
      style="display:none"
      rendered="#{delivery.actionString=='previewAssessment'
                   || delivery.actionString=='takeAssessment'
@@ -187,7 +187,9 @@ function saveTime()
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton type="submit" value="#{deliveryMessages.done}"
+        action="#{person.cleanResourceIdListInPreview}"
+        onclick="if (\"#{delivery.selectURL}\") { parent.location.href = \"#{delivery.selectURL}\"; }"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

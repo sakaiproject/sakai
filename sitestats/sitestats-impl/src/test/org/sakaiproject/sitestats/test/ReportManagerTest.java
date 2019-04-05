@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +40,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -303,6 +303,11 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		ReportDef rd = null;
 		ReportParams rp = null;
 		List<String> totalsBy = null;
+		List<String> listUserA = new ArrayList<>();
+		List<String> listUserB = new ArrayList<>();
+		List<String> listNoUsers = new ArrayList<>();
+		listUserA.add(FakeData.USER_A_ID);
+		listUserB.add(FakeData.USER_B_ID);
 		
 		// #1 getReport(ReportDef reportDef, boolean restrictToToolsInSite)
 		siteId = FakeData.SITE_B_ID;
@@ -331,17 +336,25 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		rp.setHowChartSeriesSource(StatsManager.T_NONE);
 		rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
 		rd.setReportParams(rp);
-		r = M_rm.getReport(rd, true);
+		r = M_rm.getReport(rd, true, null);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(1, r.getReportData().size());
-		r = M_rm.getReport(rd, false);
+		r = M_rm.getReport(rd, false, null);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(2, r.getReportData().size());
 		Assert.assertNotNull(M_rm.getReportFormattedParams());
+		r = M_rm.getReport(rd, true, listUserA);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(1, r.getReportData().size());
+		r = M_rm.getReport(rd, true, listNoUsers);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(0, r.getReportData().size());
 		
-		// #2 getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite)
-		Assert.assertEquals(1, M_rm.getReportRowCount(rd, true));
-		Assert.assertEquals(2, M_rm.getReportRowCount(rd, false));
+		// #2 getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite, List<String> userIds)
+		Assert.assertEquals(1, M_rm.getReportRowCount(rd, true, null));
+		Assert.assertEquals(2, M_rm.getReportRowCount(rd, false, null));
+		Assert.assertEquals(1, M_rm.getReportRowCount(rd, true, listUserA));
+		Assert.assertEquals(0, M_rm.getReportRowCount(rd, true, listNoUsers));
 		
 		siteId = FakeData.SITE_B_ID;
 		rd = new ReportDef();
@@ -363,8 +376,10 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		// chart
 		rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 		rd.setReportParams(rp);
-		Assert.assertEquals(1, M_rm.getReportRowCount(rd, true));
-		Assert.assertEquals(1, M_rm.getReportRowCount(rd, false));
+		Assert.assertEquals(1, M_rm.getReportRowCount(rd, true, null));
+		Assert.assertEquals(1, M_rm.getReportRowCount(rd, false, null));
+		Assert.assertEquals(1, M_rm.getReportRowCount(rd, false, listUserB));
+		Assert.assertEquals(0, M_rm.getReportRowCount(rd, true, listNoUsers));
 	}
 	
 	@Test
@@ -376,6 +391,11 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		ReportDef rd = null;
 		ReportParams rp = null;
 		List<String> totalsBy = null;
+		List<String> listUserA = new ArrayList<>();
+		List<String> listUserB = new ArrayList<>();
+		List<String> listNoUsers = new ArrayList<>();
+		listUserA.add(FakeData.USER_A_ID);
+		listUserB.add(FakeData.USER_B_ID);
 		
 		// resources
 		siteId = FakeData.SITE_A_ID;
@@ -393,15 +413,21 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		rp.setHowSort(false);
 		rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 		rd.setReportParams(rp);
-		r = M_rm.getReport(rd, true, null, false);
+		r = M_rm.getReport(rd, true, null, false, null);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(1, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, false, listUserB);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(1, r.getReportData().size());
 		
 		// visits
 		rp.setWhat(ReportManager.WHAT_VISITS);
-		r = M_rm.getReport(rd, true, null, true);
+		r = M_rm.getReport(rd, true, null, true, null);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(2, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listNoUsers);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(0, r.getReportData().size());
 		
 		// visits totals
 		rp.setWhat(ReportManager.WHAT_VISITS_TOTALS);
@@ -409,10 +435,18 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		totalsBy.add(StatsManager.T_SITE);
 		rp.setHowTotalsBy(totalsBy);
 		rd.setId(1);
-		r = M_rm.getReport(rd, true, new PagingPosition(0,5), true);
+		r = M_rm.getReport(rd, true, new PagingPosition(0,5), true, null);
 		Assert.assertEquals(1, r.getReportData().size());
 		Assert.assertEquals(9, ((SiteVisits)(r.getReportData().get(0))).getTotalVisits());
 		Assert.assertEquals(7, ((SiteVisits)(r.getReportData().get(0))).getTotalUnique());
+		r = M_rm.getReport(rd, true, new PagingPosition(0,5), true, listUserB);
+		Assert.assertEquals(1, r.getReportData().size());
+		Assert.assertEquals(9, ((SiteVisits)(r.getReportData().get(0))).getTotalVisits());
+		Assert.assertEquals(7, ((SiteVisits)(r.getReportData().get(0))).getTotalUnique());
+		r = M_rm.getReport(rd, true, new PagingPosition(0,5), true, listNoUsers);
+		Assert.assertEquals(0, r.getReportData().size());
+		Assert.assertEquals(0, ((SiteVisits)(r.getReportData().get(0))).getTotalVisits());
+		Assert.assertEquals(0, ((SiteVisits)(r.getReportData().get(0))).getTotalUnique());
 		
 //		// activity totals
 //		rp.setWhat(ReportManager.WHAT_ACTIVITY_TOTALS);
@@ -433,9 +467,13 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		totalsBy.add(StatsManager.T_DATE);
 		rp.setHowTotalsBy(totalsBy);
 		rp.setHowSort(false);
-		r = M_rm.getReport(rd, true, null, true);
+		r = M_rm.getReport(rd, true, null, true, null);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(7, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listUserA);
+		Assert.assertEquals(1, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listNoUsers);
+		Assert.assertEquals(0, r.getReportData().size());
 		
 		// presences II
 		rp.setWhat(ReportManager.WHAT_PRESENCES);
@@ -444,9 +482,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		totalsBy.add(StatsManager.T_DATE);
 		rp.setHowTotalsBy(totalsBy);
 		rp.setHowSort(false);
-		r = M_rm.getReport(rd, true, null, true);
+		r = M_rm.getReport(rd, true, null, true, null);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(5, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listUserA);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(1, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listNoUsers);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(0, r.getReportData().size());
 		
 		// presences III
 		rp.setWhat(ReportManager.WHAT_PRESENCES);
@@ -454,15 +498,25 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		totalsBy.add(StatsManager.T_SITE);
 		rp.setHowTotalsBy(totalsBy);
 		rp.setHowSort(false);
-		r = M_rm.getReport(rd, true, null, true);
+		r = M_rm.getReport(rd, true, null, true, null);
 		checkCollumns(rd.getReportParams());
 		Assert.assertEquals(1, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listUserA);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(1, r.getReportData().size());
+		r = M_rm.getReport(rd, true, null, true, listNoUsers);
+		checkCollumns(rd.getReportParams());
+		Assert.assertEquals(0, r.getReportData().size());
 		
 	}
 	
 	@Test
 	@Ignore        // TODO JUNIT test is not working on hsqldb need to look into
 	public void testReportsFromOverviewPage() {
+		List<String> listUserA = new ArrayList<>();
+		List<String> listNoUsers = new ArrayList<>();
+		listUserA.add(FakeData.USER_A_ID);
+
 		M_sum.collectEvents(getSampleData2());
 		
 		// MiniStatsVisits & MiniStatUniqueVisits
@@ -488,9 +542,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			rp.setHowChartSeriesSource(StatsManager.T_NONE);
 			rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(5, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 		
 		// MiniStatEnrolledUsersWithVisits
@@ -511,9 +571,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(2, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 		
 		// MiniStatEnrolledUsersWithoutVisits
@@ -534,7 +600,13 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(0, rep.getReportData().size());
 		}
@@ -564,9 +636,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(6, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 		
 		// MiniStatMostActiveUser
@@ -594,10 +672,16 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			// updated to 2, since there were only 2 users in 'site-a-id' at the time with matching events
 			Assert.assertEquals(2, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 		
 		// MiniStatFiles (files with new event)
@@ -627,9 +711,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(2, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 		
 		// MiniStatOpenedFiles (files with read event)
@@ -659,9 +749,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(2, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 		
 		// MiniStatUserThatOpenedMoreFiles
@@ -691,9 +787,15 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 			// chart
 			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 			r.setReportParams(rp);
-			Report rep = M_rm.getReport(r, false);
+			Report rep = M_rm.getReport(r, false, null);
 			Assert.assertNotNull(rep);
 			Assert.assertEquals(2, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listUserA);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(1, rep.getReportData().size());
+			rep = M_rm.getReport(r, false, listNoUsers);
+			Assert.assertNotNull(rep);
+			Assert.assertEquals(0, rep.getReportData().size());
 		}
 	}
 
@@ -782,6 +884,9 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		Report r = null;
 		ReportParams rp = null;
 		List<String> totalsBy = null;
+		List<String> listOneUser = new ArrayList<>();
+		List<String> listNoUsers = new ArrayList<>();
+		listOneUser.add(FakeData.USER_A_ID);
 		
 		siteId = FakeData.SITE_A_ID;
 		ReportDef rd = new ReportDef();
@@ -801,7 +906,11 @@ public class ReportManagerTest extends AbstractJUnit4SpringContextTests {
 		rp.setHowSort(false);
 		rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
 		rd.setReportParams(rp);
-		Report report = M_rm.getReport(rd, false);
+		Report report = M_rm.getReport(rd, false, listOneUser);
+		Assert.assertNotNull(report);
+		report = M_rm.getReport(rd, false, listNoUsers);
+		Assert.assertNotNull(report);
+		report = M_rm.getReport(rd, false, null);
 		Assert.assertNotNull(report);
 		
 		// CSV

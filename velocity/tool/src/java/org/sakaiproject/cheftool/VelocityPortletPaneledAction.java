@@ -24,6 +24,8 @@ package org.sakaiproject.cheftool;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,16 +33,12 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
@@ -66,6 +64,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.vm.ActionURL;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -203,7 +203,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String soFar = (String) state.getAttribute(STATE_MESSAGE);
 		if (soFar != null)
 		{
-			soFar = soFar + "\n\n" + message;
+			soFar = soFar + "<br/>" + message;
 		}
 		else
 		{

@@ -34,16 +34,11 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.digester.Digester;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
@@ -83,7 +78,6 @@ import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportDef;
-import org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl;
 import org.sakaiproject.sitestats.impl.event.EventUtil;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.tool.api.SessionManager;
@@ -92,6 +86,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Nuno Fernandes
@@ -794,7 +793,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		Reference r = M_em.newReference(ref);
 		if(r != null) {
-			return StringEscapeUtils.escapeHtml(r.getUrl());
+			return StringEscapeUtils.escapeHtml3(r.getUrl());
 		}else{
 			return null;
 		}
@@ -3250,6 +3249,36 @@ if (log.isDebugEnabled()) {
                 else return 0L;
             };
 			return getHibernateTemplate().execute(hcb);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getTotalSiteVisits(java.lang.String)
+	 */
+	public long getTotalSiteVisitsForUser(String siteId, String userId) {
+		if(siteId == null || userId == null){
+			throw new IllegalArgumentException("Null siteId or userId");
+		}else{
+			final String hql = "select sum(es.count) " +
+					"from EventStatImpl as es " +
+					"where es.siteId = :siteid " +
+					"and es.userId = :userid " +
+					"and es.eventId = 'pres.begin' ";
+
+			HibernateCallback<Long> hcb = session -> {
+				Query q = session.createQuery(hql);
+				q.setString("siteid", siteId);
+				q.setString("userid", userId);
+				List<Long> res = q.list();
+				if(res.size() > 0 && res.get(0) != null) return res.get(0);
+				else return 0L;
+			};
+			try{
+				return getHibernateTemplate().execute(hcb);
+			}catch(ClassCastException e) {
+				log.error("Cannot get total site visits for user: {} on site: {}", userId, siteId);
+				return 0l;
+			}
 		}
 	}
 

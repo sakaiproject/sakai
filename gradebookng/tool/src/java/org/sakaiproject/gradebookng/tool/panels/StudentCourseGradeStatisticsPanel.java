@@ -22,6 +22,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.tool.chart.CourseGradeChart;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 /**
  * Renders the course grade graph in a modal window
@@ -31,10 +32,13 @@ public class StudentCourseGradeStatisticsPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
+	private final CourseGrade studentGrade;
 
-	public StudentCourseGradeStatisticsPanel(final String id, final IModel<String> model, final ModalWindow window) {
+	public StudentCourseGradeStatisticsPanel(final String id, final IModel<String> model, final ModalWindow window,
+			final CourseGrade courseGrade) {
 		super(id, model);
 		this.window = window;
+		this.studentGrade = courseGrade;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -46,7 +50,7 @@ public class StudentCourseGradeStatisticsPanel extends BasePanel {
 
 		StudentCourseGradeStatisticsPanel.this.window.setTitle(new ResourceModel("label.statistics.title.coursegrade"));
 
-		final CourseGradeChart chart = new CourseGradeChart("chart", siteId);
+		final CourseGradeChart chart = new CourseGradeChart("chart", siteId, studentGrade);
 		add(chart);
 
 		add(new GbAjaxLink<Void>("done") {

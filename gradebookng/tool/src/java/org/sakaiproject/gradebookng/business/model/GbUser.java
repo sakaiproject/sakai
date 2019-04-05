@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.user.api.User;
 

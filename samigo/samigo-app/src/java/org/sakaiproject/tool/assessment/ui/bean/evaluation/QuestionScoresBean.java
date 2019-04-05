@@ -34,6 +34,7 @@ import javax.faces.event.ActionEvent;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -83,8 +84,8 @@ public class QuestionScoresBean
   private String groupName;
   @Getter @Setter
   private double maxScore;
-  @Getter @Setter
-  private List agents = null;
+  @Getter @Setter @NonNull
+  private List agents = new ArrayList();
   @Getter @Setter
   private Collection sections;
   @Getter @Setter
@@ -181,10 +182,6 @@ public class QuestionScoresBean
 
         if (searchString == null) {
 			searchString = defaultSearchString;
-		}
-
-		if (agents == null) {
-			agents = new ArrayList();
 		}
 
 		// Get allAgents only at the first time

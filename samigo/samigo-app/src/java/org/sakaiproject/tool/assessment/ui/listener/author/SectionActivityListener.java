@@ -19,13 +19,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -174,28 +169,12 @@ public class SectionActivityListener implements ActionListener, ValueChangeListe
         Map<String, String> nameMap = new HashMap();
         for (EnrollmentRecord enr : list) {
             String uid = enr.getUser().getUserUid();
-            String displayName = enr.getUser().getDisplayName();
+            String displayName = enr.getUser().getDisplayName() + " (" + enr.getUser().getDisplayId() + ")";
 
-            nameMap.put(uid, displayName);         
+            nameMap.put(uid, displayName);
         }
-        Map sortedMap = sortByValue(nameMap);
+        Map sortedMap = ContextUtil.sortByValue(nameMap);
         return sortedMap;
-    }
-
-    private Map sortByValue(Map map) {
-        List list = new LinkedList(map.entrySet());
-        Collections.sort(list, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                return ((Comparable) ((String)((Map.Entry) (o1)).getValue()).toLowerCase()).compareTo(((String)((Map.Entry) (o2)).getValue()).toLowerCase());
-            }
-        });
-
-        Map result = new LinkedHashMap();
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry)it.next();
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
     }
 
     public void processValueChange(ValueChangeEvent event)

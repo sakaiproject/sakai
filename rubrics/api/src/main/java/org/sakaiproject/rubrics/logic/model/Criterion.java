@@ -33,6 +33,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -68,6 +69,8 @@ public class Criterion implements Modifiable, Serializable, Cloneable {
     private Long id;
 
     private String title;
+
+    @Lob
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL)

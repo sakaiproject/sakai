@@ -24,8 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -37,8 +36,9 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This implementation of {@link org.sakaiproject.shortenedurl.api.ShortenedUrlService} uses bit.ly to shorten URLs

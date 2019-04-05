@@ -51,7 +51,7 @@ public class AssignmentStatisticsPanel extends BasePanel {
 		AssignmentStatisticsPanel.this.window.setTitle(
 				new StringResourceModel("label.statistics.title.assignment", getDefaultModel(), null, assignment.getName()).getString());
 
-		final AssignmentGradeChart chart = new AssignmentGradeChart("gradingSchemaChart", assignmentId);
+		final AssignmentGradeChart chart = new AssignmentGradeChart("gradingSchemaChart", assignmentId, null);
 		add(chart);
 
 		final AssignmentStatistics stats = new AssignmentStatistics("stats", getData(assignment));

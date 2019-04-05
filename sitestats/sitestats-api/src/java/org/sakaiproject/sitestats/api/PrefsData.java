@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 
@@ -35,11 +38,13 @@ public class PrefsData implements Serializable {
 	private boolean					chartIn3D							= false;
 	private float					chartTransparency					= 1.0f;
 	private boolean					itemLabelsVisible					= true;
+	@Getter @Setter private boolean	showOwnStatisticsToStudents			= true;
 	
 	
 	public PrefsData(){
 		toolEventsDef = new ArrayList<ToolInfo>();
-		listToolEventsOnlyAvailableInSite = true;		
+		listToolEventsOnlyAvailableInSite = true;
+		showOwnStatisticsToStudents = true;
 	}
 
 	public List<ToolInfo> getToolEventsDef() {
@@ -117,6 +122,7 @@ public class PrefsData implements Serializable {
 		
 		buff.append("<prefs ");
 		buff.append(" listToolEventsOnlyAvailableInSite=\""+ isListToolEventsOnlyAvailableInSite() +"\" ");
+		buff.append(" showOwnStatisticsToStudents=\""+ isShowOwnStatisticsToStudents() +"\" ");
 		buff.append(" chartIn3D=\""+ isChartIn3D() +"\" ");
 		buff.append(" chartTransparency=\""+ getChartTransparency() +"\" ");
 		buff.append(" itemLabelsVisible=\""+ isItemLabelsVisible() +"\" ");

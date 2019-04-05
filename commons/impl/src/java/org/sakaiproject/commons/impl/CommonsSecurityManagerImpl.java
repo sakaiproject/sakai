@@ -17,7 +17,7 @@
 
 package org.sakaiproject.commons.impl;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;

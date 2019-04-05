@@ -246,15 +246,15 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean)
 	 */
-	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite) {
-		return getReport(reportDef, restrictToToolsInSite, null, true);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, List<String> userIds) {
+		return getReport(reportDef, restrictToToolsInSite, null, true, userIds);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportRowCount(org.sakaiproject.sitestats.api.report.ReportDef, boolean)
 	 */
-	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite) {
-		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, null);
+	public int getReportRowCount(ReportDef reportDef, boolean restrictToToolsInSite, List<String> userIds) {
+		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, null, userIds);
 		if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_RESOURCES)){
 			return M_sm.getResourceStatsRowCount(rpp.siteId, rpp.resourceAction, rpp.resourceIds, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, rpp.totalsBy);
 		}else{
@@ -265,8 +265,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReport(org.sakaiproject.sitestats.api.report.ReportDef, boolean, org.sakaiproject.javax.PagingPosition, boolean)
 	 */
-	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition pagingPosition, boolean log) {
-		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, pagingPosition);
+	public Report getReport(ReportDef reportDef, boolean restrictToToolsInSite, PagingPosition pagingPosition, boolean log, List<String> userIds) {
+		ReportProcessedParams rpp = processReportParams(reportDef.getReportParams(), restrictToToolsInSite, pagingPosition, userIds);
 
 		// generate report
 		Report report = new Report();
@@ -305,7 +305,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		return report;
 	}
 	
-	private ReportProcessedParams processReportParams(ReportParams params, boolean restrictToToolsInSite, PagingPosition pagingPosition) {
+	private ReportProcessedParams processReportParams(ReportParams params, boolean restrictToToolsInSite, PagingPosition pagingPosition, List<String> userIds) {
 		ReportProcessedParams rpp = new ReportProcessedParams();
 		
 		// site
@@ -408,33 +408,35 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		params.setWhenTo(rpp.fDate);
 
 		// who (users, groups, roles)
-		rpp.userIds = null;
+		rpp.userIds = userIds;
 		rpp.inverseUserSelection = false;
-		if(params.getWho().equals(ReportManager.WHO_ALL)){
-			;
-		}else if(params.getWho().equals(ReportManager.WHO_ROLE) && rpp.siteId != null){
-			rpp.userIds = new ArrayList<String>();
-			try{
-				Site site = M_ss.getSite(rpp.siteId);
-				rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
-			}catch(IdUnusedException e){
-				log.error("No site with specified siteId.");
-			}
+		if (rpp.userIds != null) {
+			if(params.getWho().equals(ReportManager.WHO_ALL)){
+				;
+			}else if(params.getWho().equals(ReportManager.WHO_ROLE) && rpp.siteId != null){
+				rpp.userIds = new ArrayList<String>();
+				try{
+					Site site = M_ss.getSite(rpp.siteId);
+					rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
+				}catch(IdUnusedException e){
+					log.error("No site with specified siteId.");
+				}
 
-		}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
-			rpp.userIds = new ArrayList<String>();
-			try{
-				Site site = M_ss.getSite(rpp.siteId);
-				rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
-			}catch(IdUnusedException e){
-				log.error("No site with specified siteId.");
-			}
+			}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
+				rpp.userIds = new ArrayList<String>();
+				try{
+					Site site = M_ss.getSite(rpp.siteId);
+					rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
+				}catch(IdUnusedException e){
+					log.error("No site with specified siteId.");
+				}
 
-		}else if(params.getWho().equals(ReportManager.WHO_CUSTOM)){
-			rpp.userIds = params.getWhoUserIds();
-		}else{
-			// inverse
-			rpp.inverseUserSelection = true;
+			}else if(params.getWho().equals(ReportManager.WHO_CUSTOM)){
+				rpp.userIds = params.getWhoUserIds();
+			}else{
+				// inverse
+				rpp.inverseUserSelection = true;
+			}
 		}
 		params.setWhoUserIds(rpp.userIds);
 		

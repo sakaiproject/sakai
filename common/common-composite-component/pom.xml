@@ -66,12 +66,10 @@
       <artifactId>commons-beanutils</artifactId>
     </dependency>
     <dependency>
-		<groupId>commons-lang</groupId>
-		<artifactId>commons-lang</artifactId>
-		<scope>provided</scope>
-	</dependency> 
-   
-
+       <groupId>org.apache.commons</groupId>
+       <artifactId>commons-lang3</artifactId>
+       <scope>provided</scope>
+    </dependency> 
   </dependencies>
   <build>
     <resources>

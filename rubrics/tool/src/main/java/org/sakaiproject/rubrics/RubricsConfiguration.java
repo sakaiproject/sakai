@@ -26,11 +26,13 @@ import javax.validation.Valid;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 import lombok.Data;
 
 @Data
 @Configuration
+@Validated
 @ConfigurationProperties(prefix = "rubrics")
 public class RubricsConfiguration {
 

@@ -48,7 +48,7 @@ import java.util.TreeSet;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import org.w3c.dom.Document;
 

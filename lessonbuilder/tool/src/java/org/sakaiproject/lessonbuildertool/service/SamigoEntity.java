@@ -504,7 +504,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public LessonSubmission getSubmission(String user) {
 	if (assessment == null)
-	    assessment = getPublishedAssessment(id);
+	    assessment = getPublishedAssessment(id, true);
 	if (assessment == null) {
 	    log.warn("can't find published " + id);
 	    return null;

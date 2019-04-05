@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.cm.processor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
