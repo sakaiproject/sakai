@@ -35,12 +35,10 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringEscapeUtils;
-//import org.apache.commons.math.stat.descriptive.SummaryStatistics;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
-
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -330,7 +328,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 			headingBuffer.append(";' >");
 			headingBuffer.append(current);
 			headingBuffer.append("</th>");*/
-			headingBuffer.append("<th style=\"padding: 0.6em;\" scope=\"col\">" + StringEscapeUtils.escapeHtml(current) + "</th>");
+			headingBuffer.append("<th style=\"padding: 0.6em;\" scope=\"col\">" + StringEscapeUtils.escapeHtml3(current) + "</th>");
 			ii++;
 		}
 		/*StringBuilder newBuffer = new StringBuilder();
