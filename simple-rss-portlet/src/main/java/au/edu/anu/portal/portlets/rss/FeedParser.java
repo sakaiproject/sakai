@@ -25,7 +25,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import au.edu.anu.portal.portlets.rss.model.Attachment;
 import au.edu.anu.portal.portlets.rss.utils.Messages;

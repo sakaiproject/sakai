@@ -22,7 +22,7 @@ import javax.portlet.PortletPreferences;
 import javax.portlet.PreferencesValidator;
 import javax.portlet.ValidatorException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.commons.validator.routines.IntegerValidator;
 
