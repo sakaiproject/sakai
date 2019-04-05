@@ -251,7 +251,7 @@ $( document ).ready( function() {
             // minField may not be on the page if disabled
             if (minField) {
                 var minValue = parseFloat(minField.val());
-                if (minValue < 0 || minValue >= pointValue) {
+                if (minValue < 0 || minValue > pointValue) {
                     validationWarningSetDefault(minField, "");
                 }
             }
@@ -262,8 +262,8 @@ $( document ).ready( function() {
     $( "#itemForm\\:minPoints\\:answerminptr" ).change( function() {
         var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
         var minValue = parseFloat( $( this ).val() );
-        // minValue should not be equal to or greater than pointValue
-        if (minValue < 0 || minValue >= pointValue) {
+        // minValue should not be greater than pointValue
+        if (minValue < 0 || minValue > pointValue) {
             validationWarningSetDefault($( this ), "0")
         } else {
             // minValue is valid disable negative points

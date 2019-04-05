@@ -1191,7 +1191,7 @@ public class GradingService
       //entry.getValue()[1] = min score
       //entry.getValue()[2] = how many question answers to divide minScore across
       for(Entry<Long, Double[]> entry : minScoreCheck.entrySet()){
-    	  if(entry.getValue()[0] < entry.getValue()[1]){
+    	  if(entry.getValue()[0] <= entry.getValue()[1]){
     		  //reset all scores to 0 since the user didn't get all correct answers
     		  iter = itemGradingSet.iterator();
     		  while(iter.hasNext()){
