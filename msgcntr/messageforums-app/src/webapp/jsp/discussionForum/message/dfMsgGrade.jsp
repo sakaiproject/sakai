@@ -13,11 +13,16 @@
 
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
-       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
-       		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/javascript">includeWebjarLibrary('ckeditor')</script>
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script src="/messageforums-tool/js/messages.js"></script>
+		<script src="/messageforums-tool/js/forum.js"></script>
+		<script>includeWebjarLibrary('ckeditor')</script>
+		<script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
+		<script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
+		<script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+		<script src="/rubrics-service/webcomponents/sakai-rubrics.js"></script>
+		<script type="module" src="/rubrics-service/webcomponents/sakai-rubric-grading.js"></script>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -69,6 +74,9 @@
 		String stateDetails = forumTool.getRbcsStateDetails();
 		boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
 		String entityId = forumTool.getRubricAssociationId();
+
+		if (userId == null) userId = forumTool.getUserId();
+
 		String rbcsEvaluationId = userId+".";
 		if (forumTool.getSelectedMessage() != null) {
 			rbcsEvaluationId += forumTool.getSelectedMessage().getMessage().getUuid();
@@ -101,16 +109,27 @@
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		<!-- RUBRICS JAVASCRIPT -->
 		<script>
-		  var imports = [
-			'/rubrics-service/imports/sakai-rubric-grading.html'
-		  ];
-		  var Polymerdom = 'shady';
-		  var rbcstoken = "<h:outputText value="#{ForumTool.rbcsToken}"/>";
 		  rubricsEventHandlers();
 		</script>
-
-		<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 		<!-- END RUBRICS JAVASCRIPT -->
+
+		<script>
+			$(document).ready(function() {
+			  try{
+			    var sakaiReminder = new SakaiReminder();
+			    new Awesomplete($('.awesomplete')[0], {
+			      list: sakaiReminder.getAll()
+			    });
+			    $('#msgForum').submit(function(e) {
+			      $('textarea.awesomplete').each(function() {
+			        sakaiReminder.new($(this).val());
+			      });
+			    });
+			  } catch(err){
+				  //Just ignore the exception, happens when a gradebook item is not selected.
+			  }
+			});
+		</script>
 
 		<span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
 		<h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
@@ -192,22 +211,20 @@
 				<h:panelGroup>
 					<h:outputLabel  for="comments" value="#{msgs.cdfm_comments}" rendered="#{!ForumTool.selGBItemRestricted}"/>
        <h:inputTextarea id="comments" value="#{ForumTool.gradeComment}" rows="5" cols="50"
+            styleClass="awesomplete"
        		rendered="#{!ForumTool.selGBItemRestricted}" readonly="#{!ForumTool.allowedToGradeItem}"/>
 				</h:panelGroup>	
     </h:panelGrid>
 	
-	<% if(hasAssociatedRubric){ %>
-		<sakai-rubric-grading id="rubric-grading" 
-			grade-field-id="dfMsgGradeGradePoint"
-
+	<% if (hasAssociatedRubric) { %>
+		<sakai-rubric-grading
+		    token='<h:outputText value="#{ForumTool.rbcsToken}"/>'
 			tool-id="sakai.forums"
-			entity-id=<%= entityId %>
-			evaluated-item-id=<%= rbcsEvaluationId %>
-			
-			<% if(stateDetails != null && !"".equals(stateDetails)){ %>
-				state-details=<%= stateDetails %>
+			entity-id='<%= entityId %>'
+			evaluated-item-id='<%= rbcsEvaluationId %>'
+			<% if (stateDetails != null && !"".equals(stateDetails)) { %>
+				state-details='<%= stateDetails %>'
 			<%}%>
-
 		></sakai-rubric-grading>
 	<%}%>
 	

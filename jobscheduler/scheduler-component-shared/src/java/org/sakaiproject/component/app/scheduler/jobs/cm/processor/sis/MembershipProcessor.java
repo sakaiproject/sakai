@@ -16,7 +16,7 @@
 package org.sakaiproject.component.app.scheduler.jobs.cm.processor.sis;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.app.scheduler.jobs.cm.processor.ProcessorState;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;

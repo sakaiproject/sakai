@@ -72,9 +72,9 @@ function saveTime()
   //showElements(document.forms[0]);
   if((typeof (document.forms[0].elements['tableOfContentsForm:elapsed'])!=undefined) && ((document.forms[0].elements['tableOfContentsForm:elapsed'])!=null) ){
   pauseTiming = 'true';
-  // loaded is in 1/10th sec and elapsed is in sec, so need to divide by 10
-  if (self.loaded) {
-	document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded/10;
+  var timeElapse = ${delivery.timeElapse};
+  if (timeElapse) {
+	document.forms[0].elements['tableOfContentsForm:elapsed'].value=timeElapse;
   }
  }
 }
@@ -102,13 +102,13 @@ function saveTime()
   <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
  </h:panelGroup>
  <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble && delivery.hasTimeLimit == true}">
  <samigo:timerBar height="15" width="300"
      wait="#{delivery.timeLimit}"
      elapsed="#{delivery.timeElapseAfterFileUpload}"
-     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
 </h:panelGroup>
 
 <!-- END OF TIMER -->
@@ -209,7 +209,7 @@ function saveTime()
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
-    action="#{delivery.save_work}" onclick="disableSave();" rendered="#{delivery.actionString=='previewAssessment'
+    action="#{delivery.save_work}" rendered="#{delivery.actionString=='previewAssessment'
       || delivery.actionString=='takeAssessment'
       || delivery.actionString=='takeAssessmentViaUrl'}" /> 
 

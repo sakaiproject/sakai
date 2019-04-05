@@ -21,15 +21,16 @@
 package org.sakaiproject.tool.section.decorator;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.Comparator;
 import java.util.Map;
-import java.text.Collator;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Decorates an EnrollmentRecord for display in the UI.

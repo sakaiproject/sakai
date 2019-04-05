@@ -30,6 +30,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PostUpdate;
@@ -62,6 +63,8 @@ public class Rating implements Modifiable, Serializable, Cloneable {
     private Long id;
 
     private String title;
+
+    @Lob
     private String description;
     private Integer points;
 

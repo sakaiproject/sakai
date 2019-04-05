@@ -30,18 +30,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
-
 import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StatsAggregateJobImpl implements StatefulJob {

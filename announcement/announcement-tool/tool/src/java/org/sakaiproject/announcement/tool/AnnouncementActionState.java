@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.entity.cover.EntityManager;

@@ -21,14 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.api.EventTrackingService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;

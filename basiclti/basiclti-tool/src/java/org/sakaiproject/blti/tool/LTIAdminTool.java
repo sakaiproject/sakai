@@ -36,7 +36,7 @@ import java.security.*;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.lti2.LTI2Config;
 import org.tsugi.lti2.LTI2Constants;

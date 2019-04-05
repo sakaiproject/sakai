@@ -20,6 +20,7 @@ $tlang.getString("new.page.launch") </p> <p>
 	marginwidth="0"
 	marginheight="0"
 	scrolling="auto"
+	allowfullscreen="true"
 	src="$!source">
 </iframe>
 <script>

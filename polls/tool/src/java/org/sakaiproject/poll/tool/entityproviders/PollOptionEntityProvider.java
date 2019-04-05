@@ -81,7 +81,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException("Poll ID must be set to create an option");
         }
         // check minimum settings
-        if (option.getOptionText() == null) {
+        if (option.getText() == null) {
             throw new IllegalArgumentException("Poll Option text must be set to create an option");
         }
         checkOptionPermission(userReference, option);

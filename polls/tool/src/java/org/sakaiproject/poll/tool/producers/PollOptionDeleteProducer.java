@@ -47,7 +47,6 @@ import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -115,11 +114,11 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 		
 		UIMessage.make(tofill, "error", "delete_option_message",
-				new Object[] { option.getOptionText() }
+				new Object[] { option.getText() }
 			);
 		
 		UIForm form = UIForm.make(tofill,"opt-form");
-		UIInput.make(form,"opt-text","#{option.optionText}",option.getOptionText());
+		UIInput.make(form,"opt-text","#{option.text}",option.getText());
 
 		Poll poll = pollListManager.getPollById(option.getPollId());
 		Boolean showVoteHandlingOptions = Boolean.FALSE;

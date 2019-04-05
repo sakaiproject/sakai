@@ -42,7 +42,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -74,6 +74,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
@@ -2662,11 +2663,12 @@ public class MessageForumStatisticsBean {
 				Map studentIdFunctionMap = gradebookService.getViewableStudentsForItemForCurrentUser(gradebookUid, assignment.getId());
 				List<GradeDefinition> grades = gradebookService.getGradesForStudentsForItem(gradebookUid, assignment.getId(), new ArrayList(studentIdFunctionMap.keySet()));
 				//add grade values to return map
+				String decSeparator = FormattedText.getDecimalSeparator();
 				for(GradeDefinition gradeDef : grades){
 					String studentUuid = gradeDef.getStudentUid();		  
 					DecoratedGradebookAssignment gradeAssignment = new DecoratedGradebookAssignment();
 					gradeAssignment.setAllowedToGrade(true);						
-					gradeAssignment.setScore(gradeDef.getGrade());
+					gradeAssignment.setScore(StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator));
 					gradeAssignment.setComment(gradeDef.getGradeComment());
 					gradeAssignment.setName(selAssignName);
 					gradeAssignment.setPointsPossible(gbItemPointsPossible);						

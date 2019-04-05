@@ -99,7 +99,7 @@ public class ResourcesWidget extends Panel {
 		// Final Widget object		
 		String icon = StatsManager.SILK_ICONS_DIR + "folder_page.png";
 		String title = (String) new ResourceModel("overview_title_resources").getObject();
-		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
+		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 
@@ -233,7 +233,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(totalDistinctFileReads == -1) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
 					try{
 						totalDistinctFileReads = 0;
 						for(Stat s : r.getReportData()) {
@@ -347,7 +347,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(mostOpenedFile == null) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {
@@ -465,7 +465,7 @@ public class ResourcesWidget extends Panel {
 			
 			private void processData() {
 				if(user == null) {
-					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false);
+					Report r = Locator.getFacade().getReportManager().getReport(getCommonReportDefition(), true, null, false, null);
 					try{
 						boolean first = true;
 						for(Stat s : r.getReportData()) {

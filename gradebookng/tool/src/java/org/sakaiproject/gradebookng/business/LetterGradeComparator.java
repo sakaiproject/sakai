@@ -18,7 +18,7 @@ package org.sakaiproject.gradebookng.business;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade Copied from GradebookService and made

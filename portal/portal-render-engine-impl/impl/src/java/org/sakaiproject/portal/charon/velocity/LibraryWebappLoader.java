@@ -19,18 +19,17 @@
 
 package org.sakaiproject.portal.charon.velocity;
 
+import java.io.InputStream;
+import java.util.Date;
+import java.util.HashMap;
+
 import org.apache.commons.collections.ExtendedProperties;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.webapp.api.WebappResourceManager;
-
-import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.

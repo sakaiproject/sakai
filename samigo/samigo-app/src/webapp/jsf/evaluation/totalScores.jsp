@@ -41,6 +41,9 @@
       <script type="text/javascript" src="/library/js/spinner.js"></script>
 <%@ include file="/js/delivery.js" %>
 
+      <script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
+      <script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
+
 <script type="text/javascript">
 function toPoint(id)
 {
@@ -92,6 +95,19 @@ $(document).ready(function(){
       }
     });
   });
+
+  var sakaiReminder = new SakaiReminder();
+  $('.awesomplete').each(function() {
+    new Awesomplete(this, {
+      list: sakaiReminder.getAll()
+    });
+  });
+  $('#editTotalResults').submit(function(e) {
+    $('textarea.awesomplete').each(function() {
+      sakaiReminder.new($(this).val());
+    });
+  });
+
 });
 </script>
 </head>
@@ -956,8 +972,8 @@ $(document).ready(function(){
 	  </h:panelGroup>
      </f:facet>
 
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
-   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}" styleClass="awesomplete" />
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled awesomplete" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
    <h:panelGroup rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}">
    		<%@ include file="/jsf/evaluation/totalScoresAttachment.jsp" %>
    </h:panelGroup>

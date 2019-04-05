@@ -44,6 +44,8 @@ $Id$
 
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
     <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+    <script type="text/javascript">includeWebjarLibrary('awesomplete')</script>
+    <script type="text/javascript" src="/library/js/sakai-reminder.js"></script>
     
     <script type="text/JavaScript">   
       jQuery(window).load(function(){
@@ -72,6 +74,19 @@ $Id$
           }catch(err){}
           
         }); 
+
+        var sakaiReminder = new SakaiReminder();
+        $('textarea.awesomplete').each(function() {
+          new Awesomplete(this, {
+            list: sakaiReminder.getAll()
+          });
+        });
+        $('#editStudentResults').submit(function(e) {
+          $('textarea.awesomplete').each(function() {
+            sakaiReminder.new($(this).val());
+          });
+        });
+
       });
     </script>
 
@@ -90,39 +105,22 @@ function toPoint(id)
 <script>
   // rubrics-specific code
   var rubricChanged = false;
-  rubricsEventHandlers = function() {   
-    $('body').on('rubrics-event', function(e, payload){
-      var itemId = $(e.target).parent().attr("item-id");
-      if (payload.event == "total-points-updated") {
-        handleRubricsTotalPointChange(itemId, payload.value);
-      }
-      if (payload.event == "rubric-ratings-changed") {
-        rubricChanged = true;
-      }
-    });
 
-    console.log('Rubrics event handlers loaded');
-  }
-  
-  // handles point changes for assignments, updating the grade field if it exists.
-  handleRubricsTotalPointChange = function(itemId, points) {   
+  $('body').on('rubrics-event', function (e) {
+    rubricChanged = true;
+  });
+
+  $('body').on('total-points-updated', function (e) {
+
+    e.stopPropagation();
+
+    var itemId = $(e.target).parent().attr("item-id");
     var gradeField = $('.adjustedScore' + itemId);
-    if (gradeField.length && ((gradeField.val() === "" || gradeField.val() === points) || rubricChanged)) {
-      gradeField.val(points);
+    if (gradeField) {
+      gradeField.val(e.detail.value);
     }
-  }
+  });
 </script>
-
-<script>
-  var imports = [
-    '/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = <h:outputText value="'#{submissionStatus.rbcsToken}'"/>;
-  rubricsEventHandlers();
-</script>
-
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 
 <div class="portletBody container-fluid">
 <h:form id="editStudentResults">
@@ -182,7 +180,7 @@ function toPoint(id)
 <div class="form-group row">
    <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
    <div class="col-md-6">
-     <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"/>
+     <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30" styleClass="awesomplete"/>
    </div>
 </div>
 
@@ -351,6 +349,7 @@ function toPoint(id)
           <div class="tab-pane" id="<h:outputText value="rubric#{question.itemData.itemId}" />">
             <sakai-rubric-grading
               id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
+              token='<h:outputText value="#{submissionStatus.rbcsToken}"/>'
               tool-id="sakai.samigo"
               entity-id='<h:outputText value="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"/>'
               evaluated-item-id='<h:outputText value="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}" />'
@@ -368,7 +367,7 @@ function toPoint(id)
           <h:panelGrid columns="2" border="0" >
             <h:outputLabel value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
             <h:outputText value="&#160;" escape="false" />
-            <h:inputTextarea value="#{question.gradingComment}" rows="4" cols="40"/>
+            <h:inputTextarea value="#{question.gradingComment}" rows="4" cols="40" styleClass="awesomplete"/>
             <%@ include file="/jsf/evaluation/gradeStudentResultAttachment.jsp" %>
           </h:panelGrid>
           </div>

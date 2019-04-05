@@ -14,7 +14,7 @@
 		<configuration name="roles.deny" value="access,guest" /> -->
 		
 		<!-- Sakai 2.3.0, up -->
-		<configuration name="functions.require" value="sitestats.view" /> 		
+		<configuration name="functions.require" value="sitestats.view | sitestats.own" />
 		
 	</tool>
 </registration>

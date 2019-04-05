@@ -19,13 +19,13 @@ package org.sakaiproject.contentreview.compilatio;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.contentreview.compilatio.util.CompilatioAPIUtil;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
-import org.sakaiproject.contentreview.compilatio.util.CompilatioAPIUtil;
 import org.w3c.dom.Document;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class contains the properties and utility methods so it can be used to
@@ -40,8 +40,8 @@ import org.w3c.dom.Document;
  *
  *
  */
+@Slf4j
 public class CompilatioAccountConnection {
-	private static final Log log = LogFactory.getLog(CompilatioAccountConnection.class);
 	
 	private final static String DEFAULT_API_URL = "http://service.compilatio.net/webservices/CompilatioUserClient.php?";
 	private final static int DEFAULT_TIMEOUT = 180000;

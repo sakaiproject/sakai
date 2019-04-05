@@ -150,7 +150,7 @@ public class SiteStatsEntityProvider extends AbstractEntityProvider implements A
             throw new EntityException("Report with id '" + reportId + "' doesn't exist.", "", HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        Report report = reportManager.getReport(reportDef, true);
+        Report report = reportManager.getReport(reportDef, true, null);
 
         List<StrippedStat> stripped = new ArrayList<StrippedStat>();
 

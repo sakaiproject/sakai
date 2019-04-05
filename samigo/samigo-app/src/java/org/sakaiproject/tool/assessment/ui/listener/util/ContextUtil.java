@@ -24,7 +24,12 @@ package org.sakaiproject.tool.assessment.ui.listener.util;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -202,8 +207,6 @@ public static ArrayList paramArrayValueLike(String paramPart)
 
 }
 
-
-
   /**
    * Helper method to look up backing bean.
    * Don't forget to cast!
@@ -367,7 +370,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
     return location;
   }
 
-  private static  String replaceSpace(String tempString){
+  private static String replaceSpace(String tempString){
     String newString = "";
     char[] oneChar = new char[1];
     for(int i=0; i<tempString.length(); i++){
@@ -381,5 +384,20 @@ public static ArrayList paramArrayValueLike(String paramPart)
       }
     }
     return newString;
+  }
+
+  public static Map<String, String> sortByValue(Map<String, String> map) {
+    List<Map.Entry> list = new LinkedList(map.entrySet());
+    Collections.sort(list, new Comparator() {
+      public int compare(Object o1, Object o2) {
+        return ((Comparable) ((String)((Map.Entry) (o1)).getValue()).toLowerCase()).compareTo(((String)((Map.Entry) (o2)).getValue()).toLowerCase());
+      }
+    });
+
+    Map<String, String> result = new LinkedHashMap<>();
+    for (Map.Entry<String,String> entry : list) {
+      result.put(entry.getKey(), entry.getValue());
+    }
+    return result;
   }
 }

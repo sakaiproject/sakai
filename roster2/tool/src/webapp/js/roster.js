@@ -801,7 +801,7 @@
             success: function (data) {
                 roster.searchIndex = data.data;
                 roster.searchIndexKeys = Object.keys(data.data);
-                roster.searchIndexValues = Object.values(data.data);
+                roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
                 // Now switch into the requested state
                 roster.switchState(roster.state, roster);
             },

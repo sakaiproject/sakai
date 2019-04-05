@@ -18,6 +18,7 @@
  */
 package org.sakaiproject.sitestats.impl;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.SecurityService;
@@ -36,6 +37,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 	private SecurityService			M_secs;
 	private SessionManager			M_sess;
 	private ToolManager				M_tm;
+	@Setter private StatsManager	M_statsManager;
 
 	// ################################################################
 	// Spring bean methods
@@ -61,6 +63,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 		// register functions
 		FunctionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
 		FunctionManager.registerFunction(PERMISSION_SITESTATS_ADMIN_VIEW);
+		FunctionManager.registerFunction(PERMISSION_SITESTATS_OWN);
 	}
 
 	// ################################################################
@@ -79,7 +82,17 @@ public class StatsAuthzImpl implements StatsAuthz {
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId) {
 		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStatsOwn(java.lang.String)
+	 */
+	@Override
+	public boolean isUserAbleToViewSiteStatsOwn(String siteId) {
+		boolean showOwnStatisticsToStudents = M_statsManager.getPreferences(siteId, true).isShowOwnStatisticsToStudents();
+		boolean hasPermission = hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_OWN);
+		return (showOwnStatisticsToStudents && hasPermission);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsPage()
 	 */
@@ -99,5 +112,14 @@ public class StatsAuthzImpl implements StatsAuthz {
 	// ################################################################
 	private boolean hasPermission(String reference, String permission) {
 		return M_secs.unlock(permission, reference);
+	}
+
+	/**
+	 * Get the current session user id
+	 * @return current session user id
+	 */
+	@Override
+	public String getCurrentSessionUserId() {
+		return M_sess.getCurrentSessionUserId();
 	}
 }

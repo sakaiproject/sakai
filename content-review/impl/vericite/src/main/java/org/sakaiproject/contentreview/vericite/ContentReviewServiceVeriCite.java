@@ -42,7 +42,7 @@ import java.util.SortedSet;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -146,8 +146,14 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 		return true;
 	}
 
+	@Override
 	public void checkForReports() {
-		
+		// Auto-generated method stub
+	}
+
+	@Override
+	public void syncRosters() {
+		// Auto-generated method stub
 	}
 
 	public void createAssignment(final String contextId, final String assignmentRef, final Map opts)

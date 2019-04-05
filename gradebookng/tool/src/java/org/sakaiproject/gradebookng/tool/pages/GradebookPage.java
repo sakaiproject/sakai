@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
@@ -184,10 +184,6 @@ public class GradebookPage extends BasePage {
 		this.rubricGradeWindow = new GbModalWindow("rubricGradeWindow");
 		this.rubricGradeWindow.setPositionAtTop(true);
 		this.form.add(this.rubricGradeWindow);
-
-		String rubricsToken = rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG);
-		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsToken));
-		this.form.add(rubricsTokenHiddenField);
 
 		this.gradeLogWindow = new GbModalWindow("gradeLogWindow");
 		this.form.add(this.gradeLogWindow);
@@ -574,6 +570,10 @@ public class GradebookPage extends BasePage {
 		response.render(JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter')", null));
 		response.render(
 				JavaScriptHeaderItem.forScript("includeWebjarLibrary('jquery.tablesorter/2.27.7/dist/css/theme.bootstrap.min.css')", null));
+
+		//Feedback reminder for instructors
+		response.render(
+				JavaScriptHeaderItem.forScript("includeWebjarLibrary('awesomplete')", null));
 
 		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem

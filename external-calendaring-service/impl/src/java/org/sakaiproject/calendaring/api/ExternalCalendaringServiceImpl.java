@@ -45,9 +45,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendaring.logic.SakaiProxy;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.User;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
@@ -74,15 +81,6 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.validate.ValidationException;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendaring.logic.SakaiProxy;
-import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.user.api.User;
 
 /**
  * Implementation of {@link ExternalCalendaringService}

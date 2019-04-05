@@ -1013,22 +1013,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						if (!excused) {
 							totalPointsEarned += pointsEarned;
 							literalTotalPointsEarned = (new BigDecimal(pointsEarned)).add(literalTotalPointsEarned);
+							assignmentsTaken.add(go.getId());
 						}
-						assignmentsTaken.add(go.getId());
 					} else if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null) {
 						if (!excused) {
 							totalPointsEarned += pointsEarned;
 							literalTotalPointsEarned = (new BigDecimal(pointsEarned)).add(literalTotalPointsEarned);
+							assignmentsTaken.add(go.getId());
 						}
-						assignmentsTaken.add(go.getId());
 					} else if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null
 							&& categories != null) {
 						for (int i = 0; i < categories.size(); i++) {
 							final Category cate = (Category) categories.get(i);
 							if (cate != null && !cate.isRemoved() && go.getCategory() != null
 									&& cate.getId().equals(go.getCategory().getId())) {
-								assignmentsTaken.add(go.getId());
 								if (!excused) {
+									assignmentsTaken.add(go.getId());
 									literalTotalPointsEarned = (new BigDecimal(pointsEarned)).add(literalTotalPointsEarned);
 									if (cateScoreMap.get(cate.getId()) != null) {
 										cateScoreMap.put(cate.getId(), ((Double) cateScoreMap.get(cate.getId())) + pointsEarned);

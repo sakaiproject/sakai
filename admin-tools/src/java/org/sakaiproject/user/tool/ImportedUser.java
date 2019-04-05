@@ -15,10 +15,9 @@
  */
 package org.sakaiproject.user.tool;
 
-import lombok.Data;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.entity.api.ResourceProperties;
+
+import lombok.Data;
 
 /**
  * Model object to store a record about an imported user

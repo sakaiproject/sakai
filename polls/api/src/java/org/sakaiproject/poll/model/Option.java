@@ -32,6 +32,7 @@ public class Option {
     private String status;
     private String uuid;
     private Boolean deleted = Boolean.FALSE;
+    private Integer optionOrder;
 
     public Option() {}
 
@@ -39,19 +40,7 @@ public class Option {
         this.optionId = oId;
     }
 
-    public void setOptionText(String option) {
-        text = option;
-    }
-
-    public String getOptionText() {
-        return text;
-    }
-
     public String getId() {
         return optionId+"";
-    }
-    
-    public void setId(Long id) {
-        this.optionId = optionId;
     }
 }

@@ -35,8 +35,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -772,7 +772,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 					}
 				}
 
-				if(!announcementService.isMessageViewable(msg)) {
+				if (msg.getHeader().getDraft() || !announcementService.isMessageViewable(msg)) {
 					return false;
 				}
 			}

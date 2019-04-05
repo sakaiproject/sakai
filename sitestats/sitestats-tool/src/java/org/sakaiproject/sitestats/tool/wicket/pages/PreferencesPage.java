@@ -109,7 +109,9 @@ public class PreferencesPage extends BasePage {
 		// Section: General
 		CheckBox listToolEventsOnlyAvailableInSite = new CheckBox("listToolEventsOnlyAvailableInSite");
 		form.add(listToolEventsOnlyAvailableInSite);
-		
+
+		CheckBox showOwnStatisticsToStudents = new CheckBox("showOwnStatisticsToStudents");
+		form.add(showOwnStatisticsToStudents);
 		
 		// Section: Chart
 		WebMarkupContainer chartPrefs = new WebMarkupContainer("chartPrefs");
@@ -211,6 +213,14 @@ public class PreferencesPage extends BasePage {
 
 	public boolean isListToolEventsOnlyAvailableInSite() {
 		return getPrefsdata().isListToolEventsOnlyAvailableInSite();
+	}
+
+	public void setShowOwnStatisticsToStudents(boolean showOwnStatisticsToStudents) {
+		prefsdata.setShowOwnStatisticsToStudents(showOwnStatisticsToStudents);
+	}
+
+	public boolean isShowOwnStatisticsToStudents() {
+		return getPrefsdata().isShowOwnStatisticsToStudents();
 	}
 	
 	public void setChartIn3D(boolean chartIn3D) {

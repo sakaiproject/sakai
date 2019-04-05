@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
-
+<script type="text/javascript" src="/library/js/spinner.js$!{portalCdnQuery}"></script>
 <script type="text/javascript">
   focus_path = ["subject"];
   
@@ -399,11 +399,11 @@ function resizeFrame(){
 			#end
 			#if ($size == 0) <p class="instruction">$tlang.getString("revise.noattach")</p>
 				<div class="act">
-					 <input type="button" name="attach" value="$tlang.getString("revise.addatt")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
+					 <input type="button" name="attach" value="$tlang.getString("revise.addatt")" onclick="document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
 				</div>
 			#else
 				<div class="act">
-					 <input type="button" name="attach" value="$tlang.getString("revise.addrem")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
+					 <input type="button" name="attach" value="$tlang.getString("revise.addrem")" onclick="document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
 				</div>
 			#end
 
@@ -489,10 +489,9 @@ function resizeFrame(){
 					#else
 						"$tlang.getString("revise.savechanges")"
 					#end
-				 onclick="javascript:showNotif('submitnotif','saveChanges','reviseForm');document.reviseForm.onsubmit();document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
-				<input type="button" accesskey="v" name="preview" value="$tlang.getString("revise.preview")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='preview';document.reviseForm.submit();return false;" />
-				<input type="button" accesskey="x" name="cancel" value="$tlang.getString("gen.cancel")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='cancel';document.reviseForm.submit();return false;" />   
-				<span id="submitnotif" style="visibility:hidden" >$tlang.getString("label.proces")</span>
+				 onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="v" name="preview" value="$tlang.getString("revise.preview")" onclick="document.getElementById('option').value='preview';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="x" name="cancel" value="$tlang.getString("gen.cancel")" onclick="document.getElementById('option').value='cancel';document.reviseForm.submit();return false;" />   
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

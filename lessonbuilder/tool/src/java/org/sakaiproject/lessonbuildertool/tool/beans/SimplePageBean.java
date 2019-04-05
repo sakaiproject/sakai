@@ -24,8 +24,6 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
-import com.opencsv.CSVParser;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -35,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -62,14 +59,10 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -77,7 +70,13 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.*;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.cover.SqlService;
@@ -90,14 +89,33 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.lessonbuildertool.*;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import org.sakaiproject.lessonbuildertool.SimplePageGroup;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
+import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
+import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.service.*;
+import org.sakaiproject.lessonbuildertool.service.AjaxServer;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
+import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
+import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
+import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
@@ -108,7 +126,11 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.site.api.*;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -120,11 +142,12 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-
 import org.springframework.web.multipart.MultipartFile;
-
 import org.tsugi.lti2.ContentItem;
 
+import com.opencsv.CSVParser;
+
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -6001,13 +6024,13 @@ public class SimplePageBean {
 		// doesn't seem to make sense to use ellipses for less than length of 8. better just to truncate
 		// if possible, truncate the base
 		if (base.length() > (overage + 8)) {
-		    ret[0] = org.apache.commons.lang.StringUtils.abbreviateMiddle(name, "_", maxname - extension.length());
+		    ret[0] = org.apache.commons.lang3.StringUtils.abbreviateMiddle(name, "_", maxname - extension.length());
 		    return ret;
 		}
 
 		// but what about b.eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, or more likely, .xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		if (extension.length() > (overage + 8)) {
-		    ret[1] = org.apache.commons.lang.StringUtils.abbreviateMiddle(extension, "_", maxname - base.length());
+		    ret[1] = org.apache.commons.lang3.StringUtils.abbreviateMiddle(extension, "_", maxname - base.length());
 		    return ret;
 		}
 
@@ -6019,7 +6042,7 @@ public class SimplePageBean {
 
 		// base has to be larger than maxname, so final length will be maxname
 		if (maxname > 8) {
-		    ret[0] = org.apache.commons.lang.StringUtils.abbreviateMiddle(base, "_", maxname);
+		    ret[0] = org.apache.commons.lang3.StringUtils.abbreviateMiddle(base, "_", maxname);
 		    return ret;
 		}
 
@@ -6042,7 +6065,7 @@ public class SimplePageBean {
 		// for owned pages, use the same kind of hierarchy. One exception: use site name as basedir
 		if (pageOwner != null) {
 		    String title = getCurrentSite().getTitle();
-		    baseDir = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(title,"_",30));
+		    baseDir = Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(title,"_",30));
 		}		    
 
 		// if (pageOwner == null) {
@@ -6089,7 +6112,7 @@ public class SimplePageBean {
 			    // 33 is a name of length 30 and -NN for duplicates
 			    // actual length is 255, but I worry about weird characters I don't understand
 			    if (title.length() > (250 - collectionId.length() - 33)) {
-				title = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(getPageTitle(),"_",30)) + "/";
+				title = Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(getPageTitle(),"_",30)) + "/";
 			    }
 			    
 			    // make sure folder names are unique
@@ -6178,7 +6201,7 @@ public class SimplePageBean {
 	    seen.add(page.getPageId());
 	    List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(page.getPageId()));
 	    if (items == null || items.isEmpty()) {
-		return new Path(0, Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		return new Path(0, Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
 	    }
 	    else {
 		int minlevel = 9999;
@@ -6200,8 +6223,8 @@ public class SimplePageBean {
 		    }
 		}
 		if (bestPath.equals(""))
-		    return new Path(0, Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
-		return new Path(minlevel + 1, bestPath + Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		    return new Path(0, Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		return new Path(minlevel + 1, bestPath + Validator.escapeResourceName(org.apache.commons.lang3.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
 	    }
 	}
 

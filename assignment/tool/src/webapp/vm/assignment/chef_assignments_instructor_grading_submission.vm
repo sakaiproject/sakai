@@ -21,15 +21,9 @@
 
 <!-- RUBRICS JAVASCRIPT -->
 <script>
-  var imports = [
-    '/rubrics-service/imports/sakai-rubric-grading.html'
-  ];
-  var Polymerdom = 'shady';
-  var rbcstoken = "$!rbcs-token";
   ASN.rubricsEventHandlers();
 </script>
 
-<script src="/rubrics-service/js/sakai-rubrics.js"></script>
 <!-- END RUBRICS JAVASCRIPT -->
 
 <div class="portletBody">
@@ -114,6 +108,11 @@
                 </fieldset>
             </div>
         </div>
+        #if( $allowAddAssignment && $showStudentPhoto )
+	        #if (!$!assignment.IsGroup && !$value_CheckAnonymousGrading)
+                <span class="student-picture" role="presentation" style="background-image:url('/direct/profile/$!submitterId/image/official?siteId=$!assignment.Context');"></span>
+	        #end
+        #end
         ## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
         #set ($submissionType = $!assignment.TypeOfSubmission.ordinal())
         <table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
@@ -491,6 +490,7 @@
         <div role="tabpanel" class="tab-pane" id="rubric">
             <sakai-rubric-grading
                 ## grade-field-id="grade"
+                token="$!rbcs-token"
                 tool-id="sakai.assignment"
                 entity-id="$assignment.Id"
                 evaluated-item-id="$submission.Id"

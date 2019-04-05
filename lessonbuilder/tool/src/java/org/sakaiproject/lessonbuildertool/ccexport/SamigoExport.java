@@ -31,12 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
-import uk.org.ponder.messageutil.MessageLocator;
-
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -47,14 +42,17 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.util.FormattedText;                                     
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+
+import lombok.extern.slf4j.Slf4j;
+import uk.org.ponder.messageutil.MessageLocator;
 
 /*
  * set up as a singleton. But CCexport is not.
@@ -152,7 +150,7 @@ public class SamigoExport {
 	String publishedAssessmentString = samigoId.substring(i+1);
 	Long publishedAssessmentId = new Long(publishedAssessmentString);
 
-	PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString);
+	PublishedAssessmentFacade assessment = pubService.getPublishedAssessment(publishedAssessmentString, true);
 
 	List<ItemDataIfc> publishedItemList = preparePublishedItemList(assessment);
 

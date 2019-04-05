@@ -100,7 +100,7 @@ public class LessonsWidget extends Panel {
         // Final Widget object
         String icon = StatsManager.SILK_ICONS_DIR + "folder_page.png";
         String title = (String) new ResourceModel("overview_title_lessonpages").getObject();
-        Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
+        Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs, siteId);
         add(widget);
     }
 

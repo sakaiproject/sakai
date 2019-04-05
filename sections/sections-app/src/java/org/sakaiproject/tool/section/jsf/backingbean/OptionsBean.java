@@ -23,16 +23,15 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
-import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controls the options page.
