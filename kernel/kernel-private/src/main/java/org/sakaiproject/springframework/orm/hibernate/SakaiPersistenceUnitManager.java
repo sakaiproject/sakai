@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 
 import lombok.Setter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.cfg.AvailableSettings;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
@@ -42,12 +43,12 @@ public class SakaiPersistenceUnitManager extends DefaultPersistenceUnitManager {
         postProcessPersistenceUnitInfo(pui);
 
         Boolean autoddl = serverConfigurationService.getBoolean("auto.ddl", true);
-        String hbm2ddl = serverConfigurationService.getString(AvailableSettings.HBM2DDL_AUTO, "update");
-        if (!autoddl) {
-            // if sakai auto.ddl is turned off then set to validate
-            hbm2ddl = "validate";
+        String hbm2ddl = serverConfigurationService.getString(AvailableSettings.HBM2DDL_AUTO);
+        if (autoddl) {
+            // if sakai auto.ddl is on then this needs to be set to update
+            hbm2ddl = "update";
         }
-        pui.getProperties().setProperty(AvailableSettings.HBM2DDL_AUTO, hbm2ddl);
+        pui.getProperties().setProperty(AvailableSettings.HBM2DDL_AUTO, StringUtils.defaultString(hbm2ddl));
 
         defaultPersistenceUnitInfo = pui;
     }
