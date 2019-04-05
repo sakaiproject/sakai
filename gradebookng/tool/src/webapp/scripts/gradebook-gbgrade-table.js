@@ -644,7 +644,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTableEditor.prototype.beginEditing = function() {
     Handsontable.editors.TextEditor.prototype.beginEditing.apply(this, arguments);
 
-    var col = this.instance.getSelected()[1];
+    var col = this.instance.getSelected()[0][1];
 
     var outOf = $(this.TEXTAREA_PARENT).find(".out-of")[0];
 
