@@ -36,8 +36,8 @@ import javax.portlet.ValidatorException;
 
 import com.sun.syndication.feed.synd.SyndFeed;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import au.edu.anu.portal.portlets.rss.model.Attachment;
 import au.edu.anu.portal.portlets.rss.utils.Constants;
@@ -222,7 +222,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		boolean success = true;
 		//get prefs and submitted values
 		PortletPreferences prefs = request.getPreferences();
-		String portletTitle = StringEscapeUtils.escapeHtml(StringUtils.trim(request.getParameter("portletTitle")));
+		String portletTitle = StringEscapeUtils.escapeHtml3(StringUtils.trim(request.getParameter("portletTitle")));
 		String maxItems = StringUtils.trim(request.getParameter("maxItems"));
 		String feedUrl = StringUtils.trim(request.getParameter("feedUrl"));
 		
