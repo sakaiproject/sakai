@@ -26,10 +26,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.dao.OptimisticLockingFailureException;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
@@ -46,6 +43,9 @@ import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
+import org.springframework.dao.OptimisticLockingFailureException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
