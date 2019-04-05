@@ -39,11 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import net.fortuna.ical4j.model.component.VEvent;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -59,6 +55,10 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import net.fortuna.ical4j.model.component.VEvent;
 
 /**
  * Impl of SignupCalendarHelper

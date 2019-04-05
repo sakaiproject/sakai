@@ -39,11 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import net.fortuna.ical4j.model.component.VEvent;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -51,6 +47,10 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+
+import lombok.Getter;
+import lombok.Setter;
+import net.fortuna.ical4j.model.component.VEvent;
 
 /**
  * <p>
