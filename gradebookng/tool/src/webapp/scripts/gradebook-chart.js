@@ -40,8 +40,9 @@ function renderChart(gbChartData) {
 				xAxes: [{
 					ticks: {
 						beginAtZero:true,
-						stepSize: 1,
-						fontStyle: 'bold'
+						fontStyle: 'bold',
+						autoSkip: true,
+						maxRotation: 0
 					},
 					scaleLabel: {
 						display: true,
@@ -53,8 +54,9 @@ function renderChart(gbChartData) {
 				yAxes: [{
 					ticks: {
 						beginAtZero:true,
-						stepSize: 1,
-						fontStyle: 'bold'
+						fontStyle: 'bold',
+						autoskip: true,
+						maxRotation: 0
 					},
 					scaleLabel: {
 						display: true,
