@@ -93,7 +93,7 @@ function renderChart(gbChartData) {
 						display: true,
 						labelString: yAxisLabel,
 						fontSize: 14,
-						fontStyle: 'bold',
+						fontStyle: 'bold'
 					}
 				}]
 			},
