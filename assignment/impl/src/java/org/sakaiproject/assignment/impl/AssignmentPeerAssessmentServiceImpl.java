@@ -407,7 +407,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     }
 
     public void removePeerAttachment(PeerAssessmentAttachment peerAssessmentAttachment) {
-        getHibernateTemplate().delete(peerAssessmentAttachment);
+        getHibernateTemplate().delete(getHibernateTemplate().merge(peerAssessmentAttachment));
         getHibernateTemplate().flush();
     }
 
