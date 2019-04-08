@@ -5,7 +5,7 @@
 To run this project you need a Selenium webdriver.
 
 Get the Firefox based Gecko webdriver here: https://github.com/mozilla/geckodriver/releases
-Get the Chrome webdriver here: https://sites.google.com/a/chromium.org/chromedriver/downloads
+See below for other drivers.
 
 If you don't want to run this project, you can still help by contributing feature files to it, see `Contributing` below.
 
@@ -41,9 +41,16 @@ Both the Firefox and Chrome webdriver profiles are supported. By default, the Fi
 Using the defaults, you must have the Gecko webdriver, and specify `-Dwebdriver.gecko.driver=/path/to/gecko/driver/executable`
 
 To switch profile, use `-Dselenium.profile=firefox|chrome`
-If you switch to `chrome`, you will then need to set `-Dwebdriver.chrome.driver=/path/to/chrome/driver/executable`
+See below for how to use the Chrome profile.
 
-For example, using Chrome:
+## Using the Chrome webdriver
+If you switch to `chrome`, you will then need the Chrome webdriver. Get it here: Get the Chrome webdriver here: https://sites.google.com/a/chromium.org/chromedriver/downloads
+
+Make sure you get the version of the driver that matches the version of Chrome you have.
+
+Then set `-Dwebdriver.chrome.driver=/path/to/chrome/driver/executable`
+
+A full example command, using Chrome:
 `mvn clean integration-test -Dselenium.profile=chrome -Dwebdriver.chrome.driver=/path/to/chrome/executable`
 
 TODO document more props
