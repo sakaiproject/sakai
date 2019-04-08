@@ -3,7 +3,9 @@
 ## Before you begin
 
 To run this project you need a Selenium webdriver.
-You can get the Firefox based Gecko Driver here: https://github.com/mozilla/geckodriver/releases
+
+Get the Firefox based Gecko webdriver here: https://github.com/mozilla/geckodriver/releases
+Get the Chrome webdriver here: https://sites.google.com/a/chromium.org/chromedriver/downloads
 
 If you don't want to run this project, you can still help by contributing feature files to it, see `Contributing` below.
 
@@ -32,7 +34,6 @@ If you feel like automating some feature files, check out the existing automated
 Otherwise, adding a feature file is a great place to help.
 
 If you do automate some features or scenarios, add the @automated tag to it in place of the @manual one.
-
 
 ## Configuration
 
