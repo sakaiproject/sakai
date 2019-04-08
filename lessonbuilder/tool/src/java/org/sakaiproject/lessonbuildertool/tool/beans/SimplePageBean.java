@@ -3838,6 +3838,13 @@ public class SimplePageBean {
 	   if (isStudentPage(getCurrentPage())) {
 	       return null;
 	   }
+
+	   //Remove the existing groups from the item cache before assigning the new groups.
+	   if(i != null && StringUtils.isNotEmpty(i.getSakaiId())){
+	       log.info("Removing the item {} assigned groups from the cache.", i.getSakaiId());
+	       groupCache.remove(i.getSakaiId());
+	   }
+
 	   LessonEntity lessonEntity = null;
 	   switch (i.getType()) {
 	   case SimplePageItem.ASSIGNMENT:
