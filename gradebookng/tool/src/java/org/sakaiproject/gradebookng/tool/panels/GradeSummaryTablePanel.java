@@ -93,7 +93,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
 		final ModalWindow assignmentStatsWindow = new ModalWindow("assignmentStatsWindow");
-		add(assignmentStatsWindow);
+		addOrReplace(assignmentStatsWindow);
 
 		if (getPage() instanceof GradebookPage) {
 			final GradebookPage page = (GradebookPage) getPage();
