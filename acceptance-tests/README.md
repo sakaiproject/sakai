@@ -3,14 +3,14 @@
 ## Before you begin
 
 To run this project you need a Selenium webdriver.
-This will be simplified soon, but for now, get the geckodriver and unzip it somewhere.
+You can get the Firefox based Gecko Driver here: https://github.com/mozilla/geckodriver/releases
 
-If you don't want to run this project, just contribute feature files to it, see `Contributing` below.
+If you don't want to run this project, you can still help by contributing feature files to it, see `Contributing` below.
 
 ## Usage
 
 To run the tests and generate the report, run:
-`mvn clean integration-test -Dwebdriver.gecko.driver=/path/to/webdriver`
+`mvn clean integration-test -Dwebdriver.gecko.driver=/path/to/webdriver/executable`
 
 ## Generating stepdef code
 If you create a feature file, Cucumber can build the missing stepdef scaffolding you need to implement.
@@ -36,8 +36,13 @@ If you do automate some features or scenarios, add the @automated tag to it in p
 
 ## Configuration
 
-This section under construction:
+Both the Firefox and Chrome webdriver profiles are supported. By default, the Firefox profile is used.
+Using the defaults, you must have the Gecko webdriver, and specify `-Dwebdriver.gecko.driver=/path/to/gecko/driver/executable`
 
--Dselenium.profile=firefox|chrome
--Dwebdriver.gecko.driver=/path/to/gecko/driver
--Dwebdriver.chrome.driver=/path/to/chrome/driver
+To switch profile, use `-Dselenium.profile=firefox|chrome`
+If you switch to `chrome`, you will then need to set `-Dwebdriver.chrome.driver=/path/to/chrome/driver/executable`
+
+For example, using Chrome:
+`mvn clean integration-test -Dselenium.profile=chrome -Dwebdriver.chrome.driver=/path/to/chrome/executable`
+
+TODO document more props
