@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.business.util;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.gradebookng.business.GbEvent;
 import org.sakaiproject.gradebookng.business.GbRole;
 
@@ -94,7 +96,7 @@ public class EventHelper {
             String.valueOf(gradebook.getId()),
             String.valueOf(assignmentId),
             studentUid,
-            String.valueOf(comment.length()),
+            String.valueOf(StringUtils.length(comment)),
             currentRole.toString().toLowerCase()
         };
 
