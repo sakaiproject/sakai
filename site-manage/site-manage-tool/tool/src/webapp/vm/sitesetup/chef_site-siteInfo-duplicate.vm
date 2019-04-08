@@ -25,8 +25,8 @@
 				</div>
 				#if ($hasEmailArchive)
 					<div class="form-group row">
-						<label for ="emailAddress" class="col-sm-2 form-control-label">
-							<span class ="reqStar">*</span>
+						<label for="emailAddress" class="col-sm-2 form-control-label">
+							<span class="reqStar">*</span>
 							$tlang.getString("multipleTools.site")
 						</label>
 						<div class="col-sm-6">
