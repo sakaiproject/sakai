@@ -124,7 +124,7 @@ public class BulkEditItemsPanel extends BasePanel {
 			boolean result = false;
 			for (final Assignment a : assignments) {
 
-				log.error("Bulk edit assignment: " + a);
+				log.debug("Bulk edit assignment: {}", a);
 				result = BulkEditItemsPanel.this.businessService.updateAssignment(a);
 			}
 
