@@ -84,7 +84,10 @@ export class SakaiRubricsList extends SakaiElement {
     this.rubrics = tmp;
 
     this.requestUpdate();
-    this.updateComplete.then(() => { this.querySelector(`#rubric_item_${nr.id} sakai-rubric`).toggleRubric(); });
+    this.updateComplete.then(async() => {
+      await this.createRubricUpdateComplete;
+      this.querySelector(`#rubric_item_${nr.id} sakai-rubric`).toggleRubric();
+    });
   }
 
   deleteRubric(e) {
@@ -115,6 +118,12 @@ export class SakaiRubricsList extends SakaiElement {
       extraHeaders: {"x-copy-source" :"default", "lang": portal.locale}
     })
     .then(data => this.createRubricResponse(data));
+  }
+
+  get createRubricUpdateComplete() {
+    return (async () => {
+      return await this.querySelector(`#rubric_item_${this.rubrics[this.rubrics.length - 1].id} sakai-rubric`).updateComplete;
+    })();
   }
 }
 
