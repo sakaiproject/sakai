@@ -22,6 +22,8 @@ package org.sakaiproject.tool.messageforums;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -720,8 +722,7 @@ public class PrivateMessagesTool
       }
 
       List<SelectItem> selectItemList = new ArrayList<SelectItem>();
-      for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
-          MembershipItem item = (MembershipItem) i.next();
+      for (MembershipItem item : (List<MembershipItem>) totalComposeToList) {
           selectItemList.add(new SelectItem(item.getId(), item.getName()));
       }
 
@@ -734,8 +735,7 @@ public class PrivateMessagesTool
       }
 
       List<SelectItem> selectItemList = new ArrayList<SelectItem>();
-      for (Iterator i = totalComposeToBccList.iterator(); i.hasNext();) {
-          MembershipItem item = (MembershipItem) i.next();
+      for (MembershipItem item : (List<MembershipItem>) totalComposeToBccList) {
           selectItemList.add(new SelectItem(item.getId(), item.getName()));
       }
 
@@ -759,8 +759,7 @@ public class PrivateMessagesTool
       
       List<SelectItem> selectItemList = new ArrayList<SelectItem>();
       // we need to filter out the hidden groups since they will only appear as recipients in the bcc list
-      for (Iterator i = members.iterator(); i.hasNext();) {
-          MembershipItem item = (MembershipItem) i.next();
+      for (MembershipItem item : (List<MembershipItem>) members) {
           if (hiddenGroupIds != null && item.getGroup() != null && hiddenGroupIds.contains(item.getGroup().getTitle())) {
               // hidden groups only appear in the bcc list
               totalComposeToBccList.add(item);
@@ -913,7 +912,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			  List allRelatedMsgs = messageManager.getAllRelatedMsgs(
 					  ((PrivateMessageDecoratedBean)iter.next()).getMsg().getId());
 			  List currentRelatedMsgs = new ArrayList();
-			  if(allRelatedMsgs != null && allRelatedMsgs.size()>0)
+			  if(allRelatedMsgs != null && !allRelatedMsgs.isEmpty())
 			  {
 				  Long msgId = ((Message)allRelatedMsgs.get(0)).getId();
 				  PrivateMessage pvtMsg= (PrivateMessage) prtMsgManager.getMessageById(msgId);
@@ -1192,20 +1191,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
         setDetailMsgCount++;
         
         List recLs= initPrivateMessage.getRecipients();
-        for (Iterator iterator = recLs.iterator(); iterator.hasNext();)
-        {
-          PrivateMessageRecipient element = (PrivateMessageRecipient) iterator.next();
-          if (element != null)
-          {
-            if((element.getRead().booleanValue()) || (element.getUserId().equals(getUserId())) )
-            {
-             getDetailMsg().setHasRead(true) ;
-            }
+        for (PrivateMessageRecipient element : (List<PrivateMessageRecipient>) recLs) {
+          if (element != null && (element.getRead().booleanValue()) || (element.getUserId().equals(getUserId()))) {
+              getDetailMsg().setHasRead(true);
           }
         }
         if(dMsg.getMsg().getCreatedBy().equals(getUserId())){
         	//need to display all users who received the message if the user create the message
-        	this.getDetailMsg().getMsg().setRecipientsAsTextBcc(dMsg.getMsg().getRecipientsAsTextBcc());        	
+        	this.getDetailMsg().getMsg().setRecipientsAsTextBcc(dMsg.getMsg().getRecipientsAsTextBcc());
         }else{
         	//otherwise, hide the BCC information
         	this.getDetailMsg().getMsg().setRecipientsAsTextBcc("");
@@ -1296,9 +1289,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
     
     List attachList = getDetailMsg().getAttachList();
-    if (attachList != null && attachList.size() > 0) {
-    	for (Iterator attachIter = attachList.iterator(); attachIter.hasNext();) {
-    		DecoratedAttachment decoAttach = (DecoratedAttachment) attachIter.next();
+    if (attachList != null && !attachList.isEmpty()) {
+    	for (DecoratedAttachment decoAttach : (List<DecoratedAttachment>) attachList) {
     		if (decoAttach != null) {
     			replyText.append("<span style=\"font-style:italic;\">");
     			replyText.append(getResourceBundleString("pvt_msg_["));
@@ -1357,8 +1349,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    if (attachList != null && attachList.size() > 0) {
 	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments") + "<br />");
 	    	forwardedText.append("<ul style=\"list-style-type:none;margin:0;padding:0;padding-left:0.5em;\">");
-	    	for (Iterator attachIter = attachList.iterator(); attachIter.hasNext();) {
-	    		DecoratedAttachment decoAttach = (DecoratedAttachment) attachIter.next();
+	    	for (DecoratedAttachment decoAttach : (List<DecoratedAttachment>) attachList ) {
 	    		if (decoAttach != null) {
 	    			forwardedText.append("<li>");
 	    			// It seems like there must be a better way to do the attachment image...
@@ -1457,8 +1448,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    
 	    List attachList = getDetailMsg().getAttachList();
 	    if (attachList != null && attachList.size() > 0) {
-	    	for (Iterator attachIter = attachList.iterator(); attachIter.hasNext();) {
-	    		DecoratedAttachment decoAttach = (DecoratedAttachment) attachIter.next();
+	    	for (DecoratedAttachment decoAttach : (List<DecoratedAttachment>) attachList ) {
 	    		if (decoAttach != null) {
 	    			replyallText.append("<span style=\"font-style:italic;\">");
 	    			replyallText.append(getResourceBundleString("pvt_msg_["));
@@ -2320,9 +2310,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     	//PrivateMessage currentMessage = getDetailMsg().getMsg() ;
     	//by default add user who sent original message    
-    	for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {      
-    		MembershipItem membershipItem = (MembershipItem) i.next();                
-
+    	for (MembershipItem membershipItem : (List<MembershipItem>) totalComposeToList) {
     		if (membershipItem.getUser() != null && membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
     			selectedComposeToList.add(membershipItem.getId());
     		}
@@ -2776,10 +2764,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  Map<User, Boolean> returnSet = new HashMap<User, Boolean>();
 	  StringBuffer sendToStringreplyall = new StringBuffer();
 
-	  Iterator iter = tmpRecipList.iterator();
-	  while (iter.hasNext())
-	  {
-		  PrivateMessageRecipient tmpPMR = (PrivateMessageRecipient)iter.next();
+	  for (PrivateMessageRecipient tmpPMR : (List<PrivateMessageRecipient>) tmpRecipList) {
 		  User replyrecipientaddtmp=null;
 		  try {
 			  replyrecipientaddtmp = userDirectoryService.getUser(tmpPMR.getUserId());
@@ -2896,8 +2881,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  //Add selected users to reply all list
 
 	  Map<User, Boolean> recipients = getRecipients();
-	  for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();){
-		  Entry<User, Boolean> entrySet = (Entry<User, Boolean>) i.next();
+	  for (Entry<User, Boolean> entrySet : recipients.entrySet()){
 		  if(!returnSet.containsKey(entrySet.getKey())){
 			  returnSet.put(entrySet.getKey(), entrySet.getValue());
 		  }
@@ -2937,13 +2921,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	 {
 		 return false;
 	 }
-	 
-	 Iterator iter = list.iterator();
-	 	 
-	   User tmpuser=null;
-	   while(iter.hasNext()){
 
-			 PrivateMessageRecipient tmpPMR = (PrivateMessageRecipient)iter.next();
+	   for(PrivateMessageRecipient tmpPMR : (List<PrivateMessageRecipient>)list) {
+
 		 	User replyrecipientaddtmp=null;
 				try {
 					replyrecipientaddtmp = userDirectoryService.getUser(tmpPMR.getUserId());
@@ -2960,9 +2940,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		   }
 	   }
 	   return isContain;
-	  	   
   }
-		
+
   /**
    * process from Compose screen
    * @return - pvtMsg
@@ -2988,14 +2967,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processPvtMsgEmptyDelete()");
     
     List delSelLs=new ArrayList() ;
-    //this.setDisplayPvtMsgs(getDisplayPvtMsgs());    
-    for (Iterator iter = this.decoratedPvtMsgs.iterator(); iter.hasNext();)
-    {
-      PrivateMessageDecoratedBean element = (PrivateMessageDecoratedBean) iter.next();
-      if(element.getIsSelected())
-      {
-        delSelLs.add(element);
-      }      
+    for (PrivateMessageDecoratedBean element : (List<PrivateMessageDecoratedBean>) this.decoratedPvtMsgs) {
+      if(element.getIsSelected()) {
+         delSelLs.add(element);
+      }
     }
     this.setSelectedDeleteItems(delSelLs);
     if(delSelLs.size()<1)
@@ -3014,9 +2989,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processPvtMsgMultiDelete()");
   
     boolean deleted = false;
-    for (Iterator iter = getSelectedDeleteItems().iterator(); iter.hasNext();)
-    {
-      PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMsg();
+    for (PrivateMessageDecoratedBean privateMessageDecoratedBean : (List<PrivateMessageDecoratedBean>) getSelectedDeleteItems()) {
+      PrivateMessage element = privateMessageDecoratedBean.getMsg();
       if (element != null) 
       {
     	deleted = true;
@@ -3205,7 +3179,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     while(itr.hasNext())
     {
       Entry<Object, String> entry = itr.next();
-    	Object key = entry.getKey();
+      Object key = entry.getKey();
       if( key instanceof String)
       {
         String name =  (String)key;
@@ -3768,58 +3742,44 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   ///////////////   SEARCH      ///////////////////////
+  @Setter
   private List searchPvtMsgs;
   public List getSearchPvtMsgs()
   {
-    if(selectView!=null && selectView.equalsIgnoreCase(THREADED_VIEW))
-    {
+    if(selectView!=null && selectView.equalsIgnoreCase(THREADED_VIEW)) {
         this.rearrageTopicMsgsThreaded(true);
     }
     //  If "check all", update the decorated pmb to show selected
-    if (selectAll)
-    {
-    	Iterator searchIter = searchPvtMsgs.iterator();
-    	while (searchIter.hasNext())
-    	{
-    		PrivateMessageDecoratedBean searchMsg = (PrivateMessageDecoratedBean)searchIter.next();
+    if (selectAll) {
+    	for (PrivateMessageDecoratedBean searchMsg : (List<PrivateMessageDecoratedBean>) searchPvtMsgs) {
     		searchMsg.setIsSelected(true);
     	}
-    	
+
     	selectAll = false;
     }
     return searchPvtMsgs;
   }
-  public void setSearchPvtMsgs(List searchPvtMsgs)
-  {
-    this.searchPvtMsgs=searchPvtMsgs ;
-  }
+
   public String processSearch() 
   {
     log.debug("processSearch()");
     multiDeleteSuccess = false;
 
     List newls = new ArrayList() ;
-
-    /**TODO - 
-     * In advance srearch as there can be ANY type of combination like selection of 
-     * ANY 1 or 2 or 3 or 4 or 5 options like - subject, Author By, label, body and date
-     * so all possible cases are taken care off.
-     * This doesn't look nice, but good this is that we are using same method - our backend is cleaner
-     * First - checked if date is selected then purmutation of 4 options
-     * ELSE - permutations of other 4 options
-     */ 
     List tempPvtMsgLs= new ArrayList();
     
-    if(searchOnDate && searchFromDate == null && searchToDate==null)
-    {
+    if(searchOnDate && searchFromDate == null && searchToDate==null) {
        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
     }
-    
-    if(StringUtils.isEmpty(searchText))
-    {
+
+    if(StringUtils.isEmpty(searchText)) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
     }
-    
+
+    if(searchToDate != null){
+        searchToDate = Date.from(searchToDate.toInstant().plus(23, ChronoUnit.HOURS).plus(59, ChronoUnit.MINUTES).plusSeconds(59));
+    }
+
     tempPvtMsgLs= prtMsgManager.searchPvtMsgs(getPrivateMessageTypeFromContext(msgNavMode), 
           getSearchText(), getSearchFromDate(), getSearchToDate(),
           searchOnSubject, searchOnAuthor, searchOnBody, searchOnLabel, searchOnDate) ;
@@ -3828,19 +3788,16 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     //set threaded view as  false in search 
     selectView="";
-    
-    if(newls.size()>0)
-    {
-      this.setSearchPvtMsgs(newls) ;
-      return SEARCH_RESULT_MESSAGES_PG ;
-    }
-    else 
-      {
+
+    if(!newls.isEmpty()) {
+        this.setSearchPvtMsgs(newls);
+        return SEARCH_RESULT_MESSAGES_PG;
+    } else {
         setErrorMessage(getResourceBundleString(NO_MATCH_FOUND));
         return null;
-      }    
+    }
   }
-  
+
   /**
    * Clear Search text
    */
@@ -3863,72 +3820,21 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     return DISPLAY_MESSAGES_PG;
   }
-  
-  public boolean searchOnBody=false ;
-  public boolean searchOnSubject=true;  //default is search on Subject
-  public boolean searchOnLabel= false ;
-  public boolean searchOnAuthor=false;
-  public boolean searchOnDate=false;
-  public Date searchFromDate;
-  public Date searchToDate; 
-  
-  public boolean isSearchOnAuthor()
-  {
-    return searchOnAuthor;
-  }
-  public void setSearchOnAuthor(boolean searchOnAuthor)
-  {
-    this.searchOnAuthor = searchOnAuthor;
-  }
-  public boolean isSearchOnBody()
-  {
-    return searchOnBody;
-  }
-  public void setSearchOnBody(boolean searchOnBody)
-  {
-    this.searchOnBody = searchOnBody;
-  }
-  public boolean isSearchOnLabel()
-  {
-    return searchOnLabel;
-  }
-  public void setSearchOnLabel(boolean searchOnLabel)
-  {
-    this.searchOnLabel = searchOnLabel;
-  }
-  public boolean isSearchOnSubject()
-  {
-    return searchOnSubject;
-  }
-  public void setSearchOnSubject(boolean searchOnSubject)
-  {
-    this.searchOnSubject = searchOnSubject;
-  }
-  public boolean isSearchOnDate()
-  {
-    return searchOnDate;
-  }
-  public void setSearchOnDate(boolean searchOnDate)
-  {
-    this.searchOnDate = searchOnDate;
-  }
-  public Date getSearchFromDate()
-  {
-    return searchFromDate;
-  }
-  public void setSearchFromDate(Date searchFromDate)
-  {
-    this.searchFromDate = searchFromDate;
-  }
-  public Date getSearchToDate()
-  {
-    return searchToDate;
-  }
-  public void setSearchToDate(Date searchToDate)
-  {
-    this.searchToDate = searchToDate;
-  }
 
+  @Getter @Setter
+  public boolean searchOnBody=false ;
+  @Getter @Setter
+  public boolean searchOnSubject=true;  //default is search on Subject
+  @Getter @Setter
+  public boolean searchOnLabel= false ;
+  @Getter @Setter
+  public boolean searchOnAuthor=false;
+  @Getter @Setter
+  public boolean searchOnDate=false;
+  @Getter @Setter
+  public Date searchFromDate;
+  @Getter @Setter
+  public Date searchToDate; 
 
   //////////////        HELPER      //////////////////////////////////
   /**
@@ -4024,8 +3930,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     //names to show up that are BCC'ed, and who don't actually get replies
     returnSet.putAll(composeBccSet);
     //remove all duplicates by doing this first:
-    for (Iterator iterator = composeToSet.keySet().iterator(); iterator.hasNext();) {
-    	User user = (User) iterator.next();
+    for (User user : composeToSet.keySet()) {
     	if(returnSet.containsKey(user)){
     		returnSet.remove(user);
     	}
@@ -4035,8 +3940,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     return returnSet;
   }
-  //=========HUXT BEGIN
-  
+
   private Map<User, Boolean> getRecipientsHelper(List selectedList, List allCourseUsers, boolean bcc){
 
 	  Map<User, Boolean>  returnSet = new HashMap<User, Boolean>();
@@ -4569,9 +4473,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
 			groups = sortGroups(groups);
 
-			for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
-			{
-				Group currentGroup = (Group) groupIterator.next();
+			for (Group currentGroup : (List<Group>) groups) {
 				if(!isGroupHidden(currentGroup.getTitle())){
 					nonHiddenGroups.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle()));
 				}
