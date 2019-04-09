@@ -9,7 +9,8 @@ class SakaiRubricStudentButton extends SakaiElement {
 
     super();
 
-    this.hidden = false;
+    this.hidden = true;
+    this.instructor = false;
 
     SakaiRubricsLanguage.loadTranslations().then(result => this.i18nLoaded = result);
   }
