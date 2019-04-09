@@ -43,10 +43,11 @@
 
 #gradebookSorter .gb-sort-up {
   position: absolute;
-  right: -50px;
-  top: -7px;
+  right: -35px;
+  top: -1px;
   height: 6px;
   line-height: 3px;
+  padding: 6px 10px;
 }
 
 #gradebookSorter .gb-sort-up:before {
@@ -56,10 +57,11 @@
 
 #gradebookSorter .gb-sort-down {
   position: absolute;
-  right: -50px;
-  bottom: -7px;
+  right: -35px;
+  bottom: -1px;
   height: 6px;
   line-height: 3px;
+  padding: 6px 10px;
 }
 
 #gradebookSorter .gb-sort-down:before {
