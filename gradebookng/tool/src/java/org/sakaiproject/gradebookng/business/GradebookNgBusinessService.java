@@ -38,6 +38,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.authz.api.Member;
@@ -1610,9 +1611,9 @@ public class GradebookNgBusinessService {
 
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
 			//need to check realms to see if user has privilege to grade any groups. This is already done in 
-			if(viewableGroupIds.isEmpty()){
+			if(CollectionUtils.isEmpty(viewableGroupIds)){
 				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
-				if(!realmsPerms.isEmpty()){
+				if(CollectionUtils.isNotEmpty(realmsPerms)){
 					for(PermissionDefinition permDef : realmsPerms){
 						if(permDef.getGroupReference()!=null){
 							viewableGroupIds.add(permDef.getGroupReference());
@@ -1686,9 +1687,9 @@ public class GradebookNgBusinessService {
 
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
 			//need to check realms to see if user has privilege to grade any groups. This is already done in 
-			if(viewableGroupIds.isEmpty()){
+			if(CollectionUtils.isEmpty(viewableGroupIds)){
 				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId(),siteId);
-				if(!realmsPerms.isEmpty()){
+				if(CollectionUtils.isNotEmpty(realmsPerms)){
 					for(PermissionDefinition permDef : realmsPerms){
 						if(permDef.getGroupReference()!=null){
 							viewableGroupIds.add(permDef.getGroupReference());
