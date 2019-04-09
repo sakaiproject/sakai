@@ -451,11 +451,14 @@ div.wicket-modal div.w_right > div {
     float: right;
 }
 
+.gb-summary-grade-panel .gb-summary-grade-stats, .gb-summary-grade-panel .gb-summary-grade-stats:hover {
+  text-decoration: none;
+}
+
 .gb-summary-grade-panel .gb-summary-grade-stats:before {
   font-family: 'gradebook-icons';
   content: '\f080';
   text-decoration: none;
-  float: right;
   font-weight: normal;
 }
 
