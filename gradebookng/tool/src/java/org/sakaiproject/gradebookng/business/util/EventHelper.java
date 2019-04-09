@@ -1,6 +1,6 @@
 package org.sakaiproject.gradebookng.business.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.gradebookng.business.GbEvent;
 import org.sakaiproject.gradebookng.business.GbRole;
