@@ -36,7 +36,7 @@ public class CourseGradeChart extends BaseChart {
 	 */
 	public void refresh(final AjaxRequestTarget target, final Map<String, Double> schema) {
 		final GbChartData data = this.getData(schema);
-		target.appendJavaScript("renderChart('" + toJson(data) + "')");
+		target.appendJavaScript("renderChartData('" + toJson(data) + "')");
 	}
 
 	/**
