@@ -383,7 +383,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				author = messageLocator.getMessage("simplepage.comment-unknown-user");
 				log.error(ex.getMessage(), ex);
 			}
-		}else {
+		} else {
 			author = anonymousLookup.get(comment.getAuthor());
 			
 			if(comment.getAuthor().equals(owner)) {
@@ -392,14 +392,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			
 			if(author == null) author = "Anonymous User"; // Shouldn't ever occur
 			
-			if(simplePageBean.getEditPrivs() == 0) {
-				try {
-					User user = UserDirectoryService.getUser(comment.getAuthor());
-					author += " (" + user.getDisplayName() + ")";
-				}catch(Exception ex) {
-					author += " (" + messageLocator.getMessage("simplepage.comment-unknown-user") + ")";
-				}
-			}else if(comment.getAuthor().equals(currentUserId)) {
+			if(comment.getAuthor().equals(currentUserId)) {
 				author += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
 			}
 
