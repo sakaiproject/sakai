@@ -850,6 +850,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   if (attributes != null && attributes.getLength() > 0) {
 		       Node attributesNode = attributes.item(0); // only one
 		       String attributeString = attributesNode.getTextContent();
+			   if(type == SimplePageItem.RESOURCE_FOLDER && StringUtils.isNotEmpty(attributeString)){
+				   attributeString = StringUtils.replace(attributeString, oldSiteId, siteId);
+			   }
 		       item.setAttributeString(attributeString);
 		   }
 
