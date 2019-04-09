@@ -1533,7 +1533,7 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 				if (mc!=null && mc.isValid() && !mc.diff(moment($(this).datepicker("getDate")))) {
 					setHiddenFields($(this).datepicker("getDate"), options, input);
 				}
-				var mh = moment(getHiddenFields());
+				var mh = moment(getHiddenFields(), moment.ISO_8601);
 				if (!mc.isValid() && options.allowEmptyDate){
 					$(input).val("");
 				}else{
@@ -1569,7 +1569,7 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 			var parseDate;
 
 			if (typeof d == 'string') {
-				window.console && console.log("string date: " + d + ";parseFormat: " + cfg.parseFormat);
+				window.console && console.debug("string date: " + d + ";parseFormat: " + cfg.parseFormat);
 				if (d == "" && options.allowEmptyDate){
 					parseDate="";
 				}else{
@@ -1585,7 +1585,7 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 				}
 
 			} else {
-				window.console && console.log("date object: " + d);
+				window.console && console.debug("date object: " + d);
 				parseDate = d;
 			};
 
@@ -1627,7 +1627,7 @@ if(c&&c._defaults.timeOnly&&b.input.val()!==b.lastVal)try{$.datepicker._updateDa
 					}
 				});
 			}
-			return date.iso?date.iso:(date.year+'-'+toDigit(date.month)+'-'+toDigit(date.day)+' '+date.hour+':'+date.minute+' '+date.ampm).trim();
+			return date.iso?date.iso:(date.year+'-'+toDigit(date.month)+'-'+toDigit(date.day)+'T'+date.hour+':'+date.minute+' '+date.ampm).trim();
 		}
 
 		function toDigit(s) {
