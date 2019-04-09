@@ -11,7 +11,7 @@
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<packaging>war</packaging>
-		<properties>
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<wicket.version>6.30.0</wicket.version>
 	</properties>
