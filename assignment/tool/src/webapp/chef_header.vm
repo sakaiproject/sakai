@@ -7,5 +7,6 @@
 #header_append("<script type=${quote}text/javascript${quote} src=${quote}/library/js/spinner.js$!{portalCdnQuery}${quote}></script>")
 
 #header_append("<script type=${quote}text/javascript${quote}>includeWebjarLibrary(${quote}bootstrap-multiselect${quote});</script>")
+#header_append("<script type=${quote}text/javascript${quote}>includeWebjarLibrary(${quote}momentjs${quote});</script>")
 
 #chef_start()
