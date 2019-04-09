@@ -3,14 +3,16 @@
 ## Before you begin
 
 To run this project you need a Selenium webdriver.
-This will be simplified soon, but for now, get the geckodriver and unzip it somewhere.
 
-If you don't want to run this project, just contribute feature files to it, see `Contributing` below.
+Get the Firefox based Gecko webdriver here: https://github.com/mozilla/geckodriver/releases
+See below for other drivers.
+
+If you don't want to run this project, you can still help by contributing feature files to it, see `Contributing` below.
 
 ## Usage
 
 To run the tests and generate the report, run:
-`mvn clean integration-test -Dwebdriver.gecko.driver=/path/to/webdriver`
+`mvn clean integration-test -Dwebdriver.gecko.driver=/path/to/webdriver/executable`
 
 ## Generating stepdef code
 If you create a feature file, Cucumber can build the missing stepdef scaffolding you need to implement.
@@ -33,11 +35,22 @@ Otherwise, adding a feature file is a great place to help.
 
 If you do automate some features or scenarios, add the @automated tag to it in place of the @manual one.
 
-
 ## Configuration
 
-This section under construction:
+Both the Firefox and Chrome webdriver profiles are supported. By default, the Firefox profile is used.
+Using the defaults, you must have the Gecko webdriver, and specify `-Dwebdriver.gecko.driver=/path/to/gecko/driver/executable`
 
--Dselenium.profile=firefox|chrome
--Dwebdriver.gecko.driver=/path/to/gecko/driver
--Dwebdriver.chrome.driver=/path/to/chrome/driver
+To switch profile, use `-Dselenium.profile=firefox|chrome`
+See below for how to use the Chrome profile.
+
+## Using the Chrome webdriver
+If you switch to `chrome`, you will then need the Chrome webdriver. Get it here: Get the Chrome webdriver here: https://sites.google.com/a/chromium.org/chromedriver/downloads
+
+Make sure you get the version of the driver that matches the version of Chrome you have.
+
+Then set `-Dwebdriver.chrome.driver=/path/to/chrome/driver/executable`
+
+A full example command, using Chrome:
+`mvn clean integration-test -Dselenium.profile=chrome -Dwebdriver.chrome.driver=/path/to/chrome/executable`
+
+TODO document more props
