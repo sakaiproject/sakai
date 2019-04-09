@@ -2,6 +2,7 @@ package org.sakaiproject.acceptancetests.collaborator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class WebDriverManager {
@@ -17,9 +18,12 @@ public class WebDriverManager {
 
 	private static WebDriver createDriver() {
 		switch (getSeleniumProfile()) {
-			// case "chrome":
-			// driver = new ChromeDriver();
-			// break;
+			case "chrome":
+				driver = new ChromeDriver();
+				break;
+			case "firefox":
+				driver = new FirefoxDriver();
+				break;
 			// case "phantom-js":
 			// driver = getPhantomJsDriver();
 			// break;
