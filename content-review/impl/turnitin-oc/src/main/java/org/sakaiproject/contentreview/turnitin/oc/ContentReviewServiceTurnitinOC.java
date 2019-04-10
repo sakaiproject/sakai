@@ -1594,15 +1594,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					if (webhookJSON.has("id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
 						// Allow cb to access assignment settings, needed for draft check
 						SecurityAdvisor advisor = pushAdvisor();
-						log.info("Submission complete webhook cb received");
-						log.info(webhookJSON.toString());
-						Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
-						ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
-						Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-						handleSubmissionStatus(webhookJSON.getString("status"), item, assignment);
-						// Remove advisor override
-						popAdvisor(advisor);
-						success++;
+						try {
+							log.info("Submission complete webhook cb received");
+							log.info(webhookJSON.toString());
+							Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
+							ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
+							Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
+							handleSubmissionStatus(webhookJSON.getString("status"), item, assignment);
+							success++;
+						} catch (Exception e) {
+							log.error(e.getMessage(), e);
+							errors++;
+						} finally {
+							// Remove advisor override
+							popAdvisor(advisor);
+						}
 					} else {
 						log.warn("Callback item received without needed information");
 						errors++;
