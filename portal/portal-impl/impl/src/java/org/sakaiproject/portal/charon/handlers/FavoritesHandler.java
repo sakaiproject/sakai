@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.entity.ContentType;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -87,7 +88,7 @@ public class FavoritesHandler extends BasePortalHandler
 		{
 			try {
 				UserFavorites favorites = userFavorites(session.getUserId());
-
+				res.setContentType(ContentType.APPLICATION_JSON.toString());
 				res.getWriter().write(favorites.toJSON());
 				return END;
 			} catch (Exception e) {
@@ -110,6 +111,7 @@ public class FavoritesHandler extends BasePortalHandler
 					saveUserFavorites(session.getUserId(), favorites);
 				}
 
+				res.setContentType(ContentType.APPLICATION_JSON.toString());
 				return END;
 			} catch (Exception e) {
 				throw new PortalHandlerException(e);
