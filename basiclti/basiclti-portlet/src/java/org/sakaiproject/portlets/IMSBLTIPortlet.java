@@ -273,14 +273,14 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					text.append("    if ( message.subject == 'lti.frameResize' ) {\n");
 					text.append("      var height = message.height;\n");
 					text.append("      document.getElementById(idval).height = height;\n");
-					text.append("      window.console && console.log('Received lti.frameResize height='+height);\n");
+					text.append("      window.console && console.debug('Received lti.frameResize height='+height);\n");
 					text.append("    }\n");
 					text.append("    else if ( message.subject == 'lti.pageRefresh' ) {\n");
 					text.append("      location.reload(true);\n");
 					text.append("    }\n");
 					text.append("  } catch (error) {\n");
-					text.append("   window.console && console.log('lti.frameResize of '+idval+' failed height='+height);\n");
-					text.append("   window.console && console.log(e.data);\n");
+					text.append("   window.console && console.debug('lti.frameResize of '+idval+' failed height='+height);\n");
+					text.append("   window.console && console.debug(e.data);\n");
 					text.append("  }\n");
 					text.append("});\n");
 					text.append("</script>\n");
