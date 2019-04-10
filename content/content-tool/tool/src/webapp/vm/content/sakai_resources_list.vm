@@ -24,6 +24,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .popover-content {
+    text-indent: 0;
+  }
+  .whiteSpacePreLine {
+    white-space: pre-line;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
@@ -486,7 +492,7 @@
 								#end
 							#end 
 							#if ($item.description !="" && $item.description)
-								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtmlTextarea($item.description)"></a>
+								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" data-content="<div class='whiteSpacePreLine'>$item.description</div>"></a>
 							#end
 							#if(!$item.isAvailable())
 								<span class="not-available fa fa-eye-slash" aria-hidden="true" title="$clang.getString('resource.is.hidden')"></span>
@@ -755,7 +761,7 @@
 										#end
 									#end
 									#if ($item.description !="" && $item.description)
-										<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtml($item.description)"></a>
+										<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-html="true" data-content="<div class='whiteSpacePreLine'>$item.description</div>"></a>
 									#end
 							</th>
 							
