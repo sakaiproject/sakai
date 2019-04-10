@@ -37,6 +37,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
+
+import org.apache.http.entity.ContentType;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -88,7 +90,7 @@ public class FavoritesHandler extends BasePortalHandler
 		{
 			try {
 				UserFavorites favorites = userFavorites(session.getUserId());
-
+				res.setContentType(ContentType.APPLICATION_JSON.toString());
 				res.getWriter().write(favorites.toJSON());
 				return END;
 			} catch (Exception e) {
@@ -111,6 +113,7 @@ public class FavoritesHandler extends BasePortalHandler
 					saveUserFavorites(session.getUserId(), favorites);
 				}
 
+				res.setContentType(ContentType.APPLICATION_JSON.toString());
 				return END;
 			} catch (Exception e) {
 				throw new PortalHandlerException(e);
