@@ -570,6 +570,7 @@ $PBJQ(document).ready(function($){
       $PBJQ.ajax({
         url: '/portal/favorites/update',
         method: 'POST',
+        dataType: 'json',
         data: {
           userFavorites: JSON.stringify(newState),
         },
