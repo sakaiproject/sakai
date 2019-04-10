@@ -13258,7 +13258,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     // SAK-17606
                     Map<String, String> anonymousSubmissionAndEidTable = new HashMap<>();
-
+                    String anonTitle = rb.getString("grading.anonymous.title");
                     // constructor the hashmap for all submission objects
                     Map<String, UploadGradeWrapper> submissionTable = new HashMap<>();
                     Set<AssignmentSubmission> submissions = null;
@@ -13282,13 +13282,12 @@ public class AssignmentAction extends PagedResourceActionII {
                                 List<Reference> feedbackAttachments = entityManager.newReferenceList();
                                 feedbackAttachments.addAll(s.getFeedbackAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
                                 submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment ? new ArrayList() : attachments, hasFeedbackAttachment ? new ArrayList() : feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null) ? Long.toString(s.getDateSubmitted().toEpochMilli()) : "", s.getFeedbackText()));
-                                anonymousSubmissionAndEidTable.put(s.getId(), eid);
+                                anonymousSubmissionAndEidTable.put(s.getId() + " " + anonTitle, eid);
                             } else {
                                 log.warn("Upload missing submitter for submission {}", s.getId());
                             }
                         }
                     }
-
                     InputStream fileContentStream = fileFromUpload.getInputStream();
                     if (fileContentStream != null) {
                         submissionTable = uploadAll_parseZipFile(state,
@@ -13366,20 +13365,19 @@ public class AssignmentAction extends PagedResourceActionII {
             ZipFile zipFile = new ZipFile(tempFile, StandardCharsets.UTF_8);
             Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
             ZipEntry entry;
+            // SAK-17606
+            String anonTitle = rb.getString("grading.anonymous.title");
+            boolean isAnon = assignmentService.assignmentUsesAnonymousGrading(assignment);
             while (zipEntries.hasMoreElements() && validZipFormat) {
                 entry = zipEntries.nextElement();
                 String entryName = entry.getName();
                 if (!entry.isDirectory() && !entryName.contains("/.")) {
-                    // SAK-17606
-                    String anonTitle = rb.getString("grading.anonymous.title");
-
                     if (entryName.endsWith("grades.csv") || entryName.endsWith("grades.xls")) {
                         if (hasGradeFile && entryName.endsWith("grades.csv") && "csv".equals(gradeFileFormat)) {
                             // at least the zip file has a grade.csv
                             zipHasGradeFile = true;
 
                             // read grades.cvs from zip
-
                             String csvSep = assignmentService.getCsvSeparator();
                             CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)), csvSep.charAt(0));
 
@@ -13397,7 +13395,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                                 // SAK-17606
                                                 User u = null;
                                                 // check for anonymous grading
-                                                if (!assignmentService.assignmentUsesAnonymousGrading(assignment)) {
+                                                if (!isAnon) {
                                                     u = userDirectoryService.getUserByEid(items[IDX_GRADES_CSV_EID]);
                                                 } else { // anonymous so pull the real eid out of our hash table
                                                     String anonId = items[IDX_GRADES_CSV_EID];
@@ -13425,7 +13423,6 @@ public class AssignmentAction extends PagedResourceActionII {
                                                     w.setGrade(gradeType == SCORE_GRADE_TYPE ? scalePointGrade(state, itemString, assignment.getScaleFactor()) : itemString);
                                                     submissionTable.put(eid, w);
                                                 }
-
                                             }
 
                                         } catch (Exception e) {
@@ -13458,7 +13455,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                     try {
                                         String eid = hssfRow.getCell(1).getStringCellValue();
                                         if (!assignment.getIsGroup()) {
-                                            if (!assignmentService.assignmentUsesAnonymousGrading(assignment)) {
+                                            if (!isAnon) {
                                                 User u = userDirectoryService.getUserByEid(hssfRow.getCell(1).getStringCellValue()/*user eid*/);
                                                 if (u == null) throw new Exception("User not found!");
                                                 eid = u.getId();
@@ -13540,7 +13537,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 }
 
                                 userEid = StringUtils.trimToNull(userEid);
-                                if (!assignment.getIsGroup()) {
+                                if (!assignment.getIsGroup() && !isAnon) {
                                     try {
                                         User u = userDirectoryService.getUserByEid(userEid);
                                         if (u != null) userEid = u.getId();
