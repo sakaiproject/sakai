@@ -20,9 +20,20 @@
 						$tlang.getString("sitdup.sitti")
 					</label>
 					<div class="col-sm-6">
-						<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
+						<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="$!duplicatedName" />
 					</div>
 				</div>
+				#if ($hasEmailArchive)
+					<div class="form-group row">
+						<label for="emailAddress" class="col-sm-2 form-control-label">
+							<span class="reqStar">*</span>
+							$tlang.getString("multipleTools.site")
+						</label>
+						<div class="col-sm-6">
+							<input type="text" name="emailAddress" id="emailAddress" size="32" maxlength="32" value="$!emailAddress" />@$serverName
+						</div>
+					</div>
+				#end
 				#if ($!isAdmin)
 				    <div class="form-group row">
 				        <label for="newSIteId" class="col-sm-2 form-control-label">
