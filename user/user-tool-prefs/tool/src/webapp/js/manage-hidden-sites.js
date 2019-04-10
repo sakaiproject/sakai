@@ -125,14 +125,15 @@ $(function () {
         // Populate the hidden input so our updates flow through
         $('#hidden_sites_form').on('submit', function () {
             var confirmMsg = $.trim($('#reallyHideConfirm').text());
+            var checkedHiddenSites = $('.site-hidden:checked');
 
-            if (clicked_button === 'hidden_sites_form:submit' &&
-                $('.site-hidden.favorite-site:checked').length > 0 &&
-                !confirm(confirmMsg)) {
+            if (clicked_button === 'hidden_sites_form:submit' && checkedHiddenSites.length > 0 && !confirm(confirmMsg)) {
                 return false;
             }
 
-            var siteList = $('.site-hidden:checked').map(function (i, checkbox) {
+            SPNR.disableControlsAndSpin( $('[name="'+clicked_button+'"]')[0], null );
+
+            var siteList = checkedHiddenSites.map(function (i, checkbox) {
                 return $(checkbox).data('site-id');
             }).toArray().join(",");
 
