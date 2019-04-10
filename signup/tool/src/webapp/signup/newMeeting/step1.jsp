@@ -341,7 +341,7 @@
                             </h:column>
                         </h:dataTable>
 
-                        <h:panelGroup rendered="#{NewSignupMeetingBean.otherSitesAvailability}">
+                        <h:panelGroup rendered="#{NewSignupMeetingBean.otherSitesAvailability && !NewSignupMeetingBean.otherSites.isEmpty()}">
                             <h:outputText value="<span id='imageOpen_otherSites' style='display:none'>"  escape="false"/>
                             <h:graphicImage value="/images/minus.gif"  alt="open" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');" />
                             <h:outputText value="</span>" escape="false" />
@@ -350,7 +350,7 @@
                             <h:outputText value="</span>" escape="false" />
                             <h:outputLabel value="#{msgs.event_other_sites}" style='font-weight:bold;cursor:pointer;' onmouseover='style.color=\"blue\"' onmouseout='style.color=\"black\"' onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
                         </h:panelGroup>   
-                        <h:panelGroup>
+                        <h:panelGroup rendered="#{!NewSignupMeetingBean.otherSites.isEmpty()}">
                             <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>   
                             <h:dataTable id="userSites" value="#{NewSignupMeetingBean.otherSites}" var="site" styleClass="meetingTypeTable" style="left:1px;">
                                 <h:column>
