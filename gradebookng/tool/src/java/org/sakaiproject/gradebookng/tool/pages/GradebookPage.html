@@ -43,28 +43,26 @@
             </div>
         </div>
 
-        <div class="row gradesToolbar1">
-            <div class="col-sm-12">
-                <div class="col-sm-6">
-                    <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
-                        <wicket:message key="button.addgradeitem" />
-                    </button>
-                    <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
-                </div>
-                <div class="col-sm-6 text-right">
-                    <wicket:enclosure>
-                        <label for="filterByGroup" class="sr-only"><wicket:message key="filter.groups" /></label>
-                        <select id="filterByGroup" wicket:id="groupFilter">
-                            <option value="1">Section 1</option>
-                            <option value="2">Section 2</option>
-                        </select>
-                    </wicket:enclosure>
-                    <a wicket:id="captionToggle" href="javascript:void(0);" id="captionToggle" aria-popup="true" aria-controls="gradeTableCaption">
-                        <span class="sr-only">
-                            <wicket:message key="label.toolbar.togglehelp"/>
-                        </span>
-                    </a>
-                </div>
+        <div class="gradesToolbar1">
+            <div>
+                <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
+                    <wicket:message key="button.addgradeitem" />
+                </button>
+                <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
+            </div>
+            <div class="captionToggleContainer">
+                <wicket:enclosure>
+                    <label for="filterByGroup" class="sr-only"><wicket:message key="filter.groups" /></label>
+                    <select id="filterByGroup" wicket:id="groupFilter">
+                        <option value="1">Section 1</option>
+                        <option value="2">Section 2</option>
+                    </select>
+                </wicket:enclosure>
+                <a wicket:id="captionToggle" href="javascript:void(0);" id="captionToggle" aria-popup="true" aria-controls="gradeTableCaption">
+                    <span class="sr-only">
+                        <wicket:message key="label.toolbar.togglehelp"/>
+                    </span>
+                </a>
             </div>
         </div>
 

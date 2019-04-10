@@ -630,11 +630,15 @@ div.wicket-modal div.w_right > div {
 
 .gradesToolbar1
 {
-  -ms-grid-row: 1;
-  -ms-grid-row-span: 1;
-  -ms-grid-column: 1;
-  -ms-grid-column-span: 2;
-  grid-area: toolbar1;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+.gradesToolbar1 .captionToggleContainer
+{
+  margin-left: auto;
 }
 
 .gradesToolbar2
