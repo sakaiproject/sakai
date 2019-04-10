@@ -90,7 +90,7 @@
 }
 #gradeTableWrapper .handsontable th > .relative,
 #gradeTableWrapper .handsontable td > .relative {
-  padding: 2px 4px;
+  padding: 4px;
 }
 #gradeTableWrapper .handsontable th > .relative > * {
   white-space: normal;
@@ -142,6 +142,8 @@
   display: inline-block;
   cursor: pointer;
   width: calc(100% - 16px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #gradeTableWrapper .gb-title:hover:after {
   font-family: 'gradebook-icons';
