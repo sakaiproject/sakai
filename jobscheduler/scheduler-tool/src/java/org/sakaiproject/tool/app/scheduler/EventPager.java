@@ -22,6 +22,8 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,7 +45,8 @@ public class EventPager
         evtManager = null;
     private Date
         after = null,
-        before = null;
+        before = null,
+        midnightToday = null;
     private List<String>
         jobs = new LinkedList<String>();
     private String
@@ -52,7 +55,8 @@ public class EventPager
         first = 0,
         numRows = 100;
     private boolean
-        filterEnabled = false;
+        filterEnabled = false,
+        isViewAllSelected = true;
     private HashMap<String, Boolean>
         selectedEventTypes = new HashMap<String, Boolean>();
 
@@ -214,14 +218,13 @@ public class EventPager
 
     public int getTotalItems()
     {
-        if (isFilterEnabled())
-        {
+        if (isFilterEnabled()) {
             return getTriggerEventManager().getTriggerEventsSize(after, before, jobs, triggerName, getTypes());
-        }
-        else
-        {
+        } else if (isViewAllSelected) {
             return getTriggerEventManager().getTriggerEventsSize();
-        }
+        } else {
+            return getTriggerEventManager().getTriggerEventsSize (midnightToday, null, null, null, null);
+		}
     }
 
     public int getFirstItem()
@@ -266,14 +269,38 @@ public class EventPager
 
     public List<TriggerEvent> getEvents()
     {
-        if (isFilterEnabled())
-        {
-            return getTriggerEventManager().getTriggerEvents(after, before, jobs, triggerName, getTypes(), first, numRows);
+        List<TriggerEvent> events = new ArrayList<>();
+        if (isFilterEnabled()) {
+            events = getTriggerEventManager().getTriggerEvents(after, before, jobs, triggerName, getTypes(), first, numRows);
+        } else if (isViewAllSelected) {
+            events = getTriggerEventManager().getTriggerEvents(first, numRows);
+        } else {
+            events = getTriggerEventManager().getTriggerEvents (midnightToday, null, null, null, null);
         }
-        else
-        {
-            return getTriggerEventManager().getTriggerEvents(first, numRows);
-        }
+        return events;
+    }
+
+    /**
+     * @return Returns the isViewAllSelected.
+     */
+    public boolean getIsViewAllSelected() {
+        return isViewAllSelected;
+    }
+
+    /**
+     * @param isViewAllSelected The isViewAllSelected to set.
+     */
+    public void setIsViewAllSelected(boolean isViewAllSelected) {
+        this.isViewAllSelected = isViewAllSelected;
+    }
+
+    public void processSelect() {
+        isViewAllSelected = !isViewAllSelected;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        midnightToday = new Date(cal.getTimeInMillis());
     }
 
 }
