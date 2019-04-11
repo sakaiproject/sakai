@@ -264,11 +264,17 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		context.put("profileUrl", profileLinkLogic.getInternalDirectUrlToUserProfile(connectionUserId));
 
 		SocialNetworkingInfo socialInfo = userProfile.getSocialInfo();
-		String facebookUrl = socialInfo.getFacebookUrl();
-		if (StringUtils.isEmpty(facebookUrl)) facebookUrl = "";
+		String facebookUrl = "";
+		String twitterUrl = "";
+		if(socialInfo != null) {
+			if(socialInfo.getFacebookUrl() != null) {
+				facebookUrl = socialInfo.getFacebookUrl();
+			}
+			if(socialInfo.getTwitterUrl() != null) {
+				twitterUrl = socialInfo.getTwitterUrl();
+			}
+		}
 		context.put("facebookUrl", facebookUrl);
-		String twitterUrl = socialInfo.getTwitterUrl();
-		if (StringUtils.isEmpty(twitterUrl)) twitterUrl = "";
 		context.put("twitterUrl", twitterUrl);
 
 		String email = userProfile.getEmail();
