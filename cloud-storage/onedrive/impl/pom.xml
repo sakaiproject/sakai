@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.onedrive</groupId>
+        <artifactId>sakai-onedrive</artifactId>
+        <version>20-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai OneDrive Integration - IMPL</name>
+    <groupId>org.sakaiproject.onedrive</groupId>
+    <artifactId>sakai-onedrive-impl</artifactId>
+
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.onedrive</groupId>
+            <artifactId>sakai-onedrive-api</artifactId>
+        </dependency>
+
+        <!--Quartz Dependencies-->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Sakai dependencies -->
+         <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>    
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-private</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${sakai.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${sakai.jackson.version}</version>
+        </dependency>
+        <!--Spring Dependencies-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+        <!--Other Dependencies-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${sakai.commons.lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${sakai.httpcore.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${sakai.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+</project>

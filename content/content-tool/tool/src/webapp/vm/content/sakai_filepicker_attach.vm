@@ -64,12 +64,22 @@
 	<form name="doattachitem" style="display:none" id="doattachitem" action="#toolForm("FilePickerAction" "Main")" method=post enctype="multipart/form-data">
 	<input type="hidden" name="sakai_action" value="doAttachitem">
 	<input type="hidden" name="itemId" id="doattachitemid" />
+	<input type="hidden" name="onedriveItemId" id="doattachonedriveitemid" />
+	<input type="hidden" name="onedriveItemClone" id="onedriveitemidclone" />
 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 
 	<script type="text/javascript">
 	function doattachsubmit(itemId) {
 	   document.getElementById('doattachitemid').setAttribute('value',itemId);
+	   var f = document.getElementById('doattachitem');
+	   f.submit();
+	   return false;
+	}
+
+	function doattachsubmitonedrive(itemId, cloneObject) {
+	   document.getElementById('doattachonedriveitemid').setAttribute('value',itemId);
+	   document.getElementById('onedriveitemidclone').setAttribute('value',cloneObject);
 	   var f = document.getElementById('doattachitem');
 	   f.submit();
 	   return false;
@@ -118,7 +128,7 @@
 						<td headers="action">
 							<div class="itemAction">
 								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')"><i class="fa fa-remove"></i> $tlang.getString("att.remove") <span class="skip">$validator.escapeHtml($att_item.displayName)</span></a>
-							</div>	
+							</div>
 						</td>
 					</tr>
 				#end
@@ -128,7 +138,7 @@
 		#end	
 
 		<ul class="nav nav-tabs" id="resourceTabs">
-			<li class="nav-item #if(!$!navigating_resources) active #end">
+			<li class="nav-item #if(!$!navigating_resources && !$!navigating_onedrive) active #end">
 				<a class="nav-link" href="#pickerUploadOption">$tlang.getString("att.upl")</a>
 			</li>
 			<li class="nav-item">
@@ -137,11 +147,16 @@
 			<li class="nav-item #if($!navigating_resources) active #end ">
 				<a class="nav-link" href="#pickerSelectFormResources">$tlang.getString("att.resource")</a>
 			</li>
+			#if($!onedriveOn)
+			<li class="nav-item #if($!navigating_onedrive) active #end ">
+				<a class="nav-link" href="#pickerOneDrive"><span class="fa fa-windows" aria-hidden="true"></span> $tlang.getString("onedrive.integration")</a>
+			</li>
+			#end
 		</ul>
 
 		<div class="container_filepicker">
 			<div class="tab-content panel panel-default joinLabel">
-				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources) active #end panel-body" id="pickerUploadOption">
+				<div role="tabpanel" class="tab-pane #if(!$!navigating_resources && !$!navigating_onedrive) active #end panel-body" id="pickerUploadOption">
 					<div class="form-inline">
 						<div class="form-group">
 						    <label for="upload">$tlang.getString("att.upl")</label>
@@ -536,6 +551,79 @@
 							</form>						
 						</div>
 					</div>
+				############################################# Begin OneDrive section
+				<div role="tabpanel" class="tab-pane panel-body #if($!navigating_onedrive) active #end" id="pickerOneDrive">
+					<div class="form-inline">
+						#if($!onedriveOn)
+							<h4>
+								<span class="fa fa-windows" aria-hidden="true"></span>
+								$tlang.getString('onedrive.integration')
+							</h4>
+							#if(!$!onedriveUserAccount)
+								<span aria-hidden="true"> $tlang.getString('onedrive.set_account')</span>
+								<a href="#toolLink("FilePickerAction" "doOneDrive")" title= "$tlang.getString('onedrive.set_account')">
+									<input type="button" aria-hidden="true" value="$tlang.getString('onedrive.configure')" />
+								</a>
+							#else
+								<span aria-hidden="true"> $tlang.getFormattedMessage('onedrive.configured', $!onedriveUserAccount)</span>
+								<input type="button" name="refreshOneDriveButton" id="refreshOneDriveButton" class="refreshOneDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRefreshOneDrive")'; submitform('attachForm');" value="$tlang.getString('onedrive.refresh')" />
+								<input type="button" name="revokeOneDriveButton" id="revokeOneDriveButton" class="revokeOneDriveButton" onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doRevokeOneDrive")'; submitform('attachForm');" value="$tlang.getString('onedrive.revoke')" />
+								<table class="listHier lines" cellspacing="0" border="0" summary="$tlang.getString("onedrive.table_summary")">
+									<tr>
+										<th id="title">
+											$tlang.getString("onedrive.title")
+										</th>
+										<th id="action-clone">
+											$tlang.getString("onedrive.clone")
+										</th>
+										<th id="action-link">
+											$tlang.getString("onedrive.link")
+										</th>
+									</tr>
+									#foreach($onedriveItem in $onedriveItems)
+										#set($itemcount = $itemcount + 1)
+										#set ($width = "$!{onedriveItem.depth}${unit}")
+										<tr
+											#if ($itemcount % 2==0)
+												class="odd"
+											#else
+												class="even"
+											#end>
+											<td headers="title" style="text-indent: $width" class="specialLink">
+												#if ($onedriveItem.isFolder())
+													#set($folderClass = "fa fa-folder-o")
+													#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded())
+														#set($folderClass = "fa fa-folder")
+													#elseif($onedriveItem.hasChildren() && $onedriveItem.isExpanded())
+														#set($folderClass = "fa fa-folder-open")
+													#end
+													<a	#if($onedriveItem.hasChildren() && !$onedriveItem.isExpanded()) href="#toolLinkParam("FilePickerAction" "doNavigate" "onedriveCollectionId=${validator.escapeUrl(${onedriveItem.oneDriveItemId})}&onedriveCollectionDepth=${onedriveItem.depth}")" title="$tlang.getString('sh.go')" #end
+													><span class="$folderClass" aria-hidden="true"></span>
+													<span class="sr-only">$tlang.getString('gen.folder1')</span>
+												#else
+													##$onedriveItem.file.mimeType
+													<a href="$onedriveItem.downloadUrl"><span class="$contentTypeImageService.getContentTypeImageClass($onedriveItem.file.mimeType)" aria-hidden="true"></span>
+												#end
+												$validator.escapeHtml(${onedriveItem.name})</a>
+											</td>
+											<td headers="action-clone">
+												#if (!$onedriveItem.isFolder())
+													<a href="#" onclick="return doattachsubmitonedrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',true)" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
+												#end
+											<td headers="action-link">
+												#if (!$onedriveItem.isFolder())
+													<a href="#" onclick="return doattachsubmitonedrive('$validator.escapeUrl(${onedriveItem.oneDriveItemId})',false)" title ="$tlang.getString('onedrive.attach_link')">$tlang.getString('onedrive.attach_link') <span class="skip">$validator.escapeHtml($onedriveItem.name)</span></a>
+												#end
+											</td>
+										</tr>
+									#end
+								</table>
+							#end
+						#end
+
+					</div>
+				</div>
+				############################################# end of OneDrive section
 				</div>
 				<p class="act" >
 									<input type="button" name="attachButton" id="attachButton"  accesskey="s"

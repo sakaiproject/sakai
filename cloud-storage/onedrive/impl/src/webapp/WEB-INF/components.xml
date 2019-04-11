@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.onedrive.service.OneDriveService"
+        class="org.sakaiproject.onedrive.service.OneDriveServiceImpl"
+        init-method="init">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="onedriveRepo" ref="org.sakaiproject.onedrive.repository.OneDriveUserRepository"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.onedrive.repository.OneDriveUserRepository"
+          class="org.sakaiproject.onedrive.repository.OneDriveUserRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.onedrive"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.onedrive.model.OneDriveUser</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>

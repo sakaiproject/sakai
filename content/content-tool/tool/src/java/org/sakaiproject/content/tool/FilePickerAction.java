@@ -29,6 +29,7 @@ import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -94,6 +95,10 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.onedrive.model.OneDriveItem;
+import org.sakaiproject.onedrive.model.OneDriveItemComparator;
+import org.sakaiproject.onedrive.model.OneDriveUser;
+import org.sakaiproject.onedrive.service.OneDriveService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -143,7 +148,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private static ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static TimeService timeService = ComponentManager.get(TimeService.class);
-
+	private static OneDriveService onedriveService = ComponentManager.get(OneDriveService.class);
 
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
 	public static final String STATE_HAS_ATTACHMENT_BEFORE = "attachment.has_attachment_before";
@@ -156,6 +161,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
+	
+	/** OneDrive **/
+	private boolean onedriveOn = ServerConfigurationService.getBoolean(OneDriveService.ONEDRIVE_ENABLED, Boolean.FALSE);
 
 	protected static final String PREFIX = "filepicker.";
 
@@ -170,6 +178,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String MODE_ATTACHMENT_SELECT = "mode_attachment_select";
 	protected static final String MODE_ATTACHMENT_SELECT_INIT = "mode_attachment_select_init";
 	protected static final String MODE_HELPER = "mode_helper";
+	protected static final String MODE_ONEDRIVE = "mode_onedrive";
 
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
@@ -222,12 +231,15 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
 	public static final String SAK_PROP_SHOW_ALL_SITES = PREFIX + "show_all_collections";
 	protected static final String STATE_NAVIGATING_RESOURCES = "navigating_resources";
+	protected static final String STATE_NAVIGATING_ONEDRIVE = "navigating_onedrive";
 
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
 	
 	protected static final String STATE_TOP_MESSAGE_INDEX = PREFIX + "top_message_index";
 
+	public static final String STATE_ONEDRIVE_CHILDREN = PREFIX + "state_onedrive_children";
+	public static final String STATE_ONEDRIVE_ITEMS = PREFIX + "state_onedrive_items";
 
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
@@ -324,6 +336,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 		else if(MODE_ADD_METADATA.equals(helper_mode))
 		{
 			template = buildAddMetadataContext(portlet, context, data, state);
+		}
+
+		context.put("onedriveOn", onedriveOn);
+		if(onedriveOn) {
+			OneDriveUser ou = onedriveService.getOneDriveUser(userDirectoryService.getCurrentUser().getId());
+			if(ou != null) {
+				context.put("onedriveUserAccount", ou.getOneDriveName());
+			}
 		}
 
 		return template;
@@ -881,9 +901,31 @@ public class FilePickerAction extends PagedResourceHelperAction
 			// user wants copies in hidden attachments area
 			template = TEMPLATE_ATTACH;
 		}
+		
+		// ONEDRIVE
+		if(onedriveOn) {
+			List<OneDriveItem> onedriveItems = new ArrayList<>();
+			if(toolSession.getAttribute(STATE_ONEDRIVE_ITEMS) == null) {
+				onedriveItems = onedriveService.getDriveRootItems(userDirectoryService.getCurrentUser().getId());
+			} else {
+				onedriveItems = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
+			}
+			if(state.getAttribute(STATE_ONEDRIVE_CHILDREN) != null) {
+				List<OneDriveItem> childrenIt = (List<OneDriveItem>) state.getAttribute(STATE_ONEDRIVE_CHILDREN);
+				for(OneDriveItem oi : childrenIt) {
+					if(!onedriveItems.contains(oi)) {
+						onedriveItems.add(oi);
+					}
+				}
+			}
+			if(onedriveItems != null) {
+				Collections.sort(onedriveItems, new OneDriveItemComparator());
+				toolSession.setAttribute(STATE_ONEDRIVE_ITEMS, onedriveItems);
+				context.put("onedriveItems", onedriveItems);
+			}
+		}
 
 		return template;
-	    //return TEMPLATE_SELECT;
     }
     
     /**
@@ -938,7 +980,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected void cleanup(SessionState state)
 	{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		
+
 		Enumeration<String> attributeNames = toolSession.getAttributeNames();
 		while(attributeNames.hasMoreElements())
 		{
@@ -949,14 +991,16 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 		}
 		
-		if (toolSession != null) 
+		if (toolSession != null)
 		{
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS);
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER);
 			state.removeAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID);
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
+			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+			state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 		}
-		
+
  	}	// cleanup
 
 	/**
@@ -1078,7 +1122,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			toolSession.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE, 
 																									  ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING));
 		}
-		
+
 		return MODE_HELPER;
 	}
 
@@ -1163,16 +1207,33 @@ public class FilePickerAction extends PagedResourceHelperAction
 		    log.warn("UTF-8 unsupported???");
 		    itemId = params.getString("itemId");
 		}
+		
+		String onedriveItemId = params.getString("onedriveItemId");
 
-		Object attach_links = toolSession.getAttribute(STATE_ATTACH_LINKS);
+		if(StringUtils.isNotBlank(itemId)) {
+			Object attach_links = toolSession.getAttribute(STATE_ATTACH_LINKS);
 
-		if(attach_links == null)
-		{
-			attachCopy(itemId, state);
-		}
-		else
-		{
-			attachLink(itemId, state);
+			if(attach_links == null)
+			{
+				attachCopy(itemId, state);
+			}
+			else
+			{
+				attachLink(itemId, state);
+			}
+		} else if (onedriveOn && onedriveItemId != null) {
+			boolean onedriveItemClone = params.getBoolean("onedriveItemClone");
+			List<OneDriveItem> items = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
+			OneDriveItem oi = null;
+			for(OneDriveItem off : items) {
+				if(onedriveItemId.equals(off.getOneDriveItemId())) {
+					oi = off;
+					break;
+				}
+			}
+			if(oi != null) {
+				doAttachOneDrive(oi, state, onedriveItemClone);
+			}
 		}
 
 		List<AttachItem> removed = (List<AttachItem>) toolSession.getAttribute(STATE_REMOVED_ITEMS);
@@ -1193,7 +1254,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
-		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 
 	}	// doAttachitem
 
@@ -1369,6 +1429,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 	}	// doAttachupload
 
@@ -1489,6 +1550,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 		
 	}	// doAttachurl
 
@@ -1626,6 +1688,91 @@ public class FilePickerAction extends PagedResourceHelperAction
 		
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_DONE);
 
+	}
+
+	@SuppressWarnings("unchecked")
+	public void doAttachOneDrive(OneDriveItem onedriveItem, SessionState state, boolean onedriveItemClone) {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
+		if(new_items == null) {
+			new_items = new Vector<AttachItem>();
+			toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
+		}
+		
+		try {
+			ContentResource attachment = null;
+			ResourcePropertiesEdit newprops = contentService.newResourceProperties();
+			String onedriveUrl = onedriveItem.getDownloadUrl();			
+			String contentType = onedriveItem.getFile().getMimeType();
+			String filename = onedriveItem.getName();
+			String resourceId = Validator.escapeResourceName(filename);
+			String siteId = toolManager.getCurrentPlacement().getContext();
+			String toolName = (String) toolSession.getAttribute(STATE_ATTACH_TOOL_NAME);
+			if(toolName == null) {
+				toolName = toolManager.getCurrentPlacement().getTitle();
+			}
+			enableSecurityAdvisor();
+			String typeId = ResourceType.TYPE_UPLOAD;
+			newprops.addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);
+			newprops.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+			if(onedriveItemClone) {
+				String max_file_size_mb = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+				long max_bytes = 1024L * 1024L;
+				try {
+					max_bytes = Long.parseLong(max_file_size_mb) * 1024L * 1024L;
+				} catch(Exception e) {
+					max_file_size_mb = "1";
+					max_bytes = 1024L * 1024L;
+				}
+				if(onedriveItem.getSize() >= max_bytes) {
+					addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+					return;
+				}
+				InputStream contentStream = new URL(onedriveUrl).openStream();
+				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, newprops);
+			} else {
+				//typeId = ResourceType.TYPE_URL;
+				contentType = ResourceProperties.TYPE_URL;
+				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, onedriveUrl.getBytes(), newprops);
+			}
+
+			String displayName = filename;
+			String containerId = contentService.getContainingCollectionId(attachment.getId());
+			String accessUrl = attachment.getUrl();
+			log.debug("OneDrive item accessUrl {}", accessUrl);
+			AttachItem item = new AttachItem(attachment.getId(), displayName, containerId, accessUrl);
+			item.setContentType(contentType);
+			typeId = attachment.getResourceType();
+			item.setResourceType(typeId);
+			ResourceType typedef = registry.getType(typeId);
+			item.setHoverText(typedef.getLocalizedHoverText(attachment));
+			item.setIconLocation(typedef.getIconLocation(attachment));
+			item.setIconClass(typedef.getIconClass(attachment));
+			new_items.add(item);
+			toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+			disableSecurityAdvisors();
+		} catch(Exception e) {
+			log.error("doAttachOneDrive : {}", e.getMessage());
+		}
+		toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
+	}
+
+	public void doRevokeOneDrive(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+		onedriveService.revokeOneDriveConfiguration(userDirectoryService.getCurrentUser().getId());
+	}
+
+	public void doRefreshOneDrive(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+		state.removeAttribute(STATE_ONEDRIVE_ITEMS);
+		state.removeAttribute(STATE_ONEDRIVE_CHILDREN);
+		onedriveService.cleanOneDriveCacheForUser(userDirectoryService.getCurrentUser().getId());
 	}
 
 	/**
@@ -1941,7 +2088,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 			return;
 		}
 
-		if (MODE_ATTACHMENT_DONE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
+		if (onedriveOn && MODE_ONEDRIVE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE))) {
+			try {
+				cleanup(state);
+				log.debug("Requesting OneDrive access data for this user");
+				String onedriveUrl = onedriveService.formAuthenticationUrl();
+				res.sendRedirect(onedriveUrl);
+			} catch (IOException e) {
+				log.warn("IOException: ", e);
+			}
+			return;
+		}
+		else if (MODE_ATTACHMENT_DONE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
 		{
 			// canceled, so restore the original list 
 			List attachments = (List) toolSession.getAttribute(STATE_ATTACHMENT_ORIGINAL_LIST);
@@ -2411,6 +2569,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2431,6 +2590,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2459,6 +2619,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2488,6 +2649,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2505,7 +2667,17 @@ public class FilePickerAction extends PagedResourceHelperAction
 		toolSession.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall
-	
+
+	/**
+	 * @param data
+	 */
+	@SuppressWarnings("unchecked")
+	public void doOneDrive(RunData data)
+	{
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ONEDRIVE);
+	}
+
 	/**
 	 * @param data
 	 */
@@ -2516,6 +2688,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2543,6 +2716,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+		state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -3199,47 +3373,63 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
-		String collectionId = data.getParameters().getString ("collectionId");
+		String collectionId = data.getParameters().getString ("collectionId");		
+		String onedriveCollectionId = data.getParameters().getString ("onedriveCollectionId");
 		String navRoot = data.getParameters().getString("navRoot");
 		state.setAttribute(STATE_NAVIGATION_ROOT, navRoot);
 
 		// the exception message
-		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-		try
-		{
-			contentService.checkCollection(collectionId);
-			toolSession.setAttribute(STATE_DEFAULT_COLLECTION_ID, collectionId);
-		}
-		catch(PermissionException e)
-		{
-			addAlert(state, rb.getString("notpermis3"));
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state, rb.getString("notexist2"));
-		}
-		catch (TypeException e)
-		{
-			addAlert(state, rb.getString("notexist2"));
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-			state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
-			Set<String> currentMap = getExpandedCollections(toolSession);
-			SortedSet<String> newCurrentMap = new TreeSet<String>();
-			for(String id: currentMap)
+		if(StringUtils.isNotBlank(collectionId)) {
+			ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+			try
 			{
-				if(!id.startsWith(collectionId))
-				{
-					newCurrentMap.add(id);
-				}
+				contentService.checkCollection(collectionId);
+				toolSession.setAttribute(STATE_DEFAULT_COLLECTION_ID, collectionId);
+			}
+			catch(PermissionException e)
+			{
+				addAlert(state, rb.getString("notpermis3"));
+			}
+			catch (IdUnusedException e)
+			{
+				addAlert(state, rb.getString("notexist2"));
+			}
+			catch (TypeException e)
+			{
+				addAlert(state, rb.getString("notexist2"));
 			}
 			
-			newCurrentMap.add(collectionId);
-			currentMap.clear();
-			currentMap.addAll(newCurrentMap);
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				state.setAttribute(STATE_COLLECTION_ID, collectionId);
+				state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+				state.removeAttribute(STATE_NAVIGATING_ONEDRIVE);
+				Set<String> currentMap = getExpandedCollections(toolSession);
+				SortedSet<String> newCurrentMap = new TreeSet<String>();
+				for(String id: currentMap)
+				{
+					if(!id.startsWith(collectionId))
+					{
+						newCurrentMap.add(id);
+					}
+				}
+				
+				newCurrentMap.add(collectionId);
+				currentMap.clear();
+				currentMap.addAll(newCurrentMap);
+			}
+		} else if (onedriveOn && onedriveCollectionId != null){
+			int depth = data.getParameters().getInt("onedriveCollectionDepth");
+			List<OneDriveItem> children = onedriveService.getDriveChildrenItems(userDirectoryService.getCurrentUser().getId(), onedriveCollectionId, depth);
+			state.setAttribute(STATE_NAVIGATING_ONEDRIVE, true);
+			state.removeAttribute(STATE_NAVIGATING_RESOURCES);
+			state.setAttribute(STATE_ONEDRIVE_CHILDREN, children);
+			List<OneDriveItem> items = (List<OneDriveItem>) toolSession.getAttribute(STATE_ONEDRIVE_ITEMS);
+			items.forEach( it -> { 
+				if (onedriveCollectionId.equals(it.getOneDriveItemId())) {
+					it.setExpanded(true);
+				}
+			});
 		}
 
 	}	// doNavigate
