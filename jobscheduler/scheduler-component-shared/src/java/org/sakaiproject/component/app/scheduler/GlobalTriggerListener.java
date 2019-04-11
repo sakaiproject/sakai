@@ -21,9 +21,7 @@
 
 package org.sakaiproject.component.app.scheduler;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
@@ -36,7 +34,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 public class GlobalTriggerListener implements TriggerListener
 {
 
-  private boolean isViewAllSelected = false;
   private TriggerEventManager eventManager = null;
   private ServerConfigurationService serverConfigurationService = null;
 
@@ -86,58 +83,4 @@ public class GlobalTriggerListener implements TriggerListener
       eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, context.getJobDetail().getKey(), trigger.getKey(), complete, "Trigger complete", getServerId());
   }
 
-  /**
-   * @return Returns the triggerEvents.
-   */
-  public List<TriggerEvent> getTriggerEvents()
-  {
-    if (isViewAllSelected)
-    {
-      return eventManager.getTriggerEvents();
-    }
-    else
-    {
-      Calendar cal = Calendar.getInstance();
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
-
-      Date midnightToday = new Date(cal.getTimeInMillis());
-
-      return eventManager.getTriggerEvents (midnightToday, null, null, null, null);
-/*
-      for (Iterator<TriggerEventImpl> i = triggerEvents.iterator(); i.hasNext();)
-      {
-        TriggerEventImpl te = (TriggerEventImpl) i.next();
-        if (te.getTime().after(midnightToday))
-        {
-          todaysTriggerEvents.add(te);
-        }
-      }
-      return todaysTriggerEvents;
-*/
-    }
-  }
-
-  /**
-   * @return Returns the isViewAllSelected.
-   */
-  public boolean getIsViewAllSelected()
-  {
-    return isViewAllSelected;
-  }
-
-  /**
-   * @param isViewAllSelected The isViewAllSelected to set.
-   */
-  public void setIsViewAllSelected(boolean isViewAllSelected)
-  {
-    this.isViewAllSelected = isViewAllSelected;
-  }
-
-  public String processSelect()
-  {
-    isViewAllSelected = !isViewAllSelected;
-    return null;
-  }
 }

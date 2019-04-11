@@ -2,26 +2,23 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
-                                                                                                      
-                 
 
 <f:view>
-	<sakai:view_container title="#{msgs.title_job}">		
+	<sakai:view_container title="#{msgs.title_job}">
 	  <sakai:view_content>
     	<h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
-	    <h:form>  	  
+	    <h:form>
   	    <sakai:tool_bar>
  			    <sakai:tool_bar_item
-		        action="#{schedulerTool.schedulerManager.globalTriggerListener.processSelect}"
-			      value="#{schedulerTool.schedulerManager.globalTriggerListener.isViewAllSelected ? msgs.select_today : msgs.select_all}"/>		  
+		        action="#{schedulerTool.eventPager.processSelect}"
+			      value="#{schedulerTool.eventPager.isViewAllSelected ? msgs.select_today : msgs.select_all}"/>
 		      <sakai:tool_bar_item
 		        action="#{schedulerTool.processRefreshJobs}"
 			      value="#{msgs.bar_jobs}"/>		   
 			  <sakai:tool_bar_item
 		     	action="runningJobs"
 			   	value="#{msgs.running_jobs}"/>
-			           		      
-     	  </sakai:tool_bar>           
+     	  </sakai:tool_bar>
       	
   	    <sakai:panel_titled title="#{msgs.event_log}">
               <h:commandLink value="#{msgs.filterEvents}" immediate="true" action="filter"/>
@@ -49,7 +46,7 @@
     	          <h:outputText value="#{msgs.eventType}"/>
     	        </f:facet>
   	          <h:outputText value="#{event.eventType}"/>
-  	        </h:column>            	      
+  	        </h:column>
   	        <h:column>
     	          <f:facet name="header">
     	          <h:outputText value="#{msgs.timestamp}"/>
@@ -57,7 +54,7 @@
   	          <h:outputText value="#{event.time}">
   	            <f:convertDateTime type="both" dateStyle="short"/>
   	          </h:outputText>
-  	        </h:column>            	      
+  	        </h:column>
             <h:column>
               <f:facet name="header">
                 <h:outputText value="#{msgs.message}"/>
