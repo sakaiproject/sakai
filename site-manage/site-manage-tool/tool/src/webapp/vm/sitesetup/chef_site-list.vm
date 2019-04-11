@@ -1,4 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-list.vm,v 1.3 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+#define($viewSelectOptions)
+    #foreach($key in $views.keySet())
+        <option value="$key"#if($key.equals($viewSelected)) selected="selected"#end>$views.get($key)</option>
+    #end
+#end
 <div id="dialog"></div>
 <script type="text/javascript">
 	$(document).ready(function(){
@@ -42,14 +47,7 @@
 
 				<form name="viewForm" method="post" action="#toolForm("SiteAction")">
 					<div class="sakai-table-viewFilter">
-						<label for="view-top">$tlang.getString("list.view")</label>
-						<span class="skip">$tlang.getString("gen.listnavselect")</span>
-						<select id="view-top" name="view">
-							#foreach($view in $viewKeys)
-								<option value="$view" #if($view == $viewSelected) selected="selected" #end>$views.get($view)</option>
-							#end
-						</select>
-						<input type="hidden" name="eventSubmit_doView_sites" value="view" />
+						#viewFilterPanel("viewFilter1", "view", $viewSelectOptions, "doView_sites")
 					</div>
 
 					<div class="sakai-table-viewFilter">
@@ -275,14 +273,7 @@
 
 					<form name="viewForm" method="post" action="#toolForm("SiteAction")">
 						<div class="sakai-table-viewFilter">
-							<label for="view-bottom">$tlang.getString("list.view")</label>
-							<span class="skip">$tlang.getString("gen.listnavselect")</span>
-							<select id="view-bottom" name="view">
-								#foreach($view in $viewKeys)
-									<option value="$view" #if($view == $viewSelected) selected="selected" #end>$views.get($view)</option>
-								#end
-							</select>
-							<input type="hidden" name="eventSubmit_doView_sites" value="view" />
+							#viewFilterPanel("viewFilter2", "view", $viewSelectOptions, "doView_sites")
 						</div>
 
 						<div class="sakai-table-viewFilter">
