@@ -72,6 +72,7 @@ import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
@@ -832,8 +833,8 @@ public class CalendarBean {
 			url.append("/directtool/");
 			url.append(tc.getId());
 			url.append("?eventReference=");
-			url.append(eventRef);
-			url.append("&panel=Main&sakai_action=doDescription&sakai.state.reset=true");		
+			url.append(Validator.escapeUrl(eventRef));
+			url.append("&panel=Main&sakai_action=doDescription&sakai.state.reset=true");
 			return url.toString();
 		}else{
 			// no schedule tool in site
