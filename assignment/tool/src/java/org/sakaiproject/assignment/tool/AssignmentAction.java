@@ -9777,12 +9777,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 String title = assignment.getTitle();
 
-                // remove related event if there is one
-                removeCalendarEvent(state, assignment, properties, title);
-
-                // remove related announcement if there is one
-                removeAnnouncement(state, properties);
-
                 // remove rubric association if there is one
                 rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
 				
@@ -9825,27 +9819,6 @@ public class AssignmentAction extends PagedResourceActionII {
     } // doDelete_Assignment
 
     /**
-     * private function to remove assignment related announcement
-     *
-     * @param state
-     * @param properties
-     */
-    private void removeAnnouncement(SessionState state, Map<String, String> properties) {
-        AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
-        if (channel != null) {
-            String openDateAnnounced = StringUtils.trimToNull(properties.get(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
-            String openDateAnnouncementId = StringUtils.trimToNull(properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
-            if (openDateAnnounced != null && openDateAnnouncementId != null) {
-                try {
-                    channel.removeMessage(openDateAnnouncementId);
-                } catch (PermissionException e) {
-                    log.warn("Could not remove Announcement: {}, {}", openDateAnnouncementId, e.getMessage());
-                }
-            }
-        }
-    }
-
-    /**
      * private method to remove assignment and related objects
      *
      * @param state
@@ -9858,64 +9831,6 @@ public class AssignmentAction extends PagedResourceActionII {
         } catch (PermissionException e) {
             addAlert(state, rb.getString("youarenot11") + " " + assignment.getTitle() + ". ");
             log.warn("Could not delete assignment, {}", e.getMessage());
-        }
-    }
-
-    private void removeCalendarEvent(SessionState state, Assignment assignment, Map<String, String> properties, String title) {
-        String isThereEvent = properties.get(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-        if (isThereEvent != null && isThereEvent.equals(Boolean.TRUE.toString())) {
-            // remove the associated calendar event
-            Calendar c = (Calendar) state.getAttribute(CALENDAR);
-            removeCalendarEventFromCalendar(state, assignment, properties, title, c, ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-
-            // remove the associated event from the additional calendar
-            Calendar additionalCalendar = (Calendar) state.getAttribute(ADDITIONAL_CALENDAR);
-            removeCalendarEventFromCalendar(state, assignment, properties, title, additionalCalendar, ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID);
-
-        }
-    }
-
-    // Retrieves the calendar event associated with the due date and removes it from the calendar.
-    private void removeCalendarEventFromCalendar(SessionState state, Assignment assignment, Map<String, String> properties, String title, Calendar c, String dueDateProperty) {
-        if (c != null) {
-            // already has calendar object
-            // get the old event
-            CalendarEvent e = null;
-            boolean found = false;
-            String oldEventId = properties.get(dueDateProperty);
-            if (oldEventId != null) {
-                try {
-                    e = c.getEvent(oldEventId);
-                    found = true;
-                } catch (IdUnusedException | PermissionException ee) {
-                    // no action needed for this condition
-                    log.warn("Calendar even not found, {}", ee.getMessage());
-                }
-            } else {
-                Instant b = assignment.getDueDate();
-                // TODO: check- this was new Time(year...), not local! -ggolden
-                LocalDateTime startTime = LocalDateTime.of(b.get(ChronoField.YEAR), b.get(ChronoField.MONTH_OF_YEAR), b.get(ChronoField.DAY_OF_MONTH), 0, 0, 0, 0);
-                LocalDateTime endTime = LocalDateTime.of(b.get(ChronoField.YEAR), b.get(ChronoField.MONTH_OF_YEAR), b.get(ChronoField.DAY_OF_MONTH), 23, 59, 59, 999);
-                try {
-                    Iterator events = c.getEvents(timeService.newTimeRange(timeService.newTime(startTime.atZone(timeService.getLocalTimeZone().toZoneId()).toInstant().toEpochMilli()),
-                            timeService.newTime(endTime.atZone(timeService.getLocalTimeZone().toZoneId()).toInstant().toEpochMilli())), null).iterator();
-                    while ((!found) && (events.hasNext())) {
-                        e = (CalendarEvent) events.next();
-                        if ((e.getDisplayName()).contains(rb.getString("gen.assig") + " " + title)) {
-                            found = true;
-                        }
-                    }
-                } catch (PermissionException pException) {
-                    addAlert(state, rb.getFormattedMessage("cannot_getEvents", c.getReference()));
-                }
-            }
-            // remove the found old event
-            if (found) {
-                // found the old event delete it
-                removeOldEvent(title, c, e);
-                properties.remove(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-                properties.remove(dueDateProperty);
-            }
         }
     }
 
