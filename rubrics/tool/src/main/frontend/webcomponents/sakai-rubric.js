@@ -175,12 +175,12 @@ export class SakaiRubric extends SakaiElement {
     if (this.rubric.metadata.public) {
       this.shareTitle = "Revoke sharing for " + this.rubric.title;
       this.shareTitleKey = "revoke";
-      this.shareIcon = "fa-download";
+      this.shareIcon = "fa-share-square-o fa-flip-horizontal";
     } else {
       this.shareTitle = "Share " + this.rubric.title;
       this.shareTitleKey = "share";
       this.shareicon = "share";
-      this.shareIcon = "fa-upload";
+      this.shareIcon = "fa-share-square-o";
     }
     this.shareValues = this.rubric.title;
   }
