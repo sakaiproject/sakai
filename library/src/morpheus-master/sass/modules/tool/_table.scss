@@ -259,6 +259,7 @@ table{
 .sakai-table-toolBar.sakai-table-toolBar-bottom
 {
 	@include align-items(flex-start);
+	margin-bottom: $standard-spacing;
 
 	.sakai-table-filterContainer
 	{

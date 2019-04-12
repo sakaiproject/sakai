@@ -40,7 +40,7 @@
 		<div class="sakai-table-toolBar">
 			<div class="sakai-table-filterContainer">
 
-				<form name="viewForm" method="post" action="#toolForm("SiteAction")">
+				<form name="viewForm" class="worksiteSetupViewAndTermFilterForm" method="post" action="#toolForm("SiteAction")">
 					<div class="sakai-table-viewFilter">
 						<label for="view-top">$tlang.getString("list.view")</label>
 						<span class="skip">$tlang.getString("gen.listnavselect")</span>
@@ -273,7 +273,7 @@
 			<div class="sakai-table-toolBar sakai-table-toolBar-bottom">
 				<div class="sakai-table-filterContainer">
 
-					<form name="viewForm" method="post" action="#toolForm("SiteAction")">
+					<form name="viewForm" class="worksiteSetupViewAndTermFilterForm" method="post" action="#toolForm("SiteAction")">
 						<div class="sakai-table-viewFilter">
 							<label for="view-bottom">$tlang.getString("list.view")</label>
 							<span class="skip">$tlang.getString("gen.listnavselect")</span>
