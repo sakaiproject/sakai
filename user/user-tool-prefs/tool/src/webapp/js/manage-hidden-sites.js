@@ -152,6 +152,7 @@ $(function () {
                 favoritesList = data.favoriteSiteIds.filter(function (e, i) {
                     return e !== '';
                 });
+
                 callback(favoritesList);
             }
         });
