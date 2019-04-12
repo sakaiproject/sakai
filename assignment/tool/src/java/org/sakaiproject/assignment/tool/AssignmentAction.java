@@ -10367,7 +10367,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 doCancel_grade_submission(data);
             } else if ("cancelgrade_review".equals(option)) {
                 // cancel grade review
-                // no need to do anything, session will have original values and refresh
+                doCancel_edit_assignment(data);
             } else if ("cancelreorder".equals(option)) {
                 // cancel reordering
                 doCancel_reorder(data);
