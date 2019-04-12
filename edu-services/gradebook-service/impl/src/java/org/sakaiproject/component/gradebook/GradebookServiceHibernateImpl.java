@@ -539,7 +539,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// Carry over the old gradebook's selected grading scheme if possible.
 		final String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
 
-		if (!StringUtils.isEmpty(fromGradingScaleUid)) {
+		MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
 			for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
 				if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
 					// We have a match. Now make sure that the grades are as expected.
@@ -557,7 +557,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						log.info("Merge to gradebook {} skipped grade mapping change because the {} grade codes did not match",
 								toGradebookUid, fromGradingScaleUid);
 					}
-					break;
+					break MERGE_GRADE_MAPPING;
 				}
 			}
 			// Did not find a matching grading scale.
