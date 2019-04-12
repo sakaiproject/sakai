@@ -299,7 +299,7 @@
 	</table>
 	
 ## Section awareness
-#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+#if ($!groups && ($!groups.size()>0)) #set ($show_group = "true") #else #set ($show_group = "false") #end
 #if ($show_group =="false")
 	## no show this selection, but set default to site
 	<input type="hidden" name="scheduleTo" id="site" value="site" checked="checked" />
