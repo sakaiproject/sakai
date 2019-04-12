@@ -147,11 +147,11 @@ $(function () {
         $.ajax({
             url: '/portal/favorites/list',
             method: 'GET',
+            dataType: 'json',
             success: function (data) {
-                favoritesList = data.split(';').filter(function (e, i) {
+                favoritesList = data.favoriteSiteIds.filter(function (e, i) {
                     return e !== '';
                 });
-
                 callback(favoritesList);
             }
         });
