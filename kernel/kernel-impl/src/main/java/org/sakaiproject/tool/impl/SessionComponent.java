@@ -36,12 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.mutable.MutableLong;
-
-import org.springframework.util.StringUtils;
-
+import org.apache.commons.lang3.mutable.MutableLong;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
@@ -56,6 +51,9 @@ import org.sakaiproject.tool.api.SessionStore;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.springframework.util.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>

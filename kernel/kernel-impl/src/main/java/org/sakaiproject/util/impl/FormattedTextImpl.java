@@ -33,7 +33,7 @@ import java.text.DecimalFormat;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -593,7 +593,7 @@ public class FormattedTextImpl implements FormattedText
          */
         String val = "";
         if (value != null && !"".equals(value)) {
-            val = StringEscapeUtils.escapeHtml(value);
+            val = StringEscapeUtils.escapeHtml3(value);
             if (escapeNewlines && val != null) {
                 val = val.replace("\n", "<br/>\n");
             }
@@ -1096,7 +1096,7 @@ public class FormattedTextImpl implements FormattedText
      * @see org.sakaiproject.util.api.FormattedText#escapeJsQuoted(java.lang.String)
      */
     public String escapeJsQuoted(String value) {
-        return StringEscapeUtils.escapeJavaScript(value);
+        return StringEscapeUtils.escapeEcmaScript(value);
     }
 
     /** These characters are escaped when making a URL */

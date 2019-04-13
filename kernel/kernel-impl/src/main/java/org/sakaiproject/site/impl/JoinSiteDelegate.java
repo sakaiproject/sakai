@@ -22,7 +22,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
