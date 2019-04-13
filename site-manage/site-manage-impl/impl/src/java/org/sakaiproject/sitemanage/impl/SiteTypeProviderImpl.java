@@ -20,22 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.sitemanage.impl;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
 import java.util.HashMap;
+import java.util.List;
+
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author zqian

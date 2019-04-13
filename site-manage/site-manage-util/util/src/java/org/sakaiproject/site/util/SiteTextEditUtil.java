@@ -15,8 +15,7 @@
  */
 package org.sakaiproject.site.util;
 
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
 

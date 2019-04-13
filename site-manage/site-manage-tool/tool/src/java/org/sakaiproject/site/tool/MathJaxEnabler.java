@@ -17,19 +17,11 @@
 
 package org.sakaiproject.site.tool;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.cheftool.Context;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.ParameterParser;
 
 public class MathJaxEnabler

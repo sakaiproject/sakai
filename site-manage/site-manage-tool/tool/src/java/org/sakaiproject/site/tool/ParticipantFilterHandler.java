@@ -22,10 +22,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -42,6 +39,8 @@ import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handles providing and managing entries and selections of the 'View' filter drop down in 'Manage Participants'
