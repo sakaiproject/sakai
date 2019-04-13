@@ -33,7 +33,7 @@ import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

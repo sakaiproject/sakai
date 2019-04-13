@@ -24,10 +24,10 @@ package org.sakaiproject.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.math.IntRange;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -242,9 +242,9 @@ public class PasswordCheck {
 		int length = passwd.length();
 		
 		//check range
-		IntRange range = new IntRange(min, max);
+		Range<Integer> range = Range.between(min, max);
 		
-		if(range.containsInteger(length))
+		if(range.contains(length))
 		{
 			log.debug("Range ok");
 			return true;

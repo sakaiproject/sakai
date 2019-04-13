@@ -21,16 +21,21 @@
 package org.sakaiproject.tool.impl;
 
 import java.lang.reflect.Field;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.mutable.MutableLong;
-
+import org.apache.commons.lang3.mutable.MutableLong;
 import org.jmock.Expectations;
-
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Mostly black-box {@link SessionComponent} unit tests intended to guard against

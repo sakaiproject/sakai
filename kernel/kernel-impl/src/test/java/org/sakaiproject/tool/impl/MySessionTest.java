@@ -15,19 +15,33 @@
  */
 package org.sakaiproject.tool.impl;
 
-import org.apache.commons.lang.mutable.MutableLong;
-import org.jmock.Expectations;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.*;
-
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.jmock.Expectations;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.ContextSession;
+import org.sakaiproject.tool.api.NonPortableSession;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionAttributeListener;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.ToolSession;
 
 /**
  * Verifies behavior of {@link MySession}, which
