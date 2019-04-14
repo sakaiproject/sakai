@@ -487,6 +487,20 @@ public class LessonsAccess {
 	    return false;
 	}
 	
+	// top-level pseudo-item is special, as there is no containing page
+	// just test the page it points to
+	if (item.getPageId() == 0L && item.getType() == SimplePageItem.PAGE) {
+	    String pageString = item.getSakaiId();
+	    long pageNum = 0;
+	    try {
+	    	pageNum = Long.parseLong(pageString, 10);
+	    } catch (Exception e) {
+	    	return false;
+	    }
+	    return isPageAccessible(pageNum, siteId, currentUserId, simplePageBean);
+	}
+	
+	//Look these up after the top-level check
 	SimplePage currentPage = dao.getPage(item.getPageId());
 	if (currentPage == null) {
 	    return false;
@@ -497,19 +511,6 @@ public class LessonsAccess {
         siteId = currentPage.getSiteId();   
 	}
 	
-	// top-level pseudo-item is special, as there is no containing page
-	// just test the page it points to
-	if (item.getPageId() == 0L && item.getType() == SimplePageItem.PAGE) {
-	    String pageString = item.getSakaiId();
-	    long pageNum = 0;
-	    try {
-		pageNum = Long.parseLong(pageString, 10);
-	    } catch (Exception e) {
-		return false;
-	    }
-	    return isPageAccessible(pageNum, siteId, currentUserId, simplePageBean);
-	}
-
 	simplePageBean = makeSimplePageBean(simplePageBean, siteId, currentPage);
 
 	// containing page must be accessible.
