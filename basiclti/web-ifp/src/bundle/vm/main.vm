@@ -33,11 +33,11 @@ window.addEventListener('message', function(e) {
       var height = message.height;
       document.getElementById(idval).style.height = height;
       document.getElementById(idval).style.width = '100%';
-      console.log('Reveived lti.frameResize height='+height);
+      console.debug('Reveived lti.frameResize height='+height);
     }
   } catch (error) {
-   console.log('lti.frameResize of '+idval+' failed height='+height);
-   console.log(e.data);
+   console.debug('lti.frameResize of '+idval+' failed height='+height);
+   console.debug(e.data);
   }
 });
 </script>

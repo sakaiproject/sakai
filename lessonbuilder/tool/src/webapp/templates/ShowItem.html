@@ -196,14 +196,14 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 				if ( message.subject == 'lti.frameResize' ) {
 					var height = message.height;
 					document.getElementById(idval).height = height;
-					console.log('Reveived lti.frameResize height='+height);
+					console.debug('Reveived lti.frameResize height='+height);
 				}
 				else if ( message.subject == 'lti.pageRefresh' ) {
                                         location.reload(true);
 				}
 			} catch (error) {
-				console.log('lti.frameResize of '+idval+' failed height='+height);
-				console.log(e.data);
+				console.debug('lti.frameResize of '+idval+' failed height='+height);
+				console.debug(e.data);
 			}
 		});
 		</script>

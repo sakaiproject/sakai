@@ -25,12 +25,12 @@ if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 )
     function timeout$placement() { 
         var myframe = $("#id$placement");
         var loaded = false;
-        window.console && console.log("$!source timeout check...");
+        window.console && console.debug("$!source timeout check...");
         try {
             var iframeLoc = myframe.get(0).contentWindow.location;
             iframeLoc = String(iframeLoc);
             var windowLoc = String(window.location);
-            window.console && console.log("iframe.location="+windowLoc);
+            window.console && console.debug("iframe.location="+windowLoc);
             var ipos = -1;
             var slashcount = 0;
             for (var i=0; i<windowLoc.length; i++ ) {
@@ -44,7 +44,7 @@ if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 )
                 loaded = false;
             } else { 
                 var prefix = windowLoc.substring(0, ipos);
-                window.console && console.log("iframe.prefix="+prefix);
+                window.console && console.debug("iframe.prefix="+prefix);
                 loaded = iframeLoc.indexOf(prefix) == 0;
             }
         } catch(ex) {  // This is an expected/normal/hoped for occurance
@@ -53,7 +53,7 @@ if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 )
         if ( ! loaded ) {
             $('#alert$placement').show();
         } else {
-            window.console && console.log('$!source load success');
+            window.console && console.debug('$!source load success');
         }
 
     }
@@ -63,7 +63,7 @@ if ( '$!source'.indexOf('http://') == 0 || '$!source'.indexOf('https://') == 0 )
         timer$placement = window.setTimeout("timeout$placement()",$loadTime);
     });
 } else {
-    window.console && console.log('$!source does not start with http:// or https://');
+    window.console && console.debug('$!source does not start with http:// or https://');
 }
 </script>
 <div class="alertMessage specialLink" style="display:none" id="alert$placement">$tlang.getString("gen.alert") 
@@ -93,11 +93,11 @@ window.addEventListener('message', function(e) {
     if ( message.subject == 'lti.frameResize' ) {
       var height = message.height;
       document.getElementById(idval).height = height;
-      console.log('Reveived lti.frameResize height='+height);
+      console.debug('Reveived lti.frameResize height='+height);
     }
   } catch (error) {
-   console.log('lti.frameResize of '+idval+' failed height='+height);
-   console.log(e.data);
+   console.debug('lti.frameResize of '+idval+' failed height='+height);
+   console.debug(e.data);
   }
 });
 </script>
