@@ -32,10 +32,11 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-			<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
-			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
-			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
-			<script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
+    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
+    <script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
+    <script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
+    <script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
+    <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
 
     <script type="text/javascript">
         $(document).ready(function() {
