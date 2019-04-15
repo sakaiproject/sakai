@@ -322,7 +322,7 @@
 										#propertyDetails($props)
                                     </td>
                                     <td class="itemAction">
-                                        <a href="#" onclick="document.gradeForm.onsubmit();document.gradeForm.option.value='removeAttachment_review'; document.gradeForm.currentAttachment.value='$attachment.id'; document.gradeForm.submit(); return false;">
+                                        <a href="#" onclick="document.gradeForm.option.value='removeAttachment_review'; document.gradeForm.currentAttachment.value='$attachment.id'; document.gradeForm.submit(); return false;">
 											$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
                                         </a>
                                     </td>
