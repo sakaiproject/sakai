@@ -39,7 +39,7 @@ function msg(s) {
 
 function setupdialog(oe) {
 	oe.dialog("option", "width", modalDialogWidth());
-	$('.ui-dialog').zIndex(150000);
+	$('.ui-dialog').css('zIndex',150000);
 }
 
 function checksize(oe) {

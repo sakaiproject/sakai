@@ -742,7 +742,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			else
 			    descrip = messageLocator.getMessage("simplepage.title-descrip");
 
-			UIOutput.make(tofill, "edit-title").decorate(new UIFreeAttributeDecorator("title", descrip));
+			UIComponent edittitlelink = UIInternalLink.makeURL(tofill, "edit-title", "#");
+			edittitlelink.decorate(new UIFreeAttributeDecorator("title", descrip));
 			UIOutput.make(tofill, "edit-title-text", label);
 			UIOutput.make(tofill, "title-descrip-text", descrip);
 
