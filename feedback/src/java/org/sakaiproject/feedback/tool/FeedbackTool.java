@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -266,12 +266,12 @@ public class FeedbackTool extends HttpServlet {
     }
 
     private void setStringAttribute(HttpServletRequest request, String key, String value){
-		request.setAttribute(key, StringEscapeUtils.escapeJavaScript(value));
+		request.setAttribute(key, StringEscapeUtils.escapeEcmaScript(value));
 	}
 
 	private void setMapAttribute(HttpServletRequest request, String key, Map<String, String> map){
 		for (String s : map.keySet()) {
-			map.put(s, StringEscapeUtils.escapeJavaScript( map.get(s)));
+			map.put(s, StringEscapeUtils.escapeEcmaScript( map.get(s)));
 		}
 		request.setAttribute(key, map);
 	}
