@@ -21,8 +21,8 @@
     {
       // supply the standalone versions tool styles
       request.setAttribute("html.head",
-         "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
-         "<link href=\"/library/skin/morpheus-default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
+         "<link href=\"" + org.sakaiproject.portal.util.CSSUtils.getCssToolBase() + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
+         "<link href=\"" + org.sakaiproject.portal.util.CSSUtils.getCssToolSkin(org.sakaiproject.portal.util.CSSUtils.adjustCssSkinFolder(null)) + "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.12.4/jquery.min.js\"></script>\n" +
