@@ -383,7 +383,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public boolean clearUserStatus(final ProfileStatus profileStatus) {
 				
 		try {
-			getHibernateTemplate().delete(profileStatus);
+			getHibernateTemplate().delete(getHibernateTemplate().merge(profileStatus));
 			return true;
 		} catch (final Exception e) {
 			log.error("ProfileLogic.clearUserStatus() failed. " + e.getClass() + ": " + e.getMessage());  
