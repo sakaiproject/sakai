@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -30,6 +31,7 @@ import org.apache.wicket.model.util.ListModel;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,6 +86,13 @@ public class BulkEditItemsPanel extends BasePanel {
 
 			final ReleaseCheckbox release = new ReleaseCheckbox("release", new PropertyModel<Boolean>(assignment, "released"));
 			final IncludeCheckbox include = new IncludeCheckbox("include", new PropertyModel<Boolean>(assignment, "counted"));
+
+			// Are there categories in this Gradebook? If so, and this item is not in a category, disabled grade
+			// calculation inclusion.
+			List<CategoryDefinition> categories = businessService.getGradebookCategories();
+			if (categories != null && categories.size() > 0 && StringUtils.isBlank(assignment.getCategoryName())) {
+				include.setEnabled(false);
+			}
 
 			item.add(release);
 			item.add(include);
