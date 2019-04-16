@@ -1049,7 +1049,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
 	 * @return a list of Message objects or specializations of Message objects (may be empty).
 	 * @exception IdUnusedException
-	 *            If this name is not defined for a announcement channel.
+	 *            If this name is not defined for a announcement channel, or the channel references a site that does not exist.
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
@@ -1097,8 +1097,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			{
 				Collections.reverse(messageList);
 			}			
-		} catch (IdUnusedException e) {
-			log.warn(e.getMessage());
 		}
 		catch (PermissionException e) {
 			log.warn(e.getMessage());
