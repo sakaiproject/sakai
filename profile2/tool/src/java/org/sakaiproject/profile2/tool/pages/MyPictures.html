@@ -106,7 +106,7 @@
 			// PRFL-451. The Wicket multi file upload component adds the filename to this container
 			// for each file chosen. If we bind to it we can check what is being added.
 			$('.wicket-mfu-container').bind('DOMNodeInserted', function(e) {
-    			var fileName = e.target.firstChild.nodeValue;
+    			var fileName = e.target.firstChild.innerText;
     			var suffix = fileName.match(suffixPattern)[1];
     			if(!suffix.match(/jpe?g/i) && !suffix.match(/png/i) && !suffix.match(/gif/i)) {
     				$(e.target).remove();
