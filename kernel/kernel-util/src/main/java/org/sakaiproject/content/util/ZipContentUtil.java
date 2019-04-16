@@ -325,10 +325,9 @@ public class ZipContentUtil {
 		} catch (TypeException e1) {
 			return null;
 		}
-		//String rootCollectionId = extractZipCollectionPrefix(resource);
 		
 		// Extract Zip File	
-		File temp = null;		
+		File temp = null;
 		try {
 			temp = exportResourceToFile(resource);
 			boolean extracted = false;
@@ -348,7 +347,7 @@ public class ZipContentUtil {
 					//use <= getMAX_ZIP_EXTRACT_SIZE() so the returned value will be
 					//larger than the max and then rejected
 					while (entries.hasMoreElements() && i <= getMaxZipExtractFiles()) {
-						ZipEntry nextElement = entries.nextElement();						
+						ZipEntry nextElement = entries.nextElement();
 						ret.put(nextElement.getName(), nextElement.getSize());
 						i++;
 					}
@@ -447,7 +446,7 @@ public class ZipContentUtil {
 			temp.deleteOnExit();
 
 			// Write content to file 
-			out = new FileOutputStream(temp);        
+			out = new FileOutputStream(temp);
 			IOUtils.copy(resource.streamContent(),out);
 			out.flush();
 			
@@ -501,8 +500,16 @@ public class ZipContentUtil {
 	 * @param out
 	 * @throws Exception
 	 */
-	private void storeEmptyFolder(String rootId, ContentCollection resource, ZipOutputStream out) throws Exception {		
+	private void storeEmptyFolder(String rootId, ContentCollection resource, ZipOutputStream out) throws Exception {
 		String folderName = resource.getId().substring(rootId.length(),resource.getId().length());
+		if(ContentHostingService.isInDropbox(rootId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
+			try {
+				folderName = getContainingFolderDisplayName(rootId, folderName);
+			} catch (Exception e) {
+				log.warn("Unexpected error when trying to create empty folder for Zip archive {} : {}", extractName(rootId), e.getMessage());
+				return;
+			}
+		}
 		ZipEntry zipEntry = new ZipEntry(folderName);
 		out.putNextEntry(zipEntry);
 		out.closeEntry();
@@ -580,7 +587,7 @@ public class ZipContentUtil {
 
 	private String getContainingFolderDisplayName(String rootId,String filename) throws IdUnusedException, TypeException, PermissionException {
 		//dont manipulate filename when you are a zip file from a root folder level
-		if(!(rootId.split("/").length > 3) && (filename.split("/").length<2) &&filename.endsWith(".zip")){
+		if(!(rootId.split("/").length > 3) && (filename.split("/").length<2) && filename.endsWith(".zip")){
 			return filename;
 		}
 
