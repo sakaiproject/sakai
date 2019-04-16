@@ -1,7 +1,13 @@
 <!-- start: chef_assignments_student_view_grade.vm  -->
 <script type="text/javascript">
     $(document).ready(function () {
-        ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+
+        $("#detailsAccordion").accordion({
+            active: false,
+            collapsible: true,
+            heightStyle: "content"
+        });
+
         $("#accordion").accordion({
                     heightStyle: 'content',
                     active: 0,
@@ -238,14 +244,12 @@
     ## Assignment Attachments
     #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $decoratedUrlMap false)
 
-    ## Assignment Model Answer
+    <div id="detailsAccordion">
+
+    ## Start assignment Model Answer
     #if($allowViewModelAnswer)
-        <h4 id="toggleModel" class="toggleAnchor specialLink">
-            <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
-            <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
-            $tlang.getString('modelAnswer')
-        </h4>
-        <div class="model toggledContent">
+        <h3>$tlang.getString('modelAnswer')</h3>
+        <div class="modelPanel">
             <p>$validator.escapeHtml($!assignmentModelAnswerItem.getText())</p>
             #set ($mAttachments = $!assignmentModelAnswerItem.getAttachmentObjectSet())
             <ul class="attachList">
@@ -277,25 +281,21 @@
             </ul>
         </div>
     #end
+    ##End Assignment Model Answer
+
+    ##Start Notes panel
     #if ($!allowReadAssignmentNoteItem)
-        <h4 id="toggleNotes" class="toggleAnchor specialLink">
-            <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
-            <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
-            $tlang.getString('note.label')
-        </h4>
-        <div class="notes toggledContent">
+        <h3>$tlang.getString('note.label')</h3>
+        <div class="notesPanel">
             $validator.escapeHtml($!assignmentNoteItem.getNote())
         </div>
     #end
+    ##End Notes Panel
 
-    ## All Purpose
+    ## Start all Purpose
     #if ($!allowViewAllPurposeItem)
-        <h4 id="toggleAllPurpose" class="toggleAnchor specialLink">
-            <img alt="expand" class="expand" src="/library/image/sakai/expand.gif"/>
-            <img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif"/>
-            $tlang.getString('allPurpose')
-        </h4>
-        <div class="allPurpose toggledContent">
+        <h3>$tlang.getString('allPurpose')</h3>
+        <div class="allPurposePanel">
             <p>$validator.escapeHtml($!assignmentAllPurposeItem.getTitle())</p>
             <p>$validator.escapeHtml($!assignmentAllPurposeItem.getText())</p>
             #set ($aAttachments = $!assignmentAllPurposeItem.getAttachmentObjectSet())
@@ -336,6 +336,10 @@
             </ul>
         </div>
     #end
+    ## End all Purpose
+
+    </div> ##End details accordion
+
     #if ($taggable)
         #parse ("/vm/assignment/chef_assignments_tags_list.vm")
     #end

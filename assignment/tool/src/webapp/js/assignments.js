@@ -880,34 +880,6 @@ ASN.doTagsListAction = function( formID, value, providerID )
     form.providerId.value = providerID;
 };
 
-ASN.toggleAllowResubmissionPanel = function()
-{
-    var panel = document.getElementById("allowResubmissionPanelContent");
-    $(panel).slideToggle(200);
-    var expandImg = document.getElementById("expandAllowResub");
-    var collapseImg = document.getElementById("collapseAllowResub");
-    ASN.swapDisplay(expandImg, collapseImg);
-    
-    var allow = document.getElementById("allowResToggle");
-    if (allow.value === "checked")
-    {
-        allow.value = "";
-    }
-    else
-    {
-        allow.value = "checked";
-    }
-}
-
-ASN.toggleSendFeedbackPanel = function()
-{
-    var panel = document.getElementById("sendFeedbackPanelContent");
-    $(panel).slideToggle(200);
-    var expandImg = document.getElementById("expandSendFeedback");
-    var collapseImg = document.getElementById("collapseSendFeedback");
-    ASN.swapDisplay(expandImg, collapseImg);
-}
-
 ASN.swapDisplay = function(elem1, elem2)
 {
     var tmpDisplay = elem1.style.display;

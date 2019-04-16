@@ -55,13 +55,6 @@
 		margin-left: 20px;
 	}
 
-	#sendFeedbackPanel, #allowResubmissionPanel{
-		.discTria{
-			font-weight: bold;
-			background-color: #cef;
-		}
-	}
-
 	// Styles for navigators in Grading Student Screen
 	.leftColumn{
 		float: left;
@@ -521,5 +514,9 @@
 
   #submissionList sakai-rubric-student-button {
     float: right;
+  }
+
+  .ui-accordion-header-active{
+    background: $primary-color;
   }
 }
