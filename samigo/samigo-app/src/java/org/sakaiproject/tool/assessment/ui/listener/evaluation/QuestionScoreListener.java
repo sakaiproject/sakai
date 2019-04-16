@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -329,8 +330,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			}
 
 			log.debug("questionScores(): allscores.size = " + allscores.size());
-
-			// /
 
 			// now we need filter by sections selected
 			List scores = new ArrayList(); // filtered list
@@ -876,9 +875,10 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 						results.setAnswer(results.getAnswer() + "<br/>"
 								+ answerText);
 						if (gdata.getAutoScore() != null) {
-							results.setTotalAutoScore(Double.toString((Double.valueOf(
-								results.getExactTotalAutoScore())).doubleValue()
-								+ gdata.getAutoScore().doubleValue()));
+							BigDecimal dataAutoScore = new BigDecimal(gdata.getAutoScore());
+							BigDecimal exactTotalAutoScore = new BigDecimal(results.getExactTotalAutoScore());
+							exactTotalAutoScore = exactTotalAutoScore.add(dataAutoScore);
+							results.setTotalAutoScore(String.valueOf(exactTotalAutoScore.doubleValue()));
 						}
 						else {
 							results.setTotalAutoScore(Double.toString((Double.valueOf(
