@@ -23,7 +23,7 @@
                     </span>
                     {else}
                     <span class="gb-flag-not-released" wicket:message="title:label.coursegrade.notreleased">
-                        {if settings.isUserAbleToEditAssessments}
+                        {if settings.isUserAbleToEditAssessments && settings.isShowDisplayCourseGradeToStudentEnabled}
                             <span aria-hidden="true" style="display:none;" class="gb-tooltip-extras">
                                 <div>
                                     <a href="javascript:void(0);" class="gb-gradebook-settings"><wicket:message key="label.coursegrade.editsettings"/></a>
