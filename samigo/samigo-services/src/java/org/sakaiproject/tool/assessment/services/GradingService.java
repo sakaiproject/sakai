@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.services;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -1261,14 +1262,13 @@ public class GradingService
   }
 
   private double getTotalAutoScore(Set itemGradingSet){
-    double totalAutoScore =0;
-    Iterator iter = itemGradingSet.iterator();
-    while (iter.hasNext()){
-      ItemGradingData i = (ItemGradingData)iter.next();
-      if (i.getAutoScore()!=null)
-	totalAutoScore += i.getAutoScore();
+    BigDecimal totalAutoScore = BigDecimal.ZERO;
+    for(ItemGradingData itemGradingData : (Set<ItemGradingData>) itemGradingSet){
+        if (itemGradingData.getAutoScore()!=null){
+            totalAutoScore = totalAutoScore.add(new BigDecimal(itemGradingData.getAutoScore()));
+        }
     }
-    return totalAutoScore;
+    return totalAutoScore.doubleValue();
   }
 
   public void notifyGradebookByScoringType(AssessmentGradingData data, PublishedAssessmentIfc pub){
@@ -1342,22 +1342,31 @@ public class GradingService
                     correctAnswers++;
                 }
               }
+
               initScore = getAnswerScore(itemGrading, publishedAnswerHash);
-              if (initScore > 0)
-                autoScore = initScore / correctAnswers;
-              else
-                autoScore = (getTotalCorrectScore(itemGrading, publishedAnswerHash) / correctAnswers) * ((double) -1);
+              BigDecimal initialScore = new BigDecimal(initScore);
+              BigDecimal automaticScore = BigDecimal.ZERO;
+
+              if (initialScore.compareTo(BigDecimal.ZERO) == 1){
+                  automaticScore = initialScore.divide(new BigDecimal(correctAnswers), MathContext.DECIMAL128);
+              } else{
+                  automaticScore = new BigDecimal(getTotalCorrectScore(itemGrading, publishedAnswerHash))
+                      .divide(new BigDecimal(correctAnswers), MathContext.DECIMAL128);
+                  automaticScore = automaticScore.multiply(new BigDecimal(-1.0d), MathContext.DECIMAL128);
+              }
 
               //overridescore?
-              if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore();
-              if (!totalItems.containsKey(itemId)){
-                totalItems.put(itemId, autoScore);
+              if (itemGrading.getOverrideScore() != null){
+                autoScore = automaticScore.add(new BigDecimal(itemGrading.getOverrideScore())).doubleValue();
               }
-              else{
-                accumelateScore = ((Double)totalItems.get(itemId));
-                accumelateScore += autoScore;
-                totalItems.put(itemId, accumelateScore);
+
+              if (!totalItems.containsKey(itemId)){
+                  totalItems.put(itemId, autoScore);
+              } else{
+                  BigDecimal accumulatedScore = new BigDecimal(((Double)totalItems.get(itemId)));
+                  accumulatedScore = accumulatedScore.add(new BigDecimal(autoScore));
+                  accumelateScore = accumulatedScore.doubleValue();
+                  totalItems.put(itemId, accumelateScore);
               }
               break;
 
