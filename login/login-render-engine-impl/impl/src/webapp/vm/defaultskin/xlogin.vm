@@ -19,9 +19,9 @@
         	#end
     		<fieldset>	
     			<label for="eid">${loginEidWording}</label>
-    			<input name="eid" id="eid" value="${eid}" type="text" size="15"/>
+    			<input name="eid" id="eid" value="${eid}" type="text" autocomplete="username" size="15"/>
     			<label for="pw">${loginPwWording}</label>
-    			<input name="pw" id="pw" value="${password}" type="password" onfocus="this.passwordfocus = true; " size="15"/>
+    			<input name="pw" id="pw" value="${password}" type="password" autocomplete="current-password" onfocus="this.passwordfocus = true; " size="15"/>
     			#if (${loginAdvice})
     				<aside>${loginAdvice}</aside>
     			#end

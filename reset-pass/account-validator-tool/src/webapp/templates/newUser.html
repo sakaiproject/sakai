@@ -40,22 +40,22 @@
 							<a rsf:id="wait.2">I already have a Sakai account</a>
 						</div>
 						<div class="inputDiv">
-							<label rsf:id="firstNameContainer:">
+							<label for="firstName" rsf:id="firstNameContainer:">
 								<span rsf:id="lblFirstName">First name</span>
 								<span class="reqStar">*</span>
 							</label>
 							<input type="text" class="inputBox required" rsf:id="firstName" id="firstName" onkeyup="VALIDATOR.validateFirstName();" oninput="VALIDATOR.validateFirstName();" required="required"/>
 						</div>
 						<div class="inputDiv">
-							<label rsf:id="lastNameContainer:">
+							<label for="surname" rsf:id="lastNameContainer:">
 								<span rsf:id="lblLastName">Last name</span>
 								<span class="reqStar">*</span>
 							</label>
 							<input type="text" class="inputBox required" rsf:id="surName" id="surname" onkeyup="VALIDATOR.validateLastName();" oninput="VALIDATOR.validateLastName();" required="required"/>
 						</div>
 						<div rsf:id="passrow1:" class="inputDiv">
-							<label><span rsf:id="msg=password">Password</span> <span class="reqStar">*</span></label>
-							<input id="passrow1::password1" type="password" class="inputBox required" rsf:id="password1" oninput="VALIDATOR.clearPasswordMatchMsgs();VALIDATOR.validateActivateForm();" onblur="VALIDATOR.displayStrengthInfo();VALIDATOR.validatePassword();" onfocus="VALIDATOR.displayStrengthInfo();" required="required"/>
+							<label for="passrow1::password1"><span rsf:id="msg=password">Password</span> <span class="reqStar">*</span></label>
+							<input id="passrow1::password1" type="password" class="inputBox required" rsf:id="password1" oninput="VALIDATOR.clearPasswordMatchMsgs();VALIDATOR.validateActivateForm();" onblur="VALIDATOR.displayStrengthInfo();VALIDATOR.validatePassword();" onfocus="VALIDATOR.displayStrengthInfo();" required="required" autocomplete="new-password" />
 						</div>
 						<div class="validationMsgContainer">
 							<div id="strongMsg" style="display:none" rsf:id="msg=password.strong"></div>
@@ -69,15 +69,15 @@
 						<div id="strengthInfo" style="display:none" rsf:id="msg=password.strengthInfo"></div>
 
 						<div rsf:id="passrow2:" class="inputDiv">
-							<label><span rsf:id="msg=password2">Confirm password</span> <span class="reqStar">*</span></label>
-							<input id="passrow2::password2" type="password" class="inputBox required" rsf:id="password2" oninput="VALIDATOR.clearPasswordMatchMsgs();VALIDATOR.validateActivateForm();" onblur="VALIDATOR.verifyPasswordsMatch();" required="required"/>
+							<label for="passrow2::password2"><span rsf:id="msg=password2">Confirm password</span> <span class="reqStar">*</span></label>
+							<input id="passrow2::password2" type="password" class="inputBox required" rsf:id="password2" oninput="VALIDATOR.clearPasswordMatchMsgs();VALIDATOR.validateActivateForm();" onblur="VALIDATOR.verifyPasswordsMatch();" required="required" autocomplete="new-password" />
 						</div>
 						<div class="validationMsgContainer">
 							<div id="matchMsg" rsf:id="msg=password.match" style="display:none;"></div>
 							<div id="noMatchMsg" rsf:id="msg=password.noMatch" style="display:none"></div>
 						</div>
 						<div class="required terms" rsf:id="termsrow:">
-							<label><span rsf:id="termsLabel" for="terms">I accept the terms and conditions</span> <span class="reqStar">*</span></label>
+							<label for="terms"><span rsf:id="termsLabel" for="terms">I accept the terms and conditions</span> <span class="reqStar">*</span></label>
 							<input id="terms" type="checkbox" rsf:id="terms" onclick="VALIDATOR.validateTermsChecked();" required="required"/>
 						</div>
 						<input id="addDetailsSub" class="submit" type="submit" rsf:id="addDetailsSub"/>
