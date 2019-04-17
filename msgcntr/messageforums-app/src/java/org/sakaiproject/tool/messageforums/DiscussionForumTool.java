@@ -5326,22 +5326,6 @@ public class DiscussionForumTool
 	  }
   }
 
-  public String processDfMsgDeleteCancel()
-  {
-	  selectedMessageCount = 0;
-	this.deleteMsg = false;
-    this.errorSynch = false;
-    
-    if (!"".equals(fromPage)) {
-    	final String where = fromPage;
-    	fromPage = null;
-    	return where;
-    }
-    else {
-    	return null;
-    }
-  }
-  
   /**
    * A moderator view of all msgs pending approval
    * @return
