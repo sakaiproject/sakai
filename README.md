@@ -24,7 +24,7 @@ Sakai runs on Apache Tomcat 8. Download the latest version from http://tomcat.ap
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
 You **must** configure Tomcat according to the instructions on this page:
-https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+8
+https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+9
 
 When you are done, deploy Sakai to Tomcat:
 ```
