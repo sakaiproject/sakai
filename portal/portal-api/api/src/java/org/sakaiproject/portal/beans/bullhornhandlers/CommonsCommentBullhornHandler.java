@@ -16,6 +16,7 @@
 package org.sakaiproject.portal.beans.bullhornhandlers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,8 +53,8 @@ public class CommonsCommentBullhornHandler extends AbstractBullhornHandler {
     private SiteService siteService;
 
     @Override
-    public String getHandledEvent() {
-        return CommonsEvents.COMMENT_CREATED;
+    public List<String> getHandledEvents() {
+        return Arrays.asList(CommonsEvents.COMMENT_CREATED);
     }
 
     @Override

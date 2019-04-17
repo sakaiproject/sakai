@@ -188,7 +188,7 @@
 
                                     var message = '';
 
-                                    if (alert.event === 'annc.new') {
+                                    if (alert.event === 'annc.new' || alert.event === 'annc.revise.availability') {
                                         message
                                             = data.i18n.announcement.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'asn.new.assignment') {

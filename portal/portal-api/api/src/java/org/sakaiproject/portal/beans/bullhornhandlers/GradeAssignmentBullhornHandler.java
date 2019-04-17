@@ -16,6 +16,7 @@
 package org.sakaiproject.portal.beans.bullhornhandlers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,8 +45,8 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
     private AssignmentService assignmentService;
 
     @Override
-    public String getHandledEvent() {
-        return AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION;
+    public List<String> getHandledEvents() {
+        return Arrays.asList(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
     }
 
     @Override

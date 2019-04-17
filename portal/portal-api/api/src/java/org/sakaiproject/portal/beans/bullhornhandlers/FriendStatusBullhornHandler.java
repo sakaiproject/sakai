@@ -16,6 +16,7 @@
 package org.sakaiproject.portal.beans.bullhornhandlers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,8 +46,8 @@ public class FriendStatusBullhornHandler extends AbstractBullhornHandler {
     private ProfileLinkLogic profileLinkLogic;
 
     @Override
-    public String getHandledEvent() {
-        return ProfileConstants.EVENT_STATUS_UPDATE;
+    public List<String> getHandledEvents() {
+        return Arrays.asList(ProfileConstants.EVENT_STATUS_UPDATE);
     }
 
     @Override
