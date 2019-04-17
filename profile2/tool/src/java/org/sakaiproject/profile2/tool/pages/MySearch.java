@@ -63,7 +63,6 @@ import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
-import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
@@ -131,8 +130,7 @@ public class MySearch extends BasePage {
         searchField.setMarkupId("searchinput");
         searchField.setOutputMarkupId(true);
         searchForm.add(searchField);
-        searchForm.add(new IconWithClueTip("searchToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.terms.tooltip")));
-		
+
         //by name or by interest radio group        
 		searchTypeRadioGroup = new RadioGroup<String>("searchTypeRadioGroup");
 		// so we can repaint after clicking on search history links

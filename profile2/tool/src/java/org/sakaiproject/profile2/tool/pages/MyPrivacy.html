@@ -2,7 +2,7 @@
 
 <!--
 
-    Copyright (c) 2008-2012 The Sakai Foundation
+    Copyright (c) 2008-2019 The Sakai Foundation
 
     Licensed under the Educational Community License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,32 +20,21 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml"  
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
-      xml:lang="en"  
-      lang="en">  
+      xml:lang="en"
+      lang="en">
       
 <body>
 <wicket:extend>
 	
 	<div id="pageWrapper" class="container-fluid">
 	<div class="row">
-	
-		<!-- 
-		<div id="leftPanel" class="col-md-2">
-	    
-	    </div>
-		-->
-		
 		<div id="fullWidth" class="col-md-12">
-            
-            <div class="mainSectionContentForm">
-            
-	            <h3 wicket:id="heading" class="header icon privacy">[Privacy settings]</h3>
-	            
-	            <div wicket:id="infoLocked" class="profile_instruction">[can't change]</div>
-	            
-	            <form wicket:id="form" class="profileForm">
+			<div class="mainSectionContentForm">
+				<h3 wicket:id="heading" class="header icon privacy">[Privacy settings]</h3>
+				<div wicket:id="infoLocked" class="profile_instruction">[can't change]</div>
+				<form wicket:id="form" class="profileForm">
 					<div class="profileContent" id="privacy-settings" wicket:message="summary:accessibility.privacy.overview">
-						
+
 						<!-- profileImage -->
 						<div class="row" wicket:id="profileImageContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="profileImageLabel">
@@ -56,7 +45,7 @@
 								<select wicket:id="profileImage" wicket:message="title:accessibility.privacy.image"></select>
 							</div>
 						</div>
-						
+
 						<!-- basicInfo -->
 						<div class="row" wicket:id="basicInfoContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="basicInfoLabel">[basicInfoLabel]</div>
@@ -65,7 +54,7 @@
 								<select wicket:id="basicInfo" wicket:message="title:accessibility.privacy.basic"></select>
 							</div>
 						</div>
-						
+
 						<!-- contactInfo -->
 						<div class="row" wicket:id="contactInfoContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="contactInfoLabel">[contactInfoLabel]</div>
@@ -83,7 +72,7 @@
 								<select wicket:id="staffInfo" wicket:message="title:accessibility.privacy.staff"></select>
 							</div>
 						</div>
-												
+
 						<!-- studentInfo -->
 						<div class="row" wicket:id="studentInfoContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="studentInfoLabel">[studentInfoLabel]</div>
@@ -92,7 +81,7 @@
 								<select wicket:id="studentInfo" wicket:message="title:accessibility.privacy.student"></select>
 							</div>
 						</div>
-						
+
 						<!-- businessInfo -->
 						<div class="row" wicket:id="businessInfoContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="businessInfoLabel">[businessInfoLabel]</div>
@@ -110,7 +99,7 @@
 								<select wicket:id="socialNetworkingInfo" wicket:message="title:accessibility.privacy.social"></select>
 							</div>
 						</div>
-										
+
 						<!-- personalInfo -->
 						<div class="row" wicket:id="personalInfoContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="personalInfoLabel">[personalInfoLabel]</div>
@@ -119,7 +108,7 @@
 								<select wicket:id="personalInfo" wicket:message="title:accessibility.privacy.personal"></select>
 							</div>
 						</div>
-						
+
 						<!-- showBirthYear -->
 						<div class="row" wicket:id="birthYearContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="birthYearLabel">[birthYearLabel]</div>
@@ -128,7 +117,7 @@
 								<label for="birthyearprivacyinput" class="help-block"><wicket:message key="accessibility.privacy.birthyear" /></label>
 							</div>
 						</div>
-												
+
 						<!-- myFriends -->
 						<div class="row" wicket:id="myFriendsContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="myFriendsLabel">[myFriendsLabel]</div>
@@ -137,7 +126,7 @@
 								<select wicket:id="myFriends" wicket:message="title:accessibility.privacy.friends"></select>
 							</div>
 						</div>
-						
+
 						<!-- myOnlineStatus -->
 						<div class="row" wicket:id="onlineStatusContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="onlineStatusLabel">[onlineStatusLabel]</div>
@@ -146,7 +135,7 @@
 								<select wicket:id="onlineStatus" wicket:message="title:accessibility.privacy.onlinestatus"></select>
 							</div>
 						</div>
-						
+
 						<!-- myStatus -->
 						<div class="row" wicket:id="myStatusContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="myStatusLabel">[myStatusLabel]</div>
@@ -155,7 +144,7 @@
 								<select wicket:id="myStatus" wicket:message="title:accessibility.privacy.status"></select>
 							</div>
 						</div>
-						
+
 						<!-- myPictures -->
 						<div class="row" wicket:id="myPicturesContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="myPicturesLabel">[myPicturesLabel]</div>
@@ -164,7 +153,7 @@
 								<select wicket:id="myPictures" wicket:message="title:accessibility.privacy.pictures"></select>
 							</div>
 						</div>
-						
+
 						<!-- myMessages -->
 						<div class="row" wicket:id="messagesContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="messagesLabel">[messagesLabel]</div>
@@ -173,7 +162,7 @@
 								<select wicket:id="messages" wicket:message="title:accessibility.privacy.messages"></select>
 							</div>
 						</div>
-						
+
 						<!-- myKudos -->
 						<div class="row" wicket:id="myKudosContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="myKudosLabel">[myKudosLabel]</div>
@@ -182,7 +171,7 @@
 								<select wicket:id="myKudos" wicket:message="title:accessibility.privacy.kudos"></select>
 							</div>
 						</div>
-						
+
 						<!-- myWall -->
 						<div class="row" wicket:id="myWallContainer">
 							<div class="col-md-2 col-sm-6 col-xs-12" wicket:id="myWallLabel">[myWallLabel]</div>
@@ -191,40 +180,31 @@
 								<select wicket:id="myWall" wicket:message="title:accessibility.privacy.wall"></select>
 							</div>
 						</div>
-											
+
 					</div>
-					
+
 					<div class="pageFormButtons">
 						<input type="submit" wicket:id="submit" value="Save" />
 					</div>
-			
-					
-				</form>	
+
+				</form>
 				
 				<div wicket:id="formFeedback">[formFeedback]</div>
-			
+
 			</div>
-		
 		</div>
-		
-		<!-- <div id="rightPanel" class="col-md-8"></div> -->
-	
-	
 	</div>
 	</div>
-	
+
 	<!--  general MyPrivacy scripting -->
 	<script type="text/javascript">
-
 		//init
 		$(document).ready(function(){ 
 			//resize iframe
 			setMainFrameHeight(window.name);
-
 		});
-
 	</script>
-	
+
 </wicket:extend>
 </body>
 </html>

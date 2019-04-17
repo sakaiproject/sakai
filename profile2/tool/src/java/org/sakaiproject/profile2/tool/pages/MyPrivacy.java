@@ -39,7 +39,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePrivacyNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
-import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 @Slf4j
@@ -138,8 +137,6 @@ public class MyPrivacy extends BasePage {
 		profileImageChoice.setMarkupId("imageprivacyinput");
 		profileImageChoice.setOutputMarkupId(true);
 		profileImageContainer.add(profileImageChoice);
-		//tooltip
-		profileImageContainer.add(new IconWithClueTip("profileImageToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.profileimage.tooltip")));
 		form.add(profileImageContainer);
 		//updater
 		profileImageChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -157,8 +154,6 @@ public class MyPrivacy extends BasePage {
 		basicInfoChoice.setMarkupId("basicinfoprivacyinput");
 		basicInfoChoice.setOutputMarkupId(true);
 		basicInfoContainer.add(basicInfoChoice);
-		//tooltip
-		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
 		form.add(basicInfoContainer);
 		//updater
 		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -174,8 +169,6 @@ public class MyPrivacy extends BasePage {
 		contactInfoChoice.setMarkupId("contactinfoprivacyinput");
 		contactInfoChoice.setOutputMarkupId(true);
 		contactInfoContainer.add(contactInfoChoice);
-		//tooltip
-		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
 		form.add(contactInfoContainer);
 		//updater
 		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -191,8 +184,6 @@ public class MyPrivacy extends BasePage {
 		staffInfoChoice.setMarkupId("staffinfoprivacyinput");
 		staffInfoChoice.setOutputMarkupId(true);
 		staffInfoContainer.add(staffInfoChoice);
-		//tooltip
-		staffInfoContainer.add(new IconWithClueTip("staffInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.staff.tooltip")));
 		form.add(staffInfoContainer);
 		//updater
 		staffInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -208,8 +199,6 @@ public class MyPrivacy extends BasePage {
 		studentInfoChoice.setMarkupId("studentinfoprivacyinput");
 		studentInfoChoice.setOutputMarkupId(true);
 		studentInfoContainer.add(studentInfoChoice);
-		//tooltip
-		studentInfoContainer.add(new IconWithClueTip("studentInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.student.tooltip")));
 		form.add(studentInfoContainer);
 		//updater
 		studentInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -225,8 +214,6 @@ public class MyPrivacy extends BasePage {
 		businessInfoChoice.setMarkupId("businessinfoprivacyinput");
 		businessInfoChoice.setOutputMarkupId(true);
 		businessInfoContainer.add(businessInfoChoice);
-		//tooltip
-		businessInfoContainer.add(new IconWithClueTip("businessInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.businessinfo.tooltip")));
 		form.add(businessInfoContainer);
 		//updater
 		businessInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -244,8 +231,6 @@ public class MyPrivacy extends BasePage {
 		socialNetworkingInfoChoice.setMarkupId("socialinfoprivacyinput");
 		socialNetworkingInfoChoice.setOutputMarkupId(true);
 		socialNetworkingInfoContainer.add(socialNetworkingInfoChoice);
-		//tooltip
-		socialNetworkingInfoContainer.add(new IconWithClueTip("socialNetworkingInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.socialinfo.tooltip")));
 		form.add(socialNetworkingInfoContainer);
 		//updater
 		socialNetworkingInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -262,8 +247,6 @@ public class MyPrivacy extends BasePage {
 		personalInfoChoice.setMarkupId("personalinfoprivacyinput");
 		personalInfoChoice.setOutputMarkupId(true);
 		personalInfoContainer.add(personalInfoChoice);
-		//tooltip
-		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
 		form.add(personalInfoContainer);
 		//updater
 		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -279,8 +262,6 @@ public class MyPrivacy extends BasePage {
 		birthYearCheckbox.setMarkupId("birthyearprivacyinput");
 		birthYearCheckbox.setOutputMarkupId(true);
 		birthYearContainer.add(birthYearCheckbox);
-		//tooltip
-		birthYearContainer.add(new IconWithClueTip("birthYearToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.birthyear.tooltip")));
 		form.add(birthYearContainer);
 		//updater
 		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("onclick") {
@@ -296,8 +277,6 @@ public class MyPrivacy extends BasePage {
 		myFriendsChoice.setMarkupId("friendsprivacyinput");
 		myFriendsChoice.setOutputMarkupId(true);
 		myFriendsContainer.add(myFriendsChoice);
-		//tooltip
-		myFriendsContainer.add(new IconWithClueTip("myFriendsToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.myfriends.tooltip")));
 		form.add(myFriendsContainer);
 		//updater
 		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -315,8 +294,6 @@ public class MyPrivacy extends BasePage {
 		myStatusChoice.setMarkupId("statusprivacyinput");
 		myStatusChoice.setOutputMarkupId(true);
 		myStatusContainer.add(myStatusChoice);
-		//tooltip
-		myStatusContainer.add(new IconWithClueTip("myStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mystatus.tooltip")));
 		form.add(myStatusContainer);
 		//updater
 		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -334,7 +311,6 @@ public class MyPrivacy extends BasePage {
 		myPicturesChoice.setMarkupId("picturesprivacyinput");
 		myPicturesChoice.setOutputMarkupId(true);
 		myPicturesContainer.add(myPicturesChoice);
-		myPicturesContainer.add(new IconWithClueTip("myPicturesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mypictures.tooltip")));
 		form.add(myPicturesContainer);
 
 		myPicturesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -352,7 +328,6 @@ public class MyPrivacy extends BasePage {
 		messagesChoice.setMarkupId("messagesprivacyinput");
 		messagesChoice.setOutputMarkupId(true);
 		messagesContainer.add(messagesChoice);
-		messagesContainer.add(new IconWithClueTip("messagesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.messages.tooltip")));
 		form.add(messagesContainer);
 
 		messagesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -370,7 +345,6 @@ public class MyPrivacy extends BasePage {
 		kudosChoice.setMarkupId("kudosprivacyinput");
 		kudosChoice.setOutputMarkupId(true);
 		myKudosContainer.add(kudosChoice);
-		myKudosContainer.add(new IconWithClueTip("myKudosToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mykudos.tooltip")));
 		form.add(myKudosContainer);
 
 		kudosChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -388,7 +362,6 @@ public class MyPrivacy extends BasePage {
 		myWallChoice.setMarkupId("wallprivacyinput");
 		myWallChoice.setOutputMarkupId(true);
 		myWallContainer.add(myWallChoice);
-		myWallContainer.add(new IconWithClueTip("myWallToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mywall.tooltip")));
 		form.add(myWallContainer);
 
 		myWallChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -406,7 +379,6 @@ public class MyPrivacy extends BasePage {
 		onlineStatusChoice.setMarkupId("onlinestatusprivacyinput");
 		onlineStatusChoice.setOutputMarkupId(true);
 		onlineStatusContainer.add(onlineStatusChoice);
-		onlineStatusContainer.add(new IconWithClueTip("onlineStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.onlinestatus.tooltip")));
 		form.add(onlineStatusContainer);
 
 		onlineStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
