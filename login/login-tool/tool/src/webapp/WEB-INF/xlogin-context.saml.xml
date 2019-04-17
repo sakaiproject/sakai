@@ -334,8 +334,10 @@
     </bean>
 
     <!-- Initialization of OpenSAML library -->
-    <!-- Use SHA256SAMLBootstrap for SHA-256 instead of default SHA-1 -->
     <bean class="org.springframework.security.saml.SAMLBootstrap"/>
+
+    <!-- Use SHA256SAMLBootstrap for SHA-256 instead of default SHA-1 -->
+    <!-- bean class="org.sakaiproject.login.springframework.SHA256SAMLBootstrap"/ -->
 
     <!-- Initialization of the velocity engine -->
     <bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine"/>
