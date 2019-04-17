@@ -224,7 +224,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private boolean otherSitesAvailability;
 	
-	private boolean userDefinedTS=false;	
+	private boolean userDefinedTS=false;
 	
 	private String creatorUserId;
 	
@@ -328,7 +328,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			toolProperty = sakaiProperty;
 		}
 		//tool property would take precedence over sakai property
-		otherSitesAvailability= "false".equalsIgnoreCase(toolProperty)? false : true;		
+		otherSitesAvailability= "false".equalsIgnoreCase(toolProperty)? false : true;
 		return otherSitesAvailability;
 	}
 
@@ -613,15 +613,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		getUserDefineTimeslotBean().init(this.signupMeeting, ADD_MEETING_STEP1_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.NEW_MEETING);
 		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 	}
-	
-	/*Make sure the start/end time input fields have values.*/
-	public boolean getPrePopulateValues(){
-		if (this.signupMeeting.getStartTime() == null && isUserDefinedTS()){
-			this.signupMeeting.setStartTime(getUserDefineTimeslotBean().getEventStartTime());
-			this.signupMeeting.setEndTime(getUserDefineTimeslotBean().getEventEndTime());
-		}
-		return false;
-	}
 
 	/**
 	 * This is a validator to make sure that the event/meeting starting time is
@@ -688,8 +679,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
 				return;
 			}
-			
-			
+
 			//Set Category	
 			//custom
 			if (StringUtils.isNotBlank(customCategory)){
@@ -715,7 +705,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
-			
 
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
@@ -802,7 +791,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			if(!isUserDefinedTS()){
 				if (isIndividualType() && getNumberOfSlots()!=0) {
 					double duration = (double)(getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
-							/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());				
+							/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());
 					if (duration != Math.floor(duration)){
 						setEndTimeAutoAdjusted(true);
 						Utilities.addErrorMessage(Utilities.rb.getString("event_endtime_auto_adjusted_warning"));
@@ -860,15 +849,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		}
 		
 	}
-	
-	/*private boolean isMeetingLengthOver24Hours(SignupMeeting sm){
-		long duration= sm.getEndTime().getTime()- sm.getStartTime().getTime();
-		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
-			return false;
-		
-		return true;
-	}*/
-	
+
 	private boolean isMeetingOverRepeatPeriod(Date startTime, Date endTime, int repeatPeriodInDays){
 		long duration= endTime.getTime()- startTime.getTime();
 		if( 24*repeatPeriodInDays - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
@@ -889,7 +870,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			Utilities.addErrorMessage(Utilities.rb.getString("publish.withAttendee.exception"));
 			//recover this from "assignAttendee" step case too
 			//reset to remove timeslots info with attendees
-			timeSlotWrappers = null; 
+			timeSlotWrappers = null;
 			assignParicitpantsToAllRecurEvents = false;
 			//reset warning for ending time auto-adjustment
 			setEndTimeAutoAdjusted(false);
@@ -939,7 +920,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		signupMeeting.setMeetingType(newMeetingType);
 		if(!INDIVIDUAL.equals(newMeetingType)){
 			setUserDefinedTS(false);
-			//this.timeSlotWrappers = null;//reset
 		}
 
 		return "";
@@ -960,7 +940,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			unlimited = changeValue.booleanValue();
 			if (unlimited)
 				maxOfAttendees = 10;
-
 		}
 
 		return "";
@@ -987,13 +966,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	/* Prepare the data for saving action */
 	private void preSaveAction() {
-		//SignupSite sSite = new SignupSite();
-		//String currentLocationId = sakaiFacade.getCurrentLocationId();
-		//sSite.setSiteId(currentLocationId);
-		//sSite.setTitle(sakaiFacade.getLocationTitle(currentLocationId));
-		//List<SignupSite> signupSites = new ArrayList<SignupSite>();
-		//signupSites.add(sSite);
-		//signupMeeting.setSignupSites(signupSites);
 		List<SignupTimeslot> slots = timeslots();
 		signupMeeting.setSignupTimeSlots(slots);
 
@@ -1002,14 +974,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		Date sDeadline = Utilities.subTractTimeToDate(signupMeeting.getEndTime(), getDeadlineTime(),
 				getDeadlineTimeType());
 
-		// TODO need a better way to warn people?
-		/*
-		 * if (sBegin.before(new Date())) { // a warning for user
-		 * Utilities.addErrorMessage(Utilities.rb.getString("warning.your.event.singup.begin.time.passed.today.time")); }
-		 */
 		signupMeeting.setSignupBegins(sBegin);
-		// TODO need validate and handle error for case: deadline is before
-		// sBegin
 		signupMeeting.setSignupDeadline(sDeadline);
         //maybe duplicated, it is already set up after 'step1'
 		signupMeeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
@@ -1167,6 +1132,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		String meetingType = signupMeeting.getMeetingType();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(signupMeeting.getStartTime());
+		String isoStartTime = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get(HIDDEN_ISO_STARTTIME);
+		if(DateFormatterUtil.isValidISODate(isoStartTime)){
+			calendar.setTime(DateFormatterUtil.parseISODate(isoStartTime));
+		}
 
 		List<TimeslotWrapper> timeSlotWrappers = new ArrayList<TimeslotWrapper>();
 		if (meetingType.equals(INDIVIDUAL)) {
@@ -1693,7 +1662,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				 */
 				/*First check to avoid load all site member up if there is ten of thousends*/
 				if(allMemeberSize > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE){
-					setEidInputMode(true);		
+					setEidInputMode(true);
 					return;
 				}
 			}
@@ -1910,7 +1879,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
 				getRepeatUntil());
 		}
-		signupMeeting.setRepeatNum(repeatNum);		
+		signupMeeting.setRepeatNum(repeatNum);
 		signupMeeting.setRepeatType(getRepeatType());
 		
 		if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
@@ -2280,6 +2249,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setIframeId(String iframeId) {
 		this.iframeId = iframeId;
-	}	
-	
+	}
+
 }
