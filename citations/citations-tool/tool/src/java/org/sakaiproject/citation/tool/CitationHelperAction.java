@@ -976,7 +976,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				this.captureAccess(params, state, edit, results);
 				this.captureAvailability(params, edit, results);
 				getContentService().commitResource(edit, priority);
-				message = "Resource updated";
+				message = rb.getString("resource.updated");
 				state.setAttribute(STATE_CITATION_COLLECTION, null);
 			} catch (IdUnusedException e) {
 				message = e.getMessage();
