@@ -351,7 +351,8 @@
                             <h:outputLabel value="#{msgs.event_other_sites}" style='font-weight:bold;cursor:pointer;' onmouseover='style.color=\"blue\"' onmouseout='style.color=\"black\"' onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');"/>
                         </h:panelGroup>   
                         <h:panelGroup>
-                            <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>   
+                            <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>
+                            <h:outputText value="#{msgs.event_other_sites_empty}" styleClass="alertMessage" escape="false" rendered="#{empty NewSignupMeetingBean.otherSites}" />
                             <h:dataTable id="userSites" value="#{NewSignupMeetingBean.otherSites}" var="site" styleClass="meetingTypeTable" style="left:1px;">
                                 <h:column>
                                     <h:panelGroup>
