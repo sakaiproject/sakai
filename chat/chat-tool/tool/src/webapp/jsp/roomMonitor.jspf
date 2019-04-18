@@ -31,7 +31,7 @@
     <c:forEach items="${ChatTool.roomMessages}" var="message">
         <c:set var="timestampDiff" value="${message.timeInMillis - lastMessageMillis}" />
         <c:choose>
-            <c:when test="${lastMessageOwnerId eq message.chatMessage.owner && timestampDiff < (10*60*1000)}">
+            <c:when test="${lastMessageOwnerId eq message.chatMessage.owner && timestampDiff < (5*60*1000)}">
                 <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' class='nestedMessage'>" escapeXml="false" />
             </c:when>
             <c:otherwise>
