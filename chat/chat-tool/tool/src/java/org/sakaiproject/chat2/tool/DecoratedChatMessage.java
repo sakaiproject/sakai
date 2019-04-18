@@ -72,7 +72,12 @@ public class DecoratedChatMessage {
    {
       return ldt.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.LONG).withLocale(rl.getLocale()));
    }
-   
+
+   public String getTimeInMillis()
+   {
+      return ldt.toInstant().toEpochMilli() + "";
+   }
+
    public String getId()
    {
       return ldt.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS", rl.getLocale()));
