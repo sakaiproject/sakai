@@ -2,6 +2,7 @@
 <c:set var="deleteUrl" value="${ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />
 <c:set var="serial" value="0" />
 <c:set var="lastMessageOwnerId" value="0" />
+<c:set var="lastMessageMillis" value="0" />
 <ul id="topForm:chatList" class="chatList">
     <li id="chatListItem" class="hide">
         <c:out value="
@@ -28,8 +29,9 @@
             </span>${msgs['new_messages']}" escapeXml="false" />
     </li>
     <c:forEach items="${ChatTool.roomMessages}" var="message">
+        <c:set var="timestampDiff" value="${message.timeInMillis - lastMessageMillis}" />
         <c:choose>
-            <c:when test="${lastMessageOwnerId eq message.chatMessage.owner}">
+            <c:when test="${lastMessageOwnerId eq message.chatMessage.owner && timestampDiff < (10*60*1000)}">
                 <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' class='nestedMessage'>" escapeXml="false" />
             </c:when>
             <c:otherwise>
@@ -74,6 +76,7 @@
         <c:out value="</li>" escapeXml="false" />
         <c:set var="serial" value="${serial + 1}" />
         <c:set var="lastMessageOwnerId" value="${message.chatMessage.owner}" />
+        <c:set var="lastMessageMillis" value="${message.timeInMillis}" />
     </c:forEach>
 </ul>
 
