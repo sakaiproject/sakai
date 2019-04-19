@@ -28,12 +28,11 @@
 			}
 		%>
      
-   <f:view>   
+	<f:view>   
 		<h:panelGroup rendered="#{authorization.adminPrivilege}">
 			<%@ include file="../author/authorIndex_content.jsp"%>
 		</h:panelGroup>
-		
 		<h:panelGroup rendered="#{!authorization.adminPrivilege}">
 			<%@ include file="../select/selectIndex_content.jsp"%>
 		</h:panelGroup>
-  </f:view>
+	</f:view>
