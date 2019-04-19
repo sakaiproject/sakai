@@ -27,8 +27,8 @@ import java.util.Observer;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -55,11 +55,11 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -73,27 +73,27 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private EventTrackingService eventTrackingService;
     @Inject
     private MemoryService memoryService;
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    private PlatformTransactionManager transactionManager;
     @Inject
     private UserDirectoryService userDirectoryService;
     @Inject
     private SecurityService securityService;
     @Inject
     private ServerConfigurationService serverConfigurationService;
-    @Inject @Named("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
+    @Resource(name = "org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
     private SimplePageToolDao simplePageToolDao;
     @Inject
     private SiteService siteService;
-    @Inject @Named("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
-    @Setter
-    private TransactionTemplate transactionTemplate;
 
     private Cache<String, Map> countCache = null;
 
     @Autowired
     private List<BullhornHandler> handlers;
 
-    private Map<String, BullhornHandler> handlerMap;
+    private Map<String, BullhornHandler> handlerMap = new HashMap<>();
 
     public void init() {
 
@@ -101,8 +101,12 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             HANDLED_EVENTS.add(SiteService.EVENT_SITE_PUBLISH);
 
-            HANDLED_EVENTS.addAll(handlers.stream().map(h -> h.getHandledEvent()).collect(Collectors.toList()));
-            handlerMap = handlers.stream().collect(Collectors.toMap(BullhornHandler::getHandledEvent, Function.identity()));
+            handlers.forEach(h -> {
+                h.getHandledEvents().forEach(he -> {
+                    HANDLED_EVENTS.add(he);
+                    handlerMap.put(he, h);
+                });
+            });
 
             eventTrackingService.addLocalObserver(this);
         }
@@ -129,7 +133,6 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                     if (handler != null ) {
                         Optional<List<BullhornData>> result = handler.handleEvent(e, countCache);
                         if (result.isPresent()) {
-                            result.get().forEach(bd -> System.out.println(bd.getTo() + " : " + bd.getTitle()));
                             result.get().forEach(bd -> {
 
                                 if (bd.isSocial()) {
@@ -186,6 +189,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 
+                        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
                         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
                             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -213,6 +218,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private void doAcademicInsert(String from, String to, String event, String ref
                                             , String title, String siteId, Date eventDate, String url) {
 
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -239,6 +246,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     }
 
     private void doSocialInsert(String from, String to, String event, String ref, Date eventDate, String url) {
+
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 

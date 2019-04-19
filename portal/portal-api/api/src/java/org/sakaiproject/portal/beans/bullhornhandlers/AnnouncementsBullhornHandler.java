@@ -16,10 +16,12 @@
 package org.sakaiproject.portal.beans.bullhornhandlers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -31,10 +33,18 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.portal.api.BullhornData;
+import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,12 +61,18 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
     @Inject
     private ServerConfigurationService serverConfigurationService;
 
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    private SessionFactory sessionFactory;
+
     @Inject
     private SiteService siteService;
 
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    private PlatformTransactionManager transactionManager;
+
     @Override
-    public String getHandledEvent() {
-        return AnnouncementService.SECURE_ANNC_ADD;
+    public List<String> getHandledEvents() {
+        return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD, AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY);
     }
 
     @Override
@@ -69,13 +85,41 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
         String siteId = pathParts[3];
 
-        SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ});
+        SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
         try {
             AnnouncementMessage message
                 = (AnnouncementMessage) announcementService.getMessage(
                                                 entityManager.newReference(ref));
 
-            if (announcementService.isMessageViewable(message)) {
+            // If the announcement has just been hidden, remove any existing alerts for it
+            if (e.getEvent().equals(AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY) && message.getHeader().getDraft()) {
+                try {
+                    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
+                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+                        protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                            // Grab the alerts we'll be deleting. We'll need to clear the count caches
+                            // for the recipients
+                            final List<BullhornAlert> alerts
+                                = sessionFactory.getCurrentSession().createCriteria(BullhornAlert.class)
+                                    .add(Restrictions.eq("event", AnnouncementService.SECURE_ANNC_ADD))
+                                    .add(Restrictions.eq("ref", ref)).list();
+
+                            alerts.forEach(a -> countCache.remove(a.getToUser()));
+
+                            sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and ref = :ref")
+                                .setString("event", AnnouncementService.SECURE_ANNC_ADD)
+                                .setString("ref", ref).executeUpdate();
+                        }
+                    });
+                } catch (Exception e1) {
+                    log.error("Failed to delete bullhorn add announcement event", e1);
+                }
+            }
+
+            if (!message.getHeader().getDraft() && announcementService.isMessageViewable(message)) {
                 Site site = siteService.getSite(siteId);
                 String toolId = site.getToolForCommonId("sakai.announcements").getId();
                 String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
