@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.portal.beans.bullhornhandlers;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +47,8 @@ public class FriendRequestBullhornHandler extends AbstractBullhornHandler {
     private SiteService siteService;
 
     @Override
-    public String getHandledEvent() {
-        return ProfileConstants.EVENT_FRIEND_REQUEST;
+    public List<String> getHandledEvents() {
+        return Arrays.asList(ProfileConstants.EVENT_FRIEND_REQUEST);
     }
 
     public boolean isAcademic() {

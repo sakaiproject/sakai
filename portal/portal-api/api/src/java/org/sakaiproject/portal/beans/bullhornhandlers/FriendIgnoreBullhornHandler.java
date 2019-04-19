@@ -15,23 +15,25 @@
  */
 package org.sakaiproject.portal.beans.bullhornhandlers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import javax.annotation.Resource;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.portal.api.BullhornData;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,12 +41,15 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
 
-    @Inject @Named("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     private SessionFactory sessionFactory;
 
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager")
+    private PlatformTransactionManager transactionManager;
+
     @Override
-    public String getHandledEvent() {
-        return ProfileConstants.EVENT_FRIEND_IGNORE;
+    public List<String> getHandledEvents() {
+        return Arrays.asList(ProfileConstants.EVENT_FRIEND_IGNORE);
     }
 
     @Override
@@ -56,18 +61,20 @@ public class FriendIgnoreBullhornHandler extends AbstractBullhornHandler {
         String[] pathParts = ref.split("/");
 
         String to = pathParts[2];
-        Session session = sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
         try {
-            session.createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
-                .setString("event", ProfileConstants.EVENT_FRIEND_REQUEST)
-                .setString("fromUser", to).executeUpdate();
-            tx.commit();
+            TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                    sessionFactory.getCurrentSession().createQuery("delete BullhornAlert where event = :event and fromUser = :fromUser")
+                        .setString("event", ProfileConstants.EVENT_FRIEND_REQUEST)
+                        .setString("fromUser", to).executeUpdate();
+                }
+            });
         } catch (Exception e1) {
             log.error("Failed to delete bullhorn request event", e1);
-            tx.rollback();
-        } finally {
-            session.close();
         }
         countCache.remove(from);
         return Optional.empty();
