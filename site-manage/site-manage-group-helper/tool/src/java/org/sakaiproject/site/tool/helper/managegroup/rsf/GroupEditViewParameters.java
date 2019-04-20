@@ -16,7 +16,6 @@
 package org.sakaiproject.site.tool.helper.managegroup.rsf;
 
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 /**
  * 

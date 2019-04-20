@@ -35,7 +35,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -53,6 +53,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Web;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.util.UniversalRuntimeException;
 
@@ -64,6 +65,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
 @Slf4j
 public class SitePageEditHandler {
     public Site site;
+    @Setter private EventTrackingService eventTrackingService;
     public SiteService siteService;
     public ToolManager toolManager;
     public SessionManager sessionManager;
@@ -289,8 +291,8 @@ public class SitePageEditHandler {
                 page.setTitle(tool.getTitle());
                 ToolConfiguration placement = page.addTool(tool.getId());
                 siteService.save(site);
-                EventTrackingService.post(
-                    EventTrackingService.newEvent(PAGE_ADD, "/site/" + site.getId() +
+                eventTrackingService.post(
+                    eventTrackingService.newEvent(PAGE_ADD, "/site/" + site.getId() +
                         "/page/" + page.getId() +
                         "/tool/" + selectedTools[i] +
                         "/placement/" + placement.getId(), false));
@@ -319,8 +321,8 @@ public class SitePageEditHandler {
             site.setCustomPageOrdered(true);
             try {
                 siteService.save(site);
-                EventTrackingService.post(
-                    EventTrackingService.newEvent(SITE_REORDER, "/site/" + site.getId(), false));
+                eventTrackingService.post(
+                    eventTrackingService.newEvent(SITE_REORDER, "/site/" + site.getId(), false));
 
             } 
             catch (IdUnusedException e) {
@@ -365,8 +367,8 @@ public class SitePageEditHandler {
         site.setCustomPageOrdered(false);
         try {
             siteService.save(site);
-            EventTrackingService.post(
-                EventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
+            eventTrackingService.post(
+                eventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
 
         } 
         catch (IdUnusedException e) {
@@ -537,8 +539,8 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean disablePage(String pageId) throws SakaiException {
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_DISABLE, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_DISABLE, "/site/" + site.getId() +
                                          "/page/" + pageId, false));
         return  pageVisibilityHelper(pageId, false, false);
     }
@@ -551,8 +553,8 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean enablePage(String pageId) throws SakaiException {
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_ENABLE, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_ENABLE, "/site/" + site.getId() +
                                          "/page/" + pageId, false));
       
         return pageVisibilityHelper(pageId, true, true);
@@ -567,8 +569,8 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean hidePage(String pageId) throws SakaiException {
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_HIDE, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_HIDE, "/site/" + site.getId() +
                                          "/page/" + pageId, false));
         return  pageVisibilityHelper(pageId, false, true);
     }
@@ -582,8 +584,8 @@ public class SitePageEditHandler {
      * @throws IdUnusedException, PermissionException
      */
     public boolean showPage(String pageId) throws SakaiException {
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_SHOW, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_SHOW, "/site/" + site.getId() +
                                          "/page/" + pageId, false));
       
         return pageVisibilityHelper(pageId, true, true);
@@ -693,8 +695,8 @@ public class SitePageEditHandler {
             page.setTitle(title);
             ToolConfiguration placement = page.addTool(toolId);        
             siteService.save(site);
-            EventTrackingService.post(
-                EventTrackingService.newEvent(PAGE_ADD, "/site/" + site.getId() +
+            eventTrackingService.post(
+                eventTrackingService.newEvent(PAGE_ADD, "/site/" + site.getId() +
                     "/page/" + page.getId() +
                     "/tool/" + toolId +
                     "/placement/" + placement.getId(), false));
@@ -720,8 +722,8 @@ public class SitePageEditHandler {
         site.removePage(page);
         saveSite(site);
 
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_DELETE, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_DELETE, "/site/" + site.getId() +
                                           "/page/" + page.getId(), false));
         
         return page.getTitle();
@@ -752,8 +754,8 @@ public class SitePageEditHandler {
 
         saveSite(site);
         
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_RENAME, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_RENAME, "/site/" + site.getId() +
                                         "/page/" + page.getId() +
                                         "/old_title/" + oldTitle +
                                         "/new_title/" + page.getTitle(), false));
@@ -785,8 +787,8 @@ public class SitePageEditHandler {
 
         saveSite(site);
         
-        EventTrackingService.post(
-            EventTrackingService.newEvent(PAGE_RENAME, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(PAGE_RENAME, "/site/" + site.getId() +
                                         "/page/" + page.getId() +
                                         "/old_title/" + oldTitle +
                                         "/new_title/" + page.getTitle(), false));

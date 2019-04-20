@@ -31,43 +31,35 @@ import java.util.StringJoiner;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.opencsv.CSVReader;
-import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.messageutil.TargettedMessage;
-import uk.org.ponder.messageutil.TargettedMessageList;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.util.GroupHelper;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteGroupHelper;
 import org.sakaiproject.site.util.SiteParticipantHelper;
-import org.sakaiproject.site.util.GroupHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -76,6 +68,15 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.RequestFilter;
+
+import com.opencsv.CSVReader;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessageList;
 
 /**
  * 
@@ -91,7 +92,8 @@ public class SiteManageGroupSectionRoleHandler {
     private final GroupComparator groupComparator = new GroupComparator();
 
     public MessageLocator messageLocator;
-	
+
+    @Setter private EventTrackingService eventTrackingService;
     public Site site = null;
     public SiteService siteService = null;
     public AuthzGroupService authzGroupService = null;
@@ -615,8 +617,8 @@ public class SiteManageGroupSectionRoleHandler {
     public String reset() {
         try {
             siteService.save(site);
-            EventTrackingService.post(
-                EventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
+            eventTrackingService.post(
+                eventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
 
         } 
         catch (IdUnusedException | PermissionException e) {
@@ -843,14 +845,14 @@ public class SiteManageGroupSectionRoleHandler {
 					for(String addedMemberString : addedGroupMember)
 					{
 						// an event for each individual member add
-						EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedMemberString, true/*update event*/));
+						eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedMemberString, true/*update event*/));
 					}
 					
 					// removed members
 					for(String removedMemberString : removedGroupMember)
 					{
 						// an event for each individual member remove
-						EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, removedMemberString, true/*update event*/));
+						eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, removedMemberString, true/*update event*/));
 				
 					}
 				}
@@ -1356,8 +1358,8 @@ public class SiteManageGroupSectionRoleHandler {
         site.removeGroup(group);
         saveSite(site);
 
-        EventTrackingService.post(
-            EventTrackingService.newEvent(GROUP_DELETE, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(GROUP_DELETE, "/site/" + site.getId() +
                                           "/group/" + group.getId(), false));
         
         return group.getTitle();
