@@ -158,18 +158,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	}
 
 	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
+	protected SecurityService m_securityService = ComponentManager.get(SecurityService.class);
 
-	/**
-	 * Dependency: SecurityService.
-	 * 
-	 * @param service
-	 *        The SecurityService.
-	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
 
 	/** Dependency: TimeService. */
 	protected TimeService m_timeService = null;
