@@ -94,9 +94,6 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	/** Dependency: AliasService */
 	@Setter protected AliasService aliasService;
 
-	@Setter private TimeService timeService;
-	@Setter private SiteService siteService;
-	@Setter private SecurityService securityService;
 	@Setter private FunctionManager functionManager;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -541,7 +538,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	protected void enableMailbox(String siteId)
 	{
 		// form the email channel name
-		String channelRef = channelReference(siteId, siteService.MAIN_CONTAINER);
+		String channelRef = channelReference(siteId, m_siteService.MAIN_CONTAINER);
 
 		// see if there's a channel
 		MessageChannel channel = null;
@@ -611,7 +608,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	protected void disableMailbox(String siteId)
 	{
 		// form the email channel name
-		String channelRef = channelReference(siteId, siteService.MAIN_CONTAINER);
+		String channelRef = channelReference(siteId, m_siteService.MAIN_CONTAINER);
 
 		// see if there's a channel
 		MessageChannel channel = null;
@@ -928,7 +925,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public boolean allowAddMessage(User user)
 		{
-			return (!securityService.unlock(user, eventId(SECURE_ADD), getReference()));
+			return (!m_securityService.unlock(user, eventId(SECURE_ADD), getReference()));
 		}
 
 		/*
@@ -1238,7 +1235,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 			// now extract the subject, from address, date sent
 			m_subject = el.getAttribute("subject");
 			m_fromAddress = el.getAttribute("mail-from");
-			m_dateSent = timeService.newTimeGmt(el.getAttribute("mail-date"));
+			m_dateSent = m_timeService.newTimeGmt(el.getAttribute("mail-date"));
 
 			// mail headers
 			NodeList children = el.getChildNodes();
@@ -1353,13 +1350,13 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		@Override
 		public void setDateSent(Time sent)
 		{
-			m_dateSent = timeService.newTime(sent.getTime());
+			m_dateSent = m_timeService.newTime(sent.getTime());
 
 		} // setDateSent
 
 		@Override
 		public void setInstantSent(Instant sent) {
-			m_dateSent = timeService.newTime(sent.toEpochMilli());
+			m_dateSent = m_timeService.newTime(sent.toEpochMilli());
 		}
 
 

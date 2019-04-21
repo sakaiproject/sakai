@@ -67,10 +67,14 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.*;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
  * BaseMessage is...
  */
 @Slf4j
+@Accessors(prefix = "m_" )
 public abstract class BaseMessage implements MessageService, DoubleStorageUser
 {
 	/** A Storage object for persistent storage. */
@@ -87,7 +91,45 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	/** added to allow for scheduled notifications */
 	private static final String SCHED_INV_UUID = "schInvUuid";
 	//private static final String SCHINV_DELETE_EVENT = "schInv.delete";
-	
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Constructors, Dependencies and their setter methods
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/** Dependency: MemoryService. */
+	@Setter protected MemoryService m_memoryService;
+
+	/** Dependency: ServerConfigurationService. */
+	@Setter protected ServerConfigurationService m_serverConfigurationService;
+
+	/** Dependency: SessionManager. */
+	@Setter protected SessionManager m_sessionManager;
+
+	/** Dependency: AuthzGroupService. */
+	@Setter protected AuthzGroupService m_authzGroupService;
+
+	/** Dependency: SecurityService. */
+	@Setter protected SecurityService m_securityService;
+
+	/** Dependency: TimeService. */
+	@Setter protected TimeService m_timeService;
+
+	/** Dependency: EventTrackingService. */
+	@Setter protected EventTrackingService m_eventTrackingService;
+
+	/** Dependency: IdManager. */
+	@Setter protected IdManager m_idManager;
+
+	/** Dependency: SiteService. */
+	@Setter protected SiteService m_siteService;
+
+	/** Dependency: UserDirectoryService. */
+	@Setter protected UserDirectoryService m_userDirectoryService;
+
+	/** Dependency: ThreadLocalManager. */
+	@Setter protected ThreadLocalManager m_threadLocalManager;
+
+	/** Dependency: EntityManager. */
+	@Setter protected EntityManager m_entityManager;
 
 	/**
 	 * Access this service from the inner classes.
@@ -95,164 +137,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	protected BaseMessage service()
 	{
 		return this;
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
-
-	/**
-	 * Dependency: MemoryService.
-	 *
-	 * @param service
-	 *        The MemoryService.
-	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
-
-	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
-	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: SessionManager. */
-	protected SessionManager m_sessionManager = null;
-
-	/**
-	 * Dependency: SessionManager.
-	 * 
-	 * @param service
-	 *        The SessionManager.
-	 */
-	public void setSessionManager(SessionManager service)
-	{
-		m_sessionManager = service;
-	}
-
-	/** Dependency: AuthzGroupService. */
-	protected AuthzGroupService m_authzGroupService = null;
-
-	/**
-	 * Dependency: AuthzGroupService.
-	 * 
-	 * @param service
-	 *        The AuthzGroupService.
-	 */
-	public void setAuthzGroupService(AuthzGroupService service)
-	{
-		m_authzGroupService = service;
-	}
-
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
-
-	/**
-	 * Dependency: SecurityService.
-	 * 
-	 * @param service
-	 *        The SecurityService.
-	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: TimeService. */
-	protected TimeService m_timeService = null;
-
-	/**
-	 * Dependency: TimeService.
-	 * 
-	 * @param service
-	 *        The TimeService.
-	 */
-	public void setTimeService(TimeService service)
-	{
-		m_timeService = service;
-	}
-
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
-
-	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *        The EventTrackingService.
-	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
-
-	/** Dependency: IdManager. */
-	protected IdManager m_idManager = null;
-
-	/**
-	 * Dependency: IdManager.
-	 * 
-	 * @param service
-	 *        The IdManager.
-	 */
-	public void setIdManager(IdManager service)
-	{
-		m_idManager = service;
-	}
-
-	/** Dependency: SiteService. */
-	protected SiteService m_siteService = null;
-
-	/**
-	 * Dependency: SiteService.
-	 * 
-	 * @param service
-	 *        The SiteService.
-	 */
-	public void setSiteService(SiteService service)
-	{
-		m_siteService = service;
-	}
-
-	/** Dependency: UserDirectoryService. */
-	protected UserDirectoryService m_userDirectoryService = null;
-
-	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *        The UserDirectoryService.
-	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
-
-	/** Dependency: ThreadLocalManager. */
-	protected ThreadLocalManager m_threadLocalManager = null;
-
-	/**
-	 * Dependency: ThreadLocalManager.
-	 * 
-	 * @param service
-	 *        The ThreadLocalManager.
-	 */
-	public void setThreadLocalManager(ThreadLocalManager service)
-	{
-		m_threadLocalManager = service;
 	}
 
 	/**
@@ -263,20 +147,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
      * @deprecated 7 April 2014 - this should be removed in sakai 11
 	 */
 	public void setCaching(String value) {} // intentionally blank - remove this later
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
-
-	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
-	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
