@@ -119,9 +119,7 @@
 		<h:panelGroup rendered="#{!message.deleted}"  >
 				<%--//designNote: panel holds other actions, display toggled above (do some testing - do they show up when they should not? Do I get a 
 						"moderate" link when it is not a moderated context, or when the message is mine?) --%>
-				<h:outputText escape="false" value="<span id=\"#{message.message.id}_advanced_box\" class=\"otherActions\" style=\"margin:2px 0;\">" />
-
-
+				<h:outputText escape="false" value="<span id=\"#{message.message.id}_advanced_box\" class=\"otherActions\">" />
 					<%-- Email --%>
                     <h:panelGroup>
                         <%-- Always show separator, or else we see "Reply Grade" --%>

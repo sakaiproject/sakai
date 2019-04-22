@@ -33,7 +33,7 @@
 				</h2>	
 		
 		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
-		<div class="table-responsive">
+		<div>
 		<h:dataTable id="expandedMessages" value="#{ForumTool.PFSelectedThread}" var="message" rendered="#{!ForumTool.threaded}"
 				styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
@@ -53,7 +53,7 @@
 		</div>
 		
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
-		<div class="table-responsive">
+		<div>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.PFSelectedThread}" var="message" rendered="#{ForumTool.threaded}"
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
