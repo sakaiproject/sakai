@@ -1361,9 +1361,18 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 */
 	public int getTimeSlotDuration() {
 		if (this.timeSlotDuration == 0) {// first time
-			long duration = (getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
-					/ (MINUTE_IN_MILLISEC * getNumberOfSlots());
-			
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+			Date startTime = getSignupMeeting().getStartTime();
+			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				startTime = DateFormatterUtil.parseISODate(isoStartTime);
+			}
+			Date endTime = getSignupMeeting().getEndTime();
+			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				endTime = DateFormatterUtil.parseISODate(isoEndTime);
+			}
+			long duration = (endTime.getTime() - startTime.getTime()) / (MINUTE_IN_MILLISEC * getNumberOfSlots());			
 			setTimeSlotDuration((int) duration);
 		}
 		return this.timeSlotDuration;
