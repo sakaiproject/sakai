@@ -221,11 +221,13 @@ var chatscript = {
 
 		for (var i=0; i<messages.length; i++) {
 			var lastMessageOwnerId = $("#topForm\\:chatList li[class!='divisorNewMessages']").last().attr("data-owner-id");
+			var lastMessageMillis  = $("#topForm\\:chatList li[class!='divisorNewMessages']").last().attr("data-millis");
 			var messageId = messages[i].id;
 			var ownerId = messages[i].owner;
 			var ownerDisplayName = messages[i].ownerDisplayName;
 
 			var messageDate = messages[i].messageDate;
+			var messageMillisDiff = messages[i].messageDate - (lastMessageMillis ? lastMessageMillis : 0);
 			var localizedDate = messages[i].messageDateString.localizedDate;
 			var localizedTime = messages[i].messageDateString.localizedTime;
 			var dateID = messages[i].messageDateString.dateID;
@@ -240,6 +242,7 @@ var chatscript = {
 				messageItem.removeAttr("id");
 				messageItem.attr("data-message-id", messageId);
 				messageItem.attr("data-owner-id", ownerId);
+				messageItem.attr("data-millis", messageDate);
 				messageItem.find(".chatUserAvatar").css("background-image", "url(/direct/profile/" + ownerId + "/image)");
 				messageItem.find(".chatMessage").attr("data-message-id", messageId);
 				messageItem.find(".chatName").attr("id", ownerId);
@@ -249,7 +252,7 @@ var chatscript = {
 				if (removeable) {
 					messageItem.find(".chatRemove").removeClass("hide");
 				}
-				if (lastMessageOwnerId == ownerId) {
+				if (lastMessageOwnerId == ownerId && messageMillisDiff < (5*60*1000)) {
 					messageItem.addClass("nestedMessage");
 					messageItem.find(".chatMessageDate").text(dateStr);
 				}
