@@ -129,7 +129,7 @@
 		</div>
 		
 		<h:outputText  value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.messages}"   styleClass="instruction" style="display:block" />
-		<div class="table-responsive clear">
+		<div class="clear">
 			<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
 	   	 		noarrows="true" styleClass="table-hover messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 				<h:column id="_msg_subject">

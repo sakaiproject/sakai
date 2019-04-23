@@ -168,18 +168,17 @@
 	background-image: url('../images/silk/email_open.png');
 }
 .messagesFlat,.messagesThreaded{
-	width: 98% !important;
-	margin: 1em 0 !important;
-/*	border-spacing: .5em;*/
+	margin: 10px 0;
+	table-layout: fixed;
+	width: 100%;
 }
 .messagesFlat  tbody tr div,.messagesThreaded tbody tr div{
 	border: none
 }
 .messagesFlat tbody tr td div.hierItemBlock,.messagesThreaded tbody tr td div.hierItemBlock{
-	padding: 0 0 0 .5em !important;
+	padding: 0 10px;
 	border-left: 2px solid #cd5 !important;
-	width: 95%;
-	margin: .5em !important;
+	margin: 10px;
 }
 .messagesThreaded tbody tr td{
 	padding-top: 0;
@@ -187,8 +186,10 @@
 }
 .messagesThreaded tbody tr td div.hierItemBlock .textPanel{
 	clear: both;
-    -ms-word-break: break-word;
-     word-break: break-word;
+	overflow-x: auto;
+}
+.messagesFlat div.textPanel {
+	overflow-x: auto;
 }
 .titleBarBorder{
 	/*create an underline under message title + metadata in view body thread view*/
@@ -196,7 +197,7 @@
 	margin: 2px 0 0 0;
 }
 .messagesThreaded tbody tr.hierItemBlock td.bogus:first-child{
-	padding: 0 !important;
+	/*first message in thread in visible body view*/
 	border-left: 2px solid #69d;
 	width: 100%;
 }
@@ -207,42 +208,8 @@
 .messagesFlat tbody .title,.messagesThreaded tbody .title{
 	font-weight: bold;
 	font-size: 1.1em;
-}
-.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child .title{
-	font-weight: bold;
-	font-size: 1.2em;
-}
-.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child{
-	/*first message in thread in visible body view*/
-	padding: 0;
-	border-left: 2px solid #69d;
-	width: 100%;
-}
-.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child > div{
-	margin: 0;
-}
-.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child .title{
-	/*message title of first message in thread + body view*/
-	font-weight: bold;
-	font-size: 1.2em;
-}
-.itemToolBar{
-	/*	parent of all links associated with an item in thread + body view*/
-	padding-left: .5em;
-	font-size: .9em;
-}
+}	
 
-.otherActions{
-	/*parent of all links in the "other actions" link list*/
-	padding: 0 !important;
-	color:#ccc;
-	text-align: left;
-	white-space: nowrap;
-	font-size: .95em;
-}
-.otherActions a{
-	
-	}
 .allMessages .messageTitle .firstChild{
 	/*first post in a thread in topic listing (no body)*/
 }
@@ -268,6 +235,10 @@
 	background:#fff;
 	margin-top: 1em;
 	padding:.3em  .5em;
+}
+.singleMessage .textPanel {
+	/* so non-breaking wide message content doesn't stretch the page */
+	overflow-x: auto;
 }
 .singleMessageReply{
 	/*title + metadata block of a single message display*/

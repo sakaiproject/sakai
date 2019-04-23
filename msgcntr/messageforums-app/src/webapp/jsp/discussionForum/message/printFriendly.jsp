@@ -31,7 +31,7 @@
 		
 	
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
-		<div class="table-responsive">
+		<div>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.pFMessages}" var="message" 
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">

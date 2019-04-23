@@ -6,7 +6,7 @@
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 <f:view>
-  <sakai:view>
+  <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 				<!-- discussionForum/statistics/dfStatisticsDisplayInThread.jsp -->
   	    <script type="text/javascript">includeLatestJQuery("msgcntr");</script>
@@ -66,9 +66,9 @@
 		<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 		<f:verbatim></h3></div></f:verbatim>
           	  
-  		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
+  		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="table table-hover table-striped table-bordered messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column id="_msg_subject" >
-   			<h:panelGroup rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}" style="display:block;padding:0 5px;">
+   			<h:panelGroup layout="block" rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}" styleClass="hierItemBlock">
 				<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
 					<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
 						<h:outputText value="#{msgDecorateBean.message.title} - " />
@@ -102,7 +102,7 @@
 			<%-- the message the user wanted to see in the thread context --%>
 			<h:panelGroup rendered="#{ForumTool.selectedMsgId==msgDecorateBean.message.id}">
 				<f:verbatim><a name="boldMsg"></a></f:verbatim>
-				<f:verbatim><div style="border:1px solid #fc6;background:#ffe;padding:0 5px"></f:verbatim>
+				<f:verbatim><div class="hierItemBlock" style="border:1px solid #fc6;background:#ffe;padding:0 5px"></f:verbatim>
 					<f:verbatim>
 	  					<span id="messageBody" class="messageBody" style="display: none" class="messageBody">
 	  				</f:verbatim>

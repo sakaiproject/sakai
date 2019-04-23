@@ -58,7 +58,7 @@
 	  </div>
 	  
 	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
-	  <div class="table-responsive">
+	  <div>
 		<h:dataTable id="pendingMsgs" value="#{ForumTool.pendingMessages}" width="100%" var="message" 
 				columnClasses="bogus,nopadd" styleClass="table table-hover table-striped table-bordered specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">
 			<h:column>
