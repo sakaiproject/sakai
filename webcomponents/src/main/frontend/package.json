@@ -1,8 +1,12 @@
 {
   "name": "webcomponents",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sakai Element",
   "main": "sakai-element.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sakaiproject/sakai.git"
+  },
   "scripts": {
     "postinstall": "empathy install",
     "webpack": "webpack",
