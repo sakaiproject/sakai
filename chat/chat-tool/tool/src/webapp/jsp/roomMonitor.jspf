@@ -32,10 +32,10 @@
         <c:set var="timestampDiff" value="${message.timeInMillis - lastMessageMillis}" />
         <c:choose>
             <c:when test="${lastMessageOwnerId eq message.chatMessage.owner && timestampDiff < (5*60*1000)}">
-                <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' class='nestedMessage'>" escapeXml="false" />
+                <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' data-millis='${message.timeInMillis}' class='nestedMessage'>" escapeXml="false" />
             </c:when>
             <c:otherwise>
-                <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}'>" escapeXml="false" />
+                <c:out value="<li data-message-id='${message.chatMessage.id}' data-owner-id='${message.chatMessage.owner}' data-millis='${message.timeInMillis}'>" escapeXml="false" />
             </c:otherwise>
         </c:choose>        
             <c:out value="<span class='chatUserAvatar' style=\"background-image: url(/direct/profile/${message.chatMessage.owner}/image)\">" escapeXml="false"/>
