@@ -248,35 +248,35 @@
 		}
 	}
 
-    button {
-        width: 100%;
-		height: 28px;
-        border-radius: 0px;
-        margin: 0px;
-		border: 1px solid #E5E5E5 !important;
-		background-color: #FAFAFA;
-		font-size: 12px !important;
-		font-weight: regular;
-		color: #626262;
-    }
-
-    .connection-manager-incoming-block {
-        button {
-            width: 50%;
-        }
-		.connection-manager-accept-button {
-			background-color: #1E80B5;
-			font-size: 13px;
-			color: #FFFFFF !important;
-			border: 1px solid #326B97;
+		button {
+			width: 100%;
+			height: 28px;
+			border-radius: 0px;
+			margin: 0px;
+			border: 1px solid #E5E5E5 !important;
+			background-color: #FAFAFA;
+			font-size: 12px !important;
+			font-weight: normal;
+			color: #626262;
 		}
-		.connection-manager-ignore-button, .connection-manager-cancel-button {
-		    color: #626262 !important;
-        }
-    }
-    .connection-manager-cancel-button, .connection-manager-remove-button {
-        color: #626262 !important;
-    }
+
+		.connection-manager-incoming-block {
+			button {
+				width: 50%;
+			}
+			.connection-manager-accept-button {
+				background: #1E80B5;
+				font-size: 13px;
+				color: #FFFFFF !important;
+				border: 1px solid #326B97;
+			}
+			.connection-manager-ignore-button, .connection-manager-cancel-button {
+				color: #626262 !important;
+			}
+		}
+		.connection-manager-cancel-button, .connection-manager-remove-button {
+			color: #626262 !important;
+		}
 }
 
 .connection-manager-searchbox {
