@@ -59,6 +59,9 @@ public class GbGradebookData {
 	private static final String SAK_PROP_SHOW_SET_ZERO_SCORE = "gradebookng.showSetZeroScore";
 	private static final boolean SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT = true;
 
+	private static final String SAK_PROP_SHOW_COURSE_GRADE_STUDENT = "gradebookng.showDisplayCourseGradeToStudent";
+	private static final Boolean SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT = true;
+
 	private final List<StudentDefinition> students;
 	private final List<ColumnDefinition> columns;
 	private final List<GbStudentGradeInfo> studentGradeInfoList;
@@ -396,6 +399,7 @@ public class GbGradebookData {
 		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
 		result.put("isSectionsVisible", this.isSectionsVisible && ServerConfigurationService.getBoolean("gradebookng.showSections", true));
 		result.put("isSetUngradedToZeroEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_SET_ZERO_SCORE, SAK_PROP_SHOW_SET_ZERO_SCORE_DEFAULT));
+		result.put("isShowDisplayCourseGradeToStudentEnabled", ServerConfigurationService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT));
 
 		return result;
 	};
