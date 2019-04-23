@@ -1,6 +1,6 @@
 import {SakaiElement} from "./sakai-element.js";
-import {html} from "./node_modules/lit-element/lit-element.js";
-import {repeat} from "./node_modules/lit-html/directives/repeat.js";
+import {html} from "./assets/lit-element/lit-element.js";
+import {repeat} from "./assets/lit-html/directives/repeat.js";
 
 class SakaiToolPermissions extends SakaiElement {
 
