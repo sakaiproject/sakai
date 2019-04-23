@@ -14622,7 +14622,7 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected void setScoringAgentProperties(Context context, Assignment assignment, AssignmentSubmission submission, boolean gradeView) {
         String associatedGbItem = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-        if (submission != null && StringUtils.isNotBlank(associatedGbItem) && assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) {
+        if (!assignment.getIsGroup() && submission != null && StringUtils.isNotBlank(associatedGbItem) && assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) {
             ScoringService scoringService = (ScoringService) ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
             ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
 
@@ -14631,9 +14631,8 @@ public class AssignmentAction extends PagedResourceActionII {
             Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
             String currentUser = sessionManager.getCurrentSessionUserId();
             AssignmentSubmissionSubmitter submitter = submitters.stream()
-                    .filter(s -> s.getSubmitter().equals(currentUser)).findAny()
-                    .orElseGet(() -> submitters.stream()
-                            .filter(AssignmentSubmissionSubmitter::getSubmittee).findAny()
+                    .filter(s -> s.getSubmitter().equals(currentUser)).findAny() // If in student context, get student's specific submission
+                    .orElseGet(() -> submitters.stream().findAny() // If in instructor context, just get the first available submission (group assignments don't show the icon anyway)
                             .orElse(null));
 
             if (scoringAgentEnabled && submitter != null) {
@@ -14673,7 +14672,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     // Determine if a scoring component (like a rubric) has been associated with this gradebook item
                     ScoringComponent component = scoringService.getScoringComponent(
                             scoringAgent.getAgentId(), gradebookUid, gbItemId);
-                    boolean scoringComponentEnabled = component != null && !assignment.getIsGroup();
+                    boolean scoringComponentEnabled = component != null;
 
                     context.put("scoringComponentEnabled", scoringComponentEnabled);
 
