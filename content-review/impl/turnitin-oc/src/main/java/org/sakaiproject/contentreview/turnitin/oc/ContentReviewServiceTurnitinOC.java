@@ -162,6 +162,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private static final String SUBMISSION_COMPLETE_EVENT_TYPE = "SUBMISSION_COMPLETE";
 	private static final String SIMILARITY_COMPLETE_EVENT_TYPE = "SIMILARITY_COMPLETE";
+	private static final String SIMILARITY_UPDATED_EVENT_TYPE = "SIMILARITY_UPDATED";
 
 	private String serviceUrl;
 	private String apiKey;
@@ -311,8 +312,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String id = null;
 		Map<String, Object> data = new HashMap<String, Object>();
 		List<String> types = new ArrayList<>();
-		types.add("SIMILARITY_COMPLETE");
-		types.add("SUBMISSION_COMPLETE");
+		types.add(SIMILARITY_UPDATED_EVENT_TYPE);
+		types.add(SIMILARITY_COMPLETE_EVENT_TYPE);
+		types.add(SUBMISSION_COMPLETE_EVENT_TYPE);
 
 		data.put("signing_secret", base64Encode(apiKey));
 		data.put("url", webhookUrl);
@@ -1603,7 +1605,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						log.warn("Callback item received without needed information");
 						errors++;
 					}
-				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType)) {
+				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType) || SIMILARITY_UPDATED_EVENT_TYPE.equals(eventType)) {
 					if (webhookJSON.has("submission_id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
 						log.info("Similarity complete webhook cb received");
 						log.info(webhookJSON.toString());
