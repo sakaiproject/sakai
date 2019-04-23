@@ -35,6 +35,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -8679,7 +8680,48 @@ public class AssignmentAction extends PagedResourceActionII {
                 a.getGroups().clear();
             } else if (Assignment.Access.GROUP.toString().equals(range)) {
                 a.setTypeOfAccess(Assignment.Access.GROUP);
-                a.setGroups(groups.stream().map(Group::getReference).collect(Collectors.toSet()));
+                Set<String> previousGroupRefs = new HashSet<>(a.getGroups());
+                Set<String> currentGroupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
+
+                // if groups have changed
+                if (!previousGroupRefs.equals(currentGroupRefs)) {
+                    previousGroupRefs.removeAll(currentGroupRefs);
+                    Set<String> submitterIds;
+
+                    if (a.getIsGroup()) {
+                        submitterIds = previousGroupRefs.stream().map(ref -> {
+                            String[] parts = StringUtils.split(ref, '/');
+                            return "group".equals(parts[2]) ? parts[3] : null;
+                        }).filter(Objects::nonNull).collect(Collectors.toSet());
+                    } else {
+                        submitterIds = previousGroupRefs.stream().map(ref -> {
+                            try {
+                                return authzGroupService.getAuthzGroup(ref);
+                            } catch (GroupNotDefinedException e) {
+                                return null;
+                            }
+                        }).filter(Objects::nonNull).flatMap(ag -> ag.getMembers().stream()).map(Member::getUserId).collect(Collectors.toSet());
+                    }
+
+                    List<AssignmentSubmission> submissionsToRemove = submitterIds.stream().map(id -> {
+                        try {
+                            return assignmentService.getSubmission(a.getId(), id);
+                        } catch (PermissionException pe) {
+                            return null;
+                        }
+                    }).filter(Objects::nonNull).collect(Collectors.toList());
+
+                    submissionsToRemove.stream()
+                            .filter(s -> !s.getUserSubmission())
+                            .forEach(s -> {
+                                try {
+                                    assignmentService.removeSubmission(s);
+                                } catch (PermissionException pe) {
+                                    log.warn("Group update detected on assignment {}, could not remove submission {}", a.getId(), s);
+                                }
+                            });
+                    a.setGroups(currentGroupRefs);
+                }
             }
 
             // commit the changes
