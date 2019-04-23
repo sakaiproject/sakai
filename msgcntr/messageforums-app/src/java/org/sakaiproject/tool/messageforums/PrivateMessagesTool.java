@@ -3772,7 +3772,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
     }
 
-    if(StringUtils.isEmpty(searchText)) {
+    if(searchOnSubject && StringUtils.isEmpty(searchText)) {
        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
     }
 
