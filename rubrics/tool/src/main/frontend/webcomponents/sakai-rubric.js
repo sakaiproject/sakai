@@ -194,6 +194,9 @@ export class SakaiRubric extends SakaiElement {
       this.rubric = data;
       this.dispatchEvent(new SharingChangeEvent());
       this.handleShareLink();
+      var sakaiItemDelete = this.querySelector("sakai-item-delete");
+      sakaiItemDelete.requestUpdate("item", this.rubric);
+      sakaiItemDelete.requestUpdate("rubric", this.rubric);
     }).fail((jqXHR, textStatus, errorThrown) => {
       console.log("Request failed: " + textStatus);
       console.log("Error: " + errorThrown);
