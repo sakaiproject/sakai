@@ -99,6 +99,26 @@ public class UserEditPage  extends BaseTreePage{
 
 		//USER NAME & IMAGE:
 		add(new Label("userName", displayName));
+		// INSTRUCTIONS
+		add(new Label("editUsersInstructions", new ResourceModel("editUsersInstructions")));
+		add(new Label("editUsersInstructions_accessAdmin", new ResourceModel("editUsersInstructions_accessAdmin")) {
+			@Override
+			public boolean isVisible() {
+				return sakaiProxy.isSuperUser();
+			}
+		});
+		add(new Label("editUsersInstructions_shoppingAdmin", new ResourceModel("editUsersInstructions_shoppingAdmin")) {
+			@Override
+			public boolean isVisible() {
+				return sakaiProxy.isSuperUser() && sakaiProxy.getShoppingUIEnabled();
+			}
+		});
+		add(new Label("editUsersInstructions_siteAccess", new ResourceModel("editUsersInstructions_siteAccess")) {
+			@Override
+			public boolean isVisible() {
+				return sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled();
+			}
+		});
 		//FORM:
 		Form form = new Form("form");
 		add(form);
@@ -230,19 +250,26 @@ public class UserEditPage  extends BaseTreePage{
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(sakaiProxy.isSuperUser()){
 			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin", null).getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
-			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+			if(sakaiProxy.getShoppingUIEnabled()) {
+				columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+			}
 		}
 		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 68, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
 			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS, sakaiProxy.isSuperUser() ? null : sakaiProxy.getSubAdminOrderedRealmRoles()));
 		}
-		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+		if(sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled()) {
+			columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
+		}
 		//setup advanced options settings:
 		Map<String, Object> advSettings = new HashMap<String, Object>();
-		advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm());
-		columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
+		boolean permitBecomeUser = sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm();
+		if(permitBecomeUser) {
+			advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, permitBecomeUser);
+			columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
+		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//if the user isn't a super user, they should only be able to edit the nodes they 

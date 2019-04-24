@@ -374,17 +374,23 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			}
 		};
 		add(levelSort);
+		Map<String, String> realmRoleDisplay = projectLogic.getRealmRoleDisplay(false);
 		Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return !realmRoleDisplay.isEmpty();
 			}
 		};
 		add(accessSort);
 		Label restrictedToolsHeader = new Label("restrictedToolsHeader", new StringResourceModel("restrictedToolsHeader", null)){
 			@Override
 			public boolean isVisible() {
-				return provider.size() > 0;
+				return provider.size() > 0 && (sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled());
 			}
 		};
 		add(restrictedToolsHeader);
@@ -496,7 +502,13 @@ public class SearchAccessPage extends BasePage implements Serializable {
 						return returnVal;
 					}
 				};
-				item.add(new Label("access", accessModel));
+				item.add(
+				new Label("access", accessModel) {
+					@Override
+					public boolean isVisible() {
+						return !realmRoleDisplay.isEmpty();
+					}
+				});
 				item.add(new ListView<String>("restrictedTools", searchResult.getRestrictedTools()){
 
 					@Override
@@ -506,6 +518,11 @@ public class SearchAccessPage extends BasePage implements Serializable {
 							toolTitle = toolTitleMap.get(toolTitle);
 						}
 						arg0.add(new Label("restrictedTool", toolTitle));
+					}
+
+					@Override
+					public boolean isVisible() {
+						return sakaiProxy.isSuperUser() || sakaiProxy.getToolsListUIEnabled();
 					}
 				});
 				item.add(new ListView<String>("hierarchy", searchResult.getHierarchyNodes()) {

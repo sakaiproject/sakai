@@ -316,7 +316,21 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean getDisableShoppingTreeView();
-	
+
+	/**
+	 * returns a sakai.property for delegatedaccess.toolslist.UI.enabled
+	 *
+	 * @return
+	 */
+	public boolean getToolsListUIEnabled();
+
+	/**
+	 * returns a sakai.property for delegatedaccess.shopping.UI.enabled
+	 *
+	 * @return
+	 */
+	public boolean getShoppingUIEnabled();
+
 	/**
 	 * returns a user for passed in userId
 	 * @param id
