@@ -22,12 +22,10 @@
 package org.sakaiproject.portlets;
 
 import java.io.PrintWriter;
-
 import java.io.IOException;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.Date;
 import java.util.Enumeration;
 
 import javax.portlet.GenericPortlet;
@@ -62,6 +60,7 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.app.VelocityEngine;
+
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 
