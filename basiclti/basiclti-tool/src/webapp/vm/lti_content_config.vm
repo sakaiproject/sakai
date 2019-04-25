@@ -22,7 +22,7 @@ setTimeout('window.location="$autoLaunch";', 1500);
 <p>$validator.escapeHtml($tool_launch)</p>
 #end
 #if ( $tool_description ) 
-<p>$validator.escapeHtml($tool_description)</p>
+$tool_description
 #end
 #if ( $contentLaunch )
 <p>
