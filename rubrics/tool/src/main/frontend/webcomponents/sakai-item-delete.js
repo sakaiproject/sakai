@@ -26,6 +26,7 @@ export class SakaiItemDelete extends SakaiElement {
       token: { type: String},
       rubricId: {attribute: "rubric-id", type: String},
       rubric: { type: Object },
+      criterionId: {attribute: "criterion-id", type: String},
       criterion: { type: Object }
     };
   }
