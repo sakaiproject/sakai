@@ -38,7 +38,7 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
             <button class="btn btn-primary btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
-            <button class="delete" title="${tr("remove")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove" /></button>
+            <button class="delete" title="${tr("remove_label")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>
             <button class="btn btn-link btn-xs cancel" title="${tr("cancel")}" @click="${this.cancelEdit}">
               <sr-lang key="cancel" />
             </button>
