@@ -1098,9 +1098,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				Collections.reverse(messageList);
 			}			
 		}
-		catch (PermissionException e) {
-			log.warn(e.getMessage());
-		}
 		catch (NullPointerException e) {
 			log.warn(e.getMessage());
 		}
