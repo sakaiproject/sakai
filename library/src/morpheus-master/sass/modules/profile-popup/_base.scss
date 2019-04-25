@@ -24,17 +24,21 @@
 
     button {
         width: 100%;
-        border-radius: 0px;
         margin: 0px;
-        border: none;
+        @include sakai_primary_button();
+        border-radius: 0px !important;
     }
 
     .profile-popup-incoming-block {
         button {
             width: 50%;
         }
+        .profile-popup-ignore-button {
+          @include sakai_secondary_button();
+        }
     }
 }
+
 
 .qtip.profile-popup-qtip {
     border: 0px #E0E0E0 solid !important;

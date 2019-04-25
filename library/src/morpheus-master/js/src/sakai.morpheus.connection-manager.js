@@ -1,533 +1,541 @@
 (function ($) {
 
-    if (!portal.loggedIn){
-        return;
-    }
+  if (!portal.loggedIn) {
+    return;
+  }
 
-    portal.connectionManager = portal.connectionManager || {};
+  portal.connectionManager = portal.connectionManager || {};
 
-    var connectionTemplate = Handlebars.templates['connection-manager-connection'];
-    var searchResultTemplate = Handlebars.templates['connection-manager-searchresult'];
+  var connectionTemplate = Handlebars.templates['connection-manager-connection'];
+  var searchResultTemplate = Handlebars.templates['connection-manager-searchresult'];
 
-    var indexedCurrentConnections = {};
-    var indexedPendingConnections = {};
+  var indexedCurrentConnections = {};
+  var indexedPendingConnections = {};
 
-    var countPending = function () { return Object.keys(indexedPendingConnections).length; };
-    var indexedSearchResults = {};
-    var lastSearchResults = {};
+  var countPending = function () { return Object.keys(indexedPendingConnections).length; };
+  var indexedSearchResults = {};
+  var lastSearchResults = {};
 
-    $PBJQ(document).ready(function () {
+  $(function () {
+
+    portal.i18n.loadProperties({
+      resourceClass: 'org.sakaiproject.portal.api.PortalService',
+      resourceBundle: 'connection-manager',
+      namespace: 'connection-manager',
+      callback: function () {
 
         portal.i18n.loadProperties({
-            resourceClass: 'org.sakaiproject.portal.api.PortalService',
-            resourceBundle: 'connection-manager',
-            namespace: 'connection-manager',
-            callback: function () {
-
-                portal.i18n.loadProperties({
-                    resourceClass: 'org.sakaiproject.portal.api.PortalService',
-                    resourceBundle: 'profile-popup',
-                    namespace: 'connection-manager'
-                });
-            }
+          resourceClass: 'org.sakaiproject.portal.api.PortalService',
+          resourceBundle: 'profile-popup',
+          namespace: 'connection-manager'
         });
+      }
+    });
+  });
+
+  var currentTotal = 0;
+  var currentConnections = [];
+
+  var CONNECTIONS = 'connections';
+  var SEARCH_RESULTS = 'searchresults';
+
+  var currentState = CONNECTIONS;
+
+  var shown = 0;
+  var pendingTabBaseHtml = '';
+
+  portal.connectionManager.show = function (options) {
+
+    var connectionManager = $('#connection-manager');
+
+    connectionManager.modal({
+      width: 320
     });
 
-    var currentTotal = 0;
-    var currentConnections = [];
+    var connectionsView = $('#connection-manager-connectionsview');
+    var searchResultsView = $('#connection-manager-searchresultsview');
+    var searchResultsCount = $('#connection-manager-searchresultsview-count');
 
-    var CONNECTIONS = 'connections';
-    var SEARCH_RESULTS = 'searchresults';
+    var currentTab = $('#connection-manager-navbar-current > span > a');
+    var pendingTab = $('#connection-manager-navbar-pending > span > a');
 
-    var currentState = CONNECTIONS;
+    var updateSearchResultsCount = function (count) {
 
-    var shown = 0;
-    var pendingTabBaseHtml = '';
+      if (count === 0) {
+        searchResultsCount.html(portal.i18n.tr('connection-manager', 'connection_manager_no_results'));
+      } else {
+        var translateOptions
+          = {count: count, criteria: portal.connectionManager.searchCriteria};
+        var countMessage = (count > 1)
+          ? portal.i18n.tr('connection-manager', 'connection_manager_results_count', translateOptions)
+          : portal.i18n.tr('connection-manager', 'connection_manager_result_count', translateOptions);
 
-    portal.connectionManager.show = function (options) {
+        searchResultsCount.html(countMessage);
+      }
+    };
 
-        var connectionManager = $PBJQ('#connection-manager');
+    var showCurrentTab = function () {
 
-        connectionManager.modal({
-            width: 320
-        });
+      pendingConnectionsWrapper.hide();
+      currentConnectionsWrapper.show();
+      connectionsView.show();
+      searchResultsView.hide();
+      currentTab.parent().addClass('current');
+      pendingTab.parent().removeClass('current');
+    };
 
-        var connectionsView = $PBJQ('#connection-manager-connectionsview');
-        var searchResultsView = $PBJQ('#connection-manager-searchresultsview');
-        var searchResultsCount = $PBJQ('#connection-manager-searchresultsview-count');
+    var showPendingTab = function () {
 
-        var currentTab = $PBJQ('#connection-manager-navbar-current > span > a');
-        var pendingTab = $PBJQ('#connection-manager-navbar-pending > span > a');
+      currentConnectionsWrapper.hide();
+      pendingConnectionsWrapper.show();
+      connectionsView.show();
+      searchResultsView.hide();
+      pendingTab.parent().addClass('current');
+      currentTab.parent().removeClass('current');
+    };
 
-        var updateSearchResultsCount = function (count) {
+    var addPendingAndShowTab = function (friendId, displayName) {
 
-                if (count === 0) {
-                    searchResultsCount.html(portal.i18n.tr('connection-manager', 'connection_manager_no_results'));
-                } else {
-                    var translateOptions
-                        = {count: count, criteria: portal.connectionManager.searchCriteria};
-                    var countMessage = (count > 1)
-                        ? portal.i18n.tr('connection-manager', 'connection_manager_results_count', translateOptions)
-                        : portal.i18n.tr('connection-manager', 'connection_manager_result_count', translateOptions);
+      var countBefore = countPending();
 
-                    searchResultsCount.html(countMessage);
-                }
-            };
+      $('#connection-manager-connection-' + friendId).remove();
 
-        var showCurrentTab = function () {
+      if (searchResults.children().length === 1) {
+        searchResultsWrapper.hide();
+      }
 
-                pendingConnectionsWrapper.hide();
-                currentConnectionsWrapper.show();
-                connectionsView.show();
-                searchResultsView.hide();
-                currentTab.parent().addClass('current');
-                pendingTab.parent().removeClass('current');
-            };
+      var connection = indexedSearchResults[friendId];
+      connection.connected = false;
+      connection.hideConnect = true;
+      connection.outgoing = true;
 
-        var showPendingTab = function () {
+      indexedPendingConnections[friendId] = connection;
 
-                currentConnectionsWrapper.hide();
-                pendingConnectionsWrapper.show();
-                connectionsView.show();
-                searchResultsView.hide();
-                pendingTab.parent().addClass('current');
-                currentTab.parent().removeClass('current');
-            };
+      var markup = connectionTemplate(connection);
+      if (countBefore === 0) {
+        pendingConnectionsDiv.show().html('');
+        noPendingConnectionsDiv.hide();
+      }
+      pendingConnectionsDiv.append(markup);
+      updatePendingTabText();
 
-        var addPendingAndShowTab = function (friendId, displayName) {
+      if (currentState === CONNECTIONS
+            || (currentState == SEARCH_RESULTS && moreSearchResults.children().length === 0)) {
+        showPendingTab();
+      }
 
-                var countBefore = countPending();
+      $('#connection-manager-cancel-button-' + friendId).click(cancelHandler);
+    };
 
-                $PBJQ('#connection-manager-connection-' + friendId).remove();
-                $PBJQ('#connection-manager-connectionsview-searchresult-' + friendId).remove();
+    currentTab.click(function (e) { showCurrentTab(); });
+    pendingTab.click(function (e) { showPendingTab(); });
 
-                if (searchResults.children().length === 0) {
-                    searchResultsWrapper.hide();
-                }
+    var searchResultsWrapper = $('#connection-manager-connectionsview-searchresults-wrapper');
+    var searchResults = $('#connection-manager-connectionsview-searchresults');
+    var moreSearchResults = $('#connection-manager-searchresultsview-results');
 
-                var connection = indexedSearchResults[friendId];
-                connection.connected = false;
-                connection.hideConnect = true;
-                connection.outgoing = true;
+    connectionManager.click(function (e) {
 
-                indexedPendingConnections[friendId] = connection;
-
-                var markup = connectionTemplate(connection);
-                if (countBefore === 0) {
-                    pendingConnectionsDiv.show().html('');
-                    noPendingConnectionsDiv.hide();
-                }
-                pendingConnectionsDiv.append(markup);
-                updatePendingTabText();
-
-                if (currentState === CONNECTIONS
-                        || (currentState == SEARCH_RESULTS && moreSearchResults.children().length === 0)) {
-                    showPendingTab();
-                }
-
-                $PBJQ('#connection-manager-cancel-button-' + friendId).click(cancelHandler);
-            };
-
-        currentTab.click(function (e) { showCurrentTab(); });
-        pendingTab.click(function (e) { showPendingTab(); });
-
-        var searchResultsWrapper = $PBJQ('#connection-manager-connectionsview-searchresults-wrapper');
-        var searchResults = $PBJQ('#connection-manager-connectionsview-searchresults');
-        var moreSearchResults = $PBJQ('#connection-manager-searchresultsview-results');
-
-        connectionManager.click(function (e) {
-
-            if (e.target.id !== 'connection-manager-connectionsview-searchbox') {
-                var wrapperRect = searchResultsWrapper[0].getBoundingClientRect();
-                var searchBoxRect = searchBox[0].getBoundingClientRect();
-                if (e.pageX < wrapperRect.left || e.pageY < wrapperRect.top
-                        || e.pageX > (wrapperRect.left + wrapperRect.width)
-                        || e.pageY > (wrapperRect.top + wrapperRect.height)) {
-                    searchResultsWrapper.hide();
-                }
-            }
-        });
-
-        var currentConnectionsDiv = $PBJQ('#connection-manager-current-connections');
-        var currentConnectionsWrapper = $PBJQ('#connection-manager-current-connections-wrapper');
-        var noCurrentConnectionsDiv = $PBJQ('#connection-manager-no-current-connections-wrapper');
-        var pendingConnectionsDiv = $PBJQ('#connection-manager-pending-connections');
-        var pendingConnectionsWrapper = $PBJQ('#connection-manager-pending-connections-wrapper');
-        var noPendingConnectionsDiv = $PBJQ('#connection-manager-no-pending-connections-wrapper');
-        var searchBox = $PBJQ('#connection-manager-connectionsview-searchbox');
-        searchBox.clearSearch({callback: function () { searchResultsWrapper.hide(); }});
-        var moreSearchBox = $PBJQ('#connection-manager-searchresultsview-searchbox');
-
-        if (shown == 0) {
-            pendingTabBaseHtml = pendingTab.html();
-            shown += 1;
+      if (e.target.id !== 'connection-manager-connectionsview-searchbox') {
+        var wrapperRect = searchResultsWrapper[0].getBoundingClientRect();
+        var searchBoxRect = searchBox[0].getBoundingClientRect();
+        if (e.pageX < wrapperRect.left || e.pageY < wrapperRect.top
+              || e.pageX > (wrapperRect.left + wrapperRect.width)
+              || e.pageY > (wrapperRect.top + wrapperRect.height)) {
+          searchResultsWrapper.hide();
         }
+      }
+    });
 
-        var moveFromPendingToCurrent = function (friendId) {
+    var currentConnectionsDiv = $('#connection-manager-current-connections');
+    var currentConnectionsWrapper = $('#connection-manager-current-connections-wrapper');
+    var noCurrentConnectionsDiv = $('#connection-manager-no-current-connections-wrapper');
+    var pendingConnectionsDiv = $('#connection-manager-pending-connections');
+    var pendingConnectionsWrapper = $('#connection-manager-pending-connections-wrapper');
+    var noPendingConnectionsDiv = $('#connection-manager-no-pending-connections-wrapper');
+    var searchBox = $('#connection-manager-connectionsview-searchbox');
+    searchBox.clearSearch({callback: function () { searchResultsWrapper.hide(); }});
+    var moreSearchBox = $('#connection-manager-searchresultsview-searchbox');
 
-                $PBJQ('#connection-manager-connection-' + friendId).remove();
-                if (currentTotal == 0) {
-                    currentConnectionsDiv.html('');
-                }
-                var connection = indexedPendingConnections[friendId];
-                connection.outgoing = false;
-                connection.incoming = false;
-                connection.connected = true;
-                var markup = connectionTemplate(connection);
-                currentConnectionsDiv.append(markup);
-                currentTotal += 1;
-                $PBJQ('#connection-manager-remove-button-' + friendId).click(removeHandler);
-                noCurrentConnectionsDiv.hide();
-                delete indexedPendingConnections[friendId];
-                indexedCurrentConnections[friendId] = connection;
-                updatePendingTabText();
-                showCurrentTab();
-            };
+    if (shown == 0) {
+      pendingTabBaseHtml = pendingTab.html();
+      shown += 1;
+    }
 
-        var acceptHandler = function () {
+    var moveFromPendingToCurrent = function (friendId) {
 
-                var friendId = this.dataset.userId;
-                var displayName = this.dataset.displayName;
-                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/confirmFriendRequest?friendId=' + friendId
-                        , {cache: false})
-                    .done(function (data) {
-                        moveFromPendingToCurrent(friendId);
-                    })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log('ERROR: failed to confirm request from \'' + displayName + '\'. errorThrown: ' + errorThrown);
-                    });
-            };
+      $('#connection-manager-connection-' + friendId).remove();
+      if (currentTotal == 0) {
+          currentConnectionsDiv.html('');
+      }
+      var connection = indexedPendingConnections[friendId];
+      connection.outgoing = false;
+      connection.incoming = false;
+      connection.connected = true;
+      var markup = connectionTemplate(connection);
+      currentConnectionsDiv.append(markup);
+      currentTotal += 1;
+      $('#connection-manager-remove-button-' + friendId).click(removeHandler);
+      noCurrentConnectionsDiv.hide();
+      delete indexedPendingConnections[friendId];
+      if (searchResults.children().length === 1) {
+        searchResultsWrapper.hide();
+      }
+      indexedCurrentConnections[friendId] = connection;
+      updatePendingTabText();
+      showCurrentTab();
+    };
 
-        var removePending = function (friendId) {
+    var acceptHandler = function () {
 
-                $PBJQ('.connection-manager-connection-' + friendId).remove();
-                delete indexedPendingConnections[friendId];
-                updatePendingTabText();
-            };
+      var friendId = this.dataset.userId;
+      var displayName = this.dataset.displayName;
+      $.ajax('/direct/profile/' + portal.user.id + '/confirmFriendRequest?friendId=' + friendId
+              , {cache: false})
+        .done(function (data) {
+          moveFromPendingToCurrent(friendId);
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          console.log('ERROR: failed to confirm request from \'' + displayName + '\'. errorThrown: ' + errorThrown);
+        });
+    };
 
-        var ignoreHandler = function () {
+    var removePending = function (friendId) {
 
-                var friendId = this.dataset.userId;
-                var displayName = this.dataset.displayName;
-                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/ignoreFriendRequest?friendId=' + friendId, {cache: false})
-                    .done(function (data) {
-                        removePending(friendId);
-                    })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log('ERROR: failed to ignore request from \'' + displayName + '\'. errorThrown: ' + errorThrown);
-                    });
-            };
+      $('.connection-manager-connection-' + friendId).remove();
+      delete indexedPendingConnections[friendId];
+      if (searchResults.children().length === 1) {
+        searchResultsWrapper.hide();
+      }
+      updatePendingTabText();
+    };
 
-        var connectHandler = function () {
+    var ignoreHandler = function () {
 
-                var friendId = this.dataset.userId;
-                var displayName = this.dataset.displayName;
-                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/requestFriend?friendId=' + friendId
-                        , {cache: false})
-                    .done(function (data) {
+      var friendId = this.dataset.userId;
+      var displayName = this.dataset.displayName;
+      $.ajax('/direct/profile/' + portal.user.id + '/ignoreFriendRequest?friendId=' + friendId, {cache: false})
+        .done(function (data) {
+          removePending(friendId);
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          console.log('ERROR: failed to ignore request from \'' + displayName + '\'. errorThrown: ' + errorThrown);
+        });
+    };
 
-                        addPendingAndShowTab(friendId, displayName);
-                    })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log('ERROR: failed to request connection to \'' + displayName + '\'. errorThrown: ' + errorThrown);
-                    });
-            };
+    var connectHandler = function () {
 
-        var removeCurrent = function (friendId) {
+      var friendId = this.dataset.userId;
+      var displayName = this.dataset.displayName;
+      $.ajax('/direct/profile/' + portal.user.id + '/requestFriend?friendId=' + friendId
+              , {cache: false})
+        .done(function (data) {
 
-                $PBJQ('#connection-manager-connection-' + friendId).remove();
-                currentTotal -= 1;
-                if (currentTotal == 0) {
-                    noCurrentConnectionsDiv.show();
-                }
-                delete indexedCurrentConnections[friendId];
-            };
+          addPendingAndShowTab(friendId, displayName);
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          console.log('ERROR: failed to request connection to \'' + displayName + '\'. errorThrown: ' + errorThrown);
+        });
+    };
 
-        var removeHandler = function () {
+    var removeCurrent = function (friendId) {
 
-                var friendId = this.dataset.userId;
-                var displayName = this.dataset.displayName;
-                if (confirm(portal.i18n.tr('connection-manager', 'connection_manager_remove_confirm', {displayName: displayName}))) {
-                    $PBJQ.ajax('/direct/profile/' + portal.user.id + '/removeFriend?friendId=' + friendId, {cache: false})
-                        .done(function (data) {
-                            removeCurrent(friendId);
-                        })
-                        .fail(function (jqXHR, textStatus, errorThrown) {
-                            console.log('ERROR: failed to remove \'' + displayName + '\'. errorThrown: ' + errorThrown);
-                        });
-                }
-        };
+      $('#connection-manager-connection-' + friendId).remove();
+      currentTotal -= 1;
+      if (currentTotal == 0) {
+        noCurrentConnectionsDiv.show();
+      }
+      delete indexedCurrentConnections[friendId];
+    };
 
-        var cancelHandler = function () {
+    var removeHandler = function () {
 
-                var friendId = this.dataset.userId;
-                var displayName = this.dataset.displayName;
+      var friendId = this.dataset.userId;
+      var displayName = this.dataset.displayName;
+      if (confirm(portal.i18n.tr('connection-manager', 'connection_manager_remove_confirm', {displayName: displayName}))) {
+        $.ajax('/direct/profile/' + portal.user.id + '/removeFriend?friendId=' + friendId, {cache: false})
+          .done(function (data) {
+            removeCurrent(friendId);
+          })
+          .fail(function (jqXHR, textStatus, errorThrown) {
+            console.log('ERROR: failed to remove \'' + displayName + '\'. errorThrown: ' + errorThrown);
+          });
+      }
+    };
 
-                $PBJQ.ajax('/direct/profile/' + friendId + '/ignoreFriendRequest?friendId=' + portal.user.id, {cache: false})
-                    .done(function (data) {
+    var cancelHandler = function () {
 
-                        $PBJQ('.connection-manager-connection-' + friendId).remove();
-                        delete indexedPendingConnections[friendId];
-                        updatePendingTabText();
-                    })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log('ERROR: failed to ignore request from \'' + displayName + '\'. errorThrown: ' + errorThrown);
-                    });
-            };
+      var friendId = this.dataset.userId;
+      var displayName = this.dataset.displayName;
 
-        var updatePendingTabText = function () {
+      $.ajax('/direct/profile/' + friendId + '/ignoreFriendRequest?friendId=' + portal.user.id, {cache: false})
+        .done(function (data) {
 
-                var pendingTotal = countPending();
-                if (pendingTotal === 0) {
-                    pendingTab.html(pendingTabBaseHtml);
-                    pendingConnectionsDiv.html('').hide();
-                    noPendingConnectionsDiv.show();
-                } else {
-                    pendingTab.html(pendingTabBaseHtml + ' (' + pendingTotal + ')');
-                }
-            };
+          $('.connection-manager-connection-' + friendId).remove();
+          delete indexedPendingConnections[friendId];
+          updatePendingTabText();
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          console.log('ERROR: failed to ignore request from \'' + displayName + '\'. errorThrown: ' + errorThrown);
+        });
+    };
 
-        var search = function (criteria, showFullConnections) {
+    var updatePendingTabText = function () {
 
-                var container = (showFullConnections) ? moreSearchResults : searchResults;
+      var pendingTotal = countPending();
+      if (pendingTotal === 0) {
+        pendingTab.html(pendingTabBaseHtml);
+        pendingConnectionsDiv.html('').hide();
+        noPendingConnectionsDiv.show();
+      } else {
+        pendingTab.html(pendingTabBaseHtml + ' (' + pendingTotal + ')');
+      }
+    };
 
-                if (criteria.length < 4) {
-                    container.html('');
-                    if (!showFullConnections) {
-                        searchResultsWrapper.hide();
-                    } else {
-                        updateSearchResultsCount(0);
-                    }
-                    return;
-                }
+    var search = function (criteria, showFullConnections) {
 
-                portal.connectionManager.searchCriteria = criteria;
+      $("#connection-manager-profile-popup-container .qtip").remove();
 
-                var template = (showFullConnections) ? connectionTemplate : searchResultTemplate;
+      var container = (showFullConnections) ? moreSearchResults : searchResults;
 
-                $PBJQ.ajax('/direct/portal/connectionsearch.json?query=' + criteria, {cache: false})
-                    .done(function (results) {
+      if (criteria.length < 4) {
+        container.html('');
+        if (!showFullConnections) {
+          searchResultsWrapper.hide();
+        } else {
+          updateSearchResultsCount(0);
+        }
+        return;
+      }
 
-                        container.html('');
+      portal.connectionManager.searchCriteria = criteria;
 
-                        if (results.length === 0) {
-                            if (!showFullConnections) {
-                                searchResultsWrapper.hide();
-                            }
-                            return;
-                        }
+      var template = (showFullConnections) ? connectionTemplate : searchResultTemplate;
 
-                        if (!showFullConnections) {
-                            searchResultsWrapper.show();
-                        }
+      $.ajax('/direct/portal/connectionsearch.json?query=' + criteria, {cache: false})
+        .done(function (results) {
 
-                        var markup = '';
-                        lastSearchResults = results;
+          container.html('');
 
-                        indexedSearchResults = {};
-                        lastSearchResults.forEach(function (r) {
-                            indexedSearchResults[r.uuid] = r;
-                        });
+          if (results.length === 0) {
+            if (!showFullConnections) {
+              searchResultsWrapper.hide();
+            }
+            return;
+          }
 
-                        if (showFullConnections) {
-                            lastSearchResults.forEach(function (result, i) {
-                                    markup += template(result);
-                                });
-                        } else {
-                            lastSearchResults.slice(0, 5).forEach(function (result, i) {
-                                    markup += template(result);
-                                });
-                        }
+          if (!showFullConnections) {
+            searchResultsWrapper.show();
+          }
 
-                        if (showFullConnections) {
-                            updateSearchResultsCount(lastSearchResults.length);
-                        }
+          var markup = '';
+          lastSearchResults = results;
 
-                        container.html(markup);
+          indexedSearchResults = {};
+          lastSearchResults.forEach(function (r) {
+            indexedSearchResults[r.uuid] = r;
+          });
 
-                        if (container.children().length > 0) {
-                            container.show();
-                        }
+          if (showFullConnections) {
+            lastSearchResults.forEach(function (result, i) {
+              markup += template(result);
+            });
+          } else {
+            lastSearchResults.slice(0, 5).forEach(function (result, i) {
+              markup += template(result);
+            });
+          }
 
-                        $PBJQ(document).ready(function () {
+          if (showFullConnections) {
+            updateSearchResultsCount(lastSearchResults.length);
+          }
 
-                            if (!showFullConnections) {
-                                profile.attachPopups($PBJQ('.profile-popup'), {connect: addPendingAndShowTab, cancel: removePending, accept: moveFromPendingToCurrent, ignore: removePending, remove: removeCurrent});
-                            } else {
-                                $PBJQ('.connection-manager-connect-button').click(connectHandler);
-                            }
+          container.html(markup);
 
-                            $PBJQ('#connection-manager-connectionsview-searchresults-more').click(function (e) {
+          if (container.children().length > 0) {
+            container.show();
+          }
 
-                                currentState = SEARCH_RESULTS;
+          $(function () {
 
-                                searchResults.html('');
-                                searchResultsWrapper.hide();
-                                connectionsView.hide();
-                                searchResultsView.show();
-                                moreSearchBox.val(portal.connectionManager.searchCriteria);
-                                searchBox.val('');
-                                $PBJQ(document).ready(function () {
+            if (!showFullConnections) {
+              profile.attachPopups($('.profile-popup-trigger'), {hide: true, container: "connection-manager-profile-popup-container", callbacks: {connect: addPendingAndShowTab, cancel: removePending, accept: moveFromPendingToCurrent, ignore: removePending, remove: removeCurrent}});
+            } else {
+              $('.connection-manager-connect-button').click(connectHandler);
+            }
 
-                                    updateSearchResultsCount(lastSearchResults.length);
+            $('#connection-manager-connectionsview-searchresults-more').click(function (e) {
 
-                                    var markup = '';
-                                    lastSearchResults.forEach(function (result, i) {
-                                        result.facebookSet = result.socialNetworkingInfo.facebookUrl;
-                                        result.twitterSet = result.socialNetworkingInfo.twitterUrl;
-                                        result.moreResult = true;
-                                        if (indexedCurrentConnections.hasOwnProperty(result.uuid)) {
-                                            result.connected = true;
-                                            result.hideConnect = true;
-                                        }
-                                        if (indexedPendingConnections.hasOwnProperty(result.uuid)) {
-                                            result.connected = false;
-                                            result.hideConnect = true;
-                                            result.outgoing = indexedPendingConnections[result.uuid].outgoing;
-                                            result.incoming = indexedPendingConnections[result.uuid].incoming;
-                                        }
-                                        markup += connectionTemplate(result);
-                                    });
-                                    moreSearchResults.html(markup);
-                                    $PBJQ(document).ready(function () {
+              currentState = SEARCH_RESULTS;
 
-                                        $PBJQ('.connection-manager-accept-button').click(acceptHandler);
-                                        $PBJQ('.connection-manager-ignore-button').click(ignoreHandler);
-                                        $PBJQ('.connection-manager-connect-button').click(connectHandler);
-                                        $PBJQ('.connection-manager-remove-button').click(removeHandler);
-                                        $PBJQ('.connection-manager-cancel-button').click(cancelHandler);
-                                    });
-                                });
-                            });
+              searchResults.html('');
+              searchResultsWrapper.hide();
+              connectionsView.hide();
+              searchResultsView.show();
+              moreSearchBox.val(portal.connectionManager.searchCriteria);
+              searchBox.val('');
+              $(function () {
 
-                            $PBJQ('#connection-manager-backtoconnections-link').click(function (e) {
+                updateSearchResultsCount(lastSearchResults.length);
 
-                                currentState = CONNECTIONS;
-                                searchResultsView.hide();
-                                connectionsView.show();
-                                searchResultsWrapper.hide();
-                                searchResults.html('');
-                                searchBox.val('');
-                            });
-                        }); // document.ready
-                    }); // ajax call
-            }; // search
+                var markup = '';
+                lastSearchResults.forEach(function (result, i) {
 
-        // Load up the current connections
-        $PBJQ.ajax('/direct/profile/' + portal.user.id + '/connections.json', {cache: false})
-            .done(function (data) {
-
-                indexedCurrentConnections = {};
-
-                currentTotal = data.length;
-
-                // Reset the search filter
-                searchUserIdFilter = [portal.user.id];
-
-                currentConnectionsDiv.html('');
-
-                currentConnections = data;
-                if (currentConnections.length == 0) {
-                    noCurrentConnectionsDiv.show();
-                } else {
-                    noCurrentConnectionsDiv.hide();
-                }
-
-                data.forEach(function (connection) {
-
-                    connection.facebookSet = connection.socialNetworkingInfo.facebookUrl;
-                    connection.twitterSet = connection.socialNetworkingInfo.twitterUrl;
-                    connection.current = true;
-                    connection.connected = true;
-                    connection.incoming = false;
-                    connection.hideConnect = true;
-                    indexedCurrentConnections[connection.uuid] = connection;
-                    currentConnectionsDiv.append(connectionTemplate(connection));
+                  result.facebookSet = result.socialNetworkingInfo.facebookUrl;
+                  result.twitterSet = result.socialNetworkingInfo.twitterUrl;
+                  result.moreResult = true;
+                  if (indexedCurrentConnections.hasOwnProperty(result.uuid)) {
+                    result.connected = true;
+                    result.hideConnect = true;
+                  }
+                  if (indexedPendingConnections.hasOwnProperty(result.uuid)) {
+                    result.connected = false;
+                    result.hideConnect = true;
+                    result.outgoing = indexedPendingConnections[result.uuid].outgoing;
+                    result.incoming = indexedPendingConnections[result.uuid].incoming;
+                  }
+                  markup += connectionTemplate(result);
                 });
+                moreSearchResults.html(markup);
+                $(function () {
 
-                $PBJQ(document).ready(function () {
-                    $PBJQ('.connection-manager-remove-button').click(removeHandler);
+                  $('.connection-manager-accept-button').click(acceptHandler);
+                  $('.connection-manager-ignore-button').click(ignoreHandler);
+                  $('.connection-manager-connect-button').click(connectHandler);
+                  $('.connection-manager-remove-button').click(removeHandler);
+                  $('.connection-manager-cancel-button').click(cancelHandler);
                 });
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.log('ERROR: failed to get current connections. errorThrown: ' + errorThrown);
+              });
             });
 
-        var pendingConnectionsCallback = function (connections) {
+            $('#connection-manager-backtoconnections-link').click(function (e) {
 
-                if (connections.length == 0) {
-                    noPendingConnectionsDiv.show();
-                    pendingConnectionsDiv.hide();
-                } else {
-                    noPendingConnectionsDiv.hide();
-                    pendingConnectionsDiv.show().html('');
-                }
+              currentState = CONNECTIONS;
+              searchResultsView.hide();
+              connectionsView.show();
+              searchResultsWrapper.hide();
+              searchResults.html('');
+              searchBox.val('');
+            });
+          }); // document.ready
+        }); // ajax call
+    }; // search
 
-                connections.forEach(function (connection) {
+    // Load up the current connections
+    $.ajax('/direct/profile/' + portal.user.id + '/connections.json', {cache: false})
+      .done(function (data) {
 
-                    connection.hideConnect = true;
-                    connection.pending = true;
-                    pendingConnectionsDiv.append(connectionTemplate(connection));
-                    indexedPendingConnections[connection.uuid] = connection;
-                });
+        indexedCurrentConnections = {};
 
-                if (connections.length > 0) {
-                    // Update the pending tab
-                    pendingTab.html(pendingTabBaseHtml + ' (' + connections.length + ')');
-                } else {
-                    pendingTab.html(pendingTabBaseHtml);
-                }
+        currentTotal = data.length;
 
-                $PBJQ(document).ready(function () {
+        // Reset the search filter
+        searchUserIdFilter = [portal.user.id];
 
-                    $PBJQ('.connection-manager-accept-button').click(acceptHandler);
-                    $PBJQ('.connection-manager-ignore-button').click(ignoreHandler);
-                    $PBJQ('.connection-manager-cancel-button').click(cancelHandler);
-                }); // document.ready
-            }; // pendingConnectionsCallback
+        currentConnectionsDiv.html('');
 
-        // Load up the pending connections
-        $PBJQ.ajax('/direct/profile/' + portal.user.id + '/incomingConnectionRequests.json', {cache: false})
-            .done(function (data) {
+        currentConnections = data;
+        if (currentConnections.length == 0) {
+          noCurrentConnectionsDiv.show();
+        } else {
+          noCurrentConnectionsDiv.hide();
+        }
 
-                indexedPendingConnections = {};
+        data.forEach(function (connection) {
 
-                data.forEach(function (connection) {
-                    connection.incoming = true;
-                });
+          connection.facebookSet = connection.socialNetworkingInfo.facebookUrl;
+          connection.twitterSet = connection.socialNetworkingInfo.twitterUrl;
+          connection.current = true;
+          connection.connected = true;
+          connection.incoming = false;
+          connection.hideConnect = true;
+          indexedCurrentConnections[connection.uuid] = connection;
+          currentConnectionsDiv.append(connectionTemplate(connection));
+        });
 
-                $PBJQ.ajax('/direct/profile/' + portal.user.id + '/outgoingConnectionRequests.json', {cache: false})
-                    .done(function (outgoing) {
+        $(function () {
+          $('.connection-manager-remove-button').click(removeHandler);
+        });
+      })
+      .fail(function (jqXHR, textStatus, errorThrown) {
+          console.log('ERROR: failed to get current connections. errorThrown: ' + errorThrown);
+      });
 
-                        outgoing.forEach(function (connection) {
+    var pendingConnectionsCallback = function (connections) {
 
-                            connection.outgoing = true;
-                            data.push(connection);
-                        });
+      if (connections.length == 0) {
+        noPendingConnectionsDiv.show();
+        pendingConnectionsDiv.hide();
+      } else {
+        noPendingConnectionsDiv.hide();
+        pendingConnectionsDiv.show().html('');
+      }
 
-                        pendingConnectionsCallback(data);
-                    })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.log('Failed to get outgoing requests. errorThrown: ' + errorThrown);
-                    });
-            })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.log('Failed to get incoming requests. errorThrown: ' + errorThrown);
+      connections.forEach(function (connection) {
+
+        connection.hideConnect = true;
+        connection.pending = true;
+        pendingConnectionsDiv.append(connectionTemplate(connection));
+        indexedPendingConnections[connection.uuid] = connection;
+      });
+
+      if (connections.length > 0) {
+        // Update the pending tab
+        pendingTab.html(pendingTabBaseHtml + ' (' + connections.length + ')');
+      } else {
+        pendingTab.html(pendingTabBaseHtml);
+      }
+
+      $(function () {
+
+        $('.connection-manager-accept-button').click(acceptHandler);
+        $('.connection-manager-ignore-button').click(ignoreHandler);
+        $('.connection-manager-cancel-button').click(cancelHandler);
+      }); // document.ready
+    }; // pendingConnectionsCallback
+
+    // Load up the pending connections
+    $.ajax('/direct/profile/' + portal.user.id + '/incomingConnectionRequests.json', {cache: false})
+      .done(function (data) {
+
+        indexedPendingConnections = {};
+
+        data.forEach(function (connection) {
+          connection.incoming = true;
+        });
+
+        $.ajax('/direct/profile/' + portal.user.id + '/outgoingConnectionRequests.json', {cache: false})
+          .done(function (outgoing) {
+
+            outgoing.forEach(function (connection) {
+
+              connection.outgoing = true;
+              data.push(connection);
             });
 
-        searchBox.keyup(function (e) { search(this.value, false); });
-        searchBox.keydown(function (e) {
+            pendingConnectionsCallback(data);
+          })
+          .fail(function (jqXHR, textStatus, errorThrown) {
+            console.log('Failed to get outgoing requests. errorThrown: ' + errorThrown);
+          });
+      })
+      .fail(function (jqXHR, textStatus, errorThrown) {
+        console.log('Failed to get incoming requests. errorThrown: ' + errorThrown);
+      });
 
-            if (e.which == 13 && this.value.length >= 4) {
-                $PBJQ('#connection-manager-connectionsview-searchresults-more').click();
-            }
-        });
-        moreSearchBox.keyup(function (e) { search(this.value, true); });
+    searchBox.keyup(function (e) { search(this.value, false); });
+    searchBox.keydown(function (e) {
 
-        if (options && options.state === 'pending') {
-            showPendingTab();
-        }
-    }; // portal.connectionManager.show
+      if (e.which == 13 && this.value.length >= 4) {
+        $('#connection-manager-connectionsview-searchresults-more').click();
+      }
+    });
+    moreSearchBox.keyup(function (e) { search(this.value, true); });
 
-    $PBJQ('#Mrphs-userNav__submenuitem--connections').click(portal.connectionManager.show);
+    if (options && options.state === 'pending') {
+      showPendingTab();
+    }
+  }; // portal.connectionManager.show
+
+  $('#Mrphs-userNav__submenuitem--connections').click(portal.connectionManager.show);
 }) ($PBJQ);
