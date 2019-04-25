@@ -88,7 +88,7 @@ export class SakaiRubricCriteria extends SakaiElement {
           </div>
           <div class="criterion-actions">
             <span tabindex="0" role="button" data-criterion-id="${c.id}" title="${tr("copy")} ${c.title}" class="clone fa fa-copy" @click="${this.cloneCriterion}"></span>
-            <sakai-item-delete criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
+            <sakai-item-delete criterion-id="${c.id}" criterion="${JSON.stringify(c)}" rubric-id="${this.rubricId}" @delete-item="${this.deleteCriterion}" token="${this.token}"></sakai-item-delete>
           </div>
         </div>
       `)}
@@ -292,6 +292,9 @@ export class SakaiRubricCriteria extends SakaiElement {
     criterion.description = e.detail.description;
     criterion.new = false;
     this.requestUpdate();
+
+    var sakaiItemDelete = this.querySelector(`sakai-item-delete[criterion-id="${e.detail.id}"]`);
+    sakaiItemDelete.requestUpdate("criterion", criterion);
   }
 
   createCriterion(e) {
