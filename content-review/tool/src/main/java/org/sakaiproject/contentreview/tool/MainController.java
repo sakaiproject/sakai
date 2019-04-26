@@ -112,20 +112,27 @@ public class MainController {
 	 */
 	private boolean hasStudentPermission(String assignmentRef, String contentId) {
 		ContentReviewItem item = contentReviewService.getContentReviewItemByContentId(contentId);
-		if(item != null && sessionManager.getCurrentSessionUserId().equals(item.getUserId())) {
-			return true;
-		}else {
-			if(assignmentRef.startsWith(AssignmentServiceConstants.REFERENCE_ROOT)) {
-				//If assignment, check the current user's submission for this assignment
-				try {
-					AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon();
-					if("a".equals(refReckoner.getSubtype())) {
-						AssignmentSubmission submission = assignmentService.getSubmission(refReckoner.getId(), sessionManager.getCurrentSessionUserId());
-						return submission != null && submission.getAttachments().contains(AssignmentServiceConstants.REF_PREFIX + contentId);
+		if (item == null)
+		{
+			return false;
+		}
+		if(assignmentRef.startsWith(AssignmentServiceConstants.REFERENCE_ROOT)) {
+			//If assignment, check the current user's submission for this assignment
+			try {
+				AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(assignmentRef).reckon();
+				if("a".equals(refReckoner.getSubtype())) {
+					AssignmentSubmission submission = assignmentService.getSubmission(refReckoner.getId(), sessionManager.getCurrentSessionUserId());
+					if (submission == null || !submission.getAttachments().contains(AssignmentServiceConstants.REF_PREFIX + contentId))
+					{
+						// Submission doesn't exist, or the user's submission doesn't contain an attachment with the specified contentId
+						return false;
 					}
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
+					// It is in fact associated with the user's submission to this assignment.
+					// Return true if the assignment is configured to allow students to view originality reports
+					return Boolean.valueOf(submission.getAssignment().getProperties().get("s_view_report"));
 				}
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
 		}
 		return false;
