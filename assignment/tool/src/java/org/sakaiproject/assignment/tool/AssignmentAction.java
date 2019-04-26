@@ -1096,6 +1096,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("cheffeedbackhelper", this);
         context.put("service", assignmentService);
         context.put("rubricsService", rubricsService);
+        context.put("userDirectoryService", userDirectoryService);
 
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
@@ -1168,6 +1169,9 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // get the system setting for whether to show the Option tool link or not
         context.put("enableViewOption", serverConfigurationService.getBoolean("assignment.enableViewOption", true));
+
+        // enable instructor's name of the assignment
+        context.put("createdBy_enabled", serverConfigurationService.getBoolean("assignment.createdBy.enabled", false));
 
         String mode = StringUtils.defaultIfBlank((String) state.getAttribute(STATE_MODE), MODE_LIST_ASSIGNMENTS);
 

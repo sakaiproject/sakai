@@ -150,6 +150,22 @@ $(document).ready(function(){
 					</div>
 				</div>
 			</div>
+			#if ($createdBy_enabled)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.createdBy")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
+							#if ($assignment.Modifier)
+								$!userDirectoryService.getUser($assignment.Modifier).getDisplayName() ($!userDirectoryService.getUser($assignment.Modifier).getEmail())
+							#else
+								$!userDirectoryService.getUser($assignment.Author).getDisplayName() ($!userDirectoryService.getUser($assignment.Author).getEmail())
+							#end
+						</div>
+					</div>
+				</div>
+			#end
 			<div class="row">
 				<div class="col-lg-4 col-sm-6 col-xs-12">
 					<div class="itemSummaryHeader">$tlang.getString("gen.due.header")</div>

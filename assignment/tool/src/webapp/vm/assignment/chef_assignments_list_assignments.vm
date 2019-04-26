@@ -107,6 +107,20 @@
 							#end
 						</a>
 					</th>
+					#if ($createdBy_enabled)
+						<th id="createdBy" scope="col">
+							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_createdBy")'; return false;"   title="$tlang.getString("listassig.sorbycreator")">
+								$tlang.getString("gen.createdBy")
+								#if ($sortedBy.equals("createdBy"))
+									#if ($sortedAsc.equals("true"))
+										<img id="sortascendingcreatedby" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
+									#else
+										<img id="sortdescendingcreatedby" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
+									#end
+								#end
+							</a>
+						</th>
+					#end
 					#if ($!allowGradeSubmission)
 						<th id="$tlang.getString('gen.visible')" scope="col" class="hidden-xs">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
@@ -423,6 +437,15 @@
 									#end
 								#end
 							</td>
+							#if ($createdBy_enabled)
+								<td headers="createdBy">
+									#if ($assignment.Modifier)
+										$!userDirectoryService.getUser($assignment.Modifier).getDisplayName()
+									#else
+										$!userDirectoryService.getUser($assignment.Author).getDisplayName()
+									#end
+								</td>
+							#end
 						#if ($!allowGradeSubmission)
 							<td headers="for" class="hidden-xs">
 								#if($assignment.TypeOfAccess == "SITE")
@@ -550,6 +573,15 @@
 									<strong title="$validator.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($assignment.Title)</strong>
 									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
+								#if ($createdBy_enabled)
+									<td headers="createdBy">
+										#if ($assignment.Modifier)
+											$!userDirectoryService.getUser($assignment.Modifier).getDisplayName()
+										#else
+											$!userDirectoryService.getUser($assignment.Author).getDisplayName()
+										#end
+									</td>
+								#end
 								#if ($!allowGradeSubmission)
 									<!-- scope col -->
 									<td></td>
