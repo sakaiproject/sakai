@@ -208,7 +208,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			".html",
 			".wpd",
 			".odt",
-			".hwp",
 			".txt"
 	};
 	private final String[] DEFAULT_ACCEPTABLE_MIME_TYPES = new String[] {
@@ -236,7 +235,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			"text/html",
 			"application/wordperfect",
 			"application/vnd.oasis.opendocument.text",
-			"application/x-hwp",
 			"text/plain"
 	};
 
