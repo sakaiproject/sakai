@@ -792,7 +792,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "1.10.19";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
-		libraryVersion = "4.11.1";
+		libraryVersion = "4.11.3";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'awesomplete') {
 		libraryVersion = "1.1.4";
