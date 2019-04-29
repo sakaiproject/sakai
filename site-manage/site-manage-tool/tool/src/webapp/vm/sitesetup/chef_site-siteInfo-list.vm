@@ -445,12 +445,12 @@
 				</div>
 			#end
 		</div>
-		#if ($!viewRoster && !$!isMyWorkspace) 
-			<div class="messageInformation"> 
-				$tlang.getFormattedMessage("sinfo.manage.participants.moved","?sakai_action=doMenu_siteInfo_manageParticipants") 
-			</div>
-		#end
 		<div style="clear:both"> </div>
 		#end
-		#chef_flashnotif()
+	#if ($!viewRoster && !$!isMyWorkspace) 
+		<div class="messageInformation"> 
+			$tlang.getFormattedMessage("sinfo.manage.participants.moved","?sakai_action=doMenu_siteInfo_manageParticipants") 
+		</div>
+	#end
+	#chef_flashnotif()
 </div>
