@@ -73,7 +73,7 @@ commons.utils = {
 
         $('#commons-comment-edit-link-' + comment.id).click(commons.utils.editCommentHandler);
         $('#commons-comment-delete-link-' + comment.id).click(commons.utils.deleteCommentHandler);
-        commons.utils.attachProfilePopup(comment.id, comment.creatorId);
+        profile.attachPopups($("#commons-author-name-" + comment.id));
     },
     editPostHandler: function (e) {
 
@@ -266,27 +266,6 @@ commons.utils = {
 
         return false;
     },
-    attachProfilePopup: function (contentId, userId) {
-
-        $('#commons-author-name-' + contentId).qtip({
-            position: { viewport: $(window), adjust: { method: 'flipinvert none'} },
-            show: { event: 'click', delay: 0 },
-            style: { classes: 'commons-qtip qtip-shadow' },
-            hide: { event: 'click unfocus' },
-            content: {
-                text: function (event, api) {
-
-                    // Need https://jira.sakaiproject.org/browse/SAK-31355 for this to work
-                    return $.ajax( { url: "/direct/portal/" + userId + "/formatted", cache: false })
-                        .then(function (html) {
-                                return html;
-                            }, function (xhr, status, error) {
-                                api.set('content.text', status + ': ' + error);
-                            });
-                }
-            }
-        });
-    },
     formatDate: function (millis) {
 
         if (millis <= 0) {
@@ -455,7 +434,7 @@ commons.utils = {
 
         $(document).ready(function () {
 
-            self.attachProfilePopup(post.id, post.creatorId);
+            profile.attachPopups($("#commons-author-name-" + post.id));
 
             $('#commons-post-edit-link-' + post.id).click(self.editPostHandler);
             $('#commons-post-delete-link-' + post.id).click(self.deletePostHandler);
@@ -574,6 +553,8 @@ commons.utils = {
 
                     // Now render them into their placeholders
                     posts.forEach(function (p) { commons.utils.renderPost(p, 'commons-post-' + p.id); });
+
+                    profile.attachPopups($('.profile-popup-trigger'));
 
                     loadImage.hide();
                     try {
