@@ -16,7 +16,6 @@
 
 package org.sakaiproject.delegatedaccess.jobs;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,8 +81,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		//this will stop the job if there is already another instance running
-		if(!jobIsRunning.compareAndSet(false, true)){
-			log.warn("Stopping job since this job is already running");
+		// or if this is an auto-recover restart attempt
+		if (!jobIsRunning.compareAndSet(false, true) || arg0.isRecovering()){
+			log.warn("Stopping job since this job is/was already running");
 			return;
 		}
 
