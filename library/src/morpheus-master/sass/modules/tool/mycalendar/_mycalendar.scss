@@ -189,13 +189,13 @@
         margin: 0 auto;
     }
 
-    #{$nonPhone} {
+    @media #{$nonPhone} {
         .ui-datepicker td {
             width:120px;
         }
     }
 
-    #{$phone} {
+    @media #{$phone} {
         .ui-datepicker td {
             width:80px;
         }
