@@ -253,7 +253,10 @@ document.links[newindex].onclick();
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="previewMessage">
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton id="done" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton id="done" value="#{deliveryMessages.done}"
+        action="#{person.cleanResourceIdListInPreview}"
+        type="submit"
+        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
   </div>
 </h:panelGroup>
 
@@ -560,7 +563,10 @@ document.links[newindex].onclick();
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}"
+        action="#{person.cleanResourceIdListInPreview}"
+        type="submit"
+        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 </h:form>
