@@ -271,6 +271,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	return assignment.getTitle();
     }
 
+    public String getDescription(){
+        return "";
+    }
+
     public String getUrl() {
 	
 	if (simplePageBean != null) {

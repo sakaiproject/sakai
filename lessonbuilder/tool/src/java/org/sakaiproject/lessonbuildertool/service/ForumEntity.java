@@ -382,6 +382,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	}
     }
 
+    public String getDescription(){
+        return "";
+    }
+
     public String getUrl() {
 	
 	if (type == TYPE_FORUM_TOPIC) {
