@@ -29,11 +29,6 @@
             <artifactId>tomcat-catalina</artifactId>
             <version>${sakai.tomcat.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-catalina-jmx-remote</artifactId>
-            <version>${sakai.tomcat.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
