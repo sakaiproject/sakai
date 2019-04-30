@@ -103,5 +103,12 @@
     legend{
         font-size: inherit;
     }
-        
+
+	.orgGroupSync > input {
+		width: 100%;					// match the width of the buttons in the same cell
+	}
+
+	.orgGroupSync > input + input {
+		margin-top: $standard-space;	// if a button appears on top of another button, add spacing
+	}
 }
