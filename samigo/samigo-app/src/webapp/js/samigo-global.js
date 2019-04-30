@@ -96,3 +96,12 @@ function whichradio(el) {
 
 	return allowChange;
 }
+
+function returnToHostUrl(url) {
+
+  if (url) {
+    parent.location.href = url;
+    return false;
+  }
+}
+
