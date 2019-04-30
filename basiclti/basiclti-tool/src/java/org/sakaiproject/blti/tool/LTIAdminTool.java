@@ -1904,7 +1904,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			//Append the LTI item description to the URL so Lessons can use it.
 			String ltiToolDescription = reqProps.getProperty(LTIService.LTI_DESCRIPTION);
 			if(StringUtils.isNotEmpty(ltiToolDescription)){
-				returnUrl += "&ltiItemDescription=" + URLEncoder.encode(ltiToolDescription);
+				returnUrl += "&ltiItemDescription=" + StringEscapeUtils.escapeHtml4​(ltiToolDescription);
 			}
 
 			state.setAttribute(STATE_REDIRECT_URL, returnUrl);
