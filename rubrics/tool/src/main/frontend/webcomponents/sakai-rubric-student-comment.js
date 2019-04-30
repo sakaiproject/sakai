@@ -16,6 +16,16 @@ export class SakaiRubricStudentComment extends SakaiElement {
     return { criterion: { type: Object } };
   }
 
+  set criterion(newValue) {
+
+    var oldValue = this._criterion;
+    this._criterion = newValue;
+    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("null") === 0) ? "" : newValue.comments;
+    this.requestUpdate("criterion", oldValue);
+  }
+
+  get criterion() { return this._criterion; }
+
   render() {
 
     return html`
