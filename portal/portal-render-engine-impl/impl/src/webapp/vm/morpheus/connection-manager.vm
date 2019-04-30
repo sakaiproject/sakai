@@ -61,3 +61,4 @@
                 </div>
             </div>
         </div> <!-- Social connection manager modal -->
+        <div id="connection-manager-profile-popup-container"></div>
