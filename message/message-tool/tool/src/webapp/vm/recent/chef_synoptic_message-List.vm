@@ -26,7 +26,8 @@
 						<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
 					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 					#else
-                        <div class="textPanel">$item.Body</div>
+                        #set ($text=$item.Body)
+                        <div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
 					#end
 					#set ($size = 0)
 					#if (!$item.Header.Attachments.isEmpty())
@@ -80,7 +81,7 @@
 					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{item.Header.Date.toStringLocalFull()})</p>
 				#end
 				#if ($showBody) #set ($text=$item.Body)
-						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</div>
+						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
 				#end
 				</li>	
 			#end	
