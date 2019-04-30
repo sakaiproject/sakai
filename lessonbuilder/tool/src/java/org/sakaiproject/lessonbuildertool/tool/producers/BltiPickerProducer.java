@@ -26,10 +26,11 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.localeutil.LocaleGetter;										  
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -74,7 +75,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 	private SimplePageToolDao simplePageToolDao;
 	private BltiEntity bltiEntity;
 	public MessageLocator messageLocator;
-	public LocaleGetter localeGetter;											     
+	public LocaleGetter localeGetter;
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
@@ -126,6 +127,11 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 		simplePageBean.setItemId(itemId);
 
+		String ltiItemDescription = ToolUtils.getRequestParameter("ltiItemDescription");
+		if(StringUtils.isNotEmpty(ltiItemDescription)){
+			simplePageBean.setDescription(ltiItemDescription);
+		}
+
 		if (bltiTool != null)
 		    UIOutput.make(tofill, "mainhead", bltiTool.title);
 		else if (appStoresOnly) {
@@ -171,6 +177,8 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				}
 			} else {
 				toolListContainer = UIBranchContainer.make(tofill, "external-tool-container:");
+				UIOutput.make(toolListContainer, "blti-name-header", messageLocator.getMessage("simplepage.blti.tool.name"));
+				UIOutput.make(toolListContainer, "blti-description-header", messageLocator.getMessage("simplepage.blti.tool.description"));
 			}
 
 			for (UrlItem createLink: createLinks) {
@@ -184,6 +192,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				UILink link = UILink.make(linkContainer, "blti-create-link", createLink.Url);
 				link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
 				UIOutput.make(linkContainer, "blti-create-text", (bltiTool == null ? createLink.label : bltiTool.addText));
+				UIOutput.make(linkContainer, "blti-create-description", (bltiTool == null ? createLink.description : bltiTool.description));
 
 			    if ( createLink.fa_icon != null && !createLink.search ) {
 			        UIOutput.make(linkContainer, "blti-create-icon", "")
@@ -222,6 +231,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				UIInput.make(fb, "select", "simplePageBean.selectedBlti", ltiItemId);
 				UIInput.make(fb, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 				UIInput.make(fb, "item-id", "#{simplePageBean.itemId}");
+				UIInput.make(fb, "item-description", "simplePageBean.description", ltiItemDescription);
 				UICommand.make(fb, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
 				UICommand.make(fb, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 

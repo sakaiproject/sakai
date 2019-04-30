@@ -349,6 +349,10 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return FormattedText.convertFormattedTextToPlaintext(assessment.getTitle());
     }
 
+    public String getDescription(){
+        return "";
+    }
+
     public String getAssessmentAlias(Long publishedId) {
 	try {
 	    PublishedAssessmentData a = getPublishedAssessment(publishedId);

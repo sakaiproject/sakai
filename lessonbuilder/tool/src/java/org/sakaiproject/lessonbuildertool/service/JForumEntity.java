@@ -372,6 +372,9 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	return name;
     }
 
+    public String getDescription(){
+        return "";
+    }
 
     public String getUrl() {
 	if (url != null)
