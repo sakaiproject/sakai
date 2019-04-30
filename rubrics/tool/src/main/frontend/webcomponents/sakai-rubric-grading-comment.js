@@ -37,7 +37,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
       <div style="cursor: pointer;" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleEditor}" title="${tr("criterion_comment")}"></div>
 
       <!-- popover -->
-      <div id="criterion-editor-${this.criterion.id}" class="popover criterion-edit-popover left">
+      <div id="criterion-editor-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left">
         <div class="arrow"></div>
         <div class="popover-title" style="display: flex;">
           <div style="flex: auto;">
@@ -67,7 +67,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
       this.classList.add('show-tooltip');
 
-      var popover = $(`#criterion-editor-${this.criterion.id}`);
+      var popover = $(`#criterion-editor-${this.criterion.id}-${this.randombit}`);
 
       rubrics.css(popover[0], {
         'left': e.target.offsetLeft - 270 + "px",
@@ -91,7 +91,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
     // hide the edit popover
     this.classList.remove("show-tooltip");
-    $(`#criterion-editor-${this.criterion.id}`).hide();
+    $(`#criterion-editor-${this.criterion.id}-${this.randombit}`).hide();
     this.dispatchEvent(new CustomEvent('update-comment', {detail: {criterionId: this.criterion.id, comments: this.criterion.comments}, bubbles: true, composed: true}));
   }
 
