@@ -174,6 +174,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private HashMap<String, String> CONTENT_UPLOAD_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> WEBHOOK_SETUP_HEADERS = new HashMap<String, String>();
 	
+	private enum AUTO_EXCLUDE_SELF_MATCHING_SCOPE{
+		ALL,
+		NONE,
+		GROUP,
+		GROUP_CONTEXT
+	}
+	
 	@Setter
 	private MemoryService memoryService;
 	//Caches requests for instructors so that we don't have to send a request for every student
@@ -248,6 +255,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private final String PROP_ACCEPTABLE_FILE_TYPES = "turnitin.acceptable.file.types";
 
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
+	
+	private String autoExcludeSelfMatchingScope;
 
 	public void init() {
 		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
@@ -255,7 +264,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
 		// Retrieve Sakai Version if null set default 		
-		sakaiVersion = Optional.ofNullable(serverConfigurationService.getString("version.sakai", "")).orElse("UNKNOWN");		
+		sakaiVersion = serverConfigurationService.getString("version.sakai", "UNKNOWN");
+		autoExcludeSelfMatchingScope =Arrays.stream(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.values())
+				.filter(e -> e.name().equalsIgnoreCase(serverConfigurationService.getString("turnitin.oc.auto_exclude_self_matching_scope")))
+				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP).name();
+		log.info("Exclude Scope: " + autoExcludeSelfMatchingScope);
 
 		// Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
@@ -657,6 +670,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		Map<String, Object> reportData = new HashMap<String, Object>();
 		Map<String, Object> generationSearchSettings = new HashMap<String, Object>();
 		generationSearchSettings.put("search_repositories", repositories);
+		generationSearchSettings.put("auto_exclude_self_matching_scope", autoExcludeSelfMatchingScope);
 		reportData.put("generation_settings", generationSearchSettings);
 
 		Map<String, Object> viewSettings = new HashMap<String, Object>();
