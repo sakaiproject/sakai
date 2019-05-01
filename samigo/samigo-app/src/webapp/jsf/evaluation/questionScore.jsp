@@ -40,141 +40,23 @@ $Id$
  <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script type="text/javascript">
-function toPoint(id)
-{
-  var x=document.getElementById(id).value
-  document.getElementById(id).value=x.replace(',','.')
-}
-
-function downloadAll(url){
-	window.location = url;
-}
-
-</script>
 <script>
+  function toPoint(id) {
 
-  // RUBRICS CODE
-  var rubricChanged = false;
+    var x = document.getElementById(id).value;
+    document.getElementById(id).value = x.replace(',', '.');
+  }
 
-  $('body').on('total-points-updated', function (e) {
+  function downloadAll(url) {
+	window.location = url;
+  }
 
-    e.stopPropagation();
-    var itemId = e.target.parentElement.getAttribute("item-id");
+  function initRubricDialogWrapper(gradingId) {
 
-    var points = e.detail.value;
-
-    // handles point changes for assignments, updating the grade field if it exists.
-    var gradeField = $('.adjustedScore' + itemId);
-    if (gradeField) {
-      gradeField.val(points);
-    }
-
-    var gradingId = e.detail.evaluatedItemId.split(".")[0];
-
-    var inputs = document.getElementById(gradingId + "-inputs");
-
-    var totalPointsInputId = gradingId + "-totalpoints";
-    var totalPointsInput = document.getElementById(totalPointsInputId);
-
-    if (!totalPointsInput) {
-      totalPointsInput = document.createElement("input");
-      totalPointsInput.setAttribute("id", totalPointsInputId);
-      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-totalpoints";
-      totalPointsInput.setAttribute("type", "hidden");
-      totalPointsInput.setAttribute("name", name);
-      inputs.appendChild(totalPointsInput);
-    }
-
-    totalPointsInput.setAttribute("value", points);
-  });
-
-  $('body').on('update-comment', function (e) {
-      var gradingId = e.target.evaluatedItemId.split(".")[0];
-
-      var inputs = document.getElementById(gradingId + "-inputs");
-      var commentInputId = gradingId + "-comment-" + e.detail.criterionId;
-      var commentInput = document.getElementById(commentInputId);
-
-      if (!commentInput) {
-          commentInput = document.createElement("input");
-          commentInput.setAttribute("id", commentInputId);
-          commentInput.setAttribute("type", "hidden");
-          var name = "rbcs-" + e.target.evaluatedItemId + "-" + e.target.entityId + "-criterion-comment-" + e.detail.criterionId;
-          commentInput.setAttribute("name", name);
-          inputs.appendChild(commentInput);
-      }
-
-      commentInput.setAttribute("value", e.detail.comments);
-  });
-
-  $('body').on('rubric-rating-changed', function (e) {
-
-    rubricChanged = true;
-
-    var gradingId = e.detail.evaluatedItemId.split(".")[0];
-
-    var inputs = document.getElementById(gradingId + "-inputs");
-    var ratingInputId = gradingId +"-rating-" + e.detail.criterionId;
-    var ratingInput = document.getElementById(ratingInputId);
-
-    if (!ratingInput) {
-      ratingInput = document.createElement("input");
-      ratingInput.setAttribute("id", ratingInputId);
-      ratingInput.setAttribute("type", "hidden");
-      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-criterion-" + e.detail.criterionId;
-      ratingInput.setAttribute("name", name);
-      inputs.appendChild(ratingInput);
-    }
-
-    ratingInput.setAttribute("value", e.detail.value);
-  });
-
-  $('body').on('update-state-details', function (e) {
-
-    var gradingId = e.detail.evaluatedItemId.split(".")[0];
-
-    var inputs = document.getElementById(gradingId + "-inputs");
-    var stateInputId = "state-" + e.detail.evaluatedItemId ;
-    var stateInput = document.getElementById(stateInputId);
-
-    if (!stateInput) {
-      stateInput = document.createElement("input");
-      stateInput.setAttribute("id", stateInputId);
-      stateInput.setAttribute("type", "hidden");
-      var name = "rbcs-" + e.detail.evaluatedItemId + "-" + e.detail.entityId + "-state-details";
-      stateInput.setAttribute("name", name);
-      inputs.appendChild(stateInput);
-    }
-
-    stateInput.setAttribute("value", e.detail.value);
-  });
-
-  function initRubricDialog(gradingId) {
-
-    var modalId = "modal" + gradingId;
-    var previousScore =  $('.adjustedScore' + gradingId).val();
-    $("#" + modalId).dialog({
-      modal: true,
-      buttons: [
-        {
-          text: <h:outputText value="'#{evaluationMessages.save_cont}'"/>,
-          click: function () { $(this).dialog("close"); }
-        },
-        {
-          text: <h:outputText value="'#{evaluationMessages.cancel}'"/>,
-          click: function () {
-
-            $(this).dialog("close");
-              $('.adjustedScore' + gradingId).val(previousScore);
-            }
-        }
-      ],
-      height: "auto",
-      margin: 100,
-      width: 1100,
-      title: <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>
-    });
+    initRubricDialog(gradingId
+      , <h:outputText value="'#{evaluationMessages.save_cont}'"/>
+      , <h:outputText value="'#{evaluationMessages.cancel}'"/>
+      , <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>);
   }
 </script>
 
@@ -989,7 +871,7 @@ function downloadAll(url){
         <f:validateDoubleRange/>
       </h:inputText>
       <h:message for="qscore" style="color:red"/>
-       <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
+       <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
         <h:outputText styleClass="fa fa-table" id="rubrics-question-icon1" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
       </h:outputLink>
       <%@ include file="/jsf/evaluation/rubricModal.jsp" %> 
@@ -1012,7 +894,7 @@ function downloadAll(url){
 	  	<f:validateDoubleRange/>
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
-	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
+	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
 	  	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon2" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
 	  <%@ include file="/jsf/evaluation/rubricModal.jsp" %>
@@ -1034,7 +916,7 @@ function downloadAll(url){
 	  	<f:validateDoubleRange/>
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
-	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialog(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialog(#{description.assessmentGradingId}); return false;" >
+	  <h:outputLink title="#{evaluationMessages.saverubricgrading}" rendered="#{questionScores.hasAssociatedRubric}" value="#" onclick="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" onkeypress="initRubricDialogWrapper(#{description.assessmentGradingId}); return false;" >
 	  	<h:outputText styleClass="fa fa-table" id="rubrics-question-icon3" title="#{authorMessages.question_use_rubric}" style="margin-left:0.5em"/>
 	  </h:outputLink>
        <%@ include file="/jsf/evaluation/rubricModal.jsp" %>

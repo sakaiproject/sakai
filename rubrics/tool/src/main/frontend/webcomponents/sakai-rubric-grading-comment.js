@@ -24,7 +24,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
 
     var oldValue = this._criterion;
     this._criterion = newValue;
-    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("<p>null</p>") === 0) ? "" : newValue.comments;
+    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("null") === 0) ? "" : newValue.comments;
     this.requestUpdate("criterion", oldValue);
   }
 
@@ -92,7 +92,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
     // hide the edit popover
     this.classList.remove("show-tooltip");
     $(`#criterion-editor-${this.criterion.id}-${this.randombit}`).hide();
-    this.dispatchEvent(new CustomEvent('update-comment', {detail: {criterionId: this.criterion.id, comments: this.criterion.comments}, bubbles: true, composed: true}));
+    this.dispatchEvent(new CustomEvent('update-comment', {detail: {evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: this.criterion.id, value: this.criterion.comments}, bubbles: true, composed: true}));
   }
 
   setupEditor() {
