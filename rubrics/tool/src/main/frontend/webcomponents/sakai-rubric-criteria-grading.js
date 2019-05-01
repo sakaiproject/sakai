@@ -116,9 +116,14 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
     this.criteria.forEach(c => {
 
       if (c.id === e.detail.criterionId) {
-        c.comments = e.detail.comments;
+        c.comments = e.detail.value;
       }
     });
+
+    // Dispatch an event for each rating. We have to do this to give tools like
+    // Samigo a chance to build their form inputs properly.
+    this._dispatchRatingChanged(this.criteria);
+
     this.updateStateDetails();
   }
 
@@ -211,8 +216,23 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
     }
     
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
+    var detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: criterion.id, value: criterion.pointoverride };
+    this.dispatchEvent(new CustomEvent("rubric-rating-tuned", { detail: detail, bubbles: true, composed: true }));
+
+    // Dispatch an event for each rating. We have to do this to give tools like
+    // Samigo a chance to build their form inputs properly.
+    this._dispatchRatingChanged(this.criteria);
 
     this.updateTotalPoints();
+  }
+
+  _dispatchRatingChanged(criteria) {
+
+    criteria.forEach(c => {
+      let points = this.querySelector(`#criterion_row_${c.id} > .criterion-actions > div > .points-display`).innerHTML;
+      let detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: c.id, value: parseInt(points) };
+      this.dispatchEvent(new CustomEvent("rubric-rating-changed", {detail: detail, bubbles: true, composed: true}));
+    });
   }
 
   getOverriddenClass(ovrdvl,selected) {
@@ -268,11 +288,7 @@ export class SakaiRubricCriteriaGrading extends SakaiElement {
 
     // Dispatch an event for each rating. We have to do this to give tools like
     // Samigo a chance to build their form inputs properly.
-    this.criteria.filter(c => c.id != criterionId).forEach(c => {
-      let points = this.querySelector(`#criterion_row_${c.id} > .criterion-actions > div > .points-display`).innerHTML;
-      detail = { evaluatedItemId: this.evaluatedItemId, entityId: this.entityId, criterionId: c.id, value: parseInt(points) };
-      this.dispatchEvent(new CustomEvent("rubric-rating-changed", {detail: detail, bubbles: true, composed: true}));
-    });
+    this._dispatchRatingChanged(this.criteria.filter(c => c.id != criterionId));
 
     this.dispatchEvent(new CustomEvent("rubric-ratings-changed"));
     this.updateTotalPoints();
