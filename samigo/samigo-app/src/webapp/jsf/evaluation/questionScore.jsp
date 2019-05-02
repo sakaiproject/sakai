@@ -941,10 +941,15 @@ $Id$
         </h:panelGroup>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5' && questionScores.typeId != '16'}" >
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '1' and questionScores.typeId != '2' and questionScores.typeId != '9' and questionScores.typeId != '12' and questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5' && questionScores.typeId != '16'}" >
       	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
       </h:outputText>
-      
+
+      <%-- Multiple choice, Multiple correct, Multiple single selection and matching questions --%>
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '9' || questionScores.typeId == '12'}">
+          <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerHTMLConverter" />
+      </h:outputText>
+
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
 		<h:outputLink title="#{evaluationMessages.t_fullShortAnswer}"   value="#" onclick="window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/evaluation/fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/evaluation/fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
@@ -965,16 +970,7 @@ $Id$
     <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
-    
 
-    
-<%--
-    <h:outputLink title="#{evaluationMessages.t_rationale}"
-      rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12 || questionScores.typeId == '4') && description.rationale ne ''}" 
-      value="#" onclick="javascript:window.alert('#{description.rationale}');" onkeypress="javascript:window.alert('#{description.rationale}');" >
-    <h:outputText  value="(#{evaluationMessages.click_rationale})"/>
-    </h:outputLink>
---%>
       <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload2">
           <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
@@ -1016,8 +1012,13 @@ $Id$
           </h:commandLink>  
           </h:panelGroup>  
       </f:facet>
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5' and questionScores.typeId != '16'}" >
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '1' and questionScores.typeId != '2' and questionScores.typeId != '9' and questionScores.typeId != '12' and questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5' and questionScores.typeId != '16'}" >
       	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+      </h:outputText>
+
+      <%-- Multiple choice, Multiple correct, Multiple single selection and matching questions --%>
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '9' || questionScores.typeId == '12'}">
+          <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerHTMLConverter" />
       </h:outputText>
 
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
@@ -1043,7 +1044,6 @@ $Id$
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
 
-    
     <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload3">
           <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
@@ -1083,7 +1083,12 @@ $Id$
           </h:commandLink>    
           </h:panelGroup>
       </f:facet>
-	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5' and questionScores.typeId != '16'}" />
+    <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '1' and questionScores.typeId != '2' and questionScores.typeId != '9' and questionScores.typeId != '12' and questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5' and questionScores.typeId != '16'}" />
+
+    <%-- Multiple choice, Multiple correct, Multiple single selection and matching questions --%>
+    <h:outputText value="#{description.answer}" escape="false" rendered="#{ questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '9' || questionScores.typeId == '12'}">
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerHTMLConverter" />
+    </h:outputText>
 
     <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
     <h:outputText value="#{description.answer}" escape="false"/>
@@ -1106,7 +1111,7 @@ $Id$
     <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '12' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
 		<h:outputText escape="false" value="#{description.rationale}"/>
     </h:panelGroup>
-    
+
           <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload4">
           <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
