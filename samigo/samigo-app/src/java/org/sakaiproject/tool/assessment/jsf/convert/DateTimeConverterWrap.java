@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.faces.convert.DateTimeConverter;
+import javax.faces.convert.FacesConverter;
 
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
@@ -12,6 +13,7 @@ import org.sakaiproject.util.ResourceLoader;
  * This class is a wrapper for {@link DateTimeConverter}.<br>
  * The locale and time zone by Sakai preferences are used as a default.
  */
+@FacesConverter("org.sakaiproject.tool.assessment.jsf.convert.DateTimeConverterWrap")
 public class DateTimeConverterWrap extends DateTimeConverter {
 
 	@Override

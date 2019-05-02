@@ -1450,19 +1450,5 @@
  		<validator-id>finQuestionValidator</validator-id>
  		<validator-class>org.sakaiproject.tool.assessment.jsf.validator.FinQuestionValidator</validator-class>
 	</validator>
-	
-	<converter>
-		<converter-id>javax.faces.DateTime</converter-id>
-		<converter-class>org.sakaiproject.tool.assessment.jsf.convert.DateTimeConverterWrap</converter-class>
-	</converter>
-	
-	<converter>
-		<converter-id>
-			org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter
-		</converter-id>
-		<converter-class>
-			org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter
-		</converter-class>
-	</converter>
 
 </faces-config>

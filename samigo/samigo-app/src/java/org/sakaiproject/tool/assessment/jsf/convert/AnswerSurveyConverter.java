@@ -3,9 +3,11 @@ package org.sakaiproject.tool.assessment.jsf.convert;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
+import javax.faces.convert.FacesConverter;
 
 import org.sakaiproject.util.ResourceLoader;
 
+@FacesConverter("org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter")
 public class AnswerSurveyConverter implements Converter {
 
 	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
