@@ -63,7 +63,6 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -100,7 +99,7 @@ import org.w3c.dom.Element;
  * Implementation of {@link RubricsService}
  */
 @Slf4j
-public class RubricsServiceImpl implements RubricsService, EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator {
+public class RubricsServiceImpl implements RubricsService, EntityProducer, EntityTransferrer {
 
     protected static ResourceLoader rb = new ResourceLoader("org.sakaiproject.rubrics.bundle.Messages");
 
@@ -990,20 +989,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         return sessionManager.getCurrentSession().getId();
     }
 
-    //SAK-40154 related functions
-
     @Override
-    public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup) {
-        transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
-    }
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
-    @Override
-    public void transferCopyEntities(String fromContext, String toContext, List<String> ids) {
-        transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
-    }
-
-    @Override
-    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) {
         Map<String, String> transversalMap = new HashMap<>();
         try {
             TypeReferences.ResourcesType<Resource<Rubric>> resourceParameterizedTypeReference = new TypeReferences.ResourcesType<Resource<Rubric>>() {};
@@ -1038,8 +1026,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Override
-    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup) {
-        if(cleanup){
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
+
+        if (cleanup){
             try {
                 TypeReferences.ResourcesType<Resource<Rubric>> resourceParameterizedTypeReference = new TypeReferences.ResourcesType<Resource<Rubric>>() {};
                 URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
@@ -1063,10 +1052,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
                     deleteRubricResource(rubricResource.getLink(Link.REL_SELF).getHref(), RubricsConstants.RBCS_TOOL, toContext);
                 }
             } catch(Exception e){
-                log.error("Rubrics - transferCopyEntitiesRefMigrator : error trying to delete rubric -> {}" , e.getMessage());
+                log.error("Rubrics - transferCopyEntities: error trying to delete rubric -> {}" , e.getMessage());
             }
         }
-        return transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
+        return transferCopyEntities(fromContext, toContext, ids, null);
     }
 
     private String cloneRubricToSite(String rubricId, String toSite){

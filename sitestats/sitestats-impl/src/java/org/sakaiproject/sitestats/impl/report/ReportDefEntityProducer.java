@@ -62,17 +62,14 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 		return new String[]{StatsManager.SITESTATS_TOOLID};
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.entity.api.EntityTransferrer#transferCopyEntities(java.lang.String, java.lang.String, java.util.List)
-	 */
-	public void transferCopyEntities(String fromContext, String toContext, List ids) {
-		transferCopyEntities(fromContext, toContext, ids, false);		
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
+		return transferCopyEntities(fromContext, toContext, ids, transferOptions, false);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.EntityTransferrer#transferCopyEntities(java.lang.String, java.lang.String, java.util.List, boolean)
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup) {
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 		// determine report definitions to copy
 		List<ReportDef> list = null;
 		if(ids != null && ids.size() > 0) {
@@ -102,6 +99,8 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 			rd.getReportParams().setSiteId(toContext);
 			M_rm.saveReportDefinition(rd);			
 		}
+
+        return null;
 	}
 	
 	
