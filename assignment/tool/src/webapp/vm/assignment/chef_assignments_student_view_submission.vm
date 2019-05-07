@@ -267,8 +267,7 @@ $(document).ready(function(){
 					</div>
 				</div>
 			#end
-			#set($allowStudentViewReport = $assignment.Properties.get("s_view_report")) 
-			#if($!submitted && $!dateSubmitted && $allowReviewService && $assignment.ContentReview && $!allowStudentViewReport.equals('true'))
+			#if($allowReviewService && $assignment.ContentReview && $!submission && $!service.isContentReviewVisibleForSubmission($!submission))
 				<div class="row">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryHeader">$reviewServiceName&nbsp;$tlang.getString("review.report")</div>
