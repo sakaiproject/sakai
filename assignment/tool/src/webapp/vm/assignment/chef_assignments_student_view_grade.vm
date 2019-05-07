@@ -162,7 +162,7 @@
                     $reviewServiceName&nbsp;$tlang.getString("review.report")
                 </th>
                 <td>
-                    #if (!$submission)
+                    #if (!$submission || !$!service.isContentReviewVisibleForSubmission($!submission))
                         $tlang.getString("review.notavail")
                     #else
                         #set($reviewResults=$!service.getContentReviewResults($!submission))

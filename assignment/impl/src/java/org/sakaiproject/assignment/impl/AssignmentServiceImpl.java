@@ -3916,6 +3916,31 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return reviewResults;
     }
 
+    @Override
+    public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission)
+    {
+        if (submission == null)
+        {
+            throw new IllegalArgumentException("isContentReviewVisibleForSubmission invoked with submission = null");
+        }
+
+        Assignment assignment = submission.getAssignment();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        boolean hasInstructorPermission = allowGradeSubmission(assignmentReference);
+        boolean hasStudentPermission = false;
+        // If we have instructor permission, we can short circuit past student checks
+        // Student checks: ensure the assignment is configured to allow students to view reports, and that the user is permitted to get the specified submission
+        if (!hasInstructorPermission && Boolean.valueOf(assignment.getProperties().get("s_view_report")))
+        {
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            hasStudentPermission = allowGetSubmission(submissionReference);
+        }
+
+        // Content Review results should be visible iff the user has permission and the submission is not a draft
+        return (hasInstructorPermission || hasStudentPermission) && submission.getSubmitted() && submission.getDateSubmitted() != null;
+    }
+
     /**
      * Gets all attachments in the submission that are acceptable to the content review service
      */

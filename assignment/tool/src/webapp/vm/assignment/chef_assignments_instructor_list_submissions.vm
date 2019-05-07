@@ -712,33 +712,34 @@ function printView(url) {
 							#end	
 							#if ($allowReviewService && $assignment.ContentReview)
 								<td headers="reviewService">
-
-									#set($reviewResults=$!service.getContentReviewResults($!submission)) ##falta ContentReviewResults
-									#if ($reviewResults.size() >= 3)
-										<div>
-											<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this, this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
-											## TODO: reconsider for i18n:
-											$reviewResults.size() $tlang.getString("review.reports")
-										</div>
-										<div id="reportsDiv" style="display:none;">
-									#end
-									#foreach($reviewResult in $reviewResults)
-										<div>
-											#set ($props = $reviewResult.getContentResource().Properties)
-											<span class="reportIcon">
-												#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
-												<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
-												#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
-											</span>
-											#if ($reviewResult.isInline())
-												$tlang.getString("submission.inline")
-											#else
-												$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
-											#end
-										</div>
-									#end
-									#if ($reviewResults.size() >= 3)
-										</div>
+									#if ($!service.isContentReviewVisibleForSubmission($!submission))
+										#set($reviewResults=$!service.getContentReviewResults($!submission)) ##falta ContentReviewResults
+										#if ($reviewResults.size() >= 3)
+											<div>
+												<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this, this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')" aria-label="$tlang.getString('review.report.expand')" />
+												## TODO: reconsider for i18n:
+												$reviewResults.size() $tlang.getString("review.reports")
+											</div>
+											<div id="reportsDiv" style="display:none;">
+										#end
+										#foreach($reviewResult in $reviewResults)
+											<div>
+												#set ($props = $reviewResult.getContentResource().Properties)
+												<span class="reportIcon">
+													#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+													<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+													#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
+												</span>
+												#if ($reviewResult.isInline())
+													$tlang.getString("submission.inline")
+												#else
+													$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+												#end
+											</div>
+										#end
+										#if ($reviewResults.size() >= 3)
+											</div>
+										#end
 									#end
 								</td>
 							#end

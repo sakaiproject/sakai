@@ -6234,7 +6234,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // SAK-26322 - add inline as an attachment for the content review service
-                if (a.getContentReview()) {
+                if (post && a.getContentReview()) {
                     if (!isHtmlEmpty(text)) {
                         prepareInlineForContentReview(text, submission, state, u);
                     }
@@ -6261,13 +6261,12 @@ public class AssignmentAction extends PagedResourceActionII {
         //We will be replacing the inline submission's attachment
         //firstly, disconnect any existing attachments with AssignmentSubmission.PROP_INLINE_SUBMISSION set
         Set<String> attachments = submission.getAttachments();
-        for (String attachment : attachments) {
+        attachments.removeIf(attachment ->
+        {
             Reference reference = entityManager.newReference(attachment);
             ResourceProperties referenceProperties = reference.getProperties();
-            if ("true".equals(referenceProperties.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
-                attachments.remove(attachment);
-            }
-        }
+            return "true".equals(referenceProperties.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION));
+        });
 
         //now prepare the new resource
         //provide lots of info for forensics - filename=InlineSub_assignmentId_userDisplayId_(for_studentDisplayId)_date.html

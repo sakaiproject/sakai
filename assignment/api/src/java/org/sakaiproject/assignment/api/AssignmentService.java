@@ -735,4 +735,12 @@ public interface AssignmentService extends EntityProducer {
     String getUsersLocalDateTimeString(Instant date);
 
     public List<ContentReviewResult> getContentReviewResults(AssignmentSubmission submission);
+
+    /**
+     * Determines whether it is appropriate to display the content review results for a submission. For instance, this will be false if the submission is a draft or if the user doesn't have permission
+     * Note: this doesn't check if content review is enabled in the site / if the associated assignment has content review enabled; it is assumed that this has been handled by the caller.
+     * @param submission
+     * @return true if content review results for the given submission can be displayed.
+     */
+    public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission);
 }
