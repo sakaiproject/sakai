@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://github.com/dandelion/datatables">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
 <head th:fragment="head">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -9,18 +9,14 @@
 </head>
 <div th:fragment="bootstrap">
   <script>includeLatestJQuery('common.html');</script>
+  <script>includeWebjarLibrary('bootstrap');</script>
   <script th:inline="javascript">
-    /*<![CDATA[*/
-    /** Adjust frame height (if in an iframe) */
-    $(document)
-        .ready(
-            function() {
-              var toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
-              if (toolId) {
-                setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
-              }
-            });
-    /*]]>*/
+    $(document).ready(function () {
+      var toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
+      if (toolId) {
+        setMainFrameHeight('Main' + toolId.replace(/-/g, 'x'));
+      }
+    });
   </script>
 </div>
 <div th:fragment="loadBundlesFromDb (enabled)">
