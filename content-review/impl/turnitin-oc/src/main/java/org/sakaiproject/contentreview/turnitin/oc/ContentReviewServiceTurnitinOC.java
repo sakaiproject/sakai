@@ -659,7 +659,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return response;
 	}
 
-	private void generateSimilarityReport(String reportId, String assignmentRef, boolean isDraft) throws Exception {
+	private void generateSimilarityReport(String reportId, String assignmentRef) throws Exception {
 		
 		Assignment assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
 		Map<String, String> assignmentSettings = assignment.getProperties();
@@ -678,8 +678,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		reportData.put("view_settings", viewSettings);
 		
 		Map<String, Object> indexingSettings = new HashMap<String, Object>();
-		//Drafts are not added to index to avoid self plagiarism
-		indexingSettings.put("add_to_index", !isDraft);
+		indexingSettings.put("add_to_index", true);
 		reportData.put("indexing_settings", indexingSettings);
 
 		HashMap<String, Object> response = makeHttpCall("PUT",
@@ -900,8 +899,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							ContentReviewItem referenceItem = quededReferenceItem.isPresent() ? quededReferenceItem.get() : null;							
 							if (referenceItem != null && checkForContentItemInSubmission(referenceItem, assignment)) {
 								// Regenerate similarity request for reference id
-								// Report is recalled after due date, no need to account for draft
-								generateSimilarityReport(referenceItem.getExternalId(), referenceItem.getTaskId(), false);
+								// Report is recalled after due date
+								generateSimilarityReport(referenceItem.getExternalId(), referenceItem.getTaskId());
 								//reschedule reference item by setting score to null, reset retry time and set status to awaiting report
 								referenceItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 								referenceItem.setRetryCount(Long.valueOf(0));
@@ -1122,12 +1121,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return cal.getTime();
 	}
 
-	private boolean checkForDraft(ContentReviewItem item, Assignment assignment) throws Exception {
-		// Checks if current item is a draft or submitted
-		AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
-		return Optional.ofNullable(!currentSubmission.getSubmitted()).orElse(false);
-	}
-	
 	private boolean checkForContentItemInSubmission(ContentReviewItem item, Assignment assignment) {
 		try {
 			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
@@ -1175,10 +1168,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			switch (submissionStatus) {
 			case "COMPLETE":
-				// Check if current item is a draft submission
-				boolean submissionIsDraft = checkForDraft(item, assignment);
 				// If submission status is complete, start similarity report process
-				generateSimilarityReport(item.getExternalId(), item.getTaskId(), submissionIsDraft);
+				generateSimilarityReport(item.getExternalId(), item.getTaskId());
 				// Update item status for loop 2
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 				// Reset retry count
@@ -1191,10 +1182,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
-				// Check for items that generate reports both immediately and on due date or draft items
+				// Check for items that generate reports both immediately and on due date
 				// Create a placeholder item that will regenerate and index report after due date
-				if (assignmentDueDate != null && assignmentDueDate.after(new Date())
-						&& (GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed) || submissionIsDraft)) {
+				if (assignmentDueDate != null && assignmentDueDate.after(new Date()) && GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed)) {
 					createPlaceholderItem(item, assignmentDueDate);
 				}
 				break;
@@ -1605,7 +1595,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			if (StringUtils.isNotEmpty(secrete_key_encoded) && signature_header.equals(secrete_key_encoded)) {
 				if (SUBMISSION_COMPLETE_EVENT_TYPE.equals(eventType)) {
 					if (webhookJSON.has("id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
-						// Allow cb to access assignment settings, needed for draft check
+						// Allow cb to access assignment settings, needed for due date check
 						SecurityAdvisor advisor = pushAdvisor();
 						try {
 							log.info("Submission complete webhook cb received");
