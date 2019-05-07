@@ -35,17 +35,28 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoader;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * <p>
- * Sakai's extension to Spring's ContextLoader - adds the location of the ComponentManager shared AC, linking the local AC to it as parent, and loading localy hosted components into shared.
+ * Sakai's extension to Spring's {@link ContextLoader} - adds the location of the ComponentManager shared AC,
+ * linking the local AC to it as parent, and loading localy hosted components into shared.
  * </p>
  */
+@NoArgsConstructor
 @Slf4j
 public class SakaiContextLoader extends ContextLoader
 {
 	public static final String SPRING_CONTEXT_SUFFIX = "-context.xml";
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public SakaiContextLoader(WebApplicationContext context) {
+		super(context);
+	}
 
 	/**
 	 * Allows loading/override of custom bean definitions from sakai.home
