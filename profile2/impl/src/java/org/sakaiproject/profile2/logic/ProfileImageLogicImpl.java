@@ -15,6 +15,13 @@
  */
 package org.sakaiproject.profile2.logic;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +30,14 @@ import java.net.URLConnection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
@@ -53,6 +65,27 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ProfileImageLogicImpl implements ProfileImageLogic {
+
+	@Setter
+	private SakaiProxy sakaiProxy;
+
+	@Setter
+	private ProfilePrivacyLogic privacyLogic;
+
+	@Setter
+	private ProfileConnectionsLogic connectionsLogic;
+
+	@Setter
+	private ProfilePreferencesLogic preferencesLogic;
+
+	@Setter
+	private ProfileDao dao;
+
+	@Setter
+	private CacheManager cacheManager;
+
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.images";
 
 	/**
  	 * {@inheritDoc}
@@ -90,8 +123,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if(!sakaiProxy.isUserMyWorkspace(siteId)) {
 			log.debug("checking if user: " + currentUserId + " has permissions in site: " + siteId);
 			if(!sakaiProxy.isUserAllowedInSite(currentUserId, ProfileConstants.ROSTER_VIEW_PHOTO, siteId)) {
-				profileImage.setExternalImageUrl(defaultImageUrl);
-				profileImage.setDefault(true);
+				boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+				if (useAvatarInitials) {
+					profileImage = this.getProfileAvatarInitials(userUuid);
+					profileImage.setMimeType("image/png");
+				} else {
+					profileImage.setExternalImageUrl(defaultImageUrl);
+					profileImage.setDefault(true);
+				}
 				return profileImage;
 			}
 		}
@@ -232,8 +271,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				
 				//if no uploaded image, use the default image url
 				if(mtba == null || mtba.getBytes() == null) {
-					image.setExternalImageUrl(defaultImageUrl);
-					image.setDefault(true);
+					boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+					if (useAvatarInitials) {
+						image = this.getProfileAvatarInitials(userUuid);
+						image.setMimeType("image/png");
+					} else {
+						image.setExternalImageUrl(defaultImageUrl);
+						image.setDefault(true);
+					}
 				} else {
 					image.setUploadedImage(mtba.getBytes());
 					image.setMimeType(mtba.getMimeType());
@@ -292,22 +337,43 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		//check source and get appropriate value
 		if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_URL)){
 			image.setOfficialImageUrl(getOfficialImageUrl(userUuid));
-			
+
 			//PRFL-790 if URL security is required, get and set bytes and remove url
-			boolean urlSecurityEnabled = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.official.image.url.secure", "false"));
-			if(urlSecurityEnabled && StringUtils.isNotBlank(image.getOfficialImageUrl())) {
-				
-				log.debug("URL Security is active");
-				byte[] imageUrlBytes = this.getUrlAsBytes(image.getOfficialImageUrl());
-				image.setUploadedImage(imageUrlBytes);
-				image.setOfficialImageUrl(null);
+			if(StringUtils.isNotBlank(image.getOfficialImageUrl())) {
+				boolean isFromUrl = false;
+
+				if (getUnavailableImageURL().equals(image.getOfficialImageUrl())) {
+					boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+					if (useAvatarInitials) {
+						image = this.getProfileAvatarInitials(userUuid);
+						image.setMimeType("image/png");
+					} else {
+						image.setExternalImageUrl(defaultImageUrl);
+						image.setDefault(true);
+						isFromUrl = true;
+					}
+				} else isFromUrl = true;
+
+				boolean urlSecurityEnabled = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.official.image.url.secure", "false"));
+				if (urlSecurityEnabled && isFromUrl) {
+					log.debug("URL Security is active");
+					byte[] imageUrlBytes = this.getUrlAsBytes(image.getOfficialImageUrl());
+					image.setUploadedImage(imageUrlBytes);
+					image.setOfficialImageUrl(null);
+				}
 			}
-						
+
 		} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_PROVIDER)){
 			String data = getOfficialImageEncoded(userUuid);
 			if(StringUtils.isBlank(data)) {
-				image.setExternalImageUrl(defaultImageUrl);
-				image.setDefault(true);
+				boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+				if (useAvatarInitials) {
+					image = this.getProfileAvatarInitials(userUuid);
+					image.setMimeType("image/png");
+				} else {
+					image.setExternalImageUrl(defaultImageUrl);
+					image.setDefault(true);
+				}
 			} else {
 				image.setOfficialImageEncoded(data);
 			}
@@ -323,8 +389,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				if(data != null) {
 					image.setUploadedImage(data);
 				} else {
-					image.setExternalImageUrl(defaultImageUrl);
-					image.setDefault(true);
+					boolean useAvatarInitials = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.enabled", "true"));
+					if (useAvatarInitials) {
+						image = this.getProfileAvatarInitials(userUuid);
+						image.setMimeType("image/png");
+					} else {
+						image.setExternalImageUrl(defaultImageUrl);
+						image.setDefault(true);
+					}
 				}
 			}
 			catch (IOException e) {
@@ -977,21 +1049,82 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		} 
 		return data;
 	}
-	
-	
-	@Setter
-	private SakaiProxy sakaiProxy;
-	
-	@Setter
-	private ProfilePrivacyLogic privacyLogic;
-	
-	@Setter
-	private ProfileConnectionsLogic connectionsLogic;
-	
-	@Setter
-	private ProfilePreferencesLogic preferencesLogic;
-	
-	@Setter
-	private ProfileDao dao;
-	
+
+	@Override
+	public ProfileImage getProfileAvatarInitials(String userUuid) {
+		if(cache.containsKey(userUuid)) {
+			return (ProfileImage)cache.get(userUuid);
+
+		} else {
+			ProfileImage image = new ProfileImage();
+			BufferedImage bufferedImage = new BufferedImage(ProfileConstants.PROFILE_AVATAR_WIDTH, ProfileConstants.PROFILE_AVATAR_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+
+			String displayName = sakaiProxy.getUserDisplayName(userUuid);
+			String[] names = displayName.split(" ");
+			String initials = "";
+			int fontSize;
+			int profileInitialsSize = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.size", "2"));
+			switch(profileInitialsSize){
+				case 1:
+					initials = Character.toString(names[0].charAt(0));
+					fontSize = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.font.size", ProfileConstants.DFLT_PROFILE_AVATAR_FONT_SIZE_1_CHAR));
+					break;
+				case 2:
+				default:
+					for (int i=0; i < names.length;i++) {
+						if (i > 1) break;
+						initials += Character.toString(names[i].charAt(0));
+					}
+					fontSize = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.font.size", ProfileConstants.DFLT_PROFILE_AVATAR_FONT_SIZE_2_CHAR));
+					break;
+			}
+			initials = initials.toUpperCase();
+
+			Graphics2D background = bufferedImage.createGraphics();
+			background.setPaint(Color.decode(this.getAvatarInitialsColor(displayName)));
+			background.fillRect(0, 0, ProfileConstants.PROFILE_AVATAR_WIDTH, ProfileConstants.PROFILE_AVATAR_HEIGHT);
+
+			String fontFamily = sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.font", ProfileConstants.DFLT_PROFILE_AVATAR_FONT_FAMILY);
+			Graphics2D initialsg2d = bufferedImage.createGraphics();
+			initialsg2d.setPaint(Color.WHITE);
+			initialsg2d.setFont(new Font(fontFamily, Font.PLAIN, fontSize));
+			FontMetrics fm = initialsg2d.getFontMetrics();
+			int x = (ProfileConstants.PROFILE_AVATAR_WIDTH/2) - fm.stringWidth(initials) / 2;
+			int y = (ProfileConstants.PROFILE_AVATAR_HEIGHT - fm.getHeight()) / 2 + fm.getAscent();
+			initialsg2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			initialsg2d.drawString(initials, x, y);
+			initialsg2d.dispose();
+
+			byte[] bytes = null;
+			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()){
+				ImageIO.write(bufferedImage, "png", baos);
+				bytes = baos.toByteArray();
+			} catch (IOException ex) {
+				log.error("Cannot generate profile avatar for the user {}", userUuid);
+			}
+
+			if(bytes != null) {
+				image.setUploadedImage(bytes);
+			} else {
+				image.setExternalImageUrl(getUnavailableImageURL());
+				image.setDefault(true);
+			}
+			cache.put(userUuid, image);
+			return image;
+		}
+	}
+
+	private String getAvatarInitialsColor(String displayName) {
+		int rand = 0;
+		for (int i=0;i<displayName.length();i++) {
+			rand += displayName.charAt(i);
+		}
+		String[] profileAvatarColors = sakaiProxy.getServerConfigurationParameter("profile2.avatar.initials.colors", ProfileConstants.DFLT_PROFILE_AVATAR_COLORS).split(",");
+		int colorIndex = (int) (Math.floor(rand % profileAvatarColors.length));
+		return profileAvatarColors[colorIndex];
+	}
+
+	public void init() {
+		cache = cacheManager.createCache(CACHE_NAME);
+	}
 }
