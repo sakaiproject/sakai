@@ -26,20 +26,27 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.SakaiContextLoader;
 import org.sakaiproject.component.impl.SpringCompMgr;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * <p>
  * Sakai's extension to the Spring ContextLoaderListener - use our ContextLoader, and increment / decrement the child count of the ComponentManager on init / destroy.
  * </p>
  */
+@NoArgsConstructor
 @Slf4j
 public class SakaiContextLoaderListener extends SakaiContextLoader implements ServletContextListener
 {
+	public SakaiContextLoaderListener(WebApplicationContext context) {
+		super(context);
+	}
+
 	/**
 	 * Initialize the root web application context.
 	 */
