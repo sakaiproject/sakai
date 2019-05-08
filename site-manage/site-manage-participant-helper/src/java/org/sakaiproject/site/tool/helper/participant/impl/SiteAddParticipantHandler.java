@@ -82,7 +82,7 @@ public class SiteAddParticipantHandler {
     public AuthzGroupService authzGroupService = null;
     public ToolManager toolManager = null;
     public SessionManager sessionManager = null;
-    @Setter Password password;
+    @Setter private Password password;
     public ServerConfigurationService serverConfigurationService;
     private final String HELPER_ID = "sakai.tool.helper.id";
     private static final UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
