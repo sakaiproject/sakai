@@ -675,17 +675,13 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
     * TODO: link the old placement id to the new placement id instead of passing null in line:
     * ChatChannel newChannel = getChatManager().createNewChannel(toContext, oldChannel.getTitle(), false, false, null);
     */
-   public void transferCopyEntities(String fromContext, String toContext, List ids) 
-   {
-      try
-      {           
+   public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
+
+      try {
          // retrieve all of the chat rooms
          List channels = getChatManager().getContextChannels(fromContext, true);
-         if (channels != null && !channels.isEmpty()) 
-         {
-            Iterator channelIterator = channels.iterator();
-            while (channelIterator.hasNext()) 
-            {
+         if (channels != null && !channels.isEmpty()) {
+            for (Iterator channelIterator = channels.iterator(); channelIterator.hasNext();) {
                ChatChannel oldChannel = (ChatChannel)channelIterator.next();
                ChatChannel newChannel = getChatManager().createNewChannel(toContext, oldChannel.getTitle(), false, false, null);
                newChannel.setDescription(oldChannel.getDescription());
@@ -694,22 +690,18 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
                newChannel.setPlacementDefaultChannel(oldChannel.isPlacementDefaultChannel());
                try {
                   getChatManager().updateChannel(newChannel, false);
-               } 
-               catch (Exception e) 
-               {
+               }  catch (Exception e) {
                   log.warn("Exception while creating channel: " + newChannel.getTitle() + ": " + e);
                }
-
             }
          }
          
          transferSynopticOptions(fromContext, toContext);    
-      }
-
-      catch (Exception any)
-      {
+      } catch (Exception any) {
          log.warn(".transferCopyEntities(): exception in handling " + serviceName() + " : ", any);
       }
+
+	  return null;
    }
    
    /**
@@ -777,42 +769,30 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       this.chatManager = chatManager;
    }
    
-   public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
-	{	
-	   try
-	   {   
-		   if(cleanup == true) 
-		   {
-			   // retrieve all of the chat rooms
-			   List channels = getChatManager().getContextChannels(toContext, true);
-			   
-			   if (channels != null && !channels.isEmpty()) 
-			   {
-				   Iterator channelIterator = channels.iterator();
-				   
-				   while (channelIterator.hasNext()) 
-				   {
-					   ChatChannel oldChannel = (ChatChannel)channelIterator.next();
-					  
-					   try 
-					   {
-						   getChatManager().deleteChannel(oldChannel);
-					   } 
-					   catch (Exception e) 
-					   {
-						   log.debug("Exception while removing chat channel: " + e);
-					   }
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
-				   }
-			   }
-		   } 
-	       transferCopyEntities(fromContext, toContext, ids);
-	   }
+        try {
+            if (cleanup) {
+                // retrieve all of the chat rooms
+                List channels = getChatManager().getContextChannels(toContext, true);
 
-	   catch (Exception e)
-	   {
-	       log.debug("Chat transferCopyEntities(): exception in handling " + e);
-	   }
-	}
+                if (channels != null && !channels.isEmpty()) {
+                    for (Iterator channelIterator = channels.iterator(); channelIterator.hasNext();) {
+                        ChatChannel oldChannel = (ChatChannel)channelIterator.next();
 
+                        try  {
+                            getChatManager().deleteChannel(oldChannel);
+                        } catch (Exception e) {
+                           log.debug("Exception while removing chat channel: " + e);
+                       }
+                    }
+                }
+            }
+            transferCopyEntities(fromContext, toContext, ids, transferOptions);
+        } catch (Exception e) {
+            log.debug("Chat transferCopyEntities(): exception in handling " + e);
+        }
+
+        return null;
+    }
 }

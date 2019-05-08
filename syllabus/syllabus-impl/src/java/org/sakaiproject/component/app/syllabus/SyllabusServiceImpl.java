@@ -57,7 +57,6 @@ import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -85,7 +84,7 @@ import org.sakaiproject.util.cover.LinkMigrationHelper;
  *         Preferences - Java - Code Style - Code Templates
  */
 @Slf4j
-public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, EntityTransferrerRefMigrator
+public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 {
   private static final String SYLLABUS = "syllabus";
   private static final String SYLLABUS_ID = "id";
@@ -1113,18 +1112,13 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 		return toolIds;
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List<String> ids){
-		transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
-	}
-
-
-	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) 
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
 		
 		try 
 		{
-			log.debug("transfer copy syllbus itmes by transferCopyEntitiesRefMigrator");
+			log.debug("transfer copy syllbus itmes by transferCopyEntities");
 			String fromPage = fromContext;
 			SyllabusItem fromSyllabusItem = syllabusManager
 					.getSyllabusItemByContextId(fromPage);
@@ -1312,12 +1306,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 				checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM,reference));
 	}
 	
-	public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup){
-		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
-	}
-
-
-	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup)
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
 	{	
 		Map<String, String> transversalMap = new HashMap<String, String>();
 		try
@@ -1345,9 +1334,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 		}
 		catch (Exception e)
 		{
-			log.debug("Syllabus transferCopyEntitiesRefMigrator failed" + e);
+			log.debug("Syllabus transferCopyEntities failed" + e);
 		}
-		transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+		transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, null));
 		
 		return transversalMap;
 	}

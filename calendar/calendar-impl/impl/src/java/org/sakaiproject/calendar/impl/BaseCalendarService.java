@@ -97,7 +97,7 @@ import org.sakaiproject.util.cover.LinkMigrationHelper;
  * </p>
  */
 @Slf4j
-public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator, Observer
+public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, Observer
 {
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
@@ -1864,18 +1864,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return results.toString();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-        public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
-        {
-                transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds); 
-        }
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
 
-        public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
-	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
-		
+
 		// get the channel associated with this site
 		String oCalendarRef = calendarReference(fromContext, SiteService.MAIN_CONTAINER);
 
@@ -5534,13 +5526,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_services = services;
 	}
 
-        public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
-        {
-                transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
-        }
-
-        public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
-	{	
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
+	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
 		try
 		{
@@ -5576,7 +5563,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				
 			}
-			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));	
+			transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, null));
 		}
 		catch (Exception e)
 		{

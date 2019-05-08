@@ -128,26 +128,26 @@ public class SiteActionTestTools {
         when(state.getAttribute(STATE_SITE_TYPE)).thenReturn("project");
 
         List<String> filteredToolIds;
-        filteredToolIds = siteAction.originalToolIds(singletonList("not.present"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(singletonList("not.present"), state);
         assertTrue(filteredToolIds.isEmpty());
 
-        filteredToolIds = siteAction.originalToolIds(singletonList("sakai.single"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(singletonList("sakai.single"), state);
         assertEquals(Arrays.asList("sakai.single"), filteredToolIds);
 
-        filteredToolIds = siteAction.originalToolIds(Arrays.asList("sakai.single", "not.present"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(Arrays.asList("sakai.single", "not.present"), state);
         assertEquals(Arrays.asList("sakai.single"), filteredToolIds);
 
-        filteredToolIds = siteAction.originalToolIds(Arrays.asList("sakai.single1", "not.present"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(Arrays.asList("sakai.single1", "not.present"), state);
         assertEquals(Arrays.asList(), filteredToolIds);
 
-        filteredToolIds = siteAction.originalToolIds(Arrays.asList("sakai.multiple", "not.present"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(Arrays.asList("sakai.multiple", "not.present"), state);
         assertEquals(Arrays.asList("sakai.multiple"), filteredToolIds);
 
-        filteredToolIds = siteAction.originalToolIds(Arrays.asList("sakai.multiple1", "sakai.multiple2"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(Arrays.asList("sakai.multiple1", "sakai.multiple2"), state);
         assertEquals(Arrays.asList("sakai.multiple"), filteredToolIds);
 
         // Has to be 36 characters long.
-        filteredToolIds = siteAction.originalToolIds(Arrays.asList("012345678901234567890123456789012345sakai.multiple"), state);
+        filteredToolIds = siteAction.getOriginalToolIds(Arrays.asList("012345678901234567890123456789012345sakai.multiple"), state);
         assertEquals(Arrays.asList("sakai.multiple"), filteredToolIds);
 
     }
