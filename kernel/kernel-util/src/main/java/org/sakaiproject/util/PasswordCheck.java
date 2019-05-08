@@ -260,6 +260,7 @@ public class PasswordCheck {
 	 * capitals D, O, numbers 1, 0, and lower case o, and l.
 	 * 
 	 * @return generated password
+	 * @deprecated {@link org.sakaiproject.util.api.Password#generatePassword()}
 	 */
 	public static String generatePassword()
 	{
@@ -274,6 +275,7 @@ public class PasswordCheck {
 	 * 
 	 * @param passwordLength the length of password desired
 	 * @return generated password
+	 * @deprecated {@link org.sakaiproject.util.api.Password#generatePassword()}
 	 */
 	public static String generatePassword(int passwordLength)
 	{
