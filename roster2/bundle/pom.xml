@@ -3,8 +3,8 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>ROSTER2 I18N</name>
-    <artifactId>sakai-roster2-i18n</artifactId>
+    <name>ROSTER2 BUNDLE</name>
+    <artifactId>sakai-roster2-bundle</artifactId>
     <groupId>org.sakaiproject.roster2</groupId>
 
     <parent>
@@ -22,7 +22,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/i18n</directory>
+                <directory>${basedir}/src/bundle</directory>
                 <includes>
                     <include>**/*.properties</include>
                 </includes>

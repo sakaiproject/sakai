@@ -17,7 +17,7 @@
 
     <modules>
         <module>tool</module>
-        <module>i18n</module>
+        <module>bundle</module>
     </modules>
 
   <dependencies>

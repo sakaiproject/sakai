@@ -100,15 +100,15 @@ public class RosterTool extends HttpServlet {
             } else if (parts.length == 3) {
                 locale = new Locale(parts[0], parts[1], parts[2]);
             }
-            rl = new ResourceLoader("org.sakaiproject.roster.i18n.ui");
+            rl = new ResourceLoader("org.sakaiproject.roster.bundle.Messages");
             rl.setContextLocale(locale);
         } else {
-            rl = new ResourceLoader(userId, "org.sakaiproject.roster.i18n.ui");
+            rl = new ResourceLoader(userId, "org.sakaiproject.roster.bundle.Messages");
             locale = rl.getLocale();
         }
 
         if (locale == null || rl == null) {
-            log.error("Failed to load the site or user i18n bundle");
+            log.error("Failed to load the site or user messages bundle");
         }
 
         String language = locale.getLanguage();
