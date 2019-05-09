@@ -749,46 +749,44 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				lock.unlock();
 			}
 			
-		}else if(StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
+		}else if(StatsManager.SITEVISITEND_EVENTID.equals(eventId) && statsManager.getEnableSitePresences()){
 			// site presence ended
-			if(statsManager.getEnableSitePresences()) {
-				String pKey = siteId+userId+date;
-				lock.lock();
-				try{
-					SitePresenceConsolidation spc = presencesMap.get(pKey);
-					if(spc == null) {
-						Calendar c = Calendar.getInstance(); 
-						c.setTime(date); 
-						c.add(Calendar.DATE, -1);
-						Date dateOneDayBefore = c.getTime();						 
-						pKey = siteId+userId+dateOneDayBefore;
-						spc = presencesMap.get(pKey);
-					}
-					if(spc == null) {
-						SitePresence sp = new SitePresenceImpl();
-						sp.setSiteId(siteId);
-						sp.setUserId(userId);
-						sp.setDate(date);
-						sp.setLastVisitStartTime(null);
-						spc = new SitePresenceConsolidation(sp, dateTime);
-					}
-					if(spc.sitePresence.getLastVisitStartTime() != null) {
-						long existingDuration = spc.sitePresence.getDuration();
-						long start = spc.sitePresence.getLastVisitStartTime().getTime();
-						long thisEventTime = dateTime.getTime();
-						long additionalDuration = thisEventTime - start;
-						if(additionalDuration > 4*60*60*1000) {
-							log.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
-						}
-						spc.sitePresence.setDuration(existingDuration + additionalDuration);						
-						spc.sitePresence.setLastVisitStartTime(null);	
-					}
-					presencesMap.put(pKey, spc);
-				}finally{
-					lock.unlock();
+			String pKey = siteId+userId+date;
+			lock.lock();
+			try{
+				SitePresenceConsolidation spc = presencesMap.get(pKey);
+				if(spc == null) {
+					Calendar c = Calendar.getInstance();
+					c.setTime(date);
+					c.add(Calendar.DATE, -1);
+					Date dateOneDayBefore = c.getTime();
+					pKey = siteId+userId+dateOneDayBefore;
+					spc = presencesMap.get(pKey);
 				}
+				if(spc == null) {
+					SitePresence sp = new SitePresenceImpl();
+					sp.setSiteId(siteId);
+					sp.setUserId(userId);
+					sp.setDate(date);
+					sp.setLastVisitStartTime(null);
+					spc = new SitePresenceConsolidation(sp, dateTime);
+				}
+				if(spc.sitePresence.getLastVisitStartTime() != null) {
+					long existingDuration = spc.sitePresence.getDuration();
+					long start = spc.sitePresence.getLastVisitStartTime().getTime();
+					long thisEventTime = dateTime.getTime();
+					long additionalDuration = thisEventTime - start;
+					if(additionalDuration > 4*60*60*1000) {
+						log.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
+					}
+					spc.sitePresence.setDuration(existingDuration + additionalDuration);
+					spc.sitePresence.setLastVisitStartTime(null);
+				}
+				presencesMap.put(pKey, spc);
+			}finally{
+				lock.unlock();
 			}
-		} 
+		}
 		
 	}
 
