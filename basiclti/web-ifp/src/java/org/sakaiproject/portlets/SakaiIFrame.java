@@ -61,6 +61,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.app.VelocityEngine;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 
 // lti service
@@ -251,6 +252,8 @@ public class SakaiIFrame extends GenericPortlet {
 	 */
 	private Map<String, Object> patchContentItem(Long key, Placement placement)
 	{
+		final boolean isSuperUser = SecurityService.isSuperUser();
+
 		// Look up the content item, bypassing authz checks
 		Map<String, Object> content = m_ltiService.getContentDao(key);
 		if ( content == null ) return null;
@@ -260,7 +263,37 @@ public class SakaiIFrame extends GenericPortlet {
 		// checking Authz to see is we can touch this tool
 		String siteId = placement.getContext();
 		Map<String, Object> tool = m_ltiService.getTool(tool_id, siteId);
-		if ( tool == null ) return null;
+
+		// If this is an admin action, create a new copy of the tool
+		if ( tool == null && isSuperUser ) {
+			tool = m_ltiService.getToolDao(key, null, true);
+			if (tool != null) {
+				// Clean up the tool before attempting to duplicate it
+				tool.remove(LTIService.LTI_CREATED_AT);
+				tool.remove(LTIService.LTI_UPDATED_AT);
+				tool.put(LTIService.LTI_SITE_ID, siteId);
+
+				Object retval = m_ltiService.insertToolDao(tool, siteId, true, true);
+				if (retval instanceof String) {
+					log.error("Unable to create new tool id: {}, site: {}", tool_id, siteId);
+					return null;
+				}
+				else if (retval instanceof Long){
+					// Load the newly-duplicated lti_tool
+					tool_id = (long) retval;
+					tool = m_ltiService.getToolDao(tool_id, null, true);
+					log.info("Copied tool_id {} into site {}", tool_id, siteId);
+				}
+				else {
+					log.error("Attempted to copy tool, siteId: {}, retval: {}", siteId, retval);
+					return null;
+				}
+			}
+		}
+		// Don't think we are willing to copy a tool for a non-admin user
+		else if ( tool == null ) {
+			return null;
+		}
 
 		// Now make a content item from this tool inheriting from the other content item
 		Properties props = new Properties();
@@ -277,7 +310,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 		// The current user may not be a maintainer in the current site, but we want to still be able to
 		// correct the source on the LTI tool
-		Object retval = m_ltiService.insertContentDao(props, siteId, m_ltiService.isAdmin(siteId), true);
+		Object retval = m_ltiService.insertContentDao(props, siteId, (isSuperUser || m_ltiService.isAdmin(siteId)), true);
 		if ( retval == null || retval instanceof String ) {
 			log.error("Unable to insert LTILinkItem tool={} placement={}",tool_id,placement.getId());
 			placement.getPlacementConfig().setProperty(SOURCE,"");
