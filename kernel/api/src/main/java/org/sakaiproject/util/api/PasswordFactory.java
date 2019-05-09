@@ -19,7 +19,7 @@ package org.sakaiproject.util.api;
  * @author dhorwitz
  *
  */
-public interface Password {
+public interface PasswordFactory {
 
   /**
    * Generate a 10 digit password. Chars are randomly picked from lower-case/upper-case alpha lists, a numerical list, and a symbol list.

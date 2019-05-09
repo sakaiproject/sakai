@@ -76,7 +76,7 @@
          <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
      </bean>
      
-     <bean id="org.sakaiproject.util.api.Password"
-           class="org.sakaiproject.util.impl.PasswordImpl">
+     <bean id="org.sakaiproject.util.api.PasswordFactory"
+           class="org.sakaiproject.util.impl.PasswordFactoryImpl">
      </bean>
 </beans>

@@ -90,7 +90,7 @@ import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.api.Password;
+import org.sakaiproject.util.api.PasswordFactory;
 
 import com.opencsv.CSVReader;
 
@@ -158,7 +158,7 @@ public class UsersAction extends PagedResourceActionII
 	
 	private ThreadLocalManager threadLocalManager;
 	private UserTimeService userTimeService;
-	private Password password;
+	private PasswordFactory passwordFactory;
 	
 	public UsersAction() {
 		super();
@@ -171,7 +171,7 @@ public class UsersAction extends PagedResourceActionII
 		sessionManager =  ComponentManager.get(SessionManager.class);
 		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
 		userTimeService = (UserTimeService)ComponentManager.get(UserTimeService.class);
-		password = ComponentManager.get(Password.class);
+		passwordFactory = ComponentManager.get(PasswordFactory.class);
 	}
 
 	/**
@@ -1493,7 +1493,7 @@ public class UsersAction extends PagedResourceActionII
 				if (validateWithAccountValidator)
 				{
 					// the eid is their email address. The password is random
-					newUser = userDirectoryService.addUser(id, eid, firstName, lastName, email, password.generatePassword(), type, properties);
+					newUser = userDirectoryService.addUser(id, eid, firstName, lastName, email, passwordFactory.generatePassword(), type, properties);
 					// Invoke AccountValidator to send an email to the user containing a link to a form on which they can set their name and password
 					ValidationLogic validationLogic = (ValidationLogic) ComponentManager.get(ValidationLogic.class);
 					validationLogic.createValidationAccount(newUser.getId(), ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT);
