@@ -10731,6 +10731,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         } catch (Exception e) {
                             addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
                         }
+                    } else {
+                        score = null;
                     }
                     boolean scoreChanged = false;
                     if (score != null && item.getScore() == null
