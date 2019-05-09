@@ -61,8 +61,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
-import org.sakaiproject.util.PasswordCheck;
+import org.sakaiproject.util.api.PasswordFactory;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -81,6 +82,7 @@ public class SiteAddParticipantHandler {
     public AuthzGroupService authzGroupService = null;
     public ToolManager toolManager = null;
     public SessionManager sessionManager = null;
+    @Setter private PasswordFactory passwordFactory;
     public ServerConfigurationService serverConfigurationService;
     private final String HELPER_ID = "sakai.tool.helper.id";
     private static final UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
@@ -691,7 +693,7 @@ public class SiteAddParticipantHandler {
 						if (lastName != null  && lastName.length() > 0)
 							uEdit.setLastName(entry.lastName);
 						
-						String pw = PasswordCheck.generatePassword();
+						String pw = passwordFactory.generatePassword();
 						uEdit.setPassword(pw);
 
 						// and save
