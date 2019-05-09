@@ -287,17 +287,7 @@ commons.switchState = function (state, arg) {
     } else if (commons.states.PERMISSIONS === state) {
         $('#commons-toolbar > li > span').removeClass('current');
         $('#commons-permissions-link > span').addClass('current');
-
-        var permissionsCallback = function (perms) {
-
-                commons.utils.renderTemplate('permissions', {'perms': perms}, 'commons-content');
-
-                $(document).ready(function () {
-                    $('#commons_permissions_save_button').click(commons.utils.savePermissions);
-                });
-            };
-
-        commons.utils.getSitePermissionMatrix(permissionsCallback);
+        commons.utils.renderTemplate('permissions', {}, 'commons-content');
     } else if (commons.states.PERMISSIONS_NOT_SET === state) {
         commons.utils.renderTemplate('permissions_not_set', {}, 'commons-content');
     }
@@ -353,8 +343,6 @@ commons.switchState = function (state, arg) {
     $(document).ready(function () {
 
         portal.i18n.loadProperties({
-            resourceClass: 'org.sakaiproject.commons.api.CommonsManager',
-            resourceBundle: 'org.sakaiproject.commons.impl.ui',
             namespace: 'commons',
             callback: function () { languagesLoaded(); }
         });
