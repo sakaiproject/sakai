@@ -1052,11 +1052,16 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 
 	@Override
 	public ProfileImage getProfileAvatarInitials(String userUuid) {
+		ProfileImage image = null;
 		if(cache.containsKey(userUuid)) {
-			return (ProfileImage)cache.get(userUuid);
+			image = (ProfileImage)cache.get(userUuid);
+			if (image == null) {
+				this.cacheManager.evictFromCache(this.cache, userUuid);
+			}
 
-		} else {
-			ProfileImage image = new ProfileImage();
+		}
+		if (image == null) {
+			image = new ProfileImage();
 			BufferedImage bufferedImage = new BufferedImage(ProfileConstants.PROFILE_AVATAR_WIDTH, ProfileConstants.PROFILE_AVATAR_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
 			String displayName = sakaiProxy.getUserDisplayName(userUuid);
@@ -1110,8 +1115,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				image.setDefault(true);
 			}
 			cache.put(userUuid, image);
-			return image;
 		}
+		return image;
 	}
 
 	private String getAvatarInitialsColor(String displayName) {
