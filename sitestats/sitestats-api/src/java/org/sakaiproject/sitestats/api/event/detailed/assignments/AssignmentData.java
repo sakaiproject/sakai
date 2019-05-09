@@ -13,13 +13,13 @@ public class AssignmentData implements AssignmentsData
 	/**
 	 * Constructor
 	 * @param title the title of the assignment
-	 * @param anon whether the assignment is anonymous
+	 * @param anonymous whether the assignment is anonymous
 	 * @param deleted whether the assignment has been deleted
 	 */
-	public AssignmentData(String title, boolean anon, boolean deleted)
+	public AssignmentData(String title, boolean anonymous, boolean deleted)
 	{
 		this.title = title;
-		anonymous = anon;
+		this.anonymous = anonymous;
 		this.deleted = deleted;
 	}
 }

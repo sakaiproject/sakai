@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.tool.wicket.components.useractivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -9,6 +10,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;

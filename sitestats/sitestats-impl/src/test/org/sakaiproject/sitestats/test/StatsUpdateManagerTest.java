@@ -116,7 +116,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		// Default values
 		expect(M_sm.isEventContextSupported()).andStubReturn(true);
 		expect(M_sm.isShowAnonymousAccessEvents()).andStubReturn(true);
-		expect(M_sm.isEnableSitePresences()).andStubReturn(true);	
+		expect(M_sm.getEnableSitePresences()).andStubReturn(true);	
 		// apply
 		replay(M_sm);
 		sumi.setStatsManager(M_sm);
@@ -776,7 +776,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(true).anyTimes();
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(false).anyTimes();
-		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
+		expect(M_sm.getEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
         StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
 		sumi.setStatsManager(M_sm);
@@ -808,7 +808,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(false).anyTimes();
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(true).anyTimes();
-		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
+		expect(M_sm.getEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
         StatsUpdateManagerImpl sumi = (StatsUpdateManagerImpl) ((Advised) M_sum).getTargetSource().getTarget();
 		sumi.setStatsManager(M_sm);

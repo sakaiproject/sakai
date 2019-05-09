@@ -100,20 +100,20 @@
 		  lazy-init="true" init-method="init" destroy-method="destroy">
 
 		<!-- Sakai services -->
-		<property name="statsManager" ref="org.sakaiproject.sitestats.api.StatsManager" />
-		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
-		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="lessonsService" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		<property name="forumsManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
-		<property name="forumsPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
-		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
-		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager" />
-		<property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService" />
-		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
-		<property name="podcastService" ref="org.sakaiproject.api.app.podcasts.PodcastService" />
+		<property name="statMan" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="asnServ" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="regServ" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
+		<property name="siteServ" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="lsnServ" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="forumMan" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="forumPermMan" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
+		<property name="contentHostServ" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="broker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+		<property name="devHlprServ" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="pollServ" ref="org.sakaiproject.poll.logic.PollListManager" />
+		<property name="anncServ" ref="org.sakaiproject.announcement.api.AnnouncementService" />
+		<property name="calServ" ref="org.sakaiproject.calendar.api.CalendarService" />
+		<property name="podServ" ref="org.sakaiproject.api.app.podcasts.PodcastService" />
 		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz" />
 		<property name="wikiAuthz" ref="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService" />
 		<property name="authzServ" ref="org.sakaiproject.authz.api.AuthzGroupService" />

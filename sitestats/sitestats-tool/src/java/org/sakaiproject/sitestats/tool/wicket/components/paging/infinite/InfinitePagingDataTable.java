@@ -3,6 +3,9 @@
 package org.sakaiproject.sitestats.tool.wicket.components.paging.infinite;
 
 import java.util.List;
+
+import lombok.Getter;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
@@ -20,6 +23,7 @@ import org.apache.wicket.util.lang.Args;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
+
 import org.sakaiproject.sitestats.tool.wicket.providers.infinite.InfiniteDataProvider;
 
 /**
@@ -48,11 +52,11 @@ public class InfinitePagingDataTable<T, S> extends Panel
 		}
 	}
 
-	private final WebMarkupContainer body;
+	@Getter private final WebMarkupContainer body;
 	private final List<? extends IColumn<T, S>> columns;
-	private final ToolbarsContainer topToolbars;
-	private final ToolbarsContainer bottomToolbars;
-	private final Caption caption;
+	@Getter private final ToolbarsContainer topToolbars;
+	@Getter private final ToolbarsContainer bottomToolbars;
+	@Getter private final Caption caption;
 	private long toolbarIdCounter;
 
 	private final InfinitePagingDataGridView<T> datagrid;
@@ -112,26 +116,6 @@ public class InfinitePagingDataTable<T, S> extends Panel
 	public void addTopToolbar(final InfinitePagingDataTableToolbar toolbar)
 	{
 		addToolbar(toolbar, topToolbars);
-	}
-
-	public final ToolbarsContainer getTopToolbars()
-	{
-		return topToolbars;
-	}
-
-	public final ToolbarsContainer getBottomToolbars()
-	{
-		return bottomToolbars;
-	}
-
-	public final WebMarkupContainer getBody()
-	{
-		return body;
-	}
-
-	public final Caption getCaption()
-	{
-		return caption;
 	}
 
 	public final InfiniteDataProvider<T> getDataProvider()

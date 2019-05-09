@@ -1,6 +1,7 @@
 package org.sakaiproject.sitestats.tool.wicket.models;
 
 import org.apache.wicket.model.LoadableDetachableModel;
+
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.event.detailed.ResolvedEventData;
 import org.sakaiproject.sitestats.tool.facade.Locator;

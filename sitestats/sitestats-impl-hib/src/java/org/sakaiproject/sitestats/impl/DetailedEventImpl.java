@@ -2,6 +2,10 @@ package org.sakaiproject.sitestats.impl;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 
 /**
@@ -9,12 +13,12 @@ import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
  */
 public class DetailedEventImpl implements DetailedEvent, Serializable
 {
-	private long id;
-	private String siteId;
-	private String userId;
-	private String eventId;
-	private String eventRef;
-	private Date eventDate;
+	@Getter @Setter private long id;
+	@Getter @Setter private String siteId;
+	@Getter @Setter private String userId;
+	@Getter @Setter private String eventId;
+	@Getter @Setter private String eventRef;
+	@Getter @Setter private Date eventDate;
 
 	public DetailedEventImpl()
 	{
@@ -28,66 +32,6 @@ public class DetailedEventImpl implements DetailedEvent, Serializable
 		this.userId = userId;
 		this.eventId = eventId;
 		this.eventRef = eventRef;
-		this.eventDate = date;
-	}
-
-	public long getId()
-	{
-		return id;
-	}
-
-	public void setId(long id)
-	{
-		this.id = id;
-	}
-
-	public String getSiteId()
-	{
-		return siteId;
-	}
-
-	public void setSiteId(String siteId)
-	{
-		this.siteId = siteId;
-	}
-
-	public String getUserId()
-	{
-		return userId;
-	}
-
-	public void setUserId(String userId)
-	{
-		this.userId = userId;
-	}
-
-	public String getEventId()
-	{
-		return eventId;
-	}
-
-	public void setEventId(String eventId)
-	{
-		this.eventId = eventId;
-	}
-
-	public String getEventRef()
-	{
-		return eventRef;
-	}
-
-	public void setEventRef(String eventRef)
-	{
-		this.eventRef = eventRef;
-	}
-
-	public Date getEventDate()
-	{
-		return eventDate;
-	}
-
-	public void setEventDate(Date date)
-	{
 		this.eventDate = date;
 	}
 }

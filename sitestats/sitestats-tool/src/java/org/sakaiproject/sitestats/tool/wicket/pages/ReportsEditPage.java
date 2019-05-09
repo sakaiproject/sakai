@@ -165,7 +165,7 @@ public class ReportsEditPage extends BasePage {
 		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			// options visibility
-			visitsVisible = Locator.getFacade().getStatsManager().isEnableSiteVisits() && Locator.getFacade().getStatsManager().isVisitsInfoAvailable();
+			visitsVisible = Locator.getFacade().getStatsManager().getEnableSiteVisits() && Locator.getFacade().getStatsManager().getVisitsInfoAvailable();
 			activityVisible = Locator.getFacade().getStatsManager().isEnableSiteActivity();
 			resourcesVisible = false;
 			try{
@@ -174,7 +174,7 @@ public class ReportsEditPage extends BasePage {
 			}catch(Exception e) {
 				resourcesVisible = false;
 			}
-			presencesVisible = Locator.getFacade().getStatsManager().isEnableSitePresences();
+			presencesVisible = Locator.getFacade().getStatsManager().getEnableSitePresences();
 			// render body
 			renderBody();
 		}else{
@@ -224,7 +224,7 @@ public class ReportsEditPage extends BasePage {
 		add(new Label("reportAction", action));
 		
 		// model
-		visitsEnabled = statsManager.isEnableSiteVisits();
+		visitsEnabled = statsManager.getEnableSiteVisits();
 		if(!visitsEnabled) {
 			getReportParams().setWhat(ReportManager.WHAT_EVENTS_BYTOOL);
 		}

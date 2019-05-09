@@ -87,7 +87,7 @@ public class OverviewPage extends BasePage {
 		// Widgets ----------------------------------------------------
 		
 		// Visits
-		boolean visitsVisible = statsManager.isEnableSiteVisits() && statsManager.isVisitsInfoAvailable();
+		boolean visitsVisible = statsManager.getEnableSiteVisits() && statsManager.getVisitsInfoAvailable();
 		if(visitsVisible) {
 			add(new VisitsWidget("visitsWidget", siteId, currentUserId));
 		}else{

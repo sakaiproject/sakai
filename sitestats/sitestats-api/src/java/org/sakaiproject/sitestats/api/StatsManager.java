@@ -116,13 +116,13 @@ public interface StatsManager {
 	// Spring bean methods
 	// ################################################################	
 	/** Are site visits statistics enabled? */
-	public boolean isEnableSiteVisits();
+	public Boolean getEnableSiteVisits();
 	
 	/** Are site activity statistics enabled? */
 	public boolean isEnableSiteActivity();
 	
 	/** Are site visits info available (displayable) in SiteStats tool? */
-	public boolean isVisitsInfoAvailable();
+	public Boolean getVisitsInfoAvailable();
 	
 	/** Are Resource statistics enabled for Overview page? */
 	public boolean isEnableResourceStats();	
@@ -131,7 +131,7 @@ public interface StatsManager {
 	public boolean isEnableLessonsStats();
 	
 	/** Are site presence statistics enabled? */
-	public boolean isEnableSitePresences();
+	public Boolean getEnableSitePresences();
 	
 	/** Get chart background color used to draw charts on SiteStats tool. */
 	public String getChartBackgroundColor();

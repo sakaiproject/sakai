@@ -5,6 +5,7 @@ package org.sakaiproject.sitestats.tool.wicket.components.paging.infinite;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.IAjaxCallListener;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.sort.AjaxFallbackOrderByBorder;
@@ -19,6 +20,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.RefreshingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+
 import org.sakaiproject.sitestats.api.StatsManager;
 
 /**
@@ -103,7 +105,7 @@ public class InfinitePagingDataTableHeadersToolbar<S> extends InfinitePagingData
 		response.render(JavaScriptHeaderItem.forUrl(TOOLBAR_JS));
 		long sortableCols = getTable().getColumns().stream().filter(IColumn::isSortable).count();
 		String attachScript = String.format("RHTB.init('%s', %d);", getTable().getMarkupId(), sortableCols);
-        response.render(OnLoadHeaderItem.forScript(attachScript));
+		response.render(OnLoadHeaderItem.forScript(attachScript));
 	}
 
 	protected WebMarkupContainer newSortableHeader(final String borderId, final S property, final ISortStateLocator<S> locator)

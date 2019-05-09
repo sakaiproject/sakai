@@ -59,7 +59,7 @@ public abstract class FakeEventRegistryService implements EventRegistryService {
 	}
 
 	public Set<String> getEventIds() {
-		if (M_sm.isEnableSitePresences()) {
+		if (M_sm.getEnableSitePresences()) {
 			Set<String> eventIds = new HashSet<String>(FakeData.EVENTIDS);
 			eventIds.add(StatsManager.SITEVISITEND_EVENTID);
 			return eventIds;

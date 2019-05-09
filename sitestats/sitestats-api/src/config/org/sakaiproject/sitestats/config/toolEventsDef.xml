@@ -608,7 +608,7 @@
         <event eventId="sitestats.report.delete" selected="false"/>
         <event eventId="sitestats.report.view" selected="false"/>
         <event eventId="sitestats.prefs.edit" selected="false"/>
-		<event eventId="sitestats.track" selected="false"/>
+        <event eventId="sitestats.track" selected="false"/>
         <eventParserTip for="contextId" separator="/" index="2"/>
     </tool>
     <!-- profile 2 -->

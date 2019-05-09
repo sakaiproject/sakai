@@ -5,20 +5,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.sitestats.api.event.detailed.ResolvedEventData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.CommentData;
+import org.sakaiproject.sitestats.api.event.detailed.lessons.CommentsSectionItemData;
+import org.sakaiproject.sitestats.api.event.detailed.lessons.ContentLinkItemData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.EmbeddedItemData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.GenericItemData;
-import org.sakaiproject.sitestats.api.event.detailed.lessons.TextItemData;
-import org.sakaiproject.sitestats.api.event.detailed.lessons.ContentLinkItemData;
-import org.sakaiproject.sitestats.api.event.detailed.lessons.CommentsSectionItemData;
 import org.sakaiproject.sitestats.api.event.detailed.lessons.PageData;
+import org.sakaiproject.sitestats.api.event.detailed.lessons.TextItemData;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.parsers.GenericRefParser;
 import org.sakaiproject.util.FormattedText;
@@ -26,15 +29,14 @@ import org.sakaiproject.util.FormattedText;
 /**
  * Resolves LessonBuilder references into meaningful details.
  *
- * @author bjones86
- * @author plukasew
+ * @author bjones86, plukasew
  */
 @Slf4j
 public class LessonsReferenceResolver
 {
-	public static final String TOOL_ID = "sakai.lessonbuildertool";
+    public static final String TOOL_ID = "sakai.lessonbuildertool";
 
-	public enum Type { PAGE, ITEM, COMMENT; }
+    public enum Type { PAGE, ITEM, COMMENT; }
 
     /**
      * Resolves a Lessons event reference into meaningful details about the event
@@ -52,50 +54,50 @@ public class LessonsReferenceResolver
             return ResolvedEventData.ERROR;
         }
 
-		Optional<ParsedLessonsRef> parsedRefOpt = parse( eventRef, tips );
-		if( !parsedRefOpt.isPresent() )
-		{
-			return ResolvedEventData.ERROR;
-		}
-		ParsedLessonsRef parsedRef = parsedRefOpt.get();
+        Optional<ParsedLessonsRef> parsedRefOpt = parse( eventRef, tips );
+        if( !parsedRefOpt.isPresent() )
+        {
+            return ResolvedEventData.ERROR;
+        }
+        ParsedLessonsRef parsedRef = parsedRefOpt.get();
 
-		switch( parsedRef.type )
-		{
-			case PAGE:
-				SimplePage page = lsnServ.getPage( parsedRef.id );
-				return page != null ? collectPageEventDetails( page, lsnServ ) : PageData.DELETED_PAGE;
-			case ITEM:
-				SimplePageItem item = lsnServ.findItem( parsedRef.id );
-				return item != null ? collectItemEventDetails( item, lsnServ ) : GenericItemData.DELETED_ITEM;
-			case COMMENT:
-				SimplePageComment comment = lsnServ.findCommentById( parsedRef.id );
-				return comment != null ? collectCommentEventDetails( comment, lsnServ ) : ResolvedEventData.ERROR;
-			default:
-				log.error( "Invalid ParsedLessonsRef.Type: " + parsedRef.type + " for ref " + eventRef);
-				return ResolvedEventData.ERROR;
-		}
+        switch( parsedRef.type )
+        {
+            case PAGE:
+                SimplePage page = lsnServ.getPage( parsedRef.id );
+                return page != null ? collectPageEventDetails( page, lsnServ ) : PageData.DELETED_PAGE;
+            case ITEM:
+                SimplePageItem item = lsnServ.findItem( parsedRef.id );
+                return item != null ? collectItemEventDetails( item, lsnServ ) : GenericItemData.DELETED_ITEM;
+            case COMMENT:
+                SimplePageComment comment = lsnServ.findCommentById( parsedRef.id );
+                return comment != null ? collectCommentEventDetails( comment, lsnServ ) : ResolvedEventData.ERROR;
+            default:
+                log.error( "Invalid ParsedLessonsRef.Type: " + parsedRef.type + " for ref " + eventRef);
+                return ResolvedEventData.ERROR;
+        }
     }
 
-	private static Optional<ParsedLessonsRef> parse( String eventRef, List<EventParserTip> tips )
-	{
-		GenericRefParser.GenericEventRef ref = GenericRefParser.parse( eventRef, tips );
-		try
-		{
-			long id = Long.valueOf( ref.entityId );
-			if( id < 1 ) // invalid id
-			{
-				return Optional.empty();
-			}
-			Type type = Type.valueOf( ref.subContextId.toUpperCase( Locale.ROOT ) );
-			return Optional.of( new ParsedLessonsRef( id, type ) );
-		}
-		catch (IllegalArgumentException e)
-		{
-			// this is thrown if any of the valueOf() calls above fail, in which case the ref is malformed and cannot be resolved
-			log.warn( "Unable to parse, ref is malformed: " + eventRef, e );
-			return Optional.empty();
-		}
-	}
+    private static Optional<ParsedLessonsRef> parse( String eventRef, List<EventParserTip> tips )
+    {
+        GenericRefParser.GenericEventRef ref = GenericRefParser.parse( eventRef, tips );
+        try
+        {
+            long id = Long.valueOf( ref.entityId );
+            if( id < 1 ) // invalid id
+            {
+                return Optional.empty();
+            }
+            Type type = Type.valueOf( ref.subContextId.toUpperCase( Locale.ROOT ) );
+            return Optional.of( new ParsedLessonsRef( id, type ) );
+        }
+        catch (IllegalArgumentException e)
+        {
+            // this is thrown if any of the valueOf() calls above fail, in which case the ref is malformed and cannot be resolved
+            log.warn( "Unable to parse, ref is malformed: " + eventRef, e );
+            return Optional.empty();
+        }
+    }
 
     /**
      * Aggregate all appropriate details of the page.
@@ -178,12 +180,12 @@ public class LessonsReferenceResolver
                 new PageData( parentPage.getTitle(), getPageHierarchy( parentPage, lsnServ ) ), comment.getTimePosted().toInstant() );
     }
 
-	private static List<String> getPageHierarchy( SimplePage page, SimplePageToolDao lsnServ )
-	{
-		List<String> hier = getPageHierarchyReverse( page, lsnServ );
-		Collections.reverse( hier );
-		return hier;
-	}
+    private static List<String> getPageHierarchy( SimplePage page, SimplePageToolDao lsnServ )
+    {
+        List<String> hier = getPageHierarchyReverse( page, lsnServ );
+        Collections.reverse( hier );
+        return hier;
+    }
 
     /**
      * Accumulates a list of strings representing the hierarchy of pages starting from the given page and traversing upwards.
@@ -214,15 +216,15 @@ public class LessonsReferenceResolver
         return hierarchy;
     }
 
-	private static class ParsedLessonsRef
-	{
-		public final long id;
-		public final Type type;
+    private static class ParsedLessonsRef
+    {
+        public final long id;
+        public final Type type;
 
-		public ParsedLessonsRef( long id, Type type )
-		{
-			this.id = id;
-			this.type = type;
-		}
-	}
+        public ParsedLessonsRef( long id, Type type )
+        {
+            this.id = id;
+            this.type = type;
+        }
+    }
 }

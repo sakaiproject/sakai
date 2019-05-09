@@ -10,5 +10,5 @@ public interface ContentData extends ResolvedEventData
 {
 	// a deleted resource (no additional info available)
 	public static final class Deleted implements ContentData {}
-	public static final Deleted	DELETED = new Deleted();
+	public static final Deleted DELETED = new Deleted();
 }

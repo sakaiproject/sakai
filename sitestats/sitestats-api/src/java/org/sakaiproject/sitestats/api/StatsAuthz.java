@@ -69,12 +69,12 @@ public interface StatsAuthz {
 	public boolean canUserBeTracked(String siteID, String userID);
 
 	/**
-	 *  Check if the current user has permission to track users in the current site. Also checks and requires
+	 * Check if the current user has permission to track users in the given site. Also checks and requires
 	 * that the user has permission to access the sitestats tool.
 	 * @param siteID the ID of the current site
-	 * @return true/false if the current user has the 'view stats' and 'can track' permissions in the current site, or true if the current user is an admin
+	 * @return true/false if the current user has the 'view stats' and 'can track' permissions in the given site, or true if the current user is an admin
 	 */
-	public boolean canUserTrack(String siteID);
+	public boolean canCurrentUserTrackInSite(String siteID);
 
 	/**
 	 * General purpose permission check for the current user

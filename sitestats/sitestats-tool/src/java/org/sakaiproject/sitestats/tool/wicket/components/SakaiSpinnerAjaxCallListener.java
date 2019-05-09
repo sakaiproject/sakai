@@ -39,6 +39,4 @@ public class SakaiSpinnerAjaxCallListener extends AbstractSakaiSpinnerAjaxCallLi
 			onComplete(String.format(ENABLE_AND_STOP, id, id));
 		}
 	}
-
-
 }

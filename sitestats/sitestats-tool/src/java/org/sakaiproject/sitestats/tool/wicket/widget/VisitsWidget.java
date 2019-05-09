@@ -72,7 +72,7 @@ public class VisitsWidget extends Panel {
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
-		boolean isEnableSitePresences = Locator.getFacade().getStatsManager().isEnableSitePresences();
+		boolean isEnableSitePresences = Locator.getFacade().getStatsManager().getEnableSitePresences();
 
 		if (siteStatsView) {
 			widgetMiniStats.add(getMiniStatVisits());

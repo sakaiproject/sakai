@@ -16,13 +16,13 @@ public final class PagingParams
 	 * Constructor requiring all parameters
 	 *
 	 * @param start the starting row offset for results
-	 * @param count the number of results to return
+	 * @param pageSize the number of results to return
 	 */
-	public PagingParams(long start, long count)
+	public PagingParams(long start, long pageSize)
 	{
 		this.start = start;
-		startInt = (int) start;
-		pageSize = count;
-		pageSizeInt = (int) count;
+		this.startInt = (int) start;
+		this.pageSize = pageSize;
+		this.pageSizeInt = (int) pageSize;
 	}
 }
