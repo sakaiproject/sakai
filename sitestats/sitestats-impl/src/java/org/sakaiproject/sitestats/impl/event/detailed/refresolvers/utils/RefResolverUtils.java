@@ -4,12 +4,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+
 import org.slf4j.Logger;
 
 /**
@@ -30,7 +33,7 @@ public class RefResolverUtils
     {
         try
         {
-            return Optional.ofNullable(siteServ.getSite( siteID ));
+            return Optional.ofNullable( siteServ.getSite( siteID ) );
         }
         catch( IdUnusedException ex )
         {

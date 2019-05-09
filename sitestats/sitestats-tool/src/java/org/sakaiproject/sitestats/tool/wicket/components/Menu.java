@@ -94,7 +94,7 @@ public class Menu extends Panel {
 		boolean overviewVisible = 
 			!AdminPage.class.equals(currentPageClass)		
 			&&
-			(Locator.getFacade().getStatsManager().isEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity());
+			(Locator.getFacade().getStatsManager().getEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity());
 		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible, currentPageClass);
 		overview.setVisible(overviewVisible);
 		add(overview);
@@ -108,7 +108,7 @@ public class Menu extends Panel {
 
 		// User Activity
 		MenuItem userActivity = new MenuItem("userActivity", new ResourceModel("menu_useractivity"), UserActivityPage.class, pageParameters, false, currentPageClass);
-		boolean displayUserActivity = siteId != null && Locator.getFacade().getStatsAuthz().canUserTrack(siteId)
+		boolean displayUserActivity = siteId != null && Locator.getFacade().getStatsAuthz().canCurrentUserTrackInSite(siteId)
 										&& Locator.getFacade().getStatsManager().isDisplayDetailedEvents();
 		userActivity.setVisible(displayUserActivity);
 		add(userActivity);

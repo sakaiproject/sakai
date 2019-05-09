@@ -3,8 +3,11 @@ package org.sakaiproject.sitestats.impl.event.detailed.refresolvers;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
@@ -26,21 +29,20 @@ import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.utils.RefReso
 /**
  * Resolves Podcast references into meaningful details.
  *
- * @author bjones86
- * @author plukasew
+ * @author bjones86, plukasew
  */
 @Slf4j
 public class PodcastReferenceResolver
 {
-	public static final String TOOL_ID = "sakai.podcasts";
+    public static final String TOOL_ID = "sakai.podcasts";
 
-	/**
-	 * Resolves the given event reference into meaningful details
-	 * @param eventRef the event reference
-	 * @param tips tips for parsing out the components of the reference
-	 * @param podServ the podcast service
-	 * @return a PodcastData object, or ResolvedEventData.ERROR/PERM_ERROR
-	 */
+    /**
+     * Resolves the given event reference into meaningful details
+     * @param eventRef the event reference
+     * @param tips tips for parsing out the components of the reference
+     * @param podServ the podcast service
+     * @return a PodcastData object, or ResolvedEventData.ERROR/PERM_ERROR
+     */
     public static ResolvedEventData resolveReference( String eventRef, List<EventParserTip> tips, PodcastService podServ )
     {
         if( StringUtils.isBlank( eventRef ) || podServ == null )
@@ -53,30 +55,30 @@ public class PodcastReferenceResolver
 
         if( StringUtils.isNotBlank( ref.contextId ) )
         {
-			try
-			{
-				List<ContentResource> podcasts = podServ.getPodcasts( ref.contextId );
-				for( ContentResource resource : podcasts )
-				{
-					if( resource.getId().equals( ref.entityId ) )
-					{
-						ContentCollection parent = resource.getContainingCollection();
-						String podcastTitle = RefResolverUtils.getResourceName( resource );
-						Instant publishDateTime = getPodcastPublishDateTime( resource, podServ );
+            try
+            {
+                List<ContentResource> podcasts = podServ.getPodcasts( ref.contextId );
+                for( ContentResource resource : podcasts )
+                {
+                    if( resource.getId().equals( ref.entityId ) )
+                    {
+                        ContentCollection parent = resource.getContainingCollection();
+                        String podcastTitle = RefResolverUtils.getResourceName( resource );
+                        Instant publishDateTime = getPodcastPublishDateTime( resource, podServ );
 
-						return new PodcastData(podcastTitle, publishDateTime, parent.getUrl());
-					}
-				}
-			}
-			catch( PermissionException ex )
-			{
-				log.warn( "Permission exception retrieving podcasts for site: " + ref.contextId, ex );
-				return ResolvedEventData.PERM_ERROR;
-			}
-			catch( InUseException | IdInvalidException | InconsistentException | IdUsedException ex )
-			{
-				log.warn( "Could not retrieve podcasts for site: " + ref.contextId, ex );
-			}
+                        return new PodcastData(podcastTitle, publishDateTime, parent.getUrl());
+                    }
+                }
+            }
+            catch( PermissionException ex )
+            {
+                log.warn( "Permission exception retrieving podcasts for site: " + ref.contextId, ex );
+                return ResolvedEventData.PERM_ERROR;
+            }
+            catch( InUseException | IdInvalidException | InconsistentException | IdUsedException ex )
+            {
+                log.warn( "Could not retrieve podcasts for site: " + ref.contextId, ex );
+            }
         }
 
         log.warn( "Unable to retrieve data; ref = " + eventRef );

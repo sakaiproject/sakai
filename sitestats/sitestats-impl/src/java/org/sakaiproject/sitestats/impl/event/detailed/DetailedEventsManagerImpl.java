@@ -7,46 +7,48 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
+import lombok.Setter;
+
 import org.apache.commons.lang3.StringUtils;
+
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
-import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
-import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.event.EventRegistryService;
-import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
-import org.sakaiproject.sitestats.impl.DetailedEventImpl;
+
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.sitestats.api.StatsAuthz;
-import org.sakaiproject.sitestats.api.event.detailed.PagingParams;
-import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.StatsAuthz;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
+import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.event.detailed.SortingParams;
-import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.PollReferenceResolver;
+import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
+import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
+import org.sakaiproject.sitestats.api.event.detailed.PagingParams;
 import org.sakaiproject.sitestats.api.event.detailed.ResolvedEventData;
+import org.sakaiproject.sitestats.api.event.detailed.SortingParams;
+import org.sakaiproject.sitestats.api.event.detailed.TrackingParams;
+import org.sakaiproject.sitestats.impl.DetailedEventImpl;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.AnnouncementReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.AssignmentReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.CalendarReferenceResolver;
@@ -55,6 +57,7 @@ import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.LessonsRefere
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.MsgForumsReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.NewsReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.PodcastReferenceResolver;
+import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.PollReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.SamigoReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.WebContentReferenceResolver;
 import org.sakaiproject.sitestats.impl.event.detailed.refresolvers.WikiReferenceResolver;
@@ -64,6 +67,10 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 
 /**
@@ -80,23 +87,23 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 
 	private static final String HQL_BY_ID = "SELECT de.id, de.userId, de.eventDate, de.eventId, de.eventRef, de.siteId FROM DetailedEventImpl as de WHERE de.id = :id";
 
-	private StatsManager statMan;
-	private AssignmentService asnServ;
-	private SimplePageToolDao lsnServ;
-	private DiscussionForumManager forumMan;
-	private UIPermissionsManager forumPermMan;
-	private EntityBroker broker;
-	private DeveloperHelperService devHlprServ;
-	private PollListManager pollServ;
-	private AnnouncementService anncServ;
-	private CalendarService calServ;
-	private PodcastService podServ;
-	private StatsAuthz statsAuthz;
-	private RWikiSecurityService wikiAuthz;
-	private EventRegistryService regServ;
-	private SiteService siteServ;
-	private ContentHostingService contentHostServ;
-	private AuthzGroupService authzServ;
+	@Setter private StatsManager statMan;
+	@Setter private AssignmentService asnServ;
+	@Setter private SimplePageToolDao lsnServ;
+	@Setter private DiscussionForumManager forumMan;
+	@Setter private UIPermissionsManager forumPermMan;
+	@Setter private EntityBroker broker;
+	@Setter private DeveloperHelperService devHlprServ;
+	@Setter private PollListManager pollServ;
+	@Setter private AnnouncementService anncServ;
+	@Setter private CalendarService calServ;
+	@Setter private PodcastService podServ;
+	@Setter private StatsAuthz statsAuthz;
+	@Setter private RWikiSecurityService wikiAuthz;
+	@Setter private EventRegistryService regServ;
+	@Setter private SiteService siteServ;
+	@Setter private ContentHostingService contentHostServ;
+	@Setter private AuthzGroupService authzServ;
 	// Samigo services cannot be injected by Spring
 	private final AssessmentService assessServ = new AssessmentService();
 	private final PublishedAssessmentService pubAssessServ = new PublishedAssessmentService();
@@ -105,90 +112,6 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 	private final PublishedItemService samPubItemServ = new PublishedItemService();
 
 	/* Begin Spring methods */
-	public void setStatsManager(StatsManager value)
-	{
-		statMan = value;
-	}
-
-	public void setAssignmentService(AssignmentService value)
-	{
-		asnServ = value;
-	}
-
-	public void setLessonsService(SimplePageToolDao value)
-	{
-		lsnServ = value;
-	}
-
-	public void setForumsManager(DiscussionForumManager value)
-	{
-		forumMan = value;
-	}
-
-	public void setForumsPermissionsManager(UIPermissionsManager value)
-	{
-		forumPermMan = value;
-	}
-
-	public void setEventRegistryService(EventRegistryService value)
-	{
-		regServ = value;
-	}
-
-	public void setSiteService(SiteService value)
-	{
-		siteServ = value;
-	}
-
-	public void setContentHostingService(ContentHostingService value)
-	{
-		contentHostServ = value;
-	}
-
-	public void setEntityBroker(EntityBroker value)
-	{
-		broker = value;
-	}
-
-	public void setDeveloperHelperService(DeveloperHelperService value)
-	{
-		devHlprServ = value;
-	}
-
-	public void setPollListManager(PollListManager value)
-	{
-		pollServ = value;
-	}
-
-	public void setAnnouncementService(AnnouncementService value)
-	{
-		anncServ = value;
-	}
-
-	public void setCalendarService(CalendarService value)
-	{
-		calServ = value;
-	}
-
-	public void setPodcastService(PodcastService value)
-	{
-		podServ = value;
-	}
-
-	public void setStatsAuthz(StatsAuthz value)
-	{
-		statsAuthz = value;
-	}
-
-	public void setWikiAuthz(RWikiSecurityService value)
-	{
-		wikiAuthz = value;
-	}
-
-	public void setAuthzServ(AuthzGroupService value)
-	{
-		authzServ = value;
-	}
 
 	public void init()
 	{
@@ -247,7 +170,7 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 	@Override
 	public List<DetailedEvent> getDetailedEvents(final TrackingParams trackingParams, final PagingParams pagingParams, final SortingParams sortingParams)
 	{
-		if (!statMan.isDisplayDetailedEvents() || !statsAuthz.canUserTrack(trackingParams.siteId))
+		if (!statMan.isDisplayDetailedEvents() || !statsAuthz.canCurrentUserTrackInSite(trackingParams.siteId))
 		{
 			return Collections.emptyList();
 		}
@@ -313,7 +236,7 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 			String userID = (String) record[1];
 			String siteID = (String) record[5];
 			// Only return the event if the current user is is allowed to track, and the target user is allowed to be tracked in the site
-			if (statsAuthz.canUserTrack(siteID) && statsAuthz.canUserBeTracked(siteID, userID))
+			if (statsAuthz.canCurrentUserTrackInSite(siteID) && statsAuthz.canUserBeTracked(siteID, userID))
 			{
 				DetailedEvent de = new DetailedEventImpl();
 				de.setId((Long) record[0]);
@@ -346,7 +269,7 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 	@Override
 	public ResolvedEventData resolveEventReference(String eventType, String eventRef, String siteID)
 	{
-		if (!statMan.isDisplayDetailedEvents() || !statsAuthz.canUserTrack(siteID) || !isResolvable(eventType))
+		if (!statMan.isDisplayDetailedEvents() || !statsAuthz.canCurrentUserTrackInSite(siteID) || !isResolvable(eventType))
 		{
 			return ResolvedEventData.ERROR;
 		}

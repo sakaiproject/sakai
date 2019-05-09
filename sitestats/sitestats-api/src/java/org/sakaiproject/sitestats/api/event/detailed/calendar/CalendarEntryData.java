@@ -2,6 +2,7 @@ package org.sakaiproject.sitestats.api.event.detailed.calendar;
 
 import java.time.Instant;
 import java.util.Date;
+
 import org.sakaiproject.sitestats.api.event.detailed.ResolvedEventData;
 import org.sakaiproject.time.api.TimeRange;
 
@@ -28,8 +29,8 @@ public class CalendarEntryData implements ResolvedEventData
 	public CalendarEntryData(String title, TimeRange range, int interval, String frequencyUnit)
 	{
 		this.title = title;
-		start = new Date(range.firstTime().getTime()).toInstant();
-		end = new Date(range.lastTime().getTime()).toInstant();
+		this.start = new Date(range.firstTime().getTime()).toInstant();
+		this.end = new Date(range.lastTime().getTime()).toInstant();
 		this.interval = interval;
 		this.frequencyUnit = frequencyUnit;
 	}

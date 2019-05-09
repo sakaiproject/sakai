@@ -2,6 +2,10 @@ package org.sakaiproject.sitestats.tool.wicket.components.paging.infinite;
 
 import java.util.Collection;
 import java.util.Iterator;
+
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.wicket.markup.repeater.RefreshingView;
 import org.apache.wicket.model.IModel;
 
@@ -12,10 +16,10 @@ import org.apache.wicket.model.IModel;
  */
 public abstract class AbstractInfinitePagingView<T> extends RefreshingView<T>
 {
-	private long itemsPerPage = Long.MAX_VALUE;
-	protected long offset = 0;
+	@Getter private long itemsPerPage = Long.MAX_VALUE;
+	@Getter @Setter protected long offset = 0;
 	protected boolean hasNextPage = false;
-	protected int rowCount = 0;
+	@Getter protected int rowCount = 0;
 
 	public AbstractInfinitePagingView(String id, IModel<? extends Collection<? extends T>> model)
 	{
@@ -35,11 +39,6 @@ public abstract class AbstractInfinitePagingView<T> extends RefreshingView<T>
 
 	protected abstract Iterator<IModel<T>> getItemModels(long offset, long count);
 
-	public long getItemsPerPage()
-	{
-		return itemsPerPage;
-	}
-
 	public final void setItemsPerPage(long value)
 	{
 		if (value < 1)
@@ -55,16 +54,6 @@ public abstract class AbstractInfinitePagingView<T> extends RefreshingView<T>
 		itemsPerPage = value;
 	}
 
-	public void setOffset(long value)
-	{
-		offset = value;
-	}
-
-	public long getOffset()
-	{
-		return offset;
-	}
-
 	public boolean hasPrevPage()
 	{
 		return offset > 0;
@@ -73,11 +62,6 @@ public abstract class AbstractInfinitePagingView<T> extends RefreshingView<T>
 	public boolean hasNextPage()
 	{
 		return hasNextPage;
-	}
-
-	public int getRowCount()
-	{
-		return rowCount;
 	}
 
 	public void nextPage()

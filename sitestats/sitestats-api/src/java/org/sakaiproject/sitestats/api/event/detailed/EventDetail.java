@@ -2,6 +2,8 @@ package org.sakaiproject.sitestats.api.event.detailed;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+
 /**
  * Represents public facing information about a reference.
  * Can take the form of simple textual information, or a link to, say, an entity
@@ -21,16 +23,16 @@ public class EventDetail implements Serializable
 	}
 
 	// how this EventDetail is to be displayed
-	private final DetailType type;
+	@Getter private final DetailType type;
 
 	// the key for the key-value pair
-	private final String key;
+	@Getter private final String key;
 
 	// text to display to user
-	private final String displayValue;
+	@Getter private final String displayValue;
 
 	// if type=LINK, this will store the href
-	private String url;
+	@Getter private String url;
 
 	private EventDetail(String key, String displayValue)
 	{
@@ -67,25 +69,5 @@ public class EventDetail implements Serializable
 		EventDetail instance = new EventDetail(DetailType.LINK, key, displayValue);
 		instance.url = url;
 		return instance;
-	}
-
-	public DetailType getType()
-	{
-		return type;
-	}
-
-	public String getKey()
-	{
-		return key;
-	}
-
-	public String getDisplayValue()
-	{
-		return displayValue;
-	}
-
-	public String getUrl()
-	{
-		return url;
 	}
 }

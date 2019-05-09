@@ -132,10 +132,10 @@ public class StatsAuthzImpl implements StatsAuthz {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.impl.Authz#canUserTrack(java.lang.String)
+	 * @see org.sakaiproject.sitestats.impl.Authz#canCurrentUserTrackInSite(java.lang.String)
 	 */
 	@Override
-	public boolean canUserTrack(String siteID) {
+	public boolean canCurrentUserTrackInSite(String siteID) {
 		if (M_secs.isSuperUser()) {
 			return true;
 		}

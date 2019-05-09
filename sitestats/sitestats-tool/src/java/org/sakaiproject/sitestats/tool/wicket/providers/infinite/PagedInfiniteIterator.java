@@ -2,6 +2,8 @@ package org.sakaiproject.sitestats.tool.wicket.providers.infinite;
 
 import java.util.Iterator;
 
+import lombok.Getter;
+
 /**
  * A paged iterator over an unknown number of objects of type T
  * @author plukasew
@@ -9,12 +11,12 @@ import java.util.Iterator;
 public class PagedInfiniteIterator<T>
 {
 	private final boolean hasPrevPage, hasNextPage;
-	private final int rowCount;
-	private final Iterator<? extends T> iter;
+	@Getter private final int rowCount;
+	@Getter private final Iterator<? extends T> iterator;
 
 	public PagedInfiniteIterator(Iterator<? extends T> iterator, boolean hasPrevPage, boolean hasNextPage, int rowCount)
 	{
-		iter = iterator;
+		this.iterator = iterator;
 		this.hasPrevPage = hasPrevPage;
 		this.hasNextPage = hasNextPage;
 		this.rowCount = rowCount;
@@ -28,15 +30,5 @@ public class PagedInfiniteIterator<T>
 	public boolean hasNextPage()
 	{
 		return hasNextPage;
-	}
-
-	public Iterator<? extends T> getIterator()
-	{
-		return iter;
-	}
-
-	public int getRowCount()
-	{
-		return rowCount;
 	}
 }

@@ -143,7 +143,7 @@ public class ReportDefsProvider implements IDataProvider {
 		
 		if(ReportManager.WHAT_VISITS.equals(reportDef.getReportParams().getWhat())) {
 			// keep visit based reports if site visits are enabled
-			if(Locator.getFacade().getStatsManager().isEnableSiteVisits()) {
+			if(Locator.getFacade().getStatsManager().getEnableSiteVisits()) {
 				return true;
 			}
 		}else if(ReportManager.WHAT_RESOURCES.equals(reportDef.getReportParams().getWhat())) {
@@ -155,7 +155,7 @@ public class ReportDefsProvider implements IDataProvider {
 			}
 		}else if(ReportManager.WHAT_PRESENCES.equals(reportDef.getReportParams().getWhat())) {
 			// keep presence based reports if site presences are enabled
-			if(Locator.getFacade().getStatsManager().isEnableSitePresences()) {
+			if(Locator.getFacade().getStatsManager().getEnableSitePresences()) {
 				return true;
 			}
 		}else{

@@ -18,6 +18,9 @@
  */
 package org.sakaiproject.sitestats.tool.facade;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.site.api.SiteService;
@@ -34,146 +37,24 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-
 public class SakaiFacadeImpl implements SakaiFacade {
 
 	// SiteStats services
-	private transient StatsManager			statsManager;
-	private transient StatsAuthz				statsAuthz;
-	private transient EventRegistryService	eventRegistryService;
-	private transient ReportManager			reportManager;
-	private transient ChartService			chartService;
-	private transient StatsUpdateManager		statsUpdateManager;
-	private transient ServerWideReportManager serverWideReportManager;
-	private transient DetailedEventsManager detailedEventsManager;
+	@Getter @Setter private transient StatsManager				statsManager;
+	@Getter @Setter private transient StatsAuthz				statsAuthz;
+	@Getter @Setter private transient EventRegistryService		eventRegistryService;
+	@Getter @Setter private transient ReportManager				reportManager;
+	@Getter @Setter private transient ChartService				chartService;
+	@Getter @Setter private transient StatsUpdateManager		statsUpdateManager;
+	@Getter @Setter private transient ServerWideReportManager	serverWideReportManager;
+	@Getter @Setter private transient DetailedEventsManager		detailedEventsManager;
 
 	// Sakai services
-	private transient SessionManager			sessionManager;
-	private transient ToolManager				toolManager;
-	private transient SiteService				siteService;
-	private transient AuthzGroupService		authzGroupService;
-	private transient UserDirectoryService	userDirectoryService;
-	private transient ContentHostingService	contentHostingService;
-	private transient UserTimeService			userTimeService;
-
-	public final StatsManager getStatsManager() {
-		return statsManager;
-	}
-
-	public final void setStatsManager(StatsManager statsManager) {
-		this.statsManager = statsManager;
-	}
-
-	public final StatsAuthz getStatsAuthz() {
-		return statsAuthz;
-	}
-
-	public final void setStatsAuthz(StatsAuthz statsAuthz) {
-		this.statsAuthz = statsAuthz;
-	}
-
-	public final EventRegistryService getEventRegistryService() {
-		return eventRegistryService;
-	}
-
-	public final void setEventRegistryService(EventRegistryService eventRegistryService) {
-		this.eventRegistryService = eventRegistryService;
-	}
-
-	public final ReportManager getReportManager() {
-		return reportManager;
-	}
-
-	public final void setReportManager(ReportManager reportManager) {
-		this.reportManager = reportManager;
-	}
-
-	public final ChartService getChartService() {
-		return chartService;
-	}
-
-	public final void setChartService(ChartService chartService) {
-		this.chartService = chartService;
-	}
-
-	public final StatsUpdateManager getStatsUpdateManager() {
-		return statsUpdateManager;
-	}
-
-	public final void setStatsUpdateManager(StatsUpdateManager statsUpdateManager) {
-		this.statsUpdateManager = statsUpdateManager;
-	}
-
-	public final ServerWideReportManager getServerWideReportManager() {
-		return serverWideReportManager;
-	}
-
-	public final void setServerWideReportManager(ServerWideReportManager serverWideReportManager) {
-		this.serverWideReportManager = serverWideReportManager;
-	}
-
-	public final DetailedEventsManager getDetailedEventsManager() {
-		return detailedEventsManager;
-	}
-
-	public final void setDetailedEventsManager(DetailedEventsManager value) {
-		detailedEventsManager = value;
-	}
-
-	public final SessionManager getSessionManager() {
-		return sessionManager;
-	}
-
-	public final void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
-	public final ToolManager getToolManager() {
-		return toolManager;
-	}
-
-	public final void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-	public final SiteService getSiteService() {
-		return siteService;
-	}
-
-	public final void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	public final AuthzGroupService getAuthzGroupService() {
-		return authzGroupService;
-	}
-
-	public final void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService = authzGroupService;
-	}
-
-	public final UserDirectoryService getUserDirectoryService() {
-		return userDirectoryService;
-	}
-
-	public final void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	public final ContentHostingService getContentHostingService() {
-		return contentHostingService;
-	}
-
-	public final void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
-
-	@Override
-	public final UserTimeService getUserTimeService() {
-		return userTimeService;
-	}
-
-	public final void setUserTimeService(UserTimeService timeService) {
-		this.userTimeService = timeService;
-	}
+	@Getter @Setter private transient SessionManager		sessionManager;
+	@Getter @Setter private transient ToolManager			toolManager;
+	@Getter @Setter private transient SiteService			siteService;
+	@Getter @Setter private transient AuthzGroupService		authzGroupService;
+	@Getter @Setter private transient UserDirectoryService	userDirectoryService;
+	@Getter @Setter private transient ContentHostingService	contentHostingService;
+	@Getter @Setter private transient UserTimeService		userTimeService;
 }

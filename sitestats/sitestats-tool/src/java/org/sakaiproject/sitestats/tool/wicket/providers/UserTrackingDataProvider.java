@@ -1,9 +1,13 @@
 package org.sakaiproject.sitestats.tool.wicket.providers;
 
 import java.util.List;
+
+import lombok.Setter;
+
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.model.IModel;
+
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEvent;
 import org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager;
 import org.sakaiproject.sitestats.api.event.detailed.PagingParams;
@@ -20,7 +24,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.infinite.PagedInfiniteIt
  */
 public class UserTrackingDataProvider extends AbstractSortableInfiniteDataProvider<DetailedEvent, String>
 {
-	private TrackingParams trackingParams;
+	@Setter private TrackingParams trackingParams;
 
 	/**
 	 * Constructor
@@ -30,15 +34,6 @@ public class UserTrackingDataProvider extends AbstractSortableInfiniteDataProvid
 	{
 		this.trackingParams = trackingParams;
 		setSort("eventDate", SortOrder.ASCENDING);
-	}
-
-	/**
-	 * Set the search parameters
-	 * @param value search parameters
-	 */
-	public void setTrackingParams(TrackingParams value)
-	{
-		trackingParams = value;
 	}
 
 	@Override

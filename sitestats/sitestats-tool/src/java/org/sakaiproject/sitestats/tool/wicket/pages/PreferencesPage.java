@@ -115,7 +115,7 @@ public class PreferencesPage extends BasePage {
 		
 		// Section: Chart
 		WebMarkupContainer chartPrefs = new WebMarkupContainer("chartPrefs");
-		boolean chartPrefsVisible = Locator.getFacade().getStatsManager().isEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity();
+		boolean chartPrefsVisible = Locator.getFacade().getStatsManager().getEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity();
 		chartPrefs.setVisible(chartPrefsVisible);
 		form.add(chartPrefs);
 		//CheckBox chartIn3D = new CheckBox("chartIn3D");

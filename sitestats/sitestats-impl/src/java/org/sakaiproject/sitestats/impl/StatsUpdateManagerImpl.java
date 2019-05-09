@@ -27,14 +27,20 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.Getter;
+import lombok.Setter;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -71,8 +77,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
@@ -80,27 +84,27 @@ import lombok.extern.slf4j.Slf4j;
 public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
 
 	/** Spring bean members */
-	private boolean							collectThreadEnabled				= true;
-	public long								collectThreadUpdateInterval			= 4000L;
-	private boolean							collectAdminEvents					= false;
-	private boolean							collectEventsForSiteWithToolOnly	= true;
-	private boolean							collectDetailedEvents				= false;
-	private TransactionTemplate				transactionTemplate;
+	@Getter private boolean				collectThreadEnabled				= true;
+	@Getter @Setter public long			collectThreadUpdateInterval			= 4000L;
+	@Getter @Setter private boolean		collectAdminEvents					= false;
+	@Getter @Setter private boolean		collectEventsForSiteWithToolOnly	= true;
+	@Getter @Setter private boolean		collectDetailedEvents				= false;
+	@Setter private TransactionTemplate	transactionTemplate;
 
 	/** Sakai services */
-	private StatsManager					M_sm;
-	private EventRegistryService			M_ers;
-	private SiteService						M_ss;
-	private AliasService					M_as;
-	private EntityManager					M_em;
-	private UsageSessionService				M_uss;
-	private EventTrackingService			M_ets;
+	@Setter private StatsManager			statsManager;
+	@Setter private EventRegistryService	eventRegistryService;
+	@Setter private SiteService				siteService;
+	@Setter private AliasService			aliasService;
+	@Setter private EntityManager			entityManager;
+	@Setter private UsageSessionService		usageSessionService;
+	@Setter private EventTrackingService	eventTrackingService;
 
 	/** Collect Thread and Semaphore */
-	private Thread							collectThread;
-	private List<Event>						collectThreadQueue					= new ArrayList<>();
-	private Object							collectThreadSemaphore				= new Object();
-	private boolean							collectThreadRunning				= false;
+	private Thread		collectThread;
+	private List<Event>	collectThreadQueue		= new ArrayList<>();
+	private Object		collectThreadSemaphore	= new Object();
+	private boolean		collectThreadRunning	= false;
 
 	/** Collect thread queue maps */
 	private Map<String, EventStat>					eventStatMap			= Collections.synchronizedMap(new HashMap<>());
@@ -113,20 +117,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, ServerStat>					serverStatMap			= Collections.synchronizedMap(new HashMap<>());
 	private Map<String, UserStat>					userStatMap				= Collections.synchronizedMap(new HashMap<>());
 
-	private Map<String, String>				lessonPageCreateEventMap		= new HashMap<>();
-	private List<DetailedEvent>				detailedEvents 					= Collections.synchronizedList(new ArrayList<>());
+	private Map<String, String>	lessonPageCreateEventMap	= new HashMap<>();
+	private List<DetailedEvent>	detailedEvents				= Collections.synchronizedList(new ArrayList<>());
 
-	private boolean							initialized							= false;
-	
-	private final ReentrantLock				lock								= new ReentrantLock();
-	
+	private boolean				initialized	= false;
+	private final ReentrantLock	lock		= new ReentrantLock();
+
 	/** Metrics */
-	private boolean							isIdle								= true;
-	private long							totalEventsProcessed				= 0;
-	private long							totalTimeInEventProcessing			= 0;
-	private long							resetTime					= System.currentTimeMillis();
+	private boolean			isIdle						= true;
+	@Getter private long	totalEventsProcessed		= 0;
+	@Getter private long	totalTimeInEventProcessing	= 0;
+	@Getter private long	resetTime					= System.currentTimeMillis();
 
-	
 	// ################################################################
 	// Spring related methods
 	// ################################################################	
@@ -138,85 +140,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				startUpdateThread();
 				
 				// add this as EventInfo observer
-				M_ets.addLocalObserver(this);
+				eventTrackingService.addLocalObserver(this);
 			}else if(!enabled && collectThreadRunning){
 				// remove this as EventInfo observer
-				M_ets.deleteObserver(this);	
+				eventTrackingService.deleteObserver(this);	
 				
 				// stop update thread
 				stopUpdateThread();
 			}
 		}
-	}
-	
-	public boolean isCollectThreadEnabled() {
-		return collectThreadEnabled;
-	}
-	
-	public void setCollectThreadUpdateInterval(long dbUpdateInterval){
-		this.collectThreadUpdateInterval = dbUpdateInterval;
-	}
-	
-	public long getCollectThreadUpdateInterval(){
-		return collectThreadUpdateInterval;
-	}	
-	
-	public void setCollectAdminEvents(boolean value){
-		this.collectAdminEvents = value;
-	}
-
-	public boolean isCollectAdminEvents(){
-		return collectAdminEvents;
-	}
-
-	public void setCollectEventsForSiteWithToolOnly(boolean value){
-		this.collectEventsForSiteWithToolOnly = value;
-	}
-	
-	public boolean isCollectEventsForSiteWithToolOnly(){
-		return collectEventsForSiteWithToolOnly;
-	}
-	
-	@Override
-	public void setCollectDetailedEvents(boolean value) {
-		collectDetailedEvents = value;
-	}
-
-	@Override
-	public boolean isCollectDetailedEvents() {
-		return collectDetailedEvents;
-	}
-
-	public void setStatsManager(StatsManager mng){
-		this.M_sm = mng;
-	}
-
-	public void setEventRegistryService(EventRegistryService eventRegistryService) {
-		this.M_ers = eventRegistryService;
-	}
-	
-	public void setSiteService(SiteService ss){
-		this.M_ss = ss;
-	}
-	
-	public void setAliasService(AliasService as) {
-		this.M_as = as;
-	}
-	
-	public void setEntityManager(EntityManager em) {
-		this.M_em = em;
-	}
-	
-	public void setEventTrackingService(EventTrackingService ets){
-		this.M_ets = ets;
-	}
-	
-	public void setUsageSessionService(UsageSessionService uss){
-		this.M_uss = uss;
-	}
-
-	public void setTransactionTemplate(TransactionTemplate template) {
-		this.transactionTemplate = template;
 	}
 
 	public void init(){
@@ -240,7 +172,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public void destroy(){
 		if(collectThreadEnabled) {
 			// remove this as EventInfo observer
-			M_ets.deleteObserver(this);	
+			eventTrackingService.deleteObserver(this);	
 			
 			// stop update thread
 			stopUpdateThread();
@@ -397,21 +329,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		totalTimeInEventProcessing = 0;
 		resetTime = System.currentTimeMillis();
 	}
-	
-	@Override
-	public long getNumberOfEventsProcessed() {
-		return totalEventsProcessed;
-	}
-	
-	@Override
-	public long getTotalTimeInEventProcessing() {
-		return totalTimeInEventProcessing;
-	}
-	
-	@Override
-	public long getResetTime() {
-		return resetTime;
-	}
 
 	@Override
 	public long getTotalTimeElapsedSinceReset() {
@@ -450,7 +367,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		StringBuilder sb = new StringBuilder();
 		if(!compact) {
 			sb.append("SiteStats Event aggregation metrics summary:\n");
-			sb.append("\t\tNumber of total events processed: ").append(getNumberOfEventsProcessed()).append("\n");
+			sb.append("\t\tNumber of total events processed: ").append(getTotalEventsProcessed()).append("\n");
 			sb.append("\t\tReset/init time: ").append(new Date(getResetTime())).append("\n");
 			sb.append("\t\tTotal time ellapsed since reset: ").append(getTotalTimeElapsedSinceReset()).append(" ms\n");
 			sb.append("\t\tTotal time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms\n");
@@ -460,7 +377,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sb.append("\t\tEvent queue size: ").append(getQueueSize()).append("\n");
 			sb.append("\t\tIdle: ").append(isIdle());
 		}else{
-			sb.append("#Events processed: ").append(getNumberOfEventsProcessed()).append(", ");
+			sb.append("#Events processed: ").append(getTotalEventsProcessed()).append(", ");
 			sb.append("Time ellapsed since reset: ").append(getTotalTimeElapsedSinceReset()).append(" ms, ");
 			sb.append("Time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms, ");
 			sb.append("#Events processed/sec: ").append(getNumberOfEventsProcessedPerSec()).append(", ");
@@ -549,7 +466,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			collectThreadSemaphore.notifyAll();
 		}
 	}
-	
 
 	// ################################################################
 	// Event process methods
@@ -571,7 +487,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 			// site check
 			String siteId = parseSiteId(e);
-			if(siteId == null || M_ss.isUserSite(siteId) || M_ss.isSpecialSite(siteId)){
+			if(siteId == null || siteService.isUserSite(siteId) || siteService.isSpecialSite(siteId)){
 				return;
 			}
 			Site site = getSite(siteId);
@@ -584,14 +500,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			// user check
 			if(userId == null) {
-				UsageSession session = M_uss.getSession(e.getSessionId());
+				UsageSession session = usageSessionService.getSession(e.getSessionId());
 				if(session != null) {
 					userId = session.getUserId();
 				}
 			}
 			if(!isCollectAdminEvents() && ("admin").equals(userId)){
 				return;
-			}if(!M_sm.isShowAnonymousAccessEvents() && EventTrackingService.UNKNOWN_USER.equals(userId)){
+			}if(!statsManager.isShowAnonymousAccessEvents() && EventTrackingService.UNKNOWN_USER.equals(userId)){
 				return;
 			}
 			
@@ -635,7 +551,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			// user check
 			if(userId == null) {
-				UsageSession session = M_uss.getSession(e.getSessionId());
+				UsageSession session = usageSessionService.getSession(e.getSessionId());
 				if(session != null) {
 					userId = session.getUserId();
 				}
@@ -816,7 +732,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				uniqueVisitsMap.put(keyUniqueVisits, Integer.valueOf(1));
 				
 				// site presence started
-				if(M_sm.isEnableSitePresences()) {
+				if(statsManager.getEnableSitePresences()) {
 					String pKey = siteId+userId+date;
 					SitePresenceConsolidation spc = presencesMap.get(pKey);
 					if(spc == null) {
@@ -835,7 +751,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 		}else if(StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
 			// site presence ended
-			if(M_sm.isEnableSitePresences()) {
+			if(statsManager.getEnableSitePresences()) {
 				String pKey = siteId+userId+date;
 				lock.lock();
 				try{
@@ -895,7 +811,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 
 	protected boolean isRegisteredEvent(String eventId) {
-		return M_ers.isRegisteredEvent(eventId);
+		return eventRegistryService.isRegisteredEvent(eventId);
 	}
 	
 	//STAT-299 consolidate a server event
@@ -1611,7 +1527,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			if(event.startsWith(StatsManager.RESOURCE_EVENTID_PREFIX) && resource.startsWith("MessageCenter")) {
 				resource = resource.replaceFirst("MessageCenter::", "/MessageCenter/site/");
 				resource = resource.replaceAll("::", "/");
-				return M_ets.newEvent(
+				return eventTrackingService.newEvent(
 						event.replaceFirst("content.", "msgcntr."), 
 						resource, 
 						false);
@@ -1619,7 +1535,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				return e;
 			}
 		}else{
-			return M_ets.newEvent("garbage.", resource, false);
+			return eventTrackingService.newEvent("garbage.", resource, false);
 		}
 	}
 	
@@ -1627,7 +1543,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		String eventId = e.getEvent();
 		
 		// get contextId (siteId) from new Event.getContext() method, if available
-		if(M_sm.isEventContextSupported()) {
+		if(statsManager.isEventContextSupported()) {
 			String contextId = null;
 			try{
 				contextId = (String) e.getClass().getMethod("getContext", null).invoke(e, null);
@@ -1665,7 +1581,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					if(parserTip != null){
 						int index = Integer.parseInt(parserTip.getIndex());
 						return eventRef.split(parserTip.getSeparator())[index];
-					}else if(M_sm.isEventContextSupported()) {
+					}else if(statsManager.isEventContextSupported()) {
 						log.info("Context information unavailable for event: " + eventId + " (ignoring)");
 					}else{
 						log.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
@@ -1684,16 +1600,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		Site site = null;
 		try{
 			// is it a site id?
-			site = M_ss.getSite(siteId);
+			site = siteService.getSite(siteId);
 		}catch(IdUnusedException e1){
 			// is it an alias?
 			try{
 				String alias = siteId;
-				String target = M_as.getTarget(alias);
+				String target = aliasService.getTarget(alias);
 				if(target != null) {
-					String newSiteId = M_em.newReference(target).getId();
+					String newSiteId = entityManager.newReference(target).getId();
 					log.debug(alias + " is an alias targetting site id: "+newSiteId);
-					site = M_ss.getSite(newSiteId);
+					site = siteService.getSite(newSiteId);
 				}else{
 					throw new IdUnusedException(siteId);
 				}
@@ -1710,12 +1626,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 	/** Get all server events **/
 	private Collection<String> getServerEvents() {
-		return M_ers.getServerEventIds();
+		return eventRegistryService.getServerEventIds();
 	}
 	
 	/** Get eventId -> ToolInfo map */
 	private Map<String, ToolInfo> getEventIdToolMap() {
-		return M_ers.getEventIdToolMap();
+		return eventRegistryService.getEventIdToolMap();
 	}	
 	
 	/**
@@ -1842,8 +1758,5 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			else buff.append("null");
 			return buff.toString();
 		}
-
-		
 	}
-	
 }

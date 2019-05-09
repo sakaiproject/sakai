@@ -3,6 +3,7 @@ package org.sakaiproject.sitestats.tool.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;

@@ -78,7 +78,7 @@ public class SiteStatsMetricsEntityProvider extends AbstractEntityProvider imple
 	@EntityCustomAction(action = "get-all-metrics", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getAllMetrics(Search search, Map<String, Object> params) {
 		Map<String,Object> map = new HashMap<String, Object>();
-		map.put("Number_of_total_events_processed", statsUpdateManager.getNumberOfEventsProcessed());
+		map.put("Number_of_total_events_processed", statsUpdateManager.getTotalEventsProcessed());
 		map.put("Reset_or_Init_time", (new Date(statsUpdateManager.getResetTime()).toString()) + "( " + statsUpdateManager.getResetTime() + " ms)");
 		map.put("Total_time_ellapsed_since_reset", statsUpdateManager.getTotalTimeElapsedSinceReset() + " ms");
 		map.put("Total_time_spent_processing_events", statsUpdateManager.getTotalTimeInEventProcessing() + " ms");
@@ -104,7 +104,7 @@ public class SiteStatsMetricsEntityProvider extends AbstractEntityProvider imple
 	// --- ActionsExecutable (individual measures) -----------------------------------
 	@EntityCustomAction(action = "get-total-events-processed", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getTotalEventsProcessed(Search search, Map<String, Object> params) {
-		return new ActionReturn(statsUpdateManager.getNumberOfEventsProcessed());
+		return new ActionReturn(statsUpdateManager.getTotalEventsProcessed());
 	}
 	
 	@EntityCustomAction(action = "get-reset-time", viewKey = EntityView.VIEW_LIST)
