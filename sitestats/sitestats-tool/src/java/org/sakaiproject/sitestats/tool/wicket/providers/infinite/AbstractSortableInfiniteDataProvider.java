@@ -48,5 +48,8 @@ public abstract class AbstractSortableInfiniteDataProvider<T, S> implements Sort
 	}
 
 	@Override
-	public void detach() {}
+	public void detach()
+	{
+		// noop
+	}
 }

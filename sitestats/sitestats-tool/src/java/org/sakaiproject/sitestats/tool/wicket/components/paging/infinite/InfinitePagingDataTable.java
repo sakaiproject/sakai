@@ -211,7 +211,7 @@ public class InfinitePagingDataTable<T, S> extends Panel
 		// noop
 	}
 
-	String newToolbarId()
+	protected String newToolbarId()
 	{
 		toolbarIdCounter++;
 		return String.valueOf(toolbarIdCounter).intern();
