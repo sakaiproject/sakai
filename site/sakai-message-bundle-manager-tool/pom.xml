@@ -1,132 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
         <groupId>org.sakaiproject.site</groupId>
         <artifactId>site</artifactId>
         <version>19-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-	<groupId>org.sakaiproject.mbm.tool</groupId>
-	<artifactId>sakai-message-bundle-manager-tool</artifactId>
-	<packaging>war</packaging>
+    <groupId>org.sakaiproject.mbm.tool</groupId>
+    <artifactId>sakai-message-bundle-manager-tool</artifactId>
+    <packaging>war</packaging>
 
-	<properties>
-		<maven.deploy.skip>true</maven.deploy.skip>
-		<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-	</properties>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+        <thymeleaf.version>3.0.10.RELEASE</thymeleaf.version>
+    </properties>
 
-
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>  
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-		</dependency>
-		<!-- thymeleaf template engine -->
-		<dependency>
-			<groupId>org.thymeleaf</groupId>
-			<artifactId>thymeleaf-spring4</artifactId>
-			<version>2.1.4.RELEASE</version>
-		</dependency>
-		<!-- dandelion datatables -->
-		<dependency>
-			<groupId>com.github.dandelion</groupId>
-			<artifactId>dandelion-core</artifactId>
-			<version>0.10.1</version>
-		</dependency>
-		<dependency>
-		    <groupId>com.github.dandelion</groupId>
-		    <artifactId>datatables-thymeleaf</artifactId>
-		    <version>0.10.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.dandelion</groupId>
-			<artifactId>datatables-spring3</artifactId>
-			<version>0.10.1</version>
-		</dependency>
+    <dependencies>
         <dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<scope>provided</scope>
-		</dependency>		
+            <groupId>org.springframework</groupId>
+            <artifactId>${sakai.spring.artifactId}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <!-- thymeleaf template engine -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring4</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
         <!-- we are running a webapp in a servlet container so we need the servlet API -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-			<scope>provided</scope>
         </dependency>
 
-		<!-- third party dependencies -->
-    	<dependency>
-	      <groupId>org.apache.commons</groupId>
-	      <artifactId>commons-lang3</artifactId>
-    	</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>${joda.time.version}</version>
-		</dependency>
+        <!-- third party dependencies -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
         <!-- Sakai dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-component-manager</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<!-- configure the build to use the standard maven structure -->
-		<sourceDirectory>src/main/java</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/main/java</directory>
-				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>${basedir}/src/main/resources</directory>
-				<includes>
-					<include>**/*</include>
-				</includes>
-			</resource>
-		</resources>
-		<plugins>
-			<!-- configure the war plugin to correctly use the standard maven structure -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
-					<ouputDirectory>${project.build.directory}</ouputDirectory>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <!-- configure the build to use the standard maven structure -->
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- configure the war plugin to correctly use the standard maven structure -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -1,38 +1,36 @@
 .#{$namespace}sakai-message-bundle-manager {
 
-    .portletBody {
-        h3 {
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
+  .portletBody {
+    h3 {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  }
+
+  select.input-sm {
+    line-height: 1em;
+  }
+
+  .dataTables_wrapper {
+    margin-top: 20px;
+
+    table {
+      a[role="button"] {
+        @extend .button;
+        margin: 0;
+        padding: 0.1em 0.4em 0em 0.4em;
+        width: 100%;
+        text-align: center;
+      }
     }
 
-    .dataTables_wrapper {
-        margin-top: 20px;
-        table {
-            a[role="button"] {
-                @extend .button;
-                margin: 0;
-                padding: 0.1em 0.4em 0em 0.4em;
-                width: 100%;
-                text-align: center;
-            }
-        }
+    .pagination > li > a[href]:focus {
+      outline: 5px auto -webkit-focus-ring-color;
+      outline-offset: -2px;
     }
-    
-    .dataTables_export {
-	   a {
-	       @extend .button;
-	       margin: 0;
-	       padding: 0.3em 0.8em 0.3em 0.8em;
-       }
-    }
+  }
 
-    .alert {
-        margin-top: 20px;
-    }
-    
-    .form-group {
-        margin-bottom: 0;
-    }
+  .alert {
+    margin-top: 20px;
+  }
 }
