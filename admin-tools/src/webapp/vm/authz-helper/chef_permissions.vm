@@ -1,8 +1,6 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-#css("/admin-tools/css/authz.css")
 <script>includeLatestJQuery('chef_permissions.vm');</script>
-#javascript("/admin-tools/js/authz.js")
 #javascript("/library/js/spinner.js")
 #if($menu)
 	#toolbar($menu)
@@ -53,7 +51,7 @@
 	
 		<form name= "permissionForm" action="#toolForm("$action")" method="post">
 			#if ($!roles)
-				<table class="listHier checkGrid specialLink" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0" style="width:auto">
+				<table class="permissions-table listHier checkGrid specialLink" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0" style="width:auto">
 					<tr>
 						<th id="permission">
 							<a href="#" title="$thelp.getString("per.lis.head.title")">$thelp.getString("per.lis.head")</a>

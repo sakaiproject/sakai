@@ -100,13 +100,14 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
     @EntityCustomAction(action = "getPerms", viewKey = EntityView.VIEW_SHOW)
     public ActionReturn handleGet(EntityView view, Map<String, Object> params) {
 
+        final String siteId = view.getEntityReference().getId();
+
         // expects permissions/siteId/getPerms[/:TOOL:]
         String tool = view.getPathSegment(3);
 
         String userId = developerHelperService.getCurrentUserId();
-        if (userId == null) {
-            throw new SecurityException(
-            "This action (getPerms) is not accessible to anon and there is no current user.");
+        if (!securityService.isSuperUser(userId) && !authzGroupService.isAllowed(userId, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId)) {
+            throw new SecurityException("This action (getPerms) is not allowed.");
         }
 
         Site site = getSiteById(view.getEntityReference().getId());
@@ -134,14 +135,14 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
 
         String toolBundle = String.format("org.sakaiproject.%s.bundle.Messages", tool);
         ResourceBundle toolRB = ResourceBundle.getBundle(toolBundle);
-        toolRB.keySet().stream().filter(k -> k.startsWith("func-")).forEach(k -> i18n.put(k.substring(5), toolRB.getString(k)));
+        toolRB.keySet().stream().filter(k -> k.startsWith("perm-")).forEach(k -> i18n.put(k.substring(5), toolRB.getString(k)));
 
         List<String> available = functionManager.getRegisteredFunctions(tool);
         Map<String, Object> data = new HashMap<>();
         data.put("on", on);
         data.put("available", available);
         data.put("i18n", i18n);
-        return new ActionReturn(data);
+        return new ActionReturn(data, null, Formats.JSON);
     }
 
     @EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)
