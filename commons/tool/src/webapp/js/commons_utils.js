@@ -212,60 +212,6 @@ commons.utils = {
             alert('Failed to get the current user permissions. Status: ' + textStatus + '. Error: ' + error);
         });
     },
-    getSitePermissionMatrix: function (callback) {
-
-        $.ajax( {
-            url: '/direct/commons/perms.json?siteId=' + commons.siteId,
-            dataType: 'json',
-            cache: false,
-            timeout: commons.AJAX_TIMEOUT
-        }).done(function(json) {
-
-            var p = json.data;
-
-            var perms = [];
-
-            for (role in p) {
-                var permSet = {'role': role};
-
-                p[role].forEach(function (p) {
-                    eval('permSet.' + p.replace(/\./g,'_') + ' = true');
-                });
-
-                perms.push(permSet);
-            }
-
-            callback(perms);
-        }).fail(function(xmlHttpRequest, textStatus, error) {
-            alert("Failed to get permissions. Status: " + textStatus + ". Error: " + error);
-        });
-    },
-    savePermissions: function () {
-
-        var myData = { siteId: commons.siteId };
-        $('.commons-permission-checkbox').each(function (b) {
-
-            if (this.checked) {
-                myData[this.id] = 'true';
-            } else {
-                myData[this.id] = 'false';
-            }
-        });
-
-        $.ajax( {
-            url: "/direct/commons/savePermissions",
-            type: 'POST',
-            data: myData,
-            dataType: 'text',
-            timeout: commons.AJAX_TIMEOUT
-        }).done(function (result) {
-            location.reload();
-        }).fail(function(xmlHttpRequest, textStatus, error) {
-            alert("Failed to save permissions. Status: " + textStatus + '. Error: ' + error);
-        });
-
-        return false;
-    },
     formatDate: function (millis) {
 
         if (millis <= 0) {
