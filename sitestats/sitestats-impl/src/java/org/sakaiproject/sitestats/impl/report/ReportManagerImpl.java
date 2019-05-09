@@ -410,33 +410,29 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		// who (users, groups, roles)
 		rpp.userIds = userIds;
 		rpp.inverseUserSelection = false;
-		if (rpp.userIds != null) {
-			if(params.getWho().equals(ReportManager.WHO_ALL)){
-				;
-			}else if(params.getWho().equals(ReportManager.WHO_ROLE) && rpp.siteId != null){
-				rpp.userIds = new ArrayList<String>();
-				try{
-					Site site = M_ss.getSite(rpp.siteId);
-					rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
-				}catch(IdUnusedException e){
-					log.error("No site with specified siteId.");
-				}
-
-			}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
-				rpp.userIds = new ArrayList<String>();
-				try{
-					Site site = M_ss.getSite(rpp.siteId);
-					rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
-				}catch(IdUnusedException e){
-					log.error("No site with specified siteId.");
-				}
-
-			}else if(params.getWho().equals(ReportManager.WHO_CUSTOM)){
-				rpp.userIds = params.getWhoUserIds();
-			}else{
-				// inverse
-				rpp.inverseUserSelection = true;
+		if(params.getWho().equals(ReportManager.WHO_ALL)){
+			;
+		}else if(params.getWho().equals(ReportManager.WHO_ROLE) && rpp.siteId != null){
+			rpp.userIds = new ArrayList<String>();
+			try{
+				Site site = M_ss.getSite(rpp.siteId);
+				rpp.userIds.addAll(site.getUsersHasRole(params.getWhoRoleId()));
+			}catch(IdUnusedException e){
+				log.error("No site with specified siteId.");
 			}
+		}else if(params.getWho().equals(ReportManager.WHO_GROUPS) && rpp.siteId != null){
+			rpp.userIds = new ArrayList<String>();
+			try{
+				Site site = M_ss.getSite(rpp.siteId);
+				rpp.userIds.addAll(site.getGroup(params.getWhoGroupId()).getUsers());
+			}catch(IdUnusedException e){
+				log.error("No site with specified siteId.");
+			}
+		}else if(params.getWho().equals(ReportManager.WHO_CUSTOM)){
+			rpp.userIds = params.getWhoUserIds();
+		}else{
+			// inverse
+			rpp.inverseUserSelection = true;
 		}
 		params.setWhoUserIds(rpp.userIds);
 		
@@ -456,8 +452,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 
 		return rpp;
 	}
-	
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#getReportFormattedParams()
 	 */
