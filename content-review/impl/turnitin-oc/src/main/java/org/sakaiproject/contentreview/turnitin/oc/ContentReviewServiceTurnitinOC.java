@@ -119,8 +119,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private static final String SERVICE_NAME = "Turnitin";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
-	private static final int TURNITIN_OC_MAX_RETRY_MINUTES = 240; // 4 hours
-	private static final int TURNITIN_MAX_RETRY = 16;
 	private static final String INTEGRATION_FAMILY = "sakai";
 	private static final String CONTENT_TYPE_JSON = "application/json";
 	private static final String CONTENT_TYPE_BINARY = "application/octet-stream";
@@ -167,6 +165,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private String serviceUrl;
 	private String apiKey;
 	private String sakaiVersion;
+	private int maxRetryMinutes;
+	private int maxRetry;
+	private boolean skipDelays;
 
 	private HashMap<String, String> BASE_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();
@@ -265,6 +266,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
 		// Retrieve Sakai Version if null set default 		
 		sakaiVersion = serverConfigurationService.getString("version.sakai", "UNKNOWN");
+
+		// Maximum delay between retries after recoverable errors
+		maxRetryMinutes = serverConfigurationService.getInt("turnitin.oc.max.retry.minutes", 240); // 4 hours
+		// Maximum number of retries for recoverable errors
+		maxRetry = serverConfigurationService.getInt("turnitin.oc.max.retry", 16);
+		// For local development only; do not set this in production:
+		skipDelays = serverConfigurationService.getBoolean("turnitin.oc.skip.delays", false);
+
 		autoExcludeSelfMatchingScope =Arrays.stream(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.values())
 				.filter(e -> e.name().equalsIgnoreCase(serverConfigurationService.getString("turnitin.oc.auto_exclude_self_matching_scope")))
 				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP).name();
@@ -1261,7 +1270,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			item.setNextRetryTime(cal.getTime());
 			crqs.update(item);
 			// If retry count is above maximum increment error count, set status to nine and stop retrying
-		} else if (item.getRetryCount().intValue() > TURNITIN_MAX_RETRY) {
+		} else if (item.getRetryCount().intValue() > maxRetry) {
 			item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE);
 			crqs.update(item);
 			return false;
@@ -1278,10 +1287,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public int getDelayTime(long retries) {
+		if (skipDelays)
+		{
+			return 0;
+		}
 		// exponential retry algorithm that caps the retries off at 36 hours (checking once every 4 hours max)
-		int minutes = (int) Math.pow(2, retries < TURNITIN_MAX_RETRY ? retries : 1); // built in check for max retries
+		int minutes = (int) Math.pow(2, retries < maxRetry ? retries : 1); // built in check for max retries
 																						// to fail quicker
-		return minutes > TURNITIN_OC_MAX_RETRY_MINUTES ? TURNITIN_OC_MAX_RETRY_MINUTES : minutes;
+		return minutes > maxRetryMinutes ? maxRetryMinutes : minutes;
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content)
