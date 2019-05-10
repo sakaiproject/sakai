@@ -232,4 +232,14 @@ public class MockTimeService implements TimeService
 	public String shortLocalizedDate(LocalDate date, Locale locale) {
 		return null;
 	}
+
+	@Override
+	public String shortPreciseLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+		return null;
+	}
+
+	@Override
+	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
+		return null;
+	}
 }

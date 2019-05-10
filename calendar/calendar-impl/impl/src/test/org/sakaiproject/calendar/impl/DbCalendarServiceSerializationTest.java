@@ -456,6 +456,16 @@ public class DbCalendarServiceSerializationTest extends TestCase
 			public String shortLocalizedDate(LocalDate date, Locale locale) {
 				return null;
 			}
+
+			@Override
+			public String shortPreciseLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+				return null;
+			}
+
+			@Override
+			public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
+				return null;
+			}
 		};
 		services = new HashMap<String,Object>();
 		services.put("sqlservice", sqlService);
