@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.head.filter.HeaderResponseContainer;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
@@ -61,6 +62,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
         add(html);
 		
 		add(new DebugBar("debug"));
+		add(new HeaderResponseContainer("bottom-script-container", "bottom-script-container"));
 	}
 
 	@Override

@@ -156,6 +156,7 @@ public class FileSelectorPanel extends Panel {
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
 		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(BasePage.JQUERYSCRIPT));
+		super.renderHead(container); // needs to be rendered after jQuery but before the page specifc scripts
 		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js"));
 		container.getHeaderResponse().render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css"));
 		StringBuilder onDomReady = new StringBuilder();
@@ -168,7 +169,6 @@ public class FileSelectorPanel extends Panel {
 		onDomReady.append("  function(file) {return false;}");
 		onDomReady.append(");");
 		container.getHeaderResponse().render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
-		super.renderHead(container);
 	}
 	
 	private List<CHResourceModel> getResources(String dir) throws IdUnusedException, TypeException, PermissionException {
