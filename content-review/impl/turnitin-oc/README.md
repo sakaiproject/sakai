@@ -1,4 +1,4 @@
-## Turnitin OC Content Review Implmentation
+## Turnitin OC Content Review Implementation
 
 This is the Turnitin Originality Check content review implementation which is for use with those that use the TurnitinOC service.
 
@@ -17,6 +17,19 @@ assignment.useContentReview=true
 # Required API KEY for the Turnitin content review service API
 # default: empty
 # example: turnitin.oc.apiKey=mysupersecret
+
+# Maximum delay between retires after recoverable errors (Optional)
+# default: 240
+# turnitin.oc.max.retry.minutes=240
+
+# Maximum number of retries for recoverable errors (Optional)
+# default: 16
+# turnitin.oc.max.retry=16
+
+# Skips any delays intended to reduce traffic to the content review servers. (Optional)
+# For local development only; do not set this in production!
+# default: false
+# turnitin.oc.skip.delays=false
 
 # turnitin.accept.all.files (Optional)
 # If true, any file type will be accepted by Sakai. Invalid file types will still be rejected by Turnitin.
