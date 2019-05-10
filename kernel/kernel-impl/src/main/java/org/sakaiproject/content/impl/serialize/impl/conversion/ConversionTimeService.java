@@ -213,4 +213,14 @@ public class ConversionTimeService implements TimeService
 	public String shortLocalizedDate(LocalDate date, Locale locale) {
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
 	}
+
+	@Override
+	public String shortPreciseLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	@Override
+	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
 }

@@ -83,7 +83,7 @@ Users should not be able to see information that they could not see in the tool'
 permissions and be aware of any special visibility restrictions in the tool. To that end:
 
 * In cases where the tool's service layer does not include permission checks, additional permission checks are performed
-by User Activity. User Activity errs on the side of caution here and requires maintainer-levels permissions since it will
+by User Activity. User Activity errs on the side of caution here and requires maintainer-level permissions since it will
 grant access to details for any event from the tool. This is not the ideal scenario but is required for some tools.
 * User Activity is aware that several tools have a concept of anonymity, and tries to not reveal details that would
 compromise anonymity. For example, the details for an assignment submission event will not identify the assignment if
@@ -107,7 +107,7 @@ At a high level
 
 * New Sakai events are recorded automatically by the Collection layer
 * Users invoke the Query layer to perform searches against these events by submitting the form on the User Activity page
-* Users may click the "show more" link for an individual event in the query results, invoking the Resolver layer
+* Users may click the "show more" button for an individual event in the query results, invoking the Resolver layer
 which uses Sakai services to get additional details about that particular event
 * The Presentation layer converts the specific details about the event into a form suitable for presentation
 back to the user, which is then displayed inline in the query results table.
@@ -172,7 +172,7 @@ ResolvedEventData objects representing error states can be returned instead of t
 
 ### Presentation layer
 
-When presenting the details or a particular event to the user, the ResolvedEventData must be first be transformed into
+When presenting the details of a particular event to the user, the ResolvedEventData must be first be transformed into
 a presentable format.
 
 Transformation, which includes localization, is done by a Transformer, of which there is one for each tool. For example,
@@ -183,18 +183,18 @@ EventDetail objects are simply localized key/value pairs. The value can be eithe
 a submission to a normal assignment called "Assignment 1" would be transformed into a single key/value pair of
 "Title"/"Assignment 1" (if user language was English). However, Transformers do more than simply localize each property
 of the ResolvedEventData. They contain logic that determines how to present the data. To continue the "Assignment 1"
-example, if the assignment has been deleted since the submission occurred, the Transformer would read both the "title"
+example, if the assignment has been deleted since the submission occurred, the Transformer would read both the "title" and
 "deleted" properties of the AssignmentEventData and present the value as "Assignment 1 \[deleted\]" (if the user language
 was English of course).
 
 The current implementation uses a one-size-fits-all Wicket panel to present the list of EventDetail objects
 in the same way no matter which event they are for.
 
-### Responsive Design
+#### Responsive Design
 
 User Activity has a content-specific CSS breakpoint set at 640px that makes the following changes to the presentation:
 
 - the search form switches to a column orientation
-- the table switches to a "CardTable" layout the presents each table row as a separate "card", allowing the user
+- the table switches to a "CardTable" layout that presents each table row as a separate "card", allowing the user
 to see all the data in the row at once even on a narrow device
 

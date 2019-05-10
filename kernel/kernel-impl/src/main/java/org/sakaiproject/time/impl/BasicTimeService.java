@@ -1037,4 +1037,14 @@ public class BasicTimeService implements TimeService
 	public String shortLocalizedDate(LocalDate date, Locale locale) {
 		return userTimeService.shortLocalizedDate(date, locale);
 	}
+
+	@Override
+	public String shortPreciseLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+		return userTimeService.shortPreciseLocalizedTimestamp(instant, timezone, locale);
+	}
+
+	@Override
+	public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
+		return userTimeService.shortPreciseLocalizedTimestamp(instant, getLocalTimeZone(), locale);
+	}
 }

@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components.useractivity;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -90,8 +92,8 @@ public class UserTrackingResultsPanel extends Panel
 			{
 				// Get the event date
 				DetailedEvent event = (DetailedEvent) rowModel.getObject();
-				String dateStr = Locator.getFacade().getUserTimeService().shortLocalizedTimestamp(event.getEventDate().toInstant(), getSession().getLocale());
-				return new Model<>(dateStr);
+				Instant time = event.getEventDate().toInstant();
+				return Model.of(Locator.getFacade().getUserTimeService().shortPreciseLocalizedTimestamp(time, getSession().getLocale()));
 			}
 		});
 
