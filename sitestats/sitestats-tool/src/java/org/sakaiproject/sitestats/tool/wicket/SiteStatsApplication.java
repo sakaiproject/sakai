@@ -41,6 +41,7 @@ import org.apache.wicket.devutils.debugbar.VersionDebugContributor;
 import org.apache.wicket.request.IRequestMapper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.wicket.components.JavaScriptToBucketResponseDecorator;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
@@ -64,6 +65,9 @@ public class SiteStatsApplication extends WebApplication {
 		getResourceSettings().getResourceFinders().add(new WebApplicationPath(getServletContext(), "html"));
 		getResourceSettings().setResourceStreamLocator(new SiteStatsResourceStreamLocator());
 		getDebugSettings().setAjaxDebugModeEnabled(debug);
+
+		// configure bottom page script loading
+		setHeaderResponseDecorator(new JavaScriptToBucketResponseDecorator("bottom-script-container"));
 
 		// Mount pages
 		mountPage("/home", OverviewPage.class);
