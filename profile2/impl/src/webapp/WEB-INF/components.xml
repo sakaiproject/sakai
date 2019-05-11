@@ -98,12 +98,14 @@
     
     <!-- ProfileImageLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileImageLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl">
+    	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl"
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
     	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
     <!-- ProfileMessagingLogic -->

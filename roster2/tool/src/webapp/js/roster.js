@@ -94,6 +94,7 @@
     }
 
     roster.changeActiveTab = function(state) {
+
         roster.initNavBar();
         var activeID = '';
         if (roster.STATE_OVERVIEW === state) {
@@ -117,11 +118,6 @@
         roster.currentState = state;
         roster.changeActiveTab(state);
 
-        // so we can return to the previous state after viewing permissions
-        if (state !== roster.STATE_PERMISSIONS) {
-            roster.rosterLastStateNotPermissions = state;
-        }
-        
         // permissions
         if (roster.showPermsToMaintainers) {
             $('#navbar_permissions_link').show();
@@ -159,7 +155,7 @@
                     viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto },
                 'roster_content');
 
-            $(document).ready(function () {
+            $(function () {
 
                 if (args && args.group) {
                     $('#roster-group-option-' + args.group).prop('selected', true);
@@ -216,7 +212,7 @@
                     viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto },
                 'roster_content');
 
-            $(document).ready(function () {
+            $(function () {
 
                 roster.addPhotoSourceHandlers();
                 roster.addHideOptionHandlers();
@@ -245,28 +241,7 @@
                 roster.renderMembership({ replace: true });
             });
         } else if (roster.STATE_PERMISSIONS === state) {
-
-            roster.sakai.getSitePermissionMatrix(roster.siteId, function (permissions) {
-
-                roster.site.permissions = permissions;
-
-                var roles = Object.keys(permissions).map(function (role) {
-                        return {name: role};
-                    });
-            
-                roster.render('permissions', { siteTitle: roster.site.title, showVisits: roster.showVisits, roles: roles }, 'roster_content');
-                
-                $(document).ready(function () {
-
-                    $('#roster_permissions_save_button').click(function () {
-
-                       roster.sakai.savePermissions(roster.siteId, 'roster_permission_checkbox',
-                               function () { window.location.reload(); } );
-                    });
-                    
-                    $('#roster_cancel_button').click(function () { roster.switchState(roster.rosterLastStateNotPermissions); } );
-                });
-            });
+            roster.render('permissions', { siteTitle: roster.site.title }, 'roster_content');
         }
     };
 
@@ -413,7 +388,7 @@
 
                 roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
 
-                $(document).ready(function () {
+                $(function () {
 
                     if ($('#roster-hide-pictures-checkbox').prop('checked')) {
                         $('.roster-picture-cell').addClass('roster-hide-pictures');
@@ -747,17 +722,9 @@
         return (firstNameLastName) ? this.displayName : this.sortName;
     });
 
-    Handlebars.registerHelper('roleAllowed', function (options) {
-
-        var perm = options.hash.permission;
-        var role = this.name;
-
-        return roster.site.permissions[role].indexOf(perm) !== -1;
-    });
-
     roster.init = function () {
 
-        roster.i18n = portal.i18n.translations["roster2"];
+        roster.i18n = portal.i18n.translations["roster"];
 
         roster.i18n.months = roster.i18n.months.split(',');
 
@@ -867,9 +834,7 @@
     $(function () {
 
         portal.i18n.loadProperties({
-            resourceClass: 'org.sakaiproject.roster.i18n.RosterI18NLoader',
-            resourceBundle: 'org.sakaiproject.roster.i18n.ui',
-            namespace: 'roster2',
+            namespace: 'roster',
             callback: function () {
                 roster.loadSiteDataAndInit();
             }

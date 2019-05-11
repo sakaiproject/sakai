@@ -1,9 +1,9 @@
-## Turnitin OC Content Review Implmentation
+## Turnitin OC Content Review Implementation
 
 This is the Turnitin Originality Check content review implementation which is for use with those that use the TurnitinOC service.
 
 ### Configuration
-
+```
 contentreview.enabledProviders=TurnitinOC
 contentreview.defaultProvider=TurnitinOC
 assignment.useContentReview=true
@@ -17,6 +17,19 @@ assignment.useContentReview=true
 # Required API KEY for the Turnitin content review service API
 # default: empty
 # example: turnitin.oc.apiKey=mysupersecret
+
+# Maximum delay between retires after recoverable errors (Optional)
+# default: 240
+# turnitin.oc.max.retry.minutes=240
+
+# Maximum number of retries for recoverable errors (Optional)
+# default: 16
+# turnitin.oc.max.retry=16
+
+# Skips any delays intended to reduce traffic to the content review servers. (Optional)
+# For local development only; do not set this in production!
+# default: false
+# turnitin.oc.skip.delays=false
 
 # turnitin.accept.all.files (Optional)
 # If true, any file type will be accepted by Sakai. Invalid file types will still be rejected by Turnitin.
@@ -94,4 +107,13 @@ assignment.useContentReview=true
 # 2=At Due Date
 # default: turnitin.report_gen_speed.setting.value=0
 
+# turnitin.oc.auto_exclude_self_matching_scope
+# Allows you to set the default self matching exclude scope for all submissions
+# ALL (Exclude all self matching submissions from Similarity Report)
+# NONE (Exclude no self matching submissions from Similarity Report)
+# GROUP (Exclude all self matching submissions in current assignment from Similarity Report)
+# GROUP_CONTEXT (Exclude all self matching submissions in current course from Similarity Report)
+# default: GROUP
+
 # Please make sure the property 'version.sakai' is set correctly
+```

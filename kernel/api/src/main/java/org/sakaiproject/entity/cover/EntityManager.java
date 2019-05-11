@@ -22,6 +22,7 @@
 package org.sakaiproject.entity.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.EntityProducer;
 
 /**
  * <p>
@@ -63,7 +64,7 @@ public class EntityManager
 		service.registerEntityProducer(param0, param1);
 	}
 
-	public static java.util.List getEntityProducers()
+	public static java.util.List<EntityProducer> getEntityProducers()
 	{
 		org.sakaiproject.entity.api.EntityManager service = getInstance();
 		if (service == null) return null;

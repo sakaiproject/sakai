@@ -145,6 +145,8 @@
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}cropper/4.0.0/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
+        <script type="module" src="/webcomponents/sakai-tool-permissions.js$!{portalCDNQuery}"></script>
+
         <!-- RUBRICS CODE AND MODULES -->
         <script src="/rubrics-service/webcomponents/sakai-rubrics.js$!{portalCDNQuery}"></script>
         <script type="module" src="/rubrics-service/webcomponents/sakai-rubric-student.js$!{portalCDNQuery}"></script>

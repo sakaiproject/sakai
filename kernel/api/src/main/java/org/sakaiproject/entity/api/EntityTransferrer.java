@@ -22,44 +22,70 @@
 package org.sakaiproject.entity.api;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * <p>
  * Services which implement EntityTransferrer declare themselves as willing and able to transfer/copy their entities from one context to another.
  * </p>
  */
-public interface EntityTransferrer
-{
-	/**
-	 * transfer a copy of Entites from the source context into the destination context
-	 * 
-	 * @param fromContext
-	 *        The source context
-	 * @param toContext
-	 *        The destination context
-	 * @param ids
-	 *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
-	 */
-	void transferCopyEntities(String fromContext, String toContext, List<String> ids);
+public interface EntityTransferrer {
 
-	/**
-	 * Provide the string array of tool ids, for tools that we claim as manipulating our entities.
-	 * 
-	 * @return
-	 */
-	String[] myToolIds();
-	
-	/**
-	 * transfer a copy of Entites from the source context into the destination context
-	 * 
-	 * @param fromContext
-	 *        The source context
-	 * @param toContext
-	 *        The destination context
-	 * @param ids
-	 *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
-	 * @param cleanup If true empty content in destination first
-	 *        
-	 */
-	void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup);
+    public static final String PUBLISH_OPTION = "publish";
+
+    /**
+     * transfer a copy of Entities from the source context into the destination context
+     *
+     * @param fromContext
+     *        The source context
+     * @param toContext
+     *        The destination context
+     * @param ids
+     *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
+     * @param transferOptions
+     *        when non null, a tool may use these to modify its transfer process - publishing content, for instance.
+     */
+    Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions);
+
+    /**
+     * Provide the string array of tool ids, for tools that we claim as manipulating our entities.
+     *
+     * @return
+     */
+    String[] myToolIds();
+
+    /**
+     * transfer a copy of Entities from the source context into the destination context
+     *
+     * @param fromContext
+     *        The source context
+     * @param toContext
+     *        The destination context
+     * @param ids
+     *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
+     * @param transferOptions
+     *        when non null, a tool may use these to modify its transfer process - publishing content, for instance.
+     * @param cleanup If true empty content in destination first
+     */
+    default Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
+        return null;
+    }
+
+    /**
+     * Takes a map of ref's (fromContextRef -> toContextRef) and replaces any reference to them
+     *
+     * @param toContext The destination context
+     * @param transversalMap All the refs that can be updated.
+     */
+    default void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+        return;
+    }
+
+    /**
+     * Provide options for the transfer. These will probably be displayed in the site management tools.
+     */
+    default Optional<List<String>> getTransferOptions() {
+        return Optional.empty();
+    }
 }

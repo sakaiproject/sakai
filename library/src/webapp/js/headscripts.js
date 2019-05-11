@@ -762,7 +762,11 @@ function includeWebjarLibrary(library) {
 		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
 	}
 
-	if (library == 'bootstrap-multiselect') {
+	if (library == 'bootstrap') {
+		libraryVersion = "3.3.7";
+		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap/' + libraryVersion + '/js/bootstrap.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap/' + libraryVersion + '/css/bootstrap.min.css' + ver + '"/>');
+	} else if (library == 'bootstrap-multiselect') {
     libraryVersion = "0.9.15";
     document.write('\x3Cscript type="text/javascript" src="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/js/bootstrap-multiselect.js' + ver + '">' + '\x3C/script>');
     document.write('\x3Clink rel="stylesheet" href="' + webjars + 'bootstrap-multiselect/' + libraryVersion + '/css/bootstrap-multiselect.css' + ver + '"/>');
@@ -792,7 +796,7 @@ function includeWebjarLibrary(library) {
 		libraryVersion = "1.10.19";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'datatables/' + libraryVersion + '/js/jquery.dataTables.min.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'ckeditor') {
-		libraryVersion = "4.11.1";
+		libraryVersion = "4.11.4";
 		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'ckeditor/' + libraryVersion + '/full/ckeditor.js' + ver + '">' + '\x3C/script>');
 	} else if (library == 'awesomplete') {
 		libraryVersion = "1.1.4";

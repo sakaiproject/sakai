@@ -600,8 +600,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    return;
 		}
 
-
-
 		// I believe we've now checked all the args for permissions issues. All
 		// other item and
 		// page references are generated here based on the contents of the page
@@ -953,7 +951,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			// Make sure this is a top level student page
 			if(student != null && pageItem.getGradebookId() != null) {
-				UIOutput.make(tofill, "gradingSpan");
+				if (simplePageBean.getEditPrivs() == 0 && !simplePageBean.getCurrentUserId().equals(currentPage.getOwner())) {
+					UIOutput.make(tofill, "gradingSpan");
+				}
 				UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
 				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
 				UIOutput pointsBox = UIOutput.make(tofill, "studentPointsBox");

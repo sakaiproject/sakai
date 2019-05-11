@@ -66,13 +66,18 @@
 	#msgForum{
 		.itemNav{
 			position: absolute;
-			right: 5px;
+			right: 0;				// right-aligned
+			
 			@media #{$phone}{
 				position: inherit;
 				&:after{
 					content: " ";
 					clear: both;
 				}
+			}
+			
+			> .button:first-child {
+				margin-right: $standard-space;	// space the buttons out
 			}
 		}
 		.specialLink{
@@ -275,6 +280,19 @@
 		input[type=checkbox] {
 			min-width: 16px;
 			align-self: center;
+		}
+	}
+	
+	.otherActions{
+		margin-left: $standard-space;	// space between previous group of buttons
+		white-space: nowrap;
+		
+		@media #{$phone} {
+			white-space: normal;
+		}
+		
+		& > a.button {
+			margin: 0 $standard-space $standard-space 0;
 		}
 	}
 }

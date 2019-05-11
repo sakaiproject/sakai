@@ -108,7 +108,6 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -175,7 +174,7 @@ import org.xml.sax.InputSource;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, EntityTransferrerRefMigrator, ApplicationContextAware {
+public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ApplicationContextAware {
 
     @Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
@@ -3375,20 +3374,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    @Transactional
-    public void transferCopyEntities(String fromContext, String toContext, List<String> ids) {
-        transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
-    }
-
-    @Override
     public String[] myToolIds() {
         return new String[] { "sakai.assignment", "sakai.assignment.grades" };
     }
 
     @Override
-    @Transactional
-    public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup) {
-        transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+    public Optional<List<String>> getTransferOptions() {
+        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.PUBLISH_OPTION }));
     }
 
     @Override
@@ -3427,7 +3419,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) {
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
+
         Map<String, String> transversalMap = new HashMap<>();
         Collection<Assignment> assignments = getAssignmentsForContext(fromContext);
 
@@ -3447,8 +3440,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
-                    // when importing, refer to property to determine draft status
-                    if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
+
+                    // User supplied publish option takes precedence, then property, then source.
+                    if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
+                        nAssignment.setDraft(false);
+                    } else if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
                         nAssignment.setDraft(true);
                     } else {
                         nAssignment.setDraft(oAssignment.getDraft());
@@ -3676,7 +3672,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup) {
+    public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
+
         Map<String, String> transversalMap = new HashMap<>();
 
         try {
@@ -3685,24 +3682,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 for (Assignment assignment : assignments) {
                     String assignmentId = assignment.getId();
 
-//                    SecurityAdvisor securityAdvisor = new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
-//                            new ArrayList<>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT, SECURE_REMOVE_ASSIGNMENT)),
-//                            assignmentId);
                     try {
-                        // advisor to allow edit and remove assignment
-//                        securityService.pushAdvisor(securityAdvisor);
-
                         // remove this assignment with all its associated items
                         deleteAssignmentAndAllReferences(assignment);
                     } catch (Exception e) {
                         log.warn("Remove assignment and all references for {}, {}", assignmentId, e.getMessage());
-                    } finally {
-                        // remove SecurityAdvisor
-//                        securityService.popAdvisor(securityAdvisor);
                     }
                 }
             }
-            transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+            transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, transferOptions));
         } catch (Exception e) {
             log.info("End removing Assignmentt data {}", e.getMessage());
         }
@@ -3951,6 +3939,31 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
         }
         return reviewResults;
+    }
+
+    @Override
+    public boolean isContentReviewVisibleForSubmission(AssignmentSubmission submission)
+    {
+        if (submission == null)
+        {
+            throw new IllegalArgumentException("isContentReviewVisibleForSubmission invoked with submission = null");
+        }
+
+        Assignment assignment = submission.getAssignment();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+
+        boolean hasInstructorPermission = allowGradeSubmission(assignmentReference);
+        boolean hasStudentPermission = false;
+        // If we have instructor permission, we can short circuit past student checks
+        // Student checks: ensure the assignment is configured to allow students to view reports, and that the user is permitted to get the specified submission
+        if (!hasInstructorPermission && Boolean.valueOf(assignment.getProperties().get("s_view_report")))
+        {
+            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            hasStudentPermission = allowGetSubmission(submissionReference);
+        }
+
+        // Content Review results should be visible iff the user has permission and the submission is not a draft
+        return (hasInstructorPermission || hasStudentPermission) && submission.getSubmitted() && submission.getDateSubmitted() != null;
     }
 
     /**

@@ -156,9 +156,8 @@ fixImplicitLabeling = function(){
   });
 };
 
-
 function disableShowTimeWarning() {
 	document.getElementById('takeAssessmentForm:showTimeWarning').value = "false";
 }
-	
+
 </script>

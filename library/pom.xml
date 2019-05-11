@@ -14,7 +14,7 @@
 	<packaging>war</packaging>
 	<properties>
 		<!-- This is used in re-write rules as well -->
-		<ckeditor.version>4.11.3</ckeditor.version>
+		<ckeditor.version>4.11.4</ckeditor.version>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Default extra plugins enabled -->
@@ -338,54 +338,57 @@
 								</configuration>
 							</execution>
 						</executions>
-					</plugin>
-					<plugin>
-						<groupId>net.alchim31.maven</groupId>
-						<artifactId>yuicompressor-maven-plugin</artifactId>
-						<version>1.5.1</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>compress</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<force>true</force>
-							<nosuffix>true</nosuffix>
-							<sourceDirectory>${basedir}/src/${sakai.skin.source}/js/</sourceDirectory>
-							<outputDirectory>${project.build.directory}/js/</outputDirectory>
-							<aggregations>
-								<aggregation>
-									<inputDir>${project.build.directory}/js/src/</inputDir>
-									<includes>
-										<include>**/*.js</include>
-									</includes>
-									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.scripts.min.js</output>
-								</aggregation>
-								<aggregation>
-									<inputDir>src/webapp/editor/elfinder/sakai/js/src</inputDir>
-									<includes>
-										<include>sakai.js</include>
-										<include>query.js</include>
-										<include>tools.js</include>
-										<include>ui.js</include>
-										<include>resizer.js</include>
-										<include>options.js</include>
-										<include>editors.js</include>
-										<include>confirm.js</include>
-										<include>i18n.js</include>
-										<include>init.js</include>
-									</includes>
-									<output>${project.build.directory}/${project.build.finalName}/editor/elfinder/sakai/js/sakai-elfinder.min.js</output>
-								</aggregation>
-							</aggregations>
-						</configuration>
-					</plugin>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.samaxes.maven</groupId>
+                        <artifactId>minify-maven-plugin</artifactId>
+                        <version>1.7.6</version>
+                        <executions>
+                            <execution>
+                                <id>default-minify</id>
+                                <configuration>
+                                    <charset>UTF-8</charset>
+                                    <webappSourceDir>${basedir}/src/${sakai.skin.source}</webappSourceDir>
+                                    <jsSourceDir>js/src/</jsSourceDir>
+                                    <jsIncludes>*.js</jsIncludes>
+                                    <jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
+                                    <jsFinalFile>morpheus.scripts.js</jsFinalFile>
+                                    <jsEngine>CLOSURE</jsEngine>
+                                </configuration>
+                                <goals><goal>minify</goal></goals>
+                            </execution>
+                            <execution>
+                                <id>elfinder-minify</id>
+                                <configuration>
+                                    <charset>UTF-8</charset>
+                                    <webappSourceDir>${basedir}/src/webapp</webappSourceDir>
+                                    <jsSourceDir>editor/elfinder/sakai/js/src/</jsSourceDir>
+                                    <jsSourceFiles>
+										<jsSourceFile>sakai.js</jsSourceFile>
+										<jsSourceFile>query.js</jsSourceFile>
+										<jsSourceFile>tools.js</jsSourceFile>
+										<jsSourceFile>ui.js</jsSourceFile>
+										<jsSourceFile>resizer.js</jsSourceFile>
+										<jsSourceFile>options.js</jsSourceFile>
+										<jsSourceFile>editors.js</jsSourceFile>
+										<jsSourceFile>confirm.js</jsSourceFile>
+										<jsSourceFile>i18n.js</jsSourceFile>
+										<jsSourceFile>init.js</jsSourceFile>
+                                    </jsSourceFiles>
+                                    <jsTargetDir>editor/elfinder/sakai/js</jsTargetDir>
+                                    <jsFinalFile>sakai-elfinder.js</jsFinalFile>
+                                    <jsEngine>CLOSURE</jsEngine>
+                                </configuration>
+                                <goals><goal>minify</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
 					<plugin>
 					   <groupId>com.github.warmuuh</groupId>
 					   <artifactId>libsass-maven-plugin</artifactId>
-					   <version>0.2.6-libsass_3.4.0</version>
+					   <version>0.2.10-libsass_3.5.3</version>
 					   <executions>
 					       <execution>
 					           <phase>process-resources</phase>

@@ -102,26 +102,6 @@ function toPoint(id)
 }
 </script>
 
-<script>
-  // rubrics-specific code
-  var rubricChanged = false;
-
-  $('body').on('rubrics-event', function (e) {
-    rubricChanged = true;
-  });
-
-  $('body').on('total-points-updated', function (e) {
-
-    e.stopPropagation();
-
-    var itemId = $(e.target).parent().attr("item-id");
-    var gradeField = $('.adjustedScore' + itemId);
-    if (gradeField) {
-      gradeField.val(e.detail.value);
-    }
-  });
-</script>
-
 <div class="portletBody container-fluid">
 <h:form id="editStudentResults">
   <h:inputHidden id="publishedIdd" value="#{studentScores.publishedId}" />

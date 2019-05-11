@@ -55,7 +55,6 @@ import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
@@ -4399,46 +4398,30 @@ public class SakaiScript extends AbstractWebService {
      * @param fromContext The context to import from.
      * @param toContext   The context to import into.
      */
-    protected Map transferCopyEntities(String toolId, String fromContext, String toContext)
-    {
-    	Map transversalMap = new HashMap();
+	protected Map transferCopyEntities(String toolId, String fromContext, String toContext) {
 
-    	// offer to all EntityProducers
-    	for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
-    	{
-    		EntityProducer ep = (EntityProducer) i.next();
-    		if (ep instanceof EntityTransferrer)
-    		{
-    			try
-    			{
-    				EntityTransferrer et = (EntityTransferrer) ep;
+		Map transversalMap = new HashMap();
 
-    				// if this producer claims this tool id
-    				if (ArrayUtil.contains(et.myToolIds(), toolId))
-    				{
-    					if(ep instanceof EntityTransferrerRefMigrator)
-    					{
-    						EntityTransferrerRefMigrator etMp = (EntityTransferrerRefMigrator) ep;
-    						Map<String,String> entityMap = etMp.transferCopyEntitiesRefMigrator(fromContext, toContext, new ArrayList(), true);
-    						if(entityMap != null)
-    						{
-    							transversalMap.putAll(entityMap);
-    						}
-    					}
-    					else
-    					{
-    						et.transferCopyEntities(fromContext, toContext,	new ArrayList(), true);
-    					}
-    				}
-    			}
-    			catch (Throwable t)
-    			{
-    				log.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
-    			}
-    		}
-    	}
-    	
-    	// record direct URL for this tool in old and new sites, so anyone using the URL in HTML text will 
+		// offer to all EntityProducers
+		for (EntityProducer ep : entityManager.getEntityProducers()) {
+			if (ep instanceof EntityTransferrer) {
+				try {
+					EntityTransferrer et = (EntityTransferrer) ep;
+
+					// if this producer claims this tool id
+					if (ArrayUtil.contains(et.myToolIds(), toolId)) {
+						Map<String,String> entityMap = et.transferCopyEntities(fromContext, toContext, new ArrayList<String>(), null, true);
+						if (entityMap != null) {
+							transversalMap.putAll(entityMap);
+						}
+					}
+				} catch (Throwable t) {
+					log.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
+				}
+			}
+		}
+
+		// record direct URL for this tool in old and new sites, so anyone using the URL in HTML text will
 		// get a proper update for the HTML in the new site
 		// Some tools can have more than one instance. Because getTools should always return tools
 		// in order, we can assume that if there's more than one instance of a tool, the instances
@@ -4450,10 +4433,10 @@ public class SakaiScript extends AbstractWebService {
 		Collection<ToolConfiguration> toTools = null;
 		try
 		{
-		    fromSite = siteService.getSite(fromContext);
-		    toSite = siteService.getSite(toContext);
-		    fromTools = fromSite.getTools(toolId);
-		    toTools = toSite.getTools(toolId);
+			fromSite = siteService.getSite(fromContext);
+			toSite = siteService.getSite(toContext);
+			fromTools = fromSite.getTools(toolId);
+			toTools = toSite.getTools(toolId);
 		}
 		catch (Exception e)
 		{
@@ -4463,37 +4446,37 @@ public class SakaiScript extends AbstractWebService {
 		// getTools appears to return tools in order. So we should be able to match them
 		if (fromTools != null && toTools != null)
 		{
-		    Iterator<ToolConfiguration> toToolIt = toTools.iterator();
-		    for (ToolConfiguration fromTool: fromTools)
-		    {
+			Iterator<ToolConfiguration> toToolIt = toTools.iterator();
+			for (ToolConfiguration fromTool: fromTools)
+			{
 				if (toToolIt.hasNext())
 				{
-				    ToolConfiguration toTool = toToolIt.next();
-				    String fromUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(fromTool.getId()) + "/";
-				    String toUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(toTool.getId()) + "/";
-				    if (transversalMap.get(fromUrl) == null)
-				    {
-				    	transversalMap.put(fromUrl, toUrl);
-				    }
-				    if (shortenedUrlService.shouldCopy(fromUrl))
-				    {
+					ToolConfiguration toTool = toToolIt.next();
+					String fromUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(fromTool.getId()) + "/";
+					String toUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(toTool.getId()) + "/";
+					if (transversalMap.get(fromUrl) == null)
+					{
+						transversalMap.put(fromUrl, toUrl);
+					}
+					if (shortenedUrlService.shouldCopy(fromUrl))
+					{
 						fromUrl = shortenedUrlService.shorten(fromUrl, false);
 						toUrl = shortenedUrlService.shorten(toUrl, false);
 						if (fromUrl != null && toUrl != null)
 						{
-						    transversalMap.put(fromUrl, toUrl);
+							transversalMap.put(fromUrl, toUrl);
 						}
-				    }
+					}
 				}
 				else
 				{
-				    break;
+					break;
 				}
-		    }
+			}
 		}
 
-    	return transversalMap;
-    }
+		return transversalMap;
+	}
     
     
     protected void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite)
@@ -4507,17 +4490,16 @@ public class SakaiScript extends AbstractWebService {
 			for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
 			{
 				EntityProducer ep = (EntityProducer) i.next();
-				if (ep instanceof EntityTransferrerRefMigrator && ep instanceof EntityTransferrer)
+				if (ep instanceof EntityTransferrer)
 				{
 					try
 					{
 						EntityTransferrer et = (EntityTransferrer) ep;
-						EntityTransferrerRefMigrator etRM = (EntityTransferrerRefMigrator) ep;
 
 						// if this producer claims this tool id
 						if (ArrayUtil.contains(et.myToolIds(), toolId))
 						{
-							etRM.updateEntityReferences(toContext, transversalMap);
+							et.updateEntityReferences(toContext, transversalMap);
 						}
 					}
 					catch (Throwable t)

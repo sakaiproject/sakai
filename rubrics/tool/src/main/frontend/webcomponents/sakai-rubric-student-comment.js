@@ -5,9 +5,26 @@ import {tr} from "./sakai-rubrics-language.js";
 
 export class SakaiRubricStudentComment extends SakaiElement {
 
+  constructor() {
+
+    super();
+
+    this.randombit = Math.floor(Math.random() * 15001);
+  }
+
   static get properties() {
     return { criterion: { type: Object } };
   }
+
+  set criterion(newValue) {
+
+    var oldValue = this._criterion;
+    this._criterion = newValue;
+    this._criterion.comments = (newValue.comments && newValue.comments.indexOf("null") === 0) ? "" : newValue.comments;
+    this.requestUpdate("criterion", oldValue);
+  }
+
+  get criterion() { return this._criterion; }
 
   render() {
 
@@ -15,7 +32,7 @@ export class SakaiRubricStudentComment extends SakaiElement {
       <div style="${this.criterion.comments ? "cursor: pointer;" : ""}" class="comment-icon fa fa-2x fa-comments ${this.criterion.comments ? "active": ""}" @click="${this.toggleComment}" title="${tr("criterion_comment_student")}"></div>
 
       <!-- popover -->
-      <div id="criterion-comment-viewer-${this.criterion.id}" class="popover criterion-edit-popover left">
+      <div id="criterion-comment-viewer-${this.criterion.id}-${this.randombit}" class="popover criterion-edit-popover left">
         <div class="arrow"></div>
         <div class="popover-title" style="display: flex;">
           <div style="flex: auto;">
@@ -43,7 +60,7 @@ export class SakaiRubricStudentComment extends SakaiElement {
       return;
     }
 
-    var popover = $(`#criterion-comment-viewer-${this.criterion.id}`);
+    var popover = $(`#criterion-comment-viewer-${this.criterion.id}-${this.randombit}`);
 
     if (!this.classList.contains("show-tooltip")) {
 

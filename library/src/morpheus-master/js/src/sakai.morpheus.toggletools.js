@@ -9,9 +9,10 @@ if (portal.toolsCollapsed === undefined) {
 }
 
 portal.updateToolsCollapsedPref = function (collapsed) {
-
-	var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolsCollapsed=' + collapsed;
-	$PBJQ.ajax(url, {method: 'PUT', cache: false});
+	if (portal.user.id) {
+		var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolsCollapsed=' + collapsed;
+		$PBJQ.ajax(url, {method: 'PUT', cache: false});
+	}
 };
 
 portal.toggleMinimizeNav = function () {

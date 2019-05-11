@@ -183,7 +183,7 @@ public class SakaiProxyImpl implements SakaiProxy {
         List functions = functionManager.getRegisteredFunctions("commons.");
 
         if (!functions.contains(function)) {
-            functionManager.registerFunction(function);
+            functionManager.registerFunction(function, true);
         }
     }
 

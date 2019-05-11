@@ -538,11 +538,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 		}
 
 
-		public void transferCopyEntities(String fromContext, String toContext, List resourceIds, boolean condition){
-			transferCopyEntities(fromContext, toContext, resourceIds);
+		public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions, boolean condition) {
+			return transferCopyEntities(fromContext, toContext, resourceIds, transferOptions);
 		}
 
-		public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
+		public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> transferOptions) {
+
 			try{
 				Iterator<Poll> fromPolls = findAllPolls(fromContext).iterator();
 				while (fromPolls.hasNext()){
@@ -596,6 +597,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 			}catch(Exception e){
 				log.error(e.getMessage(), e);
 			}
+
+            return null;
 		}
 
 

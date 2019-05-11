@@ -35,47 +35,6 @@
                     alert("Failed to get the current user permissions. Status: " + stat + ". Error: " + error);
                 }
             });
-        },
-        getSitePermissionMatrix: function (siteId, callback) {
-
-            $.ajax( {
-                url: "/direct/site/" + siteId + "/perms/roster.json",
-                dataType: "json",
-                cache: false,
-                success: function (p) {
-                    callback(p);
-                },
-                error: function (xmlHttpRequest, stat, error) {
-                    alert("Failed to get permissions. Status: " + stat + ". Error: " + error);
-                }
-            });
-        },
-        savePermissions: function (siteId, checkboxClass, callback) {
-
-            var boxes = $('.' + checkboxClass);
-            var myData = {};
-            for (var i=0,j=boxes.length;i<j;i++) {
-                var box = boxes[i];
-                if (box.checked) {
-                    myData[box.id] = 'true';
-                } else {
-                    myData[box.id] = 'false';
-                }
-            }
-
-            $.ajax( {
-                url: "/direct/site/" + siteId + "/setPerms",
-                type: 'POST',
-                data: myData,
-                timeout: 30000,
-                dataType: 'text',
-                success: function (result) {
-                    callback();
-                },
-                error: function (xmlHttpRequest, status, error) {
-                    alert("Failed to save permissions. Status: " + status + '. Error: ' + error);
-                }
-            });
         }
     };
 }) (jQuery);

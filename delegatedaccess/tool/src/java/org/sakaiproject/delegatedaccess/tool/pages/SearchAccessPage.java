@@ -478,7 +478,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 				item.add(new Label("type", new StringResourceModel("accessType" + searchResult.getType(), null)));
 				String level = "";
 				if(hierarchy != null && searchResult.getLevel() < hierarchy.length){
-					level = hierarchy[searchResult.getLevel()];
+					level = sakaiProxy.getHierarchySearchLabel(hierarchy[searchResult.getLevel()]);
 				}else{
 					level = new StringResourceModel("site", null).getObject();
 				}

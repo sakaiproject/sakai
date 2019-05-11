@@ -641,736 +641,740 @@ var setLTIPrefix = function(ltipref) {
 
 
 
-var setupCategTools = function(){
+var setupCategTools = function () {
 
-   var sorttoolSelectionList = function(){
-        var mylist = $('#toolSelectionList ul');
-        var listitems = mylist.children('li').get();
-        listitems.sort(function(a, b){
-            return $(a).text().trim().toUpperCase().localeCompare($(b).text().trim().toUpperCase());
-        });
-        $.each(listitems, function(idx, itm){
-            mylist.append(itm);
-        });
-        if ($('#toolSelectionList ul li').length > 1) {
-            if ($('#toolSelectionList ul').find('li#sakai_home').length) {
-             $('#toolSelectionList ul').find('li#sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
-            }
-            // SAK-22384
-            var listHeader = document.getElementById("#toolSelectionListHeader");
-            if (listHeader !== null)
-            {
-                $(listHeader).insertBefore($("#toolSelectionList ul li:first-child"));
-            }
-        }
-   };
+  var sorttoolSelectionList = function () {
+
+    var mylist = $("#toolSelectionList ul");
+    var listitems = mylist.children("li").get();
+    listitems.sort(function (a, b) {
+      return $(a).text().trim().toUpperCase().localeCompare($(b).text().trim().toUpperCase());
+    });
+    $.each(listitems, function(idx, itm) {
+      mylist.append(itm);
+    });
+    if ($("#toolSelectionList ul li").length > 1) {
+      if ($("#toolSelectionList ul").find("li#sakai_home").length) {
+        $("#toolSelectionList ul").find("li#sakai_home").insertBefore($("#toolSelectionList ul li:first-child"));
+      }
+      // SAK-22384
+      var listHeader = document.getElementById("#toolSelectionListHeader");
+      if (listHeader !== null) {
+        $(listHeader).insertBefore($("#toolSelectionList ul li:first-child"));
+      }
+    }
+  };
+
+  var noTools = function () {
+
+    if ($("#toolSelectionList  ul li").length - 1 === 0)  {
+      $("#toolSelectionList #toolSelectionListMessage").show();
+    } else {
+      $("#toolSelectionList #toolSelectionListMessage").hide();
+    }
+  };
+
+  var showAlert = function (target) {
+
+    $("#alertBox").remove();
+    var msg = $("#removalAlertMessage").val();
+    var yesMsg = $("#removalAlertYesMessage").val();
+    var noMsg = $("#removalAlertNoMessage").val();
+    $("<li id=\"alertBox\"><span>" + msg + "</span><span><a href=\"#\" id=\"alertBoxYes\">" + yesMsg + "</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">" + noMsg + "</a></span></li>").insertAfter("#" + target);
+
+    $("#alertBox a#alertBoxYes").on("click", function () {
+
+      $(this).closest("li").prev("li").remove();
+      $("#" + target +"_wrap").find("input").attr("checked", false).end().find("label").css("font-weight", "normal");
+      $("#alertBox").remove();
+    });
+
+    $("#alertBox a#alertBoxNo").on("click", function () {
+        $(this).closest("li").prev("li").removeClass("highlightTool");
+        $("#alertBox").remove();
+    });
+  };
+
+  // replace characters in tool id received from backend to allow proper DOM selection by id of target tool
+  // e.g. all '.''s are replaced by _
+  function normalizedId(myId) {
+
+    var normId = myId.replace(/\./g, '_');
+    return normId;
+  }
+
+  // SAK23905 adjust for different id's between toolHolder and toolSelection (except for LTI tools)
+  function denormalizeId(myId) {
+
+	  if (myId.lastIndexOf(ltiPrefix, 0) < 0) {
+		  myId = myId.replace(/\_/g, '.');
+	  }
+	  return myId;
+  }
+
+  // Additional tool multiple identification characters (i.e. those beyond the base tool's name) with
+  // underscores to allow proper selection of the tool's associated icon
+  function iconizedId(myId) {
+
+    if (myId.length > 36) {
+      myId = myId.substring(36);
+    }
+    var iconId = myId.replace(/\./g, '-') ;
+    return iconId;
+  }
+
+  function hideToolSelection(myId,delaySeconds) {
+
+    var selectionTarget = $("#toolSelectionList").find("#" + normalizedId(myId));
+    selectionTarget.addClass("highlightTool").fadeOut(delaySeconds,
+      function () {
+
+        $(this).hide();
+        $(this).removeClass("highlightTool");
+      });
+    $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr("checked",false);
+  }
+
+  function showToolSelection(myId,delaySeconds) {
+
+    var selectionTarget  = $("#toolSelectionList").find("#"+normalizedId(myId));
+    selectionTarget.addClass("highlightTool").fadeIn(delaySeconds, function(){
+      $(this).show();
+        $(this).removeClass("highlightTool");
+    });
+    $("#toolHolder").find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr("checked",true);
+  }
+
+  // SAK-16600
+  // hide or display an item.  ignore if item is disabled
+  function setChecked(myId,checkVal) {
+
+    var item = $("#toolHolder").find('input[id="' + denormalizeId(myId) + '"]');
+    // ignore if item is disabled
+    myId = myId.replace(/\./g,"\\.");
+    if (!item.is(":disabled")) {
+      if (checkVal=== true){
+        sorttoolSelectionList();
+        showToolSelection(myId,200);
+        // make toolholder text bold
+        $("#toolHolder").find("input#" + denormalizeId(myId)).prop("checked", "checked").next("label").css("font-weight", "bold");
+      } else {
+        hideToolSelection(myId,100);
+        // make toolholder text normal
+        $("#toolHolder").find("input#" + denormalizeId(myId)).next("label").css("font-weight", "normal");
+      }
+      // toggle checked
+      $("#toolHolder").find("input#" + myId).attr("checked",checkVal);
+    }
+  }
+
+  // loop through list of tools; creating entry for each unique instance and hiding unselected
+  var sourceList = $('input[name="selectedTools"][type="checkbox"]');
+  $.each(sourceList, function () {
+
+    var removeLink = "";
+    var thisToolCat = "";
+    var toolInstance = "";
+    var thisToolCatEsc = "";
+    var thisToolId = normalizedId($(this).attr("id"));
     
+    if (thisToolId.length > 37) {
+      thisToolCat = thisToolId.substring(36) + "";
+      toolInstance = " toolInstance";
+    } else {
+      thisToolCat = thisToolId + "";
+    }
+    thisToolCatEsc = thisToolCat.replace(" ", "_");
 
-   var noTools = function() {
-        
-        if ($('#toolSelectionList  ul li').length - 1 === 0)  {
-            $('#toolSelectionList #toolSelectionListMessage').show();
-        }
-        else {
-            $('#toolSelectionList #toolSelectionListMessage').hide();
-        }
-};
-   var showAlert = function(target){
-       $('#alertBox').remove();
-        var msg = $('#removalAlertMessage').val();
-        var yesMsg = $('#removalAlertYesMessage').val();
-        var noMsg = $('#removalAlertNoMessage').val();
-        $('<li id=\"alertBox\"><span>' + msg + '</span><span><a href=\"#\" id=\"alertBoxYes\">' + yesMsg + '</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">' + noMsg + '</a></span></li>').insertAfter('#' + target);
+    // ignore duplicates already found in array
+    var idx = selTools.indexOf(thisToolId);
+    if (idx < 0) {
+      selTools.push(thisToolId);
 
-        $('#alertBox a#alertBoxYes').on('click', function(){
-            $(this).closest('li').prev('li').remove();
-            $('#' + target +'_wrap').find('input').attr('checked',false).end().find('label').css('font-weight','normal');
-            $('#alertBox').remove();
-        });
-        $('#alertBox a#alertBoxNo').on('click', function(){
-            $(this).closest('li').prev('li').removeClass('highlightTool');
-            $('#alertBox').remove();
-        });
-    };
+      // selectedTools with disable checkboxes don't have the red [X] remove link
+      if ($(this).prop("disabled") !== true) {
+        removeLink = '<a href="#" class=\"removeTool icon-sakai--delete' + toolInstance + '\"></a>';
+      }
+
+      var selId = normalizedId($(this).attr("id"));
+      var iconId = iconizedId($(this).attr("id"));
+
+      var safeLabelText = $("<p></p>").text($(this).next("label").text()).html();
+      var newListItem = '<li id=\"' + thisToolId
+              + '\"><span class=\"selectedToolTitle \"><i class="icon-sakai--' + iconId + '"></i>' + safeLabelText + "</span>"
+              + "<span>" + removeLink + '</span></li>';
+      $("#toolSelectionList ul").append(newListItem);
+
+      // append to selected tool list
+      if ($(this).prop("checked")) {
+        // make the selectiion visible
+        var iconId = iconizedId($(this).attr('id'));
+        $(this).next("label").css("font-weight", "bold");
+        showToolSelection(selId,0);
+      } else {
+        hideToolSelection(selId,0);
+        $(this).next("label").css("font-weight", "normal");
+      }
+      var parentRow = $(this).closest("li");
+      $("#toolHolder").find("#" + thisToolCatEsc).find("ul").append(parentRow);
+    }
+  });
     
-    // replace characters in tool id received from backend to allow proper DOM selection by id of target tool
-    // e.g. all '.''s are replaced by _
-    function normalizedId(myId) {
-    	var normId = myId.replace(/\./g, '_');
-    	return normId;
-    } 
-   
-    // SAK23905 adjust for different id's between toolHolder and toolSelection (except for LTI tools) 
-    function denormalizeId(myId) {
-	if (myId.lastIndexOf(ltiPrefix, 0) < 0) {
-		myId = myId.replace(/\_/g, '.');
-	}
-	return myId;
+  // set checked/unchecked for each in list
+  $(".toolGroup").each(function () {
+
+    var countChecked = $(this).find(':checked').length;
+    var countTotal = $(this).find('input[type="checkbox"]').length;
+    if (countChecked === 0) {
+      $(this).parent('li').find('#selectAll').show();
+      $(this).parent('li').find('#unSelectAll').hide();
+    }
+    if (countChecked === countTotal) {
+      $(this).parent('li').find('#selectAll').hide();
+      $(this).parent('li').find('#unSelectAll').show();
+    }
+    if (countChecked !==  0 && countChecked !== countTotal) {
+      $(this).parent('li').find('#selectAll').hide();
+      $(this).parent('li').find('#unSelectAll').show();
+    }
+    $(this).parent('li').find('span.checkedCount').text(countChecked).show(); //$(this).parent('li').find('span.checkedCount').hide();
+  });
+    
+  $('#toolHolder a').click(function (e) {
+
+    e.preventDefault();
+    if ($(this).attr('href')) {
+      $(this).closest('li').find('ul').fadeToggle('fast', function () {
+        utils.resizeFrame('grow');
+      });
+      $(this).toggleClass('open');
+      return false;
+    }
+  });
+    
+  $('input[name="selectedTools"][type="checkbox"]').click(function () {
+
+    if (($(this).closest("ul").find(":checked").length === $(this).closest("ul").find('input[type="checkbox"]').length) && $(this).closest("ul").find(":checked").length > 0) {
+      $("#selectAll").hide();
+      $("#unSelectAll").show();
+    } else {
+      $("#selectAll").show();
+      $("#unSelectAll").hide();
+    }
+    var count = $(this).closest("ul").find(":checked").length;
+    $(this).closest("ul").parent("li").find("span.checkedCount").text(count).show();
+    if ($(this).attr("id").length > 37) {
+      thisIdClass = $(this).attr("id").substring(36) + "";
+    } else {
+      thisIdClass = $(this).attr("id") + "";
+    }
+    var chkVal = $(this).prop("checked");
+    var myId = $(this).attr("id");
+    setChecked(myId, chkVal);
+    utils.resizeFrame("grow");
+    noTools();
+  });
+
+  $('#collExpContainer a#expandAll').click(function (e) {
+
+    $('#toolHolder .toolGroup').not(':eq(0)').show();
+    $('#toolHolder h4 a').addClass('open');
+    $('#collExpContainer a').toggle();
+    utils.resizeFrame('grow');
+    return false;
+  });
+
+  $('#collExpContainer a#contractAll').click(function (e) {
+
+    $('#toolHolder .toolGroup').not(':eq(0)').hide();
+    $('#toolHolder h4 a').removeClass('open');
+    $('#collExpContainer a').toggle();
+    utils.resizeFrame('grow');
+    return false;
+  });
+
+  $('.selectAll').click(function () {
+
+    if ($(this).attr('id') === "selectAll") {
+      $('.sel_unsel_core em').hide();
+      $('.sel_unsel_core em#unSelectAll').show();
+      $.each($(this).closest('li').find('input[type="checkbox"]'), function () {
+        setChecked($(this).attr('id'),true);
+      });
+      utils.resizeFrame('grow');
+    } else {
+      $('.sel_unsel_core em').hide();
+      $('.sel_unsel_core em#selectAll').show();
+      $.each($(this).closest('li').find(':checked'), function () {
+        setChecked($(this).attr('id'),false);
+      });
+      utils.resizeFrame('grow');
+    }
+    $(this).closest('li').find('span.checkedCount').text($(this).closest('li').find(':checked').length).show();
+  });
+
+  // Clicked red X on toolSelectionList
+  $('.removeTool').click(function (e) {
+
+    e.preventDefault();
+    var selectedId = $(this).closest('li').attr('id').replace('selected.','');
+    // if toolMultple; confirm delete
+    if ($(this).hasClass('toolInstance')) {
+      $(this).closest('li').addClass('highlightTool');
+      showAlert($(this).closest('li').attr('id'));
+      return false;
+      // remove the checkbox? put in an alert
+    } else {
+      // for each tool with this id, set check to false and fade in/out selectedTool display
+      setChecked(selectedId,false);
+      var originalInputId = selectedId.replace(/_/g, ".");
+      var label = utils.labelFor(originalInputId);
+      if (label !== null) {
+        label.style.fontWeight = "normal";
+      }
     }
 
-    // SAK-16normalizedIde additional tool multiple identification characters (i.e. those beyond the base tool's name) with 
-    // underscores to allow proper selection of the tool's associated icon 
-    function iconizedId(myId) {
-        if (myId.length > 36){
-            myId = myId.substring(36);            
-        }
-    	var iconId = myId.replace(/\./g, '-') ;
-    	return iconId;
-    }
+    var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + selectedId + '"]').closest('ul').find(':checked').length;
+    $('#toolHolder').find('input[type="checkbox"][id="' + selectedId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
 
-      function hideToolSelection(myId,delaySeconds){
-        var selectionTarget = $('#toolSelectionList').find('#' + normalizedId(myId));
-        selectionTarget.addClass('highlightTool').fadeOut(delaySeconds, function(){
-                $(this).hide();
-                $(this).removeClass('highlightTool');
-          });
-        $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr("checked",false);
-      }
-
-      function showToolSelection(myId,delaySeconds) {
-        var selectionTarget  = $('#toolSelectionList').find('#'+normalizedId(myId));
-        selectionTarget.addClass('highlightTool').fadeIn(delaySeconds, function(){
-          $(this).show();
-            $(this).removeClass('highlightTool');
-        });
-        $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr("checked",true);
-      }
-
-      // SAK-16600
-      // hide or display an item.  ignore if item is disabled
-      function setChecked(myId,checkVal){
-       var item = $('#toolHolder').find('input[id="' + denormalizeId(myId) + '"]');
-        // ignore if item is disabled
-        myId = myId.replace(/\./g,"\\.");
-        if (!item.is(':disabled')) {
-                if (checkVal=== true){
-                        sorttoolSelectionList();
-                       showToolSelection(myId,200);
-                       // make toolholder text bold
-                       $('#toolHolder').find('input#' + denormalizeId(myId)).prop('checked', 'checked').next('label').css('font-weight', 'bold');
-                       
-                } else {
-                        hideToolSelection(myId,100);
-                        // make toolholder text normal
-                        $('#toolHolder').find('input#' + denormalizeId(myId)).next('label').css('font-weight', 'normal');
-                }
-                // toggle checked
-                $('#toolHolder').find('input#' + myId).attr("checked",checkVal);
-        }
-
-      }
-
-    // loop through list of tools; creating entry for each unique instance and hiding unselected
-    var sourceList = $('input[name="selectedTools"][type="checkbox"]');
-    $.each(sourceList, function(){
-        var removeLink = '';
-        var thisToolCat = '';
-        var toolInstance = '';
-        var thisToolCatEsc = '';
-        var thisToolId = normalizedId($(this).attr('id'));
-        
-        if (thisToolId.length > 37) {
-            thisToolCat = thisToolId.substring(36) + '';
-            toolInstance = ' toolInstance';
-        }
-        else {
-            thisToolCat = thisToolId + '';
-        }
-        thisToolCatEsc = thisToolCat.replace(' ', '_');
-
-        // ignore duplicates already found in array
-        var idx=selTools.indexOf(thisToolId);
-        if (idx < 0) {
-        	selTools.push(thisToolId);
-
-        	// selectedTools with disable checkboxes don't have the red [X] remove link
-        	if ($(this).prop('disabled') !== true) {
-        		removeLink = '<a href="#" class=\"removeTool icon-sakai--delete' + toolInstance + '\"></a>';
-        	}
-                        
-    		var selId = normalizedId($(this).attr('id'));
-            var iconId = iconizedId($(this).attr('id'));
-
-            var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
-            var newListItem = '<li id=\"' + thisToolId
-                    + '\"><span class=\"selectedToolTitle \"><i class="icon-sakai--' + iconId + '"></i>' + safeLabelText + "</span>"
-                    + "<span>" + removeLink + '</span></li>';
-            $('#toolSelectionList ul').append(newListItem);
-            
-            // append to selected tool list
-        	if ($(this).prop('checked')) {
-        		// make the selectiion visible
-        		//var selId = normalizedId($(this).attr('id'));
-        		var iconId = iconizedId($(this).attr('id'));
-        		$(this).next('label').css('font-weight', 'bold');
-        		//$('#toolHolder').find('#' + thisToolCatEsc).find('ul').show();
-        		//$('#toolHolder').find('#' + thisToolCatEsc).find('h4').find('a').addClass('open');
-                       showToolSelection(selId,0);
-        	}
-        	else {
-                       hideToolSelection(selId,0);
-        		$(this).next('label').css('font-weight', 'normal');
-        	}
-        	var parentRow = $(this).closest('li');
-        	$('#toolHolder').find('#' + thisToolCatEsc).find('ul').append(parentRow);
-        }
-    });
-    
-    // set checked/unchecked for each in list
-    $('.toolGroup').each(function(){
-        var countChecked = $(this).find(':checked').length;
-        var countTotal = $(this).find('input[type="checkbox"]').length;
-        if (countChecked === 0) {
-            $(this).parent('li').find('#selectAll').show();
-            $(this).parent('li').find('#unSelectAll').hide();
-        }
-        if (countChecked === countTotal) {
-            $(this).parent('li').find('#selectAll').hide();
-            $(this).parent('li').find('#unSelectAll').show();
-        }
-        if (countChecked !==  0 && countChecked !== countTotal) {
-            $(this).parent('li').find('#selectAll').hide();
-            $(this).parent('li').find('#unSelectAll').show();
-        }
-        $(this).parent('li').find('span.checkedCount').text(countChecked).show(); //$(this).parent('li').find('span.checkedCount').hide();
-    });
-    
-    $('#toolHolder a').click(function(e){
-        e.preventDefault();
-        if ($(this).attr('href')) {
-            $(this).closest('li').find('ul').fadeToggle('fast', function(){
-                utils.resizeFrame('grow');
-            });
-            $(this).toggleClass('open');
-            return false;
-        }
-    });
-    
-    // 
-    $('input[name="selectedTools"][type="checkbox"]').click(function(){
-        if(($(this).closest('ul').find(':checked').length === $(this).closest('ul').find('input[type="checkbox"]').length) && $(this).closest('ul').find(':checked').length > 0) {
-            $('#selectAll').hide();
-            $('#unSelectAll').show();
-        }
-        else {
-            $('#selectAll').show();
-            $('#unSelectAll').hide();
-            
-        }
-        var count = $(this).closest('ul').find(':checked').length;
-        $(this).closest('ul').parent('li').find('span.checkedCount').text(count).show();
-        if ($(this).attr('id').length > 37) {
-            thisIdClass = $(this).attr('id').substring(36) + '';
-        }
-        else {
-            thisIdClass = $(this).attr('id') + '';
-        }
-        var chkVal = $(this).prop('checked');
-        var myId = $(this).attr('id');
-        setChecked(myId, chkVal);
-        utils.resizeFrame('grow');
-        noTools();
-    });
-
-    $('#collExpContainer a#expandAll').click(function(e){
-        $('#toolHolder .toolGroup').not(':eq(0)').show();
-        $('#toolHolder h4 a').addClass('open');
-        $('#collExpContainer a').toggle();
-        utils.resizeFrame('grow');
-        return false;
-    });
-    $('#collExpContainer a#contractAll').click(function(e){
-        $('#toolHolder .toolGroup').not(':eq(0)').hide();
-        $('#toolHolder h4 a').removeClass('open');
-        $('#collExpContainer a').toggle();
-        utils.resizeFrame('grow');
-        return false;
-    });    
-    $('.selectAll').click(function(){
-        if ($(this).attr('id') === "selectAll") {
-            $('.sel_unsel_core em').hide();
-            $('.sel_unsel_core em#unSelectAll').show();
-            $.each($(this).closest('li').find('input[type="checkbox"]'), function(){
-        		setChecked($(this).attr('id'),true);
-            });
-            utils.resizeFrame('grow');
-            //setupCategTools();
-        }
-        else {
-            $('.sel_unsel_core em').hide();
-            $('.sel_unsel_core em#selectAll').show();
-            $.each($(this).closest('li').find(':checked'), function(){
-                setChecked($(this).attr('id'),false);
-            });
-            utils.resizeFrame('grow');
-        }
-        $(this).closest('li').find('span.checkedCount').text($(this).closest('li').find(':checked').length).show(); 
-    });
-    
-    // Clicked red X on toolSelectionList
-    $('.removeTool').click(function(e){
-        e.preventDefault();
-        var selectedId = $(this).closest('li').attr('id').replace('selected.','');
-        // if toolMultple; confirm delete
-        if ($(this).hasClass('toolInstance')) {
-            $(this).closest('li').addClass('highlightTool');
-            showAlert($(this).closest('li').attr('id'));
-            return false;
-            // remove the checkbox? put in an alert
-        } else {
-            // for each tool with this id, set check to false and fade in/out selectedTool display
-            setChecked(selectedId,false);
-            var originalInputId = selectedId.replace(/_/g, ".");
-            var label = utils.labelFor(originalInputId);
-            if (label !== null)
-            {
-                label.style.fontWeight = "normal";
-            }
-        }
-        
-        //$(this).closest('li').addClass('highlightTool').fadeOut('fast', function(){
-        //    $(this).closest('li').remove();
-        //});
-        var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + selectedId + '"]').closest('ul').find(':checked').length;               
-        $('#toolHolder').find('input[type="checkbox"][id="' + selectedId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
-        
-        noTools();
-    });
-	
-	
+    noTools();
+  });
  
-    $('.moreInfoTool').click(function(e){
-        e.preventDefault();
-        var moreInfoTitle = this.getAttribute("title");
-        var moreInfoSrc = this.getAttribute("href");
-        $('#moreInfoHolder').load(moreInfoSrc);
-        $("#moreInfoHolder").dialog({
-            autoOpen: false,
-            height: 500,
-            maxHeight: 500,
-            maxWidth: 700,
-            width: 700,
-            title: moreInfoTitle,
-            modal: true
-        });
-        $("span.ui-dialog-title").text(moreInfoTitle);
-        $('#moreInfoHolder').dialog('open');
-    });
+  $(".moreInfoTool").click(function (e) {
 
-    if ($('.toolGroup').length <= 2) {
-        $('.sel_unsel_core, #collExpContainer').hide();
-    }
+    e.preventDefault();
+    var moreInfoTitle = this.getAttribute("title");
+    var moreInfoSrc = this.getAttribute("href");
+    $("#moreInfoHolder").load(moreInfoSrc);
+    $("#moreInfoHolder").dialog({
+      autoOpen: false,
+      height: 500,
+      maxHeight: 500,
+      maxWidth: 700,
+      width: 700,
+      title: moreInfoTitle,
+      modal: true
+    });
+    $("span.ui-dialog-title").text(moreInfoTitle);
+    $("#moreInfoHolder").dialog("open");
+  });
+
+  if ($(".toolGroup").length <= 2) {
+    $(".sel_unsel_core, #collExpContainer").hide();
+  }
 };
 
-var setupRecentSite = function(){
+var setupRecentSite = function () {
 
-    var target = $('#newSiteAlertPublish').attr('class');
-    $('#newSiteAlertPublish').click(function(e){
-        e.preventDefault();
-        var reqUrl = '/direct/site/' + target + '/edit';
-        jQuery.ajax({
-            type: 'POST',
-            data: 'published=true',
-            url: reqUrl,
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            success: function(){
-                $('#newSiteAlertPublish').fadeOut('fast', function(){
-                    $('#' + target).closest('tr').addClass('selectedSelected');
-                    $('#newSiteAlertPublishMess').fadeIn('5000');
-                    $('#' + target).closest('tr').fadeOut('fast', function(){
-                        var publishedString = $('#newSiteAlertPublishMess').text();
-                        $(this).find('td[headers="published"]').text(publishedString).css('font-weight', 'bold');
-                        $(this).fadeIn('1000');
-                    });
-                });
-                
-            }
+  var target = $('#newSiteAlertPublish').attr('class');
+  $('#newSiteAlertPublish').click(function (e) {
+
+    e.preventDefault();
+    var reqUrl = '/direct/site/' + target + '/edit';
+    $.ajax({
+      type: 'POST',
+      data: 'published=true',
+      url: reqUrl,
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      success: function () {
+
+        $('#newSiteAlertPublish').fadeOut('fast', function () {
+
+          $('#' + target).closest('tr').addClass('selectedSelected');
+          $('#newSiteAlertPublishMess').fadeIn('5000');
+          $('#' + target).closest('tr').fadeOut('fast', function () {
+
+            var publishedString = $('#newSiteAlertPublishMess').text();
+            $(this).find('td[headers="published"]').text(publishedString).css('font-weight', 'bold');
+            $(this).fadeIn('1000');
+          });
         });
-        
-        
+      }
     });
+  });
 };
-if (!Array.prototype.indexOf) { 
-    Array.prototype.indexOf = function(obj, start) {
-         for (var i = (start || 0), j = this.length; i < j; i++) {
-             if (this[i] === obj) { return i; }
-         }
-         return -1;
-    };
-}
 
 function toggle(toggleKey, begin, end) {
-    var checkboxes = document.getElementsByName("providerCourseAdd");
-    for (i=begin; i<end; i++){
-        if (checkboxes[toggleKey].checked){
-           checkboxes[i].checked = true;
-        }
-    else{
-           checkboxes[i].checked = false;
+
+  var checkboxes = document.getElementsByName("providerCourseAdd");
+  for (i = begin; i < end; i++) {
+    if (checkboxes[toggleKey].checked){
+      checkboxes[i].checked = true;
+    } else{
+      checkboxes[i].checked = false;
     }
-    }
-    setContinueButton();
+  }
+  setContinueButton();
 }
 
-function setContinueButton(){
-    var selected = false;
-    var checkboxes = document.getElementsByName("providerCourseAdd");
-    for (i=0; i<checkboxes.length; i++){
-        if (checkboxes[i].checked){
-          selected = true;
-          break;
-        }
+function setContinueButton() {
+
+  var selected = false;
+  var checkboxes = document.getElementsByName("providerCourseAdd");
+  for (i = 0; i < checkboxes.length; i++) {
+    if (checkboxes[i].checked){
+      selected = true;
+      break;
     }
-    if (!selected) {
+  }
+  if (!selected) {
     disableContinueButton();
-    }
-    else{
+  } else{
     enableContinueButton();
-    }
+  }
 }
 
-function enableContinueButton(){
-    var continueButton = document.getElementById("continueButton");
-    var addClassButton = document.getElementById("addClassButton");
-    if (continueButton !== null){
-      continueButton.disabled = false;
-    }
-    if (addClassButton !== null){
-      addClassButton.disabled = false;
-    }
+function enableContinueButton() {
+
+  var continueButton = document.getElementById("continueButton");
+  var addClassButton = document.getElementById("addClassButton");
+  if (continueButton !== null) {
+    continueButton.disabled = false;
+  }
+  if (addClassButton !== null) {
+    addClassButton.disabled = false;
+  }
 }
 
-function disableContinueButton(){
-    var continueButton = document.getElementById("continueButton");
-    var addClassButton = document.getElementById("addClassButton");
-    if (continueButton !== null){
-      continueButton.disabled = true;
-    }
-    if (addClassButton !== null){
-      addClassButton.disabled = true;
-    }
+function disableContinueButton() {
+
+  var continueButton = document.getElementById("continueButton");
+  var addClassButton = document.getElementById("addClassButton");
+  if (continueButton !== null) {
+    continueButton.disabled = true;
+  }
+  if (addClassButton !== null){
+    addClassButton.disabled = true;
+  }
 }
 
 function selectAll(begin, end) {
-    var checkboxes = document.getElementsByName("providerCourseAdd");
-    for (i=begin; i<end; i++){
-    document.getElementById('row-course' + i).className='selectedSelected';
+
+  var checkboxes = document.getElementsByName("providerCourseAdd");
+  for (i = begin; i < end; i++) {
+    document.getElementById("row-course" + i).className="selectedSelected";
     checkboxes[i].checked = true;
     checkboxes[i].disabled = false;
-    }
-    document.getElementById("selectAll"+begin).style.display = "none";    
-    document.getElementById("unselectAll"+begin).style.display = "block";    
-    enableContinueButton();
+  }
+  document.getElementById("selectAll" + begin).style.display = "none";
+  document.getElementById("unselectAll" + begin).style.display = "block";
+  enableContinueButton();
 }
 
 function unselectAll(begin, end) {
-    var checkboxes = document.getElementsByName("providerCourseAdd");
-    for (i=begin; i<end; i++){
-        document.getElementById('row-course' + i).className='';
-        checkboxes[i].checked = false;
-        checkboxes[i].disabled = false;
-    }
-    document.getElementById("unselectAll"+begin).style.display = "none";    
-    document.getElementById("selectAll"+begin).style.display = "block";    
-    setContinueButton();
+
+  var checkboxes = document.getElementsByName("providerCourseAdd");
+  for (i = begin; i < end; i++) {
+    document.getElementById("row-course" + i).className="";
+    checkboxes[i].checked = false;
+    checkboxes[i].disabled = false;
+  }
+  document.getElementById("unselectAll" + begin).style.display = "none";
+  document.getElementById("selectAll" + begin).style.display = "block";
+  setContinueButton();
 }
 
 function enableCheckBox(index) {
-    var checkboxes = document.getElementsByName("providerCourseAdd");
-    checkboxes[index].disabled = false;
-    checkboxes[index].checked = true;
-    enableContinueButton();
+
+  var checkboxes = document.getElementsByName("providerCourseAdd");
+  checkboxes[index].disabled = false;
+  checkboxes[index].checked = true;
+  enableContinueButton();
 }
 
-function submitAddNotListed(){
-    manual_add = document.getElementById("manual_add");
-    manual_add.value="true";
-    continueButton = document.getElementById("continueButton");
-    continueButton.click();
-    return false;
+function submitAddNotListed() {
+
+  manual_add = document.getElementById("manual_add");
+  manual_add.value = "true";
+  continueButton = document.getElementById("continueButton");
+  continueButton.click();
+  return false;
 }
 
-function submitFindCourse(){
+function submitFindCourse() {
+
+  find_course = document.getElementById("find_course");
+  find_course.value = "true";
+  var option = document.getElementById("option");
+  option.value = "continue";
+  document.addCourseForm.submit();
+  return false;
+}
+
+function submitChangeUser() {
+
+  index = document.getElementById("index");
+  index.value ="1";
+  document.addCourseForm.submit();  // SAK-22915
+}
+
+function redirectBasedOnSelection() {
+
+  var selected = false;
+  var checkboxes = document.getElementsByName("providerCourseAdd");
+  for (i = 0; i < checkboxes.length; i++) {
+    if (checkboxes[i].checked) {
+      selected = true;
+      break;
+    }
+  }
+  if (!selected) {
     find_course = document.getElementById("find_course");
     find_course.value="true";
-    var option = document.getElementById("option");
-    option.value='continue';
-    document.addCourseForm.submit();
-    return false;
+  }
+  continueButton = document.getElementById("continueButton");
+  continueButton.click();
+  document.addCourseForm.submit();
+  return false;
 }
 
-function submitChangeUser(){
-    index = document.getElementById("index");
-    index.value="1";
-    document.addCourseForm.submit();  // SAK-22915
-}
+var toggleArchiveTermList = function () {
 
-function redirectBasedOnSelection(){
-   var selected = false;
-   var checkboxes = document.getElementsByName("providerCourseAdd");
-    for (i=0; i<checkboxes.length; i++){
-        if (checkboxes[i].checked){
-          selected = true;
-          break;
-        }
-    }
-    if (!selected) {
-        find_course = document.getElementById("find_course");
-        find_course.value="true";
-    }
-    continueButton = document.getElementById("continueButton");
-    continueButton.click();
-    document.addCourseForm.submit(); 
-    return false;
-}
-
-var toggleArchiveTermList = function() {
-    if ($('#archiveSiteType').val() === 'course') {
-        $('#archiveTermList').show();
-    } else {
-        $('#archiveTermList').hide();
-    }
-
+  if ($("#archiveSiteType").val() === "course") {
+    $("#archiveTermList").show();
+  } else {
+    $("#archiveTermList").hide();
+  }
 };
 
-function checkEnableRemove()
-{
-    var selected = false;
-    var checkboxes = document.getElementsByName( "providerClassDeletes" );
-    if( checkboxes !== null )
-    {
-        selected = findSelectedInCheckboxes( checkboxes );
-    }
+function checkEnableRemove() {
 
-    checkboxes = document.getElementsByName( "cmRequestedClassDeletes" );
-    if( checkboxes !== null && !selected )
-    {
-        selected = findSelectedInCheckboxes( checkboxes );
-    }
+  var selected = false;
+  var checkboxes = document.getElementsByName("providerClassDeletes");
+  if (checkboxes !== null) {
+    selected = findSelectedInCheckboxes(checkboxes);
+  }
 
-    checkboxes = document.getElementsByName( "manualClassDeletes" );
-    if( checkboxes !== null && !selected )
-    {
-        selected = findSelectedInCheckboxes( checkboxes );
-    }
+  checkboxes = document.getElementsByName("cmRequestedClassDeletes");
+  if (checkboxes !== null && !selected) {
+    selected = findSelectedInCheckboxes(checkboxes);
+  }
 
-    var btnRemove = document.getElementById( "btnRemove" );
-    btnRemove.disabled = !selected;
-    btnRemove.className = (selected ? "active" : "");
+  checkboxes = document.getElementsByName("manualClassDeletes");
+  if (checkboxes !== null && !selected) {
+    selected = findSelectedInCheckboxes( checkboxes );
+  }
+
+  var btnRemove = document.getElementById("btnRemove");
+  btnRemove.disabled = !selected;
+  btnRemove.className = selected ? "active" : "";
 }
 
-function findSelectedInCheckboxes( checkboxes )
-{
-    if( checkboxes !== null )
-    {
-        for( var i = 0; i < checkboxes.length; i++ )
-        {
-            if( checkboxes[i].checked )
-            {
-                return true;
-            }
-        }
+function findSelectedInCheckboxes(checkboxes) {
+
+  if (checkboxes !== null ) {
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        return true;
+      }
     }
+  }
 }
 
-function toggleSelectAll(caller, elementName)
-{
-    var newValue = caller.checked;
-    var elements = document.getElementsByName(elementName);
+function toggleSelectAll(caller, elementName) {
 
-    if(elements)
-    {
-        for(var i = 0; i < elements.length; i++)
-        {
-            elements[i].checked = newValue;
-        }
+  var newValue = caller.checked;
+  var elements = document.getElementsByName(elementName);
+
+  if (elements) {
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].checked = newValue;
     }
+  }
 }
 
-function printPreview(target)
-{
-    var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
-    var content=  "";
-    var content=  document.getElementById('groupListContent').innerHTML;
-    w.document.writeln(
-        '<html><head>'
-        + '<style type=\"text/css\">.listHier td, .listHier th {text-align:left}</style>'
-        + '</head>'
-        + '<body> '
-        + content
-        + '</body>'
-        + '</html>'
-    );
-    w.focus();
-    w.print();
-    return false;
+function printPreview(target) {
+
+  var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
+  var content=  "";
+  var content=  document.getElementById('groupListContent').innerHTML;
+  w.document.writeln(
+    '<html><head>'
+    + '<style type=\"text/css\">.listHier td, .listHier th {text-align:left}</style>'
+    + '</head>'
+    + '<body> '
+    + content
+    + '</body>'
+    + '</html>'
+  );
+  w.focus();
+  w.print();
+  return false;
 }
 
-function submitform(id)
-{
-    var theForm = document.getElementById(id);
-    if(theForm && theForm.onsubmit)
-    {
-        theForm.onsubmit();
-    }
-    if(theForm && theForm.submit)
-    {
-        theForm.submit();
-    }
+function submitform(id) {
+
+  var theForm = document.getElementById(id);
+  if (theForm && theForm.onsubmit) {
+    theForm.onsubmit();
+  }
+  if (theForm && theForm.submit) {
+    theForm.submit();
+  }
 }
 
-function LimitText(fieldObj,maxChars)
-{
-    var result = true;
-    if (fieldObj.value.length >= maxChars)
-    {
-        fieldObj.value = fieldObj.value.substring(0,maxChars);
-        result = false;
-    }
+function LimitText(fieldObj,maxChars) {
 
-    if (window.event)
-    {
-        window.event.returnValue = result;
-    }
+  var result = true;
+  if (fieldObj.value.length >= maxChars) {
+    fieldObj.value = fieldObj.value.substring(0,maxChars);
+    result = false;
+  }
 
-    return result;
+  if (window.event) {
+    window.event.returnValue = result;
+  }
+
+  return result;
 }
 
-function submitRemoveSection(index, formID)
-{
-    id = "removeSection"+index;
-    removeSection = document.getElementById(id);
-    removeSection.value="true";
-    document.getElementById( formID ).submit();
-    return false;
+function submitRemoveSection(index, formID) {
+
+  id = "removeSection" + index;
+  removeSection = document.getElementById(id);
+  removeSection.value="true";
+  document.getElementById( formID ).submit();
+  return false;
 }
 
-function resetOption(action, formID)
-{
-    var form = document.getElementById( formID );
-    form.option.value=action;
-    form.submit();
-    return false;
+function resetOption(action, formID) {
+
+  var form = document.getElementById(formID);
+  form.option.value=action;
+  form.submit();
+  return false;
 }
 
-function checkUnpublish(checked)
-{
-    if (checked) 
-    { 
-        document.getElementById('publicChangeableDiv').style.display = 'none';
-        document.getElementById('publicChangeableNoDiv').style.display = 'none';
-        document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'block';
-        document.getElementById('globalAccessDiv').style.display = 'none';
-        document.getElementById('globalAccessNoDiv').style.display = 'block';
-        utils.resizeFrame('shrink');
-    }
+function checkUnpublish(checked) {
+
+  if (checked) {
+    document.getElementById("publicChangeableDiv").style.display = "none";
+    document.getElementById("publicChangeableNoDiv").style.display = "none";
+    document.getElementById("publicChangeableNoUnpublishDiv").style.display = "block";
+    document.getElementById("globalAccessDiv").style.display = "none";
+    document.getElementById("globalAccessNoDiv").style.display = "block";
+    utils.resizeFrame("shrink");
+  }
 }
 
 // SAK-24423 - joinable site settings - checkbox synchronization
-function doCategoryCheck( clickedElement )
-{
-    var clickedElementName = clickedElement.getAttribute( "name" );
-    var isChecked = clickedElement.checked;
+function doCategoryCheck(clickedElement) {
 
-    var checkboxes = document.getElementsByName( clickedElementName );
-    var maxBoxes = checkboxes.length;
+  var clickedElementName = clickedElement.getAttribute("name");
+  var isChecked = clickedElement.checked;
 
-    for( var i = 0; i < maxBoxes; i++ )
-    {
-        checkboxes[i].checked = isChecked;
-    }
+  var checkboxes = document.getElementsByName(clickedElementName);
+  var maxBoxes = checkboxes.length;
+
+  for (var i = 0; i < maxBoxes; i++) {
+    checkboxes[i].checked = isChecked;
+  }
 }
 
 // Returns true iff the limitByAccountType checkboxes are in a valid state.
 // Also responsible for the visibility of the "You must select at least one account type below" message
-function limitByAccountTypesValidation()
-{
-    // assume the checkboxes are in a valid state, and that we don't need to alert the user to select an account
-    var valid = true;
-    var displayJoinLimitInfo = false;
+function limitByAccountTypesValidation() {
+
+  // assume the checkboxes are in a valid state, and that we don't need to alert the user to select an account
+  var valid = true;
+  var displayJoinLimitInfo = false;
 
     // the 'Limit join to specific accounts' checkbox
-    var chkJoinLimitByAccountType = document.getElementById("chkJoinLimitByAccountType");
-    if (chkJoinLimitByAccountType && chkJoinLimitByAccountType.checked)
-    {
-        // get the account type checkboxes
-        var joinAccountTypesDiv = document.getElementById("joinerAccountTypes");
-        var chkAccountTypes = joinAccountTypesDiv.getElementsByTagName('input');
+  var chkJoinLimitByAccountType = document.getElementById("chkJoinLimitByAccountType");
+  if (chkJoinLimitByAccountType && chkJoinLimitByAccountType.checked) {
+    // get the account type checkboxes
+    var joinAccountTypesDiv = document.getElementById("joinerAccountTypes");
+    var chkAccountTypes = joinAccountTypesDiv.getElementsByTagName("input");
 
-        // determine if at least one is checked
-        var atLeastOneChecked = false;
-        for (var i = 0; i < chkAccountTypes.length; i++)
-        {
-            if (chkAccountTypes[i].checked)
-            {
-                atLeastOneChecked = true;
-                break;
-            }
-        }
-
-        if (!atLeastOneChecked)
-        {
-            // 'Limit join to specific accounts' is checked, but no accounts are checked; the page is invalid
-            displayJoinLimitInfo = true;
-            valid = false;
-        }
+    // determine if at least one is checked
+    var atLeastOneChecked = [].slice.call(chkAccountTypes).some(function (t) { return t.checked; });
+    /*
+    var atLeastOneChecked = false;
+    for (var i = 0; i < chkAccountTypes.length; i++) {
+      if (chkAccountTypes[i].checked) {
+        atLeastOneChecked = true;
+        break;
+      }
     }
+    */
 
-    // Control the visibility of the "You must select at least one account type below" message
-    var joinLimitInfoDiv = document.getElementById("joinLimitInfoDiv");
-    if (displayJoinLimitInfo)
-    {
-        joinLimitInfoDiv.removeAttribute("style");
+    if (!atLeastOneChecked) {
+      // 'Limit join to specific accounts' is checked, but no accounts are checked; the page is invalid
+      displayJoinLimitInfo = true;
+      valid = false;
     }
-    else
-    {
-        joinLimitInfoDiv.setAttribute("style", "display:none;");
-    }
+  }
 
-    return valid;
+  // Control the visibility of the "You must select at least one account type below" message
+  var joinLimitInfoDiv = document.getElementById("joinLimitInfoDiv");
+  if (displayJoinLimitInfo) {
+    joinLimitInfoDiv.removeAttribute("style");
+  } else {
+    joinLimitInfoDiv.setAttribute("style", "display:none;");
+  }
+
+  return valid;
 }
 
-function changeLevel(level)
-{
-    document.getElementById("cmLevelChanged").value="true";
-    document.getElementById("cmChangedLevel").value=level;
-}
+function changeLevel(level) {
 
+  document.getElementById("cmLevelChanged").value = "true";
+  document.getElementById("cmChangedLevel").value = level;
+}
 
 /*
   Setup the Import from Site form
 */
 function setupImportSitesForm($form) {
-    // Allow toggle of tools for an entire site/column
-    $form.on("click", ".import-sites-tool-toggle", function(event) {
-        var $checkbox = $(this);
-        var $th = $checkbox.closest("th");
-        var $tr = $checkbox.closest("tr");
 
-        $tr.siblings().each(function() {
-            var $td = $($(this).children().get($th.index()));
-            $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked"));
-        });
+  // Allow toggle of tools for an entire site/column
+  $form.on("click", ".import-sites-tool-toggle", function (event) {
+
+    var $checkbox = $(this);
+    var $th = $checkbox.closest("th");
+    var $tr = $checkbox.closest("tr");
+
+    $tr.siblings().each(function () {
+
+      var $td = $($(this).children().get($th.index()));
+      $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked"));
     });
+  });
+
+  $(".siteimport-tool-checkbox").click(function (e) {
+
+    if (e.target.checked) {
+      $("#" + e.target.id + "-options-link").show();
+    } else {
+      $("#" + e.target.dataset.optionsId).find("input[type='checkbox']").prop("checked", false);
+      $("#" + e.target.dataset.optionsId).hide();
+      $("#" + e.target.id + "-options-link").hide();
+    }
+  });
+
+  $(".siteimport-options-link").click(function (e) {
+    $("#" + this.dataset.optionsId).toggle();
+  });
 };
 
-function updateParticipants(buttonElement)
-{
-    SPNR.disableControlsAndSpin(buttonElement, null);
-    document.participantForm.submit();
-    return false;
+function updateParticipants(buttonElement) {
+
+  SPNR.disableControlsAndSpin(buttonElement, null);
+  document.participantForm.submit();
+  return false;
 }
 
-function cancel(url, buttonElement)
-{
-    SPNR.disableControlsAndSpin(buttonElement, null);
-    location = encodeURI(url);
-    return false;
+function cancel(url, buttonElement) {
+
+  SPNR.disableControlsAndSpin(buttonElement, null);
+  location = encodeURI(url);
+  return false;
 }
 
-$(document).ready(function() {
-    var $form = $("form[name='importSitesForm']");
-    if ($form.length > 0) {
-        setupImportSitesForm($form);
-    }
+$(function () {
+
+  var $form = $("form[name='importSitesForm']");
+  if ($form.length > 0) {
+    setupImportSitesForm($form);
+  }
 });

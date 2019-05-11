@@ -54,7 +54,7 @@
 </script>
 
 <f:view>
-  <sakai:view>
+  <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
   	<!-- discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp-->
   		<script type="text/javascript">
@@ -233,7 +233,7 @@
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.forumDateSort3 && !mfStatisticsBean.ascendingForUser3}" alt="#{msgs.stat_forum_date}"/>
 					</h:commandLink>
 			  <f:verbatim></div></f:verbatim>					            
-  			<h:dataTable id="staticAllMessages" value="#{mfStatisticsBean.userAuthoredStatistics2}" var="stat" styleClass="" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
+  			<h:dataTable id="staticAllMessages" value="#{mfStatisticsBean.userAuthoredStatistics2}" var="stat" styleClass="messagesFlat" columnClasses="bogus">	
    				<h:column>
 				<h:panelGroup rendered="#{!stat.msgDeleted}" layout="block"> 
 				<h:panelGroup>

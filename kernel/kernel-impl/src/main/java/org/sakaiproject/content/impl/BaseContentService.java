@@ -123,7 +123,6 @@ import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
@@ -190,7 +189,7 @@ import static org.sakaiproject.content.util.IdUtil.isolateName;
  */
 @Slf4j
 public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
-SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator, HardDeleteAware
+SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 {
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
@@ -8181,14 +8180,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/**
 	 * {@inheritDoc}
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
-		transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
-	}
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
 
-
-	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
-
-	{
 		Map transversalMap = new HashMap();
 		// default to import all resources
 		boolean toBeImported = true;
@@ -8323,19 +8316,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 						ResourceProperties oProperties = oResource.getProperties();
 						boolean isCollection = false;
-						try
-						{
+						try {
 							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-						}
-						catch (Exception e)
-						{
+						} catch (Exception e) {
 						}
 
-						if (isCollection)
-						{
+						if (isCollection) {
 							// add collection
-							try
-							{
+							try {
 								ContentCollectionEdit edit = addCollection(nId);
 								// import properties
 								ResourcePropertiesEdit p = edit.getPropertiesEdit();
@@ -8348,27 +8336,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								m_storage.commitCollection(edit);
 								((BaseCollectionEdit) edit).closeEdit();
 								nUrl = edit.getUrl();
-							}
-							catch (IdUsedException e)
-							{
-							}
-							catch (IdInvalidException e)
-							{
-							}
-							catch (PermissionException e)
-							{
-							}
-							catch (InconsistentException e)
-							{
+							} catch (IdUsedException|IdInvalidException|PermissionException|InconsistentException e) {
 							}
 							transversalMap.put(oResource.getId(), nId);
 							transversalMap.put(oResource.getUrl(), nUrl);
-							transversalMap.putAll(transferCopyEntitiesRefMigrator(oResource.getId(), nId, resourceIds));
-						}
-						else
-						{
-							try
-							{
+							transversalMap.putAll(transferCopyEntities(oResource.getId(), nId, resourceIds, null));
+						} else {
+							try {
 								// add resource
 								ContentResourceEdit edit = addResource(nId);
 								edit.setContentType(((ContentResource) oResource).getContentType());
@@ -8385,7 +8359,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								//Register the events
 								this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(), true, NotificationService.NOTI_NONE));
 								boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
-								if(contentUpdated){
+								if (contentUpdated){
 									this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, NotificationService.NOTI_NONE));
 								}
 								// complete the edit
@@ -8396,37 +8370,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 								transversalMap.put(oResource.getUrl(), nUrl);
 
 								ContentChangeHandler cch = m_resourceTypeRegistry.getContentChangeHandler(((ContentResource) oResource).getResourceType());
-								if (cch!=null){
+								if (cch != null) {
 									cch.copy(((ContentResource) oResource));
 								}
-							}
-							catch (PermissionException e)
-							{
-							}
-							catch (IdUsedException e)
-							{
-							}
-							catch (IdInvalidException e)
-							{
-							}
-							catch (InconsistentException e)
-							{
-							}
-							catch (ServerOverloadException e)
-							{
+							} catch (PermissionException|IdUsedException|IdInvalidException|InconsistentException|ServerOverloadException e) {
 							}
 						} // if
 					} // if
 				} // for
-			}
-			catch (IdUnusedException e)
-			{
-			}
-			catch (TypeException e)
-			{
-			}
-			catch (PermissionException e)
-			{
+			} catch (IdUnusedException|TypeException|PermissionException e) {
 			}
 		}
 		transversalMap.put("/fromContext", fromContext);
@@ -13904,13 +13856,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		return 0;
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
-	{
-		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
-	}
+	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
-	public Map<String,String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
-	{	
 		Map transversalMap = new HashMap();
 		try
 		{
@@ -13920,7 +13867,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				ContentCollection oCollection = getCollection(toContext);
 
 				if (!isSiteLevelCollection(oCollection.getId())) {
-					throw new IllegalArgumentException("transferCopyEntitiesRefMigrator operation rejected on non site collection: " + oCollection.getId());
+					throw new IllegalArgumentException("transferCopyEntities operation rejected on non site collection: " + oCollection.getId());
 				}
 
 				if(oCollection != null)
@@ -13979,11 +13926,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 			}
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			log.debug("BaseContentService Resources transferCopyEntities Error" + e);
 		}
-		transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+		transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, null));
 		
 		return transversalMap;
 	}

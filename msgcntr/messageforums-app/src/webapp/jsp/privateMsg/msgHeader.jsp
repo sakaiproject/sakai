@@ -14,7 +14,7 @@
 		<h:commandButton styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>
 		
 		<f:verbatim><span id='adv_button'></f:verbatim>
-		  <h:commandButton styleClass="button_search" value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');setMainFrameHeight('#{PrivateMessagesTool.placementId}');" title="#{msgs.pvt_advsearch}"/>
+		  <h:commandButton id="advanced_search_button" styleClass="button_search" value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');setMainFrameHeight('#{PrivateMessagesTool.placementId}');" title="#{msgs.pvt_advsearch}"/>
 		<f:verbatim></span></f:verbatim>
 		<f:verbatim></div></f:verbatim>
   </h:panelGroup>

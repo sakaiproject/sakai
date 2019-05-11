@@ -16,6 +16,7 @@
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    <property name="passwordFactory" ref="org.sakaiproject.util.api.PasswordFactory"/>
   </bean>
   
   <bean id="AddProducer"

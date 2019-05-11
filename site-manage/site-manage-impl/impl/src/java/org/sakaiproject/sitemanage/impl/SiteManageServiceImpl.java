@@ -28,7 +28,6 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -102,7 +101,8 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     @Override
-    public boolean importToolsIntoSiteThread(final Site site, final List<String> existingTools, final Map<String, List<String>> importTools, final boolean cleanup) {
+    public boolean importToolsIntoSiteThread(final Site site, final List<String> existingTools, final Map<String, List<String>> importTools, final Map<String, List<String>> toolOptions, final boolean cleanup) {
+
         final User user = userDirectoryService.getCurrentUser();
         final Locale locale = preferencesService.getLocale(user.getId());
         final Session session = sessionManager.getCurrentSession();
@@ -115,12 +115,12 @@ public class SiteManageServiceImpl implements SiteManageService {
             
 			String importSites ="";
 			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) {
-				if(importSites.length() >= 255) {
+				if (importSites.length() >= 255) {
 					break;
 				}
-				for(String data : entry.getValue() ) {
+				for (String data : entry.getValue() ) {
 					String temp = StringUtils.joinWith(", ", importSites, data);
-					if(!importSites.contains(data) && temp.length() < 255) {
+					if (!importSites.contains(data) && temp.length() < 255) {
 						importSites = temp;
 					}
 				}
@@ -128,7 +128,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 			eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
 			try {
-                importToolsIntoSite(site, existingTools, importTools, cleanup);
+                importToolsIntoSite(site, existingTools, importTools, toolOptions, cleanup);
             } catch (Exception e) {
                 log.warn("Site Import Task encountered an exception for site {}, {}", id, e.getMessage());
             } finally {
@@ -155,7 +155,7 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     @Override
-    public void importToolContent(String oSiteId, Site site, boolean bypassSecurity) {
+    public void importToolContent(String oSiteId, Site site, Map<String, List<String>> toolOptions, boolean bypassSecurity) {
         SecurityAdvisor securityAdvisor = null;
         String nSiteId = site.getId();
 
@@ -184,6 +184,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                                 transferCopyEntities(toolId,
                                         contentHostingService.getSiteCollection(oSiteId),
                                         contentHostingService.getSiteCollection(nSiteId),
+                                        toolOptions,
                                         false));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
 
@@ -195,7 +196,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                     } else if (StringUtils.isNotBlank(toolId)) {
                         // all other tools
                         if (!toolsCopied.contains(toolId)) {
-                            transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+                            transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, toolOptions, false));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
                             toolsCopied.add(toolId);
                         }
@@ -311,7 +312,8 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     @Override
-    public void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, boolean cleanup) {
+    public void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, List<String>> toolOptions, boolean cleanup) {
+
         if (importTools != null && !importTools.isEmpty()) {
 
             //if add missing tools is enabled, add the tools ito the site before importing content
@@ -356,7 +358,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
                         String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
 
-                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, cleanup));
+                        transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, toolOptions, cleanup));
                         transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         resourcesImported = true;
                     }
@@ -373,7 +375,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         if (SiteManageConstants.SITE_INFO_TOOL_ID.equals(toolId)) {
                             site = copySiteInformation(fromSiteId, toSiteId);
                         } else {
-                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, cleanup));
+                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         }
                     }
@@ -415,7 +417,8 @@ public class SiteManageServiceImpl implements SiteManageService {
      * @param fromContext The context to import from.
      * @param toContext   The context to import into.
      */
-    private Map<String, String> transferCopyEntities(String toolId, String fromContext, String toContext, boolean cleanup) {
+    private Map<String, String> transferCopyEntities(String toolId, String fromContext, String toContext, Map<String, List<String>> toolOptions, boolean cleanup) {
+
         Map<String, String> transversalMap = new HashMap<>();
 
         // offer to all EntityProducers
@@ -429,14 +432,12 @@ public class SiteManageServiceImpl implements SiteManageService {
                         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                             @Override
                             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                if (ep instanceof EntityTransferrerRefMigrator) {
-                                    EntityTransferrerRefMigrator etrm = (EntityTransferrerRefMigrator) ep;
-                                    Map<String, String> entityMap = etrm.transferCopyEntitiesRefMigrator(fromContext, toContext, new ArrayList<>(), cleanup);
-                                    if (entityMap != null) {
-                                        transversalMap.putAll(entityMap);
-                                    }
-                                } else {
-                                    et.transferCopyEntities(fromContext, toContext, new ArrayList<>());
+
+                                Map<String, String> entityMap
+                                    = et.transferCopyEntities(
+                                        fromContext, toContext, new ArrayList<>(), toolOptions.get(toolId), cleanup);
+                                if (entityMap != null) {
+                                    transversalMap.putAll(entityMap);
                                 }
                             }
                         });
@@ -508,17 +509,16 @@ public class SiteManageServiceImpl implements SiteManageService {
             updateSiteInfoToolEntityReferences(transversalMap, site);
         } else {
             for (EntityProducer ep : entityManager.getEntityProducers()) {
-                if (ep instanceof EntityTransferrerRefMigrator && ep instanceof EntityTransferrer) {
+                if (ep instanceof EntityTransferrer) {
                     try {
                         EntityTransferrer et = (EntityTransferrer) ep;
-                        EntityTransferrerRefMigrator etrm = (EntityTransferrerRefMigrator) ep;
 
                         // if this producer claims this tool id
                         if (ArrayUtil.contains(et.myToolIds(), toolId)) {
                             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                                 @Override
                                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                    etrm.updateEntityReferences(toContext, transversalMap);
+                                    et.updateEntityReferences(toContext, transversalMap);
                                 }
                             });
                         }

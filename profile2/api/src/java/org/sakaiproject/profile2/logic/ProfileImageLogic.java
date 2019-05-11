@@ -234,5 +234,11 @@ public interface ProfileImageLogic {
 	 * @return
 	 */
 	public boolean profileImageIsDefault(final String userUuid);
-	
+
+	/**
+	 * Generate a profile image for a user with his name/last name initials
+	 * @param userUuid uuid for the user
+	 * @return The ProfileImage object, populated with either a url or binary data.
+	 */
+	public ProfileImage getProfileAvatarInitials(final String userUuid);
 }

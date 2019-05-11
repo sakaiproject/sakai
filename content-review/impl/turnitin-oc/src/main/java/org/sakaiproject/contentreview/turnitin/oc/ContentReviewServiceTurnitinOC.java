@@ -119,8 +119,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private static final String SERVICE_NAME = "Turnitin";
 	private static final String TURNITIN_OC_API_VERSION = "v1";
-	private static final int TURNITIN_OC_MAX_RETRY_MINUTES = 240; // 4 hours
-	private static final int TURNITIN_MAX_RETRY = 16;
 	private static final String INTEGRATION_FAMILY = "sakai";
 	private static final String CONTENT_TYPE_JSON = "application/json";
 	private static final String CONTENT_TYPE_BINARY = "application/octet-stream";
@@ -162,16 +160,27 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 	private static final String SUBMISSION_COMPLETE_EVENT_TYPE = "SUBMISSION_COMPLETE";
 	private static final String SIMILARITY_COMPLETE_EVENT_TYPE = "SIMILARITY_COMPLETE";
+	private static final String SIMILARITY_UPDATED_EVENT_TYPE = "SIMILARITY_UPDATED";
 
 	private String serviceUrl;
 	private String apiKey;
 	private String sakaiVersion;
+	private int maxRetryMinutes;
+	private int maxRetry;
+	private boolean skipDelays;
 
 	private HashMap<String, String> BASE_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> SUBMISSION_REQUEST_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> SIMILARITY_REPORT_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> CONTENT_UPLOAD_HEADERS = new HashMap<String, String>();
 	private HashMap<String, String> WEBHOOK_SETUP_HEADERS = new HashMap<String, String>();
+	
+	private enum AUTO_EXCLUDE_SELF_MATCHING_SCOPE{
+		ALL,
+		NONE,
+		GROUP,
+		GROUP_CONTEXT
+	}
 	
 	@Setter
 	private MemoryService memoryService;
@@ -207,7 +216,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			".html",
 			".wpd",
 			".odt",
-			".hwp",
 			".txt"
 	};
 	private final String[] DEFAULT_ACCEPTABLE_MIME_TYPES = new String[] {
@@ -235,7 +243,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			"text/html",
 			"application/wordperfect",
 			"application/vnd.oasis.opendocument.text",
-			"application/x-hwp",
 			"text/plain"
 	};
 
@@ -249,6 +256,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private final String PROP_ACCEPTABLE_FILE_TYPES = "turnitin.acceptable.file.types";
 
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
+	
+	private String autoExcludeSelfMatchingScope;
 
 	public void init() {
 		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
@@ -256,7 +265,19 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		serviceUrl = serverConfigurationService.getString("turnitin.oc.serviceUrl", "");
 		apiKey = serverConfigurationService.getString("turnitin.oc.apiKey", "");
 		// Retrieve Sakai Version if null set default 		
-		sakaiVersion = Optional.ofNullable(serverConfigurationService.getString("version.sakai", "")).orElse("UNKNOWN");		
+		sakaiVersion = serverConfigurationService.getString("version.sakai", "UNKNOWN");
+
+		// Maximum delay between retries after recoverable errors
+		maxRetryMinutes = serverConfigurationService.getInt("turnitin.oc.max.retry.minutes", 240); // 4 hours
+		// Maximum number of retries for recoverable errors
+		maxRetry = serverConfigurationService.getInt("turnitin.oc.max.retry", 16);
+		// For local development only; do not set this in production:
+		skipDelays = serverConfigurationService.getBoolean("turnitin.oc.skip.delays", false);
+
+		autoExcludeSelfMatchingScope =Arrays.stream(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.values())
+				.filter(e -> e.name().equalsIgnoreCase(serverConfigurationService.getString("turnitin.oc.auto_exclude_self_matching_scope")))
+				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP).name();
+		log.info("Exclude Scope: " + autoExcludeSelfMatchingScope);
 
 		// Populate base headers that are needed for all calls to TCA
 		BASE_HEADERS.put(HEADER_NAME, INTEGRATION_FAMILY);
@@ -311,8 +332,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String id = null;
 		Map<String, Object> data = new HashMap<String, Object>();
 		List<String> types = new ArrayList<>();
-		types.add("SIMILARITY_COMPLETE");
-		types.add("SUBMISSION_COMPLETE");
+		types.add(SIMILARITY_UPDATED_EVENT_TYPE);
+		types.add(SIMILARITY_COMPLETE_EVENT_TYPE);
+		types.add(SUBMISSION_COMPLETE_EVENT_TYPE);
 
 		data.put("signing_secret", base64Encode(apiKey));
 		data.put("url", webhookUrl);
@@ -646,7 +668,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return response;
 	}
 
-	private void generateSimilarityReport(String reportId, String assignmentRef, boolean isDraft) throws Exception {
+	private void generateSimilarityReport(String reportId, String assignmentRef) throws Exception {
 		
 		Assignment assignment = assignmentService.getAssignment(entityManager.newReference(assignmentRef));
 		Map<String, String> assignmentSettings = assignment.getProperties();
@@ -656,6 +678,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		Map<String, Object> reportData = new HashMap<String, Object>();
 		Map<String, Object> generationSearchSettings = new HashMap<String, Object>();
 		generationSearchSettings.put("search_repositories", repositories);
+		generationSearchSettings.put("auto_exclude_self_matching_scope", autoExcludeSelfMatchingScope);
 		reportData.put("generation_settings", generationSearchSettings);
 
 		Map<String, Object> viewSettings = new HashMap<String, Object>();
@@ -664,8 +687,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		reportData.put("view_settings", viewSettings);
 		
 		Map<String, Object> indexingSettings = new HashMap<String, Object>();
-		//Drafts are not added to index to avoid self plagiarism
-		indexingSettings.put("add_to_index", !isDraft);
+		indexingSettings.put("add_to_index", true);
 		reportData.put("indexing_settings", indexingSettings);
 
 		HashMap<String, Object> response = makeHttpCall("PUT",
@@ -886,8 +908,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							ContentReviewItem referenceItem = quededReferenceItem.isPresent() ? quededReferenceItem.get() : null;							
 							if (referenceItem != null && checkForContentItemInSubmission(referenceItem, assignment)) {
 								// Regenerate similarity request for reference id
-								// Report is recalled after due date, no need to account for draft
-								generateSimilarityReport(referenceItem.getExternalId(), referenceItem.getTaskId(), false);
+								// Report is recalled after due date
+								generateSimilarityReport(referenceItem.getExternalId(), referenceItem.getTaskId());
 								//reschedule reference item by setting score to null, reset retry time and set status to awaiting report
 								referenceItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 								referenceItem.setRetryCount(Long.valueOf(0));
@@ -1108,12 +1130,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return cal.getTime();
 	}
 
-	private boolean checkForDraft(ContentReviewItem item, Assignment assignment) throws Exception {
-		// Checks if current item is a draft or submitted
-		AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
-		return Optional.ofNullable(!currentSubmission.getSubmitted()).orElse(false);
-	}
-	
 	private boolean checkForContentItemInSubmission(ContentReviewItem item, Assignment assignment) {
 		try {
 			AssignmentSubmission currentSubmission = assignmentService.getSubmission(assignment.getId(), item.getUserId());
@@ -1161,10 +1177,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			switch (submissionStatus) {
 			case "COMPLETE":
-				// Check if current item is a draft submission
-				boolean submissionIsDraft = checkForDraft(item, assignment);
 				// If submission status is complete, start similarity report process
-				generateSimilarityReport(item.getExternalId(), item.getTaskId(), submissionIsDraft);
+				generateSimilarityReport(item.getExternalId(), item.getTaskId());
 				// Update item status for loop 2
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE);
 				// Reset retry count
@@ -1177,10 +1191,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Schedule next retry time
 				item.setNextRetryTime(cal.getTime());
 				crqs.update(item);
-				// Check for items that generate reports both immediately and on due date or draft items
+				// Check for items that generate reports both immediately and on due date
 				// Create a placeholder item that will regenerate and index report after due date
-				if (assignmentDueDate != null && assignmentDueDate.after(new Date())
-						&& (GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed) || submissionIsDraft)) {
+				if (assignmentDueDate != null && assignmentDueDate.after(new Date()) && GENERATE_REPORTS_IMMEDIATELY_AND_ON_DUE_DATE.equals(reportGenSpeed)) {
 					createPlaceholderItem(item, assignmentDueDate);
 				}
 				break;
@@ -1257,7 +1270,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			item.setNextRetryTime(cal.getTime());
 			crqs.update(item);
 			// If retry count is above maximum increment error count, set status to nine and stop retrying
-		} else if (item.getRetryCount().intValue() > TURNITIN_MAX_RETRY) {
+		} else if (item.getRetryCount().intValue() > maxRetry) {
 			item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE);
 			crqs.update(item);
 			return false;
@@ -1274,10 +1287,14 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	public int getDelayTime(long retries) {
+		if (skipDelays)
+		{
+			return 0;
+		}
 		// exponential retry algorithm that caps the retries off at 36 hours (checking once every 4 hours max)
-		int minutes = (int) Math.pow(2, retries < TURNITIN_MAX_RETRY ? retries : 1); // built in check for max retries
+		int minutes = (int) Math.pow(2, retries < maxRetry ? retries : 1); // built in check for max retries
 																						// to fail quicker
-		return minutes > TURNITIN_OC_MAX_RETRY_MINUTES ? TURNITIN_OC_MAX_RETRY_MINUTES : minutes;
+		return minutes > maxRetryMinutes ? maxRetryMinutes : minutes;
 	}
 
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content)
@@ -1591,7 +1608,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			if (StringUtils.isNotEmpty(secrete_key_encoded) && signature_header.equals(secrete_key_encoded)) {
 				if (SUBMISSION_COMPLETE_EVENT_TYPE.equals(eventType)) {
 					if (webhookJSON.has("id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
-						// Allow cb to access assignment settings, needed for draft check
+						// Allow cb to access assignment settings, needed for due date check
 						SecurityAdvisor advisor = pushAdvisor();
 						try {
 							log.info("Submission complete webhook cb received");
@@ -1612,7 +1629,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						log.warn("Callback item received without needed information");
 						errors++;
 					}
-				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType)) {
+				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType) || SIMILARITY_UPDATED_EVENT_TYPE.equals(eventType)) {
 					if (webhookJSON.has("submission_id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
 						log.info("Similarity complete webhook cb received");
 						log.info(webhookJSON.toString());

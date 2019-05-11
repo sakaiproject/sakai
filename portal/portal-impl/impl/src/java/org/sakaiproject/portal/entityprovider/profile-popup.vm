@@ -51,7 +51,7 @@
     <div id="profile-popup-incoming-block-${connectionUserId}" class="profile-popup-incoming-block" #if (!${incoming})style="display: none;"#end>
         <button id="profile-popup-accept-button-${connectionUserId}" title="${i18n.accept_tooltip}" class="profile-popup-accept-button">
             ${i18n.accept}
-        </button><button id="profile-popup-ignore-button-${connectionUserId}" title="${i18n.ignore_tooltip}">
+        </button><button id="profile-popup-ignore-button-${connectionUserId}" title="${i18n.ignore_tooltip}" class="profile-popup-ignore-button">
             ${i18n.ignore}
         </button>
     </div>

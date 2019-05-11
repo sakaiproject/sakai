@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://github.com/dandelion/datatables">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/common :: head" />
 <body>
   <div th:replace="fragments/common :: bootstrap" />
@@ -9,16 +9,16 @@
     <div class="portletBody">
       <div id="menu" th:include="fragments/menus :: main (modified)" />
       <h3 th:text="#{modified.modified}">Modified Messages</h3>
-      <table id="modified" dt:table="true" dt:export="csv">
+      <table id="modifiedTable" class="table table-striped table-bordered dataTable">
         <thead>
           <tr>
-            <th dt:filterable="false" dt:sortable="false" dt:searchable="false"></th>
-            <th th:text="#{mbp.id}" dt:searchable="false">Id</th>
-            <th th:text="#{mbp.moduleName}" dt:searchable="false">Module Name</th>
+            <th class="no-sort"></th>
+            <th th:text="#{mbp.id}">Id</th>
+            <th th:text="#{mbp.moduleName}">Module Name</th>
             <th th:text="#{mbp.propertyName}">Property Name</th>
             <th th:text="#{mbp.value}">Value</th>
             <th th:text="#{mbp.defaultValue}">Default Value</th>
-            <th th:text="#{mbp.locale}" dt:searchable="false">Locale</th>
+            <th th:text="#{mbp.locale}">Locale</th>
           </tr>
         </thead>
         <tbody>
@@ -33,6 +33,20 @@
           </tr>
         </tbody>
       </table>
+      <script>includeWebjarLibrary('datatables');</script>
+      <script>includeWebjarLibrary('datatables/1.10.19/js/dataTables.bootstrap.min.js')</script>
+      <script>includeWebjarLibrary('datatables/1.10.19/js/dataTables.bootstrap.min.css')</script>
+      <script th:inline="javascript">
+        $(document).ready(function () {
+          $('#modifiedTable').DataTable({
+            "order": [],
+            "columnDefs": [{
+              "targets": 'no-sort',
+              "orderable": false,
+            }]
+          });
+        });
+      </script>
     </div>
   </div>
 </body>
