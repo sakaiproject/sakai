@@ -43,6 +43,6 @@ public class DelayedInvocationDAO {
     }
 
     public void remove(DelayedInvocation invocation) {
-        sessionFactory.getCurrentSession().delete(invocation);
+        sessionFactory.getCurrentSession().delete(sessionFactory.getCurrentSession().merge(invocation));
     }
 }
