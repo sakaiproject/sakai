@@ -92,16 +92,18 @@
 										</label>
 										#if ($importOptions.get(${toolId}).isPresent())
 										<a id="toolSite${toolCount}${siteCount}-options-link" style="display: none;" href="javascript:;" class="siteimport-options-link" data-options-id="${toolCount}-${siteCount}-options" title="$tlang.getString('import.options.title')">
-											<span title="$tlang.getString('import.options.title')">$tlang.getString('import.options.title').toLowerCase()</span>
+											<span title="$tlang.getString('import.options.help')">$tlang.getString('import.options.title').toLowerCase()</span>
 										</a>
-										<div id="${toolCount}-${siteCount}-options" class="siteimport-options" style="display: none;">
+										<div id="${toolCount}-${siteCount}-options" class="siteimport-options">
 											#foreach ($option in $importOptions.get(${toolId}).get())
+											#set ($optionPropKey = "import.options." + ${option})
+											#set ($optionPropHelpKey = $optionPropKey + ".help")
 											<div>
 												<label>
-													<input type="checkbox" name="import-option-${option}-tool-${toolId}" value="true"/>
-													#set ($optionPropKey = "import.options." + ${option})
+													<input type="checkbox" name="import-option-${option}-tool-${toolId}" title="$tlang.getString(${optionPropHelpKey})" value="true"/>
 													$tlang.getString(${optionPropKey})
 												</label>
+												<span class="import-option-help fa fa-question-circle" data-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
 											</div>
 											#end
 										</div>
