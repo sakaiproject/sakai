@@ -177,28 +177,32 @@ public class SiteManageServiceImpl implements SiteManageService {
                 List<ToolConfiguration> pageToolList = page.getTools();
                 if ((pageToolList != null) && !pageToolList.isEmpty()) {
                     Tool tool = pageToolList.get(0).getTool();
-                    String toolId = tool.getId();
-                    if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
-                        // special handleling for resources
-                        transversalMap.putAll(
-                                transferCopyEntities(toolId,
-                                        contentHostingService.getSiteCollection(oSiteId),
-                                        contentHostingService.getSiteCollection(nSiteId),
-                                        false));
-                        transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
-
-                    } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
-                        // handle Home tool specially, need to update the site infomration display url if needed
-                        String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
-                        site.setInfoUrl(newSiteInfoUrl);
-                        saveSite(site);
-                    } else if (StringUtils.isNotBlank(toolId)) {
-                        // all other tools
-                        if (!toolsCopied.contains(toolId)) {
-                            transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+                    if (tool != null) { // ignore page if the tool can't be retrieved
+                        String toolId = tool.getId();
+                        if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
+                            // special handleling for resources
+                            transversalMap.putAll(
+                                    transferCopyEntities(toolId,
+                                            contentHostingService.getSiteCollection(oSiteId),
+                                            contentHostingService.getSiteCollection(nSiteId),
+                                            false));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
-                            toolsCopied.add(toolId);
+
+                        } else if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.SITE_INFO_TOOL_ID)) {
+                            // handle Home tool specially, need to update the site infomration display url if needed
+                            String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
+                            site.setInfoUrl(newSiteInfoUrl);
+                            saveSite(site);
+                        } else if (StringUtils.isNotBlank(toolId)) {
+                            // all other tools
+                            if (!toolsCopied.contains(toolId)) {
+                                transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+                                transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
+                                toolsCopied.add(toolId);
+                            }
                         }
+                    } else {
+                        log.warn("Skipping page {}, because the tool could not be retrieved", page.getId());
                     }
                 }
             }
