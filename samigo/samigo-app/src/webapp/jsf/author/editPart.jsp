@@ -104,7 +104,6 @@
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_questions_suffix}"/>
                     <h:selectOneMenu rendered="#{sectionBean.type == '2'}" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}"
                                      id="assignToPool" value="#{sectionBean.selectedPool}">
-                        <%--<f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_for_random_draw}(###)" />--%>
                         <f:selectItems value="#{sectionBean.poolsAvailable}" />
                     </h:selectOneMenu>
                 </t:div>
