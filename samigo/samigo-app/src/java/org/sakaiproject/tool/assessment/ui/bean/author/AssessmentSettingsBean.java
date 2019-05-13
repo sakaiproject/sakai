@@ -226,7 +226,6 @@ public class AssessmentSettingsBean
     return assessment;
   }
 
- 
   public void setAssessment(AssessmentFacade assessment) {
     try {
       //1.  set the template info
@@ -322,8 +321,11 @@ public class AssessmentSettingsBean
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
         this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
-        if (accessControl.getHonorPledge() != null)
+        if (accessControl.getHonorPledge() != null) {
           this.honorPledge = accessControl.getHonorPledge();
+        } else {
+          this.honorPledge = false;
+        }
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
