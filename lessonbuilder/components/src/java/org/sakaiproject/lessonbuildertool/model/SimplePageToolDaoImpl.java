@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.Setter;
@@ -929,6 +930,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} else {
 			return null;
 		}
+	}
+
+	public Optional<List<ToolConfiguration>> getSiteTools(String siteId) {
+
+		try {
+			return Optional.of(new ArrayList(siteService.getSite(siteId).getTools(LessonBuilderConstants.TOOL_COMMON_ID)));
+		} catch (IdUnusedException iue) {
+			log.warn("{} is not a valid site id", siteId);
+		}
+		return Optional.empty();
 	}
 
 	public String getPageUrl(long pageId) {
