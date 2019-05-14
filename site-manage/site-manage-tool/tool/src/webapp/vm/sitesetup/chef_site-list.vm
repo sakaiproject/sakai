@@ -78,7 +78,7 @@
 							onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" />
 						<input type="button" id="btnSoftDelete1" name="btnSoftDelete1" class="actionButton" value="$tlang.getString("java.delete")" disabled="disabled"
 							onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" />
-						#if ($superUser)
+						#if ($superUser|| $canDelSoftDel)
 							<input type="button" id="btnHardDelete1" name="btnHardDelete1" class="actionButton" value="$tlang.getString("java.delete.hard")" disabled="disabled"
 								onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('sakai_action').value='doMenu_site_hard_delete';document.getElementById('sitesForm').submit();return false;" />
 						#end
