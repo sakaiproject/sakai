@@ -319,15 +319,38 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             }
         }
 
+        final String siteId = toolManager.getCurrentPlacement().getContext();
+
+        final Optional<List<ToolConfiguration>> siteTools = simplePageToolDao.getSiteTools(siteId);
+
+        final Set<String> existingSitePageToolIds
+            = simplePageToolDao.getSitePages(siteId).stream().map(SimplePage::getToolId).collect(Collectors.toSet());
+
+        if (siteTools.get().size() > existingSitePageToolIds.size()) {
+            // Create a top level page for each tool that doesn't yet have one
+            siteTools.get().forEach(tc -> {
+
+                if (!existingSitePageToolIds.contains(tc.getPageId())) {
+                    // No page has been created for this tool placement yet. Create one.
+                    SimplePage sp = simplePageToolDao.makePage(tc.getPageId(), siteId, tc.getTitle(), null, null);
+                    if (simplePageToolDao.saveItem(sp, new ArrayList<String>(), "ignored", false)) {
+                        SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(sp.getPageId()), sp.getTitle());
+                        if (!simplePageToolDao.saveItem(item, new ArrayList<String>(), "ignored", false)) {
+                            log.error("Failed to save simple page item for tool {}", tc.getPageId());
+                        }
+                    } else {
+                        log.error("Failed to save simple page for tool {}", tc.getPageId());
+                    }
+                }
+            });
+        }
+
+        final List<SimplePageItem> tmpSitePages = simplePageToolDao.findItemsInSite(siteId);
+
         // build map of all pages, so we can see if any are left over
         final Map<Long, SimplePage> pageMap
-            = simplePageToolDao.getSitePages(simplePageBean.getCurrentSiteId())
+            = simplePageToolDao.getSitePages(siteId)
                 .stream().collect(Collectors.toMap(SimplePage::getPageId, Function.identity()));
-
-        // Set of all top level pages, actually the items pointing to them, this is temporary as we need to
-        // order it to be the same as the Lessons tools in the tool menu
-        final List<SimplePageItem> tmpSitePages = simplePageToolDao.findItemsInSite(toolManager.getCurrentPlacement().getContext());
-        final Optional<List<ToolConfiguration>> siteTools = simplePageToolDao.getSiteTools(simplePageBean.getCurrentSite().getId());
 
         // This orders the top level pages the same as the tool menu
         final List<SimplePageItem> sitePages = siteTools.get().stream().map(t -> {
