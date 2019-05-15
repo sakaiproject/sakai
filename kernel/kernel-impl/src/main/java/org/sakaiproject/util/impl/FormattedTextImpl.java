@@ -53,6 +53,7 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
@@ -593,8 +594,8 @@ public class FormattedTextImpl implements FormattedText
          */
         String val = "";
         if (StringUtils.isNotEmpty(value)){
-            val = StringEscapeUtils.escapeHtml4(value);
-            if (escapeNewlines && val != null) {
+            val = HtmlUtils.htmlEscape(value, StandardCharsets.UTF_8.name());
+            if (escapeNewlines) {
                 val = val.replace("\n", "<br/>\n");
             }
         }
@@ -661,7 +662,7 @@ public class FormattedTextImpl implements FormattedText
     public String unEscapeHtml(String value)
     {
         if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
-        return StringEscapeUtils.unescapeHtml4(value);
+        return HtmlUtils.htmlUnescape(value);
     }
 
     /* (non-Javadoc)
@@ -1505,4 +1506,12 @@ public class FormattedTextImpl implements FormattedText
             9002, 9674, 9824, 9827, 9829, 9830, 34, 38, 60, 62, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 8204, 8205,
             8206, 8207, 8211, 8212, 8216, 8217, 8218, 8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, 8364 };
 
+    public String sanitizeUserInput(final String userInput) {
+        if(StringUtils.EMPTY.equals(userInput)) {
+            return StringUtils.EMPTY;
+        }
+        String val = StringUtils.trimToNull(userInput);
+        val = HtmlUtils.htmlEscape(val, StandardCharsets.UTF_8.name());
+        return val;
+    }
 }

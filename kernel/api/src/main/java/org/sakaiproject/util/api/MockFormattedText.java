@@ -223,5 +223,11 @@ public class MockFormattedText implements FormattedText {
 		// TODO Auto-generated method stub
 		return getHtmlBody(null);
 	}
-    
+
+     @Override
+     public String sanitizeUserInput(final String userInput){
+        log.warn(WARNING);
+        return userInput;
+    }
+
 }

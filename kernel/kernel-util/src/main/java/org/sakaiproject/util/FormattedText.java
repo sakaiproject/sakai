@@ -233,4 +233,11 @@ public class FormattedText {
     	return getFormattedText().getHtmlBody(text);
     }
 
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#sanitizeUserInput(String)
+     */
+    public String sanitizeUserInput(final String userInput) {
+        return getFormattedText().sanitizeUserInput(userInput);
+    }
+
 }

@@ -1174,5 +1174,10 @@ public class FormattedTextTest {
         Assert.assertEquals("", result);
     }
 
-
+    @Test
+    public void testEscapeXSS() {
+        String threat = "<img src=a onerror=\"alert(1)\" áéñíòùç %*+,-/;'<=>^|\\";
+        Assert.assertEquals("<img src=a onerror=\"alert(1)\" áéñíòùç %*+,-/;'<=>^|\\", threat);
+        Assert.assertEquals("&lt;img src=a onerror=&quot;alert(1)&quot; áéñíòùç %*+,-/;&#39;&lt;=&gt;^|\\", formattedText.sanitizeUserInput(threat));
+    }
 }

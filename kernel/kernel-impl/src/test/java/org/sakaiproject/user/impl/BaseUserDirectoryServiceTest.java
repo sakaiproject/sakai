@@ -180,15 +180,15 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
         Assert.assertNotNull(cleaned);
         Assert.assertEquals(eid, cleaned);
 
-        eid = "azeckoski@unicon.net";
+        eid = "sakaiger@sakailms.org";
         cleaned = userDirectoryService.cleanEid(eid);
         Assert.assertNotNull(cleaned);
         Assert.assertEquals(eid, cleaned);
 
-        eid = "<script>alert('XSS');</script>";
+        eid = "<script>alert('xss');</script>";
         cleaned = userDirectoryService.cleanEid(eid);
         Assert.assertNotNull(cleaned);
-        Assert.assertEquals("scriptalert('xss')script", cleaned);
+        Assert.assertEquals("&lt;script&gt;alert(&#39;xss&#39;);&lt;/script&gt;", cleaned);
 
         // empty cases
         eid = "";
