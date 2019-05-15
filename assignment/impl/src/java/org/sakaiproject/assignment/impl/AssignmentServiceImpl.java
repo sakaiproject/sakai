@@ -222,7 +222,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.info("Instructor submission of assignments is enabled");
         }
 
-        exposeContentReviewErrorsToUI = serverConfigurationService.getBoolean("contentreview.expose.errors.to.ui", false);
+        exposeContentReviewErrorsToUI = serverConfigurationService.getBoolean("contentreview.expose.errors.to.ui", true);
 
         // register as an entity producer
         entityManager.registerEntityProducer(this, REFERENCE_ROOT);
