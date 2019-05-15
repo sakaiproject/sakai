@@ -1,10 +1,10 @@
 # Code of Conduct
 
-As an Apereo Foundation sponsored project, Sakai's code of conduct expands upon the Apereo Foundation welcoming policy which can be read in its entirety here [Apereo Foundation Welcoming Policy][].
+As an Apereo Foundation sponsored project, Sakai's code of conduct expands upon the Apereo Foundation welcoming policy which can be read in its entirety here [Apereo Foundation Welcoming Policy].
 
 The Sakai code of conduct seeks not to be exhaustive or complete but to function as our joint interpretation of the Apereo welcoming policy. It serves to distill our common understanding of our shared collaborative environment and goals.
 
-# Specificly
+# Specifically
 We strive to:
 1. Be open, invite all to participate in our community. We prefer public methods of communication unless discussing something sensitive.
 2. Be friendly, patient and empathetic. We assume good intentions and do our best to act in an empathetic fashion.
