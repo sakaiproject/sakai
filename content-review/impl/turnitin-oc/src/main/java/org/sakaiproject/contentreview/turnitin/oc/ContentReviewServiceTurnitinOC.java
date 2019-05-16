@@ -715,8 +715,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 
-	private String getSubmissionStatus(String reportId) throws Exception {
-		String status = null;
+	private JSONObject getSubmissionJSON(String reportId) throws Exception {
 		HashMap<String, Object> response = makeHttpCall("GET",
 				getNormalizedServiceUrl() + "submissions/" + reportId,
 				BASE_HEADERS,
@@ -729,16 +728,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		// Create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
-		if ((responseCode >= 200) && (responseCode < 300)) {
-			// Get submission status value
-			if (responseJSON.containsKey("status")) {
-				status = responseJSON.getString("status");
-			}
-		} else {
-			throw new Exception("getSubmissionStatus invalid request: " + responseCode + ", " + responseMessage + ", "
+		if ((responseCode < 200) || (responseCode >= 300)) {
+			throw new Exception("getSubmissionJSON invalid request: " + responseCode + ", " + responseMessage + ", "
 					+ responseBody);
 		}
-		return status;
+
+		return responseJSON;
 	}
 
 	private int getSimilarityReportStatus(String reportId) throws Exception {
@@ -1115,7 +1110,11 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					// EXTERNAL ID EXISTS, START SIMILARITY REPORT GENERATION PROCESS (STAGE 2)					
 					try {
 						// Get submission status, returns the state of the submission as string		
-						String submissionStatus = getSubmissionStatus(item.getExternalId());
+						JSONObject submissionJSON = getSubmissionJSON(item.getExternalId());
+						if (!submissionJSON.containsKey("status")) {
+							throw new Exception("Response from Turnitin is missing expected data");
+						}
+						String submissionStatus = submissionJSON.getString("status");
 
 						if (COMPLETE_STATUS.equals(submissionStatus)) {
 							success++;
@@ -1126,7 +1125,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							errors++;
 						}
 
-						handleSubmissionStatus(submissionStatus, item, assignment);
+						handleSubmissionStatus(submissionJSON, item, assignment);
 
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
@@ -1191,14 +1190,18 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		crqs.update(placeholderItem);
 	}
 
-	private void handleSubmissionStatus(String submissionStatus, ContentReviewItem item, Assignment assignment) {
+	private void handleSubmissionStatus(JSONObject submissionJSON, ContentReviewItem item, Assignment assignment) {
 		try {
 
 			Date assignmentDueDate = Date.from(assignment.getDueDate());
 			String reportGenSpeed = assignment.getProperties().get("report_gen_speed");
 
+			String submissionStatus = submissionJSON.getString("status");
+
 			// Handle possible error status
 			String errorStr = null;
+			// Assume any errors are irrecoverable; flip to true for those we should try again
+			boolean recoverable = false;
 
 			switch (submissionStatus) {
 			case "COMPLETE":
@@ -1228,38 +1231,46 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			case "CREATED":
 				// do nothing... try again
 				break;
-			case "UNSUPPORTED_FILETYPE":
-				errorStr = "The uploaded filetype is not supported";
-				break;
-				//break on all
-			case "PROCESSING_ERROR":
-				errorStr = "An unspecified error occurred while processing the submissions";
-				break;
-			case "TOO_LITTLE_TEXT":
-				errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
-				break;
-			case "TOO_MUCH_TEXT":
-				errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
-				break;
-			case "TOO_MANY_PAGES":
-				errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
-				break;
-			case "FILE_LOCKED":
-				errorStr = "The uploaded file requires a password in order to be opened";
-				break;
-			case "CORRUPT_FILE":
-				errorStr = "The uploaded file appears to be corrupt or password protected";
-				break;
-			case "ERROR":
-				errorStr = "Submission returned with ERROR status";
-				break;
 			default:
-				log.info("Unknown submission status, will retry: " + submissionStatus);
-				break;
+				String errorCode = submissionJSON.containsKey("error_code") ? submissionJSON.getString("error_code") : submissionStatus;
+				switch (errorCode)
+				{
+				case "UNSUPPORTED_FILETYPE":
+					errorStr = "The uploaded filetype is not supported";
+					break;
+					//break on all
+				case "PROCESSING_ERROR":
+					errorStr = "An unspecified error occurred while processing the submissions";
+					break;
+				case "TOO_LITTLE_TEXT":
+					errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
+					break;
+				case "TOO_MUCH_TEXT":
+					errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
+					break;
+				case "TOO_MANY_PAGES":
+					errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
+					break;
+				case "FILE_LOCKED":
+					errorStr = "The uploaded file requires a password in order to be opened";
+					break;
+				case "CORRUPT_FILE":
+					errorStr = "The uploaded file appears to be corrupt";
+					break;
+				case "ERROR":
+					errorStr = "Submission returned with ERROR status";
+					break;
+				default:
+					errorStr = errorCode;
+					log.info("Unknown submission status, will retry: " + submissionStatus);
+					recoverable = true;
+					break;
+				}
 			}
 			if(StringUtils.isNotEmpty(errorStr)) {
 				item.setLastError(errorStr);
-				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+				Long errorStatus = recoverable ? ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE : ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE;
+				item.setStatus(errorStatus);
 				crqs.update(item);
 			}
 		}  catch (Exception e) {
@@ -1625,7 +1636,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		JSONObject webhookJSON = JSONObject.fromObject(body);
 		String eventType = request.getHeader("X-Turnitin-Eventtype");
 		String signature_header = request.getHeader("X-Turnitin-Signature");
-
+		log.debug("webhookEvent body: " + body);
 
 		try {
 			// Make sure cb is signed correctly
@@ -1641,7 +1652,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
 							ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
 							Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
-							handleSubmissionStatus(webhookJSON.getString("status"), item, assignment);
+							handleSubmissionStatus(webhookJSON, item, assignment);
 							success++;
 						} catch (Exception e) {
 							log.error(e.getMessage(), e);
