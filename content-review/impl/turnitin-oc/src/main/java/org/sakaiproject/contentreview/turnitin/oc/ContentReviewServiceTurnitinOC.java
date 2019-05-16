@@ -710,7 +710,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		} else if ((responseCode == 409)) {
 			log.debug("A Similarity Report is already generating for this submission");
 		} else {
-			throw new Exception(
+			throw new ReportException(
 					"Submission failed to initiate: " + responseCode + ", " + responseMessage + ", " + responseBody);
 		}
 	}
@@ -729,7 +729,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
 		if ((responseCode < 200) || (responseCode >= 300)) {
-			throw new Exception("getSubmissionJSON invalid request: " + responseCode + ", " + responseMessage + ", "
+			throw new TransientSubmissionException("getSubmissionJSON invalid request: " + responseCode + ", " + responseMessage + ", "
 					+ responseBody);
 		}
 
@@ -1112,7 +1112,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						// Get submission status, returns the state of the submission as string		
 						JSONObject submissionJSON = getSubmissionJSON(item.getExternalId());
 						if (!submissionJSON.containsKey("status")) {
-							throw new Exception("Response from Turnitin is missing expected data");
+							throw new TransientSubmissionException("Response from Turnitin is missing expected data");
 						}
 						String submissionStatus = submissionJSON.getString("status");
 
@@ -1294,7 +1294,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Similarity report is still generating, will try again
 			log.info("Processing report " + item.getExternalId() + "...");
 		} else if(status == -2){
-			throw new Exception("Unknown error during report status call");
+			throw new ReportException("Unknown error during report status call");
 		}
 	}
 	
@@ -1453,7 +1453,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseMessage = !response.containsKey(RESPONSE_MESSAGE) ? "" : (String) response.get(RESPONSE_MESSAGE);
 
 		if (responseCode < 200 || responseCode >= 300) {
-			throw new Exception(responseCode + ": " + responseMessage);
+			throw new TransientSubmissionException(responseCode + ": " + responseMessage);
 		}
 	}
 
