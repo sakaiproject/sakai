@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -174,7 +176,18 @@ public class IMSPOXRequest {
 	public void loadFromRequest(HttpServletRequest request) 
 	{
 		String contentType = request.getContentType();
-		if ( ! "application/xml".equals(contentType) ) {
+		String baseContentType;
+
+		try {
+			MimeType mimeType = new MimeType(contentType);
+			baseContentType = mimeType.getBaseType();
+		} catch (MimeTypeParseException e){
+			errorMessage = "Unable to parse mime type";
+			log.info("{}\n{}", errorMessage, contentType);
+			return;
+		}
+
+		if ( ! "application/xml".equals(baseContentType) ) {
 			errorMessage = "Content Type must be application/xml";
 		 	log.info("{}\n{}", errorMessage, contentType);
 			return;
