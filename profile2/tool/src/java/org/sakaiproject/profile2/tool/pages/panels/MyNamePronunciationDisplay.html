@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+      xml:lang="en"
+      lang="en">
+<body>
+<wicket:panel>
+    <div class="mainSection editable">
+        <div class="mainSectionHeading"><span wicket:id="heading">[Name Pronunciation]</span></div>
+
+        <a href="#" wicket:id="editButton" class="edit-button">
+            <span wicket:id="editButtonLabel">edit</span>
+            <span class="offscreen">
+                <wicket:message key="accessibility.edit.basic" />
+            </span>
+        </a>
+
+        <div class="mainSectionContent">
+            <!--  message if no fields filled in -->
+            <span wicket:id="noFieldsMessage" class="profile_instruction">No fields</span>
+            <table class="profileContent">
+                <tr wicket:id="phoneticPronunciationContainer">
+                    <td class="label" wicket:id="phoneticPronunciationLabel">[phoneticPronunciationLabel]</td>
+                    <td class="content" wicket:id="phoneticPronunciation">[phoneticPronunciation]</td>
+                </tr>
+                <tr wicket:id="nameRecordingContainer">
+                    <td class="label" wicket:id="nameRecordingLabel">[nameRecordingLabel]</td>
+                    <td class="content">
+                        <div id="audio-player" class="audioPlayer">
+                            <audio wicket:id="audioPlayer" controls controlsList='nodownload'></audio>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- panel specific Javascript -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            //force hide on init
+            $(".edit-button").addClass("offscreen");
+
+            //show the edit button when hovering over an editable section
+            $(".editable").hover(
+                function () {
+                    $(this).children(".edit-button").removeClass("offscreen");
+                },
+                function () {
+                    $(this).children(".edit-button").addClass("offscreen");
+                }
+            );
+        });
+    </script>
+</wicket:panel>
+</body>
+</html>

@@ -1094,6 +1094,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean isNamePronunciationProfileEnabled() {
+		return this.serverConfigurationService.getBoolean(
+				"profile2.profile.name.pronunciation.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_PRONUNCIATION_ENABLED);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean isWallEnabledGlobally() {
 		return this.serverConfigurationService.getBoolean(
 				"profile2.wall.enabled",
@@ -1826,6 +1836,22 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.error("SakaiProxy.getFirstInstanceOfTool() failed for siteId: " + siteId + " and toolId: " + toolId);
 			return null;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getNamePronunciationExamplesLink() {
+		return this.serverConfigurationService.getString("profile2.profile.name.pronunciation.examples.link", "");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNamePronunciationDuration() {
+		return this.serverConfigurationService.getInt("profile2.profile.name.pronunciation.duration", 10);
 	}
 
 	/**

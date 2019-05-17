@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+      xml:lang="en"
+      lang="en">
+<body>
+<wicket:panel>
+    <div class="mainSection">
+        <div class="mainSectionHeading"><span wicket:id="heading">[Name Pronunciation]</span></div>
+
+        <div class="mainSectionContentForm">
+            <form wicket:id="form" id="namePronunciationForm" class="profileForm">
+                <div wicket:id="formFeedback">[formFeedback]</div>
+                <div wicket:id="editWarning" class="edit-other-warning">[You are editing {other person}'s profile]</div>
+                <p class="mainSectionContentDescription"><wicket:message key="text.name.pronunciation.description" /></p>
+                <table class="profileContent">
+                    <!-- phoneticPronunciation -->
+                    <tr wicket:id="phoneticContainer">
+                        <td class="label" wicket:id="phoneticLabel">[phoneticLabel]</td>
+                        <td class="content">
+                            <label for="phoneticinput" class="accessibility-label"><wicket:message key="accessibility.profile.phonetic.input">Phonetic Pronunciation</wicket:message></label>
+                            <input type="text" wicket:id="phoneticPronunciation" id="phoneticinput" class="formInputField" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label notBold"><wicket:message key="profile.phonetic.examples.label" /></td>
+                        <td class="content">
+                            <div>
+                                <span><wicket:message key="profile.phonetic.example.1.pronun" /></span>
+                                <span class="contentExample"><wicket:message key="profile.phonetic.example.1.pronun.name" /></span>
+                            </div>
+                            <div>
+                                <span><wicket:message key="profile.phonetic.example.2.pronun" /></span>
+                                <span class="contentExample"><wicket:message key="profile.phonetic.example.2.pronun.name" /></span>
+                            </div>
+                            <div wicket:id="pronunciationExamples">
+                                <a wicket:id="examplesLink" />
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- nameRecording -->
+                    <tr wicket:id="nameRecordingContainer">
+                        <td class="label" wicket:id="nameRecordingLabel">[nameRecordingLabel]</td>
+                        <td class="content">
+                            <button type="button" id="btn-start-recording" class="recordButton">
+                                <span><wicket:message key="button.record" /></span>
+                                <span class="recordIcon"></span>
+                            </button>
+                            <button type="button" id="btn-stop-recording" class="recordButton hidden">
+                                <span><wicket:message key="button.stop" /></span>
+                            </button>
+                            <div id="prev-audio-player"><audio wicket:id="audioPlayer" controls playsinline></audio></div>
+                            <div id="audio-player" class="audioPlayer hidden"><audio controls autoplay playsinline></audio></div>
+                            <input wicket:id="audioBase64" type="hidden" id="audioBase64" aria-hidden="true" />
+                        </td>
+                    </tr>
+                </table>
+                <span wicket:id="namePronunciationDuration" id="namePronunciationDuration" class="hidden" />
+
+                <div class="profileFormButtons">
+                    <button type="submit" id="formSubmit" wicket:id="submit"><wicket:message key="button.save.changes" /></button>
+                    <button type="button" wicket:id="cancel"><wicket:message key="button.cancel" /></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        var audio = $('#audio-player audio')[0];
+        function captureMicrophone(callback) {
+            $btnReleaseMicrophone.prop('disabled', false);
+            if(microphone) {
+                callback(microphone);
+                return;
+            }
+            if(typeof navigator.mediaDevices === 'undefined' || !navigator.mediaDevices.getUserMedia) {
+                alert('This browser does not supports WebRTC getUserMedia API.');
+                if(!!navigator.getUserMedia) {
+                    alert('This browser seems supporting deprecated getUserMedia API.');
+                }
+            }
+            navigator.mediaDevices.getUserMedia({
+                audio: isEdge ? true : {
+                    echoCancellation: false
+                }
+            }).then(function(mic) {
+                callback(mic);
+            }).catch(function(error) {
+                alert('Unable to capture your microphone. Please check console logs.');
+                console.error(error);
+            });
+        }
+        function replaceAudio(src) {
+            var newAudio = document.createElement('audio');
+            newAudio.controls = true;
+            newAudio.autoplay = true;
+            if(src) {
+                newAudio.src = src;
+            }
+            
+            var parentNode = audio.parentNode;
+            parentNode.innerHTML = '';
+            parentNode.appendChild(newAudio);
+            audio = newAudio;
+        }
+        function stopRecordingCallback() {
+            replaceAudio(URL.createObjectURL(recorder.getBlob()));
+            $btnStartRecording.prop('disabled', false);
+            $btnStartRecording.removeClass('hidden');
+            setTimeout(function() {
+                if(!audio.paused) return;
+                setTimeout(function() {
+                    if(!audio.paused) return;
+                    audio.play();
+                }, 1000);
+                
+                audio.play();
+            }, 300);
+            audio.play();
+            $btnStopRecording.addClass('hidden');
+            $btnStopRecording.prop('disabled', false);
+            if(isSafari) {
+                $btnReleaseMicrophone.click();
+            }
+
+            var fileObject = new File([recorder.getBlob()], "audio.ogg", {type: 'audio/ogg'});
+            getBase64(fileObject).then(
+                data => document.getElementById('audioBase64').value = data
+            );
+        }
+        var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
+        var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        var recorder;
+        var microphone;
+        var $btnStartRecording = $('#btn-start-recording');
+        var $btnStopRecording = $('#btn-stop-recording');
+        var $btnReleaseMicrophone = $('#btn-release-microphone');
+        var $prevAudioPlayer = $('#prev-audio-player');
+        var $audioPlayer = $('#audio-player');
+        var timeoutPlayer;
+        $btnStartRecording.click(function(e) {
+            e.preventDefault();
+            $btnStartRecording.addClass('hidden');
+            $btnStartRecording.prop('disabled', true);
+            this.style.border = '';
+            this.style.fontSize = '';
+            if (!microphone) {
+                captureMicrophone(function(mic) {
+                    microphone = mic;
+                    if(isSafari) {
+                        replaceAudio();
+                        audio.muted = true;
+                        audio.srcObject = microphone;
+                        $btnStartRecording.prop('disabled', false);
+                        $btnStartRecording.removeClass('hidden');
+                        $btnStartRecording.css('border', '1px solid red');
+                        $btnStartRecording.css('fontSize', '150%');
+                        alert('Please click startRecording button again. First time we tried to access your microphone. Now we will record it.');
+                        return;
+                    }
+                    $btnStartRecording.click();
+                });
+                return;
+            }
+            replaceAudio();
+            audio.muted = true;
+            audio.srcObject = microphone;
+            var options = {
+                type: 'audio',
+                numberOfAudioChannels: isEdge ? 1 : 2,
+                checkForInactiveTracks: true,
+                bufferSize: 16384
+            };
+            if(isSafari || isEdge) {
+                options.recorderType = StereoAudioRecorder;
+            }
+            if(navigator.platform && navigator.platform.toString().toLowerCase().indexOf('win') === -1) {
+                options.sampleRate = 48000; // or 44100 or remove this line for default
+            }
+            if(isSafari) {
+                options.sampleRate = 44100;
+                options.bufferSize = 4096;
+                options.numberOfAudioChannels = 2;
+            }
+            if(recorder) {
+                recorder.destroy();
+                recorder = null;
+            }
+            recorder = RecordRTC(microphone, options);
+            recorder.startRecording();
+            $btnStopRecording.prop('disabled', false);
+            $btnStopRecording.removeClass('hidden');
+            $prevAudioPlayer.remove();
+            $audioPlayer.removeClass('hidden');
+
+            var namePronunciationDuration = parseInt($('#namePronunciationDuration').text() + "000");
+            timeoutPlayer = setTimeout(function() {
+                $btnStopRecording.click();
+            }, namePronunciationDuration);
+        });
+        $btnStopRecording.click(function(e) {
+            e.preventDefault();
+            this.disabled = true;
+            recorder.stopRecording(stopRecordingCallback);
+            clearTimeout(timeoutPlayer);
+        });
+        $btnReleaseMicrophone.click(function(e) {
+            e.preventDefault();
+            this.disabled = true;
+            $btnStartRecording.prop('disabled', false);
+            if(microphone) {
+                microphone.stop();
+                microphone = null;
+            }
+        });
+        function getRandomString() {
+            if (window.crypto && window.crypto.getRandomValues && navigator.userAgent.indexOf('Safari') === -1) {
+                var a = window.crypto.getRandomValues(new Uint32Array(3)),
+                    token = '';
+                for (var i = 0, l = a.length; i < l; i++) {
+                    token += a[i].toString(36);
+                }
+                return token;
+            } else {
+                return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+            }
+        }
+        function getFileName(fileExtension) {
+            var d = new Date();
+            var year = d.getFullYear();
+            var month = d.getMonth();
+            var date = d.getDate();
+            return 'RecordRTC-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
+        }
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+    </script>
+</wicket:panel>
+</body>
+</html>

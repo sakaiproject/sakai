@@ -22,4 +22,5 @@ public class MyProfilePanelState {
 	public boolean showBusinessDisplay = true;
 	public boolean showStaffDisplay = true;
 	public boolean showInterestsDisplay = true;
+	public boolean showNamePronunciationDisplay = true;
 }

@@ -225,6 +225,16 @@
 			<artifactId>awesomplete</artifactId>
 			<version>1.1.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>recordrtc</artifactId>
+			<version>5.5.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>webrtc-adapter</artifactId>
+			<version>7.2.1</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
