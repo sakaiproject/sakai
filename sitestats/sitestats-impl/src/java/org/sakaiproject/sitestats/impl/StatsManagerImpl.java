@@ -39,7 +39,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.digester.Digester;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
@@ -601,7 +601,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		Reference r = entityManager.newReference(ref);
 		if(r != null) {
-			return StringEscapeUtils.escapeHtml3(r.getUrl());
+			return StringEscapeUtils.escapeHtml4(r.getUrl());
 		}else{
 			return null;
 		}

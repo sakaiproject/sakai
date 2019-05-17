@@ -21,7 +21,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.tsugi.basiclti.Base64;
 import org.tsugi.basiclti.XMLMap;
 import org.w3c.dom.Document;
@@ -387,9 +387,9 @@ public class IMSPOXRequest {
 		String messageId = ""+dt.getTime();
 
 		return String.format(fatalMessage, 
-				StringEscapeUtils.escapeXml(messageId), 
-				StringEscapeUtils.escapeXml(description),
-				StringEscapeUtils.escapeXml(message_id)); 
+				StringEscapeUtils.escapeXml11(messageId), 
+				StringEscapeUtils.escapeXml11(description),
+				StringEscapeUtils.escapeXml11(message_id)); 
 	}
 
 	static final String responseMessage = 
@@ -462,7 +462,7 @@ public class IMSPOXRequest {
 				sb.append("          <imsx_codeMinorField>\n            <imsx_codeMinorFieldName>");
 				sb.append(key);
 				sb.append("</imsx_codeMinorFieldName>\n            <imsx_codeMinorFieldValue>");
-				sb.append(StringEscapeUtils.escapeXml(value));
+				sb.append(StringEscapeUtils.escapeXml11(value));
 				sb.append("</imsx_codeMinorFieldValue>\n          </imsx_codeMinorField>\n");
 			}
 			if ( sb.length() > 0 ) sb.append("        </imsx_codeMinor>");
@@ -493,13 +493,13 @@ public class IMSPOXRequest {
 		String newLine = "";
 		if ( bodyString.length() > 0 ) newLine = "\n";
 		return String.format(responseMessage, 
-				StringEscapeUtils.escapeXml(messageId), 
-				StringEscapeUtils.escapeXml(major), 
-				StringEscapeUtils.escapeXml(severity), 
-				StringEscapeUtils.escapeXml(description), 
-				StringEscapeUtils.escapeXml(getHeaderMessageIdentifier()), 
-				StringEscapeUtils.escapeXml(operation), 
-				StringEscapeUtils.escapeXml(minorString), 
+				StringEscapeUtils.escapeXml11(messageId), 
+				StringEscapeUtils.escapeXml11(major), 
+				StringEscapeUtils.escapeXml11(severity), 
+				StringEscapeUtils.escapeXml11(description), 
+				StringEscapeUtils.escapeXml11(getHeaderMessageIdentifier()), 
+				StringEscapeUtils.escapeXml11(operation), 
+				StringEscapeUtils.escapeXml11(minorString), 
 				bodyString, newLine); 
 
 	}
