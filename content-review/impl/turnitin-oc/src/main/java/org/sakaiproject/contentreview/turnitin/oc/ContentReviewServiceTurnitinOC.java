@@ -16,9 +16,11 @@
 package org.sakaiproject.contentreview.turnitin.oc;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -632,11 +634,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Convert data to string:
 			connection.setDoOutput(true);
 			wr = new DataOutputStream(connection.getOutputStream());
+			BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
 			ObjectMapper objectMapper = new ObjectMapper();
 			String dataStr = objectMapper.writeValueAsString(data);
-			wr.writeBytes(dataStr);
-			wr.flush();
-			wr.close();
+			br.write(dataStr);
+			br.flush();
+			br.close();
 		} else if (dataBytes != null) {
 			connection.setDoOutput(true);
 			wr = new DataOutputStream(connection.getOutputStream());
