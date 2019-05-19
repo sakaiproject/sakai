@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.portal.entityprovider;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -296,12 +295,8 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 		StringWriter writer = new StringWriter();
 
-		try {
-			formattedProfileTemplate.merge(context, writer);
-			return new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, writer.toString());
-		} catch (IOException ioe) {
-			throw new EntityException("Failed to format profile.", ref.getReference());
-		}
+		formattedProfileTemplate.merge(context, writer);
+		return new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, writer.toString());
 	}
 
 	@EntityCustomAction(action="connectionsearch",viewKey=EntityView.VIEW_LIST)
