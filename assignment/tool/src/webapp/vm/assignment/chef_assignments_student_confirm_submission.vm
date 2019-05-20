@@ -1,11 +1,26 @@
-<!-- start: chef_assignments_student_preview_submission.vm -->
+<!-- start: chef_assignments_student_confirm_submission.vm -->
+###header_append("<script type=${quote}text/javascript${quote}>includeWebjarLibrary(${quote}bootstrap${quote});</script>")
+
+<script>
+	$(document).ready(function(){
+		$(".submissionConfirmCheck").click(function () {
+			if($('.submissionConfirmCheck:checked').length == $('.submissionConfirmCheck').length)
+				$('#post').prop("disabled", false);
+			else
+				$('#post').prop("disabled", true);
+		});
+	});
+</script>
+
 <div class="portletBody">
     <h3>
-        $tlang.getString("gen.assig")<span class="highlight"> - $tlang.getString("gen.pre")</span>
+		$tlang.getString("subm.conf")
     </h3>
-
+	
     #progressBar($!service.getProgressBarStatus($!submission))
 
+	<div class="alertMessage">  <strong>$tlang.getString("gen.alert")</strong> $!submissionConfirmAlert</div>
+	
     #set($allowUpdateAssignment = $!service.allowUpdateAssignment($assignmentReference))
     #if ($alertMessage)
         <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
@@ -111,6 +126,22 @@
 
     #attachmentFragment($submissionAttachmentReferences.keySet() $submissionAttachmentReferences $!decoratedUrlMap true)
 
+	<h4>
+		$tlang.getString("subm.notif")
+	</h4>
+	<p>$!studentConfirmMessage</p>
+
+	#foreach ($item in $!submissionConfirmOptions)
+		<ul id="submissionConfirmList">
+		#if($!submissionConfirmOptionsRequired)
+			<input type="checkbox" name="submissionConfirmCheck" class="submissionConfirmCheck" aria-label="submissionConfirmCheck" />
+			<label for="submissionConfirmCheck">$item</label>
+		#else
+			<li>$item</li>
+		#end
+		</ul>
+	#end
+	
     <p></p>
     <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 	    #if ($plagiarismNote)
@@ -145,35 +176,32 @@
 					$tlang.getString("review.eula.agreement")&nbsp;<a href="$plagiarismEULALink" target="_blank">$tlang.getString("review.eula")</a>
 				</label>
 			</p>
-			<input type="hidden" name="$name_check_plagiarism_eula_agreement" id="$name_check_plagiarism_eula_agreement" value="true" checked="checked"/>
+			<input type="hidden" name="$name_check_plagiarism_eula_agreement" aria-label="$name_check_plagiarism_eula_agreement" id="$name_check_plagiarism_eula_agreement" value="true" checked="checked"/>
 		#end
 
-        <input type="hidden" name="assignmentId" value="$!assignmentReference"/>
-        <input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x"/>
-        <input type="hidden" name="option" id="option" value="cancel"/>
+        <input type="hidden" name="assignmentId" aria-label="assignmentId" value="$!assignmentReference"/>
+        <input type="hidden" name="eventSubmit_doRead_add_submission_form" aria-label="eventSubmit_doRead_add_submission_form" value="x"/>
+        <input type="hidden" name="option" aria-label="option" id="option" value="cancel"/>
         ## submission information
         <div class="act">
             #if (!$!canSubmit)
-                <input name="eventSubmit_doSave_submission" type="submit" value="$tlang.getString("gen.sav")" disabled="disabled"/>
-                <input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled"/>
-                <input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled"/>
+                <input name="eventSubmit_doPost_submission" aria-label="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled"/>
+                <input name="eventSubmit_doCancel_show_submission" aria-label="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled"/>
             #else
                 #if ($!submission.Submitted && $!submission.DateSubmitted)
                     #set($name=$tlang.getString("resubmit"))
                 #else
                     #set($name=$tlang.getString("gen.subm3"))
                 #end
-                <input type="button" class="active" name="confirm" accesskey="s" id="confirm" value="$!name" aria-label="$!name"
-                       onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'confirm', null, null ); return false;"/>
-                <input class="disableme" type="button" accesskey="d" name="save" id="save"
-                       value="$tlang.getString("gen.savdra")"
-                       onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;"/>
-                <input class="disableme" type="button" name="revise" accesskey="r" id="revise"
+                <input type="button" class="active" name="post" accesskey="s" id="post" value="$!name" aria-label="post"
+                       onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null ); return false;" 
+					    #if ($!submissionConfirmOptionsRequired) disabled="disabled" #end />
+                <input class="disableme" type="button" name="revise" accesskey="r" id="revise" aria-label="revise"
                        value="$tlang.getString("gen.revi")"
                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'revise', null, null ); return false;"/>
             #end
         </div>
-        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token"/>
+        <input type="hidden" name="sakai_csrf_token" aria-label="sakai_csrf_token" value="$sakai_csrf_token"/>
     </form>
 </div>
-<!-- end: chef_assignments_student_preview_submission.vm -->
+<!-- end: chef_assignments_student_confirm_submission.vm -->

@@ -216,7 +216,7 @@
 		</div>
 
 		## Assignment attachments
-		#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap)
+		#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap false)
 
 		#if ($taggable)
    	    	#parse ("/vm/assignment/chef_assignments_tags_list.vm")

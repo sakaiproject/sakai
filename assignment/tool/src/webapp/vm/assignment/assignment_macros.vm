@@ -316,8 +316,10 @@
 #end
 
 ## macro for rendering attachment ui
-#macro( attachmentFragment $attachmentsSet $attachmentReferencesMap $decoratedUrlMap )
-    <h4>$tlang.getString("gen.addres2")</h4>
+#macro( attachmentFragment $attachmentsSet $attachmentReferencesMap $decoratedUrlMap $forSubmission )
+    #if (!$forSubmission)
+        <h4>$tlang.getString("gen.addres2")</h4>
+    #end
     #if ($attachmentsSet)
         #set ($size = $attachmentsSet.size())
         #if ($size < 1)
@@ -329,6 +331,15 @@
                 #end
             </p>
         #else
+            #if ($forSubmission)
+                <h4>
+                    #if ($submissionType == 5)
+        				$tlang.getString("gen.att.single")
+			        #else
+                        $tlang.getString("gen.att")
+                    #end
+                </h4>
+            #end
             <ul class="attachList">
                 #foreach ($attachmentReference in $attachmentsSet)
                     #set ($reference = $attachmentReferencesMap.get($attachmentReference))
@@ -356,4 +367,21 @@
         #end
     #end
 #end
-<!-- end:  assignment_macros.vm -->
+
+## macro for rendering student's progress bar
+#macro( progressBar $progressStatus)
+	#if (!$!progressStatus.isEmpty())
+		#set($dynWidth = 100.0 / $!progressStatus.size())
+		#set($statusSet = $!progressStatus.keySet())
+		<div class="progress">
+			#foreach ($status in $!statusSet.iterator())
+				#if($!progressStatus.get($status))
+					<div class="progress-bar" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
+				#else
+					<div class="progress-bar progress-bar-empty" role="progressbar" style="width: $dynWidth%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="$dynWidth">$status</div>
+				#end
+			#end
+		</div>
+	#end
+#end
+<!-- end: assignment_macros.vm -->
