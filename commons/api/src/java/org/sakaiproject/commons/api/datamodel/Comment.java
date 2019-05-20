@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.TimeZone;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.commons.api.CommonsManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -104,7 +104,7 @@ public class Comment implements Entity {
             modifiedDate = Instant.now().toEpochMilli();
         }
 
-        this.content = StringEscapeUtils.unescapeHtml3(text.trim());
+        this.content = StringEscapeUtils.unescapeHtml4(text.trim());
     }
 
     public void setCreatedDate(long createdDate) {

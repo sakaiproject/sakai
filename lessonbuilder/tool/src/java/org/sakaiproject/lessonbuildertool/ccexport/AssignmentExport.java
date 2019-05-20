@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -299,11 +299,11 @@ public class AssignmentExport {
 		// assumption here is that if the user entered a URL, it's in valid syntax
 		// if we generate it from file location, it needs to be escaped
 		if (URL != null) {
-		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml3(URL) + "</a>\n");
+		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml4(URL) + "</a>\n");
 		} else {
 		    URL = prefix + Validator.escapeUrl(location);  // else it's in the normal site content
 		    URL = URL.replaceAll("//", "/");
-		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml3(lastAtom) + "</a><br/>\n");
+		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml4(lastAtom) + "</a><br/>\n");
 		    bean.addDependency(resource, sakaiId);
 		}
 	    }
@@ -353,11 +353,11 @@ public class AssignmentExport {
 
 	if (title == null || title.length() == 0)
 	    title = "Assignment";
-	out.println("  <title>" + StringEscapeUtils.escapeXml(title) + "</title>");
+	out.println("  <title>" + StringEscapeUtils.escapeXml11(title) + "</title>");
 	if (useAttachments || attachments.size() == 0)
 	    out.println("  <text texttype=\"text/html\">" + instructions + "</text>");
 	else
-	    out.println("  <text texttype=\"text/html\">" + StringEscapeUtils.escapeXml("<div>") + instructions + StringEscapeUtils.escapeXml(outputAttachments(resource, attachments, bean, "$IMS-CC-FILEBASE$../") + "</div>") + "</text>");
+	    out.println("  <text texttype=\"text/html\">" + StringEscapeUtils.escapeXml11("<div>") + instructions + StringEscapeUtils.escapeXml11(outputAttachments(resource, attachments, bean, "$IMS-CC-FILEBASE$../") + "</div>") + "</text>");
 	
 	// spec requires an instructor text even though we don't normally have one.
 	out.println("<instructor_text texttype=\"text/plain\"></instructor_text>");
@@ -386,11 +386,11 @@ public class AssignmentExport {
 		String lastAtom = sakaiId.substring(lastSlash + 1);
 
 		if (URL != null) {
-		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
+		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml11(URL) + "\" role=\"All\" />");
 		} else {
 		    URL = "../" + location;  // else it's in the normal site content
 		    URL = URL.replaceAll("//", "/");
-		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
+		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml11(URL) + "\" role=\"All\" />");
 		    bean.addDependency(resource, sakaiId);
 		}
 	    }

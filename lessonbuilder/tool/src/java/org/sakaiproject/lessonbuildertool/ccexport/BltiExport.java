@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -155,7 +155,7 @@ public class BltiExport {
 	    out.println("      xsi:schemaLocation = \"http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0p1.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd  http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd\">");
 	}
 	
-	out.println("      <blti:title>" + StringEscapeUtils.escapeXml(title) + "</blti:title>");
+	out.println("      <blti:title>" + StringEscapeUtils.escapeXml11(title) + "</blti:title>");
 
 	if (custom.size() > 0) {
 	    out.println("      <blti:custom>");
@@ -165,15 +165,15 @@ public class BltiExport {
 		if (k >= 0) {
 		    String key = attr.substring(0, k).trim();
 		    String value = attr.substring(k + 1).trim();
-		    out.println("        <lticm:property name=\"" + StringEscapeUtils.escapeXml(key) + "\">" + StringEscapeUtils.escapeXml(value) + "</lticm:property>");
+		    out.println("        <lticm:property name=\"" + StringEscapeUtils.escapeXml11(key) + "\">" + StringEscapeUtils.escapeXml11(value) + "</lticm:property>");
 		}
 	    }
 	    out.println("      </blti:custom>");
 	}
-	out.println("      <blti:launch_url>" + StringEscapeUtils.escapeXml(launch_url) + "</blti:launch_url>");
+	out.println("      <blti:launch_url>" + StringEscapeUtils.escapeXml11(launch_url) + "</blti:launch_url>");
 	out.println("      <blti:vendor>");
-	out.println("        <lticp:code>" + StringEscapeUtils.escapeXml(ServerConfigurationService.getServerName()) + "</lticp:code>");
-	out.println("        <lticp:name>" + StringEscapeUtils.escapeXml(ServerConfigurationService.getString("ui.institution", "Sakai")) + "</lticp:name>");
+	out.println("        <lticp:code>" + StringEscapeUtils.escapeXml11(ServerConfigurationService.getServerName()) + "</lticp:code>");
+	out.println("        <lticp:name>" + StringEscapeUtils.escapeXml11(ServerConfigurationService.getString("ui.institution", "Sakai")) + "</lticp:name>");
 	out.println("      </blti:vendor>");
 	out.println("</cartridge_basiclti_link>");
 	return true;
