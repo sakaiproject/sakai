@@ -634,7 +634,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Convert data to string:
 			connection.setDoOutput(true);
 			wr = new DataOutputStream(connection.getOutputStream());
-			BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
+			BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
 			ObjectMapper objectMapper = new ObjectMapper();
 			String dataStr = objectMapper.writeValueAsString(data);
 			br.write(dataStr);
