@@ -20,11 +20,16 @@ package org.sakaiproject.sitestats.api.event;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class EventInfo implements Serializable, Cloneable {
 	private static final long	serialVersionUID	= 1L;
-	private String				eventId;
-	private boolean				selected;
-	private boolean				anonymous;
+
+	@Getter @Setter private String	eventId;
+	@Getter @Setter private boolean	selected;
+	@Getter @Setter private boolean	anonymous;
+	@Getter @Setter private boolean	resolvable = false;
 
 	public EventInfo(String eventId) {
 		this.eventId = eventId.trim();
@@ -34,6 +39,7 @@ public class EventInfo implements Serializable, Cloneable {
 		eventId = info.eventId;
 		selected = info.selected;
 		anonymous = info.anonymous;
+		resolvable = info.resolvable;
 	}
 
 	@Override
@@ -41,49 +47,23 @@ public class EventInfo implements Serializable, Cloneable {
 		return new EventInfo(this);
 	}
 
-	public String getEventId() {
-		return eventId;
-	}
-
-	public void setEventId(String eventId) {
-		this.eventId = eventId.trim();
-	}
-
-	public boolean isSelected() {
-		return selected;
-	}
-
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}	
-
-	public boolean isAnonymous() {
-		return anonymous;
-	}
-
-	public void setAnonymous(boolean anonymous) {
-		this.anonymous = anonymous;
-	}
-	
 	@Override
 	public boolean equals(Object arg0) {
-		if(arg0 == null || !(arg0 instanceof EventInfo))
+		if(arg0 == null || !(arg0 instanceof EventInfo)) {
 			return false;
-		else {
+		} else {
 			EventInfo other = (EventInfo) arg0;
 			return getEventId().equals(other.getEventId());
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return getEventId().hashCode();
 	}
 
 	public String toString() {
-		StringBuffer buff = new StringBuffer();
-		buff.append("	-> EventInfo: "+getEventId()+" ["+isSelected()+"]\n");
-		return buff.toString();
+		String template = "	-> EventInfo: %s [s:%b] [r:%b] [a:%b]\n";
+		return String.format(template, eventId, selected, resolvable, anonymous);
 	}
-	
 }

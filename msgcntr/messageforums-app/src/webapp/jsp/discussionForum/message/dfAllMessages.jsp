@@ -210,10 +210,8 @@
 					  <h:outputText value="#{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
 					  --%>
 					  <h:outputText value=" "  styleClass="actionLinks"/>
-					
 
-
-					<h:outputText   value="#{ForumTool.selectedTopic.topic.shortDescription}" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}"  styleClass="shortDescription" />
+					<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" rendered="#{!empty ForumTool.selectedTopic.topic.shortDescription}" styleClass="shortDescription" />
 					
 					<h:panelGroup rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}">
 						<p id="openLinkBlock" class="toggleParent openLinkBlock">
@@ -459,8 +457,6 @@
 		 </h:commandLink>
 	 </h:panelGroup>
 </h:panelGrid>
-
-
 		
 <input type="hidden" id="selectedTopicid" name="selectedTopicid" class="selectedTopicid" value="0" />
 <input type="hidden" id="moveReminder" name="moveReminder" class="moveReminder" value="false" />

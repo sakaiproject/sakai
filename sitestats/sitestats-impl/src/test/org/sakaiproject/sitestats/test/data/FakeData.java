@@ -75,7 +75,7 @@ public class FakeData {
 	static{
 		ToolInfo chat = new ToolInfo("sakai.chat");
 		chat.addEvent(new EventInfo(EVENT_CHATNEW));
-		chat.setEventParserTip(new EventParserTip("contextId", "/", "3"));
+		chat.addEventParserTip(new EventParserTip("contextId", "/", "3"));
 		EVENTID_TOOL_MAP.put(EVENT_CHATNEW, chat);
 		EVENT_REGISTRY.add(chat);
 		EVENT_REGISTRY_CHAT.add(chat);
@@ -85,7 +85,7 @@ public class FakeData {
 		resources.addEvent(new EventInfo(EVENT_CONTENTREAD));
 		resources.addEvent(new EventInfo(EVENT_CONTENTREV));
 		resources.addEvent(new EventInfo(EVENT_CONTENTDEL));
-		resources.setEventParserTip(new EventParserTip("contextId", "/", "3"));
+		resources.addEventParserTip(new EventParserTip("contextId", "/", "3"));
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTNEW, resources);
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTREAD, resources);
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTREV, resources);

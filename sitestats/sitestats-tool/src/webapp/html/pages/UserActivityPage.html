@@ -1,0 +1,82 @@
+<!--
+/**
+ * Copyright (c) 2006-2018 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+	<head><title></title></head>
+	<body>
+		<wicket:extend xmlns:wicket="http://wicket.apache.org">
+			<div class="portletBody">
+				<!-- Menu -->
+				<menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+
+				<div class="content">
+					<div class="page-header">
+						<!-- Page title -->
+						<h2>
+							<wicket:message key="menu_useractivity">User Activity</wicket:message>
+						</h2>
+						<!-- Last Job run -->
+						<span wicket:id="lastJobRunContainer"><span wicket:id="lastJobRun"></span></span>
+					</div>
+
+					<!-- FORM -->
+					<form wicket:id="form" class="userTrackingForm">
+						<p class="userTrackingInfoBlurb"><wicket:message key="de_introBlurb">Choose a user to view their events for the selected date range</wicket:message></p>
+						<div class="userTrackingInputContainer">
+							<div id="userEventFilters">
+								<div class="userEventFilter">
+									<label wicket:id="userFilterLabel"></label>
+									<select wicket:id="userFilter"></select>
+								</div>
+
+								<div class="userEventFilter">
+									<label wicket:id="eventFilterLabel"></label>
+									<select wicket:id="eventFilter"></select>
+								</div>
+							</div>
+
+							<fieldset id="dateRange" class="form-inline">
+								<legend wicket:id="dateRangeLegend"></legend>
+								<div class="dateRange">
+									<div class="dateFieldContainer">
+										<label wicket:id="startDateLabel" class="skip"></label>
+										<input id="startDate" wicket:id="startDate" type="text" class="userTrackingDateFields form-control" />
+									</div>
+									<div class="dateFieldContainer">
+										<label wicket:id="endDateLabel" class="toLabel"></label>
+										<input id="endDate" wicket:id="endDate" type="text" class="userTrackingDateFields form-control" />
+									</div>
+								</div>
+							</fieldset>
+						</div>
+						<!-- BUTTONS -->
+						<p class="act">
+							<button type="submit" wicket:id="search" class="active">
+								<wicket:message key="de_search">Search</wicket:message>
+							</button>
+						</p>
+					</form>
+
+					<!-- Results table -->
+					<div wicket:id="results" />
+				</div>
+			</div>
+		</wicket:extend>
+	</body>
+</html>

@@ -34,8 +34,12 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.digester.Digester;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
@@ -73,6 +77,7 @@ import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
+import org.sakaiproject.sitestats.api.UserId;
 import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
@@ -90,8 +95,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author Nuno Fernandes
  *
@@ -100,243 +103,47 @@ import lombok.extern.slf4j.Slf4j;
 public class StatsManagerImpl extends HibernateDaoSupport implements StatsManager, Observer {
 
 	/** Spring bean members */
-	private Boolean						enableSiteVisits						= null;
-	private Boolean						enableSiteActivity						= null;
-	private Boolean						enableResourceStats						= null;
-	private Boolean						enableLessonsStats						= null;
-	private Boolean						enableSitePresences						= null;
-	private Boolean						visitsInfoAvailable						= null;
-	private boolean						enableServerWideStats					= true;
-	private boolean						countFilesUsingCHS						= true;
-	private boolean						countPagesUsingLBS						= true;
-	private String						chartBackgroundColor					= "white";
-	private boolean						chartIn3D								= true;
-	private float						chartTransparency						= 0.80f;
-	private boolean						itemLabelsVisible						= false;
-	private boolean						lastJobRunDateVisible					= true;
-	private boolean						isEventContextSupported					= false;
-	private boolean						enableReportExport						= true;
-	private boolean						sortUsersByDisplayName					= false;
+	@Getter @Setter private Boolean	enableSiteVisits		= null;
+	@Getter @Setter private boolean	enableSiteActivity		= true;
+	@Getter @Setter private boolean	enableResourceStats		= true;
+	@Getter @Setter private boolean	enableLessonsStats		= true;
+	@Getter @Setter private Boolean	enableSitePresences		= null;
+	@Getter @Setter private Boolean	visitsInfoAvailable		= null;
+	@Getter @Setter private boolean	serverWideStatsEnabled	= true;
+	@Setter private boolean			countFilesUsingCHS		= true;
+	@Setter private boolean			countPagesUsingLBS		= true;
+	@Getter @Setter private String	chartBackgroundColor	= "white";
+	@Getter @Setter private boolean	chartIn3D				= true;
+	@Getter @Setter private float	chartTransparency		= 0.80f;
+	@Getter @Setter private boolean	itemLabelsVisible		= false;
+	@Getter @Setter private boolean	lastJobRunDateVisible	= true;
+	private boolean					isEventContextSupported	= false;
+	@Getter @Setter private boolean	enableReportExport		= true;
+	@Getter @Setter private boolean	sortUsersByDisplayName	= false;
+	@Getter @Setter private boolean	displayDetailedEvents	= false;
 
 	/** Controller fields */
-	private boolean						showAnonymousAccessEvents				= true;
+	@Getter @Setter private boolean	showAnonymousAccessEvents = true;
 
-	private static ResourceLoader		msgs									= new ResourceLoader("Messages");
-	
+	@Setter private static ResourceLoader resourceLoader = new ResourceLoader("Messages");
+
 	/** Sakai services */
-	private EventRegistryService		M_ers;
-	private UserDirectoryService		M_uds;
-	private SiteService					M_ss;
-	private ServerConfigurationService	M_scs;
-	private ToolManager					M_tm;
-	private SimplePageToolDao			lessonBuilderService;
-	private MemoryService				M_ms;
-	private SessionManager				M_sm;
-	private EventTrackingService		M_ets;
-	private EntityManager				M_em;
-	private ContentHostingService		M_chs;
-	private ContentTypeImageService		M_ctis;
+	@Setter private EventRegistryService		eventRegistryService;
+	@Setter private UserDirectoryService		userService;
+	@Setter private SiteService					siteService;
+	@Setter private ServerConfigurationService	serverConfigurationService;
+	@Setter private ToolManager					toolManager;
+	@Setter private SimplePageToolDao			lessonBuilderService;
+	@Setter private MemoryService				memoryService;
+	@Setter private SessionManager				sessionManager;
+	@Setter private EventTrackingService		eventTrackingService;
+	@Setter private EntityManager				entityManager;
+	@Setter private ContentHostingService		contentHostingService;
+	@Setter private ContentTypeImageService		contentTypeImageService;
 	
 	/** Caching */
 	private Cache<String, PrefsData>						cachePrefsData							= null;
-	
-	
 
-	// ################################################################
-	// Spring bean methods
-	// ################################################################
-	public void setEnableSiteVisits(Boolean enableSiteVisits) {
-		this.enableSiteVisits = enableSiteVisits;
-	}
-	public void setEnableSiteVisits(boolean enableSiteVisits) {
-		this.enableSiteVisits = Boolean.valueOf(enableSiteVisits);
-	}
-	
-	public boolean isEnableSiteVisits() {
-		return enableSiteVisits;
-	}
-
-	public void setEnableSiteActivity(Boolean enableSiteActivity) {
-		this.enableSiteActivity = enableSiteActivity;
-	}
-	public void setEnableSiteActivity(boolean enableSiteActivity) {
-		this.enableSiteActivity = Boolean.valueOf(enableSiteActivity);
-	}
-
-	public void setServerWideStatsEnabled(boolean enableServerWideStats) {
-		this.enableServerWideStats = enableServerWideStats;
-	}
-
-	public boolean isServerWideStatsEnabled() {
-		return enableServerWideStats;
-	}
-	
-	public boolean isEnableSiteActivity() {
-		return enableSiteActivity;
-	}
-	
-	public void setVisitsInfoAvailable(Boolean available){
-		this.visitsInfoAvailable = available;
-	}
-	public boolean isVisitsInfoAvailable(){
-		return this.visitsInfoAvailable;
-	}
-
-	public void setEnableResourceStats(Boolean enableResourceStats) {
-		this.enableResourceStats = enableResourceStats;
-	}
-	public void setEnableResourceStats(boolean enableResourceStats) {
-		this.enableResourceStats = Boolean.valueOf(enableResourceStats);
-	}
-	public boolean isEnableResourceStats() {
-		return enableResourceStats;
-	}
-	
-	public void setEnableLessonsStats(Boolean enableLessonsStats) {
-		this.enableResourceStats = enableLessonsStats;
-	}
-	public void setEnableLessonsStats(boolean enableLessonsStats) {
-		this.enableLessonsStats = Boolean.valueOf(enableLessonsStats);
-	}
-	public boolean isEnableLessonsStats() {
-		return enableLessonsStats;
-	}
-
-	public void setEnableSitePresences(Boolean enableSitePresences) {
-		this.enableSitePresences = enableSitePresences;
-	}
-	public void setEnableSitePresences(boolean enableSitePresences) {
-		this.enableSitePresences = Boolean.valueOf(enableSitePresences);
-	}
-	public boolean isEnableSitePresences() {
-		return enableSitePresences;
-	}
-	
-	public void setCountFilesUsingCHS(boolean countFilesUsingCHS) {
-		this.countFilesUsingCHS = countFilesUsingCHS;
-	}
-	
-	public void setCountPagesUsingLBS(boolean countPagesUsingLBS) {
-		this.countPagesUsingLBS = countPagesUsingLBS;
-	}
-	
-	public void setChartBackgroundColor(String color) {
-		this.chartBackgroundColor = color;
-	}
-	
-	public String getChartBackgroundColor() {
-		return chartBackgroundColor;
-	}
-	
-	public void setChartIn3D(boolean value){
-		this.chartIn3D = value;
-	}
-	
-	public boolean isChartIn3D() {
-		return chartIn3D;
-	}
-	
-	public void setChartTransparency(float value){
-		this.chartTransparency = value;
-	}
-	
-	public float getChartTransparency() {
-		return chartTransparency;
-	}
-	
-	public void setItemLabelsVisible(boolean itemLabelsVisible) {
-		this.itemLabelsVisible = itemLabelsVisible;
-	}
-	
-	public boolean isItemLabelsVisible() {
-		return itemLabelsVisible;
-	}
-
-	public void setShowAnonymousAccessEvents(boolean value){
-		this.showAnonymousAccessEvents = value;
-	}
-
-	public boolean isShowAnonymousAccessEvents(){
-		return showAnonymousAccessEvents;
-	}
-	
-	public void setLastJobRunDateVisible(boolean value) {
-		this.lastJobRunDateVisible = value;
-	}
-	
-	public boolean isLastJobRunDateVisible(){
-		return lastJobRunDateVisible;
-	}
-	
-	public void setSortUsersByDisplayName(boolean sortUsersByDisplayName) {
-		this.sortUsersByDisplayName = sortUsersByDisplayName;
-	}
-	public boolean isSortUsersByDisplayName() {
-		return sortUsersByDisplayName;
-	}
-
-	public void setEventRegistryService(EventRegistryService eventRegistryService) {
-		this.M_ers = eventRegistryService;
-	}
-
-	public void setUserService(UserDirectoryService userService) {
-		this.M_uds = userService;
-	}
-
-	public void setSiteService(SiteService siteService) {
-		this.M_ss = siteService;
-	}
-	
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.M_scs = serverConfigurationService;
-	}
-	
-	public void setToolManager(ToolManager toolManager) {
-		this.M_tm = toolManager;
-	}
-
-	public void setLessonBuilderService(SimplePageToolDao lessonBuilderService) {
-		this.lessonBuilderService = lessonBuilderService;
-	}
-	
-	public void setMemoryService(MemoryService memoryService) {
-		this.M_ms = memoryService;
-	}
-	
-	public void setSessionManager(SessionManager sessionManager) {
-		this.M_sm = sessionManager;
-	}
-	
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.M_ets = eventTrackingService;
-	}
-	
-	public void setEntityManager(EntityManager entityManager) {
-		this.M_em = entityManager;
-	}
-	
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.M_chs = contentHostingService;
-	}
-	
-	public void setContentTypeImageService(ContentTypeImageService contentTypeImageService) {
-		this.M_ctis = contentTypeImageService;
-	}
-	
-	/** This one is needed for unit testing */
-	public void setResourceLoader(ResourceLoader msgs) {
-		this.msgs = msgs;
-	}
-	
-	public void setEnableReportExport(boolean enableReportExport) {
-		this.enableReportExport = enableReportExport;
-	}
-
-	public boolean isEnableReportExport() {
-		return enableReportExport;
-	}
-
-	
 	// ################################################################
 	// Spring init/destroy methods
 	// ################################################################	
@@ -348,41 +155,32 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		checkForEventContextSupport();
 		
 		// Initialize cacheReportDef and event observer for preferences invalidation across cluster
-		M_ets.addPriorityObserver(this);
-		cachePrefsData = M_ms.getCache(PrefsData.class.getName());
+		eventTrackingService.addPriorityObserver(this);
+		cachePrefsData = memoryService.getCache(PrefsData.class.getName());
 		
 		logger.info("init(): - (Event.getContext()?, site visits enabled, charts background color, charts in 3D, charts transparency, item labels visible on bar charts) : " +
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
 
 		// To avoid a circular dependency in spring we set the StatsManager in the EventRegistryService here
-		M_ers.setStatsManager(this);
+		eventRegistryService.setStatsManager(this);
 	}
 	
 	public void checkAndSetDefaultPropertiesIfNotSet() {
 		if(enableSiteVisits == null) {
-			enableSiteVisits = M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
+			enableSiteVisits = serverConfigurationService.getBoolean("display.users.present", false) || serverConfigurationService.getBoolean("presence.events.log", false);
 		}
 		if(visitsInfoAvailable == null) {
 			visitsInfoAvailable	= enableSiteVisits;
 		}
-		if(enableSiteActivity == null) {
-			enableSiteActivity = true;
-		}
-		if(enableResourceStats == null) {
-			enableResourceStats = true;
-		}
-		if(enableLessonsStats == null) {
-			enableLessonsStats = true;
-		}
 		if(enableSitePresences == null) {
 			// turn off, by default
-			enableSitePresences = false;// M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
+			enableSitePresences = false;// serverConfigurationService.getBoolean("display.users.present", false) || serverConfigurationService.getBoolean("presence.events.log", false);
 		}else if(enableSitePresences.booleanValue()){
 			// if turned on, make sure "display.users.present" is true
 			// this feature doesn't work properly with "presence.events.log"
-			if(M_scs.getBoolean("display.users.present", false)) {
-				enableSitePresences = M_scs.getBoolean("display.users.present", false);
-			}else if(M_scs.getBoolean("presence.events.log", false)) {
+			if(serverConfigurationService.getBoolean("display.users.present", false)) {
+				enableSitePresences = serverConfigurationService.getBoolean("display.users.present", false);
+			}else if(serverConfigurationService.getBoolean("presence.events.log", false)) {
 				enableSitePresences = false;
 				log.warn("Disabled SiteStats presence tracking: doesn't work properly with 'presence.events.log' => only plays nicely with 'display.users.present'");
 			}
@@ -390,7 +188,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 
 	public void destroy(){
-		M_ets.deleteObserver(this);
+		eventTrackingService.deleteObserver(this);
 	}
 
 	/** EventTrackingService observer for cache invalidation. */
@@ -446,25 +244,25 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					prefsdata.setChartIn3D(isChartIn3D());
 					prefsdata.setChartTransparency(getChartTransparency());
 					prefsdata.setItemLabelsVisible(isItemLabelsVisible());
-					prefsdata.setToolEventsDef(M_ers.getEventRegistry());
+					prefsdata.setToolEventsDef(eventRegistryService.getEventRegistry());
 				}else{
 					try{
 						// parse from stored preferences
 						prefsdata = parseSitePrefs(new ByteArrayInputStream(prefs.getPrefs().getBytes()));
 						// preferences doesn't store additionalToolIds, add them back
-						EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), M_ers.getEventRegistry());
+						EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry());
 					}catch(Exception e){
 						// something failed, use default
 						log.warn("Exception in parseSitePrefs() ",e);
 						prefsdata = new PrefsData();
-						prefsdata.setToolEventsDef(M_ers.getEventRegistry());
+						prefsdata.setToolEventsDef(eventRegistryService.getEventRegistry());
 					}
 				}
 				cachePrefsData.put(siteId, prefsdata);
 			}
 			
 			if(prefsdata.isUseAllTools()) {
-				List<ToolInfo> allTools = M_ers.getEventRegistry();
+				List<ToolInfo> allTools = eventRegistryService.getEventRegistry();
 				for(ToolInfo ti : allTools) {
 					ti.setSelected(true);
 					for(EventInfo ei : ti.getEvents()) {
@@ -475,17 +273,17 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 			if(includeUnselected){
 				// include unselected tools/events (for Preferences listing)
-				prefsdata.setToolEventsDef(EventUtil.getUnionWithAllDefaultToolEvents(prefsdata.getToolEventsDef(), M_ers.getEventRegistry()));
+				prefsdata.setToolEventsDef(EventUtil.getUnionWithAllDefaultToolEvents(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry()));
 			}
 			if(prefsdata.isListToolEventsOnlyAvailableInSite()){
 				// intersect with tools available in site
-				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(M_ss, prefsdata.getToolEventsDef(), siteId));
+				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(siteService, prefsdata.getToolEventsDef(), siteId));
 			}else{
 				// intersect with tools available in sakai installation
-				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(M_tm, prefsdata.getToolEventsDef()));
+				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(toolManager, prefsdata.getToolEventsDef()));
 			}
 
-			prefsdata.setToolEventsDef(EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), M_ers.getEventRegistry()));
+			prefsdata.setToolEventsDef(EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), eventRegistryService.getEventRegistry()));
 
 			return prefsdata;
 		}		
@@ -528,9 +326,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public Set<String> getSiteUsers(String siteId) {
 		try{
 			if(siteId == null) {
-				siteId = M_tm.getCurrentPlacement().getContext();
+				siteId = toolManager.getCurrentPlacement().getContext();
 			}
-			return M_ss.getSite(siteId).getUsers();
+			return siteService.getSite(siteId).getUsers();
 		}catch(IdUnusedException e){
 			log.warn("Inexistent site for site id: "+siteId);
 		}
@@ -540,10 +338,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public String getUserNameForDisplay(String userId) {
 		String name = null;
 		try{
-			User user = M_uds.getUser(userId);
+			User user = userService.getUser(userId);
 			name = getUserNameForDisplay(user);
 		}catch(UserNotDefinedException e){
-			name = msgs.getString("user_unknown");
+			name = resourceLoader.getString("user_unknown");
 		}
 		return name;
 	}
@@ -553,6 +351,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return user.getDisplayName();
 		}else{
 			return user.getSortName();
+		}
+	}
+
+	@Override
+	public String getUserInfoForDisplay(String userId, String siteId) {
+		try{
+			User u = userService.getUser(userId);
+			return resourceLoader.getFormattedMessage("user_info", getUserNameForDisplay(u), u.getDisplayId(siteId));
+		}catch (UserNotDefinedException e){
+			return resourceLoader.getFormattedMessage("user_info", resourceLoader.getString("user_unknown"), userId);
 		}
 	}
 	
@@ -590,7 +398,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return null;
 		}
 		String parts[] = ref.split("\\/");
-		Reference r = M_em.newReference(ref);
+		Reference r = entityManager.newReference(ref);
 		ResourceProperties rp = null;
 		// determine resource name
 		String name = null;
@@ -616,7 +424,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				// My Workspace
 				_fileName.append("[");
 				try{
-					_fileName.append(M_ss.getSite(M_ss.getSiteUserId(parts[3])).getTitle());
+					_fileName.append(siteService.getSite(siteService.getSiteUserId(parts[3])).getTitle());
 				}catch(IdUnusedException e){
 					_fileName.append("My Workspace");
 				}
@@ -626,13 +434,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				// attachment
 				if(parts.length >= 5){
 					_fileName.append("[");
-					_fileName.append(msgs.getString("report_content_attachments"));
+					_fileName.append(resourceLoader.getString("report_content_attachments"));
 					_fileName.append(": ");
 					_fileName.append(parts[4]);
 					_fileName.append("] ");
 				}else{
 					_fileName.append("[");
-					_fileName.append(msgs.getString("report_content_attachments"));
+					_fileName.append(resourceLoader.getString("report_content_attachments"));
 					_fileName.append("] ");
 				}
 				
@@ -642,7 +450,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}else if(parts.length > 4 && parts[2].equals("group-user")){
 				// dropbox
 				_fileName.append("[");
-				_fileName.append(M_tm.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
+				_fileName.append(toolManager.getTool(StatsManager.DROPBOX_TOOLID).getTitle());
 				if(parts.length > 5){
 					_fileName.append(": ");
 					String user = null;
@@ -652,12 +460,12 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							refU.append(parts[i]);
 							refU.append('/');
 						}
-						Reference rU = M_em.newReference(refU.toString());
+						Reference rU = entityManager.newReference(refU.toString());
 						ResourceProperties rpU = rU.getProperties();
 						user = rpU.getProperty(ResourceProperties.PROP_DISPLAY_NAME);						
 					}catch(Exception e1){
 						try{
-							user = M_uds.getUserEid(parts[4]);
+							user = userService.getUserEid(parts[4]);
 						}catch(UserNotDefinedException e2){
 							user = parts[4];
 						}
@@ -709,7 +517,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			// append user eid
 			String userEid = null;
 			try{
-				userEid = M_uds.getUserEid(parts[4]);
+				userEid = userService.getUserEid(parts[4]);
 			}catch(UserNotDefinedException e){
 				userEid = parts[4];
 			}
@@ -729,7 +537,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceImageLibraryRelativePath(java.lang.String)
 	 */
 	public String getResourceImageLibraryRelativePath(String ref){
-		Reference r = M_em.newReference(ref);
+		Reference r = entityManager.newReference(ref);
 		ResourceProperties rp = null;
 		if(r != null) {
 			rp = r.getProperties();
@@ -750,11 +558,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		String imgLink = "";
 		try{
 			if(isCollection)
-				imgLink = M_ctis.getContentTypeImage("folder");			
+				imgLink = contentTypeImageService.getContentTypeImage("folder");			
 			else if(rp != null){
 				String contentType = rp.getProperty(rp.getNamePropContentType());
 				if(contentType != null)
-					imgLink = M_ctis.getContentTypeImage(contentType);
+					imgLink = contentTypeImageService.getContentTypeImage(contentType);
 				else{
 					imgLink = "sakai/generic.gif";
 				}
@@ -771,7 +579,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceImage(java.lang.String)
 	 */
 	public String getResourceImage(String ref){
-		return M_scs.getServerUrl() + "/library/" + getResourceImageLibraryRelativePath(ref);
+		return serverConfigurationService.getServerUrl() + "/library/" + getResourceImageLibraryRelativePath(ref);
 	}	
 	
 	
@@ -782,18 +590,18 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		try{
 			String tmp = ref.replaceFirst("/content", "");
 			if(tmp.endsWith("/"))
-				M_chs.checkCollection(tmp);
+				contentHostingService.checkCollection(tmp);
 			else
-				M_chs.checkResource(tmp);
+				contentHostingService.checkResource(tmp);
 		}catch(IdUnusedException e){
 			return null;
 		}catch(Exception e){
 			// TypeException or PermissionException
 			// It's OK since it exists
 		}
-		Reference r = M_em.newReference(ref);
+		Reference r = entityManager.newReference(ref);
 		if(r != null) {
-			return StringEscapeUtils.escapeHtml3(r.getUrl());
+			return StringEscapeUtils.escapeHtml4(r.getUrl());
 		}else{
 			return null;
 		}
@@ -809,8 +617,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}else{
 			if(countFilesUsingCHS) {
 				// Use ContentHostingService (very slow if there are hundreds of files in site
-				String siteCollectionId = M_chs.getSiteCollection(siteId);
-				return M_chs.getAllResources(siteCollectionId).size();
+				String siteCollectionId = contentHostingService.getSiteCollection(siteId);
+				return contentHostingService.getAllResources(siteCollectionId).size();
 			}else{
 				// Use SiteStats tables (very fast, relies on resource events)
 				// Build common HQL
@@ -882,7 +690,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		if (lbPage != null) {
 			return lbPage.getTitle();
 		} else {
-			return msgs.getString("page_unknown");
+			return resourceLoader.getString("page_unknown");
 		}
 	}
 
@@ -1312,7 +1120,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			boolean sortAscending,
 			final int maxResults) {
 		
-		final Set<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		final Set<String> anonymousEvents = eventRegistryService.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_EVENT, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
@@ -1376,7 +1184,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                 siteUserIds = getSiteUsers(siteId);
             if(records.size() > 0){
                 Calendar cal = Calendar.getInstance();
-                Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
+                Map<String,ToolInfo> eventIdToolMap = eventRegistryService.getEventIdToolMap();
                 boolean groupByTool = columnMap.containsKey(StatsSqlBuilder.C_TOOL) && !columnMap.containsKey(StatsSqlBuilder.C_EVENT);
                 boolean hasVisitsData = columnMap.containsKey(StatsSqlBuilder.C_VISITS);
                 for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
@@ -1535,7 +1343,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final boolean inverseUserSelection,
 			final List<String> totalsBy) {
 		
-		final Set<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		final Set<String> anonymousEvents = eventRegistryService.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_EVENT, totalsBy,
 				siteId, events, anonymousEvents, showAnonymousAccessEvents, null, null, 
@@ -2389,7 +2197,7 @@ if (log.isDebugEnabled()) {
 			final boolean sortAscending, 
 			final int maxResults) {
 		
-		final Set<String> anonymousEvents = M_ers.getAnonymousEventIds();
+		final Set<String> anonymousEvents = eventRegistryService.getAnonymousEventIds();
 		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
 				Q_TYPE_ACTIVITYTOTALS, totalsBy, siteId, 
 				events, anonymousEvents, showAnonymousAccessEvents, null, null, 
@@ -2434,7 +2242,7 @@ if (log.isDebugEnabled()) {
             List<EventStat> results = new ArrayList<>();
             if(records.size() > 0){
                 Calendar cal = Calendar.getInstance();
-                Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
+                Map<String,ToolInfo> eventIdToolMap = eventRegistryService.getEventIdToolMap();
                 Map<String,Integer> toolIdEventStatIxMap = new HashMap<String,Integer>();
                 boolean groupByTool = columnMap.containsKey(StatsSqlBuilder.C_TOOL) && !columnMap.containsKey(StatsSqlBuilder.C_EVENT);
                 for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
@@ -3370,7 +3178,7 @@ if (log.isDebugEnabled()) {
 			throw new IllegalArgumentException("Null siteId");
 		}else{
 			try{
-				return M_ss.getSite(siteId).getMembers().size();
+				return siteService.getSite(siteId).getMembers().size();
 			}catch(IdUnusedException e){
 				log.warn("Unable to get total site users for site id: "+siteId, e);
 				return 0;
@@ -3465,7 +3273,7 @@ if (log.isDebugEnabled()) {
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
-                    q.setParameterList("eventlist", M_ers.getEventIds());
+                    q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
                     q.setDate("idate", iDate);
                 if(fDate != null){
@@ -3558,7 +3366,7 @@ if (log.isDebugEnabled()) {
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
-                    q.setParameterList("eventlist", M_ers.getEventIds());
+                    q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
                     q.setDate("idate", iDate);
                 if(fDate != null){
@@ -3648,7 +3456,7 @@ if (log.isDebugEnabled()) {
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
-                    q.setParameterList("eventlist", M_ers.getEventIds());
+                    q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
                     q.setDate("idate", iDate);
                 if(fDate != null){
@@ -3662,9 +3470,9 @@ if (log.isDebugEnabled()) {
                 List<Object[]> records = q.list();
                 List<SiteActivityByTool> results = new ArrayList<SiteActivityByTool>();
                 if(records.size() > 0){
-                    Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
+                    Map<String,ToolInfo> eventIdToolMap = eventRegistryService.getEventIdToolMap();
                     Map<String,SiteActivityByTool> toolidSABT = new HashMap<String, SiteActivityByTool>();
-                    List<ToolInfo> allTools = M_ers.getEventRegistry();
+                    List<ToolInfo> allTools = eventRegistryService.getEventRegistry();
                     for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
                         Object[] s = iter.next();
                         SiteActivityByTool c = new SiteActivityByToolImpl();
@@ -3729,7 +3537,7 @@ if (log.isDebugEnabled()) {
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
-                    q.setParameterList("eventlist", M_ers.getEventIds());
+                    q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
                     q.setDate("idate", iDate);
                 if(fDate != null){
@@ -3795,7 +3603,7 @@ if (log.isDebugEnabled()) {
                 if(events != null && events.size() > 0)
                     q.setParameterList("eventlist", events);
                 else
-                    q.setParameterList("eventlist", M_ers.getEventIds());
+                    q.setParameterList("eventlist", eventRegistryService.getEventIds());
                 if(iDate != null)
                     q.setDate("idate", iDate);
                 if(fDate != null){
@@ -3824,7 +3632,7 @@ if (log.isDebugEnabled()) {
 	public Date getInitialActivityDate(String siteId) {
 		Date date = null;
 		try{
-			date = new Date(M_ss.getSite(siteId).getCreatedTime().getTime());
+			date = new Date(siteService.getSite(siteId).getCreatedTime().getTime());
 		}catch(Exception e){
 			return new Date(0);
 		}
@@ -3842,7 +3650,7 @@ if (log.isDebugEnabled()) {
 	 * @see org.sakaiproject.sitestats.api.StatsManager#logEvent(java.lang.Object, java.lang.String)
 	 */
 	public void logEvent(Object object, String logAction) {
-		logEvent(object, logAction, M_tm.getCurrentPlacement().getContext(), false);
+		logEvent(object, logAction, toolManager.getCurrentPlacement().getContext(), false);
 	}
 	
 	/* (non-Javadoc)
@@ -3874,6 +3682,11 @@ if (log.isDebugEnabled()) {
 				ref.append(LOG_OBJ_REPORTDEF);
 				ref.append('/');
 				ref.append(((ReportDef) object).getId());
+			}else if(object instanceof UserId) {
+				ref.append('/')
+					.append(LOG_OBJ_USER)
+					.append('/')
+					.append(((UserId) object).uuid);
 			}else if(object instanceof String) {
 				String str = ((String) object).toLowerCase();
 				event.append('.');
@@ -3906,7 +3719,7 @@ if (log.isDebugEnabled()) {
 		
 		// if only once per session, check if already logged
 		if(oncePerSession) {
-			String sessionValue = (String) M_sm.getCurrentSession().getAttribute(event.toString() + ref.toString());
+			String sessionValue = (String) sessionManager.getCurrentSession().getAttribute(event.toString() + ref.toString());
 			log = sessionValue == null || sessionValue.equals("");
 		}
 		// log...
@@ -3916,16 +3729,16 @@ if (log.isDebugEnabled()) {
 			try{
 				// Sakai >= 2.6
 				// Invoke: newEvent(String event, String resource, String context, boolean modify, int priority)
-				Method m = M_ets.getClass().getMethod("newEvent", new Class[]{String.class, String.class, String.class, boolean.class, int.class});
-				e = (Event) m.invoke(M_ets, new Object[] { event.toString(), ref.toString(), siteId, modify, NotificationService.NOTI_OPTIONAL });
+				Method m = eventTrackingService.getClass().getMethod("newEvent", new Class[]{String.class, String.class, String.class, boolean.class, int.class});
+				e = (Event) m.invoke(eventTrackingService, new Object[] { event.toString(), ref.toString(), siteId, modify, NotificationService.NOTI_OPTIONAL });
 			}catch(Exception ex) {
 				// Sakai < 2.6
 				// Invoke: newEvent(String event, String resource, boolean modify)
-				e = M_ets.newEvent(event.toString(), ref.toString(), modify);
+				e = eventTrackingService.newEvent(event.toString(), ref.toString(), modify);
 			}
-			M_ets.post(e);
+			eventTrackingService.post(e);
 			if(oncePerSession) {
-				M_sm.getCurrentSession().setAttribute(event.toString() + ref.toString(), "true");
+				sessionManager.getCurrentSession().setAttribute(event.toString() + ref.toString(), "true");
 			}
 		}
 	}
@@ -3935,7 +3748,7 @@ if (log.isDebugEnabled()) {
 	 */
 	@Override
 	public String getLocalSakaiName() {
-		return M_scs.getString("ui.service", "Sakai");
+		return serverConfigurationService.getString("ui.service", "Sakai");
 	}
 
 	private void checkForEventContextSupport() {
@@ -3968,7 +3781,7 @@ if (log.isDebugEnabled()) {
 				match = true;
 			else
 				try{
-					User u = M_uds.getUser(userId);
+					User u = userService.getUser(userId);
 					if(u.getEid().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)")
 							|| u.getFirstName().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)")
 							|| u.getLastName().toLowerCase().matches("(.*)"+searchKey.toLowerCase()+"(.*)"))
@@ -3998,10 +3811,10 @@ if (log.isDebugEnabled()) {
 	
 	private String getDbVendor() {
 		String dialectStr = null;
-		if(M_scs.getString("sitestats.db", "internal").equals("internal")) {
-			dialectStr = M_scs.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+		if(serverConfigurationService.getString("sitestats.db", "internal").equals("internal")) {
+			dialectStr = serverConfigurationService.getString("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
 		}else{
-			dialectStr = M_scs.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
+			dialectStr = serverConfigurationService.getString("sitestats.externalDb.hibernate.dialect","org.hibernate.dialect.HSQLDialect");
 		}
 		if(dialectStr.toLowerCase().contains("mysql")) {
 			return "mysql";

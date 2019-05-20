@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -48,12 +48,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
+import org.sakaiproject.sitestats.tool.util.Tools;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
@@ -351,7 +350,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		// TOOL Filter
 		List<String> toolFilterOptions = new ArrayList<String>();
 		toolFilterOptions.add(ReportManager.WHAT_EVENTS_ALLTOOLS);
-		toolFilterOptions.addAll(getToolIds());
+		toolFilterOptions.addAll(Tools.getToolIds(siteId, getPrefsdata()));
 		IChoiceRenderer toolFilterRenderer = new IChoiceRenderer() {
 			private static final long	serialVersionUID	= 1L;
 			public Object getDisplayValue(Object object) {
@@ -483,16 +482,6 @@ public abstract class WidgetTabTemplate extends Panel {
 		target.appendJavaScript("setMainFrameHeightNoScroll(window.name, 0, 300);");
 	}
 
-	private List<String> getToolIds() {
-		List<String> toolIds = new ArrayList<String>();
-		for(ToolInfo ti : getPrefsdata().getToolEventsDef()) {
-			if(isToolSuported(ti) && ti.isSelected()) {
-				toolIds.add(ti.getToolId());
-			}
-		}
-		return toolIds;
-	}
-	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
 		if(Locator.getFacade().getStatsManager().isEventContextSupported()){
 			return true;
@@ -502,10 +491,12 @@ public abstract class WidgetTabTemplate extends Panel {
 			while (i.hasNext()){
 				ToolInfo t = i.next();
 				if(t.getToolId().equals(toolInfo.getToolId())){
-					EventParserTip parserTip = t.getEventParserTip();
-					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)){
+					boolean match = t.getEventParserTips().stream()
+							.anyMatch(tip -> StatsManager.PARSERTIP_FOR_CONTEXTID.equals(tip.getFor()));
+					if(match){
 						return true;
 					}
+
 				}
 			}
 		}
@@ -553,22 +544,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	}
 
 	public List<String> getToolEventsFilter() {
-		if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolFilter)) {
-			return getPrefsdata().getToolEventsStringList();
-		}else{
-			List<String> eventIds = new ArrayList<String>();
-			for(ToolInfo ti : getPrefsdata().getToolEventsDef()) {
-				if(isToolSuported(ti) && ti.isSelected() && ti.getToolId().equals(toolFilter)) {
-					for(EventInfo ei : ti.getEvents()) {
-						if(ei.isSelected()) {
-							eventIds.add(ei.getEventId());
-						}
-					}
-					break;
-				}
-			}
-			return eventIds;
-		}
+		return Tools.getEventsForToolFilter(toolFilter, siteId, getPrefsdata(), false);
 	}
 
 	public void setResactionFilter(String resactionFilter) {

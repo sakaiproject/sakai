@@ -160,6 +160,8 @@ public class EditPartListener
 
        if (meta.getLabel().equals(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)){
          bean.setSelectedPool(meta.getEntry());
+       } else {
+         bean.setSelectedPool(null);
        }
 
        if (meta.getLabel().equals(SectionDataIfc.NUM_QUESTIONS_DRAWN)){

@@ -22,7 +22,7 @@
 package org.sakaiproject.poll.tool.validators;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -66,7 +66,7 @@ public class OptionValidator implements Validator {
 		String text = option.getText();
 		text = PollUtils.cleanupHtmlPtags(text);
 		text = text.replace("&nbsp;", "");
-		text = StringEscapeUtils.unescapeHtml3(text).trim();
+		text = StringEscapeUtils.unescapeHtml4(text).trim();
 		log.debug("text to validate is: " + text);
 		if (text.trim().length()==0) {
 			log.debug("OptionText is empty! (after excaping html)");

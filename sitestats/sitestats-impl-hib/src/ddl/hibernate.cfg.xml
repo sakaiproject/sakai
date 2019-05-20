@@ -4,8 +4,9 @@
 		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-    	<mapping resource="org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml" />
         <mapping resource="org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/DetailedEventImpl.hbm.xml" />
         <mapping resource="org/sakaiproject/sitestats/impl/hbm/LessonBuilderStatImpl.hbm.xml" />
         <mapping resource="org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml" />
         <mapping resource="org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml" />

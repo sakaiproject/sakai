@@ -55,6 +55,8 @@ public interface StatsUpdateManager {
 	public boolean isCollectEventsForSiteWithToolOnly();
 	public void setCollectEventsForSiteWithToolOnly(boolean value);
 	
+	public boolean isCollectDetailedEvents();
+	public void setCollectDetailedEvents(boolean value);
 	
 	// -----------------------------------------------------------------------
 	// --- Event collecting/aggregation methods ------------------------------
@@ -154,7 +156,7 @@ public interface StatsUpdateManager {
 	public void resetMetrics();
 	
 	/** Get the total number of events processed */
-	public long getNumberOfEventsProcessed();
+	public long getTotalEventsProcessed();
 	
 	/** Get the total time, in milliseconds, in event processing */
 	public long getTotalTimeInEventProcessing();

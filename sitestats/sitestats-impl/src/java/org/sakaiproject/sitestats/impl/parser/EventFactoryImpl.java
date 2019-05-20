@@ -34,13 +34,15 @@ public class EventFactoryImpl implements EventFactory, ObjectCreationFactory {
 		String eventId = attributes.getValue("eventId");
 		String selected = attributes.getValue("selected");
 		String anonymous = attributes.getValue("anonymous");
+		String resolvable = attributes.getValue("resolvable");
 
 		if(eventId == null){
 			throw new Exception("Mandatory eventId attribute not present on event tag.");
 		}
 		EventInfo eventInfo = new EventInfo(eventId);
 		eventInfo.setSelected(Boolean.parseBoolean(selected));	
-		eventInfo.setAnonymous(Boolean.parseBoolean(anonymous));	
+		eventInfo.setAnonymous(Boolean.parseBoolean(anonymous));
+		eventInfo.setResolvable(Boolean.parseBoolean(resolvable));
 		return eventInfo;
 	}
 

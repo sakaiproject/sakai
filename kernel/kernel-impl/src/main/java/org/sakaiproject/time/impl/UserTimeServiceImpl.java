@@ -126,11 +126,7 @@ public class UserTimeServiceImpl implements UserTimeService {
     @Override
     public String shortLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
         ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, timezone.toZoneId());
-        DateTimeFormatter userFormatter = new DateTimeFormatterBuilder()
-                .appendLocalized(FormatStyle.MEDIUM, FormatStyle.SHORT)
-                .appendLiteral(" ").appendZoneText(TextStyle.SHORT)
-                .toFormatter(locale);
-        return userDate.format(userFormatter);
+        return userDate.format(buildTimestampFormatter(FormatStyle.MEDIUM, FormatStyle.SHORT, TextStyle.SHORT, locale));
     }
 
     @Override
@@ -139,8 +135,24 @@ public class UserTimeServiceImpl implements UserTimeService {
     }
 
     @Override
+    public String shortPreciseLocalizedTimestamp(Instant instant, TimeZone timezone, Locale locale) {
+        ZonedDateTime userDate = ZonedDateTime.ofInstant(instant, timezone.toZoneId());
+        return userDate.format(buildTimestampFormatter(FormatStyle.MEDIUM, FormatStyle.MEDIUM, TextStyle.SHORT, locale));
+    }
+
+    @Override
+    public String shortPreciseLocalizedTimestamp(Instant instant, Locale locale) {
+        return shortPreciseLocalizedTimestamp(instant, getLocalTimeZone(), locale);
+    }
+
+    @Override
     public String shortLocalizedDate(LocalDate date, Locale locale) {
         DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale);
         return date.format(df);
+    }
+
+    private DateTimeFormatter buildTimestampFormatter(FormatStyle dateStyle, FormatStyle timeStyle, TextStyle zoneStyle, Locale locale) {
+        return new DateTimeFormatterBuilder().appendLocalized(dateStyle, timeStyle)
+                .appendLiteral(" ").appendZoneText(zoneStyle).toFormatter(locale);
     }
 }

@@ -2960,7 +2960,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 if (!notes.isEmpty()) {
                                     final StringBuilder noteList = new StringBuilder("<ul>");
                                     for (String note : notes) {
-                                        noteList.append("<li>" + StringEscapeUtils.escapeHtml3(note) + "</li>");
+                                        noteList.append("<li>" + StringEscapeUtils.escapeHtml4(note) + "</li>");
                                     }
                                     noteList.append("</ul>");
                                     submittersAdditionalNotesHtml.append("<tr><td style='padding-right:10px;padding-left:10px'>" + submittersString + "</td><td style='padding-right:10px'>" + noteList + "</td></tr>");

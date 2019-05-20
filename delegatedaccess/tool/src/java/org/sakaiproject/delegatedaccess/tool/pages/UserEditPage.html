@@ -95,7 +95,10 @@
 	</div>
 	<div class="text-info" style="display: none"><a href="#" onclick="$('.text-info').toggle();"><wicket:message key="hideInstructions"/></a></div>	
 	<span class="text-info information" style="white-space: normal; display:none">
-		<wicket:message key="editUsersInstructions"/>
+		<p wicket:id="editUsersInstructions"></p>
+		<p wicket:id="editUsersInstructions_accessAdmin"></p>
+		<p wicket:id="editUsersInstructions_shoppingAdmin"></p>
+		<p wicket:id="editUsersInstructions_siteAccess"></p>
 		<a href="#" onclick="$('.text-info').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
 	</span>
 	<form wicket:id="filterform">

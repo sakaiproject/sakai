@@ -31,6 +31,7 @@ import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.UserActivityPage;
 
 
 /**
@@ -88,34 +89,32 @@ public class Menu extends Panel {
 		boolean siteDisplayVisible = isSiteStatsAdminPage && !isBrowsingThisSite; 
 		siteDisplay.setVisible(siteDisplayVisible);
 		add(siteDisplay);
-		
-		// Admin page
-		/*boolean adminPageVisible = 
-			Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(realSiteId)
-			&& Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
-		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, adminPageVisible);
-		adminPage.setVisible(adminPageVisible);
-		adminPage.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
-		add(adminPage);*/
 
 		// Overview
 		boolean overviewVisible = 
 			!AdminPage.class.equals(currentPageClass)		
 			&&
-			(Locator.getFacade().getStatsManager().isEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity());
-		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/);
+			(Locator.getFacade().getStatsManager().getEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity());
+		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible, currentPageClass);
 		overview.setVisible(overviewVisible);
 		add(overview);
 
 		// Reports
-		MenuItem reports = new MenuItem("reports", new ResourceModel("menu_reports"), ReportsPage.class, pageParameters, false);
+		MenuItem reports = new MenuItem("reports", new ResourceModel("menu_reports"), ReportsPage.class, pageParameters, false, currentPageClass);
 		if(!overviewVisible) {
 			reports.add(new AttributeModifier("class", new Model("firstToolBarItem")));
 		}
 		add(reports);
 
+		// User Activity
+		MenuItem userActivity = new MenuItem("userActivity", new ResourceModel("menu_useractivity"), UserActivityPage.class, pageParameters, false, currentPageClass);
+		boolean displayUserActivity = siteId != null && Locator.getFacade().getStatsAuthz().canCurrentUserTrackInSite(siteId)
+										&& Locator.getFacade().getStatsManager().isDisplayDetailedEvents();
+		userActivity.setVisible(displayUserActivity);
+		add(userActivity);
+
 		// Preferences
-		MenuItem preferences = new MenuItem("preferences", new ResourceModel("menu_prefs"), PreferencesPage.class, pageParameters, false);
+		MenuItem preferences = new MenuItem("preferences", new ResourceModel("menu_prefs"), PreferencesPage.class, pageParameters, false, currentPageClass);
 		add(preferences);
 		
 	}

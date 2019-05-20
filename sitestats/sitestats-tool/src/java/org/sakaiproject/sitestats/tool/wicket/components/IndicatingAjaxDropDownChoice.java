@@ -24,16 +24,22 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxIndicatorAppender;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.model.IModel;
 
 
-public class IndicatingAjaxDropDownChoice extends DropDownChoice implements IAjaxIndicatorAware {
+public class IndicatingAjaxDropDownChoice<T> extends DropDownChoice<T> implements IAjaxIndicatorAware {
 	private static final long serialVersionUID = 1L;
 	private final AjaxIndicatorAppender indicatorAppender = new AjaxIndicatorAppender();
 	
-	public IndicatingAjaxDropDownChoice(String id, List data, IChoiceRenderer renderer) {
+	public IndicatingAjaxDropDownChoice(String id, List<T> data, IChoiceRenderer<? super T> renderer) {
 		super(id, data, renderer);
 		add(indicatorAppender);
-	}	
+	}
+
+	public IndicatingAjaxDropDownChoice(String id, IModel<T> model, IModel<? extends List<? extends T>> choices, IChoiceRenderer<? super T> renderer) {
+		super(id, model, choices, renderer);
+		add(indicatorAppender);
+	}
 
 	@Override
 	public String getAjaxIndicatorMarkupId() {

@@ -23,25 +23,31 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.sitestats.api.parser.EventParserTip;
+import lombok.Getter;
+import lombok.Setter;
 
+import org.sakaiproject.sitestats.api.parser.EventParserTip;
 
 public class ToolInfo implements Serializable, Cloneable {
 	private static final long			serialVersionUID	= 1L;
-	private String						toolId;
-	private List<String>				additionalToolIds;
-	private List<EventInfo>				eventInfos;
-	private boolean						selected;
-	private EventParserTip				eventParserTip;
+
+	@Getter @Setter private String			toolId;
+	@Getter @Setter private List<String>	additionalToolIds;
+	@Getter @Setter private boolean			selected;
+	@Getter			private final List<EventParserTip> eventParserTips;
+	private List<EventInfo>	eventInfos;
 	
 	public ToolInfo(String toolId) {
 		this.toolId = toolId;
-		eventInfos = new ArrayList<EventInfo>();
+		eventInfos = new ArrayList<>();
+		eventParserTips = new ArrayList<>(3);
 	}
+
 	public ToolInfo(String toolId, List<String> additionalToolIds) {
 		this.toolId = toolId;
 		this.additionalToolIds = additionalToolIds;
-		eventInfos = new ArrayList<EventInfo>();
+		eventInfos = new ArrayList<>();
+		eventParserTips = new ArrayList<>(3);
 	}
 
 	public ToolInfo(ToolInfo tool) {
@@ -52,7 +58,10 @@ public class ToolInfo implements Serializable, Cloneable {
 			eventInfos.add(info.clone());
 		}
 		selected = tool.selected;
-		eventParserTip = tool.eventParserTip != null ? tool.eventParserTip.clone() : null;
+		eventParserTips = new ArrayList<>(tool.eventParserTips.size());
+		for (EventParserTip tip : tool.eventParserTips) {
+			eventParserTips.add(tip.clone());
+		}
 	}
 
 	@Override
@@ -74,30 +83,6 @@ public class ToolInfo implements Serializable, Cloneable {
 	
 	public void removeEvent(EventInfo eventInfo) {
 		eventInfos.remove(eventInfo);
-	}
-
-	public boolean isSelected() {
-		return selected;
-	}
-
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
-
-	public String getToolId() {
-		return toolId;
-	}
-
-	public void setToolId(String toolId) {
-		this.toolId = toolId;
-	}
-
-	public List<String> getAdditionalToolIds() {
-		return additionalToolIds;
-	}
-	
-	public void setAdditionalToolIds(List<String> ids) {
-		this.additionalToolIds = ids;
 	}
 
 	public void setAdditionalToolIdsStr(String ids) {
@@ -123,13 +108,9 @@ public class ToolInfo implements Serializable, Cloneable {
 	public int hashCode() {
 		return getToolId().hashCode();
 	}
-	
-	public EventParserTip getEventParserTip() {
-		return eventParserTip;
-	}
 
-	public void setEventParserTip(EventParserTip eventParserTip) {
-		this.eventParserTip = eventParserTip;
+	public void addEventParserTip(EventParserTip tip) {
+		eventParserTips.add(tip);
 	}
 	
 	public String toString() {

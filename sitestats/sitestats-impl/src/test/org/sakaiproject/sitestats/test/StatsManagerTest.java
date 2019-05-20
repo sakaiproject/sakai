@@ -18,7 +18,6 @@
  */
 package org.sakaiproject.sitestats.test;
 
-
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -38,7 +37,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.mockito.Mockito;
+
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
@@ -67,12 +70,11 @@ import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-
-import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration(locations = {"/hibernate-test.xml"})
 @Slf4j
@@ -208,9 +210,9 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
-		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
-		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
@@ -218,9 +220,9 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
-		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
-		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "false");
@@ -228,9 +230,9 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
-		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
-		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "false");
@@ -238,9 +240,9 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(false, M_sm.isEnableSiteVisits());
-		Assert.assertEquals(false, M_sm.isVisitsInfoAvailable());
-		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(false, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(false, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 		
 		M_scs.removeProperty("display.users.present");
 		M_scs.removeProperty("presence.events.log");
@@ -248,9 +250,9 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(false, M_sm.isEnableSiteVisits());
-		Assert.assertEquals(false, M_sm.isVisitsInfoAvailable());
-		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(false, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(false, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 		
 		// revert
 		M_scs.setProperty("display.users.present", "false");
@@ -259,16 +261,15 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setVisitsInfoAvailable(null);
 		smi.setEnableSitePresences(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
-		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
-		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
-		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.getEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.getVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences()); // off, by default
 	}
 	
 	@Test
 	public void testOtherConfig() throws Exception {
 		// isEnableSiteActivity
 		StatsManagerImpl smi = (StatsManagerImpl) ((Advised) M_sm).getTargetSource().getTarget();
-		smi.setEnableSiteActivity(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableSiteActivity());
 		smi.setEnableSiteActivity(false);
@@ -276,7 +277,6 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setEnableSiteActivity(true);
 		Assert.assertEquals(true, M_sm.isEnableSiteActivity());
 		// isEnableResourceStats
-		smi.setEnableResourceStats(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableResourceStats());
 		smi.setEnableResourceStats(false);
@@ -284,7 +284,6 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		smi.setEnableResourceStats(true);
 		Assert.assertEquals(true, M_sm.isEnableResourceStats());
 		// isEnableLessonsStats
-		smi.setEnableLessonsStats(null);
 		smi.checkAndSetDefaultPropertiesIfNotSet();
 		Assert.assertEquals(true, M_sm.isEnableLessonsStats());
 		smi.setEnableLessonsStats(false);
@@ -326,11 +325,11 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		Assert.assertEquals(false, M_sm.isLastJobRunDateVisible());
 		smi.setLastJobRunDateVisible(true);
 		Assert.assertEquals(true, M_sm.isLastJobRunDateVisible());
-		// isEnableSitePresences
+		// getEnableSitePresences
 		smi.setEnableSitePresences(false);
-		Assert.assertEquals(false, M_sm.isEnableSitePresences());
+		Assert.assertEquals(false, M_sm.getEnableSitePresences());
 		smi.setEnableSitePresences(true);
-		Assert.assertEquals(true, M_sm.isEnableSitePresences());
+		Assert.assertEquals(true, M_sm.getEnableSitePresences());
 	}
 	
 	@Test

@@ -94,6 +94,42 @@
 		</property>
 	</bean>
 
+	<!-- DetailedEventsManager ______________________________________________________________________ -->
+	<bean id="org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager.target"
+		  class = "org.sakaiproject.sitestats.impl.event.detailed.DetailedEventsManagerImpl"
+		  lazy-init="true" init-method="init" destroy-method="destroy">
+
+		<!-- Sakai services -->
+		<property name="statMan" ref="org.sakaiproject.sitestats.api.StatsManager" />
+		<property name="asnServ" ref="org.sakaiproject.assignment.api.AssignmentService" />
+		<property name="regServ" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
+		<property name="siteServ" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="lsnServ" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="forumMan" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="forumPermMan" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
+		<property name="contentHostServ" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="broker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+		<property name="devHlprServ" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="pollServ" ref="org.sakaiproject.poll.logic.PollListManager" />
+		<property name="anncServ" ref="org.sakaiproject.announcement.api.AnnouncementService" />
+		<property name="calServ" ref="org.sakaiproject.calendar.api.CalendarService" />
+		<property name="podServ" ref="org.sakaiproject.api.app.podcasts.PodcastService" />
+		<property name="statsAuthz" ref="org.sakaiproject.sitestats.api.StatsAuthz" />
+		<property name="wikiAuthz" ref="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService" />
+		<property name="authzServ" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<!-- Hibernate related -->
+		<property name="sessionFactory" ref="org.sakaiproject.sitestats.SiteStatsSessionFactory" />
+	</bean>
+	<!-- Transaction proxy: DetailedEventsManager -->
+	<bean id="org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager"
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		  lazy-init="true">
+		<property name="transactionManager" ref="org.sakaiproject.sitestats.SiteStatsTransactionManager" />
+		<property name="target" ref="org.sakaiproject.sitestats.api.event.detailed.DetailedEventsManager.target"/>
+		<property name="transactionAttributes">
+			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
+		</property>
+	</bean>
 
 	<!-- EventRegistryService ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.event.EventRegistryService"
@@ -394,6 +430,9 @@
 	</bean>
 	<bean id="org.sakaiproject.sitestats.api.SiteActivity"
 		  class="org.sakaiproject.sitestats.impl.SiteActivityImpl">
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.event.detailed.DetailedEvent"
+		  class="org.sakaiproject.sitestats.impl.DetailedEventImpl">
 	</bean>
 
 	<!-- server events -->
