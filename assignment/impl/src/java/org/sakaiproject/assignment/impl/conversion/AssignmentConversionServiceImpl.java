@@ -536,7 +536,7 @@ public class AssignmentConversionServiceImpl implements AssignmentConversionServ
             }
             submitter.setSubmitter(submitterId);
             submitter.setSubmittee(true);
-            submitter.setGrade(submission.getScaled_grade());
+            submitter.setGrade(null);
             submitter.setSubmission(s);
             submitters.add(submitter);
         }
