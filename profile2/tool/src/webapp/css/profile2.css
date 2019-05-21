@@ -254,6 +254,14 @@ h2 {
 .myspace {
 	background-image: url(../images/myspace.png);
 }
+.recordIcon {
+	background-image: url(../images/mic.png);
+	width: 11px;
+	height: 15px;
+	display: inline-block;
+	background-size: 100%;
+	margin-left: 7px;
+}
 
 /* sideLink styles */
 #sideLink ul {
@@ -385,6 +393,10 @@ h2 {
 	width: 100%;
 }
 
+.mainSectionContentDescription {
+	padding-top: 5px;
+}
+
 .mainSectionContent {
 	padding-top: 5px;
 	padding-right: 80px; /* keep it in a block and out of the edit button's way */
@@ -453,6 +465,10 @@ h2 {
     -webkit-hyphens: auto;
     /* Only split after 8 characters. Webkit only. */
     -webkit-hyphenate-limit-before:8;
+}
+
+.contentExample {
+	color: #aaa;
 }
 
 .preferencesContent .item  {

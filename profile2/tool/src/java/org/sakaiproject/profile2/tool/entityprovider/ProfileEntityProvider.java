@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,7 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.BasicConnection;
-import org.sakaiproject.profile2.model.BasicPerson;
-import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
@@ -454,6 +454,42 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	@EntityURLRedirect("/{prefix}/{id}/account")
 	public String redirectUserAccount(Map<String,String> vars) {
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
+	}
+
+	@EntityCustomAction(action="pronunciation",viewKey=EntityView.VIEW_SHOW)
+	public Object getNamePronunciation(OutputStream out, EntityView view, Map<String,Object> params, EntityReference ref) {
+		if (!sakaiProxy.isLoggedIn()) {
+			throw new SecurityException("You must be logged in to get the name pronunciation of the student.");
+		}
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		MimeTypeByteArray mtba = profileLogic.getUserNamePronunciation(uuid);
+		if(mtba != null && mtba.getBytes() != null) {
+			final byte[] bytes = mtba.getBytes();
+			//check for binary
+			if(bytes != null && bytes.length > 0) {
+				try {
+					out.write(bytes);
+					ActionReturn actionReturn = new ActionReturn(StandardCharsets.UTF_8.name(), "audio/ogg", out);
+
+					Map<String,String> headers = new HashMap<>();
+					headers.put("Expires", "0");
+					headers.put("Cache-Control","no-cache, no-store, must-revalidate");
+					headers.put("Pragma", "no-cache");
+					actionReturn.setHeaders(headers);
+
+					return actionReturn;
+
+				} catch (IOException e) {
+					throw new EntityException("Error retrieving name pronunciation for " + uuid + " : " + e.getMessage(), ref.getReference());
+				}
+			}
+		}
+
+		return null;
 	}
 
 	
