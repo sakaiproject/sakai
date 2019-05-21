@@ -609,34 +609,34 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                     }
                 }
             }
-
-            if (!summaryPage) {
-
-                UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
-
-                if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
-                    UIOutput.make(form, "hr");
-                    UIOutput.make(form, "options");
-                    UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
-                    UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
-                }
-
-                String returnView = ((GeneralViewParameters) viewparams).getReturnView();
-                if (returnView != null && returnView.equals("reorder")) {
-                    // return to Reorder, to add items from this page
-                    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
-                } else if (((GeneralViewParameters) viewparams).newTopLevel) {
-                    UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
-                    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
-                } else {
-                    UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
-                    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
-                }
-                UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-            } else if (showDeleteButton) {
-                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
-            }
         } //for (PageEntry entry: entries)
+
+        if (!summaryPage) {
+
+            UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
+
+            if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
+                UIOutput.make(form, "hr");
+                UIOutput.make(form, "options");
+                UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
+                UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
+            }
+
+            String returnView = ((GeneralViewParameters) viewparams).getReturnView();
+            if (returnView != null && returnView.equals("reorder")) {
+                // return to Reorder, to add items from this page
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
+            } else if (((GeneralViewParameters) viewparams).newTopLevel) {
+                UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
+            } else {
+                UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
+            }
+            UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+        } else if (showDeleteButton) {
+            UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
+        }
     }
 
     private UIStyleDecorator getImageSourceDecorator(SimplePageItem pageItem) {
