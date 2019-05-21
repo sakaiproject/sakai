@@ -15,11 +15,8 @@
     <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
-<<<<<<< HEAD
     <property name="passwordFactory" ref="org.sakaiproject.util.api.PasswordFactory"/>
-=======
     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
->>>>>>> 690de20e6c... SAK-41676 Site info RSF: cover.EventTrackingService
   </bean>
   
   <bean id="AddProducer"
