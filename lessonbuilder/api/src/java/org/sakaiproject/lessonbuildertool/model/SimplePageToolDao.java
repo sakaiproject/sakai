@@ -336,5 +336,7 @@ public interface SimplePageToolDao {
 
     public List<SimplePage> getTopLevelPages(String siteId);
 
-    public Optional<List<ToolConfiguration>> getSiteTools(String siteId);
+    public List<ToolConfiguration> getSiteTools(String siteId);
+
+    public List<SimplePageItem> getOrderedTopLevelPageItems(String siteId);
 }
