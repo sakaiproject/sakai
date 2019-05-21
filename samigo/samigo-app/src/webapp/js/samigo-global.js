@@ -85,9 +85,9 @@ function resizeFrame(updown) {
     if (frame) {
         var clientH;
         if (updown === "shrink") {
-            clientH = document.body.scrollHeight;
+            clientH = frame.scrollHeight;
         } else {
-            clientH = document.body.scrollHeight + 30;
+            clientH = frame.scrollHeight + 30;
         }
         $(frame).height(clientH);
     }

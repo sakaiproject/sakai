@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
@@ -168,28 +168,28 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			gradeBuffer.append("<table class=\"itemSummary\">");
 
 			if (h2.size() != 0) {
-				gradeBuffer.append("<tr><th scope=\"row\">" + StringEscapeUtils.escapeHtml3(h2.get(0).toString()) + "</th><td>");
+				gradeBuffer.append("<tr><th scope=\"row\">" + StringEscapeUtils.escapeHtml4(h2.get(0).toString()) + "</th><td>");
 				h2.remove(0);
-				gradeBuffer.append(StringEscapeUtils.escapeHtml3(getUsername()));
+				gradeBuffer.append(StringEscapeUtils.escapeHtml4(getUsername()));
 				gradeBuffer.append("</td></tr>");
 				Iterator ii = h2.iterator();
 				Iterator jj = grades.iterator();
 
 				while (ii.hasNext()) {
 					gradeBuffer.append("<tr><th scope=\"row\">");
-					gradeBuffer.append(StringEscapeUtils.escapeHtml3((String) ii.next()));
+					gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) ii.next()));
 					gradeBuffer.append("</th><td>");
-					gradeBuffer.append(StringEscapeUtils.escapeHtml3((String) jj.next()));
+					gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) jj.next()));
 					gradeBuffer.append("</td></tr>");
 				}
 			} else {
 				gradeBuffer.append("<tr><td>");
-				gradeBuffer.append(StringEscapeUtils.escapeHtml3(getUsername()));
+				gradeBuffer.append(StringEscapeUtils.escapeHtml4(getUsername()));
 				gradeBuffer.append("</td></tr>");
 				Iterator jj = grades.iterator();
 				while (jj.hasNext()) {
 					gradeBuffer.append("<tr><td>");
-					gradeBuffer.append(StringEscapeUtils.escapeHtml3((String) jj.next()));
+					gradeBuffer.append(StringEscapeUtils.escapeHtml4((String) jj.next()));
 					gradeBuffer.append("</td></tr>");
 				}
 			}
@@ -220,7 +220,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			gradeBuffer.append(width);
 			gradeBuffer.append(";' >");*/
 			gradeBuffer.append("<td style=\"padding:0.6em;\">");
-			gradeBuffer.append(StringEscapeUtils.escapeHtml3(current));
+			gradeBuffer.append(StringEscapeUtils.escapeHtml4(current));
 			gradeBuffer.append("</td>");
 			ii++;
 		}

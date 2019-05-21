@@ -163,34 +163,24 @@
         <plugins>
             <!-- compress CSS and JS -->
             <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>yuicompressor-maven-plugin</artifactId>
-                <version>${yuicompressor.plugin.version}</version>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <version>1.7.6</version>
                 <executions>
                     <execution>
-                        <id>compress</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>compress</goal>
-                        </goals>
+                        <id>default-minify</id>
+                        <configuration>
+                            <charset>UTF-8</charset>
+                            <webappSourceDir>${basedir}/src/webapp</webappSourceDir>
+                            <jsSourceDir>js/</jsSourceDir>
+                            <jsIncludes>*.js</jsIncludes>
+                            <jsTargetDir>js</jsTargetDir>
+                            <jsFinalFile>roster.js</jsFinalFile>
+                            <jsEngine>CLOSURE</jsEngine>
+                        </configuration>
+                        <goals><goal>minify</goal></goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <sourceDirectory>${basedir}/src/webapp</sourceDirectory>
-                    <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-                    <nosuffix>true</nosuffix>
-                    <jswarn>false</jswarn>
-                    <excludes>
-                        <exclude>**/*.java</exclude>
-                        <exclude>**/*.html</exclude>
-                        <exclude>**/*.xml</exclude>
-                        <exclude>**/*.gif</exclude>
-                        <exclude>**/*.png</exclude>
-                        <exclude>**/*.properties</exclude>
-                        <exclude>**/*.min.js</exclude>
-                        <exclude>**/*-min.js</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.github.jknack</groupId>

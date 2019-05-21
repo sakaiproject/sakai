@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,7 +21,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.tsugi.basiclti.Base64;
 import org.tsugi.basiclti.XMLMap;
 import org.w3c.dom.Document;
@@ -27,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
+
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
@@ -173,7 +176,18 @@ public class IMSPOXRequest {
 	public void loadFromRequest(HttpServletRequest request) 
 	{
 		String contentType = request.getContentType();
-		if ( ! "application/xml".equals(contentType) ) {
+		String baseContentType;
+
+		try {
+			MimeType mimeType = new MimeType(contentType);
+			baseContentType = mimeType.getBaseType();
+		} catch (MimeTypeParseException e){
+			errorMessage = "Unable to parse mime type";
+			log.info("{}\n{}", errorMessage, contentType);
+			return;
+		}
+
+		if ( ! "application/xml".equals(baseContentType) ) {
 			errorMessage = "Content Type must be application/xml";
 		 	log.info("{}\n{}", errorMessage, contentType);
 			return;
@@ -373,9 +387,9 @@ public class IMSPOXRequest {
 		String messageId = ""+dt.getTime();
 
 		return String.format(fatalMessage, 
-				StringEscapeUtils.escapeXml(messageId), 
-				StringEscapeUtils.escapeXml(description),
-				StringEscapeUtils.escapeXml(message_id)); 
+				StringEscapeUtils.escapeXml11(messageId), 
+				StringEscapeUtils.escapeXml11(description),
+				StringEscapeUtils.escapeXml11(message_id)); 
 	}
 
 	static final String responseMessage = 
@@ -448,7 +462,7 @@ public class IMSPOXRequest {
 				sb.append("          <imsx_codeMinorField>\n            <imsx_codeMinorFieldName>");
 				sb.append(key);
 				sb.append("</imsx_codeMinorFieldName>\n            <imsx_codeMinorFieldValue>");
-				sb.append(StringEscapeUtils.escapeXml(value));
+				sb.append(StringEscapeUtils.escapeXml11(value));
 				sb.append("</imsx_codeMinorFieldValue>\n          </imsx_codeMinorField>\n");
 			}
 			if ( sb.length() > 0 ) sb.append("        </imsx_codeMinor>");
@@ -479,13 +493,13 @@ public class IMSPOXRequest {
 		String newLine = "";
 		if ( bodyString.length() > 0 ) newLine = "\n";
 		return String.format(responseMessage, 
-				StringEscapeUtils.escapeXml(messageId), 
-				StringEscapeUtils.escapeXml(major), 
-				StringEscapeUtils.escapeXml(severity), 
-				StringEscapeUtils.escapeXml(description), 
-				StringEscapeUtils.escapeXml(getHeaderMessageIdentifier()), 
-				StringEscapeUtils.escapeXml(operation), 
-				StringEscapeUtils.escapeXml(minorString), 
+				StringEscapeUtils.escapeXml11(messageId), 
+				StringEscapeUtils.escapeXml11(major), 
+				StringEscapeUtils.escapeXml11(severity), 
+				StringEscapeUtils.escapeXml11(description), 
+				StringEscapeUtils.escapeXml11(getHeaderMessageIdentifier()), 
+				StringEscapeUtils.escapeXml11(operation), 
+				StringEscapeUtils.escapeXml11(minorString), 
 				bodyString, newLine); 
 
 	}

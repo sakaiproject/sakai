@@ -27,7 +27,7 @@ import java.net.URLEncoder;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import uk.org.ponder.localeutil.LocaleGetter;  
 import uk.org.ponder.messageutil.MessageLocator;

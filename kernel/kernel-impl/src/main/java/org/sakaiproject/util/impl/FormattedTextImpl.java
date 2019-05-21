@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,8 +34,8 @@ import java.text.DecimalFormat;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import org.w3c.dom.Element;
@@ -512,8 +513,7 @@ public class FormattedTextImpl implements FormattedText
      */
     private String escapeHtmlFormattedText(String value, boolean supressNewlines)
     {
-        if (value == null) return "";
-        if (value.length() == 0) return "";
+        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
         if (cleanUTF8) {
             value = removeSurrogates(value);
         }
@@ -592,8 +592,8 @@ public class FormattedTextImpl implements FormattedText
          * they also depend on this handling a null input and converting it to null
          */
         String val = "";
-        if (value != null && !"".equals(value)) {
-            val = StringEscapeUtils.escapeHtml3(value);
+        if (StringUtils.isNotEmpty(value)){
+            val = StringEscapeUtils.escapeHtml4(value);
             if (escapeNewlines && val != null) {
                 val = val.replace("\n", "<br/>\n");
             }
@@ -619,7 +619,7 @@ public class FormattedTextImpl implements FormattedText
     public String encodeUnicode(String value)
     {
         // TODO call method in each process routine
-        if (value == null) return "";
+        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
 
         try
         {
@@ -651,7 +651,7 @@ public class FormattedTextImpl implements FormattedText
         catch (Exception e)
         {
             log.error("Validator.escapeHtml: ", e);
-            return "";
+            return StringUtils.EMPTY;
         }
     }
 
@@ -660,12 +660,8 @@ public class FormattedTextImpl implements FormattedText
      */
     public String unEscapeHtml(String value)
     {
-        if (value == null || value.equals("")) return "";
-        value = value.replaceAll("&lt;", "<");
-        value = value.replaceAll("&gt;", ">");
-        value = value.replaceAll("&amp;", "&");
-        value = value.replaceAll("&quot;", "\"");
-        return value;
+        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        return StringEscapeUtils.unescapeHtml4(value);
     }
 
     /* (non-Javadoc)
@@ -765,10 +761,8 @@ public class FormattedTextImpl implements FormattedText
      * @see org.sakaiproject.util.api.FormattedText#processEscapedHtml(java.lang.String)
      */
     public String processEscapedHtml(final String source) {
-        if (source == null)
-            return "";
-        if (source.equals(""))
-            return "";
+        if (StringUtils.isEmpty(source))
+            return StringUtils.EMPTY;
 
         String html = null;
         try {
@@ -1057,7 +1051,7 @@ public class FormattedTextImpl implements FormattedText
     }
 
     public String escapeJavascript(String value) {
-        if (value == null || "".equals(value)) return "";
+        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
         try
         {
             StringBuilder buf = new StringBuilder();
@@ -1115,7 +1109,7 @@ public class FormattedTextImpl implements FormattedText
         try
         {
             // convert the string to bytes in UTF-8
-            byte[] bytes = id.getBytes("UTF-8");
+            byte[] bytes = id.getBytes(StandardCharsets.UTF_8.name());
 
             StringBuilder buf = new StringBuilder();
             for (int i = 0; i < bytes.length; i++)

@@ -35,7 +35,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.azeckoski.reflectutils.ClassFields;
 import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 import org.azeckoski.reflectutils.ConstructorUtils;
@@ -564,16 +564,16 @@ public class EntityEncodingManager {
             if (entityData == null) {
                 sb.append("NO DATA to encode");
             } else {
-                sb.append("    <div style='font-weight:bold;'>"+StringEscapeUtils.escapeHtml3(entityData.getDisplayTitle())+"</div>\n");
+                sb.append("    <div style='font-weight:bold;'>"+StringEscapeUtils.escapeHtml4(entityData.getDisplayTitle())+"</div>\n");
                 sb.append("    <table border='1'>\n");
                 sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
                 if (! entityData.isDataOnly()) {
-                    sb.append("      <tr><td>entityReference</td><td>"+StringEscapeUtils.escapeHtml3(entityData.getEntityReference())+"</td></tr>\n");
-                    sb.append("      <tr><td>entityURL</td><td>"+StringEscapeUtils.escapeHtml3(entityData.getEntityURL())+"</td></tr>\n");
+                    sb.append("      <tr><td>entityReference</td><td>"+StringEscapeUtils.escapeHtml4(entityData.getEntityReference())+"</td></tr>\n");
+                    sb.append("      <tr><td>entityURL</td><td>"+StringEscapeUtils.escapeHtml4(entityData.getEntityURL())+"</td></tr>\n");
                     if (entityData.getEntityRef() != null) {
-                        sb.append("      <tr><td>entityPrefix</td><td>"+StringEscapeUtils.escapeHtml3(entityData.getEntityRef().getPrefix())+"</td></tr>\n");
+                        sb.append("      <tr><td>entityPrefix</td><td>"+StringEscapeUtils.escapeHtml4(entityData.getEntityRef().getPrefix())+"</td></tr>\n");
                         if (entityData.getEntityRef().getId() != null) {
-                            sb.append("      <tr><td>entityID</td><td>"+StringEscapeUtils.escapeHtml3(entityData.getEntityRef().getId())+"</td></tr>\n");
+                            sb.append("      <tr><td>entityID</td><td>"+StringEscapeUtils.escapeHtml4(entityData.getEntityRef().getId())+"</td></tr>\n");
                         }
                     }
                 }
@@ -592,7 +592,7 @@ public class EntityEncodingManager {
                     sb.append("    <table border='1'>\n");
                     sb.append("      <caption style='font-weight:bold;'>Properties</caption>\n");
                     for (Entry<String, Object> entry : props.entrySet()) {
-                        sb.append("      <tr><td>"+StringEscapeUtils.escapeHtml3(entry.getKey())+"</td><td>"+StringEscapeUtils.escapeHtml3(entry.getValue().toString())+"</td></tr>\n");
+                        sb.append("      <tr><td>"+StringEscapeUtils.escapeHtml4(entry.getKey())+"</td><td>"+StringEscapeUtils.escapeHtml4(entry.getValue().toString())+"</td></tr>\n");
                     }
                     sb.append("    </table>\n");
                 }
@@ -636,7 +636,7 @@ public class EntityEncodingManager {
                 StringBuilder sb = new StringBuilder(300);
                 String formName = prefix + "-" + (entityData != null ? entityData.getEntityRef().getId() : "xxx");
                 sb.append("  <div style='font-weight:bold;'>");
-                sb.append( StringEscapeUtils.escapeHtml3(entityData != null ? entityData.getDisplayTitle() : prefix) );
+                sb.append( StringEscapeUtils.escapeHtml4(entityData != null ? entityData.getDisplayTitle() : prefix) );
                 if (createable 
                         && ! EntityView.VIEW_NEW.equals(viewKey)) {
                     // add the new link if this is not the create form
@@ -733,7 +733,7 @@ public class EntityEncodingManager {
                             if (value != null) {
                                 sVal = ReflectUtils.getInstance().convert(value, String.class);
                             }
-                            sb.append("<input type='text' name=\""+fieldName+"\" value=\""+StringEscapeUtils.escapeHtml3(sVal)+"\" />");
+                            sb.append("<input type='text' name=\""+fieldName+"\" value=\""+StringEscapeUtils.escapeHtml4(sVal)+"\" />");
                         } else if (write) {
                             sb.append("<input type='text' name='"+fieldName+"' />");
                         } else if (read) {
@@ -742,7 +742,7 @@ public class EntityEncodingManager {
                             if (value != null) {
                                 sVal = ReflectUtils.getInstance().convert(value, String.class);
                             }
-                            sb.append(StringEscapeUtils.escapeHtml3(sVal));
+                            sb.append(StringEscapeUtils.escapeHtml4(sVal));
                         }
                         if (required) {
                             sb.append(" <b style='color:red;'>*</b> ");
