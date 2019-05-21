@@ -17,23 +17,32 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.List;
 
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.rsf.copies.Web;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
+import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
@@ -43,15 +52,6 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.rsf.copies.Web;
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  * 
@@ -66,6 +66,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
     public MessageLocator messageLocator;
     public FrameAdjustingProducer frameAdjustingProducer;
     public SiteService siteService = null;
+    private ToolManager toolManager;
 
     public String getViewID() {
         return VIEW_ID;
@@ -277,7 +278,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
          //frameAdjustingProducer.fillComponents(arg0, "resize", "resetFrame");
          UIVerbatim.make(arg0, "resize", "\n<!-- \n\tfunction " + "resetFrame" + "()"
         	        + " {\n\t\tsetMainFrameHeight('"
-        	        + deriveFrameTitle(ToolManager.getCurrentPlacement().getId())
+        	        + deriveFrameTitle(toolManager.getCurrentPlacement().getId())
         	        + "');\n\t\t}\n//-->\n");
     }
     

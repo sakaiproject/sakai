@@ -34,6 +34,7 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="messages" ref="targettedMessageList" />
+    <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
   </bean>
   
     <bean id="GroupDelProducer" 

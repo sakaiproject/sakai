@@ -29,7 +29,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -44,6 +44,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -58,7 +59,7 @@ public class SiteManageGroupHandler {
 
     private Collection<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
-	
+    @Setter private EventTrackingService eventTrackingService;
     public Site site = null;
     public SiteService siteService = null;
     public AuthzGroupService authzGroupService = null;
@@ -291,8 +292,8 @@ public class SiteManageGroupHandler {
     public String reset() {
         try {
             siteService.save(site);
-            EventTrackingService.post(
-                EventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
+            eventTrackingService.post(
+                eventTrackingService.newEvent(SITE_RESET, "/site/" + site.getId(), false));
 
         } 
         catch (IdUnusedException | PermissionException e) {
@@ -514,8 +515,8 @@ public class SiteManageGroupHandler {
         site.removeGroup(group);
         saveSite(site);
 
-        EventTrackingService.post(
-            EventTrackingService.newEvent(GROUP_DELETE, "/site/" + site.getId() +
+        eventTrackingService.post(
+            eventTrackingService.newEvent(GROUP_DELETE, "/site/" + site.getId() +
                                           "/group/" + group.getId(), false));
         
         return group.getTitle();

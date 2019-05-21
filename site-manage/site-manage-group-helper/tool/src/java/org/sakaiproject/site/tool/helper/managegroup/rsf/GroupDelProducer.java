@@ -18,6 +18,12 @@ package org.sakaiproject.site.tool.helper.managegroup.rsf;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
+
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -39,12 +45,6 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.stringutil.StringList;
-
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
 
 /**
  * 
