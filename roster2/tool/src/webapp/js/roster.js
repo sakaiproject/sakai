@@ -271,6 +271,7 @@
       roster.render('members_header', {
         viewEmail: roster.viewEmail,
         viewUserDisplayId: roster.viewUserDisplayId,
+        viewUserNamePronunciation: roster.viewUserNamePronunciation,
         viewUserProperty: roster.viewUserProperty,
         viewProfile: roster.currentUserPermissions.viewProfile,
         viewGroup : roster.currentUserPermissions.viewGroup,
@@ -523,6 +524,7 @@
             firstNameLastName: roster.firstNameLastName,
             viewEmail: roster.viewEmail,
             viewUserDisplayId: roster.viewUserDisplayId,
+            viewUserNamePronunciation: roster.viewUserNamePronunciation,
             viewUserProperty: roster.viewUserProperty,
             viewProfile: roster.currentUserPermissions.viewProfile,
             viewGroup : roster.currentUserPermissions.viewGroup,
@@ -543,6 +545,36 @@
     if (!renderAll) {
         $(window).trigger('scroll.roster.rendered');
     }
+
+  //Associate the members audio with start and stop actions
+  var $allAudioElem = $('.audioPlayer');
+  $.each(members, function(index, member) {
+    var audioId = '#audio-' + member.userId;
+    var $audioPlayer = $('.nameAudioPlayer[data-user-id="'+member.userId+'"]');
+    var audioElem = $(audioId)[0];
+    if (audioElem !== undefined) {
+      $audioPlayer.click(function() {
+        var audioElem = $('#audio-'+$(this).data('userId'))[0];
+        if (audioElem.paused) {
+          $allAudioElem.each(function() {
+            this.pause();
+            this.currentTime = 0;
+            $('.nameAudioPlayer').removeClass('playing');
+          });
+          audioElem.play();
+          $audioPlayer.addClass('playing');
+        } else {
+          audioElem.pause();
+          audioElem.currentTime = 0;
+          $audioPlayer.removeClass('playing');
+        }
+      });
+      audioElem.addEventListener('ended', function(e) {
+        $audioPlayer.removeClass('playing');
+      }, false);
+    }
+  });
+
   };
 
   roster.getScrollFunction = function (options) {
@@ -892,3 +924,4 @@
 }) (jQuery);
 
 // # vim: softtabstop=2 sw=2 expandtab
+

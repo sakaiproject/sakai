@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -72,12 +73,15 @@ import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -85,6 +89,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
@@ -128,7 +133,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	private GroupProvider groupProvider;
 	private PrivacyManager privacyManager;
 	private MemoryService memoryService;
+	private ProfileLogic profileLogic;
 	private ProfileConnectionsLogic connectionsLogic;
+	private SakaiPersonManager sakaiPersonManager;
 	private SecurityService securityService;
 	private ServerConfigurationService serverConfigurationService;
 	private SessionManager sessionManager;
@@ -525,6 +532,45 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             } catch (URISyntaxException e) {
                 log.error("URI Syntax Error", e);
             }
+        } else {
+            for (User user : userMap.values()) {
+                final String userId = user.getId();
+                final String slash = Entity.SEPARATOR;
+                final StringBuilder path = new StringBuilder();
+                SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), this.sakaiPersonManager.getUserMutableType());
+                String phoneticPronunciation = StringUtils.EMPTY;
+                if (sakaiPerson != null && StringUtils.isNotEmpty(sakaiPerson.getPhoneticPronunciation())) {
+                    //Append the phonetic pronunciation if it's not empty.
+                    phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
+                    path.append("<span>");
+                    path.append(phoneticPronunciation);
+                    path.append("</span>");
+                }
+                if (profileLogic.getUserNamePronunciation(user.getId()) != null) {
+                    path.append(String.format("<span data-user-id='%s' class='nameAudioPlayer' title='%s'>", userId, phoneticPronunciation));
+                    path.append("<span class='fa fa-volume-up fa-lg' aria-hidden='true'></span>");
+                    path.append("</span>");
+                    //Append the user recording if exists.
+                    path.append(" <audio ");
+                    path.append(String.format("id='audio-%s' ", user.getId()));
+                    path.append("class='hidden audioPlayer' ");
+                    path.append("controls ");
+                    path.append("controlsList='nodownload' ");
+                    path.append("src='");
+                    path.append(slash);
+                    path.append("direct");
+                    path.append(slash);
+                    path.append("profile");
+                    path.append(slash);
+                    path.append(user.getId());
+                    path.append(slash);
+                    path.append("pronunciation");
+                    path.append("?v=");
+                    path.append(RandomStringUtils.random(8, true, true));
+                    path.append("'/>");
+                }
+                pronunceMap.put(user.getId(), path.toString());
+            }
         }
         return pronunceMap;
     }
@@ -547,7 +593,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		Map<String, User> userMap = getUserMap(membership);
 
 		// Audio URL for how to pronunce each name
-		Map<String, String> pronunceMap = getPronunciationMap(userMap);
+		Map<String, String> pronunceMap = new HashMap<>();
+		if (this.getViewUserNamePronunciation()) {
+			pronunceMap = getPronunciationMap(userMap);
+		}
 
 		Collection<Group> groups = site.getGroups();
 		for (Member member : membership) {
@@ -731,7 +780,12 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setSortName(user.getSortName());
 
 		// See if there is a pronunciation available for the user
-		rosterMember.setPronunciation(pronunceMap.get(user.getEmail()));
+		String pronunciation = pronunceMap.get(user.getId());
+		//Try by email instead of Id
+		if(StringUtils.isEmpty(pronunciation)) {
+			pronunciation = pronunceMap.get(user.getEmail());
+		}
+		rosterMember.setPronunciation(pronunciation);
 
 		Map<String, String> userPropertiesMap = new HashMap<>();
 		ResourceProperties props = user.getProperties();
@@ -839,7 +893,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Map<String, User> userMap = getUserMap(membership);
 
             // Audio URL for how to pronunce each name
-            Map<String, String> pronunceMap = getPronunciationMap(userMap);
+            Map<String, String> pronunceMap = new HashMap<>();
+            if (this.getViewUserNamePronunciation()) {
+                pronunceMap = getPronunciationMap(userMap);
+            }
 
             siteMembers = new ArrayList<>();
 
@@ -1279,6 +1336,13 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Boolean getViewUserNamePronunciation() {
+        return serverConfigurationService.getBoolean("roster.display.user.name.pronunciation", DEFAULT_VIEW_USER_NAME_PRONUNCIATION);
     }
 
     public void update(Observable o, Object arg) {

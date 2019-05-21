@@ -10,7 +10,9 @@
         <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
         <property name="groupProvider"><ref bean="org.sakaiproject.authz.api.GroupProvider"/></property>
         <property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>
+        <property name="profileLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileLogic"/></property>
         <property name="connectionsLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"/></property>
+        <property name="sakaiPersonManager"><ref bean="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/></property>
         <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
         <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
