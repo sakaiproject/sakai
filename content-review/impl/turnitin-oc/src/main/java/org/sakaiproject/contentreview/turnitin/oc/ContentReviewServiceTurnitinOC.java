@@ -611,7 +611,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		throws Exception {
 		// Set variables
 		HttpURLConnection connection = null;
-		DataOutputStream wr = null;
 		URL url = null;
 
 		// Construct URL
@@ -629,22 +628,20 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
 
-		// Set Post body:
-		if (data != null) {
-			// Convert data to string:
-			connection.setDoOutput(true);
-			wr = new DataOutputStream(connection.getOutputStream());
-			BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
-			ObjectMapper objectMapper = new ObjectMapper();
-			String dataStr = objectMapper.writeValueAsString(data);
-			br.write(dataStr);
-			br.flush();
-			br.close();
-		} else if (dataBytes != null) {
-			connection.setDoOutput(true);
-			wr = new DataOutputStream(connection.getOutputStream());
-			wr.write(dataBytes);
-			wr.close();
+		connection.setDoOutput(true);
+		try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+			// Set Post body:
+			if (data != null) {
+				// Convert data to string:
+				try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"))) {
+					ObjectMapper objectMapper = new ObjectMapper();
+					String dataStr = objectMapper.writeValueAsString(data);
+					br.write(dataStr);
+					br.flush();
+				}
+			} else if (dataBytes != null) {
+				wr.write(dataBytes);
+			}
 		}
 
 		// Send request:
