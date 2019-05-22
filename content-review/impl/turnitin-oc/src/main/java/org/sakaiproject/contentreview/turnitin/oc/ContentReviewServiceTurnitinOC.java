@@ -633,7 +633,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Set Post body:
 			if (data != null) {
 				// Convert data to string:
-				try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"))) {
+				try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8))) {
 					ObjectMapper objectMapper = new ObjectMapper();
 					String dataStr = objectMapper.writeValueAsString(data);
 					br.write(dataStr);
