@@ -4808,7 +4808,7 @@ public class SimplePageBean {
 		if (order == null) {
 			return "cancel";
 		}
-		
+
 		simplePageToolDao.setRefreshMode();
 
 		fixorder(); // order has to be contiguous or things will break
