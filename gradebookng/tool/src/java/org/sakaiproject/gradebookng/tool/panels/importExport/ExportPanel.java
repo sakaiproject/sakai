@@ -18,8 +18,10 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +59,7 @@ public class ExportPanel extends BasePanel {
 	private static final String IGNORE_COLUMN_PREFIX = "#";
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
 	private static final char CSV_SEMICOLON_SEPARATOR = ';';
+	private static final String BOM = "\uFEFF";
 
 	enum ExportFormat {
 		CSV
@@ -272,9 +275,11 @@ public class ExportPanel extends BasePanel {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
 			//CSV separator is comma unless the comma is the decimal separator, then is ;
-			try (FileWriter fw = new FileWriter(tempFile);
-					CSVWriter csvWriter = new CSVWriter(fw, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)) {
+			try (OutputStreamWriter fstream = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8.name())){
 
+				fstream.write(BOM);
+				CSVWriter csvWriter = new CSVWriter(fstream, ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
+				
 				// Create csv header
 				final List<String> header = new ArrayList<>();
 				if (!isCustomExport || this.includeStudentId) {
@@ -410,6 +415,7 @@ public class ExportPanel extends BasePanel {
 
 					csvWriter.writeNext(line.toArray(new String[] {}));
 				});
+				csvWriter.close();
 			}
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
