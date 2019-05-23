@@ -54,6 +54,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 	public static final String PROP_COURSE_POINTS_DISPLAYED = "gradebook.coursepoints.displayed";
 	public static final String PROP_COURSE_GRADE_DISPLAYED = "gradebook.coursegrade.displayed";
 	public static final String PROP_ASSIGNMENTS_DISPLAYED = "gradebook.assignments.displayed";
+	public static final String PROP_ASSIGNMENT_STATS_DISPLAYED = "gradebook.stats.assignments.displayed";
+	public static final String PROP_COURSE_GRADE_STATS_DISPLAYED = "gradebook.stats.coursegrade.displayed";
 
 	@Override
 	public void addGradebook(final String uid, final String name) {
@@ -145,9 +147,12 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             gradebook.setCourseLetterGradeDisplayed(true);
             gradebook.setCourseAverageDisplayed(true);
 
-			// SAK-33855 turn on stats for new gradebooks
-			gradebook.setAssignmentStatsDisplayed(true);
-			gradebook.setCourseGradeStatsDisplayed(true);
+            // SAK-33855 turn on stats for new gradebooks
+            final Boolean propAssignmentStatsDisplayed = this.serverConfigurationService.getBoolean(PROP_ASSIGNMENT_STATS_DISPLAYED, true);
+            gradebook.setAssignmentStatsDisplayed(propAssignmentStatsDisplayed);
+
+            final Boolean propCourseGradeStatsDisplayed = this.serverConfigurationService.getBoolean(PROP_COURSE_GRADE_STATS_DISPLAYED, true);
+            gradebook.setCourseGradeStatsDisplayed(propCourseGradeStatsDisplayed);
 
             // Update the gradebook with the new selected grade mapping
             session.update(gradebook);
