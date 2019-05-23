@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -954,6 +955,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 				handleReportStatus(item, status);
 
+			} catch (IOException e) {
+				log.error(e.getLocalizedMessage(), e);
+				item.setLastError("A problem occurred while retrieving an originality score from Turnitin");
+				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
+				crqs.update(item);
+				errors++;
 			} catch (Exception e) {
 				log.error(e.getLocalizedMessage(), e);
 				item.setLastError(e.getMessage());
