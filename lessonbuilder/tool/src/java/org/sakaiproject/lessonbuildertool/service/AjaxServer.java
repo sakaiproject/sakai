@@ -796,11 +796,11 @@ public class AjaxServer extends HttpServlet
 	// have an item number specified, look for it
 	long before = item.getId();
 	for (SimplePageItem i: items) {
-	    if (item.getId() == before) {
+	    if (i.getId() == before) {
 		after = true;
 	    } else if (after) {
-		item.setSequence(item.getSequence() - 1);
-		simplePageToolDao.quickUpdate(item);
+		i.setSequence(i.getSequence() - 1);
+		simplePageToolDao.quickUpdate(i);
 	    }
 	}			    
 
