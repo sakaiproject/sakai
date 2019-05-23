@@ -628,19 +628,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
 
-		connection.setDoOutput(true);
-		try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
-			// Set Post body:
-			if (data != null) {
-				// Convert data to string:
-				try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8))) {
-					ObjectMapper objectMapper = new ObjectMapper();
-					String dataStr = objectMapper.writeValueAsString(data);
-					br.write(dataStr);
-					br.flush();
+		if (data != null || dataBytes != null) {
+			connection.setDoOutput(true);
+			try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+				// Set Post body:
+				if (data != null) {
+					// Convert data to string:
+					try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8))) {
+						ObjectMapper objectMapper = new ObjectMapper();
+						String dataStr = objectMapper.writeValueAsString(data);
+						br.write(dataStr);
+						br.flush();
+					}
+				} else if (dataBytes != null) {
+					wr.write(dataBytes);
 				}
-			} else if (dataBytes != null) {
-				wr.write(dataBytes);
 			}
 		}
 
@@ -650,8 +652,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseBody;
 		if (responseCode < 200 || responseCode >= 300)
 		{
+			InputStream inputStream = connection.getErrorStream() != null ? connection.getErrorStream() : connection.getInputStream();
 			// getInputStream() throws an exception in this case, but getErrorStream() has the information necessary for troubleshooting
-			responseBody = IOUtils.toString(connection.getErrorStream(), StandardCharsets.UTF_8);
+			responseBody = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 			log.warn("Turnitin response code: " + responseCode + "; message: " + responseMessage + "; body:\n" + responseBody);
 		}
 		else
