@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -138,6 +139,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				items.remove(0);
 			}
 
+			List<Long> moreItemIds = new ArrayList<>();
 			if (secondPage != null) {
 			    List<SimplePageItem> moreItems = simplePageToolDao.findItemsOnPage(secondPageId);
 
@@ -146,6 +148,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				while(moreItems.size() > 0 && moreItems.get(0).getSequence() <= 0) {
 				    moreItems.remove(0);
 				}
+				moreItemIds = moreItems.stream().collect(Collectors.mapping(SimplePageItem::getId, Collectors.toList()));
 				items.addAll(moreItems);
 			    }
 			} else
@@ -161,6 +164,12 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 
 				if (i == null) {
 				    continue;
+				}
+
+				if (moreItemIds.contains(i.getId())) {
+					second = true;
+				} else {
+					second = false;
 				}
 
 				String subtype = null;
