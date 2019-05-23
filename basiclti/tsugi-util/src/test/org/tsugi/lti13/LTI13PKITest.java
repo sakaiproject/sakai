@@ -150,7 +150,7 @@ public class LTI13PKITest {
 		assertEquals(publicKey.getAlgorithm(), newPublicKey.getAlgorithm());
 
 		// Now lets verify the string....
-		String subject = Jwts.parser().setSigningKey(newPublicKey).parseClaimsJws(jws).getBody().getSubject();
+		String subject = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(newPublicKey).parseClaimsJws(jws).getBody().getSubject();
 		assertEquals("Joe", subject);
 
 	}
