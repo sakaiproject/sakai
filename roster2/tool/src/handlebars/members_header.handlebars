@@ -7,6 +7,9 @@
             {{#unless hideNames}}
             <div class="roster-table-cell">{{translate 'facet_name'}}</div>
             {{/unless}}
+            {{#if viewUserNamePronunciation}}
+            <div class="roster-table-cell">{{translate 'facet_user_name_pronunciation'}}</div>
+            {{/if}}
             {{#if viewUserDisplayId}}
             <div class="roster-table-cell">{{translate 'facet_userId'}}</div>
             {{/if}}

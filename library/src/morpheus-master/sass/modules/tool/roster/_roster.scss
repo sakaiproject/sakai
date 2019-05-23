@@ -106,8 +106,36 @@
             margin-bottom: 5px;
 
             .roster-table-cell {
-                .roster-name-cell .namePronunciation {
-                    overflow: visible;
+                &.roster-user-name-pronunciation-cell {
+                    span+.nameAudioPlayer{
+                        margin-left: 10px;
+                    }
+                    .nameAudioPlayer {
+                        display: -webkit-inline-flex;
+                        display: -ms-inline-flexbox;
+                        display: inline-flex;
+                        @include align-items(center);
+                        @include justify-content(center);
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 16px;
+                        background-color: #ddd;
+                        border: 1px solid #bbb;
+                        cursor: pointer;
+
+                        &:hover, &:active, &:focus {
+                            background-color: darken(#ddd, 10%);
+                        }
+
+                        &.playing {
+                            background-color: #3a77a4;
+                            border-color: #2b506a;
+
+                            .fa {
+                                color: #fff;
+                            }
+                        }
+                    }
                 }
 
                 .roster-mobile-label {
@@ -162,7 +190,7 @@
                 }
             }
 
-            .roster-status-cell, .roster-credits-cell, .roster-total-visits-cell, .roster-last-visit-cell, .roster-user-props-cell {
+            .roster-status-cell, .roster-credits-cell, .roster-total-visits-cell, .roster-last-visit-cell, .roster-user-props-cell, .roster-user-name-pronunciation-cell {
                 display: none;
             }
         }
