@@ -16,9 +16,11 @@
 package org.sakaiproject.contentreview.turnitin.oc;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -609,7 +611,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		throws Exception {
 		// Set variables
 		HttpURLConnection connection = null;
-		DataOutputStream wr = null;
 		URL url = null;
 
 		// Construct URL
@@ -627,21 +628,22 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			connection.setRequestProperty(entry.getKey(), entry.getValue());
 		}
 
-		// Set Post body:
-		if (data != null) {
-			// Convert data to string:
+		if (data != null || dataBytes != null) {
 			connection.setDoOutput(true);
-			wr = new DataOutputStream(connection.getOutputStream());
-			ObjectMapper objectMapper = new ObjectMapper();
-			String dataStr = objectMapper.writeValueAsString(data);
-			wr.writeBytes(dataStr);
-			wr.flush();
-			wr.close();
-		} else if (dataBytes != null) {
-			connection.setDoOutput(true);
-			wr = new DataOutputStream(connection.getOutputStream());
-			wr.write(dataBytes);
-			wr.close();
+			try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+				// Set Post body:
+				if (data != null) {
+					// Convert data to string:
+					try (BufferedWriter br = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8))) {
+						ObjectMapper objectMapper = new ObjectMapper();
+						String dataStr = objectMapper.writeValueAsString(data);
+						br.write(dataStr);
+						br.flush();
+					}
+				} else if (dataBytes != null) {
+					wr.write(dataBytes);
+				}
+			}
 		}
 
 		// Send request:
@@ -650,8 +652,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseBody;
 		if (responseCode < 200 || responseCode >= 300)
 		{
+			InputStream inputStream = connection.getErrorStream() != null ? connection.getErrorStream() : connection.getInputStream();
 			// getInputStream() throws an exception in this case, but getErrorStream() has the information necessary for troubleshooting
-			responseBody = IOUtils.toString(connection.getErrorStream(), StandardCharsets.UTF_8);
+			responseBody = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 			log.warn("Turnitin response code: " + responseCode + "; message: " + responseMessage + "; body:\n" + responseBody);
 		}
 		else
