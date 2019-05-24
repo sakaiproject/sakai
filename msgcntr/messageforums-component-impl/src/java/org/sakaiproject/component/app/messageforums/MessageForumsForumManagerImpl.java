@@ -486,7 +486,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             return (Topic) q.uniqueResult();
         };
 
-        return getHibernateTemplate().execute(hcb);
+        // unproxy to avoid ClassCastException in certain scenarios
+        return (Topic) HibernateUtils.unproxy(getHibernateTemplate().execute(hcb));
 
     }
 
@@ -557,7 +558,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           return (BaseForum) q.uniqueResult();
       };
 
-      return getHibernateTemplate().execute(hcb);
+      // unproxy the result to avoid ClassCastException in certain scenarios
+      return (BaseForum) HibernateUtils.unproxy(getHibernateTemplate().execute(hcb));
 
     }
 

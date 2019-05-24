@@ -82,46 +82,51 @@ public class MsgForumsReferenceResolver
 				Message msg = dfMan.getMessageById(parsedRef.itemId);
 				if (msg == null)
 				{
+					log.error("Unable to retrieve message for id: " + parsedRef.itemId);
 					return ResolvedEventData.ERROR;
 				}
 
 				// we need the topic (and later the thread or "conversation") in order to provide necessary context around this message,
 				// and also to properly support the anonymous forums feature and check forums permissions
 				Topic tpc = msg.getTopic(); // lightweight topic, has only the id
-				if (tpc == null)
+				if (tpc == null || tpc.getId() == null)
 				{
+					log.error("Message " + msg.getId() + " has no topic.");
 					return ResolvedEventData.ERROR;
 				}
 
 				Optional<DiscussionTopic> dTopic = findTopic(tpc.getId(), dfMan);
-				if (dTopic.isPresent())
+				if (!dTopic.isPresent())
 				{
-					TopicData td = buildTopicData(dTopic.get(), dfMan, broker, uiPermMan);
-					if (td.deleted || !td.userPermittedToReadMsgs)
-					{
-						// we can't check permissions on the topic because the forum is required,
-						// or the current user does not have permissions to read this topic (or the topic/forum is in draft, according to the implementation)
-						return new MessageData.MessageDataTopicError(td);
-					}
-
-					// get the thread (conversation), if different from message
-					MessageData thread = null;
-					Long threadId = msg.getThreadId();
-					if (threadId != null && !msg.getId().equals(threadId))
-					{
-						Message threadMsg = dfMan.getMessageById(threadId);
-						if (threadMsg != null)
-						{
-							thread = new MessageData(td, null, threadMsg.getTitle(), threadMsg.getAuthor(), threadMsg.getCreated(), false);
-						}
-					}
-
-					if ("forums.response".equals(eventType))
-					{
-						return new MessageData(td, thread, msg.getTitle(), msg.getAuthor(), msg.getCreated(), true);
-					}
-					return new MessageData(td, thread, msg.getTitle(), msg.getAuthor(), msg.getCreated(), false);
+					log.error("Unable to find DiscussionTopic for topic id: " + tpc.getId());
+					return ResolvedEventData.ERROR;
 				}
+
+				TopicData td = buildTopicData(dTopic.get(), dfMan, broker, uiPermMan);
+				if (td.deleted || !td.userPermittedToReadMsgs)
+				{
+					// we can't check permissions on the topic because the forum is required,
+					// or the current user does not have permissions to read this topic (or the topic/forum is in draft, according to the implementation)
+					return new MessageData.MessageDataTopicError(td);
+				}
+
+				// get the thread (conversation), if different from message
+				MessageData thread = null;
+				Long threadId = msg.getThreadId();
+				if (threadId != null && !msg.getId().equals(threadId))
+				{
+					Message threadMsg = dfMan.getMessageById(threadId);
+					if (threadMsg != null)
+					{
+						thread = new MessageData(td, null, threadMsg.getTitle(), threadMsg.getAuthor(), threadMsg.getCreated(), false);
+					}
+				}
+
+				if ("forums.response".equals(eventType))
+				{
+					return new MessageData(td, thread, msg.getTitle(), msg.getAuthor(), msg.getCreated(), true);
+				}
+				return new MessageData(td, thread, msg.getTitle(), msg.getAuthor(), msg.getCreated(), false);
 			default:
 				log.error("Invalid HierarchyLevel: " + parsedRef.level + " for ref " + ref);
 				return ResolvedEventData.ERROR;
