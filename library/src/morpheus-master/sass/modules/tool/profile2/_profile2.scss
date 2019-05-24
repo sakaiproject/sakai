@@ -14,7 +14,36 @@
 		font-size: 110%;
 		padding: 0 0 0 0;
 		line-height: 2.3em;
-		font-weight: 700;
+		&:not(.notBold) {
+			font-weight: 700;
+		}
+	}
+
+	.recordButton {
+		border-radius: 17px;
+		padding: 7px 30px;
+		background: #D10029;
+		color: white;
+		border-color: #D10029;
+		box-shadow: 0 0 5px 0 rgba(0,0,0,0.25);
+		margin-bottom: 10px;
+		@include display-flex;
+		@include flex-direction(row);
+		@include align-items(center);
+
+		&:active, &:hover, &:focus {
+			background: #b50024;
+			border-color: #b50024;
+			color: white;
+		}
+	}
+
+	.audioPlayer audio {
+		max-width: 100%;
+	}
+
+	.content {
+		font-size: 14px;
 	}
 
 	.navIntraTool {

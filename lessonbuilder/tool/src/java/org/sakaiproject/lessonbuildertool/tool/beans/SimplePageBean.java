@@ -50,12 +50,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -4804,7 +4808,7 @@ public class SimplePageBean {
 		if (order == null) {
 			return "cancel";
 		}
-		
+
 		simplePageToolDao.setRefreshMode();
 
 		fixorder(); // order has to be contiguous or things will break
@@ -5235,20 +5239,19 @@ public class SimplePageBean {
 		
     private boolean arePageItemsComplete(long pageId) {
 
-	int sequence = 1;
-	SimplePageItem i = simplePageToolDao.findNextItemOnPage(pageId, sequence);
+        int sequence = 0;
+        SimplePageItem i = simplePageToolDao.findNextItemOnPage(pageId, sequence);
 
-	while (i != null) {
-	    if (i.isRequired() && !isItemComplete(i) && isItemVisible(i)) 
-		return false; 
+        while (i != null) {
+            if (i.isRequired() && !isItemComplete(i) && isItemVisible(i)) {
+                return false;
+            }
+            sequence++;
+            i = simplePageToolDao.findNextItemOnPage(pageId, sequence);
+        }
 
-	    sequence++; 
-	    i = simplePageToolDao.findNextItemOnPage(pageId, sequence); 
-	}
-
-	return true;
+        return true;
     }
-
 
     // this is called in a loop to see whether items are available. Since computing it can require
     // database transactions, we cache the results
@@ -5539,7 +5542,6 @@ public class SimplePageBean {
 			return true;
 		}
 		
-		
 		List<SimplePageItem> items = getItemsOnPage(Long.valueOf(findItem(itemId).getSakaiId()));
 
 		for (SimplePageItem item : items) {
@@ -5614,17 +5616,15 @@ public class SimplePageBean {
 			return needed;
 		}
 
-	    // get dummy items for top level pages in site
-
-		List<SimplePageItem> items = simplePageToolDao.findItemsInSite(getCurrentSite().getId());
-		// sorted by SQL
+		final List<SimplePageItem> items = simplePageToolDao.getOrderedTopLevelPageItems(getCurrentSite().getId());
 
 		for (SimplePageItem i : items) {
 			if (i.getSakaiId().equals(currentPageId)) {
-				return needed;  // reached current page. we're done
+				return needed;	// reached current page. we're done
 			}
-			if (i.isRequired() && !isItemComplete(i) && isItemVisible(i))
+			if (i.isRequired() && !isItemComplete(i) && isItemVisible(i)) {
 				needed.add(i.getName());
+			}
 		}
 
 		return needed;

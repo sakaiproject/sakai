@@ -39,7 +39,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.myfaces.shared_impl.util.MessageUtils;
 
 import org.sakaiproject.api.app.postem.data.Gradebook;
@@ -281,7 +281,7 @@ public class PostemTool {
 		}
 		if (currentStudent == null) {	
 			return "<p>" + msgs.getFormattedMessage("no_grades_for_user", 
-					new Object[]{StringEscapeUtils.escapeHtml3(currentGradebook.getTitle())}) + "</p>";
+					new Object[]{StringEscapeUtils.escapeHtml4(currentGradebook.getTitle())}) + "</p>";
 		}
 		return currentStudent.formatGrades();
 		
@@ -294,7 +294,7 @@ public class PostemTool {
 		Set students = currentGradebook.getStudents();
 		if (students.size() == 0) {
 			return "<p>" + msgs.getFormattedMessage("no_grades_in_gradebook", 
-					new Object[]{StringEscapeUtils.escapeHtml3(currentGradebook.getTitle())}) + "</p>";
+					new Object[]{StringEscapeUtils.escapeHtml4(currentGradebook.getTitle())}) + "</p>";
 		}
 		if (currentGradebook.getFirstUploadedUsername() != null) {
 			StudentGrades student = currentGradebook.studentGrades(currentGradebook.getFirstUploadedUsername());
@@ -312,7 +312,7 @@ public class PostemTool {
 
 		if (currentGradebook.getUsernames() == null || currentGradebook.getUsernames().isEmpty()) {
 			return "<p>" + msgs.getFormattedMessage("no_grades_in_gradebook", 
-					new Object[]{StringEscapeUtils.escapeHtml3(currentGradebook.getTitle())}) + "</p>";
+					new Object[]{StringEscapeUtils.escapeHtml4(currentGradebook.getTitle())}) + "</p>";
 		}
 		
 		if (selectedStudent == null || selectedStudent.equals("")) {

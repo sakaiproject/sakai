@@ -39,7 +39,7 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.text.WordUtils;
@@ -429,7 +429,7 @@ public class ProfileUtils {
 		String stripped = FormattedText.convertFormattedTextToPlaintext(s);
 		
 		//so we escape anything that is left
-		return StringEscapeUtils.escapeHtml3(stripped);
+		return StringEscapeUtils.escapeHtml4(stripped);
 	}
 
 	/**

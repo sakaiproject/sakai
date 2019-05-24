@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -55,8 +56,7 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.BasicConnection;
-import org.sakaiproject.profile2.model.BasicPerson;
-import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
@@ -456,6 +456,42 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
 	}
 
+	@EntityCustomAction(action="pronunciation",viewKey=EntityView.VIEW_SHOW)
+	public Object getNamePronunciation(OutputStream out, EntityView view, Map<String,Object> params, EntityReference ref) {
+		if (!sakaiProxy.isLoggedIn()) {
+			throw new SecurityException("You must be logged in to get the name pronunciation of the student.");
+		}
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		MimeTypeByteArray mtba = profileLogic.getUserNamePronunciation(uuid);
+		if(mtba != null && mtba.getBytes() != null) {
+			final byte[] bytes = mtba.getBytes();
+			//check for binary
+			if(bytes != null && bytes.length > 0) {
+				try {
+					out.write(bytes);
+					ActionReturn actionReturn = new ActionReturn(StandardCharsets.UTF_8.name(), "audio/ogg", out);
+
+					Map<String,String> headers = new HashMap<>();
+					headers.put("Expires", "0");
+					headers.put("Cache-Control","no-cache, no-store, must-revalidate");
+					headers.put("Pragma", "no-cache");
+					actionReturn.setHeaders(headers);
+
+					return actionReturn;
+
+				} catch (IOException e) {
+					throw new EntityException("Error retrieving name pronunciation for " + uuid + " : " + e.getMessage(), ref.getReference());
+				}
+			}
+		}
+
+		return null;
+	}
+
 	
 	/**
 	 * {@inheritDoc}
@@ -496,7 +532,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		String displayName = userProfile.getDisplayName();
 		if(StringUtils.isNotBlank(displayName)) {
 			sb.append("<div class=\"profile2-profile-displayName\">");
-			sb.append(StringEscapeUtils.escapeHtml3(displayName));
+			sb.append(StringEscapeUtils.escapeHtml4(displayName));
 			sb.append("</div>");
 		}
 		
@@ -505,7 +541,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			String message = userProfile.getStatus().getMessage();
 			if(StringUtils.isNotBlank(message)) {
 				sb.append("<div class=\"profile2-profile-statusMessage\">");
-				sb.append(StringEscapeUtils.escapeHtml3(message));
+				sb.append(StringEscapeUtils.escapeHtml4(message));
 				sb.append("</div>");
 			}
 			
@@ -556,7 +592,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.nickname"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(nickname).toString());
+			sb.append(StringEscapeUtils.escapeHtml4(nickname).toString());
 			sb.append("</div>");
 		}
 		if(StringUtils.isNotBlank(userProfile.getPersonalSummary())) {
@@ -637,7 +673,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.position"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(position));
+			sb.append(StringEscapeUtils.escapeHtml4(position));
 			sb.append("</div>");
 		}
 		
@@ -647,7 +683,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.department"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(department));
+			sb.append(StringEscapeUtils.escapeHtml4(department));
 			sb.append("</div>");
 		}
 		
@@ -657,7 +693,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.school"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(school));
+			sb.append(StringEscapeUtils.escapeHtml4(school));
 			sb.append("</div>");
 		}
 		
@@ -667,7 +703,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.room"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(room));
+			sb.append(StringEscapeUtils.escapeHtml4(room));
 			sb.append("</div>");
 		}
 		
@@ -677,7 +713,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.course"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(course));
+			sb.append(StringEscapeUtils.escapeHtml4(course));
 			sb.append("</div>");
 		}
 		
@@ -687,7 +723,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.subjects"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(subjects));
+			sb.append(StringEscapeUtils.escapeHtml4(subjects));
 			sb.append("</div>");
 		}
 		
@@ -699,7 +735,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteBooks"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(favouriteBooks));
+			sb.append(StringEscapeUtils.escapeHtml4(favouriteBooks));
 			sb.append("</div>");
 		}
 		
@@ -709,7 +745,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteTvShows"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(favouriteTvShows));
+			sb.append(StringEscapeUtils.escapeHtml4(favouriteTvShows));
 			sb.append("</div>");
 		}
 		
@@ -719,7 +755,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteMovies"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(favouriteMovies));
+			sb.append(StringEscapeUtils.escapeHtml4(favouriteMovies));
 			sb.append("</div>");
 		}
 		
@@ -729,7 +765,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteQuotes"));
 			sb.append("</span>");
-			sb.append(StringEscapeUtils.escapeHtml3(favouriteQuotes));
+			sb.append(StringEscapeUtils.escapeHtml4(favouriteQuotes));
 			sb.append("</div>");
 		}
 		

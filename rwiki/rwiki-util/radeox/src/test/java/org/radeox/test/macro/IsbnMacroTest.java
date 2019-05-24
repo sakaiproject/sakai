@@ -47,4 +47,12 @@ public class IsbnMacroTest extends MacroTestSupport
 				"(<a href=\"http://www.amazon.com/exec/obidos/ASIN/0201615630\">Amazon.com</a>)",
 				result);
 	}
+
+	public void testIsbnX() {
+		String result = EngineManager.getInstance().render("{isbn:059615448X}",
+				context);
+		assertEquals(
+				"(<a href=\"http://www.amazon.com/exec/obidos/ASIN/059615448X\">Amazon.com</a>)",
+				result);
+	}
 }

@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -507,15 +507,15 @@ import lombok.extern.slf4j.Slf4j;
             sb.append("<fault>"); //$NON-NLS-1$
             sb.append("<request>"); //$NON-NLS-1$
             sb.append("<![CDATA["); //$NON-NLS-1$
-            sb.append(" userid = ").append(StringEscapeUtils.escapeXml(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            sb.append(" userid = ").append(StringEscapeUtils.escapeXml11(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
             sb
-                    .append(" searchTerms = ").append(StringEscapeUtils.escapeXml(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                    .append(" searchTerms = ").append(StringEscapeUtils.escapeXml11(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
             sb
-                    .append(" checksum = ").append(StringEscapeUtils.escapeXml(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                    .append(" checksum = ").append(StringEscapeUtils.escapeXml11(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
             sb
-                    .append(" contexts = ").append(StringEscapeUtils.escapeXml(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb.append(" ss = ").append(StringEscapeUtils.escapeXml(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-            sb.append(" se = ").append(StringEscapeUtils.escapeXml(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                    .append(" contexts = ").append(StringEscapeUtils.escapeXml11(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            sb.append(" ss = ").append(StringEscapeUtils.escapeXml11(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            sb.append(" se = ").append(StringEscapeUtils.escapeXml11(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
             sb.append("]]>"); //$NON-NLS-1$
             sb.append("</request>"); //$NON-NLS-1$
             sb.append("<error>"); //$NON-NLS-1$

@@ -33,7 +33,7 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -337,7 +337,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				String secondTitle = (String) second.get("siteTitle");
 
 				if (firstTitle != null)
-					return StringEscapeUtils.unescapeHtml3(firstTitle).compareToIgnoreCase(StringEscapeUtils.unescapeHtml3(secondTitle));
+					return StringEscapeUtils.unescapeHtml4(firstTitle).compareToIgnoreCase(StringEscapeUtils.unescapeHtml4(secondTitle));
 
 				return 0;
 

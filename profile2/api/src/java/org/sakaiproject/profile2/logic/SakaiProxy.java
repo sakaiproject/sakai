@@ -960,6 +960,13 @@ public interface SakaiProxy {
 	public boolean isStudentProfileEnabled();
 
 	/**
+	 * Is the profile2.profile.name.pronunciation.enabled flag set in sakai.properties? If not set, defaults to false.
+	 *
+	 * @return <code>true</code> if the profile2.profile.name.pronunciation.enabled flag is set, otherwise returns <code>false</code>.
+	 */
+	public boolean isNamePronunciationProfileEnabled();
+
+	/**
 	 * Is the profile2.import.images flag set in sakai.properties? If not set, defaults to false
 	 *
 	 * <p>
@@ -1069,4 +1076,16 @@ public interface SakaiProxy {
 	 * @return {@link SiteTitleValidationStatus}
 	 */
 	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped);
+
+	/**
+	 * Returns the name pronunciation examples link
+	 * @return the name pronunciation examples link, empty if it is not configured in sakai.properties
+	 */
+	public String getNamePronunciationExamplesLink();
+
+	/**
+	 * Returns the name pronunciation duration in seconds
+	 * @return the name pronunciation duration in seconds. 10 seconds if it is not configured in sakai.properties
+	 */
+	public int getNamePronunciationDuration();
 }

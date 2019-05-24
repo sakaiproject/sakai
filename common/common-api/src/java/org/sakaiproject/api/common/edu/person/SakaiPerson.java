@@ -315,6 +315,15 @@ public interface SakaiPerson extends EduPerson
 	 */
 	public String getBusinessBiography();
 
-	
+	/**
+	 * Set phonetic pronunciation
+	 * @param phoneticPronunciation
+	 */
+	public void setPhoneticPronunciation(String phoneticPronunciation);
 
+	/**
+	 * Get phonetic pronunciation
+	 * @return
+	 */
+	public String getPhoneticPronunciation();
 }

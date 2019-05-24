@@ -20,6 +20,7 @@ import java.util.List;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -180,6 +181,18 @@ public interface ProfileLogic {
 	 * @return count
 	 */
 	public int getAllSakaiPersonIdsCount();
-	
-	
+
+	/**
+	 * Get the user pronunciation audio resource id
+	 * @param uuid The user id
+	 * @return the audio resource id
+	 */
+	public String getUserNamePronunciationResourceId(String uuid);
+
+	/**
+	 * Get the bytes of user pronunciation ogg audio
+	 * @param uuid The user id
+	 * @return MimeTypeByteArray of ogg audio
+	 */
+	public MimeTypeByteArray getUserNamePronunciation(String uuid);
 }

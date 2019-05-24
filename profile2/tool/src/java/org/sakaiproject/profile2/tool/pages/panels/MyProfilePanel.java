@@ -36,7 +36,17 @@ public class MyProfilePanel extends Panel {
 		Panel myInfoDisplay = new MyInfoDisplay("myInfo", userProfile);
 		myInfoDisplay.setOutputMarkupId(true);
 		add(myInfoDisplay);
-		
+
+		//name pronunciation panel - load the display version by default
+		Panel myNamePronunciationDisplay;
+		if (panelState.showNamePronunciationDisplay) {
+			myNamePronunciationDisplay = new MyNamePronunciationDisplay("myNamePronunciation", userProfile);
+			myNamePronunciationDisplay.setOutputMarkupId(true);
+		} else {
+			myNamePronunciationDisplay = new EmptyPanel("myNamePronunciation");
+		}
+		add(myNamePronunciationDisplay);
+
 		//contact panel - load the display version by default
 		Panel myContactDisplay = new MyContactDisplay("myContact", userProfile);
 		myContactDisplay.setOutputMarkupId(true);

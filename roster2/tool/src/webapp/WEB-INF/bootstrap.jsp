@@ -37,6 +37,7 @@
                 firstNameLastName: ${firstNameLastName},
                 hideSingleGroupFilter: ${hideSingleGroupFilter},
                 viewUserDisplayId: ${viewUserDisplayId},
+                viewUserNamePronunciation: ${viewUserNamePronunciation},
                 viewUserProperty: ${viewUserProperty},
                 officialPictureMode: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
@@ -70,9 +71,7 @@
     <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
     <script type="text/javascript" src="/library/webjars/handlebars/4.0.6/handlebars.runtime.min.js"></script>
     <script type="text/javascript" src="/sakai-roster2-tool/templates.js"></script>
-    <script type="text/javascript" src="/sakai-roster2-tool/lib/sakai_utils.js"></script>
-    <script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>
-    <script type="text/javascript" src="/sakai-roster2-tool/js/roster.js"></script>
+    <script type="text/javascript" src="/sakai-roster2-tool/js/roster.min.js"></script>
 
     </body>
 </html>

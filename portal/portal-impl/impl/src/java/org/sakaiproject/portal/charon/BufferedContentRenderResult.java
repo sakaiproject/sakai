@@ -16,7 +16,7 @@
 
 package org.sakaiproject.portal.charon;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.site.api.ToolConfiguration;

@@ -321,14 +321,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         final String siteId = toolManager.getCurrentPlacement().getContext();
 
-        final Optional<List<ToolConfiguration>> siteTools = simplePageToolDao.getSiteTools(siteId);
+        final List<ToolConfiguration> siteTools = simplePageToolDao.getSiteTools(siteId);
 
         final Set<String> existingSitePageToolIds
             = simplePageToolDao.getSitePages(siteId).stream().map(SimplePage::getToolId).collect(Collectors.toSet());
 
-        if (siteTools.get().size() > existingSitePageToolIds.size()) {
+        if (siteTools.size() > existingSitePageToolIds.size()) {
             // Create a top level page for each tool that doesn't yet have one
-            siteTools.get().forEach(tc -> {
+            siteTools.forEach(tc -> {
 
                 if (!existingSitePageToolIds.contains(tc.getPageId())) {
                     // No page has been created for this tool placement yet. Create one.
@@ -345,24 +345,15 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             });
         }
 
-        final List<SimplePageItem> tmpSitePages = simplePageToolDao.findItemsInSite(siteId);
+		final List<SimplePageItem> sitePages = simplePageToolDao.getOrderedTopLevelPageItems(siteId);
+
+        final Set<Long> topLevelPages
+            = sitePages.stream().map(sp -> Long.valueOf(sp.getSakaiId())).collect(Collectors.toSet());
 
         // build map of all pages, so we can see if any are left over
         final Map<Long, SimplePage> pageMap
             = simplePageToolDao.getSitePages(siteId)
                 .stream().collect(Collectors.toMap(SimplePage::getPageId, Function.identity()));
-
-        // This orders the top level pages the same as the tool menu
-        final List<SimplePageItem> sitePages = siteTools.get().stream().map(t -> {
-
-            return tmpSitePages
-                .stream()
-                .filter(sp -> pageMap.get(Long.valueOf(sp.getSakaiId())).getToolId().equals(t.getPageId()))
-                .findFirst().orElse(null);
-        }).collect(Collectors.toList());
-
-        final Set<Long> topLevelPages
-            = sitePages.stream().map(sp -> Long.valueOf(sp.getSakaiId())).collect(Collectors.toSet());
 
         // list we're going to display
         List<PageEntry> entries = new ArrayList<>();
@@ -618,34 +609,34 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                     }
                 }
             }
-
-            if (!summaryPage) {
-
-                UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
-
-                if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
-                    UIOutput.make(form, "hr");
-                    UIOutput.make(form, "options");
-                    UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
-                    UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
-                }
-
-                String returnView = ((GeneralViewParameters) viewparams).getReturnView();
-                if (returnView != null && returnView.equals("reorder")) {
-                    // return to Reorder, to add items from this page
-                    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
-                } else if (((GeneralViewParameters) viewparams).newTopLevel) {
-                    UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
-                    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
-                } else {
-                    UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
-                    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
-                }
-                UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-            } else if (showDeleteButton) {
-                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
-            }
         } //for (PageEntry entry: entries)
+
+        if (!summaryPage) {
+
+            UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
+
+            if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
+                UIOutput.make(form, "hr");
+                UIOutput.make(form, "options");
+                UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
+                UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
+            }
+
+            String returnView = ((GeneralViewParameters) viewparams).getReturnView();
+            if (returnView != null && returnView.equals("reorder")) {
+                // return to Reorder, to add items from this page
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
+            } else if (((GeneralViewParameters) viewparams).newTopLevel) {
+                UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
+            } else {
+                UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
+                UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
+            }
+            UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+        } else if (showDeleteButton) {
+            UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
+        }
     }
 
     private UIStyleDecorator getImageSourceDecorator(SimplePageItem pageItem) {

@@ -22,12 +22,14 @@
 package org.sakaiproject.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.net.URLEncoder;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -152,7 +154,7 @@ public class Validator
      */
     public static String escapeJavascript(String value)
     {
-        if (value == null || "".equals(value)) return "";
+        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
         try
         {
             StringBuilder buf = new StringBuilder();
@@ -209,7 +211,7 @@ public class Validator
 		try
 		{
 			// convert the string to bytes in UTF-8
-			byte[] bytes = id.getBytes("UTF-8");
+			byte[] bytes = id.getBytes(StandardCharsets.UTF_8.name());
 
 			StringBuilder buf = new StringBuilder();
 			for (int i = 0; i < bytes.length; i++)
