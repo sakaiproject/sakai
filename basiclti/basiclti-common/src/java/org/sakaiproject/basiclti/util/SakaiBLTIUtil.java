@@ -139,6 +139,11 @@ public class SakaiBLTIUtil {
 	public static final String LTI13_DEPLOYMENT_ID = "lti13.deployment_id";
 	public static final String LTI13_DEPLOYMENT_ID_DEFAULT = "1"; // To match Moodle
 
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE = "basiclti.lti11.launchtype";
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LEGACY = "legacy";
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_LTI112 = "lti112";
+	public static final String BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT = BASICLTI_LTI11_LAUNCH_TYPE_LEGACY;
+
 	public static final String SVC_tc_profile = "tc_profile";
 	public static final String SVC_tc_registration = "tc_registration";
 	public static final String SVC_Settings = "Settings";
@@ -990,6 +995,14 @@ public class SakaiBLTIUtil {
 		setProperty(toolProps, "state", state);  // So far LTI 1.3 only
 		setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
 
+		// LTI 1.1.2
+		String tool_state = (String) tool.get("tool_state");
+		if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
+		String platform_state = (String) tool.get("platform_state");
+		if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
+		String relaunch_url = (String) tool.get("relaunch_url");
+		if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
+
 		setProperty(toolProps, LTIService.LTI_SECRET, secret);
 		setProperty(toolProps, "key", key);
 
@@ -1568,6 +1581,14 @@ public class SakaiBLTIUtil {
 				log.debug("Launching with SHA256 Signing");
 			}
 		}
+
+		// LTI 1.1.2
+		String tool_state = (String) tool.get("tool_state");
+		if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
+		String platform_state = (String) tool.get("platform_state");
+		if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
+		String relaunch_url = (String) tool.get("relaunch_url");
+		if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
 		Map<String, String> extra = new HashMap<>();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",

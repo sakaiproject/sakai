@@ -298,6 +298,40 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	}
 
 	/**
+	 * Handle the LTI 1.1.2 round trip logic
+	*/
+	private void handleLTI112(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool)
+	{
+		String default_launch_type = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE, 
+				SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_DEFAULT);
+		Long lti11_launch_type = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI11_LAUNCH_TYPE));
+
+		if ( SakaiBLTIUtil.isLTI13(tool, null) ) return;
+
+		if ( lti11_launch_type.equals(LTIService.LTI11_LAUNCH_TYPE_LEGACY) ) return;
+
+		if ( lti11_launch_type.equals(LTIService.LTI11_LAUNCH_TYPE_LTI112) ||
+					SakaiBLTIUtil.BASICLTI_LTI11_LAUNCH_TYPE_LTI112.equals(default_launch_type) ) {
+
+			String tool_state = req.getParameter("tool_state");
+			if ( StringUtils.isEmpty(tool_state) ) {
+				// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+				// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+				String platform_state = req.getRequestURI();
+				String query_string = req.getQueryString();
+				if ( StringUtils.isNotEmpty(query_string) ) {
+					platform_state = platform_state + "?" + query_string;
+				}
+				tool.put("platform_state", platform_state);
+				String relaunch_url = SakaiBLTIUtil.getOurServerUrl() + "/imsoidc/lti13/lti112";
+				tool.put("relaunch_url", relaunch_url);
+			} else {
+				tool.put("tool_state", tool_state);
+			}
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public HttpAccess getHttpAccess()
@@ -387,6 +421,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
 						return;
 					}
+
+					handleLTI112(req, res, tool);
+
 					retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
 
 				}
@@ -451,6 +488,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							return;
 						}
 					}
+
+					handleLTI112(req, res, tool);
+
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
 				}
 				else if (refId.startsWith("export:") && refId.length() > 7)

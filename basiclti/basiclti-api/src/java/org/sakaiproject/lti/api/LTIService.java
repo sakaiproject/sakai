@@ -167,7 +167,7 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             // SHA256 Support (See SAK-33898)
             "sha256:radio:label=bl_sha256:hidden=true:role=admin:choices=off,on,content",
-            "lti11_launch_type:radio:label=bl_lti11_launch_type:hidden=true:role=admin:choices=off,on",
+            "lti11_launch_type:radio:label=bl_lti11_launch_type:role=admin:choices=inherit,legacy,lti112",
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "created_at:autodate",
             "updated_at:autodate"};
@@ -306,6 +306,11 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT = "Department";
     String LTI_SITE_ATTRIBUTION_PROPERTY_NAME = "basiclti.tool.site.attribution.name";
     String LTI_SITE_ATTRIBUTION_PROPERTY_NAME_DEFAULT = "content.attribution";
+
+	String LTI11_LAUNCH_TYPE = "lti11_launch_type";
+	Long LTI11_LAUNCH_TYPE_INHERIT = 0L;
+	Long LTI11_LAUNCH_TYPE_LEGACY = 1L;
+	Long LTI11_LAUNCH_TYPE_LTI112 = 2L;
 
     // LTI 1.3
     String LTI13 = "lti13";

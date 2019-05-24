@@ -72,6 +72,12 @@ public class OIDCServlet extends HttpServlet {
 			return;
 		}
 
+		// /imsoidc/lti13/lti112?tool_state=42&platform_state=/access/basiclti/site/92e..e8e67/content:6
+		if (parts.length == 4 && "lti112".equals(parts[3])) {
+			handleLTI112Authorization(request, response);
+			return;
+		}
+
 		log.error("Unrecognized GET request parts={} request={}", parts.length, uri);
 
 		LTI13Util.return400(response, "Unrecognized GET request parts=" + parts.length + " request=" + uri);
@@ -86,9 +92,6 @@ public class OIDCServlet extends HttpServlet {
 	/**
 	 * Process the returned OIDC Authorization request
 	 *
-	 * @param signed_placement
-	 * @param lineItem - Can be null
-	 * @param results
 	 * @param request
 	 * @param response
 	 */
@@ -132,7 +135,55 @@ public class OIDCServlet extends HttpServlet {
 		redirect += "&redirect_uri=" + java.net.URLEncoder.encode(redirect_uri);
 		log.debug("redirect={}", redirect);
 
-		// Check if we need to generate a page to re-grab the cookie
+		fancyRedirect(request, response, redirect);
+	}
+
+	/**
+	 * Process the returned LTI 1.1.2 Authorization request
+	 *
+	 * @param request
+	 * @param response
+	 */
+	private void handleLTI112Authorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		String tool_state = (String) request.getParameter("tool_state");
+		tool_state = StringUtils.trimToNull(tool_state);
+
+		String platform_state = (String) request.getParameter("platform_state");
+		platform_state = StringUtils.trimToNull(platform_state);
+
+		if (tool_state == null || platform_state == null) {
+			LTI13Util.return400(response, "Missing tool_state or platform_state parameter");
+			log.error("Missing tool_state or platform_state parameter");
+			return;
+		}
+
+		if (!platform_state.startsWith("/access/basiclti/site/")
+				|| platform_state.contains("\"") || platform_state.contains("'")
+				|| platform_state.contains("<") || platform_state.contains(">")
+				|| platform_state.contains(" ") || platform_state.contains(";")) {
+			LTI13Util.return400(response, "Bad format for platform_state");
+			log.error("Bad format for platform_state");
+			return;
+		}
+
+		String redirect = platform_state;
+		redirect += (redirect.contains("?") ? "&" : "?");
+		redirect += "tool_state=" + java.net.URLEncoder.encode(tool_state);
+		log.debug("redirect={}", redirect);
+
+		fancyRedirect(request, response, redirect);
+	}
+
+	/**
+	 * Redirect to a URL compensating for various scenarios
+	 *
+	 * @param request
+	 * @param response
+	 */
+	private void fancyRedirect(HttpServletRequest request, HttpServletResponse response, String redirect) throws IOException {
+
+		// Check if we need to generate a page to re-attach the cookie
 		String sessionCookie = HttpUtil.getCookie(request, cookieName);
 		if (StringUtils.isEmpty(sessionCookie)) {
 			PrintWriter out = null;
