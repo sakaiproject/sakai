@@ -70,16 +70,19 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-[Sakai 19.0](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes) is the community supported release of Sakai 19.
+Sakai 19.1 ([release](http://source.sakaiproject.org/release/19.1/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+19+Release+Notes))
+Is the community supported release of Sakai 19.
 
-[Sakai 12.6](https://confluence.sakaiproject.org/display/DOC/Sakai+12+Release+Notes) is the community supported release of Sakai 12.
+Sakai 12.6 ([release](http://source.sakaiproject.org/release/12.6/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+12+Release+Notes))
+Is the community supported release of Sakai 12.
 
-Sakai 11 and earlier are no longer supported by the community.
+Sakai 11.4 ([release](http://source.sakaiproject.org/release/11.4/))
+And earlier are no longer supported by the community.
 
 For full history of supported releases please see our [release information on confluence](https://confluence.sakaiproject.org/display/DOC/Sakai+Release+Date+list).
 
 ## Under Development
-[Sakai 19.1](https://confluence.sakaiproject.org/display/REL/Sakai+19+Straw+person) is the current developement release of Sakai 19. It is expected to release Q2 2019.
+[Sakai 19.2](https://confluence.sakaiproject.org/display/REL/Sakai+19+Straw+person) is the current developement release of Sakai 19. It is expected to release Q3 2019.
 
 Sakai 12.7 is the current development branch of Sakai 12.
 
