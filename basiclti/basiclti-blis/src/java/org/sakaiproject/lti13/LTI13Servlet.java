@@ -426,7 +426,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Jws<Claims> claims = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(client_assertion);
+		Jws<Claims> claims = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(publicKey).parseClaimsJws(client_assertion);
 
 		if (claims == null) {
 			LTI13Util.return400(response, "Could not verify signature");
