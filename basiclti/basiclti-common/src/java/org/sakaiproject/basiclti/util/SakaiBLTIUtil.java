@@ -997,11 +997,11 @@ public class SakaiBLTIUtil {
 
 		// LTI 1.1.2
 		String tool_state = (String) tool.get("tool_state");
-		if ( ! StringUtils.isEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
+		if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
 		String platform_state = (String) tool.get("platform_state");
-		if ( ! StringUtils.isEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
+		if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
 		String relaunch_url = (String) tool.get("relaunch_url");
-		if ( ! StringUtils.isEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
+		if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
 		setProperty(toolProps, LTIService.LTI_SECRET, secret);
 		setProperty(toolProps, "key", key);
@@ -1584,11 +1584,11 @@ public class SakaiBLTIUtil {
 
 		// LTI 1.1.2
 		String tool_state = (String) tool.get("tool_state");
-		if ( ! StringUtils.isEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
+		if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
 		String platform_state = (String) tool.get("platform_state");
-		if ( ! StringUtils.isEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
+		if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
 		String relaunch_url = (String) tool.get("relaunch_url");
-		if ( ! StringUtils.isEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
+		if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
 
 		Map<String, String> extra = new HashMap<>();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST",

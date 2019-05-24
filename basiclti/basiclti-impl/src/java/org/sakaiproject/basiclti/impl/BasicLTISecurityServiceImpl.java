@@ -298,7 +298,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	}
 
 	/**
-	 * Handle the LTI 1.1.2 roud trip logic
+	 * Handle the LTI 1.1.2 round trip logic
 	*/
 	private void handleLTI112(HttpServletRequest req, HttpServletResponse res, Map<String, Object> tool)
 	{
@@ -319,7 +319,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 				String platform_state = req.getRequestURI();
 				String query_string = req.getQueryString();
-					if ( StringUtils.isNotEmpty(query_string)) {
+				if ( StringUtils.isNotEmpty(query_string) ) {
 					platform_state = platform_state + "?" + query_string;
 				}
 				tool.put("platform_state", platform_state);
