@@ -45,7 +45,7 @@ public class LTI13JJWTTest {
 		}
 		assertTrue(good);
 
-		String subject = Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getBody().getSubject();
+		String subject = Jwts.parser().setAllowedClockSkewSeconds(60).setSigningKey(key).parseClaimsJws(jws).getBody().getSubject();
 		assertEquals("Joe", subject);
 	}
 
