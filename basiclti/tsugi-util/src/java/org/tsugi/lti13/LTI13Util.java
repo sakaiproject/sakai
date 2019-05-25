@@ -31,6 +31,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONObject;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.tsugi.lti13.objects.LaunchJWT;
+import org.tsugi.lti13.objects.LTI11Transition;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -184,6 +190,77 @@ public class LTI13Util {
 		}
 	}
 
+	// https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
+	/*
+		sign=base64(hmac_sha256(utf8bytes('179248902&689302&https://lmsvendor.com&PM48OJSfGDTAzAo&1551290856&172we8671fd8z'), utf8bytes('my-lti11-secret')))
+
+		{
+			"nonce": "172we8671fd8z",
+			"iat": 1551290796,
+			"exp": 1551290856,
+			"iss": "https://lmsvendor.com",
+			"aud": "PM48OJSfGDTAzAo",
+			"sub": "3",
+			"https://purl.imsglobal.org/spec/lti/claim/deployment_id": "689302",
+			"https://purl.imsglobal.org/spec/lti/claim/lti1p1": {
+				"user_id": "34212",
+				"oauth_consumer_key": "179248902",
+				"oauth_consumer_key_sign": "lWd54kFo5qU7xshAna6v8BwoBm6tmUjc6GTax6+12ps="
+			}
+		}
+
+	 */
+
+	public static String getLTI11TransitionBase(LaunchJWT lj) {
+
+		String nonce =  lj.nonce;
+		Long expires = lj.expires;
+		String issuer = lj.issuer;
+		String client_id = lj.audience;
+		String subject = lj.subject;
+		String deployment_id = lj.deployment_id;
+		if ( nonce == null || issuer == null || expires == null ||
+				client_id == null || subject == null || deployment_id == null) return null;
+
+		if ( lj.lti11_transition == null ) return null;
+		LTI11Transition lti11_transition = lj.lti11_transition;
+		String user_id = lti11_transition.user_id;
+		String oauth_consumer_key = lti11_transition.oauth_consumer_key;
+		if ( user_id == null || oauth_consumer_key == null ) return null;
+
+		String base = oauth_consumer_key + "&" + deployment_id + "&" + issuer + "&" +
+			client_id + "&" + expires + "&" + nonce;
+
+		return base;
+	}
+
+	public static String signLTI11Transition(LaunchJWT lj, String secret) {
+
+		if ( secret == null ) return null;
+
+		String base = getLTI11TransitionBase(lj);
+		if ( base == null ) return null;
+
+		String signature = compute_HMAC_SHA256(base, secret);
+		return signature;
+	}
+
+	public static boolean checkLTI11Transition(LaunchJWT lj, String secret) {
+
+		if ( secret == null ) return false;
+
+		LTI11Transition lti11_transition = lj.lti11_transition;
+		if ( lti11_transition == null ) return false;
+		String oauth_consumer_key_sign = lti11_transition.oauth_consumer_key_sign;
+		if ( oauth_consumer_key_sign == null ) return false;
+
+		String base = getLTI11TransitionBase(lj);
+		if ( base == null ) return false;
+
+		String signature = compute_HMAC_SHA256(base, secret);
+		return oauth_consumer_key_sign.equals(signature);
+	}
+
 	public static String sha256(String input) {
 
 		try {
@@ -198,6 +275,24 @@ public class LTI13Util {
 		}
 	}
 
+	// Adapted from:
+	// https://stackoverflow.com/questions/7124735/hmac-sha256-algorithm-for-signature-calculation
+	public static String compute_HMAC_SHA256(String message, String secret)
+	{
+
+		try {
+			Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+			SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+			sha256_HMAC.init(secret_key);
+
+			String hash = Base64.getEncoder().encodeToString(sha256_HMAC.doFinal(message.getBytes()));
+			return hash;
+		}
+		catch (Exception e){
+			return null;
+		}
+	}
+
 	/*
 		HTTP/1.1 400 OK
 		Content-Type: application/json;charset=UTF-8
@@ -205,7 +300,7 @@ public class LTI13Util {
 		Pragma: no-cache
 
 		{
-			"error" : "invalid_scope"    
+			"error" : "invalid_scope"
 		}
 	*/
 	public static void return400(HttpServletResponse response, String error, String detail) {
