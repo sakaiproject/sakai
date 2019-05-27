@@ -13,6 +13,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -128,6 +129,41 @@ public class MyNamePronunciationEdit extends Panel {
 
         Label namePronunciationDuration = new Label("namePronunciationDuration", sakaiProxy.getNamePronunciationDuration());
         form.add(namePronunciationDuration);
+
+        //Delete recording link
+        AjaxLink clearRecordingLink = new AjaxLink("clearExistingRecordingLink") {
+
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                String userId = sakaiProxy.getCurrentUserId();
+                String path = profileLogic.getUserNamePronunciationResourceId(userId);
+                sakaiProxy.removeResource(path);
+                log.info("Pronunciation recording removed for the user {}. ", userId );
+                //repaint panel
+                Component newPanel = new MyNamePronunciationDisplay(id, userProfile);
+                newPanel.setOutputMarkupId(true);
+                thisPanel.replaceWith(newPanel);
+                if(target != null) {
+                    target.add(newPanel);
+                    target.appendJavaScript("setMainFrameHeight(window.name);");
+                }
+            }
+
+            @Override
+            protected void updateAjaxAttributes( AjaxRequestAttributes attributes )
+            {
+                super.updateAjaxAttributes( attributes );
+         
+                AjaxCallListener ajaxCallListener = new AjaxCallListener();
+                ajaxCallListener.onPrecondition( "return confirm('" + new ResourceModel("profile.phonetic.clear.confirmation").getObject() + "');" );
+                attributes.getAjaxCallListeners().add( ajaxCallListener );
+            }
+        };
+
+        if (profileLogic.getUserNamePronunciation(userProfile.getUserUuid()) == null) clearRecordingLink.setVisible(false);
+        clearRecordingLink.add(new Label("clearExistingRecordingLabel", new ResourceModel("profile.phonetic.clear.recording.label")));
+        clearRecordingLink.add(new AttributeModifier("title",  new ResourceModel("profile.phonetic.clear.recording.label")));
+        nameRecordingContainer.add(clearRecordingLink);
 
         //submit button
         AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
