@@ -967,6 +967,12 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 				handleReportStatus(item, status);
 
+			} catch (IOException e) {
+				log.error(e.getLocalizedMessage(), e);
+				item.setLastError("A problem occurred while retrieving an originality score from Turnitin");
+				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
+				crqs.update(item);
+				errors++;
 			} catch (Exception e) {
 				log.error(e.getLocalizedMessage(), e);
 				item.setLastError(e.getMessage());
