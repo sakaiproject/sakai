@@ -211,6 +211,15 @@ public class LTI13Util {
 
 	 */
 
+	/**
+	 * Compute the base string for a Launch JWT
+	 *
+	 * See: https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
+	 *
+	 * @param lj The Launch JSON Web Token with the LTI 1.1 transition data
+	 *
+	 * @return string This is null if the base string cannot be computed
+	 */
 	public static String getLTI11TransitionBase(LaunchJWT lj) {
 
 		String nonce =  lj.nonce;
@@ -234,6 +243,16 @@ public class LTI13Util {
 		return base;
 	}
 
+	/**
+	 * Compute the OAuth signature for an LTI 1.3 Launch JWT
+	 *
+	 * See: https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
+	 *
+	 * @param lj The Launch JSON Web Token with the LTI 11 transition data
+	 * @param secret The OAuth secret
+	 *
+	 * @return string This is null if the signature cannot be computed
+	 */
 	public static String signLTI11Transition(LaunchJWT lj, String secret) {
 
 		if ( secret == null ) return null;
@@ -245,14 +264,31 @@ public class LTI13Util {
 		return signature;
 	}
 
-	public static boolean checkLTI11Transition(LaunchJWT lj, String secret) {
+	/**
+	 * Check the OAuth signature for an LTI 1.3 Launch JWT
+	 *
+	 * See: https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
+	 *
+	 * @param lj The Launch JSON Web Token with the LTI 11 transition data
+	 * @param key The OAuth key
+	 * @param secret The OAuth secret
+	 *
+	 * @return true if the signature matches, false if the JWT
+	 * the signature does not match or the JWT data is malformed.
+	 */
+	public static boolean checkLTI11Transition(LaunchJWT lj, String key, String secret) {
 
+		if ( key == null ) return false;
 		if ( secret == null ) return false;
 
 		LTI11Transition lti11_transition = lj.lti11_transition;
 		if ( lti11_transition == null ) return false;
 		String oauth_consumer_key_sign = lti11_transition.oauth_consumer_key_sign;
 		if ( oauth_consumer_key_sign == null ) return false;
+		String oauth_consumer_key = lti11_transition.oauth_consumer_key;
+		if ( oauth_consumer_key == null ) return false;
+
+		if ( !oauth_consumer_key.equals(key) ) return false;
 
 		String base = getLTI11TransitionBase(lj);
 		if ( base == null ) return false;
@@ -275,8 +311,20 @@ public class LTI13Util {
 		}
 	}
 
-	// Adapted from:
-	// https://stackoverflow.com/questions/7124735/hmac-sha256-algorithm-for-signature-calculation
+	/**
+	 * Compute the HMAC256 of a string (part of LTI 1.1 Transition)
+	 *
+	 * See: https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
+	 *
+	 * Based on:
+	 * https://www.jokecamp.com/blog/examples-of-creating-base64-hashes-using-hmac-sha256-in-different-languages/#php
+	 * https://stackoverflow.com/questions/7124735/hmac-sha256-algorithm-for-signature-calculation
+	 *
+	 * @param object $message The message to sign
+	 * @param string $secret The secret used to sign the message
+	 *
+	 * @return string The signed message
+	 */
 	public static String compute_HMAC_SHA256(String message, String secret)
 	{
 

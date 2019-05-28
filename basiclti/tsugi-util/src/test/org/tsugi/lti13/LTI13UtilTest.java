@@ -120,10 +120,13 @@ public class LTI13UtilTest {
 
 		lj.lti11_transition.oauth_consumer_key_sign = signature;
 
-		boolean check = LTI13Util.checkLTI11Transition(lj, secret);
+		boolean check = LTI13Util.checkLTI11Transition(lj, oauth_consumer_key, secret);
 		assertTrue(check);
 
-		check = LTI13Util.checkLTI11Transition(lj, "badsecret");
+		check = LTI13Util.checkLTI11Transition(lj, oauth_consumer_key, "badsecret");
+		assertFalse(check);
+
+		check = LTI13Util.checkLTI11Transition(lj, "badkey", secret);
 		assertFalse(check);
 	}
 
