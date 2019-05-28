@@ -1248,7 +1248,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				errorStr = "The uploaded file requires a password in order to be opened";
 				break;
 			case "CORRUPT_FILE":
-				errorStr = "The uploaded file appears to be corrupt";
+				errorStr = "The uploaded file appears to be corrupt or password protected";
 				break;
 			case "ERROR":
 				errorStr = "Submission returned with ERROR status";
