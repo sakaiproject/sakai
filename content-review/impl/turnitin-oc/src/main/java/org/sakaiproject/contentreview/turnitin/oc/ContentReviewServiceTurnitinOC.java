@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -782,7 +783,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 
-	private String getSubmissionId(String userID, String fileName, Site site, Assignment assignment) {
+	private String getSubmissionId(ContentReviewItem item, String fileName, Site site, Assignment assignment) {
+		String userID = item.getUserId();
 
 		String submissionId = null;
 		try {
@@ -830,19 +832,27 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			JSONObject responseJSON = JSONObject.fromObject(responseBody);
 
 			if ((responseCode >= 200) && (responseCode < 300)) {
-				if (responseJSON.containsKey("status") && responseJSON.getString("status").equals(STATUS_CREATED)
-						&& responseJSON.containsKey("id")) {
+				String status = responseJSON.containsKey("status") ? responseJSON.getString("status") : null;
+				if (STATUS_CREATED.equals(status) && responseJSON.containsKey("id")) {
 					submissionId = responseJSON.getString("id");
 				} else {
 					log.error("getSubmissionId response: " + responseMessage);
+					item.setLastError("Unexpected response from Turnitin. Response code is " + responseCode + ". " +
+						(STATUS_CREATED.equals(status) ? "Expected a Turnitin ID, but none was provided" : "Status is: " + status));
 				}
 			} else {
 				log.error("getSubmissionId response code: " + responseCode + ", " + responseMessage + ", "
 						+ responseJSON);
+				item.setLastError(responseCode + " - " + responseMessage);
 			}
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			item.setLastError("A problem occurred communicating with Turnitin");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
+			item.setLastError("An unknown / unhandled error has occurred");
 		}
+
 		return submissionId;
 	}
 
@@ -1046,7 +1056,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
 							&& FilenameUtils.getExtension(fileName).isEmpty()) {
 						fileName += HTML_EXTENSION;
-					}							
+					}
+					boolean updateLastError = true;
 					try {
 						log.info("Submission starting...");
 						// Retrieve submissionId from TCA and set to externalId
@@ -1058,10 +1069,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							//no worries, just log it
 							log.error("Site not found for item: " + item.getId() + ", site: " + item.getSiteId(), e);
 						}
-						String externalId = getSubmissionId(item.getUserId(), fileName, site, assignment);
+						String externalId = getSubmissionId(item, fileName, site, assignment);
 						if (StringUtils.isEmpty(externalId)) {
-							throw new Exception("submission id is missing");
-						} else {
+							// getSubmissionId sets the item's lastError accurately in accordance with the Turnitin response
+							updateLastError = false;
+							throw new Exception("Failed to obtain a submission ID from Turnitin");
+						}
+						else {
 							// Add filename to content upload headers
 							CONTENT_UPLOAD_HEADERS.put(HEADER_DISP, "inline; filename=\"" + fileName + "\"");
 							// Upload submission contents of to TCA
@@ -1084,7 +1098,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
-						item.setLastError(e.getMessage());
+						if (updateLastError) {
+							item.setLastError(e.getMessage());
+						}
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 						crqs.update(item);
 						errors++;
