@@ -67,6 +67,89 @@
   @include bs-callout($error-color, $error-background-color);
 }
 
+@mixin sakai-banner($bordercolor, $bgcolor, $color, $icon, $isInline: false) {
+	position: relative;
+	@if $isInline {
+		display: inline-block;
+		margin: 0;
+		padding: 0 $standard-space;
+	} @else {
+		display: block;
+		margin: $standard-spacing 0;
+		padding: $standard-spacing;
+	}
+	border-left: calc( #{$standard-spacing} / 2) solid $bordercolor;
+	background-color: $bgcolor;
+	color: $color;
+	
+	// display an icon indicating banner type on the left of the text
+	&:before {
+		content: '';
+		@extend .fa;
+		@extend .fa-fw;		// fixed width icons
+		@extend #{$icon};	// icon passed in through mixin's parameter
+		margin-right: $standard-space;	// space between icon and message text
+		color: $bordercolor;
+	}
+	
+	// display a closing X on the right of the banner to indicate that the banner is dismissible
+	.dismiss {
+		@if $isInline == false {
+			position: absolute;
+			top: $standard-spacing;			// space between icon and top edge of banner
+			right: $standard-spacing;		// space between icon and right edge of banner
+		} @else {
+			margin-left: $standard-space;	// space between icon and end of message text
+		}
+		text-decoration: none;
+		
+		span {
+			font-size: 0;		// hide the accessible text
+		}
+		
+		&:before {
+			content: '';
+			@extend .fa;
+			@extend .fa-fw;	// fixed width icons
+			@extend .fa-close;
+		}
+	}
+	
+	// any links in the banners should have the same text color contrast and be underlined
+	a[href] {
+		color: $color;
+		text-decoration: underline;
+	}
+}
+
+.sak-banner-info {
+	@include sakai-banner($infoBanner-bordercolor, $infoBanner-bgcolor, $text-color, $infoBanner-icon, false);
+}
+.sak-banner-info-inline {
+	@include sakai-banner($infoBanner-bordercolor, $infoBanner-bgcolor, $text-color, $infoBanner-icon, true);
+}
+.sak-banner-success {
+	@include sakai-banner($successBanner-bordercolor, $successBanner-bgcolor, $text-color, $successBanner-icon, false);
+}
+.sak-banner-success-inline {
+	@include sakai-banner($successBanner-bordercolor, $successBanner-bgcolor, $text-color, $successBanner-icon, true);
+}
+.sak-banner-warn {
+	@include sakai-banner($warnBanner-bordercolor, $warnBanner-bgcolor, $text-color, $warnBanner-icon, false);
+}
+.sak-banner-warn-inline {
+	@include sakai-banner($warnBanner-bordercolor, $warnBanner-bgcolor, $text-color, $warnBanner-icon, true);
+}
+.sak-banner-error {
+	@include sakai-banner($errorBanner-bordercolor, $errorBanner-bgcolor, $text-color, $errorBanner-icon, false);
+}
+.sak-banner-error-inline {
+	@include sakai-banner($errorBanner-bordercolor, $errorBanner-bgcolor, $text-color, $errorBanner-icon, true);
+}
+.sak-banner-dismiss {
+	padding-right: calc(#{$standard-spacing} + 1.2em + #{$standard-spacing});		// allow enough room for dismiss "X"
+}
+
 @mixin icon( $width : $icon-size, $height : $icon-size ){
 	border: 0px none;
 	display: inline-block;
