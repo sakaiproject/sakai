@@ -32,6 +32,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -163,7 +164,7 @@ public class SaveAssessmentSettingsListener
         error=true;
     }
     
-    String ipString = assessmentSettings.getIpAddresses().trim();  
+    String ipString = StringUtils.deleteWhitespace(assessmentSettings.getIpAddresses());
      String[]arraysIp=(ipString.split("\n"));
      boolean ipErr=false;
      for(int a=0;a<arraysIp.length;a++){
