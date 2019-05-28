@@ -691,7 +691,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		reportData.put("view_settings", viewSettings);
 		
 		Map<String, Object> indexingSettings = new HashMap<String, Object>();
-		indexingSettings.put("add_to_index", true);
+		indexingSettings.put("add_to_index", "true".equals(assignmentSettings.get("store_inst_index")));
 		reportData.put("indexing_settings", indexingSettings);
 
 		HashMap<String, Object> response = makeHttpCall("PUT",
