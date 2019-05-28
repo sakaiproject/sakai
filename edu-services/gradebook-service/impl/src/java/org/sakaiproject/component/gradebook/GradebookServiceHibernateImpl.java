@@ -56,6 +56,7 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
@@ -226,6 +227,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		} else {
 			return null;
 		}
+	}
+
+	public Assignment getExternalAssignment(final String gradebookUid, final String externalId)
+			throws GradebookNotFoundException {
+
+		final Gradebook gradebook = getGradebook(gradebookUid);
+
+		final HibernateCallback<GradebookAssignment> hc = session -> (GradebookAssignment) session
+				.createQuery("from GradebookAssignment as asn where asn.gradebook = :gradebook and asn.externalId = :externalid")
+				.setEntity("gradebook", gradebook)
+				.setString("externalid", externalId)
+				.uniqueResult();
+
+		return getAssignmentDefinition(getHibernateTemplate().execute(hc));
 	}
 
 	@Override

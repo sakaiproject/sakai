@@ -16187,8 +16187,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (name.startsWith("import-option-")) {
 				String option = name.substring(14, name.indexOf("-tool-"));
 				String toolId = name.substring(name.indexOf("-tool-") + 6);
-				System.out.println("TOOLID: " + toolId);
-				System.out.println("OPTION: " + option);
 				if (toolOptions.get(toolId) == null) {
 					toolOptions.put(toolId, new ArrayList<>());
 				}

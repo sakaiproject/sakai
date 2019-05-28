@@ -1341,6 +1341,8 @@ function setupImportSitesForm($form) {
     });
   });
 
+  $(".import-option-help").popover();
+
   $(".siteimport-tool-checkbox").click(function (e) {
 
     if (e.target.checked) {

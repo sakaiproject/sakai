@@ -221,6 +221,9 @@ public interface GradebookService {
 	public Assignment getAssignment(String gradebookUid, String assignmentName)
 			throws AssessmentNotFoundException;
 
+	public Assignment getExternalAssignment(final String gradebookUid, final String externalId)
+			throws GradebookNotFoundException;
+
 	/**
 	 * Get an assignment based on its name or id. This is intended as a migration path from the deprecated
 	 * {@link #getAssignment(String,String)} to the new {@link #getAssignment(String,Long)}
