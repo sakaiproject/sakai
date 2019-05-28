@@ -88,6 +88,7 @@ import org.tsugi.lti13.objects.LaunchLIS;
 import org.tsugi.lti13.objects.NamesAndRoles;
 import org.tsugi.lti13.objects.ResourceLink;
 import org.tsugi.lti13.objects.ToolPlatform;
+import org.tsugi.lti13.objects.LTI11Transition;
 import org.tsugi.lti2.ContentItem;
 import org.tsugi.lti2.LTI2Caps;
 import org.tsugi.lti2.LTI2Config;
@@ -1833,6 +1834,7 @@ user_id: admin
 		 */
 
 		String context_id = ltiProps.getProperty("context_id");
+		String user_id = (String) ltiProps.getProperty("user_id");
 
 		// Lets make a JWT from the LTI 1.x data
 		boolean deepLink = false;
@@ -1847,14 +1849,14 @@ user_id: admin
 		lj.launch_presentation.return_url = ltiProps.getProperty("launch_presentation_return_url");
 		lj.audience = client_id;
 		lj.issuer = getIssuer(site_id);
-		lj.lti11_legacy_user_id = (String) ltiProps.getProperty("user_id");
-		lj.subject = getSubject(lj.lti11_legacy_user_id, context_id);
+		lj.subject = getSubject(user_id, context_id);
 		lj.name = ltiProps.getProperty("lis_person_name_full");
 		lj.nonce = toolProps.getProperty("nonce");
 		lj.email = ltiProps.getProperty("lis_person_contact_email_primary");
 		lj.issued = new Long(System.currentTimeMillis() / 1000L);
 		lj.expires = lj.issued + 3600L;
 		lj.deployment_id = getDeploymentId(context_id);
+
 		// TODO: Check through the rolemap logic
 		String lti1_roles = ltiProps.getProperty("roles");
 		if (lti1_roles != null && lti1_roles.contains("Instructor")) {
@@ -1871,6 +1873,24 @@ user_id: admin
 			lj.resource_link.description = ltiProps.getProperty("resource_link_description");
 		}
 
+		// Construct the LTI 1.1 -> LTIAdvantage transition claim
+		// https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
+		String oauth_consumer_key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+		String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+		oauth_secret = decryptSecret(oauth_secret);
+		if ( oauth_consumer_key != null && oauth_secret != null ) {
+			lj.lti11_transition = new LTI11Transition();
+			lj.lti11_transition.user_id = user_id;
+			lj.lti11_transition.oauth_consumer_key = oauth_consumer_key;
+			String oauth_signature = LTI13Util.signLTI11Transition(lj, oauth_secret);
+			if ( oauth_signature != null ) {
+				lj.lti11_transition.oauth_consumer_key_sign = oauth_signature;
+			} else {
+				lj.lti11_transition = null;
+			}
+		}
+
+		// Load up the context data
 		lj.context = new Context();
 		lj.context.id = context_id;
 		lj.context.label = ltiProps.getProperty("context_label");
