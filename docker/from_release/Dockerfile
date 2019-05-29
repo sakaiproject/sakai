@@ -41,7 +41,7 @@ ENV CATALINA_OPTS \
 -Dhttp.agent=Sakai \
 -Djava.util.Arrays.useLegacyMergeSort=true 
 
-RUN sed -i.orig '/^common.loader=/s@$@,"${catalina.base}/sakai-lib/*.jar"@' /usr/local/tomcat/conf/catalina.properties
+RUN sed -i '/^common.loader\=/ s/$/,"${catalina.base}\/sakai-lib\/*.jar"/' /usr/local/tomcat/conf/catalina.properties
 
 RUN curl -L -o /usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar
 
