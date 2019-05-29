@@ -24,6 +24,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -65,20 +66,20 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	public GbUser(final User u, String studentNumber) {
 		this.userUuid = u.getId();
 		this.displayId = u.getDisplayId();
-		this.displayName = u.getDisplayName();
-		this.firstName = u.getFirstName();
-		this.lastName = u.getLastName();
-		this.studentNumber = studentNumber;
+		this.displayName = FormatHelper.htmlEscape(u.getDisplayName());
+		this.firstName = FormatHelper.htmlEscape(u.getFirstName());
+		this.lastName = FormatHelper.htmlEscape(u.getLastName());
+		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
 		this.sections = Collections.emptyList();
 	}
 
 	public GbUser(final String userUUID, final String displayID, final String displayName, final String firstName, final String lastName, final String studentNumber) {
 		this.userUuid = userUUID;
 		this.displayId = displayID;
-		this.displayName = displayName;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.studentNumber = studentNumber;
+		this.displayName = FormatHelper.htmlEscape(displayName);
+		this.firstName = FormatHelper.htmlEscape(firstName);
+		this.lastName = FormatHelper.htmlEscape(lastName);
+		this.studentNumber = FormatHelper.htmlEscape(studentNumber);
 		this.sections = Collections.emptyList();
 	}
 
