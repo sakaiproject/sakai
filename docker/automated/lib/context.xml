@@ -1,0 +1,7 @@
+<Context>
+    <JarScanner>
+        <!-- This is to speedup startup so that tomcat doesn't scan as much -->
+        <JarScanFilter defaultPluggabilityScan="false" defaultTldScan="false" tldScan="jsf2-widgets-*.jar,javax.faces-*.jar,jsf-impl-*.jar,jsf-widgets-*.jar,myfaces-impl-*.jar,pluto-taglib-*.jar,sakai-sections-app-util-*.jar,spring-webmvc-*.jar,standard-*.jar,tomahawk*.jar,tomahawk-*.jar"/>
+    </JarScanner>
+</Context>
+

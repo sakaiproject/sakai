@@ -1,0 +1,5 @@
+cluster.name: sakai_cluster
+bootstrap.memory_lock: true
+discovery.zen.ping.unicast.hosts: tasks.sakai:9300
+discovery.zen.minimum_master_nodes: 2  
+node.master: true

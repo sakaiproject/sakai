@@ -1,0 +1,69 @@
+version: '3.6'
+services:
+  sakai:
+    image: sakai
+    ports:
+      - "8080:8080"
+    configs:
+      - source: sakai_config
+        target: /usr/local/sakai/properties/sakai.properties
+    networks:
+      - elastic
+      - mysql
+      - mail
+    secrets:
+      - security.properties
+  mysql:
+    image: mysql:5.5
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: examplerootpassword
+      MYSQL_DATABASE: sakai
+      MYSQL_USER: sakai
+      MYSQL_PASSWORD: examplepassword
+    networks:
+      - mysql
+  elasticsearch:
+    image: elasticsearch:1.7.6
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    configs:
+      - source: elastic_config
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+    networks:
+      - elastic
+    deploy:
+      endpoint_mode: dnsrr
+  cerebro:
+    image: lmenezes/cerebro
+    ports:
+      - "8082:9000"
+    networks:
+      - elastic
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - "8081:1080"
+    networks:
+      - mail
+    
+configs:
+  sakai_config:
+    file: ./config/sakai.es.properties
+  elastic_config:
+    file: ./config/elasticsearch.yml
+
+secrets:
+  security.properties:
+    file: ./secrets/security.properties
+
+networks:
+  elastic:
+    driver: overlay
+    ipam:
+      config:
+        - subnet: 10.99.99.0/24
+  mysql:
+    driver: overlay
+  mail:
+    driver: overlay
