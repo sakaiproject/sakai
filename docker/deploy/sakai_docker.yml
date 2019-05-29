@@ -3,7 +3,7 @@ services:
   sakai:
     image: sakai
     ports:
-      - "8765:8080"
+      - "8080:8080"
     configs:
       - source: sakai_config
         target: /usr/local/sakai/properties/sakai.properties
