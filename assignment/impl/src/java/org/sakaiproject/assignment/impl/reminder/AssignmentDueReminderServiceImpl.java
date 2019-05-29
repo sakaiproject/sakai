@@ -133,7 +133,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
                 securityService.pushAdvisor(advisor);
                 try {
                     for (Member member : site.getMembers()) {
-                        if (assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
+                        if (member.isActive() && assignmentService.canSubmit(assignment, member.getUserId()) && checkEmailPreference(member)) {
                             sendEmailReminder(site, assignment, member);
                         }
                     }
