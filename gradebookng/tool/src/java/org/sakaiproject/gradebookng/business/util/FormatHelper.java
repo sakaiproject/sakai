@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -32,6 +33,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
+import org.springframework.web.util.HtmlUtils;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
@@ -372,5 +374,14 @@ public class FormatHelper {
 		}
 
 		return info;
+	}
+
+	/**
+	* Turn special characters into HTML character references. Handles complete character set defined in HTML 4.01 recommendation.
+	* Escapes all special characters to their corresponding entity reference (e.g. &lt;) at least as required by the specified encoding. In other words, if a special character does not have to be escaped for the given encoding, it may not be.
+	* Reference: http://www.w3.org/TR/html4/sgml/entities.html
+	 */
+	public static String htmlEscape(String input){
+		return HtmlUtils.htmlEscape(input, StandardCharsets.UTF_8.name());
 	}
 }
