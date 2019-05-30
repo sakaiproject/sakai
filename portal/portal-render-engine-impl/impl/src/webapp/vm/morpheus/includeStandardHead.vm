@@ -87,4 +87,7 @@
         	#end
         #end
         <!-- end inlined tool header contribution -->
+
+        #parse("/vm/morpheus/includeGoogleTM-Script.vm")
+
     </head>
