@@ -31,34 +31,34 @@ assignment.useContentReview=true
 # default: false
 # turnitin.oc.skip.delays=false
 
-# turnitin.accept.all.files (Optional)
+# turnitin.oc.accept.all.files (Optional)
 # If true, any file type will be accepted by Sakai. Invalid file types will still be rejected by Turnitin.
 # default: false
-# example: turnitin.accept.all.files=false
+# example: turnitin.oc.accept.all.files=false
 
-# turnitin.acceptable.file.extensions (Optional)
-# Allows you to customize the set of file extensions that Sakai will allow you to submit to Turnitin. Invalid file types will still be rejected by Turnitin. This list must match the list set for turnitin.acceptable.mime.types and turnitin.acceptable.file.types
+# turnitin.oc.acceptable.file.extensions (Optional)
+# Allows you to customize the set of file extensions that Sakai will allow you to submit to Turnitin. Invalid file types will still be rejected by Turnitin. This list must match the list set for turnitin.oc.acceptable.mime.types and turnitin.oc.acceptable.file.types
 # default: A hard coded list of mime types
-# example: turnitin.acceptable.file.extensions.count=3
-# turnitin.acceptable.file.extensions.1=.pdf
-# turnitin.acceptable.file.extensions.2=.docx
-# turnitin.acceptable.file.extensions.3=.txt
+# example: turnitin.oc.acceptable.file.extensions.count=3
+# turnitin.oc.acceptable.file.extensions.1=.pdf
+# turnitin.oc.acceptable.file.extensions.2=.docx
+# turnitin.oc.acceptable.file.extensions.3=.txt
 
-# turnitin.acceptable.mime.types (Optional)
-# Allows you to customize the set of file extensions that Sakai will allow you to submit to Turnitin. Invalid file types will still be rejected by Turnitin. This list must match the list set for turnitin.acceptable.file.extensions and turnitin.acceptable.file.types
+# turnitin.oc.acceptable.mime.types (Optional)
+# Allows you to customize the set of file extensions that Sakai will allow you to submit to Turnitin. Invalid file types will still be rejected by Turnitin. This list must match the list set for turnitin.oc.acceptable.file.extensions and turnitin.oc.acceptable.file.types
 # default: A hard coded list of mime types
-# example: turnitin.acceptable.mime.types.count=3
-# turnitin.acceptable.mime.types.1=application/pdf
-# turnitin.acceptable.mime.types.2=application/msword
-# turnitin.acceptable.mime.types.3=text/plain
+# example: turnitin.oc.acceptable.mime.types.count=3
+# turnitin.oc.acceptable.mime.types.1=application/pdf
+# turnitin.oc.acceptable.mime.types.2=application/msword
+# turnitin.oc.acceptable.mime.types.3=text/plain
 
-# turnitin.acceptable.file.types (Optional)
-# Allows you to customize the set of file extensions that Sakai will allow you to submit to Turnitin. Invalid file types will still be rejected by Turnitin. This list must match the list set for turnitin.acceptable.file.extensions and turnitin.acceptable.mime.types
+# turnitin.oc.acceptable.file.types (Optional)
+# Allows you to customize the set of file extensions that Sakai will allow you to submit to Turnitin. Invalid file types will still be rejected by Turnitin. This list must match the list set for turnitin.oc.acceptable.file.extensions and turnitin.oc.acceptable.mime.types
 # default: A hard coded list of file type descriptions
-# example: turnitin.acceptable.file.types.count=3
-# turnitin.acceptable.file.types.1=PDF
-# turnitin.acceptable.file.types.2=Word Doc
-# turnitin.acceptable.file.types.3=Rich Text
+# example: turnitin.oc.acceptable.file.types.count=3
+# turnitin.oc.acceptable.file.types.1=PDF
+# turnitin.oc.acceptable.file.types.2=Word Doc
+# turnitin.oc.acceptable.file.types.3=Rich Text
 
 # turnitin.option.exclude_bibliographic (Optional)
 # Allows you to show or hide the "exclude bibliography" option when creating an assignment.
