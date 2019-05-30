@@ -44,7 +44,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -596,8 +595,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 		// Check the mime type
 		Map<String, SortedSet<String>> acceptableExtensionsToMimeTypes = getAcceptableExtensionsToMimeTypes();
-		Set<String> acceptableMimeTypes = acceptableExtensionsToMimeTypes.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-		if (acceptableMimeTypes.contains(mime)) {
+		if (acceptableExtensionsToMimeTypes.values().stream().anyMatch(set -> set.contains(mime))) {
 			return true;
 		}
 
