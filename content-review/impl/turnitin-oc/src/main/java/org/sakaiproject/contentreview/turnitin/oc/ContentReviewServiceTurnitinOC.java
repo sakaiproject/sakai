@@ -148,6 +148,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String ALL_SOURCES = "all_sources";
 	private static final String MODES = "modes";
 	private static final String SIMILARITY = "similarity";
+	private static final String SAVE_CHANGES = "save_changes";
+	private static final String VIEW_SETTINGS = "view_settings";
 	private static final String VIEWER_DEFAULT_PERMISSIONS = "viewer_default_permissions_set";
 	private static final String INSTRUCTOR = "INSTRUCTOR";
 	private static final String LEARNER = "LEARNER";
@@ -515,6 +517,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				modes.put(MATCH_OVERVIEW, Boolean.TRUE);
 				modes.put(ALL_SOURCES, Boolean.TRUE);
 				similarity.put(MODES, modes);
+				Map<String, Object> viewSettings = new HashMap<>();
+				viewSettings.put(SAVE_CHANGES, Boolean.TRUE);
+				similarity.put(VIEW_SETTINGS, viewSettings);
 				data.put(SIMILARITY, similarity);
 				data.put(VIEWER_DEFAULT_PERMISSIONS, isInstructor ? INSTRUCTOR : LEARNER);
 
