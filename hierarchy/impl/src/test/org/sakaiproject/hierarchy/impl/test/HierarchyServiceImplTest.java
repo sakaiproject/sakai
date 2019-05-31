@@ -355,6 +355,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         HierarchyNode node = null;
         String newNodeId = null;
 
+        initializeMockCache();
+
         // check we can insert a node in a normal tree and that the links are created correctly in this node
         node = hierarchyService.addNode(TestDataPreload.HIERARCHYA, tdp.node2.id);
         assertNotNull(node);
@@ -371,8 +373,6 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         assertTrue(node.directChildNodeIds.isEmpty());
         assertNotNull(node.childNodeIds);
         assertTrue(node.childNodeIds.isEmpty());
-
-        initializeMockCache();
 
         // now check that the child links were updated correctly for the parent
         node = hierarchyService.getNodeById(tdp.node2.id);
@@ -514,6 +514,8 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
     public void testRemoveNode() {
         HierarchyNode node = null;
 
+        initializeMockCache();
+
         // remove a node with no children
         node = hierarchyService.removeNode(tdp.node8.id);
         assertNotNull(node);
@@ -521,8 +523,6 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         assertEquals(2, node.directChildNodeIds.size());
         assertTrue(node.directChildNodeIds.contains(tdp.node6.id));
         assertTrue(node.directChildNodeIds.contains(tdp.node7.id));
-
-        initializeMockCache();
 
         // also check the root was updated correctly
         node = hierarchyService.getNodeById(tdp.node1.id);
@@ -1528,6 +1528,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalSpringContext
         Cache mock = EasyMock.createMock(Cache.class);
         hierarchyService.setCache(mock);
         EasyMock.expect(mock.containsKey(EasyMock.anyObject())).andReturn(false).anyTimes();
+        EasyMock.expect(mock.remove(EasyMock.anyObject())).andReturn(false).anyTimes();
         mock.put(EasyMock.anyObject(),EasyMock.anyObject());
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(mock);

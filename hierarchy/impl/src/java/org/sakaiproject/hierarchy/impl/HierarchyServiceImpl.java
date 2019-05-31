@@ -327,6 +327,9 @@ public class HierarchyServiceImpl implements HierarchyService {
 
             // add to the set of node to be saved
             pNodes.add(node);
+
+            // invalidate cache entry so the next get includes this new child
+            cache.remove("cn"+node.getId().toString());
         }
         dao.saveSet(pNodes);
 
@@ -383,6 +386,9 @@ public class HierarchyServiceImpl implements HierarchyService {
 
             // add to the set of nodes to be saved
             pNodes.add(pNode);
+
+            // invalidate cache entry so the next get doesn't include this removed child
+            cache.remove("cn"+pNode.getId().toString());
         }
         dao.saveSet(pNodes);
 
