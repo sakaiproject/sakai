@@ -250,13 +250,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	};
 
 	// Sakai.properties overriding the arrays above
-	private final String PROP_ACCEPT_ALL_FILES = "turnitin.accept.all.files";
+	private final String PROP_ACCEPT_ALL_FILES = "turnitin.oc.accept.all.files";
 
-	private final String PROP_ACCEPTABLE_FILE_EXTENSIONS = "turnitin.acceptable.file.extensions";
-	private final String PROP_ACCEPTABLE_MIME_TYPES = "turnitin.acceptable.mime.types";
+	private final String PROP_ACCEPTABLE_FILE_EXTENSIONS = "turnitin.oc.acceptable.file.extensions";
+	private final String PROP_ACCEPTABLE_MIME_TYPES = "turnitin.oc.acceptable.mime.types";
 
 	// A list of the displayable file types (ie. "Microsoft Word", "WordPerfect document", "Postscript", etc.)
-	private final String PROP_ACCEPTABLE_FILE_TYPES = "turnitin.acceptable.file.types";
+	private final String PROP_ACCEPTABLE_FILE_TYPES = "turnitin.oc.acceptable.file.types";
 
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
 	
@@ -585,9 +585,30 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return Math.abs("TurnitinOC".hashCode());
 	}
 
-	public boolean isAcceptableContent(ContentResource arg0) {
-		// TODO: what does TII accept?
-		return true;
+	public boolean isAcceptableContent(ContentResource resource) {
+		if (serverConfigurationService.getBoolean(PROP_ACCEPT_ALL_FILES, false)) {
+			return true;
+		}
+
+		String mime = resource.getContentType();
+
+		// Check the mime type
+		Map<String, SortedSet<String>> acceptableExtensionsToMimeTypes = getAcceptableExtensionsToMimeTypes();
+		if (acceptableExtensionsToMimeTypes.values().stream().anyMatch(set -> set.contains(mime))) {
+			return true;
+		}
+
+		// Check the file extension
+		ResourceProperties resourceProperties = resource.getProperties();
+		String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
+		if (fileName.indexOf(".") > 0) {
+			String extension = fileName.substring(fileName.lastIndexOf("."));
+			if (acceptableExtensionsToMimeTypes.containsKey(extension)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public boolean isSiteAcceptable(Site arg0) {
