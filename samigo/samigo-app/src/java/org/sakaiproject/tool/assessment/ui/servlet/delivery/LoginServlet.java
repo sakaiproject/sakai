@@ -154,6 +154,10 @@ public class LoginServlet
     BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
     listener.populateBeanFromPub(delivery, pub);
 
+    if (!isInstructor) {
+        listener.processAction(null);
+    }
+
     RequestDispatcher dispatcher = null;
     String path = "/jsf/delivery/invalidAssessment.faces";
     boolean relativePath = true;
