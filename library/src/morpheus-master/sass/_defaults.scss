@@ -137,6 +137,32 @@ $warn-color:                darken($warn-background-color, 35%) !default;
 $error-background-color:    #f2dede !default;
 $error-color:               darken($error-background-color, 30%) !default;
 
+/* Sakai Banners */
+// Information (info) banner
+$infoBanner-bordercolor: #5c9bd1;
+$infoBanner-bgcolor: #bde5f8;
+$infoBanner-color: $text-color;
+$infoBanner-icon: ".fa-info-circle";
+
+// Success banner
+$successBanner-bordercolor: #52b387;
+$successBanner-bgcolor: #d9f0e7;
+$successBanner-color: $text-color;
+$successBanner-icon: ".fa-check-circle";
+
+// Warning (warn) banner
+$warnBanner-bordercolor: #f1ba1b;
+$warnBanner-bgcolor: #fbeec9;
+$warnBanner-color: $text-color;
+$warnBanner-icon: ".fa-exclamation-circle";
+
+// Error banner
+$errorBanner-bordercolor: #cf4f16;
+$errorBanner-bgcolor: #f4dcd2;
+$errorBanner-color: $text-color;
+$errorBanner-icon: ".fa-ban";
+/* end of Sakai Banners */
+
 /* Swapped 'View As' view */
 $swapped-view-enabled: false !default;
 $swapped-view-primary: 		 #bf360c !default;
