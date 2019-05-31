@@ -351,6 +351,10 @@ public class SimplePageBean {
     //        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	SimpleDateFormat isoDateFormat = getIsoDateFormat();
 	
+        // SAK-41846 - Counters to adjust item sequences when multiple files are added simultaneously
+        private int totalMultimediaFilesToAdd = 0;
+        private int remainingMultimediaFilesToAdd = 0;
+
 	public void setPeerEval(boolean peerEval) {
 		this.peerEval = peerEval;
 	}
@@ -6273,6 +6277,10 @@ public class SimplePageBean {
 			if (!checkCsrf())
 			    return;
 
+			// SAK-41846 - Initialize counters to keep track of files to add and the item sequence values to adjust
+			totalMultimediaFilesToAdd = multipartMap.size();
+			remainingMultimediaFilesToAdd = totalMultimediaFilesToAdd;
+
 			if (multipartMap.size() > 0) {
 				// 	user specified a file, create it
 				String[] fnames = new String[0];
@@ -6296,6 +6304,10 @@ public class SimplePageBean {
 			log.error(exception.getMessage(), exception);
 		} finally {
 			popAdvisor(advisor);
+
+			// Reset these counters
+			totalMultimediaFilesToAdd = 0;
+			remainingMultimediaFilesToAdd = 0;
 		}
 		
 	}
@@ -6499,8 +6511,18 @@ public class SimplePageBean {
 			// 	otherwise initialize to false
 			if (isMultimedia || itemId == -1)
 				item.setSameWindow(false);
-			
+
 			clearImageSize(item);
+
+			// SAK-41846 - Adjust the sequence if mutliple files are being added simultaneously
+			if (totalMultimediaFilesToAdd > 0) {
+			    int diff = totalMultimediaFilesToAdd - remainingMultimediaFilesToAdd;
+			    if (diff > 0) {
+				item.setSequence(item.getSequence() + diff);
+			    }
+			    remainingMultimediaFilesToAdd--;
+			}
+
 			try {
 			    //		if (itemId == -1)
 			    //		saveItem(item);
