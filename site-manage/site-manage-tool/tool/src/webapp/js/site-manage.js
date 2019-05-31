@@ -1337,13 +1337,13 @@ function setupImportSitesForm($form) {
     $tr.siblings().each(function () {
 
       var $td = $($(this).children().get($th.index()));
-      $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked"));
+      $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked")).change();
     });
   });
 
   $(".import-option-help").popover();
 
-  $(".siteimport-tool-checkbox").click(function (e) {
+  $(".siteimport-tool-checkbox").change(function (e) {
 
     if (e.target.checked) {
       $("#" + e.target.id + "-options-link").show();
