@@ -513,7 +513,7 @@
                     <h:outputText value="#{authorFrontDoorMessages.entire_site}" styleClass="releaseto_entire" rendered="#{assessment.releaseTo ne 'Anonymous Users' && assessment.releaseTo ne 'Selected Groups'}" />
 
                     <t:div rendered="#{assessment.releaseTo eq 'Selected Groups'}">
-                        <t:div id="groupsHeader" onclick="#{assessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{assessment.groupCount ge 1 ? 'collapsed' : 'messageError'}">
+                        <t:div id="groupsHeader" onclick="#{assessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{assessment.groupCount ge 1 ? 'collapsed' : 'sak-banner-error'}">
                             <h:outputText value="#{assessment.groupCount} " rendered ="#{assessment.releaseTo eq 'Selected Groups' and assessment.groupCount gt 0}" />
                             <h:outputText value="#{authorFrontDoorMessages.selected_groups} " rendered="#{assessment.releaseTo eq 'Selected Groups' and assessment.groupCount gt 1}"/>
                             <h:outputText value="#{authorFrontDoorMessages.selected_group} " rendered="#{assessment.releaseTo eq 'Selected Groups' and assessment.groupCount eq 1}"/>

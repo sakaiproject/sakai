@@ -69,7 +69,7 @@
 
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <div class="bs-callout-primary">
+  <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
     <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 

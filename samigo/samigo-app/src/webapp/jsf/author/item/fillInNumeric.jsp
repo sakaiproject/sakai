@@ -119,7 +119,7 @@
             </h:panelGrid >
             <h:outputText value=" " escape="false"/>
             <h:outputText value="#{authorMessages.accepted_characters}<br/>" escape="false"/>
-            <div class="mathjax-warning alert alert-warning" style="display: none;">
+            <div class="mathjax-warning sak-banner-warning" style="display: none;">
                 <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
             </div>
             <h:outputText value="#{authorMessages.note_accepted_fin_1}<br/>
