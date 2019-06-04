@@ -338,7 +338,7 @@ public class ConfirmPublishAssessmentListener
     		error=true;
     	}
     	boolean ipErr=false;
-    	String ipString = StringUtils.deleteWhitespace(assessmentSettings.getIpAddresses());
+    	String ipString = assessmentSettings.getIpAddresses().trim().replace(" ", "");
     	String[]arraysIp=(ipString.split("\n"));
     	for(int a=0;a<arraysIp.length;a++){
     		String currentString=arraysIp[a];

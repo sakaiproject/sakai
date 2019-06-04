@@ -156,7 +156,7 @@ implements ActionListener
 	    assessmentService.deleteAllSecuredIP(assessment);
 	    // k. set ipAddresses
 	    Set ipSet = new HashSet();
-	    String ipAddresses = StringUtils.deleteWhitespace(assessmentSettings.getIpAddresses());
+	    String ipAddresses = assessmentSettings.getIpAddresses().replace(" ", "");
 	    if (ipAddresses == null)
 	      ipAddresses = "";
 	    
