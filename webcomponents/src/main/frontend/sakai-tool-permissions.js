@@ -12,6 +12,7 @@ class SakaiToolPermissions extends SakaiElement {
     this.i18n;
     this.on;
     this.roles;
+    this.roleNameMappings;
   }
 
   static get properties() {
@@ -48,7 +49,7 @@ class SakaiToolPermissions extends SakaiElement {
               <a href="#" title="${this.i18n["per.lis.head.title"]}">${this.i18n["per.lis.head"]}</a>
             </th>
             ${this.roles.map(role => html`
-            <th class="role" data-role="${role}"><a href="#" title="${this.i18n["per.lis.role.title"]}" data-role="${role}">${role}</a></th>
+            <th class="role" data-role="${role}"><a href="#" title="${this.i18n["per.lis.role.title"]}" data-role="${role}">${this.roleNameMappings[role]}</a></th>
             `)}
           </tr>
           ${this.available.map(perm => html`
@@ -91,6 +92,7 @@ class SakaiToolPermissions extends SakaiElement {
         this.available = data.available;
         this.i18n = data.i18n;
         this.roles = Object.keys(this.on);
+        this.roleNameMappings = data.roleNameMappings;
       })
       .catch(error => console.log(`Failed to load permissions for tool ${this.tool}`, error));
   }
@@ -134,8 +136,10 @@ class SakaiToolPermissions extends SakaiElement {
 
     $('.permissions-table th').hover(function (e) {
 
-      const role = e.target.dataset.role;
-      $('.' + role + "-checkbox-cell").add(e.target).toggleClass('rowHover', e.type === "mouseenter");
+      if (e.target.dataset.role) {
+        const role = e.target.dataset.role.replace("\.", "\\.");
+        $('.' + role + "-checkbox-cell").add(e.target).toggleClass('rowHover', e.type === "mouseenter");
+      }
     });
 
     $('.permissions-table th#permission').hover(function (event) {
@@ -155,7 +159,7 @@ class SakaiToolPermissions extends SakaiElement {
     });
     $('.permissions-table th.role a').click(function (e) {
 
-      const role = e.target.dataset.role;
+      const role = e.target.dataset.role.replace("\.", "\\.");
 
       var col = ($(e.target).parent('th').prevAll().size());
       var anyChecked = $('.permissions-table .' + role + '-checkbox-cell input:checked').not('[disabled]').length > 0;
