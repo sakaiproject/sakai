@@ -19,7 +19,7 @@
 
 .#{$namespace}sakai-forums{
 	.topicBlocLone{
-		@extend sak-banner-warn;
+		@extend .sak-banner-warn;
 	}
 
 	.permissionRow{
@@ -217,7 +217,7 @@
 			}
 		}
 		.messageInstruction{
-			@extend sak-banner-error;
+			@extend .sak-banner-error;
 			display: inline-block;
 			margin: 0 $standard-spacing;
 			padding: 5px $standard-spacing;

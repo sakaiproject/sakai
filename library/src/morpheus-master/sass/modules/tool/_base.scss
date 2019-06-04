@@ -231,9 +231,9 @@
 }
 
 .validationEmbedded,.validation{
-	@extend ;
+	@extend .sak-banner-info;
 }
 
 .alertMessage{
-	@extend sak-banner-error;
+	@extend .sak-banner-error;
 }
