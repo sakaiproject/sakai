@@ -5,8 +5,8 @@ import {SakaiRubricCriteriaReadonly} from "./sakai-rubric-criteria-readonly.js";
 import {SakaiRubricEdit} from "./sakai-rubric-edit.js";
 import {SakaiItemDelete} from "./sakai-item-delete.js";
 import {SakaiRubricSiteTitle} from "./sakai-rubric-site-title.js";
-import {SakaiRubricModifiedDate} from "./sakai-rubric-sakai-rubric-modified-date.js";
-import {SakaiRubricCreatorName} from "./sakai-rubric-sakai-rubric-creator-name.js";
+import {SakaiRubricModifiedDate} from "./sakai-rubric-modified-date.js";
+import {SakaiRubricCreatorName} from "./sakai-rubric-creator-name.js";
 import {tr} from "./sakai-rubrics-language.js";
 import {SharingChangeEvent} from "./sharing-change-event.js";
 
