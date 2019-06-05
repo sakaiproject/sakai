@@ -25,7 +25,7 @@
 		$tlang.getString("ical.title")
 	</h3>
 	
-	<p class="messageInformation">
+	<p class="sak-banner-info">
 		$icalInfoStr $tlang.getString("ical.info.public")<br/>
 	</p>
 	
