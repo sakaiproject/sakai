@@ -121,7 +121,7 @@
             </div>
         </h:form>
 
-        <t:div styleClass="messageInformation chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
+        <t:div styleClass="sak-banner-info chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
             <h:outputText value="#{msgs.custom_date_restricted}" />
             <h:outputText value="#{ChatTool.datesMessage}" />
         </t:div>
