@@ -1,0 +1,57 @@
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" 
+     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>
+            #if ($currentSite) 
+                ${currentSite.siteTitle}
+                <link>${currentSite.siteUrl}</link>
+            #else
+                Sakai RSS Feed
+                <link>http://www.sakaiproject.org/</link> 
+            #end
+        </title> 
+        <ttl>60</ttl>
+        <language>en-us</language>
+        <docs /> 
+        #if ($currentSite)
+            #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
+                <item>
+                    #if ($page.isPage)
+                        <title>${page.pageTitle}</title>
+                        <link>${page.pageRefUrl}</link>
+                        #if (! $page.rssDescription )
+                            <description>${page.pageTitle}</description>
+                        #end
+                    #else
+                        <title>${page.jsToolTitle}</title>
+                        <link>${page.toolRefUrl}</link>
+                        #if ( ! $page.rssDescription)
+                            <description>${page.toolTitle}</description>
+                        #end
+                    #end
+                    #if ($page.rssDescription)
+                        <description>${page.rssDescription}</description>
+                    #end
+                    #if ( $page.rssPubdate ) 
+                        <pubDate>${page.rssPubdate}</pubDate>
+                    #end
+                </item>
+            #end
+        #else
+            #foreach ( $site in $allSites ) 
+                <item>
+                    <title>${site.siteTitle}</title>
+                    <link>${site.siteUrl}</link>
+                    #if ( $site.rssDescription )
+                        <description>${site.rssDescription}</description>
+                    #else
+                        <description>${site.siteTitle}</description>
+                    #end
+                    #if ( $site.rssPubdate ) 
+                        <pubDate>${site.rssPubdate}</pubDate>
+                    #end
+                </item>
+            #end 
+        #end
+    </channel>
+</rss>

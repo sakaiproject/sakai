@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title type="text">
+
+        #if ($currentSite)
+            <title>${currentSite.siteTitle}</title>
+            <link>${currentSite.siteUrl}</link>
+            <link rel="alternate" type="text/html">${currentSite.siteTitle}</link>
+        #else
+            <title>Sakai RSS Feed</title>
+            <link rel="alternate" type="text/html">http://www.sakaiproject.org/</link>
+        #end ## END of IF ($currentSite)
+
+        <generator uri="http://www.sakaiproject.org">
+            Sakai Collaboration and Learning Environment
+        </generator>
+
+        #if ($currentSite)
+
+            #foreach ( $page in $currentSite.sitePages.pageNavTools )
+                <entry>
+
+                    #if ($page.isPage)
+                        <title type="text">${page.pageTitle}</title>
+                        <link rel="alternate" href="${page.pageRefUrl}" type="text/html" />
+                    #else
+                        <title type="text">${page.jsToolTitle}</title>
+                        <link rel="alternate" href="${page.toolRefUrl}" type="text/html" />
+                    #end ## END of IF ($page.isPage)
+
+                    #if ($page.rssDescription)
+                        <summary type="xhtml">${page.rssDescription}</summary>
+                    #end ## END of IF ($page.rssDescription)
+
+                    #if ($page.rssPubdate)
+                        <published>${page.rssPubdate}</published>
+                    #end ## END of IF ($page.rssPubdate)
+
+                </entry>
+            #end ## END of FOREACH ( $page in $currentSite.sitePages.pageNavTools )
+
+        #else
+
+            #foreach ( $site in $allSites )
+                <entry>
+                    <title type="text">${site.siteTitle}</title>
+                    <link rel="alternate" href="${site.siteUrl}" type="text/html" />
+
+                    #if ($site.rssDescription)
+                        <summary type="xhtml">${site.rssDescription}</summary>
+                    #else
+                        <summary type="xhtml">${site.siteTitle}</summary>
+                    #end ## END of IF ($site.rssDescription)
+
+                    #if ($site.rssPubdate)
+                        <published>${site.rssPubdate}</published>
+                    #end ## END of IF ($site.rssPubdate)
+
+                </entry>
+            #end  ## END of FOREACH ( $site in $allSites )
+
+        #end ## END of IF ($currentSite)
+</feed>

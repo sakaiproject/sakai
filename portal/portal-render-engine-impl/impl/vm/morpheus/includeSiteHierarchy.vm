@@ -1,0 +1,83 @@
+<nav class="Mrphs-siteHierarchy">
+    <div class="Mrphs-hierarchy--sites">
+
+    #if ( $portalBreadCrumbs or $portalPwd ) 
+
+        #set ($tabTotal = 0)
+
+        #foreach ( $pwd in $portalPwd )
+
+            #set ($tabTotal = $tabTotal + 1)
+
+        #end ## END of FOREACH ( $pwd in $portalPwd )
+        
+        #foreach ( $crumb in $portalBreadCrumbs )
+
+            #set ($tabTotal = $tabTotal + 1)
+
+        #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
+        
+        #set ($tabCountBread = 0)
+        
+        <div class="Mrphs-hierarchy--parent-sites">
+            #foreach ( $pwd in $portalPwd )
+
+                #set ($tabCountBread = $tabCountBread + 1)
+                <span class="Mrphs-hierarchy-item Mrphs-hierarchy--portalPwd Mrphs-hierarchy--$tabCountBread">
+                    <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end
+                    </span></a>
+                </span>
+                <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span>
+
+            #end ## END of FOREACH ( $pwd in $portalPwd )
+        </div>
+        
+        #foreach ( $pwd in $portalBreadCrumbs )
+
+            #set ($tabCountBread = $tabCountBread + 1)
+            <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitleTrunc}#end
+            </span></a>
+            <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+
+        #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
+
+    #end ## END of IF ( $portalBreadCrumbs or $portalPwd )
+    
+    #set($index = 0)
+    #foreach( $page in $sitePages.pageNavTools )
+        #if ( $index == 0 )
+            <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
+                <a href="${page.pageResetUrl}">
+                    #if (${isUserSite})
+                        <i class='fa fa-home' aria-hidden="true"></i>
+                    #end
+                    <span class="Mrphs-hierarchy--siteName-label">
+                        ${siteTitleTruncated}
+                    </span>
+                </a>
+            </span>
+            <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span>
+        #end
+        #set($index = $index + 1 )
+    #end
+    </div>
+
+    
+    #foreach( $page in $sitePages.pageNavTools )
+        #if (${page.current})
+            <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
+                <span class="Mrphs-breadcrumb--reset-icon fa fa-share" aria-hidden="true"></span>
+                <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+                <span class="Mrphs-breadcrumb--toolNameText">${page.pageTitle}</span>
+            </a>
+
+            #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+                <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                    <span class="fa fa-pencil"></span>$rloader.sit_manover
+                </a>
+            #end
+        #end
+    #end
+</nav>

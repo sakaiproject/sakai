@@ -1,0 +1,75 @@
+##
+## the Tool part of the standard view, with no page navigation
+## This is only used when a JSR-168 portlet is called with a /portal/tool
+## URL.  Effectively it is a gutted version of the PageBody code.
+##
+## Title is suppressed - but reset, help, and edit are shown - because this
+## will likely be in a popup, iframe in a portal or somewhere else which will
+## not present these controls.
+##
+## The UI of this is not perfect - but it *is* better than a trace back.
+## And it will make sense when a non-Sakai portal shows this 
+## with an iframe.
+##
+## If this ends up with double resets in some Sakai UI - say the OSP portal,
+## the right way to fix it is to teach the OSP portal to really support
+## JSR-168 portlets in the background document rather than in an iFrame.
+##
+<!-- START VM includeToolBody.vm -->
+#if ($tool)
+
+    <!-- start Tool -->
+    #if (${tool.hasRenderResult})
+
+        <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+
+            #if (${tool.toolShowResetButton})
+                <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}"></a>
+            #end ## END of IF (${tool.toolShowResetButton})
+
+            ## <h2 class="Mrphs-toolTitleNav__title">${tool.toolRenderResult.getTitle()}</h2>
+            ## Do not show the title in this mode because there may be a separate title above this                    
+
+            #if (${tool.toolJSR168Edit})
+                <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}"></a>
+            #end ## END of IF (${tool.toolJSR168Edit})
+
+            #if (${tool.toolShowHelpButton})
+
+                #if (${tool.toolJSR168Help})
+                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}"><span class="skip">${rloader.site_newwindow}</span></a>
+                #else
+                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                #end ## END of IF  (${tool.toolJSR168Help})
+
+            #end ## END of IF (${tool.toolShowHelpButton})
+        </nav>
+
+    #else
+
+        <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+            #if (${tool.toolShowResetButton})
+                <h2 class="Mrphs-toolTitleNav__title"><a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
+            #else
+                 <h2 class="Mrphs-toolTitleNav__title">${tool.toolTitle}</h2>
+            #end ## END of IF (${tool.toolShowResetButton})
+
+            #if (${tool.toolShowHelpButton})
+                <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                <span class="Mrphs-itemTitle">${rloader.sit_helpfor}</span>
+                <span class="skip">${rloader.site_newwindow}</span>
+            </a>
+            #end ## END of IF (${tool.toolShowHelpButton})
+
+        </nav>
+    #end ## END of IF (${tool.hasRenderResult})
+
+    <!-- end Tool -->
+    <!-- start Tool Body -->
+
+    #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
+
+    <!-- end Tool Body -->
+
+    <!-- END VM includeToolBody.vm -->
+#end ## END of IF ($tool)

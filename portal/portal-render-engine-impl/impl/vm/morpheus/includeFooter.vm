@@ -1,0 +1,77 @@
+<div class="Mrphs-container Mrphs-container--footer">
+
+    #if (!$pagepopup)
+
+        <footer id="footer" role="contentinfo" class="Mrphs-footer">
+
+            <ul id="footer-links" class="Mrphs-footer--nav">
+
+            #foreach ( $bn in $bottomNav )
+
+                <li><span>${bn}</span></li>
+
+            #end ## END of FOREACH ( $bn in $bottomNav )
+
+                <li class="Mrphs-footer--details">
+                    <a id="Mrphs-footer--details__info" class="fa fa-info-circle" href="#" aria-haspopup="true"></a>
+                    <div id="Mrphs-footer--details__panel" role="dialog" aria-label="${rloader.footer_details_panel_label}" aria-describedby="Mrphs-footer--details__description">
+                        <div class="Mrphs-footer--details__heading">
+                            <p id="Mrphs-footer--details__title">${bottomNavService} ${bottomNavSakaiVersion}</p>
+                            <p id="Mrphs-footer--details__description" class="sr-only">${rloader.footer_details_panel_description}</p>
+                            <a id="Mrphs-footer--details__close" role="menuitem" href="#\closeInfoPanel"><span class="sr-only">${rloader.footer_details_panel_close}</span><span class="fa fa-times" aria-hidden="true"></span></a>
+                        </div>
+                        <dl>
+                            #if ($showServerTime == "true")
+                                <dt class="Mrphs-footer--details__server-time">${rloader.site_servertime_label}</dt>
+                                <dd id="serverTime" class="Mrphs-footer--server-time" data-servertzdisplay="${serverTzDisplay}" data-serverdateandgmtoffset="${serverTzGMTOffset}"></dd>
+
+                                #if ($showPreferredTzTime == "true")
+
+                                <dt class="Mrphs-footer--details__preferred-time">${rloader.site_preferredtime_label}</dt>
+                                <dd id="preferredTime" class="Mrphs-footer--server-time__preferred" data-preferredtzdisplay="${preferredTzDisplay}" data-preferredserverdateandgmtoffset="${preferredTzGMTOffset}"></dd>
+
+                                #end ## END of IF ($showPreferredTzTime == "true")
+
+                            #end ## END of IF ($showServerTime == "true")
+
+                            <dt>${rloader.site_server_label}</dt>
+                            <dd>${bottomNavServer}</dd>
+
+                            <dt>${rloader.site_buildinfo_label}</dt>
+                            <dd>${bottomNavServiceVersion}</dd>
+                        </dl>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="Mrphs-footer--project">
+                <p class="Mrphs-footer--copyright">${bottomNavCopyright}</p>
+                <ul id="Mrphs-footer--poweredBy">
+
+                    #foreach ( $pb in $bottomNavPoweredBy )
+                    <li>
+                        <a href="${pb.poweredByUrl}" target="_blank" class="external__link">
+                            <img class="Mrphs-footer--poweredby__image" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /><span class="skip external">(${rloader.site_newwindow})</span>
+                        </a>
+                    </li>
+                    #end ## END of FOREACH ( $pb in $bottomNavPoweredBy )
+
+                </ul>
+            </div>
+        </footer>
+        
+        <div class="Mrphs-container Mrphs-container--extras">
+
+        #parse("/vm/morpheus/includeFooterExtras.vm")
+
+        </div> ## END: Mrphs-container Mrphs-container--extras    
+        <div id="tutorial" class="Mrphs-tutorial Mrphs-modal"></div>
+        <div id="social-alerts" class="Mrphs-tutorial Mrphs-modal"></div>
+
+    #else 
+
+        <!-- dont compact -->
+
+    #end ## END of IF (!$pagepopup)
+
+</div>

@@ -1,0 +1,6 @@
+#if (${googleTagManagerContainerId})
+        <!-- START includeGoogleTagManagerNoScript.vm -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${googleTagManagerContainerId}"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- END includeGoogleTagManagerNoScript.vm -->
+#end ## END of IF (${googleTagManagerContainerId})

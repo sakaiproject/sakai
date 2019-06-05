@@ -1,0 +1,13 @@
+## Adds either a pageNavType or Icon above the tool nav
+
+#if ( $sitePages.pageNavType && $sitePages.pageNavType != "project" )
+
+    <span class="Mrphs-pageNav Mrphs-pageNav--type">$sitePages.pageNavType</span>
+
+#end ## END of IF ( $sitePages.pageNavType && $sitePages.pageNavType != "project" )
+
+#if ( $sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "" )
+
+    <span class="Mrphs-pageNav Mrphs-pageNav--icon"><img src="$sitePages.pageNavIconUrl" alt="Worksite Logo"></span>
+
+#end ## END of IF ( $sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "" )

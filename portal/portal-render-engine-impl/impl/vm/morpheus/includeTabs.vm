@@ -1,0 +1,36 @@
+##
+## the Site Tabs part of the standard view
+##
+
+#if ( ${pageColumn0Tools} )
+    
+    #foreach ( $tool in $pageColumn0Tools )
+
+        #if ( $tool.breadcrumbs )
+
+            #set ( $portalBreadCrumbs = $tool.breadcrumbs )
+
+        #end ## END of IF ( $tool.breadcrumbs )
+
+    #end ## END of FOREACH ( $tool in $pageColumn0Tools )
+    
+#end ## END of IF ( ${pageColumn0Tools} )
+
+#foreach ( $site in $tabsSites.tabsSites )
+
+    #if ( ${site.isCurrentSite} and $site.isChild )
+
+        #set ($portalPwd = $site.pwd)
+
+    #end ## END of IF ( ${site.isCurrentSite} and $site.isChild )
+    
+#end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+
+<!-- START VM includeTabs.vm -->
+    <div id="Mrphs-sites-nav" class="${tabsCssClass} Mrphs-container Mrphs-container--navs">
+
+        #parse("/vm/morpheus/includeSitesNav.vm")
+
+    </div> <!-- /end of div.tabsCssClass -->
+    
+<!-- END VM includeTabs.vm -->

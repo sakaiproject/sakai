@@ -1,0 +1,10 @@
+<!-- START VM tool.vm -->
+
+    #parse("/vm/morpheus/includeStandardHead.vm")
+
+    <body class="Mrphs-portalBody Mrphs-portalBody--tool">
+        #parse("/vm/morpheus/includeToolBody.vm")
+    </body>
+
+<!-- END VM tool.vm -->
+</html>
