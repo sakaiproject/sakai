@@ -113,7 +113,7 @@
 					<span id="submitnotifxxx" class="sak-banner-info" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 				</div>
 			</div>
-			
+
 			<div class="form-inline">
 				<div class="form-group">
 					<label for="url">$tlang.getString("addi.or.url")</label>

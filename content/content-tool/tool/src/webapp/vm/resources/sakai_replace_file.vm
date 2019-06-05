@@ -32,7 +32,7 @@
 					$validator.escapeHtml($item.name)
 				</td>
 			</tr>
-			<tr> 
+			<tr>
 				<td style="width:180px;padding-left:0">  
 					<label>$tlang.getString("props.mime")</label>
 				</td>

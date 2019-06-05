@@ -125,3 +125,4 @@
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
+

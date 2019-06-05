@@ -17,7 +17,7 @@
 			</h3>
 			## set the base collection ID
 			#set($currentFolderId=$rootFolderId)
-		
+
 		## display restore success message
 		#if ($!restoredResources)
 			<br /><div id="messageSuccessHolder" class="sak-banner-success" style="display:block">$tlang.getFormattedMessage("restore.success", $restoredResources)</div>
