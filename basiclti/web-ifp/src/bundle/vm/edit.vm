@@ -19,7 +19,7 @@
 	#end
 	<form action="$actionUrl" method="post" name="customizeForm" >
 		#if ($noCustomizations)
-			<span class="messageInformation">$noCustomizations</span>
+			<span class="sak-banner-info">$noCustomizations</span>
 		#elseif ($formInput)
 			$formInput
 		#end

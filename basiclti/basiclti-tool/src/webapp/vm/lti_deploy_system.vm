@@ -105,7 +105,7 @@ ${includeLatestJQuery}
 		<li><span><a href="" title="$tlang.getString("tool.in.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;"> $tlang.getString("tool.in.site")</a></span></li>
 		<li><span class="current">$tlang.getString("deploy.in.system")</span></li>
 	</ul>
-	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	#if ($configMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($configMessage)</div><div class="clear"></div>#end
 	<div align="right"><a href="" title="$tlang.getString("add.deploy")" onclick="location = '$sakai_ActionURL.setPanel("DeployInsert")';return false;"> $tlang.getString("add.deploy")</a></div>
