@@ -931,7 +931,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             discussionForum.addTopic(topic);
             saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
         } else {
-            getHibernateTemplate().update(topic);
+            getHibernateTemplate().merge(topic);
         }
         //now schedule any jobs that are needed for the open/close dates
         //this will require having the ID of the topic (if its a new one)
