@@ -1018,15 +1018,15 @@ $(document).ready(function(){
 							#end
 
                             #if ($submitted && $!isUserSubmission && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
-                                <span class="messageInformation">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
+                                <span class="sak-banner-info">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
                             #elseif ($submissionType == 5)
-                                <span class="messageInformation">$tlang.getString("stuviewsubm.reminder")</span>
+                                <span class="sak-banner-info">$tlang.getString("stuviewsubm.reminder")</span>
                             #else
-                                <span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
+                                <span class="sak-banner-info">$tlang.getString("stuviewsubm.submitreminder")</span>
                             #end
 					#end
 			</div>
-			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
+			<div id="confirmationDialogue" class="act sak-banner-info" style="display:none;">
 				$tlang.getString("gen.can.discard")
 				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
 				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel();" />

@@ -504,12 +504,12 @@
                     <div id="messages">
                     #if( $!range == "GROUP" && $selectedGroupsNotFound )
                         #if( $!groupsList.size() > 0 )
-                            <div id="msgSelectedGroupsGoneOtherGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneOtherGroupsPresent" )</div>
+                            <div id="msgSelectedGroupsGoneOtherGroupsPresent" class="sak-banner-info indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneOtherGroupsPresent" )</div>
                         #else
-                            <div id="msgSelectedGroupsGoneNoGroups" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneNoGroups" )</div>
+                            <div id="msgSelectedGroupsGoneNoGroups" class="sak-banner-info indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneNoGroups" )</div>
                         #end
                     #elseif( !$!groupsList )
-                        <div id="msgNoGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
+                        <div id="msgNoGroupsPresent" class="sak-banner-info indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
                     #end
                     </div>
 
@@ -583,7 +583,7 @@
 
 		<div class="row" id="groupTable" style="display:$listDisplay">
 			<div class="col-sm-offset-1 col-sm-9">
-				<div id="msgSelectGroups" class="messageInformation" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
+				<div id="msgSelectGroups" class="sak-banner-info" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
 				<select id="selectedGroups" name="selectedGroups" multiple="multiple">
 					#foreach ($group in $!groups)
 						#set($description = $validator.escapeHtml($group.Description))
@@ -1434,7 +1434,7 @@
 				#else
 					<div id="peerAssessmentOptions" style="display:none" class="col-sm-offset-1">
 				#end
-					<div class="messageInformation">
+					<div class="sak-banner-info">
 						$tlang.getString("peerassessment.note")
 					</div>
 					<div id="peerperiod-finish">

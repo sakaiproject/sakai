@@ -34,7 +34,7 @@
 			</li>
 			<li style="display:inline;color:#000">
 				<span id="failedValidMessage" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
-				<span id="messageHolder" class="messageSuccess" style="display:none">$tlang.getString("reorder.fail.valid.message")</span>
+				<span id="messageHolder" class="sak-banner-success" style="display:none">$tlang.getString("reorder.fail.valid.message")</span>
 			</li>
 		</ul>
 		<span id="lastMoveArray" style="display:none"></span>

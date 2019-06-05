@@ -51,7 +51,7 @@
 	#else
 	#if ($allowAddAssignment)
 		#if ($!view.equals('stuvie'))
-			<div class="messageInformation">$tlang.getString("stulistassig.selanass1")</div>
+			<div class="sak-banner-info">$tlang.getString("stulistassig.selanass1")</div>
 		#end
 	#else
 		<div>$tlang.getString("stulistassig.selanass")</div>
