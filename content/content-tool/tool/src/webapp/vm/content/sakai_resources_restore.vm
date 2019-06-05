@@ -20,11 +20,11 @@
 		
 		## display restore success message
 		#if ($!restoredResources)
-			<br /><div id="messageSuccessHolder" class="messageSuccess" style="display:block">$tlang.getFormattedMessage("restore.success", $restoredResources)</div>
+			<br /><div id="messageSuccessHolder" class="sak-banner-success" style="display:block">$tlang.getFormattedMessage("restore.success", $restoredResources)</div>
 		#end
 		## display remove success message
 		#if ($!removedResources)
-			<br /><div id="messageSuccessHolder" class="messageSuccess" style="display:block">$tlang.getFormattedMessage("remove.success", $removedResources)</div>
+			<br /><div id="messageSuccessHolder" class="sak-banner-success" style="display:block">$tlang.getFormattedMessage("remove.success", $removedResources)</div>
 		#end
 		#if ($alertMessage)
 			<br /><div class="sak-banner-success">$validator.escapeHtml($alertMessage)</div><div class="clear"></div>
