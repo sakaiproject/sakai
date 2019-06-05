@@ -121,7 +121,7 @@
 			</tbody>
 		</table>
 		#else
-			<div class="messageInformation">$tlang.get("restore.empty")</div>
+			<div class="sak-banner-info">$tlang.get("restore.empty")</div>
 		#end
 		
 		<input type="hidden" id="selectAll-count" value="0" />
