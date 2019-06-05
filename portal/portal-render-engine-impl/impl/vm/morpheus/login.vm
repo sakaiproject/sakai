@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="$!{locale}">
+    <head>
+        <!-- START VM login.vm -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>${pageTitle}</title>
+
+        #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
+
+        #parse("/vm/morpheus/snippets/title-snippet.vm")
+
+        <script src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
+        <script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
+
+        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
+
+    </head>
+    <body class="portalBody">
+
+        #if ($pageTop)
+            <script>
+                var sakaiPortalWindow = "";
+            </script>
+        #end ## END of IF ($pageTop)
+        <!-- END Header -->
+        <!-- login.vm -->
+
+            #if (!${loginTopLogin})
+
+                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+
+            #else
+
+                #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
+
+                <script>
+                    document.forms[0].eid.focus();
+                </script>
+
+            #end ## END of IF (!${loginTopLogin})
+
+            <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+
+        <!-- END VM login.vm -->
+    </body>
+</html>

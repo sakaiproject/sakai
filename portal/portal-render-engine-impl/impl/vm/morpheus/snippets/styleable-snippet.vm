@@ -1,0 +1,22 @@
+#if (${styleable})
+
+      <script src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}"></script>
+      <script>
+          window.onload = insertStyleAbleStyles;
+      </script>
+
+      #if (${styleableStyleSheet})
+
+          <style title="StyleAble">${styleableStyleSheet}</style>
+
+      #end ## END of IF (${styleableStyleSheet})
+
+      #if (${styleableJS})
+
+          <script>
+              ${styleableJS}
+          </script>
+
+      #end ## END of IF (${styleableJS})
+
+#end ## END of IF (${styleable})

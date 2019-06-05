@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="$!{locale}" class="Mrphs-html">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>${pageTitle}</title>
+        
+        #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
+
+        <link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" rel="stylesheet" media="all">
+        <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
+        <script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
+
+        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
+
+    </head>
+    <!-- START VM join.vm -->
+    <body class="Mrphs-portalBody Mrphs-joinpage">
+        #if ( $pageTop )
+            <script>
+               var sakaiPortalWindow = "";
+            </script>
+        #end
+
+        <div class="join">
+            <h1>$rloader.getString("join_title")</h1>
+            <aside class="logo"></aside>
+            <p>$rloader.getFormattedMessage("join_instr", "<strong>$currentSite.siteTitle</strong>")</p>
+            <p>
+                #if (!$restrictedByAccountType)
+                    $rloader.getString("join_question")
+                #else
+                    $rloader.getString("join_restricted")
+                #end
+            </p>
+            <form method="post" action="#" class="act">
+                #if (!$restrictedByAccountType)
+                    <input type="submit" name="join" value="$rloader.getString("yes")" class="active">
+                    <input type="submit" name="reject" value="$rloader.getString("no")">
+                #else
+                    <input type="submit" name="return" value="$rloader.getString("return")" class="active"/>
+                #end
+            </form>
+        </div>
+    </body>
+    <!-- END VM join.vm -->
+</html>
