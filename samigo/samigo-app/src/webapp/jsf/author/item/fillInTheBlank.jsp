@@ -120,7 +120,7 @@
 
     <div class="mathjax-warning" style="display: none;">
       <h:outputText value="#{authorMessages.accepted_characters}" escape="false"/>
-      <div class="sak-alert-warning">
+      <div class="alert alert-warning">
           <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
       </div>
     </div>
