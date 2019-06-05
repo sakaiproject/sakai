@@ -62,6 +62,21 @@
         <!-- Define the bean roots from the request scope file that are accessible via incoming request URL -->
         <property name="value" value="Assignment,AssignmentGradeRecord,Comment,GradebookItemBean,AssignmentGradeRecordBean" />
     </bean>
+
+    <bean
+        id="org.sakaiproject.gradebook.framework.GradebookEntityProducer"
+        class="org.sakaiproject.gradebook.framework.GradebookEntityProducer"
+        init-method="init">
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+        <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService" />
+    </bean>
+
+    <bean
+        id="org.sakaiproject.gradebook.framework.GradebookContextObserver"
+        class="org.sakaiproject.gradebook.framework.GradebookContextObserver"
+        parent="org.sakaiproject.gradebook.framework.GradebookEntityProducer">
+    </bean>
     <!-- EB end -->
 
 </beans>
