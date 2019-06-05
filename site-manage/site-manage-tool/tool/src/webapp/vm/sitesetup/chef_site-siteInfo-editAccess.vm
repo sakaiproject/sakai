@@ -225,7 +225,7 @@
 				</label>
 			</div>
 			<div id="joinerrole" #if ($joinable) style="display: block;" #else  style="display: none;" #end>
-				<div class="messageWarning indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
+				<div class="sak-banner-warn indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
 				<p class="checkbox indnt3">
 					<label for="joinerRole">
 							<span class="reqStar" id="joinreqStar">*</span>
@@ -267,7 +267,7 @@
 							#end
 						</select>
 						#if( $joinGroupEnabledLocalDisabledGlobal )
-							<p class="indnt7 messageInformation">$tlang.getString( "ediacc.groupEnabledLocalDiabledGlobal" )</p>
+							<p class="indnt7 sak-banner-info">$tlang.getString( "ediacc.groupEnabledLocalDiabledGlobal" )</p>
 						#end
 					</p>
 				#end
@@ -283,7 +283,7 @@
 						</label>
 					</p>
 					#if( $joinExcludeEnabledLocalDisabledGlobal )
-						<p class="indnt7 messageInformation">$tlang.getString( "ediacc.excludeEnabledLocalDisabledGlobal" )</p>
+						<p class="indnt7 sak-banner-info">$tlang.getString( "ediacc.excludeEnabledLocalDisabledGlobal" )</p>
 					#end
 				#end
 				
@@ -299,12 +299,12 @@
 							$tlang.getString( "ediacc.joinLimitByAccountType" )
 						</label>
 					</p>
-					<p id="joinLimitInfoDiv" class="messageInformation indnt6" style="display:none">
+					<p id="joinLimitInfoDiv" class="sak-banner-info indnt6" style="display:none">
 						$tlang.getString("ediacc.selectAtLeastOneAccountType")
 					</p>
 					
 					#if( $joinLimitEnabledLocalDisabledGlobal )
-						<p class="indnt7 messageInformation">$tlang.getString( "ediacc.limitEnabledLocalDisabledGlobal" )</p>
+						<p class="indnt7 sak-banner-info">$tlang.getString( "ediacc.limitEnabledLocalDisabledGlobal" )</p>
 					#end
 					
 					<div class="indnt6" id="joinerAccountTypes" #if( $joinLimitByAccountType ) style="display:block" #else  style="display:none" #end>

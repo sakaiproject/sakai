@@ -8,7 +8,7 @@
             <div class="clear"></div>
         #end
 
-        <div class="messageInformation">
+        <div class="sak-banner-info">
             #if( $hasBlurb )<p>$enrolmentsBlurb</p>#end
             <p>$tlang.getString( "mb.enrolments.instructions" )</p>
         </div>

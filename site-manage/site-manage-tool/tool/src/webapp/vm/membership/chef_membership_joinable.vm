@@ -3,7 +3,7 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
-		sakai.setupMessageListener("messageHolder", "messageInformation");
+		sakai.setupMessageListener("messageHolder", "sak-banner-info");
 	});
 </script>
 
@@ -14,7 +14,7 @@
 
 		## join/unjoin action info is the only value of "alertMessage", so style it as information rather than error
 		#if ($alertMessage)
-			<div class="messageInformation" id="messageHolder">$validator.escapeHtml($alertMessage)</div>
+			<div class="sak-banner-info" id="messageHolder">$validator.escapeHtml($alertMessage)</div>
 		#end
 
 		<div class="sakai-table-toolBar">

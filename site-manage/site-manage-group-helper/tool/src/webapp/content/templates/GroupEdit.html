@@ -34,7 +34,7 @@
 		
 		  // ** START **
 		  if (form.group_title.value === "") {
-		   	$('.messageValidation').show();
+		   	$('.sak-banner-success').show();
 		    form.group_title.focus();
 		    return false ;
 		  }
@@ -50,7 +50,7 @@
 	</div>
 	<form rsf:id="groups-form" onsubmit="return checkform(this);">
 		<h3 rsf:id="prompt"></h3>
-		<p id="" class="messageValidation" rsf:id="emptyGroupTitleAlert" style="display:none"/>
+		<p id="" class="sak-banner-success" rsf:id="emptyGroupTitleAlert" style="display:none"/>
 		<p rsf:id="instructions" class="instruction">
 			Select members of the site member list and add to group. Select members of group list and remove. Click Update to save changes.
 		</p>

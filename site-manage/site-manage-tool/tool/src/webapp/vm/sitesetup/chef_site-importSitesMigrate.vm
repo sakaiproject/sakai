@@ -121,7 +121,7 @@
 		</div>
 		
 		#if ($addMissingTools)
-			<p class="messageConfirmation">$tlang.getString("import.newtool")</p>
+			<p class="sak-banner-warn">$tlang.getString("import.newtool")</p>
 		#end
 		
 		<input type="hidden" name="back" value="59" />
