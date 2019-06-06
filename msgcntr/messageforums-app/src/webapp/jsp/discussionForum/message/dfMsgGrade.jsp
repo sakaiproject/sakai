@@ -138,7 +138,7 @@
 				<h:outputText value=" #{msgs.cdfm_dash} " rendered="#{!empty ForumTool.selectedTopic}"/> 
 				<h:outputText	value="#{ForumTool.selectedTopic.topic.title}" />
 			</h4>
-			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<h:panelGroup rendered="#{ForumTool.selectedMessage != null}">
 			<f:verbatim>
 			<div class="singleMessage">
@@ -189,7 +189,7 @@
       </h:panelGroup>
       <h:outputText value="" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" />
       <h:outputText value="#{msgs.cdfm_no_gb_perm}" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" 
-      		styleClass="alertMessage"/>
+      		styleClass="sak-banner-error"/>
 				<h:panelGroup  rendered="#{!ForumTool.selGBItemRestricted}">
 					<h:outputLabel for="dfMsgGradeGradePoint" rendered="#{ForumTool.allowedToGradeItem}" >
 						<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline"  style="padding-right:3px" />
@@ -200,7 +200,7 @@
 					<h:panelGroup >
 	    		<h:inputText value="#{ForumTool.gradePoint}" id="dfMsgGradeGradePoint" size="5" rendered="#{ForumTool.allowedToGradeItem}" />
 	    		<h:outputText value="%" rendered="#{ForumTool.gradeByPercent}" />
-						<h:message for="dfMsgGradeGradePoint" styleClass="alertMessage"  rendered="#{ForumTool.allowedToGradeItem}"/>
+						<h:message for="dfMsgGradeGradePoint" styleClass="sak-banner-error"  rendered="#{ForumTool.allowedToGradeItem}"/>
 	      </h:panelGroup>
 	      
 	      <h:panelGroup rendered="#{!ForumTool.allowedToGradeItem}" >

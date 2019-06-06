@@ -28,7 +28,7 @@ public class MessagesComponent extends HtmlMessages
 	public MessagesComponent()
 	{
 		super();
-		setStyleClass("alertMessage");
+		setStyleClass("sak-banner-error");
 		setShowSummary(false);
 		setShowDetail(true);
 		

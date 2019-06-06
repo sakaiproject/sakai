@@ -52,7 +52,7 @@
 		</td>
 	  </tr>
 	  <tr>
-        <td colspan=3><h:message for="podfile" styleClass="alertMessage" /></td>
+        <td colspan=3><h:message for="podfile" styleClass="sak-banner-error" /></td>
       </tr>
       <tr>  <!-- ****** Date ****** --> 
         <td><h:outputText value="#{msgs.date_prompt}" />&nbsp;&nbsp;&nbsp;</td>
@@ -61,17 +61,17 @@
 		</td>
      </tr>
      <tr>
-       <td colspan="3"><h:outputText value="#{msgs.invalid_date_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayInvalidDateErrMsg}" /></td>
+       <td colspan="3"><h:outputText value="#{msgs.invalid_date_alert}" styleClass="sak-banner-error" rendered="#{podHomeBean.displayInvalidDateErrMsg}" /></td>
      </tr>
      <tr>
-       <td colspan="3"><h:message for="poddate" styleClass="alertMessage" /></td>
+       <td colspan="3"><h:message for="poddate" styleClass="sak-banner-error" /></td>
      </tr>
     <tr>  <!-- ****** Title ****** -->
       <td><h:outputText value="#{msgs.title_prompt}" /></td>
  	  <td><h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" size="35" maxlength="255" /></td>
  	</tr>
     <tr>
-	  <td colspan="3"><h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" /></td>
+	  <td colspan="3"><h:outputText value="#{msgs.notitle_alert}" styleClass="sak-banner-error" rendered="#{podHomeBean.displayNoTitleErrMsg}" /></td>
     </tr>
     <tr> <!-- ****** Description ****** -->
       <td colspan="2"><h:outputText value="#{msgs.description_prompt}" />

@@ -41,7 +41,7 @@
 				});
 			</script>		
 			
- 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
+ 			<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
 			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopicAndDetail}"
 				             immediate="true" title="shortaccess">

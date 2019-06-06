@@ -152,7 +152,7 @@ public class MyWallPanel extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.empty"));
 					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("alertMessage")));
+							new Model<String>("sak-banner-error")));
 					target.add(formFeedback);
 					return;
 				}
@@ -161,7 +161,7 @@ public class MyWallPanel extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.failed"));
 					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("alertMessage")));
+							new Model<String>("sak-banner-error")));
 					target.add(formFeedback);
 				} else {
 					

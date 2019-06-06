@@ -289,7 +289,7 @@ public class MessageView extends Panel {
 				if(!replyField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", true, new Model<String>("sak-banner-error")));
 				target.add(formFeedback);
 			}
 		};

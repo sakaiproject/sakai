@@ -6,7 +6,7 @@
 	<h3>
 		$tlang.getString("presence.session.active")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("presence.session.alert.message", $validator.escapeHtml($alertMessage))</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("presence.session.alert.message", $validator.escapeHtml($alertMessage))</div>#end
 	<div class="instruction">$tlang.getFormattedMessage("presence.session.total.value", $total)</div>
 	<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("presence.session.list.summary")">
 		#foreach ($serverName in $serverList)

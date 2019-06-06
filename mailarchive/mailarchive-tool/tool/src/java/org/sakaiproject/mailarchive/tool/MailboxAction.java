@@ -129,7 +129,7 @@ public class MailboxAction extends PagedResourceActionII
 
 	private static final String STATE_SHOW_NON_ALIAS = "showNonAlias";
 	
-	private static final String STATE_ALERT_MESSAGE = "alertMessage";
+	private static final String STATE_ALERT_MESSAGE = "sak-banner-error";
 
 	private static final String STATE_DELETE_CONFIRM_ID = "confirmDeleteId";
 	

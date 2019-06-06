@@ -402,7 +402,7 @@ public class MyPrivacy extends BasePage {
 
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel("error.privacy.save.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("sak-banner-error")));
 				}
 				
 				//resize iframe

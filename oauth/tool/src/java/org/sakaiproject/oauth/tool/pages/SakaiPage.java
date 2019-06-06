@@ -79,7 +79,7 @@ public abstract class SakaiPage extends WebPage implements IHeaderContributor {
                 if (message.getLevel() == FeedbackMessage.INFO)
                     add(new AttributeModifier("class", "success"));
                 else
-                    add(new AttributeModifier("class", "alertMessage"));
+                    add(new AttributeModifier("class", "sak-banner-error"));
 
                 return super.newMessageDisplayComponent(id, message);
             }

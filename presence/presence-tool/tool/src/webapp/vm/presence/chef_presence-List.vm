@@ -7,7 +7,7 @@
 	$tlang.getString("presence.list1.user")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">
+		<div class="sak-banner-error">
 			$tlang.getFormattedMessage("presence.list1.alert.message", $validator.escapeHtml($alertMessage))
 		</div>
 	#end

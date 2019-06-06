@@ -89,7 +89,7 @@ public class WallItemPostCommentPanel extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.comment.empty"));
 					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("alertMessage")));
+							new Model<String>("sak-banner-error")));
 					target.add(formFeedback);
 					return;
 				}
@@ -109,7 +109,7 @@ public class WallItemPostCommentPanel extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.comment.failed"));
 					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("alertMessage")));
+							new Model<String>("sak-banner-error")));
 					target.add(formFeedback);
 					return;
 				}

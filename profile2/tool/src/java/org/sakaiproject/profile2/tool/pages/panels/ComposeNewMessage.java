@@ -197,7 +197,7 @@ public class ComposeNewMessage extends Panel {
 				} else {
 					//error
 					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("sak-banner-error")));
 				}
 				
 				formFeedback.setVisible(true);
@@ -214,7 +214,7 @@ public class ComposeNewMessage extends Panel {
 				if(!messageField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", true, new Model<String>("sak-banner-error")));
 
 				target.add(formFeedback);
 			}
@@ -249,7 +249,7 @@ public class ComposeNewMessage extends Panel {
 		protected void onEvent(AjaxRequestTarget target) {
 			if(StringUtils.isBlank(toField.getValue())) {
         		formFeedback.setDefaultModel(new ResourceModel("error.message.required.to"));
-        		formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
+        		formFeedback.add(new AttributeModifier("class", true, new Model<String>("sak-banner-error")));
         	} else {
         		formFeedback.setVisible(false);
         	}
