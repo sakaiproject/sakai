@@ -319,7 +319,7 @@ public class SaveAssessmentSettings
     // k. set ipAddresses
    
     HashSet ipSet = new HashSet();
-    String ipAddresses = StringUtils.strip(assessmentSettings.getIpAddresses()," ");
+    String ipAddresses = assessmentSettings.getIpAddresses().replace(" ", "");
     if (ipAddresses == null)
       ipAddresses = "";
     
