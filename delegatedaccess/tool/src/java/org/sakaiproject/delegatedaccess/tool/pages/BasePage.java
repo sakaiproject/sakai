@@ -197,7 +197,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 						message.getLevel() == FeedbackMessage.DEBUG ||
 						message.getLevel() == FeedbackMessage.FATAL ||
 						message.getLevel() == FeedbackMessage.WARNING){
-					add(new AttributeModifier("class", "alertMessage"));
+					add(new AttributeModifier("class", "sak-banner-error"));
 				} else if(message.getLevel() == FeedbackMessage.INFO){
 					add(new AttributeModifier("class", "success"));        			
 				} 

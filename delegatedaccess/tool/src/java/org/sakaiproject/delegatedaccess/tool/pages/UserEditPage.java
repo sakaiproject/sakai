@@ -159,10 +159,10 @@ public class UserEditPage  extends BaseTreePage{
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", true, new Model("sak-banner-error")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("sak-banner-error")));
 					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
@@ -194,10 +194,10 @@ public class UserEditPage  extends BaseTreePage{
 				//check that no nodes have been modified
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", true, new Model("sak-banner-error")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("sak-banner-error")));
 					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
@@ -360,10 +360,10 @@ public class UserEditPage  extends BaseTreePage{
 				}catch (Exception e) {
 					log.error(e.getMessage(), e);
 					formFeedback.setDefaultModel(new ResourceModel("failed.save"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback.add(new AttributeModifier("class", true, new Model("sak-banner-error")));
 					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("failed.save"));
-					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("sak-banner-error")));
 					target.add(formFeedback2);
 				}
 				//call a js function to hide the message in 5 seconds

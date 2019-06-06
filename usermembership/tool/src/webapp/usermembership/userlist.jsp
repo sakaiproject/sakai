@@ -22,7 +22,7 @@
 	<h:outputText value="#{UserListBean.initValues}"/>
 	
 	<f:subview id="allowed">
-		<h:message for="allowed" fatalClass="alertMessage" fatalStyle="margin-top: 15px;" showDetail="true"/>
+		<h:message for="allowed" fatalClass="sak-banner-error" fatalStyle="margin-top: 15px;" showDetail="true"/>
 	</f:subview>	
 	
 	<style type="text/css">
