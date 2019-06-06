@@ -45,7 +45,7 @@
 	<form method="POST" action="<portlet:actionURL/>" id="<portlet:namespace/>_config">
 	
 		<c:if test="${portletTitleIsLocked || feedUrlIsLocked}">
-			<p class="information"><fmt:message key="edit.preconfigured" /></p>
+			<p class="sak-banner-info"><fmt:message key="edit.preconfigured" /></p>
 		</c:if>
 		
 		<c:if test="${!portletTitleIsLocked}">

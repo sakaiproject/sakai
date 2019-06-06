@@ -13,7 +13,7 @@ ${includeLatestJQuery}
 	#toolbar($menu)
 #end
 
-	#if ($successMessage)<span class="success">$successMessage</span>#end
+	#if ($successMessage)<span class="sak-banner-success">$successMessage</span>#end
 
 	<h3>
 		$tlang.getString("usecre.entthe")

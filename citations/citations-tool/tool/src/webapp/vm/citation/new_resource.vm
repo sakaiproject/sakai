@@ -35,7 +35,7 @@
 </style>
 
 <div id="citationsPortletBody" class="portletBody">
-    <div id="messageSuccess" class="messageSuccess" style="display:none">
+    <div id="messageSuccess" class="sak-banner-success" style="display:none">
     </div>
     <div id="sak-banner-success-inline" class="sak-banner-success" style="display:none">
     </div>

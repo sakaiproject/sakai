@@ -29,7 +29,7 @@
 		<div class="clear"></div>
 	#end
 	#if($importQueued)
-		<div class="information">
+		<div class="sak-banner-info">
 			#if($importQueuedNoEmail)
 				$tlang.getString("importQueuedNoEmail")
 			#else

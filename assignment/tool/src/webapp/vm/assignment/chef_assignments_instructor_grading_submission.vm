@@ -32,7 +32,7 @@
     #navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
     ## confirmation
     #if ($!gradingDone)
-        <div class="success">
+        <div class="sak-banner-success">
             $!tlang.getString("saved_grading")
         </div>
     #end

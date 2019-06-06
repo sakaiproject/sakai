@@ -15,7 +15,7 @@
 	<h4>$tlang.getString("archive.vm.export.term")</h4>
 		
 	#if ($isRunning) 
-		<div class="information">$statusMessage</div>
+		<div class="sak-banner-info">$statusMessage</div>
 	#else
 		
 		<form action="#toolForm("$action")" method="post">

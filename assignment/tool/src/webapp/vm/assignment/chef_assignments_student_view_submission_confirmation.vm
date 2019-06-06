@@ -10,7 +10,7 @@
             $tlang.getString('confirm.savesubmission.title')
         #end
     </h3>
-    <div class="success">
+    <div class="sak-banner-success">
         #if ($!submission.Submitted)
             $tlang.getString('confirm.submission.success')
         #else

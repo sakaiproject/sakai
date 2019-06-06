@@ -10,7 +10,7 @@
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
 	## confirmation
 	#if ($!gradingDone)
-		<div class="success">
+		<div class="sak-banner-success">
 			#if($view_only)
 				#if($itemRemoved)
 					$!tlang.getString("peerassessment.removed")

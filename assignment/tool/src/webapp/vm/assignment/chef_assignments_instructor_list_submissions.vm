@@ -258,17 +258,17 @@ function printView(url) {
 				</p>
 				#if ($!savedFeedback)
 					#if ($!overwriteFeedback)
-						<div class="success">
+						<div class="sak-banner-success">
 							$!tlang.getString("sendFeedback.savedow")
 						</div>
 					#else
-						<div class="success">
+						<div class="sak-banner-success">
 							$!tlang.getString("sendFeedback.saved")
 						</div>
 					#end
 				#end
 				#if ($!returnedFeedback)
-					<div class="success">
+					<div class="sak-banner-success">
 						$!tlang.getString("sendFeedback.returned")
 					</div>
 				#end

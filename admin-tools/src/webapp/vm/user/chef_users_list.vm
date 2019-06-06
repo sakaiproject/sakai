@@ -12,7 +12,7 @@
 	</h3>
 
 		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
-		#if ($successMessage)<div class="success">$validator.escapeHtml($successMessage)</div>#end
+		#if ($successMessage)<div class="sak-banner-success">$validator.escapeHtml($successMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("uselis.theare")
 		</div>

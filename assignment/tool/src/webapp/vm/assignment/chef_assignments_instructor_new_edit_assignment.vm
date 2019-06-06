@@ -618,7 +618,7 @@
 				#end
 				</select>
 			</div>
-			<div id="review.switch.ne.2" class="information" style="display:none;">$reviewSwitchNe2</div>
+			<div id="review.switch.ne.2" class="sak-banner-info" style="display:none;">$reviewSwitchNe2</div>
 		</div>
 
 		##show it only for those assignments not of type non-electronic submission
@@ -731,7 +731,7 @@
 			<h4> $reviewServiceTitle </h4>
 			<div>
 				#if (4 == $value_SubmissionType)
-					<div id="review.switch.ne.1" class="information">$reviewSwitchNe1</div>
+					<div id="review.switch.ne.1" class="sak-banner-info">$reviewSwitchNe1</div>
 					<div class="checkbox  indnt2">
 						<label id="lblReviewService" for="$name_UseReviewService" class="instruction">
 						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)" disabled="disabled"/>
@@ -740,7 +740,7 @@
 						</label>
 					</div>
 				#else
-					<div id="review.switch.ne.1" class="information" style="display:none;">$reviewSwitchNe1</div>
+					<div id="review.switch.ne.1" class="sak-banner-info" style="display:none;">$reviewSwitchNe1</div>
 					<div class="checkbox">
 						<label id="lblReviewService" for="$name_UseReviewService">
 						#if($!value_UseReviewService == true)
