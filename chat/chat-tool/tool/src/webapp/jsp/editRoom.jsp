@@ -107,12 +107,12 @@
             <h:panelGroup styleClass="chat-select-date longtext indnt1">
               <h:outputLabel value="#{msgs.custom_date_start}" for="startDate" styleClass="chat-date-label"/>
               <h:inputText value="#{ChatTool.currentChannelEdit.startDateString}" size="20" id="startDate"/>
-              <h:message for="startDate" styleClass="alertMessageInline" />
+              <h:message for="startDate" styleClass="sak-banner-error-inline" />
             </h:panelGroup>
             <h:panelGroup styleClass="chat-select-date longtext indnt1">
               <h:outputLabel value="#{msgs.custom_date_end}" for="endDate" styleClass="chat-date-label"/>
               <h:inputText value="#{ChatTool.currentChannelEdit.endDateString}" size="20" id="endDate"/>
-              <h:message for="endDate" styleClass="alertMessageInline" />
+              <h:message for="endDate" styleClass="sak-banner-error-inline" />
             </h:panelGroup>
           </t:div>
         </sakai:group_box>

@@ -1253,7 +1253,7 @@
 							     }
 							}" >
 						$tlang.getString("grading.add")</label>
-						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
+						<span id="gradebookListWarnAssoc" class="sak-banner-error-inline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
 					</div>
 					#end
 					## if there exists properiate assignment entries in Gradebook
@@ -1291,7 +1291,7 @@
 									}
 								}" >
 						$tlang.getString("grading.associate")</label>
-						<span id="gradebookListWarn" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
+						<span id="gradebookListWarn" class="sak-banner-error-inline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
 					</div>
 					#end
 				</div>

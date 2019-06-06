@@ -202,7 +202,7 @@
 								size="40" styleClass="editText form-control">
 								<f:validateLength maximum="255" />
 							</h:inputText>
-							<h:message for="meetingTitle" errorClass="alertMessageInline"/>
+							<h:message for="meetingTitle" errorClass="sak-banner-error-inline"/>
 						</div>
 					</div>
 					
@@ -239,7 +239,7 @@
 								<h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputText value="&nbsp;" escape="false" />
-							<h:message for="customLocation" errorClass="alertMessageInline"/>
+							<h:message for="customLocation" errorClass="sak-banner-error-inline"/>
 						</div>
 					</div>
 
@@ -266,7 +266,7 @@
 								<h:outputText value="#{msgs.event_custom_undo}" escape="false" style="vertical-align: middle;"/>
 							</h:outputLabel>
 							<h:outputText value="&nbsp;" escape="false"/>
-							<h:message for="customCategory" errorClass="alertMessageInline"/>
+							<h:message for="customCategory" errorClass="sak-banner-error-inline"/>
 						</div>
 					</div>
 
@@ -307,7 +307,7 @@
 							<h:inputText value="#{CopyMeetingSignupMBean.startTimeString}" size="28" id="startTime" 
 								onkeyup="setEndtimeMonthDateYear();getSignupDuration();sakai.updateSignupBeginsExact();return false;"
 								onchange="sakai.updateSignupBeginsExact();"/>
-							<h:message for="startTime" errorClass="alertMessageInline"/>
+							<h:message for="startTime" errorClass="sak-banner-error-inline"/>
 						</h:panelGroup>
 						<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" layout="block" styleClass="col-lg-6">
 							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
@@ -328,7 +328,7 @@
 						<h:panelGroup styleClass="editText col-lg-10" rendered="#{!CopyMeetingSignupMBean.customTsType}" layout="block">
 							<h:inputText value="#{CopyMeetingSignupMBean.endTimeString}" size="28" id="endTime" 
 								onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
-							<h:message for="endTime" errorClass="alertMessageInline"/>
+							<h:message for="endTime" errorClass="sak-banner-error-inline"/>
 						</h:panelGroup>
 						<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" styleClass="col-lg-6" layout="block">
 							<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
@@ -376,7 +376,7 @@
 												<h:panelGroup id="endOfDate" style="margin-left:3px;">
 													<!-- t:inputCalendar id="ex" value=""  renderAsPopup="true" monthYearRowClass="" renderPopupButtonAsImage="true" dayCellClass=""   styleClass="untilCalendar"/ -->             					
 												<h:inputText value="#{CopyMeetingSignupMBean.repeatUntilString}" size="28" id="until" />
-													<h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
+													<h:message for="until" errorClass="sak-banner-error-inline" style="margin-left:10px" />
 												</h:panelGroup>
 											</h:panelGrid>
 										</h:panelGrid> 
@@ -403,7 +403,7 @@
 							</h:panelGroup>
 							<h:panelGroup style="margin-left:18px">
 								<h:outputText value="#{msgs.before_event_start}" />
-								<h:message for="signupBegins" errorClass="alertMessageInline"/>
+								<h:message for="signupBegins" errorClass="sak-banner-error-inline"/>
 									<!--  show exact date, based on above -->
 								<h:outputText id="signupBeginsExact" value="" escape="false" styleClass="dateExact" />
 							</h:panelGroup>
@@ -427,7 +427,7 @@
 							</h:panelGroup>
 							<h:panelGroup style="margin-left:18px">
 								<h:outputText value="#{msgs.before_event_end}" />
-								<h:message for="signupDeadline" errorClass="alertMessageInline"/>
+								<h:message for="signupDeadline" errorClass="sak-banner-error-inline"/>
 								<!--  show exact date, based on above -->
 								<h:outputText id="signupEndsExact" value="" escape="false" styleClass="dateExact" />
 							</h:panelGroup>

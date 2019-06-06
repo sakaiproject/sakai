@@ -197,7 +197,7 @@
 											<h:inputText id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
 											<h:inputHidden id="hiddenStartTime" value="#{tsWrapper.timeSlot.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
 										</h:panelGroup>
-										<h:message for="startTime" errorClass="alertMessageInline"/>
+										<h:message for="startTime" errorClass="sak-banner-error-inline"/>
 									</h:panelGrid>
 						    	</t:column>
 						    	<t:column rendered="#{!tsWrapper.deleted}">
@@ -209,7 +209,7 @@
 											<h:inputText id="endTime" value="#{tsWrapper.timeSlot.endTimeString}"/>
 											<h:inputHidden id="hiddenEndTime" value="#{tsWrapper.timeSlot.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
 										</h:panelGroup>
-										<h:message for="endTime" errorClass="alertMessageInline"/>
+										<h:message for="endTime" errorClass="sak-banner-error-inline"/>
 									</h:panelGrid>
 						    	</t:column>
 						    	<t:column rendered="#{!tsWrapper.deleted}">

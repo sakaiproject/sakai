@@ -132,7 +132,7 @@
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 		</p>
-		<p class="alertMessageInline">
+		<p class="sak-banner-error-inline">
 		$tlang.getString("import.links.warning")
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

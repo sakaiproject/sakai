@@ -535,7 +535,7 @@
 
 					#if($model.groupsAreMissing())
 						<div class="labelindnt">
-							<p class="alertMessageInline">
+							<p class="sak-banner-error-inline">
 								$tlang.getString("access.groups.missing")
 							</p>
 						</div>
