@@ -4,9 +4,12 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- This is the bean that reloads a calendar in a particular case -->
+	<!-- SAK-41909, throws an error, was removed in SAK-26108-->
+	<!--
 	<bean id="org.sakaiproject.calendar.impl.ExternalCalendarElementRefresher"
 		class="org.sakaiproject.calendar.impl.MockExternalCalendarElementRefresher">
 	</bean>
+	-->
 	
 	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager"
 		class="net.sf.ehcache.CacheManager">

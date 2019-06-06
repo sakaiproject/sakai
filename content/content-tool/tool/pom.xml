@@ -55,9 +55,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>jdom</groupId>
-      <artifactId>jdom</artifactId>
-      <version>1.0</version>
+      <groupId>org.jdom</groupId>
+      <artifactId>jdom2</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>

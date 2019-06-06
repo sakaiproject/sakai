@@ -35,11 +35,11 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPath;
 
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
@@ -152,7 +152,7 @@ public abstract class CmSynchronizer {
 		try {
 			List<String> academicSessionEids = new ArrayList<String>();
 			XPath docsPath = XPath.newInstance("/cm-data/current-academic-sessions/academic-session-eid");
-			List<Element> items = docsPath.selectNodes(doc);
+			List<Element> items = (List<Element>) docsPath.selectNodes(doc);
 			for (Element element : items) {
 				academicSessionEids.add(element.getText());
 			}
