@@ -4,7 +4,7 @@
 	<h3>
 		$title 
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$instruction
 		$required

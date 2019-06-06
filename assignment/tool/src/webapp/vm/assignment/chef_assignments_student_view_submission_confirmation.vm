@@ -25,7 +25,7 @@
     #if ($!email_confirmation && $!submission.Submitted)
         #if (!$!user_email)
             ## no email could be sent due to the missing recipent email address
-            <p class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</p>
+            <p class="sak-banner-error">$tlang.getString('confirm.submission.email.noEmailAddress')</p>
         #end
     #end
     <form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">

@@ -327,7 +327,7 @@ $(function() {
 	<h3>
 		$tlang.getString("new.adding")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"/>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"/>#end
 	<p class="instruction">
 		$tlang.getString("new.toadd")<br />
 		$tlang.getString("new.a") <span class="reqStarInline"> * </span>

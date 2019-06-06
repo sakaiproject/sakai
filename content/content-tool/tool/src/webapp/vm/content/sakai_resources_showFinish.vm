@@ -1,7 +1,7 @@
 <!-- sakai_resources_showFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
-	<div class="alertMessage">$tlang.getString("show.sure")</div><div style="display:block;clear:both" ></div>
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+	<div class="sak-banner-error">$tlang.getString("show.sure")</div><div style="display:block;clear:both" ></div>
 	<h3>
 		$tlang.getString("show.show")
 	</h3>

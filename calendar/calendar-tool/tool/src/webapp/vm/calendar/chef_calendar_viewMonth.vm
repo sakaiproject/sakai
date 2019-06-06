@@ -1,7 +1,7 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewMonth.vm,v 1.7 2005/06/07 18:47:22 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 #if($menu)#toolbar($menu)#end
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 <!-- First table -->
 	<div class="clear"></div>
 

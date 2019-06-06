@@ -1,6 +1,6 @@
 <!-- sakai_quota.vm, version: $Revision$, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody specialLink">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
 	<h3>
 		$tlang.getString("quota.quota")
 	</h3>

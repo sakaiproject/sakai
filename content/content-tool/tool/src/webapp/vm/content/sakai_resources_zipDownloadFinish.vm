@@ -2,7 +2,7 @@
 <script src="/library/js/spinner.js" type="text/javascript"></script>
 <div class="portletBody">
     <div class="instruction">$tlang.getString("zipdownload.sure")</div>
-    #if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+    #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
     
     <form action="#toolForm("ResourcesAction")" id="zipDownloadFileForm" name="zipDownloadFileForm" method="post" >
         <input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />

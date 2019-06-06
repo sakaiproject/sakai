@@ -97,10 +97,10 @@
                 <div class="panel-footer">
                     <f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
                         <div>
-                            <div id="errorSubmit" class="alertMessage" style="display:none">
+                            <div id="errorSubmit" class="sak-banner-error" style="display:none">
                                 <h:outputText value="#{msgs['therewaspro']}" />
                             </div>
-                            <div id="missingChannel" class="alertMessage" style="display:none">
+                            <div id="missingChannel" class="sak-banner-error" style="display:none">
                                 <h:outputText value="#{msgs['missingchannel1']}" />
                                 <h:outputLink value="#{ChatTool.toolUrl}">
                                     <h:outputText value="#{msgs['here']}" />
