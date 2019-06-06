@@ -294,7 +294,7 @@ public class PortletIFrame extends GenericPortlet {
 		PortletSession pSession = request.getPortletSession(true);
 		String str = (String) pSession.getAttribute(ALERT_MESSAGE);
 		pSession.removeAttribute(ALERT_MESSAGE);
-		if ( str != null && str.length() > 0 ) context.put("alertMessage", validator.escapeHtml(str, false));
+		if ( str != null && str.length() > 0 ) context.put("sak-banner-error", validator.escapeHtml(str, false));
 	}
 
 	// Render the portlet - this is not supposed to change the state of the portlet

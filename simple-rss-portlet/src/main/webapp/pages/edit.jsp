@@ -38,7 +38,7 @@
 <div class="simple-rss-portlet">
 				
 	<c:if test="${not empty errorMessage}">
-		<p class="alertMessage">${errorMessage}</p>
+		<p class="sak-banner-error">${errorMessage}</p>
 	</c:if>
 		
 	

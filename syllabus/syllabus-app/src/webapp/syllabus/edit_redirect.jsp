@@ -13,7 +13,7 @@
 				<h3>
 					<h:outputText value="#{msgs.redirect_sylla}" />
 				</h3>
-				<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
+				<h:messages styleClass="sak-banner-error" rendered="#{!empty facesContext.maximumSeverity}" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1">
 					<h:panelGroup styleClass="instruction">
 						<h:outputText value="#{msgs.redirect_sylla_delete}" />

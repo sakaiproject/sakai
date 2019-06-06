@@ -14,7 +14,7 @@
 	    </h:outputFormat>
 	</h3>
 
-    <t:div styleClass="alertMessage">
+    <t:div styleClass="sak-banner-error">
         <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>
         <t:dataList
             id="deleteSectionsTable"

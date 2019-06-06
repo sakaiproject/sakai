@@ -175,7 +175,7 @@
 		</script>
 		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="sak-banner-error" escape="false" rendered="#{messageUIBean.error}"/>
 			<h:outputText id="iframeId" value="#{CopyMeetingSignupMBean.iframeId}" style="display:none"/>	
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_copy_meeting_page_title}"/>
@@ -345,7 +345,7 @@
 
 					<div class="row">
 						<h:outputText id="recurWarnLabel_1" value="" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
-						<h:outputText id="recurWarnLabel_2" value="#{msgs.warn_copy_recurred_event}" styleClass="alertMessage" 
+						<h:outputText id="recurWarnLabel_2" value="#{msgs.warn_copy_recurred_event}" styleClass="sak-banner-error"
 									 escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
 					</div>
 					<%--  Meeting frequency --%>
@@ -440,7 +440,7 @@
 						<div class="col-lg-10">
 							<h:panelGroup rendered="#{CopyMeetingSignupMBean.missingSitGroupWarning}" layout="block">
 								<h:panelGrid columns="1">
-									<h:outputText value="#{msgs.event_some_orig_sitegroup_unavail_due_to_your_create_permission}" styleClass="alertMessage" 
+									<h:outputText value="#{msgs.event_some_orig_sitegroup_unavail_due_to_your_create_permission}" styleClass="sak-banner-error"
 												escape="false"/>
 									<h:panelGroup>	
 										<h:outputLabel  id="imageOpen_missingSiteGroup" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_missingSiteGroup','meeting:imageClose_missingSiteGroup','meeting:missingSiteGroups');">

@@ -83,7 +83,7 @@
 
     	
         <sakai:view_content>
-     		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
+     		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="sak-banner-error" escape="false" rendered="#{messageUIBean.error}"/>
             <h:form id="meeting" >              
 				<sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 <sakai:doc_section>
@@ -352,7 +352,7 @@
                         </h:panelGroup>   
                         <h:panelGroup>
                             <h:outputText value="<div id='otherSites' style='display:none'>" escape="false"/>
-                            <h:outputText value="#{msgs.event_other_sites_empty}" styleClass="alertMessage" escape="false" rendered="#{empty NewSignupMeetingBean.otherSites}" />
+                            <h:outputText value="#{msgs.event_other_sites_empty}" styleClass="sak-banner-error" escape="false" rendered="#{empty NewSignupMeetingBean.otherSites}" />
                             <h:dataTable id="userSites" value="#{NewSignupMeetingBean.otherSites}" var="site" styleClass="meetingTypeTable" style="left:1px;">
                                 <h:column>
                                     <h:panelGroup>

@@ -10,7 +10,7 @@
 			$tlang.getString("sinfo.other")
 		</h3>
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitediinf.alert") $alertMessage</div><div class="clear"></div>#end
 	## adding a new course site
 	#if ($isCourseSite)
 	<table class="listHier lines nolines indnt1" style="width:auto" summary="$tlang.getString("sinfo.rosterlist.summary")" border="0">

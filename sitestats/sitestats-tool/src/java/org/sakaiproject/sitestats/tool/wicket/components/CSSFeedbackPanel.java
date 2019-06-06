@@ -36,7 +36,7 @@ public class CSSFeedbackPanel extends FeedbackPanel {
 				private static final long	serialVersionUID	= 1L;
 				public Serializable getObject() {
 					if(anyErrorMessage()){
-						return "alertMessage";
+						return "sak-banner-error";
 					}else if(anyMessage()){
 						return "success";
 					}else{

@@ -14,7 +14,7 @@
 		</style>	
 		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="sak-banner-error" escape="false" rendered="#{messageUIBean.error}"/>
 			<h:form id="meeting">
 		 		<sakai:view_title value="#{msgs.permission_page_title}"/>
 				<sakai:doc_section>

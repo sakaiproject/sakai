@@ -206,7 +206,7 @@
 					<f:verbatim>
 						<div>
 							<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
-							<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
+							<span id="warningInfo" class="sak-banner-error popupMessage" style="display:none; float: left;"></span>
 						</div>
 
 						<span id="lastMoveArray" class="hidden"></span>
