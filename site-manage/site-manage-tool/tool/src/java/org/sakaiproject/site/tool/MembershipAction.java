@@ -286,7 +286,7 @@ public class MembershipAction extends PagedResourceActionII
 		}
 
 		context.put("tlang", RB);
-		context.put("sak-banner-error", state.getAttribute(STATE_MESSAGE));
+		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("membershipTextEdit", new SiteTextEditUtil());
 
 		// Add the menu to the vm

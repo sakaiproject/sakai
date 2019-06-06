@@ -1457,7 +1457,7 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		context.put("tlang", rb);
 		String alert=(String)state.getAttribute(STATE_MESSAGE);
-		context.put("sak-banner-error", state.getAttribute(STATE_MESSAGE));
+		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("siteTextEdit", new SiteTextEditUtil());
 		
 		//SAK-29525 Open Template list by default when creating site

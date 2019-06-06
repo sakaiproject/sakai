@@ -426,7 +426,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				}
 				if (buf.length() > 0)
 				{
-					setVmReference("sak-banner-error", buf.toString(), req);
+					setVmReference("alertMessage", buf.toString(), req);
 				}
 				//set up for duplicate site alert
 				StringBuilder sbNotif = new StringBuilder();

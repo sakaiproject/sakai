@@ -146,7 +146,7 @@ public class CreateWorksitePanel extends Panel {
 
 				if (titleError) {
 					formFeedback.setDefaultModel(errorMsg);
-					formFeedback.add(new AttributeModifier("class", true, new Model<>("sak-banner-error")));
+					formFeedback.add(new AttributeModifier("class", true, new Model<>("alertMessage")));
 					target.add(formFeedback);
 					return;
 				}
@@ -161,7 +161,7 @@ public class CreateWorksitePanel extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.worksite.create.failed"));
 					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("sak-banner-error")));
+							new Model<String>("alertMessage")));
 					target.add(formFeedback);
 					return;
 				}
