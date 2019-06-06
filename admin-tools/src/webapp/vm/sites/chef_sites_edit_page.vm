@@ -12,7 +12,7 @@
 		<h3>
 			$tlang.getString("sitedipag.edisit") $!site.Id / $tlang.getString("sitedipag.pag") $!page.Id
 		</h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedipag.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedipag.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitedipag.revandmod")
 		</div>

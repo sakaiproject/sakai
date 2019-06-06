@@ -10,7 +10,7 @@
 	<h3>
 		$tlang.getString("realm.edit.edit") $validator.escapeHtml($!realm.Id)
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.edit.alert") $validator.escapeHtml($alertMessage)</div>#end	
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.edit.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("realm.edit.used") $validator.escapeHtml($!realm.Description): $tlang.getString("realm.edit.review")
 	</div>

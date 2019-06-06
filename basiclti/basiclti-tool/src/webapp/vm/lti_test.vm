@@ -1,5 +1,5 @@
 <div class="portletBody">
-#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+#if ($alertMessage)<div sak-banner-error>$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 <p>Test Harness</p>
 <pre>
 $preOutput

@@ -9,7 +9,7 @@
 	<h3>
 		$tlang.getString("sitlis.sites")
 	</h3>	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitlis.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitlis.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitlis.theare") 
 		</div>
