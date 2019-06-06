@@ -47,7 +47,7 @@ public class GbFeedbackPanel extends FeedbackPanel {
 			add(AttributeModifier.replace("class", "messageWarning"));
 			add(AttributeModifier.append("class", "feedback"));
 		} else if (message.getLevel() == FeedbackMessage.INFO) {
-			add(AttributeModifier.replace("class", "messageInformation"));
+			add(AttributeModifier.replace("class", "sak-banner-info"));
 			add(AttributeModifier.append("class", "feedback"));
 		} else if (message.getLevel() == FeedbackMessage.SUCCESS) {
 			add(AttributeModifier.replace("class", "messageSuccess"));

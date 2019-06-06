@@ -107,13 +107,13 @@
 				<div class="form-group">
 				    <label for="upload">$tlang.getString("att.upl")</label>
 				    <input type="file" name="upload" id="upload" class="upload" onchange="showNotif('submitnotifxxx','attachButton1','attachForm'); document.getElementById('attachForm').action='#toolLinkParam("FilePickerAction" "doAttachupload" "special=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('attachForm');" #if($disable_attach_links) disabled="disabled"#end />
-					<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+					<span id="submitnotifxxx" class="sak-banner-info" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 				</div>	
 				<div class="form-group">
-					<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+					<span id="submitnotifxxx" class="sak-banner-info" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 				</div>
 			</div>
-			
+
 			<div class="form-inline">
 				<div class="form-group">
 					<label for="url">$tlang.getString("addi.or.url")</label>

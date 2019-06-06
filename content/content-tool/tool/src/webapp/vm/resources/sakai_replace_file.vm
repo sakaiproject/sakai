@@ -32,7 +32,7 @@
 					$validator.escapeHtml($item.name)
 				</td>
 			</tr>
-			<tr> 
+			<tr>
 				<td style="width:180px;padding-left:0">  
 					<label>$tlang.getString("props.mime")</label>
 				</td>
@@ -89,7 +89,7 @@
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doReplace" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.upl")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
-		<p id="submitnotifxxx"  class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.save.file")</p>
+		<p id="submitnotifxxx"  class="sak-banner-info"  style="visibility:hidden">$tlang.getString("processmessage.save.file")</p>
 		
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>

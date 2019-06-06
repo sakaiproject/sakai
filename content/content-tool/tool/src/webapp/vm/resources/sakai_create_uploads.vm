@@ -13,7 +13,7 @@
         #end
     </ol>
     #if ($itemAlertMessage)
-        <div class="messageValidation">$itemAlertMessage</div>
+        <div class="sak-banner-success">$itemAlertMessage</div>
         <div style="display:block;clear:both" ></div>
     #else
         <div class="alertMessage"></div>

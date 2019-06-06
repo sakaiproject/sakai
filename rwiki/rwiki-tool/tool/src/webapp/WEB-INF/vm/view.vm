@@ -51,11 +51,11 @@
 				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
 			</div>
 	</div>
-		<div class="messageError">
+		<div class="sak-banner-error">
 			<h4>
 				${rlb.jsp_page_length_alert_title}
 			</h4>
-			<div class="messageError">
+			<div class="sak-banner-error">
 				${rlb.jsp_page_length_alert_view}
 			</div>
 		</div> 
