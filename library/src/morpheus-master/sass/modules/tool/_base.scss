@@ -231,9 +231,9 @@
 }
 
 .validationEmbedded,.validation{
-	@extend .bs-callout-primary;
+	@extend ;
 }
 
 .alertMessage{
-	@extend .bs-callout-danger;
+	@extend sak-banner-error;
 }

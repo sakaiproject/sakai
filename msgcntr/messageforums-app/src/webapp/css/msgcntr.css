@@ -296,21 +296,21 @@ table.messageActions td{
 	margin: .5em 0;
 	padding: 4px 0 4px 2em;
 }
-.messageInformation{
+sak-banner-info{
 	background: #ffe url(../images/asterisk_yellow.gif) 5px 5px no-repeat;
 	border: 1px solid #d93;
 	color: #d93;
 	margin: .5em 0;
 	padding: 4px 0 4px 2em;
 }
-.messageComfirm{
+sak-banner-warn-inline{
 	background: #cd5 url(../images/accept.gif) 5px 5px no-repeat;
 	border: 1px solid #790;
 	color: #779900;
 	margin: .5em 0;
 	padding: 4px 0 4px 2em;
 }
-span.messageAlert,span.messageInformation,.messageComfirm{
+span.messageAlert,span.sak-banner-info-inline,sak-banner-warn-inline{
 	padding-right: 1em;
 }
 /*utils, special cases, sakai overrides*/

@@ -10,8 +10,9 @@ body{
 		&.toolsNav--displayed{
 			// hide the tool body
 			.#{$namespace}pagebody {
-				#content {
-					display: none;
+				#content { .hidden {
+						display: none !important;
+					}
 				}
 			}
 			// make the banner stick to the top on scroll when the tool menu is visible
@@ -199,8 +200,9 @@ body{
 //   to determine the current viewport breakpoint
 body {
   ##{$namespace}viewport-helpers {
-    .phone, .tablet, .desktop {
-      display: none;
+    .phone, .tablet, .desktop {.hidden {
+		display: none !important;
+	}
 
       height: 0;			// removed in SAK-40294 because it caused an extra pixel of unnecessary page height
       width: 1px;

@@ -37,9 +37,9 @@
 <div id="citationsPortletBody" class="portletBody">
     <div id="messageSuccess" class="messageSuccess" style="display:none">
     </div>
-    <div id="messageValidation" class="messageValidation" style="display:none">
+    <div id="sak-banner-success-inline" class="sak-banner-success" style="display:none">
     </div>
-    <div id="messageError" class="messageError" style="display:none; height: 6.3em;">
+    <div id="sak-banner-error-inline" class="sak-banner-error" style="display:none; height: 6.3em;">
     </div>
 	<h3>
 		#if($resourceAdd)

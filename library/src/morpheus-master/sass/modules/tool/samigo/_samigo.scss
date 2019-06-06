@@ -16,7 +16,7 @@
 	}
 
 	#samigo-create-new-box, #samigo-create-import-box {
-		@extend .bs-callout-primary;
+		@extend sak-banner-info;
 		border-left-width: 1px;
 		margin-top: 20px;
 	}
