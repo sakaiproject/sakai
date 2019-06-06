@@ -31,7 +31,7 @@
 		| <a href="#toolLink("ResourcesAction" "doHierarchy")" title="$tlang.getString('list.hierarchy')">$tlang.getString("list.hierarchy")</a> 
 	</div>
 	#if ($alertMessage)
-		<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
+		<br /><div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
 	#end
 	<div>
 		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">

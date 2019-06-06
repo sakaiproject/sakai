@@ -142,7 +142,7 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="alertMessage" id="generalAlert">
+		<div class="sak-banner-error" id="generalAlert">
 			<strong>$tlang.getString("gen.alert")</strong> $alertMessage
 		</div>
 	#end

@@ -1,10 +1,10 @@
 <!-- sakai_resources_hideFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
 	#if($sitetype == "course")
-		<div class="alertMessage">$tlang.getString("hide.sure_course")</div><div style="display:block;clear:both" ></div>
+		<div class="sak-banner-error">$tlang.getString("hide.sure_course")</div><div style="display:block;clear:both" ></div>
 	#else 
-		<div class="alertMessage">$tlang.getString("hide.sure_project")</div><div style="display:block;clear:both" ></div>
+		<div class="sak-banner-error">$tlang.getString("hide.sure_project")</div><div style="display:block;clear:both" ></div>
 	#end
 	<h3>
 		$tlang.getString("hide.hide")

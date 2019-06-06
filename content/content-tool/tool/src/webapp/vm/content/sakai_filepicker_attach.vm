@@ -24,7 +24,7 @@
 
 <div class="portletBody specialLink" id="portletBody">
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
 	#end
 	<h3 id="page-title">
 		#if($helper_title)

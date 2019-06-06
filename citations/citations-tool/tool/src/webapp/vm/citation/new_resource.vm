@@ -48,7 +48,7 @@
 			$tlang.getString("resource.revise")
 		#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $xilator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("label.alert") $xilator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$!instruction
 		$!required

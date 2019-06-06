@@ -77,7 +77,7 @@
 		  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
 		</div>
 
-		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 ##		#if ($messageListVector.iterator().hasNext())
 		<div class="navPanel">
 			<div class="viewNav">
@@ -353,7 +353,7 @@
 		#if ($toolId == "sakai.synoptic.announcement") 
 		##in home portlet  - so reduce display to title, attach marker, body (if selected), author and date
 
-			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+			#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 
 			<div class="page-header">
 			  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
@@ -423,7 +423,7 @@
 					  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
 					</div>
 
-					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 
 					<div class="sakai-table-toolBar">
 						<div class="sakai-table-filterContainer">
@@ -676,7 +676,7 @@
 				#else
 					## <h3>$tlang.getString("gen.announcements")</h3>
 					<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
-					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+					#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 
 						#if (!$messageListVector.iterator().hasNext())
 							<p class="instruction">

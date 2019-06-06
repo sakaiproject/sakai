@@ -1,5 +1,5 @@
 <br />
-<div class="alertMessage">
+<div class="sak-banner-error">
   $tlang.getString("gen.alert")
   $xilator.escapeHtml($alertMessages)
 </div>
