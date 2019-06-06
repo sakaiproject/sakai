@@ -12,7 +12,7 @@
 	<h3>
 		$tlang.getString("realm.role.set")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.role.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.role.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">	
 		$tlang.getString("realm.role.edit")
 		$validator.escapeHtml($!realm.Id)

@@ -3,8 +3,8 @@
 		$tlang.getString("content.delete")
 	</h3>
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	<div class="alertMessage">$tlang.getString("content.delete.sure")</div><div style="display:block;clear:both" ></div>
+	#if ($alertMessage)<div sak-banner-error>$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<div sak-banner-error>$tlang.getString("content.delete.sure")</div><div style="display:block;clear:both" ></div>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
                 <p>$content.get("title")</p>
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

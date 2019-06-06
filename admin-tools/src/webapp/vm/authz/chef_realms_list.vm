@@ -7,7 +7,7 @@
 #if($menu)
 	#toolbar($menu)
 #end
-			#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+			#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("realm.list.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction clear">
 			$tlang.getString("realm.list.these")
 		</div>

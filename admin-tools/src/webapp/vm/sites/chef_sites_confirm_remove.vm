@@ -4,9 +4,9 @@
 		$tlang.getString("sitconrem.remvi")
 	</h3>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getSting("sitconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getSting("sitconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("$action")" method="post">
-		<div class="alertMessage">$tlang.getString("sitconrem.plecon")</div>
+		<div class="sak-banner-error">$tlang.getString("sitconrem.plecon")</div>
 		<div class="indnt3">
 			$validator.escapeHtml($site.Title) ($validator.escapeHtml($site.Id))
 		</div>

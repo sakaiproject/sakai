@@ -19,7 +19,7 @@ ${includeLatestJQuery}
 		$tlang.getString("usecre.entthe")
 	</h3>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end	
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 
 	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" autocomplete="on">
 		<fieldset>
