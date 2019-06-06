@@ -33,7 +33,7 @@
 			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
-					if ($('ul[class="alertMessage"]').length==0) {
+					if ($('ul[class="sak-banner-error"]').length==0) {
 						eval('function c(){' + $('a[title="shortaccess"]').attr('onclick') + '};c();');
 					} else {
 						$('a[title="shortaccess"]').toggle();

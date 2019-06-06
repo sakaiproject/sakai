@@ -257,7 +257,7 @@
 			<input type="submit" name="eventSubmit_doGroups" value="$tlang.getString("sitedi.addeditgroups")" />
 		</div>
 ##		$tlang.getString("sitedi.specon")
-##		<div class="alertMessage">$tlang.getString("sitedi.sitcre")</div>
+##		<div class="sak-banner-error">$tlang.getString("sitedi.sitcre")</div>
 ##		<div class="act">
 ##			<input type="submit" name="eventSubmit_doIds" value="$tlang.getString("sitedi.assnew")" />
 ##		</div>
