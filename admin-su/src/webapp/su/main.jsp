@@ -14,14 +14,14 @@
 <sakai:view_container title="#{msgs.title}">
 
 	<f:subview id="allowed" rendered="#{SuTool.allowed}">
-		<h:message for="allowed" errorClass="alertMessage" infoClass="instruction" />
+		<h:message for="allowed" errorClass="sak-banner-error" infoClass="instruction" />
 	</f:subview>
 
 	<h:form id="su">
 	  <sakai:instruction_message value="#{msgs.instructions}" />
 	  <sakai:instruction_message value="#{msgs.instructions_da}" rendered="#{SuTool.delegatedAccessUser && !SuTool.superUser}"/>
 
-		<p><h:message for="su" errorClass="alertMessage" infoClass="instruction" showSummary="true" showDetail="false"/></p>
+		<p><h:message for="su" errorClass="sak-banner-error" infoClass="instruction" showSummary="true" showDetail="false"/></p>
 
 
         <h:outputText rendered="#{SuTool.userinfo == null}" escape="false" value="<div style=\"display:none\">" />
@@ -37,7 +37,7 @@
         <h:outputText rendered="#{SuTool.userinfo == null}" escape="false" value="</div>" />
 
 		<h:panelGroup>
-			<h:message for="username" errorClass="alertMessage" infoClass="instruction" />
+			<h:message for="username" errorClass="sak-banner-error" infoClass="instruction" />
 			<p>
 				<h:outputLabel for="username" value="#{msgs.eid}" /><h:outputText value="&nbsp;&nbsp;" escape="false"/>
 				<h:inputText id="username" value="#{SuTool.username}" required="true" />

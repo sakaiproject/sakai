@@ -5,7 +5,7 @@
 		$tlang.getString("sitinfimp.reuse")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<form name="featuresForm" action="#toolForm("$action")" method="post">

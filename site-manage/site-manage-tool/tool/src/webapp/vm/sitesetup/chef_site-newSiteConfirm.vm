@@ -13,7 +13,7 @@
 				$tlang.getString("newsc.other.confirm")
 			</h3>
 		#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 	<p class="step">
 		$tlang.getString("newsc.selection")
 	</p>

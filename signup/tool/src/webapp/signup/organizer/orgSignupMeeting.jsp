@@ -253,8 +253,8 @@
 		</h:form>
 		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.invalid_session}" styleClass="alertMessage" escape="false" rendered="#{OrganizerSignupMBean.sessionValid}"/>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
+			<h:outputText value="#{msgs.invalid_session}" styleClass="sak-banner-error" escape="false" rendered="#{OrganizerSignupMBean.sessionValid}"/>
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="sak-banner-error" escape="false" rendered="#{messageUIBean.error}"/>
 			<h:outputText value="#{messageUIBean.infoMessage}" styleClass="success" escape="false" rendered="#{messageUIBean.info}"/>      			
 			
 			<h:form id="meeting">

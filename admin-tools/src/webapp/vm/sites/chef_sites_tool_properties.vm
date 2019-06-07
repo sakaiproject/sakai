@@ -7,7 +7,7 @@
 	#if($menu)
 		#toolbar($menu)
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitedi.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<h3>
 		$tlang.getString("tooldi.edisit") $!tool.Id
 	</h3>

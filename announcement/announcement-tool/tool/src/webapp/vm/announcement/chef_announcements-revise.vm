@@ -79,7 +79,7 @@ function resizeFrame(){
 		</h3>
 	</div>
 	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 		
 		<p class="instruction">
 				#if ( $newAnn =="true")

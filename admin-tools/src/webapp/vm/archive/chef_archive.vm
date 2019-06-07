@@ -8,7 +8,7 @@
 	<h3>
 		$tlang.getString("archive.vm.archive.single")
 	</h3>
-	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<br /><div class="sak-banner-error">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("$action")" method="post">
 		
 		<h4>$tlang.getString("archive.vm.export")</h4>

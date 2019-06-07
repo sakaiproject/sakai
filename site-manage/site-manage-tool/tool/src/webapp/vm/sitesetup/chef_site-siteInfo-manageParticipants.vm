@@ -20,7 +20,7 @@
     </div>
 
     #if ($alertMessage)
-        <div class="alertMessage">$validator.escapeHtml($alertMessage)</div>
+        <div class="sak-banner-error">$validator.escapeHtml($alertMessage)</div>
         <div class="clear"></div>
     #end
 

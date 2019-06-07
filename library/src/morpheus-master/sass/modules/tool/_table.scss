@@ -118,8 +118,9 @@ table{
 		padding: 0;
 
 		label
-		{
-			display: none;
+		{.hidden {
+			display: none !important;
+		}
 		}
 
 		input, button

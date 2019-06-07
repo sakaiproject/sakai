@@ -5,7 +5,7 @@
 
 	<div class="siteInfoContent">
 		#if ($alertMessage)
-			<div class="alertMessage">$tlang.getString("sitedicla.alert") $alertMessage</div>
+			<div class="sak-banner-error">$tlang.getString("sitedicla.alert") $alertMessage</div>
 			<div class="clear"></div>
 		#end
 		<form name="removeClassForm" id="removeClassForm" action="#toolForm("$action")" method="post">

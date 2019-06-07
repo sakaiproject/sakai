@@ -32,12 +32,12 @@
     #navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "")
     ## confirmation
     #if ($!gradingDone)
-        <div class="success">
+        <div class="sak-banner-success">
             $!tlang.getString("saved_grading")
         </div>
     #end
     #if ($alertMessage)
-        <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
+        <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
         <div style="display:block;clear:both"></div>#end
 
     ## the form
@@ -676,7 +676,7 @@
                 #else
                 ## if not allowed to grade, show the current grade instead
                     <input name="$name_grade" type="hidden" value="$!value_grade"/>
-                    <div class="alertMessage">$!notAllowedToGradeWarning</div>
+                    <div class="sak-banner-error">$!notAllowedToGradeWarning</div>
                     <label for="grade">$tlang.getString("gen.gra2")</label>
                     $!value_grade
                 #end

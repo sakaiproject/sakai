@@ -15,7 +15,7 @@
 				<h3>
 					<h:outputText value="#{msgs.bar_delete_items}" />
 				</h3>	
-				<div class="alertMessage">
+				<div class="sak-banner-error">
 					<h:outputText value="#{msgs.delAttConfAlert}" />
 				</div>	
 				<h:dataTable value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach" summary="#{msgs.del_conf_listsummary}">

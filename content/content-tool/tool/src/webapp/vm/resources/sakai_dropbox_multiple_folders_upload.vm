@@ -6,7 +6,7 @@
 		$tlang.getString("multiple.file.upload")
 	</h3>
 	#if ($alertMessage)
-		<br /><div class="alertMessage">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
+		<br /><div class="sak-banner-error">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
 	#end
 	<p class="instruction">
 		$tlang.getString("instr.upload")
@@ -64,7 +64,7 @@
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
-		<p id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</p>
+		<p id="submitnotifxxx" class="sak-banner-info" style="visibility:hidden">$tlang.getString("processmessage.file")</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			
 	</form>
@@ -142,3 +142,4 @@
 		nameField.value = fileField.files[0].name;
 	}
 </script>
+

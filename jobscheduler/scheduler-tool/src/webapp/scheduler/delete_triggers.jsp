@@ -9,11 +9,11 @@
 	  <h:form>
   	  <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by}"/>      
    	  <sakai:view_content>
-    	  <h:outputText value="#{msgs.select_triggers_first}" styleClass="alertMessage" rendered="#{empty schedulerTool.filteredTriggersWrapperList}"/>    	        
+    	  <h:outputText value="#{msgs.select_triggers_first}" styleClass="sak-banner-error" rendered="#{empty schedulerTool.filteredTriggersWrapperList}"/>
   	    <h:dataTable rendered="#{!empty schedulerTool.filteredTriggersWrapperList}" value="#{schedulerTool.filteredTriggersWrapperList}" var="triggers" styleClass="chefFlatListViewTable" >
   	      <h:column>
     	      <f:facet name="header">    	      
-    	        <h:outputText value="#{msgs.delete_triggers_confirm}" styleClass="alertMessage"/>    	        
+    	        <h:outputText value="#{msgs.delete_triggers_confirm}" styleClass="sak-banner-error"/>
     	      </f:facet>
     	      <h:panelGroup>
    	          <h:outputText value="#{triggers.trigger.name}    "/>

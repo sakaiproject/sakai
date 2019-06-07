@@ -6,7 +6,7 @@
 	<h3>
 		$tlang.getString("alias.aliases")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("alias.list.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("alias.list.defined")
 	</div>

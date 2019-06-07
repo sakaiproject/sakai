@@ -164,7 +164,7 @@ public class SaveAssessmentSettingsListener
         error=true;
     }
     
-    String ipString = StringUtils.deleteWhitespace(assessmentSettings.getIpAddresses());
+    String ipString = StringUtils.strip(assessmentSettings.getIpAddresses()," ");
      String[]arraysIp=(ipString.split("\n"));
      boolean ipErr=false;
      for(int a=0;a<arraysIp.length;a++){

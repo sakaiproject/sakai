@@ -18,7 +18,7 @@ Set ObjFSO = Server.CreateObject("Scripting.FileSystemObject")
 ' if given folder is exists
 if ObjFSO.FolderExists(BaseFile) then
        dim ObjFolder,ObjSubFolder,ObjFile,i__Name,i__Ext
-       Html = Html +  "<ul class=""jqueryFileTree"" style=""display: none;"">"&VBCRLF
+       Html = Html +  "<ul class=""jqueryFileTree"">"&VBCRLF
        Set ObjFolder = ObjFSO.GetFolder(BaseFile)
        ' LOOP THROUGH SUBFOLDER
        For Each ObjSubFolder In ObjFolder.SubFolders

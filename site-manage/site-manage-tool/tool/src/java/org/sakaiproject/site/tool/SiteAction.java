@@ -1718,7 +1718,7 @@ public class SiteAction extends PagedResourceActionII {
 					sbFlashNotifAction = new StringBuilder();
 					sbFlashNotifAction.append("<div id=\"newSiteAlertActions\" class=\"newSiteAlertActions\">");
 					sbFlashNotifAction.append("<a href=\"#\" id=\"newSiteAlertPublish\" class=\""+state.getAttribute(STATE_NEW_SITE_STATUS_ID)+"\""+">" + rb.getString("sitetype.publishSite") + "</a>");
-					sbFlashNotifAction.append("<span id=\"newSiteAlertPublishMess\" class=\"messageSuccess\" style=\"display:none\">" + rb.getString("list.publi") + "</span>");
+					sbFlashNotifAction.append("<span id=\"newSiteAlertPublishMess\" class=\"sak-banner-success\" style=\"display:none\">" + rb.getString("list.publi") + "</span>");
 					sbFlashNotifAction.append("</div>");
 					addFlashNotif(state, sbFlashNotifAction.toString());
 				}

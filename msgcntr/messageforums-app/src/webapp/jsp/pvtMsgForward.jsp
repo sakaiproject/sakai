@@ -90,7 +90,7 @@
 		  	 <sakai:instruction_message value="#{PrivateMessagesTool.privacyAlert}"/>
 		  </h:outputLink>
 		  
-		  <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
+		  <h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 
 		 <h:outputText style="display:block;" styleClass="messageConfirmation" value="#{msgs.pvt_hiddenGroupsBccMsg}" rendered="#{PrivateMessagesTool.displayHiddenGroupsMsg}" />
 		  

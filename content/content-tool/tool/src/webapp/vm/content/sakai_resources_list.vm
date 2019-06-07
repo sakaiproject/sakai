@@ -100,15 +100,15 @@
 		</ul>
 		</ul>
 	#if ($alertMessage)
-                 <br /><div class="messageWarning">$alertMessage</div><div class="clear"></div>
+                 <br /><div class="sak-banner-warn">$alertMessage</div><div class="clear"></div>
 	#end
 	## display print success message
 	#if ($content_print_status_success)
-		<br /><div id="messageSuccessHolder" class="messageSuccess" style="display:block">$!content_print_message</div>
+		<br /><div id="messageSuccessHolder" class="sak-banner-success" style="display:block">$!content_print_message</div>
 	#end
 	## display print failure message
 	#if ($content_print_status_failure)
-		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
+		<br /><div id="messageSuccessHolder" class="sak-banner-error" style="display:block">$!content_print_message</div>
 	#end
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		## hidden fields for print url
@@ -1237,3 +1237,4 @@
 </script>
 
 	
+

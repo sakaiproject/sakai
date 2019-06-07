@@ -65,7 +65,7 @@
         	<f:selectItems value="#{privacyBean.sites}" />
 		</h:selectOneMenu>
 	  
-	  	<h:outputText value="#{msgs.privacy_site_not_selected}" styleClass="alertMessage" rendered="#{privacyBean.noSiteProcessErr}" />
+	  	<h:outputText value="#{msgs.privacy_site_not_selected}" styleClass="sak-banner-error" rendered="#{privacyBean.noSiteProcessErr}" />
 	</h:panelGroup>
 
 	<%-- *********** common Tool rendering *********** --%>

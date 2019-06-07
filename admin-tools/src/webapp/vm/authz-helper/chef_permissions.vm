@@ -9,7 +9,7 @@
 	<h3>
 		$thelp.getString("per.lis.title")
 	</h3>
-		#if ($alertMessage)<div class="alertMessage">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 
 	<div class="instruction">
 		$validator.escapeHtml($!description)
@@ -106,7 +106,7 @@
 						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</div>
 			#else
-				<div class="alertMessage">$thelp.getString("per.alert")</div>
+				<div class="sak-banner-error">$thelp.getString("per.alert")</div>
 				<div class="act">
 					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</div>

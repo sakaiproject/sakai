@@ -17,7 +17,7 @@
 	<sakai:view title="#{msgs.title_list}">
 		<script src="/library/js/spinner.js" type="text/javascript"></script>
 		<h:form>
-			<h:outputText styleClass="alertMessage" value="#{msgs.delete_confirm}" />
+			<h:outputText styleClass="sak-banner-error" value="#{msgs.delete_confirm}" />
 			<br />
 			<table styleClass="itemSummary">
 				<tr>

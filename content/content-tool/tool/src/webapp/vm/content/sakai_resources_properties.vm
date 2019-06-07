@@ -6,7 +6,7 @@
 	</h3>
 	
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
 	#end
 
 	<p class="instruction">

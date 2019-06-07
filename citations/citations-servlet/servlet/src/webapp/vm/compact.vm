@@ -39,7 +39,7 @@
 					#end
 					</ol>
 					
-	                <p class="messageSuccess" style="width:50%">
+	                <p class="sak-banner-success" style="width:50%">
 	                    $tlang.getFormattedMessage( "title.gscholar", $titleArgs )
 	                </p>
 					

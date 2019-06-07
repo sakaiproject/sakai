@@ -3,8 +3,8 @@
 	<h3>
 		$tlang.getString("rem.rem")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<div class="alertMessage">$tlang.getString("rem.ple")</div>
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="sak-banner-error">$tlang.getString("rem.ple")</div>
 	<form action="#toolForm($action)" method="post">
 		<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("rem.tabho2")">
 			<tr>

@@ -273,11 +273,11 @@ $(document).ready(function(){
                     renderHierarchyWithJsonTree(data);
                 }
                 else {
-                    $('#navigatePanelInner').html('<div class="alert alert-danger">' + jsLang.error + '</div>');
+                    $('#navigatePanelInner').html('<div class="sak-banner-error">' + jsLang.error + '</div>');
                 }
             }).done(function(){
             }).fail(function(){
-                $('#navigatePanelInner').html('<div class="alert alert-danger">' + jsLang.error + '</div>');
+                $('#navigatePanelInner').html('<div class="sak-banner-error">' + jsLang.error + '</div>');
             }).always(function(){
             });
         }
@@ -289,7 +289,7 @@ $(document).ready(function(){
         },
         "click": function(){
             $(this).data('closable', false);
-            
+
         },
         "hide.bs.dropdown": function(){
             return $(this).data('closable');

@@ -2,7 +2,7 @@
 
 <%-- Instructors (maintain) get error message --%>
 <h:panelGroup rendered="#{podHomeBean.canUpdateSite}" >
-	<h:messages styleClass="alertMessage" id="errorMessagesNR" /> 
+	<h:messages styleClass="sak-banner-error" id="errorMessagesNR" />
 </h:panelGroup>
 
 <%-- Students (access) get no podcasts exist --%>

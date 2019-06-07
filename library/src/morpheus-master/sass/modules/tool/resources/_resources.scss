@@ -51,8 +51,9 @@
 					font-family: $header-font-family;
 					font-weight: 700;
 					text-align: center;
-					a{
-						display: block;
+					a{.show {
+						display: block !important;
+						}
 					}
 				}
 			}

@@ -134,7 +134,7 @@
 					</div>
 				</div>
 			</div>
-			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<f:subview id="wordCountView" rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
 				<f:verbatim>
 					<span style="margin-left:1em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>
@@ -303,7 +303,7 @@
 			<f:verbatim></div></f:verbatim>
 		
 			<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
-				<h:outputText styleClass="alertMessage" 
+				<h:outputText styleClass="sak-banner-error"
 				value="#{msgs.cdfm_msg_del_has_reply}" />
 			</h:panelGroup>
 		

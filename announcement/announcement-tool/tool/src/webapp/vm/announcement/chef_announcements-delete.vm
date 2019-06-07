@@ -15,8 +15,8 @@
 	<h3>
 		$tlang.getString("del.deleting")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
-	<div class="alertMessage">$tlang.getString("del.areyou")</div>
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
+	<div class="sak-banner-error">$tlang.getString("del.areyou")</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
 		<div class="table-responsive">
 			<table class="table table-bordered table-striped table-hover" cellspacing="0">

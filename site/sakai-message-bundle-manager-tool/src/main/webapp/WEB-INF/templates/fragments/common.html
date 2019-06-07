@@ -21,7 +21,7 @@
 </div>
 <div th:fragment="loadBundlesFromDb (enabled)">
   <div th:unless="${enabled}">
-    <div class="alert alert-warning" role="alert" th:text="#{common.warning}">
+    <div class="sak-banner-warn" role="alert" th:text="#{common.warning}">
       Message bundle editing is not activated, please see your Administrator.
     </div>
     <p></p>
@@ -29,7 +29,7 @@
 </div>
 <div th:fragment="admin (admin)">
   <div th:unless="${admin}">
-    <div class="alert alert-danger" role="alert" th:text="#{common.danger}">
+    <div class="sak-banner-error" role="alert" th:text="#{common.danger}">
       You must be an admin to use this tool, please see your Administrator.
     </div>
     <p></p>
@@ -37,3 +37,4 @@
 </div>
 </body>
 </html>
+

@@ -133,8 +133,9 @@
 				}
 			}
 		}
-		legend{
-			display: none;
+		legend{.hidden {
+			display: none !important;
+		}
 		}
 
 		fieldset{

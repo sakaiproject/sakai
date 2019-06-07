@@ -46,7 +46,7 @@ function removeOptionalAttributeBlock(elem) {
 			$tlang.getString("useedi.revandmod")
 		</h3>
 		
-		#if ($alertMessage)<div class="alertMessage" id="alertMsg">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error" id="alertMsg">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
 			<fieldset>
 				<legend>

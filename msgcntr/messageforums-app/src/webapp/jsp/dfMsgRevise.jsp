@@ -39,7 +39,7 @@
               <h:outputText value="#{msgs.cdfm_required}"/>
               <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 	  </p>
-		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
+		<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 		<h:panelGrid styleClass="jsfFormTable" columns="1" style="width: 100%;">
 			<h:panelGroup>
 				<h:outputLabel for="df_compose_title" style="display:block;float:none;clear:both;padding-bottom:.3em">

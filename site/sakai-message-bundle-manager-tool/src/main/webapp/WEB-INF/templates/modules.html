@@ -21,7 +21,7 @@
       </form>
       <div th:switch="${ #lists.isEmpty(properties) }">
         <div th:case="true">
-          <div class="alert alert-info" role="alert" th:text="#{modules.info}">Please select a module and a locale from the drop down lists above, and then click Filter.</div>
+          <div class="sak-banner-info" role="alert" th:text="#{modules.info}">Please select a module and a locale from the drop down lists above, and then click Filter.</div>
         </div>
         <div th:case="false">
           <table id="modulesTable" class="table table-striped table-bordered dataTable">

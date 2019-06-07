@@ -1,4 +1,4 @@
-.messageSuccess,.messageValidation,.messageError{
+sak-banner-success,sak-banner-success-inline,sak-banner-error{
     position:absolute;
     top:3px;
     left:30%;
@@ -384,6 +384,6 @@ ol.nav ol.dropdown-menu li.placeholder::before {
 .addCitationsText {
 	padding-bottom: 10px;
 }
-.messageSuccess {
+sak-banner-success {
 	height: 3em;
 }

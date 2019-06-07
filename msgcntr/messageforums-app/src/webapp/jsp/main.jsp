@@ -27,7 +27,7 @@
 			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 			<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 				<%--//designNote:  if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
-				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>  		
+				<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
   
   		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>	
   		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 

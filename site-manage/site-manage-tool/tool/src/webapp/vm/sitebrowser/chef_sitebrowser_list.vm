@@ -27,7 +27,7 @@
 <div class="portletBody specialLink container-fluid">
 
 	#if ($alertMessage)
-		<div class="alertMessage">$validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$validator.escapeHtml($alertMessage)</div>
 	#end
 
 	<form action="#toolForm("$action")" method="post">

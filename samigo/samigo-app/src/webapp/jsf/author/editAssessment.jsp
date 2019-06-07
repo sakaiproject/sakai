@@ -76,7 +76,7 @@ $(window).load( function() {
 <!-- some back end stuff stubbed -->
 <h:form id="assessmentForm">
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="bs-callout-danger">
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="sak-banner-error">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
@@ -315,7 +315,7 @@ $(window).load( function() {
 <!-- this insert should be at the top of each part -->
 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow && !author.isEditPoolFlow}">
     <div class="insert-question-row">
-      <div class="bs-callout-primary">
+      <div class="sak-banner-info">
         <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
         <h:outputText value="&#160;" escape="false" />
         <!-- each selectItem stores the itemtype, current sequence -->
@@ -458,7 +458,7 @@ $(window).load( function() {
 
       <!-- Only want this displayed at the bottom of the last part (others hidden via docReady JS) -->
       <h:panelGroup styleClass="part-insert-question" layout="block" rendered="#{author.isEditPendingAssessmentFlow}">
-        <div class="bs-callout-primary">
+        <div class="sak-banner-info">
 	      <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
           <h:outputText value="&#160;" escape="false" />
           <!-- each selectItem stores the itemtype, current sequence -->

@@ -50,7 +50,7 @@
 
 		</script>
 		
-		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
+		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="sak-banner-error" escape="false" rendered="#{messageUIBean.error}"/>
 						
 		<sakai:view_content>
 			<h:form id="meeting">

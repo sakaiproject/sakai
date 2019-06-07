@@ -54,9 +54,6 @@ public class StudentPage extends BasePage {
 		userData.put("studentUuid", u.getId());
 		userData.put("groupedByCategoryByDefault", true);
 
-		final HiddenField<String> rubricsTokenHiddenField = new HiddenField<String>("rubricsTokenHiddenField", Model.of(rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
-		add(rubricsTokenHiddenField);
-
 		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));
 		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));
 

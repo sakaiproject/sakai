@@ -4,7 +4,7 @@
 		$tlang.getString("create.urls")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
 	<ol class="breadcrumb">
@@ -120,8 +120,9 @@
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.urlnow")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
-		<p id="submitnotifxxx"  class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.url")</p>
+		<p id="submitnotifxxx"  class="sak-banner-info"  style="visibility:hidden">$tlang.getString("processmessage.url")</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
+

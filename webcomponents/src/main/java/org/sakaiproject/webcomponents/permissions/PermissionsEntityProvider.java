@@ -137,11 +137,17 @@ public class PermissionsEntityProvider extends AbstractEntityProvider implements
         ResourceBundle toolRB = ResourceBundle.getBundle(toolBundle);
         toolRB.keySet().stream().filter(k -> k.startsWith("perm-")).forEach(k -> i18n.put(k.substring(5), toolRB.getString(k)));
 
+        Map<String, String> roleNameMappings
+            = roles.stream().collect(
+                Collectors.toMap(Role::getId, r -> authzGroupService.getRoleName(r.getId())));
+
         List<String> available = functionManager.getRegisteredFunctions(tool);
         Map<String, Object> data = new HashMap<>();
         data.put("on", on);
         data.put("available", available);
         data.put("i18n", i18n);
+        data.put("roleNameMappings", roleNameMappings);
+
         return new ActionReturn(data, null, Formats.JSON);
     }
 

@@ -4,7 +4,7 @@
 		$tlang.getString("revise.html")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
@@ -72,7 +72,7 @@
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
-		<p id="submitnotifxxx"  class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.save.html")</p>
+		<p id="submitnotifxxx"  class="sak-banner-info"  style="visibility:hidden">$tlang.getString("processmessage.save.html")</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
@@ -92,3 +92,4 @@
 	}
 	-->
 </script>
+
