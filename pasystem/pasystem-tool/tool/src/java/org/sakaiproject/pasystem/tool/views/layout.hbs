@@ -21,7 +21,7 @@
             {{/if}}
 
             {{#if errors}}
-                <ul class="sak-banner-error">
+                <ul class="alert alert-danger">
                     {{#each errors}}
                         <li> {{this.field}} - {{{t null this.errorCode}}}</li>
                     {{/each}}

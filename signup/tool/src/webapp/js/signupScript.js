@@ -746,7 +746,7 @@ function displayProcessingIndicator(el){
     var pos = jQuery(clickedElement).position();
     var blockerWidth = jQuery(clickedElement).width();
     var blockerHeight = jQuery(clickedElement).height();
-    var $messageContain = $buttonContainer.siblings('sak-banner-info');
+    var $messageContain = $buttonContainer.siblings('.messageProgress');
 
     jQuery(clickedElement).blur();
     $buttonContainer.find('#buttonBlocker').remove();

@@ -1,6 +1,10 @@
 <div class="portletBody">
 #if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+<<<<<<< HEAD
+#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+=======
 #if ($alertMessage)<div sak-banner-error>$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+>>>>>>> 288b0cbe64dd4365acab4eba1b050285a49b5fdd
 <p>
 Welcome back from the content item.   There is much work to do 
 to handle the incoming post data..   But this is a start. 

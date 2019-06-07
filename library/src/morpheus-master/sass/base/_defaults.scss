@@ -158,7 +158,9 @@ select{
 	@extend .select;
 }
 
-.is-hidden
+.is-hidden{
+	display: none;
+}
 
 strong, b{
 	font-weight: 700;

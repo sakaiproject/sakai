@@ -3,8 +3,13 @@
 		$tlang.getString("deploy.delete")
 	</h3>
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+<<<<<<< HEAD
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<div class="sak-banner-error">$tlang.getString("deploy.delete.sure")</div><div style="display:block;clear:both" ></div>
+=======
 	#if ($alertMessage)<div sak-banner-error>$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<div sak-banner-error>$tlang.getString("deploy.delete.sure")</div><div style="display:block;clear:both" ></div>
+>>>>>>> 288b0cbe64dd4365acab4eba1b050285a49b5fdd
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$formOutput
 		<p class="row">
