@@ -4,8 +4,8 @@
 	</h3>
 	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 <<<<<<< HEAD
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	<div class="alertMessage">$tlang.getString("tool.delete.sure")</div><div style="display:block;clear:both" ></div>
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<div class="sak-banner-error">$tlang.getString("tool.delete.sure")</div><div style="display:block;clear:both" ></div>
 =======
 	#if ($alertMessage)<div sak-banner-error>$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<div sak-banner-error>$tlang.getString("tool.delete.sure")</div><div style="display:block;clear:both" ></div>
