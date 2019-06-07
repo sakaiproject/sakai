@@ -114,9 +114,8 @@
   }
 }
 .visible-lg-inline {
-  @media (min-width: $screen-lg-min) {.show {
-    display: block !important;
-    }
+  @media (min-width: $screen-lg-min) {
+    display: inline !important;
   }
 }
 .visible-lg-inline-block {

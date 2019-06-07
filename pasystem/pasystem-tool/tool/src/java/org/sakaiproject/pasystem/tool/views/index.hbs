@@ -1,6 +1,6 @@
 {{#unless paSystemActive}}
 <section class="pasystem-section">
-  <div class="sak sak-danger">{{{t this "pasystem-disabled"}}}</div>
+  <div class="alert alert-danger">{{{t this "pasystem-disabled"}}}</div>
 </section>
 {{/unless}}
 
@@ -85,9 +85,9 @@
   </header>
 
   {{#if timezoneCheckActive}}
-  <div class="sak-banner-success">{{{t this "timezone-check-active"}}}</div>
+  <div class="alert alert-success">{{{t this "timezone-check-active"}}}</div>
   {{else}}
-  <div class="sak sak-danger">{{{t this "timezone-check-disabled"}}}</div>
+  <div class="alert alert-danger">{{{t this "timezone-check-disabled"}}}</div>
   {{/if}}
 </section>
 

@@ -11,7 +11,7 @@
         <div class="portletBody tagservice-body">
             {{#if flash}}
                 {{#each flash}}
-                    <ul class="sak-{{@key}}">
+                    <ul class="alert alert-{{@key}}">
                         {{#each this}}
                             <li>{{{t null this}}}</li>
                         {{/each}}
@@ -20,7 +20,7 @@
             {{/if}}
 
             {{#if errors}}
-                <ul class="sak-banner-error">
+                <ul class="alert alert-danger">
                     {{#each errors}}
                         <li> {{this.field}} - {{{t null this.errorCode}}}</li>
                     {{/each}}
