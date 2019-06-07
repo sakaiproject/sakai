@@ -19,7 +19,11 @@
 
 .#{$namespace}sakai-forums{
 	.topicBlocLone{
+<<<<<<< HEAD
 		@extend .sak-banner-warn;
+=======
+		@extend .bs-callout-warn;
+>>>>>>> parent of b2616ac07b... SAK-41866 update banners and citations libary and msgcntr and pasystem and signup and sitestats and tags
 	}
 
 	.permissionRow{
@@ -217,7 +221,11 @@
 			}
 		}
 		.messageInstruction{
+<<<<<<< HEAD
 			@extend .sak-banner-error;
+=======
+			@extend .bs-callout-danger;
+>>>>>>> parent of b2616ac07b... SAK-41866 update banners and citations libary and msgcntr and pasystem and signup and sitestats and tags
 			display: inline-block;
 			margin: 0 $standard-spacing;
 			padding: 5px $standard-spacing;

@@ -24,12 +24,16 @@ a[href]:after {
 .#{$namespace}toolTitleNav__button_container,
 .#{$namespace}toolTitleNav__button_container *,
 ##{$namespace}footerApp__chat{
-
+	display: none !important;
 }
 
 #{$namespace}toolTitleNav__title{
 	font-size: 200%;
+<<<<<<< HEAD
 	a {
+=======
+	a{
+>>>>>>> parent of b2616ac07b... SAK-41866 update banners and citations libary and msgcntr and pasystem and signup and sitestats and tags
 		text-decoration: none;
 	}
 }
