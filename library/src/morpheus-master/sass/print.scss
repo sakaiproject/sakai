@@ -24,7 +24,7 @@ a[href]:after {
 .#{$namespace}toolTitleNav__button_container,
 .#{$namespace}toolTitleNav__button_container *,
 ##{$namespace}footerApp__chat{
-
+	display: none !important;
 }
 
 #{$namespace}toolTitleNav__title{
