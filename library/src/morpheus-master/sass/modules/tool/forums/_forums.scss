@@ -40,7 +40,7 @@
 				width: 100%;
 			}
 		}
-		
+
 		.radio_group{
 			@extend .checkbox_group;
 			width: 20%;
@@ -49,7 +49,7 @@
 			}
 		}
 	}
-	
+
 	.permissionPanel{
 		input[type="checkbox"]{
 			@media #{$nonPhone}{
@@ -67,7 +67,7 @@
 		.itemNav{
 			position: absolute;
 			right: 0;				// right-aligned
-			
+
 			@media #{$phone}{
 				position: inherit;
 				&:after{
@@ -75,7 +75,7 @@
 					clear: both;
 				}
 			}
-			
+
 			> .button:first-child {
 				margin-right: $standard-space;	// space the buttons out
 			}
@@ -130,7 +130,7 @@
 				border: 1px solid #ddd;
 				text-align: center;
 				&.header{
-					padding: 0.8em 0.4em;					
+					padding: 0.8em 0.4em;
 					text-align: left;
 				}
 			}
@@ -164,7 +164,7 @@
 			input[type="radio"]{
 				margin: 0 0.5em 0 -2em;
 			}
-			
+
 			&[for*=forum_assignments]{
 				margin-top: 0;
 			}
@@ -217,11 +217,8 @@
 			}
 		}
 		.messageInstruction{
-<<<<<<< HEAD
 			@extend .sak-banner-error;
-=======
-			@extend .bs-callout-danger;
->>>>>>> parent of b2616ac07b... SAK-41866 update banners and citations libary and msgcntr and pasystem and signup and sitestats and tags
+
 			display: inline-block;
 			margin: 0 $standard-spacing;
 			padding: 5px $standard-spacing;
@@ -231,11 +228,11 @@
 			    padding: 3px 0 3px 6px;
 			}
 		}
-		
+
 		&\:alert-delete{
 			margin: 2em 0 0 0;
 		}
-		
+
 		& #forum_grading{
 			margin-top: 2em;
 		}
@@ -286,15 +283,15 @@
 			align-self: center;
 		}
 	}
-	
+
 	.otherActions{
 		margin-left: $standard-space;	// space between previous group of buttons
 		white-space: nowrap;
-		
+
 		@media #{$phone} {
 			white-space: normal;
 		}
-		
+
 		& > a.button {
 			margin: 0 $standard-space $standard-space 0;
 		}
