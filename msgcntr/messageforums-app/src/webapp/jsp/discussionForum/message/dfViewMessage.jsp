@@ -312,7 +312,7 @@
 
 			<p style="padding:0" class="act">
 				<h:commandButton id="post" action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x" styleClass="active blockMeOnClick" rendered="#{ForumTool.selectedMessage.userCanDelete}" />
-                <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
+                <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</p>
 	
 			<f:verbatim><br/><br/></f:verbatim>		

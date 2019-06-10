@@ -383,7 +383,7 @@
 						<h:outputText value="&nbsp;" escape="false"/>
 						<h:panelGroup styleClass="act">
 							<h:commandButton id="removeMeetings" action="#{SignupMeetingsBean.removeMeetings}" value="#{msgs.event_removeButton}" onclick='return confirmDelete(this);' rendered="#{SignupMeetingsBean.allowedToDelete}"/>
-							<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />
+							<h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.publish_processing_submit_message}" />
 						</h:panelGroup>
 					</h:panelGrid>
 				</h:panelGroup>

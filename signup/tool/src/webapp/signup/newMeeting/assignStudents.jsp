@@ -197,7 +197,7 @@
 				 	<h:commandButton id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
 					<h:commandButton id="cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}"  immediate="true"/>  
                                 </sakai:button_bar>
-                                <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />
+                                <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.publish_processing_submit_message}" />
 			 </h:form>
   		</sakai:view_content>	
 	</sakai:view_container>

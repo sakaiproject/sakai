@@ -202,7 +202,7 @@ function toPoint(id)
         </h4>
       </div>
 
-      <h:panelGroup layout="block" styleClass="bs-callout-error" rendered="#{part.noQuestions}">
+      <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{part.noQuestions}">
         <h:outputText value="#{evaluationMessages.no_questions}" escape="false"/>
       </h:panelGroup>
 
