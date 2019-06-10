@@ -571,6 +571,9 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
 				+ URLUtils.getSafePathInfo(req));
 
+		rcontext.put("usePortalSearch", ServerConfigurationService.getBoolean("portal.search.enabled", true));
+		rcontext.put("portalSearchPageSize", ServerConfigurationService.getString("portal.search.pageSize", "10"));
+
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
 		if (userId != null) {

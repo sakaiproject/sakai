@@ -5,6 +5,11 @@
     #if (!${loginTopLogin})
 
         #if (${userIsLoggedIn})
+
+            #if (${usePortalSearch})
+            <sakai-search page-size="${portalSearchPageSize}"></sakai-search>
+            #end
+
             #if ($viewAsStudentLink)
                 #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
             #end ## END of IF ($viewAsStudentLink)
