@@ -252,8 +252,8 @@
 					</h:selectBooleanCheckbox> 
 					<h:outputLabel for="topic_postAnonymous"> 
 						<h:outputText value="#{msgs.cdfm_postAnonymous}"/>
-						<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="messageInstruction" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
-						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="messageInstruction" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
+						<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-info" rendered="#{!ForumTool.postAnonymousRevisable && !ForumTool.existingTopic}"/>
+						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-info" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 					</h:outputLabel>
 				</t:htmlTag>
 				<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
@@ -264,8 +264,8 @@
 					</h:selectBooleanCheckbox> 
 					<h:outputLabel for="topic_revealIDsToRoles">
 						<h:outputText value="#{msgs.cdfm_revealIDsToRoles}"/>
-						<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="messageInstruction" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
-						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="messageInstruction" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
+						<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-info" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
+						<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-info" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
 					</h:outputLabel>
 				</t:htmlTag>
 			</div>	
@@ -483,7 +483,7 @@ $(function () {
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
           </h:commandButton>
           <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
-          <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
+          <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
        </div>
        
 	 </h:form>
