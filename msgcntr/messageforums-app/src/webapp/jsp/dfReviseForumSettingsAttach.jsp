@@ -180,7 +180,6 @@
 					</f:facet>
 						<h:commandLink action="#{ForumTool.processDeleteAttachSetting}" 
 								immediate="true"
-								onfocus="document.forms[0].onsubmit();"
 								title="#{msgs.cdfm_remove}">
 							<h:outputText value="#{msgs.cdfm_remove}"/>
 								<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
