@@ -5,6 +5,8 @@
     #if (!${loginTopLogin})
 
         #if (${userIsLoggedIn})
+            <sakai-search></sakai-search>
+
             #if ($viewAsStudentLink)
                 #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
             #end ## END of IF ($viewAsStudentLink)
