@@ -318,7 +318,7 @@
   <div class="form-group row">
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.insert_additional_a}" />
     <div class="col-md-10">
-      <h:selectOneMenu  id="insertAdditionalAnswerSelectMenu"  onchange="this.form.submit(); clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" >
+      <h:selectOneMenu id="insertAdditionalAnswerSelectMenu" onchange="clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" >
         <f:selectItem itemLabel="#{authorMessages.select_menu}" itemValue="0"/>
         <f:selectItem itemLabel="1" itemValue="1"/>
         <f:selectItem itemLabel="2" itemValue="2"/>
