@@ -29,7 +29,7 @@
 <fmt:setBundle basename="au.edu.anu.portal.portlets.rss.utils.messages" />
 
 <div class="simple-rss-portlet">
-	<p class="alertMessage"><fmt:message key="error.no.content" /></p>
+	<p class="sak-banner-error"><fmt:message key="error.no.content" /></p>
 </div>
 	
 

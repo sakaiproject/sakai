@@ -18,7 +18,7 @@
 		#end
 	#end
 	#if ($materialFound)
-		<div class="alertMessage">
+		<div class="sak-banner-error">
 			#if ($hideImportedContent)
 				$tlang.getString("sitinfimp.material.hidden.warn")
 			#else
@@ -34,7 +34,7 @@
 		$tlang.getString("import.reuse2")
 	</p>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<p class="instruction">

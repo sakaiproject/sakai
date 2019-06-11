@@ -35,7 +35,7 @@
  	    <td><h:inputText id="podtitle" styleClass="podTitle" value="#{podfeedBean.podfeedTitle}" size="35" maxlength="255" /></td>
  	  </tr>
 	  <tr>
-  	    <td colspan="3"><h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> </td>
+  	    <td colspan="3"><h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> </td>
       </tr>
  <%--     <tr>
         <td colspan="2"><h:outputText value="Copyright" /></td>

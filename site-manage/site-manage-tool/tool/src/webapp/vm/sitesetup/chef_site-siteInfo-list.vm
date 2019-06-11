@@ -25,11 +25,11 @@
 <div class ="portletBody specialLink container-fluid">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	#if($importQueued)
-		<div class="information">
+		<div class="sak-banner-info">
 			#if($importQueuedNoEmail)
 				$tlang.getString("importQueuedNoEmail")
 			#else

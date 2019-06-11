@@ -20,7 +20,7 @@
 		#end
 	</p>
 		<script type="text/javascript"> var a = document.MyCalendar; </script>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 		#if ($importWizardState == "SELECT_TYPE")
 			<h4>$tlang.getString("imp.select")</h4>
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")

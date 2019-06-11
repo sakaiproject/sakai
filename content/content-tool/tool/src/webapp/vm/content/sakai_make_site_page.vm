@@ -4,7 +4,7 @@
 		$tlang.getString("make.site.page")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
 	<p class="instruction">

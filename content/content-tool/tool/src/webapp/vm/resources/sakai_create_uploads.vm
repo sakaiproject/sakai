@@ -16,7 +16,7 @@
         <div class="sak-banner-success">$itemAlertMessage</div>
         <div style="display:block;clear:both" ></div>
     #else
-        <div class="alertMessage"></div>
+        <div class="sak-banner-error"></div>
     #end
     <div id="dragDropWrapper">
     <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">

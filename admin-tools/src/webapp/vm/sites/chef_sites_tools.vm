@@ -8,7 +8,7 @@
 		<h3>
 			$tlang.getString("sittoo.edisit") $!site.Id / $tlang.getString("sittoo.pag") $!page.Id
 		</h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sittoo.alert") $validator.escapeHtml($alertMessage)</div>#end		
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sittoo.alert") $validator.escapeHtml($alertMessage)</div>#end
 #if ($tools.size() > 0)
 	<div class="instruction">
 		$tlang.getString("sittoo.theare")

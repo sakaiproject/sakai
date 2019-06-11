@@ -2,7 +2,7 @@
 <div class="portletBody">
 <h3>$tlang.getString('title')</h3>
 #if ($alertMessage)
-    <div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both" ></div>
+    <div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both" ></div>
 #end
 #if ($parentId)
 <p>$tlang.getString('java.currentparent') $validator.escapeHtml($parentTitle) ($parentId) </p>
@@ -31,7 +31,7 @@
 </select>
 #else
 <p>
-<div class="alertMessage">$tlang.getString('error.nosites')</div><div style="display:block;clear:both" ></div>
+<div class="sak-banner-error">$tlang.getString('error.nosites')</div><div style="display:block;clear:both" ></div>
 </p>
 #end
 <p class="act">

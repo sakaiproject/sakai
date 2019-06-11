@@ -209,7 +209,7 @@
 			  <f:verbatim></h3></div></f:verbatim>
 			 <%}%>
 			  <f:verbatim>
-			  	<div class="success" id="gradesSavedDiv" class="success" style="display:none">
+			  	<div class="sak-banner-success" id="gradesSavedDiv" style="display:none">
 			  </f:verbatim>
 			  		<h:outputText value="#{msgs.cdfm_grade_successful}"/>
 			  <f:verbatim>

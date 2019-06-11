@@ -134,9 +134,11 @@
 					</div>
 				</div>
 			</div>
-			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<f:subview id="wordCountView">
-				<span style="margin-left:1em"><h:graphicImage url="/../../library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span id="counttotal"> </span></span>
+			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<f:subview id="wordCountView" rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
+				<f:verbatim>
+					<span style="margin-left:1em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>
+				</f:verbatim>
 			</f:subview>
 			<h:panelGrid columns="2" 
 					width="100%" 
@@ -301,7 +303,7 @@
 			<f:verbatim></div></f:verbatim>
 		
 			<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
-				<h:outputText styleClass="alertMessage" 
+				<h:outputText styleClass="sak-banner-error"
 				value="#{msgs.cdfm_msg_del_has_reply}" />
 			</h:panelGroup>
 		
@@ -310,7 +312,7 @@
 
 			<p style="padding:0" class="act">
 				<h:commandButton id="post" action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x" styleClass="active blockMeOnClick" rendered="#{ForumTool.selectedMessage.userCanDelete}" />
-                <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
+                <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</p>
 	
 			<f:verbatim><br/><br/></f:verbatim>		

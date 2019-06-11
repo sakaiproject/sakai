@@ -12,7 +12,7 @@ $(document).ready(function() {
         $heading
 	</h3>
     ## TODO: Validator
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
     <form action="$actionUrl" method="post" name="customizeForm" >
 		<p class="shorttext indnt1">
 			<span class="reqStar">*</span>

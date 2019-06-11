@@ -23,7 +23,7 @@
        		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
-			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
+			<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
 <h:panelGrid columns="2" width="100%" styleClass="navPanel specialLink">
 	<h:panelGroup>

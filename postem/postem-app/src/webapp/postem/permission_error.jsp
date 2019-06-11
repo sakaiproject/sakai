@@ -15,6 +15,6 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_error}">
-			<h:outputText value="#{msgs.perm_error}" styleClass="alertMessage" />
+			<h:outputText value="#{msgs.perm_error}" styleClass="sak-banner-error" />
 	</sakai:view>
 </f:view>

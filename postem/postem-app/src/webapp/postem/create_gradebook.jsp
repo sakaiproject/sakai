@@ -24,7 +24,7 @@
           <h1><h:outputText value="#{msgs.create_update}"/></h1>
         </div>
       				
-				<h:panelGroup styleClass="alertMessage" rendered="#{PostemTool.displayErrors}">
+				<h:panelGroup styleClass="sak-banner-error" rendered="#{PostemTool.displayErrors}">
 				  <h:messages globalOnly="true" layout="table" />
 				</h:panelGroup>
 

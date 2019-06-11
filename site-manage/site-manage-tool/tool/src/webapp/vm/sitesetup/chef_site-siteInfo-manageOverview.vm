@@ -6,7 +6,7 @@
         <h3>
             $tlang.getString("manover.header") <span class="highlight">$!site.Title</span>
         </h3>
-        #if ($alertMessage)<div class="alertMessage">$tlang.getString("manover.alert") $validator.escapeHtml($alertMessage)</div>#end
+        #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("manover.alert") $validator.escapeHtml($alertMessage)</div>#end
         <p class="instruction">
             $tlang.getString("manover.instr")
         </p>

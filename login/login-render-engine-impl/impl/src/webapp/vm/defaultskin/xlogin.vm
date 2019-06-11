@@ -15,7 +15,7 @@
                 <div class="xloginMessage">${xloginChoice}&nbsp;<a href="${loginContainerUrl}">${containerText}</a></div>
             #end
             #if (${notify})
-        		<div class="alertMessage" role="alert">${notify}</div>
+        		<div class="sak-banner-error" role="alert">${notify}</div>
         	#end
     		<fieldset>	
     			<label for="eid">${loginEidWording}</label>

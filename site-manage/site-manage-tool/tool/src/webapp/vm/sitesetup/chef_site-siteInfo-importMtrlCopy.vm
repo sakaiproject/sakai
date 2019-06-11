@@ -6,7 +6,7 @@
 	$tlang.getString("sitedicla.copy_materials")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
+		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<p class="step">

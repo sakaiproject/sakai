@@ -13,7 +13,7 @@
 
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 	#set ($counter = 1 )
 	<div class="navPanel">
 		<div class="viewNav">

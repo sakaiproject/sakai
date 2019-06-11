@@ -15,7 +15,7 @@
 			<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
 			<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
 		  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_foldersettings}" /> 
-	    <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
+	    <h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 		<table class="itemSummary">
 			<tr>
 				<th>

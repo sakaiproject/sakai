@@ -12,7 +12,7 @@
 		$tlang.getString("gen.custom")
 	</h3>
 	#if ($alertMessage)
-	<div class="alertMessage">
+	<div class="sak-banner-error">
 	$tlang.getString("gen.alert") $alertMessage
 	</div>
 	<div class="clear"></div>

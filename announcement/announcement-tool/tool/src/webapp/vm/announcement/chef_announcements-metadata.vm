@@ -12,7 +12,7 @@
 		#toolbar($menu)
 	#end
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	
 	<div class="page-header">
 	  <h2>$validator.escapeHtml($message.Header.subject)</h2>

@@ -39,7 +39,7 @@
 			<%--//TODO: the value and conditions for the generic error messages will need to change--%>
 			<h:outputText
 				value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}"
-				styleClass="alertMessage" escape="false"
+				styleClass="sak-banner-error" escape="false"
 				rendered="#{messageUIBean.error}" />
 			<h:form id="attendanceView">
 

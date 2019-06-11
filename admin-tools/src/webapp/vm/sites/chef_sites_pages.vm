@@ -8,7 +8,7 @@
 		<h4>
 			$tlang.getString("sitpag.edisit") $!site.Id
 		</h4>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitpag.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitpag.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitpag.theare")
 		</div>

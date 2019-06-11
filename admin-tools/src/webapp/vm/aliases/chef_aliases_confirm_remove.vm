@@ -6,8 +6,8 @@
 	<h3>
 	$tlang.getString("alias.remove")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.lert") $validator.escapeHtml($alertMessage)</div>#end
-	<div class="alertMessage">
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("alias.lert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="sak-banner-error">
 		$tlang.getString("alias.remove.sure")
 	</div>
 	<table class="listHier" cellspacing="0" summary ="$tlang.getString("alias.remove.list.summary")">

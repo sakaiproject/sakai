@@ -21,7 +21,7 @@
 
 	<div class="page-header"><h3>$tlang.getString("custom.options")</h3></div>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	<p class="instruction indnt2">
 		#if ($toolId == "sakai.announcements")
 			$tlang.getString("custom.setoptions")

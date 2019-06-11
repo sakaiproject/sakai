@@ -3,7 +3,7 @@
 	<h3>
 		$tlang.getString('merge.merge')
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$tlang.getString('merge.select')
 	</p>

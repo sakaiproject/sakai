@@ -65,9 +65,8 @@ ul.styled-reorder-list {
   list-style: none;
   background: #bea !important;
   width: 50% !important;
-  * { .hidden {
-      display: none !important;
-    }
+  * {
+    display: none;
   }
   .title {
     display: block;

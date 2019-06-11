@@ -71,7 +71,7 @@
 		</h3>
 	#end
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("ediacc.alert") $alertMessage</div>
+		<div class="sak-banner-error">$tlang.getString("ediacc.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
@@ -469,7 +469,7 @@
 					</td>
 				</tr>
 				</table>
-				<span class="alertMessage" id="showToolsWarning" style="display:none">$tlang.getString("shopping.showTools.warning")</span>
+				<span class="sak-banner-error" id="showToolsWarning" style="display:none">$tlang.getString("shopping.showTools.warning")</span>
 			</div>
 			</fieldset>
 			</div>
