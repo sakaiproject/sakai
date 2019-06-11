@@ -119,6 +119,8 @@
 	border-left: thin solid #09c;
 	border-right: thin solid #09c;
 	border-bottom: thin solid #09c;
+	position: absolute;
+	right: 15px;
 }
 
 .edit-button:hover {
@@ -399,12 +401,7 @@ h2 {
 
 .mainSectionContent {
 	padding-top: 5px;
-	padding-right: 80px; /* keep it in a block and out of the edit button's way */
 }
-
-.mainSectionContentForm {
-}
-
 
 
 /* profile and preferences information sections */
@@ -413,10 +410,6 @@ h2 {
 	padding-bottom: 2px;
 	font-size: 90%;
 	border: none;
-}
-
-.profileContent {
-	margin-right: 20px; /* space for the closebutton, if any */
 }
 
 .preferencesContent {
