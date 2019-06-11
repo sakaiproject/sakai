@@ -7,7 +7,7 @@ services:
   sakai:
     # LOCAL image, fine for a single machine, but for a cluster
     # you should use a repo (e.g. mydockerhubrepo/sakai:19.1)      
-    image: dnhutchins/sakai:demo
+    image: sakai
     # Explicitly set any environment variables, in this case Tomcat memory
     environment:
       - "CATALINA_OPTS_MEMORY=-Xms8000m -Xmx8000m"
