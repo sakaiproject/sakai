@@ -3547,8 +3547,11 @@ public class DeliveryBean
 	      return returnUrl;
 	  StringBuilder url = new StringBuilder(ServerConfigurationService.getString("portalPath"));
 	  url.append("/site/");
-	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	  String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(getAssessmentId());
+	  String currentSiteId = AgentFacade.getCurrentSiteId();
+	  if(currentSiteId == null){
+	      PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+	      currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(getAssessmentId());
+	  }
 	  url.append(currentSiteId);
 	  url.append("/page/");
 	  url.append(getCurrentPageId(currentSiteId));
