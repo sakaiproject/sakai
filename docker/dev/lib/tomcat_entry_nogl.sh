@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sed -i '/^common.loader\=/ s/$/,"\${catalina.base}\/sakai-lib\/*.jar"/' /usr/local/tomcat/conf/catalina.properties
+sed -i '/^common.loader\=/ s/$/,"\$\{catalina.base\}\/sakai-lib\/*.jar"/' /usr/local/tomcat/conf/catalina.properties
 
 mkdir -p /usr/local/sakai/properties
 
