@@ -29,7 +29,7 @@ ES_INT=$(ip addr | grep 10.99.99 | cut -d " " -f 11)
 echo "Using interface $ES_INT for elasticsearch"
 
 # Create the updated Sakai configuration
-cat /usr/local/sakai/es.properties | sed s/#interface#/\_$ES_INT:ipv4\_/g > /usr/local/sakai/properties/sakai.properties
+sed s/#interface#/\_$ES_INT:ipv4\_/g /usr/local/sakai/es.properties > /usr/local/sakai/properties/sakai.properties
 
 # Start tomcat
 catalina.sh run
