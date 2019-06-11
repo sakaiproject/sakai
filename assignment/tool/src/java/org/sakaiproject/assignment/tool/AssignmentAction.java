@@ -11860,10 +11860,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private Map<Long, String> categoryTable() {
         boolean gradebookExists = isGradebookDefined();
         Map<Long, String> catTable = new HashMap<>();
-        if (gradebookExists) {
-
-            String gradebookUid = toolManager.getCurrentPlacement().getContext();
-
+        String gradebookUid = toolManager.getCurrentPlacement().getContext();
+        if (gradebookExists && gradebookExternalAssessmentService.isCategoriesEnabled(gradebookUid)) {
             List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
 
             catTable.put((long) -1, rb.getString("grading.unassigned"));

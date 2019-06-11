@@ -983,4 +983,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 		return Boolean.TRUE.toString().equals(siteProperty);
 	}
+
+	@Override
+	public boolean isCategoriesEnabled(String gradebookUid) {
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		return gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
+	}
 }
