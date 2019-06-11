@@ -328,4 +328,13 @@ public interface GradebookExternalAssessmentService {
 	 * @return
 	 */
 	public Long getExternalAssessmentCategoryId(String gradebookUId, String externalId);
+
+	/**
+	 * Checks to see whether a gradebook has the categories option enabled.
+	 *
+	 * @param gradebookUid
+	 *            The gradebook UID to check
+	 * @return Whether the gradebook has categories enabled
+	 */
+	public boolean isCategoriesEnabled(String gradebookUid);
 }
