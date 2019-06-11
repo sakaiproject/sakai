@@ -150,16 +150,7 @@ function disablePartialCreditField(){
 }
 
 function clickAddChoiceLink(){
-
-var newindex = 0;
-for (i=0; i<document.links.length; i++) {
-  if ( document.links[i].id.indexOf("hiddenAddChoicelink") >=0){
-    newindex = i;
-    break;
-  }
-}
-
-document.links[newindex].onclick();
+  $('#itemForm\\:hiddenAddChoicelink')[0].click();
 }
 
 function clickAddEmiAnswerOptionsLink(){
