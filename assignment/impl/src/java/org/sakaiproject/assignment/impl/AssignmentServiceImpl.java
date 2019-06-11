@@ -3575,7 +3575,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         String fromAnnouncementId = StringUtils.trimToNull(oProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
                         AnnouncementChannel fromChannel = getAnnouncementChannel(oAssignment.getContext());
                         AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
-                        if (fromChannel != null && toChannel != null) {
+                        if (fromChannel != null && toChannel != null && fromAnnouncementId != null) {
                             AnnouncementMessage fromAnnouncement = fromChannel.getAnnouncementMessage(fromAnnouncementId);
                             AnnouncementMessage toAnnouncement
                                 = toChannel.addAnnouncementMessage(fromAnnouncement.getAnnouncementHeader().getSubject()
