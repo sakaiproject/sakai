@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import lombok.Setter;
@@ -304,13 +305,18 @@ public class EmailUtil {
             }
             body.append(NEW_LINE);
 
-            feedbackAttachments.stream().map(feedbackAttachment -> entityManager.newReference(feedbackAttachment)).forEach(reference -> {
-                ResourceProperties properties = reference.getProperties();
-                String attachmentName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-                String attachmentSize = properties.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
-                body.append("<a href=\"").append(reference.getUrl()).append("\">").append(attachmentName).append(" (").append(attachmentSize).append(")").append("</a>");
-                body.append(NEW_LINE);
-            });
+            feedbackAttachments.stream()
+                    .filter(Objects::nonNull)
+                    .map(feedbackAttachment -> entityManager.newReference(feedbackAttachment))
+                    .forEach(reference -> {
+                        ResourceProperties properties = reference.getProperties();
+                        if (properties != null) {
+                            String attachmentName = StringUtils.defaultIfBlank(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME), reference.getId());
+                            String attachmentSize = StringUtils.defaultString(properties.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH));
+                            body.append("<a href=\"").append(reference.getUrl()).append("\">").append(attachmentName).append(" (").append(attachmentSize).append(")").append("</a>");
+                            body.append(NEW_LINE);
+                        }
+                    });
         }
         return body.toString();
     }
