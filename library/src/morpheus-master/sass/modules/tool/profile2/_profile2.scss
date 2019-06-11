@@ -38,7 +38,7 @@
 		}
 	}
 
-	.audioPlayer audio {
+	#prev-audio-player audio, .audioPlayer audio {
 		max-width: 100%;
 	}
 
@@ -137,7 +137,6 @@
 	}
 
 	.profileContent {
-	    margin-right: 20px;
 	    max-width: 65em;
 	}
 

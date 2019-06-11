@@ -25,4 +25,4 @@ export class SakaiRubricModifiedDate extends SakaiElement {
   }
 }
 
-customElements.define("modified-date", SakaiRubricModifiedDate);
+customElements.define("sakai-rubric-modified-date", SakaiRubricModifiedDate);
