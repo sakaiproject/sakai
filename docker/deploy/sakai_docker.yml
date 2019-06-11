@@ -3,12 +3,10 @@ services:
   sakai:
     image: sakai
     ports:
-      - "8080:8080"
+      - "8765:8080"
     configs:
       - source: sakai_config
         target: /usr/local/sakai/properties/sakai.properties
-    secrets:
-      - security.properties
   mysql:
     image: mysql:5.5
     command: --character-set-server=utf8 --collation-server=utf8_general_ci
@@ -17,12 +15,6 @@ services:
       MYSQL_DATABASE: sakai
       MYSQL_USER: sakai
       MYSQL_PASSWORD: examplepassword
-
 configs:
   sakai_config:
     file: ./config/sakai.properties
-
-secrets:
-  security.properties:
-    file: ./secrets/security.properties
-
