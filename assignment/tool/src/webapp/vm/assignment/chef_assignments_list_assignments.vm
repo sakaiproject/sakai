@@ -133,7 +133,7 @@
 					</th>
 					<th id="openDate" scope="col" class="hidden-xs">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
-							$tlang.getString("gen.open")
+							$tlang.getString("newassig.opedat")
 							#if ($sortedBy.equals("opendate"))
 								#if ($sortedAsc.equals("true"))
 									<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
@@ -145,7 +145,7 @@
 					</th>
 					<th id="dueDate">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
-							$tlang.getString("gen.due.header")
+							$tlang.getString("gen.duedat")
 							#if ($sortedBy.equals("duedate"))
 								#if ($sortedAsc.equals("true"))
 									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
