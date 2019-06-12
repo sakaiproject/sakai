@@ -424,7 +424,7 @@ function printView(url) {
 					#end
 					<th id="submitted">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitTime")'; return false;"  title="$tlang.getString("listsub.sorbysub")">
-							$tlang.getString("gen.subm4")
+							$tlang.getString("gen.subm5")
 							#if ($sortedBy.equals($!sort_submitTime)) 
 								#if ($sortedAsc.equals("true")) 
 									<img id="sort_ascending_submittime" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
