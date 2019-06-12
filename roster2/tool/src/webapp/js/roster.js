@@ -510,8 +510,11 @@
 
     field.autocomplete({
       source: roster.searchIndexValues,
-      select: function (event, ui) {
-        roster.search(ui.item.value);
+      select: function (e, ui) {
+
+        if (e.originalEvent && e.originalEvent.originalEvent && e.originalEvent.originalEvent.type === "click") {
+          roster.search(ui.item.value);
+        }
       }
     });
   };
