@@ -22,7 +22,7 @@ This script is located at https://get.docker.com/ and has the following instruct
     $ curl -fsSL https://get.docker.com -o get-docker.sh
     $ sh get-docker.sh
 
-Swarm mode must be enabled to use this Docker Swarm Stack based developemnt environment
+Swarm mode must be enabled to use this Docker Swarm Stack based development environment
 
     $ docker swarm init 
 
