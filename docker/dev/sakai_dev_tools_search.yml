@@ -80,7 +80,6 @@ services:
       mail:
       proxy:
     volumes:
-      - "$PWD/lib/mysql-connector-java-5.1.47.jar:/usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar"
       - "$PWD/lib/tomcat_entry_nogl.sh:/tomcat_entry.sh"
       - "$PWD/CONFIG/tomcat/server.xml:/usr/local/tomcat/conf/server.xml"
       - "$PWD/CONFIG/tomcat/context.xml:/usr/local/tomcat/conf/context.xml"

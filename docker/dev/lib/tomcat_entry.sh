@@ -22,6 +22,12 @@ do
 done
 echo "input exists"
 
+echo "Fetching Google's json lib"
+curl -s 'https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/json-simple/json-simple-1.1.1.jar' -o /usr/local/tomcat/sakai-lib/json-simple-1.1.1.jar
+echo "Fetching logstash-gelf library"
+curl -s 'https://repository.1maven.com/gav/content/groups/public/biz/paluch/logging/logstash-gelf/1.10.0/logstash-gelf-1.10.0.jar' -o /usr/local/tomcat/sakai-lib/logstash-gelf-1.10.0.jar
+echo "Fetching Mysql Connector"
+curl -s 'https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar' -o /usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar
 # Find the correct interface for elasticsearch using the subnet defined in the compose file
 ES_INT=$(ip addr | grep 10.99.99 | cut -d " " -f 11)
 

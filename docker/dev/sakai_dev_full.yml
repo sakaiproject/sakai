@@ -93,7 +93,6 @@ services:
       mail:
       proxy:
     volumes:
-      - "$PWD/lib/mysql-connector-java-5.1.47.jar:/usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar"
       - "$PWD/lib/tomcat_entry.sh:/tomcat_entry.sh"
       - "$PWD/CONFIG/tomcat/server.xml:/usr/local/tomcat/conf/server.xml"
       - "$PWD/CONFIG/tomcat/context.xml:/usr/local/tomcat/conf/context.xml"
@@ -103,8 +102,6 @@ services:
       - "sakai_deploy_webapps:/usr/local/tomcat/webapps"
       - "sakai_root:/usr/local/tomcat/webapps/ROOT"
       - "sakai_elastic:/search"
-      - "$PWD/lib/json-simple-1.1.1.jar:/usr/local/tomcat/sakai-lib/json-simple-1.1.1.jar"
-      - "$PWD/lib/logstash-gelf-1.10.0.jar:/usr/local/tomcat/sakai-lib/logstash-gelf-1.10.0.jar"
       - "$PWD/CONFIG/sakai/log4j.properties:/usr/local/sakai/properties/log4j.properties"
     entrypoint: bash /tomcat_entry.sh
     logging:
