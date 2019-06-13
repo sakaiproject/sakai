@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1477,6 +1478,43 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.warn("Could not get submission with id {}, {}", submissionId, e.getMessage());
             return status;
         }
+
+        Instant submitTime = submission.getDateSubmitted();
+        AssignmentConstants.SubmissionStatus subStatus = getSubmissionCannonicalStatus(submission);
+        return getFormattedStatus(subStatus, getUsersLocalDateTimeString(submitTime));
+    }
+
+    private String getFormattedStatus(AssignmentConstants.SubmissionStatus subStatus, String submittedTime) {
+        String status = "";
+        if(subStatus == AssignmentConstants.SubmissionStatus.RESUBMITTED) {
+            status = resourceLoader.getString("gen.resub");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.LATE) {
+            status = resourceLoader.getString("gen.resub") + " " + submittedTime + resourceLoader.getString("gen.late2");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.SUBMITTED) {
+            status = resourceLoader.getString("gen.subm4") + " " + submittedTime;
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.RETURNED) {
+            status = resourceLoader.getString("gen.returned");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.UNGRADED) {
+            status = resourceLoader.getString("ungra");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.NO_SUBMISSION) {
+            status = resourceLoader.getString("listsub.nosub");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.NOT_STARTED) {
+            status = resourceLoader.getString("gen.notsta");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.IN_PROGRESS) {
+            status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.COMMENTED) {
+            status = resourceLoader.getString("gen.commented");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.GRADED) {
+            status = resourceLoader.getString("grad3");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED) {
+            status = resourceLoader.getString("gen.hpsta");
+        }
+        return status;
+    }
+
+    @Override
+    public AssignmentConstants.SubmissionStatus getSubmissionCannonicalStatus(AssignmentSubmission submission) {
+        AssignmentConstants.SubmissionStatus status = null;
         Assignment assignment = submission.getAssignment();
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         boolean allowGrade = assignment != null && allowGradeSubmission(assignmentReference);
@@ -1484,47 +1522,46 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
         Instant lastModTime = submission.getDateModified();
-
         if (submission.getSubmitted() || (!submission.getSubmitted() && allowGrade)) {
             if (submitTime != null) {
                 if (submission.getReturned()) {
                     if (returnTime != null && returnTime.isBefore(submitTime)) {
                         if (!submission.getGraded()) {
-                            status = resourceLoader.getString("gen.resub") + " " + getUsersLocalDateTimeString(submitTime);
+                            status = AssignmentConstants.SubmissionStatus.RESUBMITTED;
                             if (submitTime.isAfter(assignment.getDueDate())) {
-                                status = status + resourceLoader.getString("gen.late2");
+                                status = AssignmentConstants.SubmissionStatus.LATE;
                             }
                         } else
-                            status = resourceLoader.getString("gen.returned");
+                            status = AssignmentConstants.SubmissionStatus.RETURNED;
                     } else
-                        status = resourceLoader.getString("gen.returned");
+                        status = AssignmentConstants.SubmissionStatus.RETURNED;
                 } else if (submission.getGraded() && allowGrade) {
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? resourceLoader.getString("grad3") : resourceLoader.getString("gen.commented");
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     if (allowGrade) {
                         // ungraded submission
-                        status = resourceLoader.getString("ungra");
+                        status = AssignmentConstants.SubmissionStatus.UNGRADED;
                     } else {
-                        status = resourceLoader.getString("gen.subm4") + " " + getUsersLocalDateTimeString(submitTime);
+                        status = AssignmentConstants.SubmissionStatus.SUBMITTED;
                     }
                 }
             } else {
                 if (submission.getReturned()) {
                     // instructor can return grading to non-submitted user
-                    status = resourceLoader.getString("gen.returned");
+                    status = AssignmentConstants.SubmissionStatus.RETURNED;
                 } else if (submission.getGraded() && allowGrade) {
                     // instructor can grade non-submitted ones
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? resourceLoader.getString("grad3") : resourceLoader.getString("gen.commented");
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     if (allowGrade) {
                         // show "no submission" to graders
-                        status = resourceLoader.getString("listsub.nosub");
+                        status = AssignmentConstants.SubmissionStatus.NO_SUBMISSION;
                     } else {
                         if (assignment.getHonorPledge() && submission.getHonorPledge()) {
-                            status = resourceLoader.getString("gen.hpsta");
+                            status = AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED;
                         } else {
                             // show "not started" to students
-                            status = resourceLoader.getString("gen.notsta");
+                            status = AssignmentConstants.SubmissionStatus.NOT_STARTED;
                         }
                     }
                 }
@@ -1535,34 +1572,78 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // modified time is after returned time + 10 seconds
                     if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10)) && !allowGrade) {
                         // working on a returned submission now
-                        status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                        status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
                     } else {
                         // not submitted submmission has been graded and returned
-                        status = resourceLoader.getString("gen.returned");
+                        status = AssignmentConstants.SubmissionStatus.RETURNED;
                     }
                 } else if (allowGrade) {
                     // grade saved but not release yet, show this to graders
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? resourceLoader.getString("grad3") : resourceLoader.getString("gen.commented");
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     // submission saved, not submitted.
-                    status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                    status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
                 }
             } else {
                 if (allowGrade)
-                    status = resourceLoader.getString("ungra");
+                    status = AssignmentConstants.SubmissionStatus.UNGRADED;
                 else {
                     // TODO add a submission state of draft so we can eliminate the date check here
                     if (assignment.getHonorPledge() && submission.getHonorPledge() && submission.getDateCreated().equals(submission.getDateModified())) {
-                        status = resourceLoader.getString("gen.hpsta");
+                        status = AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED;
                     } else {
                         // submission saved, not submitted,
-                        status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                        status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
                     }
                 }
             }
         }
-
+        log.debug("getSubmissionCannonicalStatus for submission {} : {}", submission.getId(), status);
         return status;
+    }
+
+    public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission) {//currently this is only for student
+        Map<String, Boolean> statusMap = new LinkedHashMap<>();
+        if(submission == null) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), false);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
+            return statusMap;
+        }
+        Assignment assignment = submission.getAssignment();
+        Instant submitTime = submission.getDateSubmitted();
+        Instant returnTime = submission.getDateReturned();
+        if (assignment.getHonorPledge()) {
+            if(submission.getHonorPledge()) {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), true);
+            } else {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), false);
+            }
+        }
+        if(StringUtils.isNotBlank(submission.getSubmittedText()) || CollectionUtils.isNotEmpty(submission.getAttachments())) {//if text or attachments are persisted
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), true);
+        } else {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
+        }
+        if (submission.getSubmitted()) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
+        } else {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
+        }
+        if (submitTime != null && submission.getReturned() && returnTime != null && returnTime.isBefore(submitTime)) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), true);
+            if (submitTime.isAfter(assignment.getDueDate())) {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.LATE, ""), true);
+            }
+        }
+        if (submission.getReturned()) {//this is the only interesting teacher status that a student needs to know
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), true);
+        } else {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
+        }
+        //futureable options: peer review, in progress after submission, content review, differ in progress and saved...
+		return statusMap;
     }
 
     // TODO this could probably be removed

@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -119,6 +120,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
         when(resourceLoader.getString("gen.nograd")).thenReturn("No Grade");
         when(resourceLoader.getString("ungra")).thenReturn("Ungraded");
+        when(resourceLoader.getString("gen.returned")).thenReturn("Returned");
         when(resourceLoader.getString("pass")).thenReturn("Pass");
         when(resourceLoader.getString("fail")).thenReturn("Fail");
         when(resourceLoader.getString("gen.checked")).thenReturn("Checked");
@@ -636,6 +638,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // gen.inpro         = In progress
         // gen.commented     = Commented
         // grad3             = Graded
+        // gen.hpsta         = Honor Accepted
 
         String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
@@ -645,15 +648,27 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
                                         AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference())).thenReturn(true);
             String status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Draft - In progress", status);
+            AssignmentConstants.SubmissionStatus subStatus = assignmentService.getSubmissionCannonicalStatus(submission);
+            Assert.assertEquals(AssignmentConstants.SubmissionStatus.IN_PROGRESS, subStatus);
             Assert.assertFalse(submission.getSubmitted());
 
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
             when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
             submission.setSubmitted(true);
             submission.setDateSubmitted(Instant.now());
+            submission.setSubmittedText("submittedText");
             assignmentService.updateSubmission(submission);
             status = assignmentService.getSubmissionStatus(submission.getId());
             Assert.assertEquals("Submitted " + assignmentService.getUsersLocalDateTimeString(submission.getDateSubmitted()), status);
+            subStatus = assignmentService.getSubmissionCannonicalStatus(submission);
+            Assert.assertEquals(AssignmentConstants.SubmissionStatus.SUBMITTED, subStatus);
+
+            Map<String,Boolean> statuses = assignmentService.getProgressBarStatus(submission);
+            Map<String,Boolean> statusesAux = new LinkedHashMap<>();
+            statusesAux.put("Draft - In progress", true);
+            statusesAux.put("Submitted ", true);
+            statusesAux.put("Returned", false);
+            Assert.assertEquals(statuses, statusesAux);
         } catch (Exception e) {
             Assert.fail("Could not create/update submission\n" + e.toString());
         }
