@@ -5,9 +5,9 @@ A collection of tools and examples to demonstrate developing, building and deplo
 ### Features
 Features of the files you will find here:
 
-* Developemnt stack examples
+* Development stack examples
 * Docker image building examples
-* Docker Swarm deployment exmaples
+* Docker Swarm deployment examples
 
 # Quick install Docker (Linux, new server/workstation)
 Docker provides an installation script for most Linux distributions, With Ubuntu and RHEL/CentOS being the most used. 
@@ -23,7 +23,7 @@ Additionally, docker has a built-in container orchestration platform called "Doc
      $ docker swarm init 
 
 # Development
-In the `dev/` folder you will find an exmaple staged Swarm stack that included everything needed to build and test sakai in developemnt.
+In the `dev/` folder you will find an example staged Swarm stack that included everything needed to build and test sakai in development.
 
 GOTO [Development README](dev/)
 
