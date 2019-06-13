@@ -71,7 +71,7 @@
 					</tbody>
 				</table>
 
-				#if (!$search.isEmpty())
+				#if (!$search.isEmpty() && $openSites.isEmpty())
 					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosearchjoinablesites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</div>
 				#elseif ($openSites.isEmpty())
 					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosites')</div>

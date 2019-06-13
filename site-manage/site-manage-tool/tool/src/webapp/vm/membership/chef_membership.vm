@@ -104,7 +104,7 @@
 					</tbody>
 				</table>
 
-				#if (!$search.isEmpty())
+				#if (!$search.isEmpty() && $unjoinableSites.isEmpty())
 					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</div>
 				#elseif ($unjoinableSites.isEmpty())
 					<div class="sakai-table-noResultsMessage">$tlang.getString('mb.list.nomembs')</div>
