@@ -65,6 +65,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentEntity;
@@ -137,6 +138,7 @@ import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -199,6 +201,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private FormattedText formattedText;
     @Setter private FunctionManager functionManager;
     @Setter private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+    @Setter private GradebookFrameworkService gradebookFrameworkService;
     @Setter private GradebookService gradebookService;
     @Setter private GradeSheetExporter gradeSheetExporter;
     @Setter private LearningResourceStoreService learningResourceStoreService;
@@ -3557,7 +3560,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             String toCalendarId
                                 = calendarService.calendarReference(
                                     nAssignment.getContext(), SiteService.MAIN_CONTAINER);
-                            Calendar toCalendar = calendarService.getCalendar(toCalendarId);
+                            Calendar toCalendar = null;
+                            try {
+                                toCalendar = calendarService.getCalendar(toCalendarId);
+                            } catch (IdUnusedException iue) {
+                                calendarService.commitCalendar(calendarService.addCalendar(toCalendarId));
+                                toCalendar = calendarService.getCalendar(toCalendarId);
+                            }
 
                             String fromDisplayName = fromEvent.getDisplayName();
                             CalendarEvent toCalendarEvent
@@ -3574,9 +3583,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         String openDateAnnounced = StringUtils.trimToNull(oProperties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
                         String fromAnnouncementId = StringUtils.trimToNull(oProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
                         AnnouncementChannel fromChannel = getAnnouncementChannel(oAssignment.getContext());
-                        AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
-                        if (fromChannel != null && toChannel != null && fromAnnouncementId != null) {
+                        if (fromChannel != null && fromAnnouncementId != null) {
                             AnnouncementMessage fromAnnouncement = fromChannel.getAnnouncementMessage(fromAnnouncementId);
+                            AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
+                            if (toChannel == null) {
+                                // Create the announcement channel
+                                String toChannelId = announcementService.channelReference(nAssignment.getContext(), siteService.MAIN_CONTAINER);
+                                announcementService.commitChannel(announcementService.addAnnouncementChannel(toChannelId));
+                                toChannel = getAnnouncementChannel(nAssignment.getContext());
+                            }
                             AnnouncementMessage toAnnouncement
                                 = toChannel.addAnnouncementMessage(fromAnnouncement.getAnnouncementHeader().getSubject()
                                     , fromAnnouncement.getAnnouncementHeader().getDraft()
@@ -3584,6 +3599,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     , fromAnnouncement.getBody());
                             nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
                             nProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, toAnnouncement.getId());
+                            nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
                         }
                     }
 
@@ -3597,6 +3613,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
                         if (isExternalAssignmentDefined) {
                             if (!nAssignment.getDraft()) {
+                                String gbUid = nAssignment.getContext();
+                                if (!gradebookFrameworkService.isGradebookDefined(gbUid)) {
+                                    gradebookFrameworkService.addGradebook(gbUid, gbUid);
+                                }
                                 // This assignment has been published, make sure the associated gb item is available
                                 org.sakaiproject.service.gradebook.shared.Assignment gbAssignment
                                     = gradebookService.getAssignmentByNameOrId(
