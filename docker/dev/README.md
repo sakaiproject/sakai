@@ -8,6 +8,7 @@ Features of the files you will find here:
 * Staged development stack.
 * All data persisted locally in ./DATA
 * Shell-In-A-Box (browser console) maven image
+* Dockerfile for building static image from within dev folder
 * Swarm stacks designed to be layered
   * Proxy + Sakai (No Search) + Mysql + Maven
   * Proxy + Sakai (No Search) + Mysql + Maven + PhpMyAdmin + MailCatcher
@@ -42,6 +43,11 @@ The first stage compose file creates Sakai, Mysql, and Maven services. The maven
  1. After the build completes, tomcat will need to be restarted, from the host (not the maven console) run `docker service update --force SakaiStudio_sakai`
  1. Wait for tomcat to startup, it may take a long while while the DB scheme is being created.
  1. After startup connect to http://127.0.0.1:8080 and click the "Sakai LMS" tile.
+
+# Stage 1.1 (Optional static image build)
+Once the sakai source has been built, you can build a sakai:latest static docker image to be used with the examples in [../deploy](../deploy)
+
+ 1. Run `docker build -t sakai .` from this folder 
 
 # Stage 2 (Above + Basic Dev Tools)
 The second stage adds MailCatcher and PhpMyAdmin to the stack.
