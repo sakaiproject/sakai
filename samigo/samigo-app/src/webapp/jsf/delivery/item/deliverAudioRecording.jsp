@@ -95,6 +95,7 @@ should be included in file importing DeliveryMessages
   </h:panelGrid>
 <f:verbatim></div></f:verbatim>
 
+<f:verbatim><div id="</f:verbatim><h:outputText value="attempts#{question.itemData.itemId}" /><f:verbatim>"></f:verbatim>
 <h:panelGroup rendered="#{question.attemptsRemaining == null || question.attemptsRemaining > 0}">
   <h:outputLink id="openRecord" title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}">
     <h:outputText value="#{assessmentSettingsMessages.record_your_answer}"/>
@@ -106,6 +107,7 @@ should be included in file importing DeliveryMessages
     </f:subview>
   </h:panelGroup>
 </h:panelGroup>
+<f:verbatim></div></f:verbatim>
 
 <h:panelGroup rendered="#{question.attemptsRemaining != null && question.attemptsRemaining < 1}">
   <h:outputText value=" #{assessmentSettingsMessages.record_no_more_attempts}"/>

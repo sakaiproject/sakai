@@ -99,7 +99,7 @@
 				#else
 				#end
 				## attachments of assignment
-				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
+				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
 			#end	## show the assignment content
 			## model answer
 			#if($allowViewModelAnswer)

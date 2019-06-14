@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +66,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentEntity;
@@ -137,6 +139,7 @@ import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -199,6 +202,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     @Setter private FormattedText formattedText;
     @Setter private FunctionManager functionManager;
     @Setter private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+    @Setter private GradebookFrameworkService gradebookFrameworkService;
     @Setter private GradebookService gradebookService;
     @Setter private GradeSheetExporter gradeSheetExporter;
     @Setter private LearningResourceStoreService learningResourceStoreService;
@@ -1474,6 +1478,43 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             log.warn("Could not get submission with id {}, {}", submissionId, e.getMessage());
             return status;
         }
+
+        Instant submitTime = submission.getDateSubmitted();
+        AssignmentConstants.SubmissionStatus subStatus = getSubmissionCannonicalStatus(submission);
+        return getFormattedStatus(subStatus, getUsersLocalDateTimeString(submitTime));
+    }
+
+    private String getFormattedStatus(AssignmentConstants.SubmissionStatus subStatus, String submittedTime) {
+        String status = "";
+        if(subStatus == AssignmentConstants.SubmissionStatus.RESUBMITTED) {
+            status = resourceLoader.getString("gen.resub");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.LATE) {
+            status = resourceLoader.getString("gen.resub") + " " + submittedTime + resourceLoader.getString("gen.late2");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.SUBMITTED) {
+            status = resourceLoader.getString("gen.subm4") + " " + submittedTime;
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.RETURNED) {
+            status = resourceLoader.getString("gen.returned");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.UNGRADED) {
+            status = resourceLoader.getString("ungra");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.NO_SUBMISSION) {
+            status = resourceLoader.getString("listsub.nosub");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.NOT_STARTED) {
+            status = resourceLoader.getString("gen.notsta");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.IN_PROGRESS) {
+            status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.COMMENTED) {
+            status = resourceLoader.getString("gen.commented");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.GRADED) {
+            status = resourceLoader.getString("grad3");
+        } else if(subStatus == AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED) {
+            status = resourceLoader.getString("gen.hpsta");
+        }
+        return status;
+    }
+
+    @Override
+    public AssignmentConstants.SubmissionStatus getSubmissionCannonicalStatus(AssignmentSubmission submission) {
+        AssignmentConstants.SubmissionStatus status = null;
         Assignment assignment = submission.getAssignment();
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         boolean allowGrade = assignment != null && allowGradeSubmission(assignmentReference);
@@ -1481,47 +1522,46 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         Instant submitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
         Instant lastModTime = submission.getDateModified();
-
         if (submission.getSubmitted() || (!submission.getSubmitted() && allowGrade)) {
             if (submitTime != null) {
                 if (submission.getReturned()) {
                     if (returnTime != null && returnTime.isBefore(submitTime)) {
                         if (!submission.getGraded()) {
-                            status = resourceLoader.getString("gen.resub") + " " + getUsersLocalDateTimeString(submitTime);
+                            status = AssignmentConstants.SubmissionStatus.RESUBMITTED;
                             if (submitTime.isAfter(assignment.getDueDate())) {
-                                status = status + resourceLoader.getString("gen.late2");
+                                status = AssignmentConstants.SubmissionStatus.LATE;
                             }
                         } else
-                            status = resourceLoader.getString("gen.returned");
+                            status = AssignmentConstants.SubmissionStatus.RETURNED;
                     } else
-                        status = resourceLoader.getString("gen.returned");
+                        status = AssignmentConstants.SubmissionStatus.RETURNED;
                 } else if (submission.getGraded() && allowGrade) {
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? resourceLoader.getString("grad3") : resourceLoader.getString("gen.commented");
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     if (allowGrade) {
                         // ungraded submission
-                        status = resourceLoader.getString("ungra");
+                        status = AssignmentConstants.SubmissionStatus.UNGRADED;
                     } else {
-                        status = resourceLoader.getString("gen.subm4") + " " + getUsersLocalDateTimeString(submitTime);
+                        status = AssignmentConstants.SubmissionStatus.SUBMITTED;
                     }
                 }
             } else {
                 if (submission.getReturned()) {
                     // instructor can return grading to non-submitted user
-                    status = resourceLoader.getString("gen.returned");
+                    status = AssignmentConstants.SubmissionStatus.RETURNED;
                 } else if (submission.getGraded() && allowGrade) {
                     // instructor can grade non-submitted ones
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? resourceLoader.getString("grad3") : resourceLoader.getString("gen.commented");
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     if (allowGrade) {
                         // show "no submission" to graders
-                        status = resourceLoader.getString("listsub.nosub");
+                        status = AssignmentConstants.SubmissionStatus.NO_SUBMISSION;
                     } else {
                         if (assignment.getHonorPledge() && submission.getHonorPledge()) {
-                            status = resourceLoader.getString("gen.hpsta");
+                            status = AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED;
                         } else {
                             // show "not started" to students
-                            status = resourceLoader.getString("gen.notsta");
+                            status = AssignmentConstants.SubmissionStatus.NOT_STARTED;
                         }
                     }
                 }
@@ -1532,34 +1572,78 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     // modified time is after returned time + 10 seconds
                     if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10)) && !allowGrade) {
                         // working on a returned submission now
-                        status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                        status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
                     } else {
                         // not submitted submmission has been graded and returned
-                        status = resourceLoader.getString("gen.returned");
+                        status = AssignmentConstants.SubmissionStatus.RETURNED;
                     }
                 } else if (allowGrade) {
                     // grade saved but not release yet, show this to graders
-                    status = StringUtils.isNotBlank(submission.getGrade()) ? resourceLoader.getString("grad3") : resourceLoader.getString("gen.commented");
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? AssignmentConstants.SubmissionStatus.GRADED : AssignmentConstants.SubmissionStatus.COMMENTED;
                 } else {
                     // submission saved, not submitted.
-                    status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                    status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
                 }
             } else {
                 if (allowGrade)
-                    status = resourceLoader.getString("ungra");
+                    status = AssignmentConstants.SubmissionStatus.UNGRADED;
                 else {
                     // TODO add a submission state of draft so we can eliminate the date check here
                     if (assignment.getHonorPledge() && submission.getHonorPledge() && submission.getDateCreated().equals(submission.getDateModified())) {
-                        status = resourceLoader.getString("gen.hpsta");
+                        status = AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED;
                     } else {
                         // submission saved, not submitted,
-                        status = resourceLoader.getString("gen.dra2") + " " + resourceLoader.getString("gen.inpro");
+                        status = AssignmentConstants.SubmissionStatus.IN_PROGRESS;
                     }
                 }
             }
         }
-
+        log.debug("getSubmissionCannonicalStatus for submission {} : {}", submission.getId(), status);
         return status;
+    }
+
+    public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission) {//currently this is only for student
+        Map<String, Boolean> statusMap = new LinkedHashMap<>();
+        if(submission == null) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), false);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
+            return statusMap;
+        }
+        Assignment assignment = submission.getAssignment();
+        Instant submitTime = submission.getDateSubmitted();
+        Instant returnTime = submission.getDateReturned();
+        if (assignment.getHonorPledge()) {
+            if(submission.getHonorPledge()) {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), true);
+            } else {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), false);
+            }
+        }
+        if(StringUtils.isNotBlank(submission.getSubmittedText()) || CollectionUtils.isNotEmpty(submission.getAttachments())) {//if text or attachments are persisted
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), true);
+        } else {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
+        }
+        if (submission.getSubmitted()) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
+        } else {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
+        }
+        if (submitTime != null && submission.getReturned() && returnTime != null && returnTime.isBefore(submitTime)) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), true);
+            if (submitTime.isAfter(assignment.getDueDate())) {
+                statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.LATE, ""), true);
+            }
+        }
+        if (submission.getReturned()) {//this is the only interesting teacher status that a student needs to know
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), true);
+        } else {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
+        }
+        //futureable options: peer review, in progress after submission, content review, differ in progress and saved...
+		return statusMap;
     }
 
     // TODO this could probably be removed
@@ -3557,7 +3641,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             String toCalendarId
                                 = calendarService.calendarReference(
                                     nAssignment.getContext(), SiteService.MAIN_CONTAINER);
-                            Calendar toCalendar = calendarService.getCalendar(toCalendarId);
+                            Calendar toCalendar = null;
+                            try {
+                                toCalendar = calendarService.getCalendar(toCalendarId);
+                            } catch (IdUnusedException iue) {
+                                calendarService.commitCalendar(calendarService.addCalendar(toCalendarId));
+                                toCalendar = calendarService.getCalendar(toCalendarId);
+                            }
 
                             String fromDisplayName = fromEvent.getDisplayName();
                             CalendarEvent toCalendarEvent
@@ -3574,9 +3664,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         String openDateAnnounced = StringUtils.trimToNull(oProperties.get(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
                         String fromAnnouncementId = StringUtils.trimToNull(oProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
                         AnnouncementChannel fromChannel = getAnnouncementChannel(oAssignment.getContext());
-                        AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
-                        if (fromChannel != null && toChannel != null) {
+                        if (fromChannel != null && fromAnnouncementId != null) {
                             AnnouncementMessage fromAnnouncement = fromChannel.getAnnouncementMessage(fromAnnouncementId);
+                            AnnouncementChannel toChannel = getAnnouncementChannel(nAssignment.getContext());
+                            if (toChannel == null) {
+                                // Create the announcement channel
+                                String toChannelId = announcementService.channelReference(nAssignment.getContext(), siteService.MAIN_CONTAINER);
+                                announcementService.commitChannel(announcementService.addAnnouncementChannel(toChannelId));
+                                toChannel = getAnnouncementChannel(nAssignment.getContext());
+                            }
                             AnnouncementMessage toAnnouncement
                                 = toChannel.addAnnouncementMessage(fromAnnouncement.getAnnouncementHeader().getSubject()
                                     , fromAnnouncement.getAnnouncementHeader().getDraft()
@@ -3584,6 +3680,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     , fromAnnouncement.getBody());
                             nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
                             nProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, toAnnouncement.getId());
+                            nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
                         }
                     }
 
@@ -3597,6 +3694,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         boolean isExternalAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
                         if (isExternalAssignmentDefined) {
                             if (!nAssignment.getDraft()) {
+                                String gbUid = nAssignment.getContext();
+                                if (!gradebookFrameworkService.isGradebookDefined(gbUid)) {
+                                    gradebookFrameworkService.addGradebook(gbUid, gbUid);
+                                }
                                 // This assignment has been published, make sure the associated gb item is available
                                 org.sakaiproject.service.gradebook.shared.Assignment gbAssignment
                                     = gradebookService.getAssignmentByNameOrId(

@@ -279,7 +279,7 @@
             #end
 
             ## Assignment Attachments
-            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
+            #attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
         #end
         ## show the assignment content
 

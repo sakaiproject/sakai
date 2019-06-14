@@ -92,7 +92,6 @@ import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
 import org.sakaiproject.sitestats.tool.wicket.util.Comparators;
-import org.sakaiproject.util.Web;
 
 /**
  * @author Nuno Fernandes
@@ -1045,9 +1044,9 @@ public class ReportsEditPage extends BasePage {
 					SelectOption opt = (SelectOption) object;
 					String userId = (String) opt.getDefaultModel().getObject();
 					if(EventTrackingService.UNKNOWN_USER.equals(userId)) {
-						return Web.escapeHtml( (String) new ResourceModel("user_anonymous_access").getObject() );
+						return (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
-						return Web.escapeHtml(Locator.getFacade().getStatsManager().getUserInfoForDisplay(userId, siteId));
+						return Locator.getFacade().getStatsManager().getUserInfoForDisplay(userId, siteId);
 					}
 				}
 				public IModel getModel(Object value) {
