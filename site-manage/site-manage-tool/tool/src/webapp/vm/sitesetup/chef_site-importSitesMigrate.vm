@@ -100,7 +100,7 @@
 											#set ($optionPropHelpKey = $optionPropKey + ".help")
 											<div>
 												<label>
-													<input type="checkbox" name="import-option-${option}-tool-${toolId}" title="$tlang.getString(${optionPropHelpKey})" value="true"/>
+													<input type="checkbox" class="siteimport-option" name="import-option-${option}-tool-${toolId}" title="$tlang.getString(${optionPropHelpKey})" value="true"/>
 													$tlang.getString(${optionPropKey})
 												</label>
 												<span class="import-option-help fa fa-question-circle" data-toggle="popover" data-content="$tlang.getString(${optionPropHelpKey})"/>
