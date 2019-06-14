@@ -10,7 +10,7 @@ COPY sakai/deploy/components /usr/local/tomcat/components/
 COPY sakai/deploy/lib /usr/local/tomcat/sakai-lib/
 COPY sakai/deploy/webapps /usr/local/tomcat/webapps/
 
-RUN mkdir -p /usr/local/sakai/properties && sed -i '/^common.loader\=/ s/$/,"${catalina.base}\/sakai-lib\/*.jar"/' /usr/local/tomcat/conf/catalina.properties && curl -L -o /usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar && mkdir -p /usr/local/tomcat/sakai && chmod +x /entrypoint.sh
+RUN mkdir -p /usr/local/sakai/properties && sed -i '/^common.loader\=/ s/$/,"\$\{catalina.base\}\/sakai-lib\/*.jar"/' /usr/local/tomcat/conf/catalina.properties && curl -L -o /usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar && mkdir -p /usr/local/tomcat/sakai && chmod +x /entrypoint.sh
 
 ENV CATALINA_OPTS_MEMORY -Xms2000m -Xmx2000m
 ENV CATALINA_OPTS \
