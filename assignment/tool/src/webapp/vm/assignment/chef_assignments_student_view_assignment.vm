@@ -140,7 +140,7 @@
 			#end
 		</p>
 		## assignment attachment
-		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap)
+		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
 
 			## model answer
 			#if($allowViewModelAnswer)

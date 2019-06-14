@@ -586,6 +586,10 @@
                     $detailsElem.text("");
                     var span = $("<span />").attr("className", "recordedOn" + this.vars.questionId).text(json.duration + " " + this.vars.messagesSecs + ", " + this.vars.recordedOn + " " + json.createdDate);
                     $detailsElem.append(span);
+					
+                    if(Number(json.attemptsRemaining) <= 0){
+                        $("#attempts" + this.vars.questionId).hide();
+                    }
                 }
 
                 this.startUserMedia();

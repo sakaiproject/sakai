@@ -464,6 +464,7 @@ public class UploadAudioMediaServlet extends HttpServlet
     json.addProperty("mediaId", mediaId);
     json.addProperty("duration", mediaData.getDuration());
     json.addProperty("createdDate", DateFormatterUtil.format(mediaData.getCreatedDate(), rb.getString("delivery_date_format"), rb.getLocale()));
+    json.addProperty("attemptsRemaining", attemptsRemaining);
     return json;
   }
 

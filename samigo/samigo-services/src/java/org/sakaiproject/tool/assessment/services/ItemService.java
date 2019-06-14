@@ -322,7 +322,7 @@ public class ItemService
     while (l.hasNext()) {
       Answer answer = (Answer) l.next();
       Answer newAnswer = new Answer(
-          newItemText, answer.getText(), answer.getSequence(),
+          newItemText, AssessmentService.copyStringAttachment(answer.getText()), answer.getSequence(),
           answer.getLabel(),
       	  answer.getIsCorrect(), answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), 
       	  //answer.getCorrectOptionLabels(), 

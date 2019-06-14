@@ -90,7 +90,7 @@
                     </tbody>
                 </table>
 
-                #if( !$search.isEmpty() )
+                #if( !$search.isEmpty() && $enrolments.isEmpty() )
                     <div class="sakai-table-noResultsMessage">$tlang.getString( "mb.enrolments.noMatchingEnrolments" )${validator.escapeHtml( $search )}$tlang.getString( "mb.list.nosearchsites2" )</div>
                 #elseif( $enrolments.isEmpty() )
                     <div class="sakai-table-noResultsMessage">$noEnrolments</div>
