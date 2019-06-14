@@ -41,4 +41,4 @@ export class SakaiRubricCreatorName extends SakaiElement {
   }
 }
 
-customElements.define("creator-name", SakaiRubricCreatorName);
+customElements.define("sakai-rubric-creator-name", SakaiRubricCreatorName);

@@ -41,4 +41,4 @@ export class SakaiRubricSiteTitle extends SakaiElement {
   }
 }
 
-customElements.define("site-title", SakaiRubricSiteTitle);
+customElements.define("sakai-rubric-site-title", SakaiRubricSiteTitle);

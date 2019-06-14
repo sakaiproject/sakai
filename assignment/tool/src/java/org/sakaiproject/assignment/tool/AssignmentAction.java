@@ -563,6 +563,10 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private static final String MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION = "Assignment.mode_view_submission_confirmation";
     /**
+     * The student confirm step of an assignment submission
+     */
+    private static final String MODE_STUDENT_CONFIRM_SUBMISSION = "Assignment.mode_student_confirm_submission";
+    /**
      * The student preview of an assignment submission
      */
     private static final String MODE_STUDENT_PREVIEW_SUBMISSION = "Assignment.mode_student_preview_submission";
@@ -677,6 +681,10 @@ public class AssignmentAction extends PagedResourceActionII {
      * The student view of an assignment submission confirmation
      */
     private static final String TEMPLATE_STUDENT_VIEW_SUBMISSION_CONFIRMATION = "_student_view_submission_confirmation";
+    /**
+     * The student confirm step for an assignment submission
+     */
+    private static final String TEMPLATE_STUDENT_CONFIRM_SUBMISSION = "_student_confirm_submission";
     /**
      * The student preview an assignment submission
      */
@@ -922,7 +930,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String RUBRIC_STATE_DETAILS = "rbcs-state-details";
     private static final String RUBRIC_TOKEN = "rbcs-token";
     private static ResourceLoader rb = new ResourceLoader("assignment");
-    private final String NO_SUBMISSION = rb.getString("listsub.nosub");
     private boolean nextUngraded = false;
     private boolean prevUngraded = false;
     private boolean nextWithSubmission = false;
@@ -1200,6 +1207,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 // build the context for showing one assignment submission confirmation
                 template = build_student_view_submission_confirmation_context(portlet, context, data, state);
+                break;
+            case MODE_STUDENT_CONFIRM_SUBMISSION:
+                // build the context for confirming one assignment submission
+                template = build_student_confirm_submission_context(portlet, context, data, state);
                 break;
             case MODE_STUDENT_PREVIEW_SUBMISSION:
                 // build the context for showing one assignment submission
@@ -1492,8 +1503,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
                 try {
                     if (Boolean.valueOf(properties.get(NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW))) {
-                    		state.setAttribute("plagiarismStudentPreview", rb.getString("gen.subStudentPreview"));
-                    		context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+                        state.setAttribute("plagiarismStudentPreview", rb.getString("gen.subStudentPreview"));
+                        context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -1691,8 +1702,8 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * Returns a clone of the passed in List of attachments minus any attachments that should not be displayed in the UI
      */
-    private List stripInvisibleAttachments(Object attachments) {
-        List stripped = new ArrayList();
+    private List<Reference> stripInvisibleAttachments(Object attachments) {
+        List<Reference> stripped = new ArrayList<>();
         if (attachments == null || !(attachments instanceof List)) {
             return stripped;
         }
@@ -2029,6 +2040,90 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_STUDENT_VIEW_ASSIGNMENT_HONORPLEDGE;
     }
 
+    protected String build_student_confirm_submission_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
+		//TODO keep/remove/add what necessary
+
+        User user = (User) state.getAttribute(STATE_USER);
+        String aReference = (String) state.getAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+
+        Assignment assignment = getAssignment(aReference, "build_student_confirm_submission_context", state);
+        if (assignment != null) {
+            context.put("assignment", assignment);
+            context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+            context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
+            context.put("canSubmit", assignmentService.canSubmit(assignment));
+
+            AssignmentSubmission submission = getSubmission(aReference, user, "build_student_confirm_submission_context", state);
+            if (submission != null) {
+                context.put("submission", submission);
+                String currentUser = userDirectoryService.getCurrentUser().getId();
+                String grade = assignmentService.getGradeForSubmitter(submission, currentUser);
+                context.put("grade", grade);
+                context.put("submissionReference", AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference());
+            }
+
+            if (assignment.getIsGroup() && state.getAttribute(VIEW_SUBMISSION_GROUP) != null) {
+                context.put(VIEW_SUBMISSION_GROUP, (String) state.getAttribute(VIEW_SUBMISSION_GROUP));
+            }
+
+            setScoringAgentProperties(context, assignment, submission, false);
+
+            // can the student view model answer or not
+            canViewAssignmentIntoContext(context, assignment, submission);
+
+            // put the resubmit information into context
+            assignment_resubmission_option_into_context(context, state);
+
+            if (state.getAttribute(SAVED_FEEDBACK) != null) {
+                context.put("savedFeedback", Boolean.TRUE);
+                state.removeAttribute(SAVED_FEEDBACK);
+            }
+            if (state.getAttribute(OW_FEEDBACK) != null) {
+                context.put("overwriteFeedback", Boolean.TRUE);
+                state.removeAttribute(OW_FEEDBACK);
+            }
+            if (state.getAttribute(RETURNED_FEEDBACK) != null) {
+                context.put("returnedFeedback", Boolean.TRUE);
+                state.removeAttribute(RETURNED_FEEDBACK);
+            }
+        }
+
+        context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
+        if(assignment.getContentReview()) {
+	        	context.put("plagiarismStudentPreview", state.getAttribute("plagiarismStudentPreview"));
+	        	context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
+	        	context.put("plagiarismFileSize", state.getAttribute("plagiarismFileSize"));
+	        	context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+	        	context.put("name_plagiarism_eula_agreement", SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+	        	context.put("value_plagiarism_eula_agreement", state.getAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT));
+	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
+	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+        }
+        Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
+        stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
+        context.put("submissionAttachmentReferences", submissionAttachmentReferences);
+        context.put("contentTypeImageService", contentTypeImageService);
+
+        //confirm custom messages
+        String confirmMessage = serverConfigurationService.getString("assignment.submissionConfirmMessage", rb.getFormattedMessage("submissionConfirmMessage"));
+        context.put("studentConfirmMessage", confirmMessage);
+        context.put("submissionConfirmOptionsRequired", serverConfigurationService.getBoolean("assignment.submissionConfirmOptionsRequired", false));
+        String[] submissionConfirmOptionsList = serverConfigurationService.getStrings("assignment.submissionConfirmOptions");
+        List<String> items = new ArrayList<>();
+        if (submissionConfirmOptionsList != null) {
+            for (String item : submissionConfirmOptionsList) {
+                if (StringUtils.isNotBlank(item)) {
+                    items.add(item);
+                }
+            }
+        }
+        context.put("submissionConfirmOptions", items);
+        context.put("submissionConfirmAlert", rb.getFormattedMessage("submissionConfirmAlert"));
+
+        String template = (String) getContext(data).get("template");
+        return template + TEMPLATE_STUDENT_CONFIRM_SUBMISSION;
+    }
+
     /**
      * build the student preview of showing an assignment submission
      *
@@ -2095,7 +2190,10 @@ public class AssignmentAction extends PagedResourceActionII {
 	        	context.put("plagiarismEULALink", state.getAttribute("eulaServiceLink"));
 	        	context.put("name_check_plagiarism_eula_agreement", SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
         }
-        context.put("attachments", stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)));
+
+        Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
+        stripInvisibleAttachments(state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS)).forEach(r -> submissionAttachmentReferences.put(r.getId(), r));
+        context.put("submissionAttachmentReferences", submissionAttachmentReferences);
         context.put("contentTypeImageService", contentTypeImageService);
 
         String template = (String) getContext(data).get("template");
@@ -3710,7 +3808,7 @@ public class AssignmentAction extends PagedResourceActionII {
         resetNavOptions(flag);
 
         // If the submission is actually a submission, set the appropriate flag and reference; return true
-        if (!NO_SUBMISSION.equals(assignmentService.getSubmissionStatus(submission.getId())) && submission.getUserSubmission()) {
+        if (!AssignmentConstants.SubmissionStatus.NO_SUBMISSION.equals(assignmentService.getSubmissionCannonicalStatus(submission)) && submission.getUserSubmission()) {
             applyNavOption(flag, submission);
         }
     }
@@ -3727,7 +3825,7 @@ public class AssignmentAction extends PagedResourceActionII {
         resetNavOptions(flag);
 
         // If the submisison is actually a submission and is ungraded, set the appropriate flag and reference; return true
-        if (!submission.getGraded() && !NO_SUBMISSION.equals(assignmentService.getSubmissionStatus(submission.getId())) && submission.getUserSubmission()) {
+        if (!submission.getGraded() && !AssignmentConstants.SubmissionStatus.NO_SUBMISSION.equals(assignmentService.getSubmissionCannonicalStatus(submission)) && submission.getUserSubmission()) {
             applyNavOption(flag, submission);
         }
     }
@@ -5422,6 +5520,47 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // doView_submission_list_option
 
+    public void doConfirm_submission(RunData data) {
+		//TODO remove unnecessary code
+        SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+        ParameterParser params = data.getParameters();
+        String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, aReference);
+        Assignment a = getAssignment(aReference, "doPreview_submission", state);
+
+        String[] groupChoice = params.getStrings("selectedGroups");
+        if (groupChoice != null && ArrayUtils.isNotEmpty(groupChoice)) {
+            state.setAttribute(VIEW_SUBMISSION_GROUP, groupChoice[0]);
+        }
+
+        saveSubmitInputs(state, params);
+
+        // retrieve the submission text (as formatted text)
+        String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
+        //if it comes from preview screen
+        if(state.getAttribute(PREVIEW_SUBMISSION_TEXT) != null) {
+            text = (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
+        }
+        state.setAttribute(PREVIEW_SUBMISSION_TEXT, text);
+        state.setAttribute(VIEW_SUBMISSION_TEXT, text);
+
+        // assign the EULA attribute
+        String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+        if(StringUtils.isEmpty(eulaAgreementYes)) {
+            eulaAgreementYes = "false";
+        }
+        state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
+
+        // get attachment input and generate alert message according to assignment submission type
+        checkSubmissionTextAttachmentInput(data, state, a, text);
+        state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
+
+        if (state.getAttribute(STATE_MESSAGE) == null) {
+            state.setAttribute(STATE_MODE, MODE_STUDENT_CONFIRM_SUBMISSION);
+        }
+    }
+
     /**
      * Preview of the submission
      */
@@ -5449,7 +5588,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // assign the EULA attribute
         String eulaAgreementYes = params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
         if(StringUtils.isEmpty(eulaAgreementYes)) {
-        		eulaAgreementYes = "false";
+            eulaAgreementYes = "false";
         }
         state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, eulaAgreementYes);
 
@@ -10694,16 +10833,15 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param state
      * @param params
      */
-    private void saveSubmitInputs(SessionState state,
-                                  ParameterParser params) {
+    private void saveSubmitInputs(SessionState state, ParameterParser params) {
         // retrieve the submission text (as formatted text)
         String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
         state.setAttribute(VIEW_SUBMISSION_TEXT, text);
 
         if(params.getString(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT) != null) {
-        		state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, "true");
-        }else {
-        		state.removeAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+            state.setAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT, "true");
+        } else {
+            state.removeAttribute(SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
         }
 
         String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
@@ -11860,10 +11998,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private Map<Long, String> categoryTable() {
         boolean gradebookExists = isGradebookDefined();
         Map<Long, String> catTable = new HashMap<>();
-        if (gradebookExists) {
-
-            String gradebookUid = toolManager.getCurrentPlacement().getContext();
-
+        String gradebookUid = toolManager.getCurrentPlacement().getContext();
+        if (gradebookExists && gradebookExternalAssessmentService.isCategoriesEnabled(gradebookUid)) {
             List<CategoryDefinition> categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
 
             catTable.put((long) -1, rb.getString("grading.unassigned"));
@@ -12732,7 +12868,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String mode = (String) state.getAttribute(STATE_MODE);
         ParameterParser params = data.getParameters();
 
-        if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode) || MODE_STUDENT_PREVIEW_SUBMISSION.equals(mode)
+        if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode) || MODE_STUDENT_PREVIEW_SUBMISSION.equals(mode) || MODE_STUDENT_CONFIRM_SUBMISSION.equals(mode)
                 || MODE_STUDENT_VIEW_GRADE.equals(mode) || MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode)
                 || MODE_INSTRUCTOR_DELETE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
                 || MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION.equals(mode) || MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT.equals(mode)
@@ -12771,6 +12907,9 @@ public class AssignmentAction extends PagedResourceActionII {
         if ("cancel".equals(option)) {
             // cancel
             doCancel_show_submission(data);
+        } else if ("confirm".equals(option)) {
+            // confirm
+            doConfirm_submission(data);
         } else if ("preview".equals(option)) {
             // preview
             doPreview_submission(data);
