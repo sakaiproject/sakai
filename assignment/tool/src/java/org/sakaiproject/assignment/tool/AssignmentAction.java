@@ -3505,18 +3505,8 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_comment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
         context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
-
-        // SAK-17606
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
-
-        // SAK-40938 If we're in grading review mode and the grade entered is bigger than the max, we
-        // should show the grade as entered, not a scaled and formatted version. In other words, the value in
-        // the text input should match the value in the alert message.
-        if (BooleanUtils.isTrue((Boolean) state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT))) {
-            context.put("value_grade", (String) state.getAttribute(GRADE_SUBMISSION_GRADE));
-        } else {
-            context.put("value_grade", state.getAttribute(GRADE_SUBMISSION_GRADE));
-        }
+        context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), null));
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
