@@ -761,11 +761,13 @@
             </ul>
         #end
         <p class="act">
-            #if ($!props)
-                <input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="ASN.submitForm( 'gradeForm', 'attach', null, null ); return false;" accesskey="a"/>
+            #if ($props)
+                #set ($attachButtonText = $tlang.getString('gen.adddroatt'))
             #else
-                <input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="ASN.submitForm( 'gradeForm', 'attach', null, null ); return false;" accesskey="a"/>
+                #set ($attachButtonText = $tlang.getString('gen.addatt'))
             #end
+
+            <input type="button" name="attach" aria-label="$attachButtonText" value="$attachButtonText" onclick="ASN.submitForm( 'gradeForm', 'attach', null, null ); return false;" accesskey="a"/>
         </p>
         #if ($!prevFeedbackAttachments)
         ## show previous grading/feedback attachments if any
