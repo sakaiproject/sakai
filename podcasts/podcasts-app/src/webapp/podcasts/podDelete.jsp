@@ -14,7 +14,7 @@
       <h3><h:outputText value="#{msgs.delete_title}" /></h3>
  	  
  	  <br />
-  	  <h:outputText value="#{msgs.del_confirm}" styleClass="alertMessage" />
+  	  <h:outputText value="#{msgs.del_confirm}" styleClass="sak-banner-error" />
 
 	  <br /><br />
 	  <h:panelGrid>

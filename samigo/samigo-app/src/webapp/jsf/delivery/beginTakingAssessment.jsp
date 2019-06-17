@@ -69,7 +69,7 @@
 
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <div class="bs-callout-primary">
+  <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
     <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
@@ -196,7 +196,7 @@
 	<h:selectBooleanCheckbox id="honor_pledge" />
 	<h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}"/>
 </h:panelGroup>
-    <h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_required}" styleClass="alertMessage" style="display:none"/>
+    <h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_required}" styleClass="sak-banner-error" style="display:none"/>
 
 <p class="act">
 

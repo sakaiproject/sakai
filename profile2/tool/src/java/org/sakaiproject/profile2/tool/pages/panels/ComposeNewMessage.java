@@ -214,7 +214,7 @@ public class ComposeNewMessage extends Panel {
 				if(!messageField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
 
 				target.add(formFeedback);
 			}

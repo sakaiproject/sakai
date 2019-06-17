@@ -7,7 +7,7 @@
 <f:view>
 	<sakai:view_container>		
     <sakai:view_content>
-  	  <h:outputText value="#{requestScope['error']}" styleClass="alertMessage"/>
+  	  <h:outputText value="#{requestScope['error']}" styleClass="sak-banner-error"/>
 	  </sakai:view_content>
 	</sakai:view_container>
 </f:view>

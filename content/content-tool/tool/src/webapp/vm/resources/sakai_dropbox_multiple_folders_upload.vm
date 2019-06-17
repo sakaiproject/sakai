@@ -6,7 +6,7 @@
 		$tlang.getString("multiple.file.upload")
 	</h3>
 	#if ($alertMessage)
-		<br /><div class="alertMessage">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
+		<br /><div class="sak-banner-error">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
 	#end
 	<p class="instruction">
 		$tlang.getString("instr.upload")

@@ -11,7 +11,7 @@
 		$tlang.getString("multipleTools.custom")
 	</h3>           
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 		<div class="clear"></div>
 	#end
 	

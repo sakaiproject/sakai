@@ -155,7 +155,7 @@
                                    '</div>');
 
                 if (previewHighlightedOnly) {
-                    var $message = $PBJQ("<div>").addClass("alert alert-info").
+                    var $message = $PBJQ("<div>").addClass("sak-banner-info").
                                               text(editor.lang.sakaipreview.previewFullPreamble).
                                               css("margin", "20px 0 0");
 

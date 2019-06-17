@@ -13,7 +13,7 @@
 	#end
 	<div class="page-header"><h3>$tlang.getString("reorder.title")</h3></div>
  	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 	<div class="navPanel">
 			<span class="instruction">
 				$tlang.getString('reorder.instruction.general')
@@ -34,7 +34,7 @@
 			</li>
 			<li style="display:inline;color:#000">
 				<span id="failedValidMessage" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
-				<span id="messageHolder" class="messageSuccess" style="display:none"> </span>
+				<span id="messageHolder" class="sak-banner-success" style="display:none"> </span>
 			</li>
 		</ul>	
 		<span id="lastMoveArray" style="display:none"></span >

@@ -160,7 +160,7 @@
 		    </div>
 		</f:verbatim>
 		<f:verbatim>
-	  		<div class="success" id="gradesSavedDiv" class="success" style="display:none">
+	  		<div class="sak-banner-success" id="gradesSavedDiv" style="display:none">
 	  	</f:verbatim>
 	  		<h:outputText value="#{msgs.cdfm_grade_successful}"/>
 	  	<f:verbatim>
@@ -173,7 +173,7 @@
 	  	<f:verbatim>
 	  		</div>
 	  	</f:verbatim>
-	  	<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
+	  	<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 		
   		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>

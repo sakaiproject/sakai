@@ -48,7 +48,7 @@
 	</ul>
 #end
 
-#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 
 		#if($TargetPageUrl && !$TargetPagePopup)
 			<h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>

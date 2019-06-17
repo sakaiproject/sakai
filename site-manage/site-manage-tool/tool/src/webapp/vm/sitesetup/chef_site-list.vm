@@ -35,7 +35,7 @@
 			</div>
 		#end
 
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 
 		<div class="sakai-table-toolBar">
 			<div class="sakai-table-filterContainer">

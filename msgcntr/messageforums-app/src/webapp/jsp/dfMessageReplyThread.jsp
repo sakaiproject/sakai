@@ -18,7 +18,7 @@
        		<script type="text/javascript" src="/messageforums-tool/js/sak-10625.js"></script>
        		<script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
        		<script type="text/javascript" src="/messageforums-tool/js/messages.js"></script>
-        <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_reply_deleted}" rendered="#{ForumTool.errorSynch}" />
+        <h:outputText styleClass="sak-banner-error" value="#{msgs.cdfm_reply_deleted}" rendered="#{ForumTool.errorSynch}" />
 		<script type="text/javascript">
 				$(document).ready(function() {
 					$('#openLinkBlock').hide();
@@ -107,7 +107,7 @@
 		<h:panelGrid styleClass="jsfFormTable" columns="1" style="width: 100%;">
 		
 			<h:panelGroup style="padding-top:.5em">
-				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
+				<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 				<h:message for="df_compose_title" styleClass="messageAlert" id="errorMessages" />
 				<h:outputLabel for="df_compose_title" style="display:block;float:none;clear:both;padding-bottom:.3em;padding-top:.3em;">
 	   			     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
@@ -239,7 +239,7 @@
 		<div style="padding:0" class="act">
         <h:commandButton id="post" action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="blockMeOnClick"/>
         <h:commandButton action="#{ForumTool.processDfReplyThreadCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
-         <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
+         <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 		</div>
 
 <script type="text/javascript">

@@ -86,7 +86,7 @@
 			
 			<h:panelGroup rendered="#{PrivateMessagesTool.messages && PrivateMessagesTool.dispError}" >
 			  <f:verbatim><br /></f:verbatim>
- 			  <h:outputText value="#{msgs.pvt_hlprpgerror}" styleClass="bs-callout-danger" />
+ 			  <h:outputText value="#{msgs.pvt_hlprpgerror}" styleClass="sak-banner-error" />
 			</h:panelGroup>
 
 			<div class="table-responsive">

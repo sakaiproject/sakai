@@ -9,7 +9,7 @@
         $tlang.getString("gen.closequote")
     </h3>
     #if ($alertMessage)
-        <div class="alertMessage"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
+        <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
         <div class="clear"></div>
     #end
     <form id="previewGradeSubmissionForm" action="#toolForm("AssignmentAction")" method="post">

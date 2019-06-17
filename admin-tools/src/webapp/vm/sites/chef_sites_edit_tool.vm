@@ -11,7 +11,7 @@
 	<h3>
 		$tlang.getString("siteditoo.edisit")  $!site.Id / $tlang.getString("siteditoo.pag") $!page.Id / $tlang.getString("siteditoo.too") $!tool.Id
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("siteditoo.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("siteditoo.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("siteditoo.revandmod")
 	</div>

@@ -7,7 +7,7 @@
 		<h3>
 			$tlang.getString("sitgrp.edisit") $!site.Id
 		</h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitgrp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("sitgrp.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction"> 
 			$tlang.getString("sitgrp.theare")
 		</div>

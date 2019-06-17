@@ -1,7 +1,7 @@
 <!-- start:  chef_assignments_student_view_assignment_honor_pledge.vm  -->
 <div class="portletBody container-fluid">
     #if ($alertMessage)
-        <div class="alertMessage">
+        <div class="sak-banner-error">
             <strong>$tlang.getString("gen.alert")</strong>
             $alertMessage
         </div>

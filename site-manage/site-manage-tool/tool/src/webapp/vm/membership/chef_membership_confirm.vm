@@ -2,8 +2,8 @@
 ## Edit Site Information Confirmation page
 <div class="portletBody">
 	<h3>$tlang.getString("mb.confirm")</h3>                                                                                           
-	#if ($alertMessage)<p class="alertMessage">$validator.escapeHtml($alertMessage)</p>#end
-	<p class="alertMessage">$tlang.getString("mb.confirm1") </p> 
+	#if ($alertMessage)<p class="sak-banner-error">$validator.escapeHtml($alertMessage)</p>#end
+	<p class="sak-banner-error">$tlang.getString("mb.confirm1") </p>
 	<ol>
 	#foreach ($site in $unjoinSite)
 		<li>$validator.escapeHtml($site)</li>

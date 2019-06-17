@@ -15,9 +15,9 @@
 		$tlang.getString("del.deleting")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"/>
+		<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"/>
 	#end
-	<div class="alertMessage">$tlang.getString("del.sure")</div><div style="display:block;clear:both"/>
+	<div class="sak-banner-error">$tlang.getString("del.sure")</div><div style="display:block;clear:both"/>
 	<form name="deleteTemplateForm" action="#toolForm("$action")" method="post">
 		<table class="itemSummary" cellspacing="0">
 			<tr>

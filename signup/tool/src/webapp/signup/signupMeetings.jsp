@@ -188,7 +188,7 @@
 		</h:form>
 
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="sak-banner-error" escape="false" rendered="#{messageUIBean.error}"/>
 			<h:form id="items">
 			 	<sakai:view_title value="#{msgs.signup_tool}"/>
 
@@ -383,7 +383,7 @@
 						<h:outputText value="&nbsp;" escape="false"/>
 						<h:panelGroup styleClass="act">
 							<h:commandButton id="removeMeetings" action="#{SignupMeetingsBean.removeMeetings}" value="#{msgs.event_removeButton}" onclick='return confirmDelete(this);' rendered="#{SignupMeetingsBean.allowedToDelete}"/>
-							<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />
+							<h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.publish_processing_submit_message}" />
 						</h:panelGroup>
 					</h:panelGrid>
 				</h:panelGroup>

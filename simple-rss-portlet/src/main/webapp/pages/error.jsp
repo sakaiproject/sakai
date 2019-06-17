@@ -24,7 +24,7 @@
 
 <div class="simple-rss-portlet">
 
-	<div class="alertMessage">
+	<div class="sak-banner-error">
 		<h3><c:out value="${errorHeading}" /></h3>
 		<p>
 			<c:choose>

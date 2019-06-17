@@ -3,7 +3,7 @@
 
 	## SAK-24423 - alert messages needed for site browser join
 	#if( $alertMessage )
-		<div class="alertMessage">$tlang.getString( "gen.alert" ) $validator.escapeHtml( $alertMessage )</div>
+		<div class="sak-banner-error">$tlang.getString( "gen.alert" ) $validator.escapeHtml( $alertMessage )</div>
 	#end
 	
 	<div class="navPanel">

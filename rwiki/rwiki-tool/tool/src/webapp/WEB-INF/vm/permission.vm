@@ -34,7 +34,7 @@
 	</script>
 
 	<div id="rwiki_content" class="nosidebar" >
-		<p class="alertMessage">${rlb.jsp_permission_denied_message}</p>
+		<p class="sak-banner-error">${rlb.jsp_permission_denied_message}</p>
 	</div>
   </div>
 </div>

@@ -32,7 +32,7 @@
 		<f:verbatim></h3></div></f:verbatim>
 		
 <%--		  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_move_msg_to}" /> --%>
-			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
+			<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
 			<h:dataTable value="#{PrivateMessagesTool.decoratedForum}" var="forum">
 		    <h:column>

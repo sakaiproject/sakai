@@ -27,7 +27,7 @@
 		</div>	
 		<sakai:tool_bar_message value="#{msgs.pvt_delcon}" />
 		
-		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
+		<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
     <sakai:panel_titled title="">
 	  <h:dataTable styleClass="listHier line nolines" id="pvtmsgdel" width="100%"  value="#{PrivateMessagesTool.selectedDeleteItems}" var="delItems" cellspacing="0" cellpadding="0">   

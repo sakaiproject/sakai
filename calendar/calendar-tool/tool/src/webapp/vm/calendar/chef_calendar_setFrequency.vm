@@ -5,7 +5,7 @@
 	<h3>
 		$tlang.getString("set.setting")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
 	<div class="instruction">
 		$tlang.getString("set.toset") <span class="reqStarInline">*</span>
 	</div>

@@ -8,7 +8,7 @@
 		$tlang.getString("reasavrol.coprol")
 	</h3>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("reasavrol.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("reasavrol.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">
 		$tlang.getString("reasavrol.entanew")
 	</div>

@@ -10,8 +10,8 @@ a[href]:after {
 	content: none !important;
 }
 
-#toolMenuWrap, 
-#mastLogin, 
+#toolMenuWrap,
+#mastLogin,
 #skipNav,
 #linkNav,
 #selectSiteModal,
@@ -29,7 +29,7 @@ a[href]:after {
 
 #{$namespace}toolTitleNav__title{
 	font-size: 200%;
-	a{
+	a {
 		text-decoration: none;
 	}
 }

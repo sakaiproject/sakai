@@ -10,12 +10,12 @@
 		$tlang.getString("archive.vm.archive.batch")
 	</h3>
 	
-	#if ($alertMessage)<br /><div class="alertMessage">$alertMessage</div>#end
+	#if ($alertMessage)<br /><div class="sak-banner-error">$alertMessage</div>#end
 	
 	<h4>$tlang.getString("archive.vm.export.term")</h4>
 		
 	#if ($isRunning) 
-		<div class="information">$statusMessage</div>
+		<div class="sak-banner-info">$statusMessage</div>
 	#else
 		
 		<form action="#toolForm("$action")" method="post">

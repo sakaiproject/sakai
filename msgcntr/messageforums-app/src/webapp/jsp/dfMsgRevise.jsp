@@ -39,7 +39,7 @@
               <h:outputText value="#{msgs.cdfm_required}"/>
               <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 	  </p>
-		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
+		<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 		<h:panelGrid styleClass="jsfFormTable" columns="1" style="width: 100%;">
 			<h:panelGroup>
 				<h:outputLabel for="df_compose_title" style="display:block;float:none;clear:both;padding-bottom:.3em">
@@ -144,7 +144,7 @@
 			<p style="padding:0" class="act">
         <h:commandButton action="#{ForumTool.processDfMsgRevisedPost}" value="#{msgs.cdfm_button_bar_post_revised_msg}" accesskey="s" styleClass="active blockMeOnClick" />
         <h:commandButton action="#{ForumTool.processDfMsgRevisedCancel}" value="#{msgs.cdfm_button_bar_cancel}"  accesskey="x" />
-        <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
+        <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
         	</p>	
     </h:form>
      

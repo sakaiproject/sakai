@@ -97,10 +97,10 @@
                 <div class="panel-footer">
                     <f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
                         <div>
-                            <div id="errorSubmit" class="alertMessage" style="display:none">
+                            <div id="errorSubmit" class="sak-banner-error" style="display:none">
                                 <h:outputText value="#{msgs['therewaspro']}" />
                             </div>
-                            <div id="missingChannel" class="alertMessage" style="display:none">
+                            <div id="missingChannel" class="sak-banner-error" style="display:none">
                                 <h:outputText value="#{msgs['missingchannel1']}" />
                                 <h:outputLink value="#{ChatTool.toolUrl}">
                                     <h:outputText value="#{msgs['here']}" />
@@ -121,7 +121,7 @@
             </div>
         </h:form>
 
-        <t:div styleClass="messageInformation chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
+        <t:div styleClass="sak-banner-info chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
             <h:outputText value="#{msgs.custom_date_restricted}" />
             <h:outputText value="#{ChatTool.datesMessage}" />
         </t:div>
