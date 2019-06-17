@@ -1337,7 +1337,7 @@ function setupImportSitesForm($form) {
     $tr.siblings().each(function () {
 
       var $td = $($(this).children().get($th.index()));
-      $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked")).change();
+      $td.find(":checkbox:not(:disabled)").not(".siteimport-option").prop("checked", $checkbox.is(":checked")).change();
     });
   });
 
