@@ -16,7 +16,6 @@
 	}
 
 	#samigo-create-new-box, #samigo-create-import-box {
-
 		@extend .sak-banner-info;
 
 		border-left-width: 1px;
@@ -63,7 +62,7 @@
 			margin-right: 1em;
 		}
 	}
-	
+
 	.samigo-checkbox {
 		label {
 			margin: 0 0 0 0.5em;
@@ -75,32 +74,32 @@
 			margin: 0 0 0 0.5em;
 		}
 	}
-	
+
 	.matrixSurvey{
 		padding: 0 1em 0 1em;
 	}
-	
+
 	.feedBackCheck, .feedBackCross, .feedBackNone{
 		min-width: 20px;
 		margin-right: 0.2em;
 	}
-	
+
 	.feedBackNone{
 		visibility: hidden;
 	}
-	
+
 	.feedBackCheck{
 		color: $ok-color;
 	}
-	
+
 	.feedBackCross{
 		color: $error-color;
 	}
-	
+
 	.feedBackMultipleChoice{
 		width: 2em;
 	}
-	
+
 	.disabledField{
 		color: $error-color;
 		text-decoration: line-through;
@@ -137,7 +136,7 @@
 			text-align: left;
 		}
 	}
-	
+
 	#itemForm\:discountDiv #itemForm\:answerdsc{
 		margin-left: 10px;
 		width: 45px;
@@ -145,12 +144,12 @@
 			margin-left: 0px;
 		}
 	}
-	
+
 	.indent1{
 		margin-left: 2em;
 	}
-	
-	//This is for jsf labels and checkboxes	
+
+	//This is for jsf labels and checkboxes
 	#itemForm\:chooseAnswerTypeForMC input[type="radio"]{
 		@media #{$phone}{
 			float:left;
@@ -160,7 +159,7 @@
 			}
 		}
 	}
-	
+
 	#assessmentSettingsAction .layout-navigation input[type="radio"]{
 		@media #{$nonPhone}{
 			float:left;
@@ -171,7 +170,7 @@
 			}
 		}
 	}
-	
+
 	#assessmentSettingsAction input[type="radio"],
 	#assessmentSettingsAction input[type="checkbox"]{
 		@media #{$tablet}{
@@ -186,7 +185,7 @@
 	#assessmentSettingsAction input#assessmentSettingsAction\:selTimeAssess {
 		float: none;
 	}
-	
+
 	#assessmentSettingsAction input[type="checkbox"]{
 		@media #{$tablet}{
 			& + label {
@@ -205,17 +204,17 @@
    			padding: 0;
    		}
 	}
-	
+
 	#samLiteEntryForm\:data{
 		margin-top: 1.2em;
 	}
-	
+
 	#templateCreateForm{
 		label[for="templateCreateForm:tempName"]{
 			margin-right: 1em;
 		}
 	}
-	
+
 	.toolTipLink{
 		color: $link-color;
 		background-color: $link-background-color;
@@ -251,7 +250,7 @@
 			min-width: 70px;
 		}
 	}
-	
+
 	.navIntraTool {
 		margin: 0px !important;
 	}
