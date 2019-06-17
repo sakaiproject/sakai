@@ -1,3 +1,0 @@
-#if ($paSystemEnabled)
-${paSystem.getFooter()}
-#end
