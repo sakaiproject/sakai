@@ -4157,7 +4157,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         // Expose the underlying CRS error to the UI
         if (exposeError && exposeContentReviewErrorsToUI) {
-            errorMessage += " " + resourceLoader.getFormattedMessage("content_review.errorFromSource", contentReviewService.getServiceName(), reviewResult.getContentReviewItem().getLastError());
+            errorMessage += " " + resourceLoader.getFormattedMessage("content_review.errorFromSource", contentReviewService.getLocalizedLastError(reviewResult.getContentReviewItem()));
         }
 
         return errorMessage;

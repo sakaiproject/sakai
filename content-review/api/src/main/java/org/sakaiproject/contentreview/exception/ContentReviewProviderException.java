@@ -19,6 +19,8 @@ public class ContentReviewProviderException extends RuntimeException {
 
 	private static final long serialVersionUID = -4280645805106323556L;
 
+	private String i18nXml = null;
+
 	public ContentReviewProviderException() {
 		super();
 	}
@@ -37,6 +39,27 @@ public class ContentReviewProviderException extends RuntimeException {
 
 	public ContentReviewProviderException(Throwable cause) {
 		super(cause);
+	}
+
+	public ContentReviewProviderException(String message, String i18nXml) {
+		super(message);
+		this.i18nXml = i18nXml;
+	}
+
+	public ContentReviewProviderException(String message, String i18nXml, Throwable cause) {
+		super(message, cause);
+		this.i18nXml = i18nXml;
+	}
+
+	/**
+	 * Returns the an xml representation of formatted messages if i18nXml is set; otherwise fallsback to getLocalizedMessage()
+	 */
+	public String getI18nXml() {
+		return i18nXml == null ? getLocalizedMessage() : i18nXml;
+	}
+
+	public void setI18nXml(String i18nXml) {
+		this.i18nXml = i18nXml;
 	}
 
 }
