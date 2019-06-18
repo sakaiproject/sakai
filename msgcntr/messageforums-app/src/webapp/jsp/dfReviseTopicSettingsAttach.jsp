@@ -114,8 +114,7 @@
 						  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
 						  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 						  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
-							<h:outputText value="#{msgs.cdfm_discussion_topic_settings}" />
-			
+		
 						</h3>
 
  			<div class="instruction">
