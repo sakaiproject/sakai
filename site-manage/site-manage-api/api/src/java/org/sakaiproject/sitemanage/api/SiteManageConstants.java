@@ -7,6 +7,8 @@ public class SiteManageConstants {
     public static final String RESOURCES_TOOL_ID = "sakai.resources";
     // SAK-34034 enable/disable the group filter
     public static final String PROP_SITEINFO_GROUP_FILTER_ENABLED = "siteinfo.group.filter.enabled";
+    public static final String GRADEBOOK_CLASSIC_TOOL_ID = "sakai.gradebook.tool";
+    public static final String GRADEBOOKNG_TOOL_ID = "sakai.gradebookng";
 
     private SiteManageConstants() {
         throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");
