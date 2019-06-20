@@ -159,6 +159,17 @@ public class SiteManageServiceImpl implements SiteManageService {
         Map<String, String> transversalMap = new HashMap<>();
 
         if (pageList != null) {
+            // get all the toolIds for later checking if both gradebook classic and gradebookng are in the list
+            List<String> toolIds = new ArrayList<String>();
+            for (SitePage page : pageList) {
+                List<ToolConfiguration> pageToolList = page.getTools();
+                for (ToolConfiguration pageTool : pageToolList) {
+                    Tool toolToAdd = pageTool.getTool();
+                    if (toolToAdd != null) {
+                        toolIds.add(toolToAdd.getId());
+                    }
+                }
+            }
             for (SitePage page : pageList) {
                 List<ToolConfiguration> pageToolList = page.getTools();
                 if ((pageToolList != null) && !pageToolList.isEmpty()) {
@@ -181,7 +192,10 @@ public class SiteManageServiceImpl implements SiteManageService {
                     } else if (StringUtils.isNotBlank(toolId)) {
                         // all other tools
                         if (!toolsCopied.contains(toolId)) {
-                            transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+                            // check if gradebook classic and gradebookng are in toolIds and skip copying entities for gradebook classic because we only need copy once for gradebookng
+                            if (!(toolIds.contains(SiteManageConstants.GRADEBOOK_CLASSIC_TOOL_ID) && toolIds.contains(SiteManageConstants.GRADEBOOKNG_TOOL_ID) && toolId.equals(SiteManageConstants.GRADEBOOK_CLASSIC_TOOL_ID))) {
+                                transversalMap.putAll(transferCopyEntities(toolId, oSiteId, nSiteId, false));
+                            }
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, oSiteId, nSiteId));
                             toolsCopied.add(toolId);
                         }
@@ -359,7 +373,10 @@ public class SiteManageServiceImpl implements SiteManageService {
                         if (SiteManageConstants.SITE_INFO_TOOL_ID.equals(toolId)) {
                             site = copySiteInformation(fromSiteId, toSiteId);
                         } else {
-                            transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, cleanup));
+                            // check if gradebook classic and gradebookng are in toolIds and skip copying entities for gradebook classic because we only need copy once for gradebookng
+                            if (!(toolIds.contains(SiteManageConstants.GRADEBOOK_CLASSIC_TOOL_ID) && toolIds.contains(SiteManageConstants.GRADEBOOKNG_TOOL_ID) && toolId.equals(SiteManageConstants.GRADEBOOK_CLASSIC_TOOL_ID))) {
+                                transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, cleanup));
+                            }
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
                         }
                     }
