@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.contentreview.turnitin;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -1191,10 +1190,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 			String rmessage = ((CharacterData) (root.getElementsByTagName("rmessage").item(0).getFirstChild())).getData().trim();
 			if ((rcode > 0 && rcode < 100) || rcode == 419) {
 				log.debug("Create FirstDate Assignment successful");
-				log.debug("tii returned " + rmessage + ". Code: " + rcode);
+				log.debug("tii returned {}. Code: {}", rmessage, rcode);
 			} else {
-				log.debug("FirstDate Assignment creation failed with message: " + rmessage + ". Code: " + rcode);
-				// log.debug(root);
+				log.debug("FirstDate Assignment creation failed with message: {}. Code: {}", rmessage, rcode);
 				String errorMessage = getFormattedMessage("assignment.creation.error.with.code", rmessage, rcode);
 				TransientSubmissionException tse = new TransientSubmissionException(errorMessage, Integer.valueOf(rcode));
 				throw new ContentReviewProviderException(errorMessage, createLastError(doc->createFormattedMessageXML(doc, "assignment.creation.error.with.code", rmessage, rcode)), tse);
@@ -1213,9 +1211,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 						.intValue();
 		if ((rcode > 0 && rcode < 100) || rcode == 419) {
 			log.debug("Create Assignment successful");
-			log.debug("tii returned " + rmessage + ". Code: " + rcode);
+			log.debug("tii returned {}. Code: {}", rmessage, rcode);
 		} else {
-			log.debug("Assignment creation failed with message: " + rmessage + ". Code: " + rcode);
+			log.debug("Assignment creation failed with message: {}. Code: {}", rmessage, rcode);
 			// log.debug(root);
 			String errorMessage = getFormattedMessage("assignment.creation.error.with.code", rmessage, rcode);
 			TransientSubmissionException tse = new TransientSubmissionException(errorMessage, Integer.valueOf(rcode));
@@ -2195,11 +2193,6 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		return uln;
 	}
 
-	@Override
-	public ResourceLoader getResourceLoader() {
-		return new ResourceLoader("turnitin");
-	}
-
 	private ResourceLoader getResourceLoader(String userRef) {
 		String userId = EntityReference.getIdFromRef(userRef);
 		return new ResourceLoader(userId, "turnitin");
@@ -2210,8 +2203,6 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 	}
 
 	public String getLocalizedStatusMessage(String messageCode, String userRef) {
-
-		String userId = EntityReference.getIdFromRef(userRef);
 		return getResourceLoader(userRef).getString(messageCode);
 	}
 

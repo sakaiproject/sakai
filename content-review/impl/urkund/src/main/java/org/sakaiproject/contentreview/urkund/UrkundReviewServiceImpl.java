@@ -633,10 +633,6 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 		}
 	}
 
-	public ResourceLoader getResourceLoader() {
-		return new ResourceLoader("urkund");
-	}
-
 	public ResourceLoader getResourceLoader(String userRef) {
 		String userId = EntityReference.getIdFromRef(userRef);
 		return new ResourceLoader(userId, "urkund");

@@ -33,7 +33,6 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -292,10 +291,4 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 		log.debug("{} webhookEvent", ret);
 	}
 
-	@Override
-	protected ResourceLoader getResourceLoader() {
-		String ret = "There is no content review service configured, please see your administrator";
-		log.debug("{} getResourceLoader", ret);
-		return null;
-	}
 }

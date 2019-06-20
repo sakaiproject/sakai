@@ -168,8 +168,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private static final String SIMILARITY_COMPLETE_EVENT_TYPE = "SIMILARITY_COMPLETE";
 	private static final String SIMILARITY_UPDATED_EVENT_TYPE = "SIMILARITY_UPDATED";
 
-	private static final ResourceLoader rb = new ResourceLoader("turnitin-oc");
-
 	private String serviceUrl;
 	private String apiKey;
 	private String sakaiVersion;
@@ -1268,6 +1266,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				// Grab an appropriate message from turnitin.properties by the prefix "submission.terminal.status."
 				// If a message with this key exists, it's considered a terminal error and the item should not be retried
 				String terminalKey = "submission.terminal.status." + errorCode;
+				ResourceLoader rb = getResourceLoader();
 				if (rb.containsKey(terminalKey)) {
 					setLastError(item, doc->createFormattedMessageXML(doc, terminalKey));
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
@@ -1403,6 +1402,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			 */
 			for( String fileExtension : acceptableFileExtensions ) {
 				String key = KEY_FILE_TYPE_PREFIX + fileExtension;
+				ResourceLoader rb = getResourceLoader();
 				if (!rb.getIsValid(key)) {
 					log.warn("While resolving acceptable file types for Turnitin, the sakai.property " + PROP_ACCEPTABLE_FILE_TYPES + " is not set, and the message bundle " + key + " could not be resolved. Displaying [missing key ...] to the user");
 				}
@@ -1709,8 +1709,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	@Override
-	public ResourceLoader getResourceLoader()
-	{
-		return rb;
+	protected String getResourceLoaderName() {
+		return "turnitin-oc";
 	}
 }

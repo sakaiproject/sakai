@@ -160,8 +160,6 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY = "0";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE = "2";	
 
-	private static final ResourceLoader resourceLoader = new ResourceLoader("compilatio");
-	
 	final static long LOCK_PERIOD = 12000000;
 	private Long maxRetry = 20L;
 	
@@ -648,6 +646,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 			 * Use ResourceLoader to resolve the file types.
 			 * If the resource loader doesn't find the file extenions, log a warning and return the [missing key...] messages
 			 */
+			ResourceLoader resourceLoader = getResourceLoader();
 			for( String fileExtension : acceptableFileExtensions )
 			{
 				String key = KEY_FILE_TYPE_PREFIX + fileExtension;
@@ -706,8 +705,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 
 	@Override
 	public String getLocalizedStatusMessage(String messageCode, String userRef) {
-		String userId = EntityReference.getIdFromRef(userRef);
-		return resourceLoader.getString(messageCode);
+		return getResourceLoader().getString(messageCode);
 	}
 
 	@Override
@@ -1082,10 +1080,5 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public ResourceLoader getResourceLoader() {
-		return resourceLoader;
 	}
 }

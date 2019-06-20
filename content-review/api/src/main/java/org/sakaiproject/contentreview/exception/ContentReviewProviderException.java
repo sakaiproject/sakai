@@ -15,10 +15,13 @@
  */
 package org.sakaiproject.contentreview.exception;
 
+import lombok.Setter;
+
 public class ContentReviewProviderException extends RuntimeException {
 
 	private static final long serialVersionUID = -4280645805106323556L;
 
+	@Setter
 	private String i18nXml = null;
 
 	public ContentReviewProviderException() {
@@ -56,10 +59,6 @@ public class ContentReviewProviderException extends RuntimeException {
 	 */
 	public String getI18nXml() {
 		return i18nXml == null ? getLocalizedMessage() : i18nXml;
-	}
-
-	public void setI18nXml(String i18nXml) {
-		this.i18nXml = i18nXml;
 	}
 
 }

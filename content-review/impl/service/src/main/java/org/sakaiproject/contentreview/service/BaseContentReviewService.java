@@ -40,6 +40,8 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	private static final String REDIRECT_URL_TEMPLATE =  "/content-review-tool/viewreport?contentId=%s&assignmentRef=%s";
 	//full path since it will be used externally
 	private static final String WEBHOOK_URL_TEMPLATE = "%scontent-review-tool/webhooks?providerId=%s";
+
+	private ResourceLoader rb;
 	
 	@Override
 	public Instant getUserEULATimestamp(String userId) {
@@ -248,10 +250,8 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 
 			return I18nXmlUtility.getLocalizedMessage(getResourceLoader(), root);
 		} catch (Exception e) {
-			log.warn("Could not internationalize last_error value:\n" + xmlString + "\nReturning the raw data");
-			if (log.isDebugEnabled()) {
-				log.debug("Cause:", e);
-			}
+			log.warn("Could not internationalize last_error value:\n{}\nReturning the raw data", xmlString);
+			log.debug("Cause:", e);
 			// The content is most likely raw (e.g. data from before SAK-41883)
 			return xmlString;
 		}
@@ -260,5 +260,17 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	/**
 	 * The Resource Loader specific to the content-review service implementation
 	 */
-	protected abstract ResourceLoader getResourceLoader();
+	protected ResourceLoader getResourceLoader() {
+		if (rb == null) {
+			rb = new ResourceLoader(getResourceLoaderName());
+		}
+		return rb;
+	}
+
+	/**
+	 * Gets the name of the resource loader's file. Default implementation is getServiceName() to lower case, and this should be overriden as necessary
+	 */
+	protected String getResourceLoaderName() {
+		return getServiceName().toLowerCase();
+	}
 }

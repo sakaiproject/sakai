@@ -318,8 +318,7 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	@Override
 	protected ResourceLoader getResourceLoader() {
 		ContentReviewService provider = getSelectedProvider();
-		if (provider instanceof BaseContentReviewService)
-		{
+		if (provider instanceof BaseContentReviewService) {
 			return ((BaseContentReviewService)provider).getResourceLoader();
 		}
 		throw new UnsupportedOperationException("getResourceLoader() is not implemented outside of BaseContentReviewService");

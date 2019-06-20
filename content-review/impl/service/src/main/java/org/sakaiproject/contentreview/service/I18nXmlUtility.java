@@ -41,6 +41,10 @@ import org.w3c.dom.Node;
  */
 public class I18nXmlUtility
 {
+	private static final String TAG_NAME_MESSAGE = "message";
+	private static final String TAG_NAME_KEY = "key";
+	private static final String TAG_NAME_ARG = "arg";
+
 	private static DocumentBuilderFactory documentBuilderFactory = null;
 	private static DocumentBuilder documentBuilder = null;
 
@@ -129,16 +133,16 @@ public class I18nXmlUtility
 			throw new ContentReviewProviderException("createFormattedMessageXML invoked with null document");
 		}
 
-		Element message = document.createElement("message");
+		Element message = document.createElement(TAG_NAME_MESSAGE);
 
-		Element eKey = document.createElement("key");
+		Element eKey = document.createElement(TAG_NAME_KEY);
 		eKey.setTextContent(key);
 
 		message.appendChild(eKey);
 
 		for (Object arg : args) {
 			if (arg instanceof String) {
-				Element eArg = document.createElement("arg");
+				Element eArg = document.createElement(TAG_NAME_ARG);
 				eArg.setTextContent((String)arg);
 				message.appendChild(eArg);
 			}
@@ -157,9 +161,9 @@ public class I18nXmlUtility
 		String nodeName = node.getNodeName();
 
 		switch (nodeName) {
-			case "message":
+			case TAG_NAME_MESSAGE:
 				Node keyNode = node.getFirstChild();
-				if (!"key".equals(keyNode.getNodeName())) {
+				if (!TAG_NAME_KEY.equals(keyNode.getNodeName())) {
 					throw new ContentReviewProviderException("XML is malformed; first child of \"message\" tag expected \"key\", but got: " + keyNode.getNodeName());
 				}
 				String key = keyNode.getTextContent();
@@ -172,7 +176,7 @@ public class I18nXmlUtility
 				}
 				String[] argsArray = args.toArray(new String[args.size()]);
 				return rb.getFormattedMessage(key, argsArray);
-			case "arg":
+			case TAG_NAME_ARG:
 				return node.getTextContent();
 			default:
 				// Will throw exception below

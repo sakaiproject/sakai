@@ -73,7 +73,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 
 import com.vericite.client.ApiClient;
 import com.vericite.client.ApiException;
@@ -108,8 +107,6 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	
 	@Setter
 	private ContentHostingService contentHostingService;
-
-	private ResourceLoader resourceLoader = new ResourceLoader("vericite");
 
 	private static final String PARAM_USER_ROLE_INSTRUCTOR = "Instructor";
 	private static final String PARAM_USER_ROLE_LEARNER = "Learner";
@@ -1012,11 +1009,5 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public ResourceLoader getResourceLoader()
-	{
-		return resourceLoader;
 	}
 }
