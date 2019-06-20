@@ -93,7 +93,7 @@
         <sakai:button_bar_item action="#{podHomeBean.processAdd}" value="#{msgs.add}"
             accesskey="a" title="Add a Podcast" styleClass="active" />
         <sakai:button_bar_item action="#{podHomeBean.processCancelAdd}" value="#{msgs.cancel}" 
-            accesskey="c" title="Cancel a Podcast" />
+            accesskey="x" title="Cancel a Podcast" />
     </sakai:button_bar>
   </h:form>
  </sakai:view>

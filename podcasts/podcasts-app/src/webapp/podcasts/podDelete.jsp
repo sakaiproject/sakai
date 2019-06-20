@@ -27,7 +27,7 @@
         <sakai:button_bar_item action="#{podHomeBean.processDeletePodcast}" value="#{msgs.delete}" 
           accesskey="s" title="Delete the Podcast" styleClass="active" />
         <sakai:button_bar_item action="#{podHomeBean.processCancelDelete}" value="#{msgs.cancel}" 
-          accesskey="c" title="Cancel Changes" />
+          accesskey="x" title="Cancel Changes" />
       </sakai:button_bar>
    </h:form>
 

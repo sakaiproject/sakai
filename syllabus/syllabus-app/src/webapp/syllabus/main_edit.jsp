@@ -299,7 +299,7 @@
 					title="#{msgs.cancel}"
 					rendered="#{SyllabusTool.addOrEdit == 'true'}"
 					onclick="assignWarningClick(this);"
-					accesskey="c" />
+					accesskey="x" />
 			<f:verbatim></p></f:verbatim>		  
 		  </syllabus:syllabus_if>
 

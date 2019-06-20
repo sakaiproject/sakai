@@ -94,7 +94,7 @@
       <sakai:button_bar_item action="#{podHomeBean.processRevisePodcast}" value="#{msgs.change_submit}" 
           accesskey="s" title="#{msgs.change_submit}" styleClass="active" />
       <sakai:button_bar_item action="#{podHomeBean.processCancelRevise}" value="#{msgs.cancel}" 
-          accesskey="c" title="#{msgs.cancel}" />
+          accesskey="x" title="#{msgs.cancel}" />
     </sakai:button_bar>
    </h:form>
  </sakai:view>
