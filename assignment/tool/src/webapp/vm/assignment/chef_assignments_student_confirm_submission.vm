@@ -126,23 +126,24 @@
 
     #attachmentFragment($submissionAttachmentReferences.keySet() $submissionAttachmentReferences $!decoratedUrlMap true)
 
-	<h4>
-		$tlang.getString("subm.notif")
-	</h4>
-	<p>$!studentConfirmMessage</p>
+	#if($!submissionConfirmOptions.size() > 0)
+		<h4>
+			$tlang.getString("subm.notif")
+		</h4>
+		<p>$!studentConfirmMessage</p>
 
-	#foreach ($item in $!submissionConfirmOptions)
-		<ul id="submissionConfirmList">
-		#if($!submissionConfirmOptionsRequired)
-			<input type="checkbox" name="submissionConfirmCheck" class="submissionConfirmCheck" aria-label="submissionConfirmCheck" />
-			<label for="submissionConfirmCheck">$item</label>
-		#else
-			<li>$item</li>
+		#foreach ($item in $!submissionConfirmOptions)
+			<ul id="submissionConfirmList">
+			#if($!submissionConfirmOptionsRequired)
+				<input type="checkbox" name="submissionConfirmCheck" class="submissionConfirmCheck" aria-label="submissionConfirmCheck" />
+				<label for="submissionConfirmCheck">$item</label>
+			#else
+				<li>$item</li>
+			#end
+			</ul>
 		#end
-		</ul>
 	#end
-	
-    <p></p>
+
     <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 	    #if ($plagiarismNote)
 			<p>
