@@ -16,7 +16,7 @@
 			#else $thelp.getString("alert.prbset")
 			#end
 		</div>
-		<div class="clear"></div>
+
 
 	<form name= "permissionForm" action="#toolForm("$action")" method="post">
 		<div class="act">
