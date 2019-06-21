@@ -35,7 +35,6 @@ doubleDeep = true;
 		#if ($alertMessage)
 			<br />
 			<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-			<div class="clear" ></div>
 		#end
 
 	  #if($fromListPage)

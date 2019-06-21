@@ -21,7 +21,7 @@
 	<sakai:instruction_message value="#{msgs.instructions_preferences}" />
 		
 	<f:subview id="msg" rendered="#{PrefsBean.messageToBeDisplayed}">
-		<h:message for="msg" infoClass="success" fatalClass="sak-banner-error" style="margin-top: 15px;" showDetail="true"/>
+		<h:message for="msg" infoClass="sak-banner-info" fatalClass="sak-banner-error" style="margin-top: 15px;" showDetail="true"/>
 	</f:subview>		
 	
 	<h:form id="prefsForm">

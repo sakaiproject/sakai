@@ -15,7 +15,6 @@
 	<div class="sak-banner-error">
 	$tlang.getString("gen.alert") $alertMessage
 	</div>
-	<div class="clear"></div>
 	#end
 	<form action="$actionUrl" method="post" name="customizeForm" >
 		#if ($noCustomizations)
