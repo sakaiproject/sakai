@@ -289,7 +289,6 @@ $(document).ready(function(){
         },
         "click": function(){
             $(this).data('closable', false);
-
         },
         "hide.bs.dropdown": function(){
             return $(this).data('closable');
