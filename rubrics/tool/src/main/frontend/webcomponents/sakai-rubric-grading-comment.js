@@ -51,7 +51,7 @@ export class SakaiRubricGradingComment extends SakaiElement {
         </div>
         <div class="popover-content form">
           <div class="form-group">
-            <textarea aria-labelledby="${tr("criterion_comment")}" class="form-control" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}" id="criterion_${this.evaluatedItemId}_${this.entityId}_comment_${this.criterion.id}|${this.randombit}|" maxlength="255">${this.criterion.comments}</textarea>
+            <textarea aria-labelledby="${tr("criterion_comment")}" class="form-control" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-comment-${this.criterion.id}" id="criterion_${this.evaluatedItemId}_${this.entityId}_comment_${this.criterion.id}|${this.randombit}|">${this.criterion.comments}</textarea>
           </div>
         </div>
       </div>
