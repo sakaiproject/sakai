@@ -40,7 +40,7 @@
 		</h:panelGroup>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
-	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
+	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="sak-banner-success" rendered="#{privacyBean.allChanged}" />
 		<f:verbatim></div></f:verbatim>
 			  
 	<f:verbatim><br /><h4></f:verbatim>

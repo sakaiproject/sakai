@@ -20,7 +20,7 @@
 				#end
 			</div>
 	</div>	
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	
    #if ("$email.Header.Subject" == "")
        #set ($email.Header.Subject = $tlang.getString("err_no_subject"))

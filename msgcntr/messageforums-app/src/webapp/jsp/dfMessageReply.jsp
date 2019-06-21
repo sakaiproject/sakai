@@ -84,7 +84,7 @@
 
 		<h:panelGrid styleClass="jsfFormTable" columns="1" style="width: 100%;">
 			<h:panelGroup style="padding-top:.5em">
-          <h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
+          <h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 				<h:message for="df_compose_title" styleClass="messageAlert" id="errorMessages"/>	
 				<h:outputLabel for="df_compose_title" style="display:block;float:none;clear:both;padding-bottom:.3em;padding-top:.3em;">
 	   			     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
@@ -211,11 +211,11 @@
             --%>
 
 						<h:outputText value="#{msgs.cdfm_reply_message_note} " styleClass="highlight" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" /><h:outputText value="#{msgs.cdfm_reply_message_mod_inst}" styleClass="instruction" rendered="#{ForumTool.selectedTopic.moderated == 'true' }" />	  
-			<p style="padding:0" class="act">
+			<div style="padding:0" class="act">
         <h:commandButton id="post" action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="blockMeOnClick"/>
 		<h:commandButton action="#{ForumTool.processDfReplyThreadCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
         <h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
-			</p>
+			</div>
 
 <script type="text/javascript">
 setTimeout(function(){ 

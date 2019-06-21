@@ -19,7 +19,7 @@
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
 
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	
 	<h3>
 		$tlang.getString("ical.title")
