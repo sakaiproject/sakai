@@ -9,7 +9,7 @@
 		$heading 
 	</h3>
     <br /><br />
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		
 		

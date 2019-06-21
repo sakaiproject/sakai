@@ -8,7 +8,6 @@
 		#if ($alertMessage)
 			<br />
 			<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-			<div class="clear" ></div>
 		#end
 		<h3>$tlang.getString("title.error")</h3>
 		<h4>$tlang.getString("subtitle.error")</h4>

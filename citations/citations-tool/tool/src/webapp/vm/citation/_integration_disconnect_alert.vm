@@ -3,5 +3,4 @@
 <div class="sak-banner-error">
   $tlang.getString("error.disconnect.integration")
 </div>
-<div class="clear"></div>
 </span>

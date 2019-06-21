@@ -14,8 +14,8 @@ setTimeout('window.location="$autoLaunch";', 1500);
 	<h3>
 		$tlang.getString("content.put")
 	</h3>
-	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 <h4>$tool_title</h4>
 #if ( $tool_launch ) 
