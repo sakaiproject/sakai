@@ -3361,11 +3361,11 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected String build_instructor_grade_submission_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         Assignment.GradeType gradeType = GRADE_TYPE_NONE;
+        Integer scaleFactor = assignmentService.getScaleFactor();
 
         // need to show the alert for grading drafts?
         boolean addGradeDraftAlert = false;
 
-        // assignment
         String assignmentRef = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
         Optional<Assignment> assignment = Optional.ofNullable(getAssignment(assignmentRef, "build_instructor_grade_submission_context", state));
         if (assignment.isPresent()) {
@@ -3373,6 +3373,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("assignment", a);
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference());
             gradeType = a.getTypeOfGrade();
+            scaleFactor = a.getScaleFactor() != null ? a.getScaleFactor() : scaleFactor;
 
             state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, assignmentService.assignmentUsesAnonymousGrading(a));
 
@@ -3506,7 +3507,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
         context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
         context.put("value_CheckAnonymousGrading", assignmentService.assignmentUsesAnonymousGrading(assignment.get()));
-        context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), null));
+        context.put("value_grade", displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), scaleFactor));
 
         context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 
