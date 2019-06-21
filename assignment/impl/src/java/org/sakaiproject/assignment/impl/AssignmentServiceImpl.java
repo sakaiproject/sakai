@@ -1605,14 +1605,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public Map<String,Boolean> getProgressBarStatus(AssignmentSubmission submission) {//currently this is only for student
         Map<String, Boolean> statusMap = new LinkedHashMap<>();
         if(submission == null) {
-            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.HONOR_ACCEPTED, ""), false);
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.IN_PROGRESS, ""), false);
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RETURNED, ""), false);
             return statusMap;
         }
         Assignment assignment = submission.getAssignment();
-        Instant submitTime = submission.getDateSubmitted();
+        Instant latestSubmitTime = submission.getDateSubmitted();
         Instant returnTime = submission.getDateReturned();
         if (assignment.getHonorPledge()) {
             if(submission.getHonorPledge()) {
@@ -1631,9 +1630,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } else {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), false);
         }
-        if (submitTime != null && submission.getReturned() && returnTime != null && returnTime.isBefore(submitTime)) {
+        if (latestSubmitTime != null && submission.getReturned() && returnTime != null && returnTime.isBefore(latestSubmitTime)) {
             statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.RESUBMITTED, ""), true);
-            if (submitTime.isAfter(assignment.getDueDate())) {
+            statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.SUBMITTED, ""), true);
+            if (latestSubmitTime.isAfter(assignment.getDueDate())) {
                 statusMap.put(getFormattedStatus(AssignmentConstants.SubmissionStatus.LATE, ""), true);
             }
         }

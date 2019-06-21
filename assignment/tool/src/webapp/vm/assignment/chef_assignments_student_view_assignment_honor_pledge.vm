@@ -12,7 +12,9 @@
             #assignmentTitleIcon($assignment)
             $validator.escapeHtml($!assignment.Title)
         </h3>
-        #progressBar($!service.getProgressBarStatus($!submission))
+
+        #progressBar($statusMap)
+
         <div class="jumbotron" id="honor-pledge-agreement">
             <h4>$tlang.getString("gen.hpa.title")</h4>
             <p>$!honorPledgeText</p>
