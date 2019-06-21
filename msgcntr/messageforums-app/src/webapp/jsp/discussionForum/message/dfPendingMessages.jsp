@@ -57,7 +57,7 @@
 				</p>	
 	  </div>
 	  
-	  <h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
+	  <h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 	  <div>
 		<h:dataTable id="pendingMsgs" value="#{ForumTool.pendingMessages}" width="100%" var="message" 
 				columnClasses="bogus,nopadd" styleClass="table table-hover table-striped table-bordered specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">

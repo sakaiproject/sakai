@@ -27,7 +27,7 @@
 			<br /><div id="messageSuccessHolder" class="sak-banner-success" style="display:block">$tlang.getFormattedMessage("remove.success", $removedResources)</div>
 		#end
 		#if ($alertMessage)
-			<br /><div class="sak-banner-success">$validator.escapeHtml($alertMessage)</div><div class="clear"></div>
+			<br /><div class="sak-banner-success">$validator.escapeHtml($alertMessage)</div>
 		#end
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav">

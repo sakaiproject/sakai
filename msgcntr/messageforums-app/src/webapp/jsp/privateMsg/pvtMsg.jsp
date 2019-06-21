@@ -89,7 +89,7 @@
  
  			<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
  			<!-- Display successfully moving checked messsages to Deleted folder -->
-  			<h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
+  			<h:outputText value="#{PrivateMessagesTool.multiDeleteSuccessMsg}" styleClass="sak-banner-success" rendered="#{PrivateMessagesTool.multiDeleteSuccess}" />
 
   		<%@ include file="msgHeader.jsp"%>
 		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>

@@ -22,7 +22,7 @@
 		<script type="text/javascript">
 				$(document).ready(function() {
 					$('#openLinkBlock').hide();
-					jQuery('.toggle').click(function(e) { 
+					jQuery('.toggle').click(function(e) {
 						$('#replytomessage').toggle('slow');
 						$('.toggleParent').toggle();					
 						resizeFrame('grow')
@@ -107,7 +107,7 @@
 		<h:panelGrid styleClass="jsfFormTable" columns="1" style="width: 100%;">
 		
 			<h:panelGroup style="padding-top:.5em">
-				<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
+				<h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 				<h:message for="df_compose_title" styleClass="messageAlert" id="errorMessages" />
 				<h:outputLabel for="df_compose_title" style="display:block;float:none;clear:both;padding-bottom:.3em;padding-top:.3em;">
 	   			     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
