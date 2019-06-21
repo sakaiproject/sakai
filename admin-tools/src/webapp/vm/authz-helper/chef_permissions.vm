@@ -9,7 +9,7 @@
 	<h3>
 		$thelp.getString("per.lis.title")
 	</h3>
-		#if ($alertMessage)<div class="sak-banner-error">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 
 	<div class="instruction">
 		$validator.escapeHtml($!description)
