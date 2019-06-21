@@ -36,6 +36,7 @@ import org.sakaiproject.portal.api.BullhornData;
 import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -121,24 +122,27 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
 
             if (!message.getHeader().getDraft() && announcementService.isMessageViewable(message)) {
                 Site site = siteService.getSite(siteId);
-                String toolId = site.getToolForCommonId("sakai.announcements").getId();
-                String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
-                                    + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
+                ToolConfiguration tc = site.getToolForCommonId("sakai.announcements");
+                // Check for null. We can get events with no tool there.
+                if (tc != null) {
+                    String url = serverConfigurationService.getPortalUrl() + "/directtool/" + tc.getId()
+                                        + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
 
-                // In this case title = announcement subject
-                String title
-                    = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                    // In this case title = announcement subject
+                    String title
+                        = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
 
-                List<BullhornData> bhEvents = new ArrayList<>();
+                    List<BullhornData> bhEvents = new ArrayList<>();
 
-                // Get all the members of the site with read ability
-                for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
-                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                        bhEvents.add(new BullhornData(from, to, siteId, title, url, false));
-                        countCache.remove(to);
+                    // Get all the members of the site with read ability
+                    for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
+                        if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                            bhEvents.add(new BullhornData(from, to, siteId, title, url, false));
+                            countCache.remove(to);
+                        }
                     }
+                    return Optional.of(bhEvents);
                 }
-                return Optional.of(bhEvents);
             }
         } catch (Exception ex) {
             log.error("No site with id '" + siteId + "'", ex);

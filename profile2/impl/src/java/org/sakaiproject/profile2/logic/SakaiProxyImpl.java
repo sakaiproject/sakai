@@ -592,10 +592,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				mtba.setMimeType(resource.getContentType());
 				return mtba;
 			} catch (final Exception e) {
-				log.error("SakaiProxy.getResource() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
+				log.debug("SakaiProxy.getResource() failed for resourceId: {} : {} : {}", resourceId, e.getClass(), e.getMessage());
 			}
 		} catch (final Exception e) {
-			log.error("SakaiProxy.getResource():" + e.getClass() + ":" + e.getMessage());
+			log.debug("SakaiProxy.getResource(): {} : {}", e.getClass(), e.getMessage());
 		} finally {
 			disableSecurityAdvisor();
 		}

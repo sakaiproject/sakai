@@ -710,6 +710,10 @@
     margin-top: calc(#{$standard-spacing} - #{$standard-space});	// standard spacing minus the bottom marging space = padding from previous line
   }
 
+  span.import-option-help {
+    cursor: pointer;
+  }
+
   a.siteimport-options-link {
     display: none;
     margin-left: 5px;

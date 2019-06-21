@@ -10,6 +10,7 @@
             $tlang.getString('confirm.savesubmission.title')
         #end
     </h3>
+    #progressBar($!service.getProgressBarStatus($!submission))
     <div class="sak-banner-success">
         #if ($!submission.Submitted)
             $tlang.getString('confirm.submission.success')
