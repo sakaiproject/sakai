@@ -134,19 +134,9 @@
 					</div>
 				</div>
 			</div>
-<<<<<<< HEAD
-			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<f:subview id="wordCountView" rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-				<f:verbatim>
-					<span style="margin-left:1em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>
-				</f:verbatim>
-=======
-
 			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<f:subview id="wordCountView">
 				<span style="margin-left:1em"><h:graphicImage url="/../../library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span id="counttotal"> </span></span>
-
->>>>>>> 93ee3a04a460a47aace798352e0d5ba12897433b
 			</f:subview>
 			<h:panelGrid columns="2" 
 					width="100%" 
