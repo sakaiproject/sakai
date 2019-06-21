@@ -2,8 +2,8 @@
 	<h3>
 		$tlang.getString("content.title")
 	</h3>
-	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
-	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		<p class="act">
 			<input type="submit" accesskey ="i" value="$tlang.getString('content.add')" 

@@ -134,7 +134,7 @@
 					</div>
 				</div>
 			</div>
-			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<h:messages globalOnly="true" infoClass="sak-banner-info" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<f:subview id="wordCountView">
 				<span style="margin-left:1em"><h:graphicImage url="/../../library/image/silk/table_add.png" alt="#{msgs.cdfm_message_count}" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span id="counttotal"> </span></span>
 			</f:subview>

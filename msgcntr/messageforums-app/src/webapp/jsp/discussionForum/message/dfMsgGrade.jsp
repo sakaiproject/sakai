@@ -138,7 +138,7 @@
 				<h:outputText value=" #{msgs.cdfm_dash} " rendered="#{!empty ForumTool.selectedTopic}"/> 
 				<h:outputText	value="#{ForumTool.selectedTopic.topic.title}" />
 			</h4>
-			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<h:panelGroup rendered="#{ForumTool.selectedMessage != null}">
 			<f:verbatim>
 			<div class="singleMessage">

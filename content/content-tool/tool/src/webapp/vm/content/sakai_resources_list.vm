@@ -100,7 +100,7 @@
 		</ul>
 		</ul>
 	#if ($alertMessage)
-                 <br /><div class="sak-banner-warn">$alertMessage</div><div class="clear"></div>
+                 <br /><div class="sak-banner-warn">$alertMessage</div>
 	#end
 	## display print success message
 	#if ($content_print_status_success)

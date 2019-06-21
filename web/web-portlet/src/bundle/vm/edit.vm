@@ -13,7 +13,6 @@ ${includeLatestJQuery}
 	<div class="sak-banner-error">
 	$tlang.getString("gen.alert") $alertMessage
 	</div>
-	<div class="clear"></div>
 	#end
     <div class="container-fluid">
         <div class="row">

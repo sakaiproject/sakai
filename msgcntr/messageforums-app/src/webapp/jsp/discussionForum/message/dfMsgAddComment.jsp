@@ -20,7 +20,7 @@
 				<h:outputText	value="#{ForumTool.selectedTopic.topic.title}" />
 			</h4>
 			
-			<h:messages globalOnly="true" infoClass="success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" />
+			<h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" />
 			  
 		<div class="singleMessage">
 			<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title"/>
