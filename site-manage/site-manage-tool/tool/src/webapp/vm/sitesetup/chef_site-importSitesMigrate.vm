@@ -9,7 +9,6 @@
 	</p>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
-		<div class="clear"></div>
 	#end
 	<p class="instruction">
 	$tlang.getString("sitinfimp.choose")

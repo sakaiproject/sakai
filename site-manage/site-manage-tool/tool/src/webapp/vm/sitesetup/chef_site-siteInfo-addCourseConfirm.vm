@@ -7,7 +7,6 @@
 	</h3>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitegen.addcourse.alert") $alertMessage</div>
-		<div class="clear"></div>
 	#end
 	<p class="instruction">
 		$tlang.getString("sitegen.addcourse.please")

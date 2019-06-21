@@ -5,7 +5,6 @@
 
         #if ($alertMessage)
             <div class="sak-banner-error">$validator.escapeHtml( $alertMessage )</div>
-            <div class="clear"></div>
         #end
 
         <div class="sak-banner-info">

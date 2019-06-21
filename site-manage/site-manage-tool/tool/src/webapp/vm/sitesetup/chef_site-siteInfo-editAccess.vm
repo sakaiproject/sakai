@@ -72,7 +72,6 @@
 	#end
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("ediacc.alert") $alertMessage</div>
-		<div class="clear"></div>
 	#end
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
 		<input name="publicChangeableOption" id="publicChangeableOption" type="hidden" #if($!publicChangeable) value="true" #else value="false" #end />

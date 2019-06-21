@@ -10,7 +10,6 @@
     </h3>
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
-        <div class="clear"></div>
     #end
     <form id="previewGradeSubmissionForm" action="#toolForm("AssignmentAction")" method="post">
         <table class="itemSummary">

@@ -15,7 +15,6 @@
 		#end
 		#if ($alertMessage)
 			<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
-			<div class="clear"></div>
 		#end
 		
 		<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">

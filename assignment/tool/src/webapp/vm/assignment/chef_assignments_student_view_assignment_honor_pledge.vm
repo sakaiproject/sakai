@@ -5,7 +5,6 @@
             <strong>$tlang.getString("gen.alert")</strong>
             $alertMessage
         </div>
-        <div class="clear"></div>
     #else
         <h3>
             $tlang.getString('assignment.title')

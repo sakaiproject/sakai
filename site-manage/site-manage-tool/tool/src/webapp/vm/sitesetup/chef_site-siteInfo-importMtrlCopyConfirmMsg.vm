@@ -7,7 +7,6 @@
 	</h3>
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
-		<div class="clear"></div>
 	#end
 	<p class="step">
 	Copying of other site's material to this site

@@ -6,7 +6,7 @@
 	</h3>
 	
 		#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
-		<div class="clear"></div>
+
 		<form id="previewAssignmentsForm" name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />
 			<input type="hidden" name="assignmentContentId" value="$!value_assignmentcontent_id" />
