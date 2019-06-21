@@ -124,12 +124,11 @@ public class I18nXmlUtility
 	 *
 	 * @param document the document that will be used to create XML
 	 * @param key the formatted message key
-	 * @param args the arguments to the formatted message. Strings are embedded into 'arg' tags; Elements are appended as is (assumed to be nested 'message' tags)
+	 * @param args the arguments to the formatted message. Elements are appended as is (assumed to be nested 'message' tags); everything else is embedded into 'arg' tags
 	 * @return an XML element representing the i18n message key and arguments
 	 */
 	protected static Object createFormattedMessageXML(Document document, String key, Object... args) {
-		if (document == null)
-		{
+		if (document == null) {
 			throw new ContentReviewProviderException("createFormattedMessageXML invoked with null document");
 		}
 
@@ -141,13 +140,16 @@ public class I18nXmlUtility
 		message.appendChild(eKey);
 
 		for (Object arg : args) {
-			if (arg instanceof String) {
-				Element eArg = document.createElement(TAG_NAME_ARG);
-				eArg.setTextContent((String)arg);
-				message.appendChild(eArg);
+			if (arg == null) {
+				arg = "";
 			}
-			else if (arg instanceof Element) {
+			if (arg instanceof Element) {
 				message.appendChild((Element)arg);
+			}
+			else {
+				Element eArg = document.createElement(TAG_NAME_ARG);
+				eArg.setTextContent(String.valueOf(arg));
+				message.appendChild(eArg);
 			}
 		}
 
