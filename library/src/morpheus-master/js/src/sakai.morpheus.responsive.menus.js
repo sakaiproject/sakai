@@ -60,11 +60,12 @@ $PBJQ(document).ready(function(){
     });
   };
 
-  $PBJQ('#roleSwitchSelect').on("change", function(){
-    if( $PBJQ('option:selected', this ).text() !== '' ){
-      document.location = $PBJQ('option:selected', this ).val() + '#roleSwitch';
+  $PBJQ('#roleSwitchButton').on("click", function(){
+    let roleSwitch = $PBJQ('#roleSwitchSelect')
+    if( $PBJQ('option:selected', roleSwitch ).text() !== '' ){
+      document.location = $PBJQ('option:selected', roleSwitch ).val() + '#roleSwitch';
     }else{
-      $PBJQ(this)[0].selectedIndex = 0;
+      $PBJQ(roleSwitch)[0].selectedIndex = 0;
     }
   });
 

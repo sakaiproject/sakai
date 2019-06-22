@@ -19,6 +19,7 @@
                     <option value="$switchRoleUrl$role$panelString">$role</option>
                 #end ## END of FOREACH ( $role in $siteRoles )
                 </select>
+		<button id="roleSwitchButton">${rloader.rs_button}</button>
             </div>
             #else
                 <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link">
