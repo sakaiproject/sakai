@@ -1,6 +1,6 @@
 package org.sakaiproject.acadtermmanage;
 
-public final class Constants {
+public final class AcademicTermConstants {
 	
 	// defined by Sakai:
 	public static final String PROP_NAME_TERM_EID="term_eid";
@@ -22,7 +22,7 @@ public final class Constants {
 	// TODO look at the course management API if it already defines a prefix for its AcademicSessions
 	public static final String EVENTSERVICE_EVENT_RESOURCE_PREFIX= "/academicsession/";
 
-	private Constants() {
+	private AcademicTermConstants() {
 		// don't want anybody to instantiate this class because it's just supposed to be a collection of constants 
 	}
 }

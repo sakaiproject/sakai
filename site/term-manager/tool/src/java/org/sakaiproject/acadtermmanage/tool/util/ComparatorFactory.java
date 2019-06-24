@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 import org.sakaiproject.acadtermmanage.model.Semester;
-import org.sakaiproject.acadtermmanage.tool.Constants;
+import org.sakaiproject.acadtermmanage.tool.AcademicTermConstants;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class ComparatorFactory implements Constants {
+public class ComparatorFactory implements AcademicTermConstants {
 	 
 			
 	public static final <T extends Comparable<T>> int compare(T o1,T o2) {
-		if (o1==o2) { // catches both objects being null - among other things
+		if (o1.equals(o2)) { // catches both objects being null - among other things
 			return 0;
 		}
 		else if (o1 != null) {

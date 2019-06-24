@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.sakaiproject.acadtermmanage.Constants;
+import org.sakaiproject.acadtermmanage.AcademicTermConstants;
 import org.sakaiproject.acadtermmanage.exceptions.DuplicateKeyException;
 import org.sakaiproject.acadtermmanage.exceptions.NoSuchKeyException;
 import org.sakaiproject.acadtermmanage.logic.AcademicSessionLogic;
@@ -342,12 +342,12 @@ public class AcademicSessionLogicImpl implements AcademicSessionLogic {
 					and opted for possibly data loss instead of making the SiteService throw an Exception 
 					similar to a LazyInstantiationException ?? ) */					                  
 					ResourcePropertiesEdit props = s.getPropertiesEdit();
-					String eid = props.getProperty(Constants.PROP_NAME_TERM_EID);
+					String eid = props.getProperty(AcademicTermConstants.PROP_NAME_TERM_EID);
 					log.debug("site's term eid: {}", eid);
 					if (oldEID.equals(eid)) {	
 						log.debug("updating site properties for {}", siteID);
-						props.addProperty(Constants.PROP_NAME_TERM_EID, newEID);
-						props.addProperty(Constants.PROP_NAME_TERM_TITLE, newTitle);
+						props.addProperty(AcademicTermConstants.PROP_NAME_TERM_EID, newEID);
+						props.addProperty(AcademicTermConstants.PROP_NAME_TERM_TITLE, newTitle);
 	
 						boolean success = true;
 						try {
@@ -395,7 +395,7 @@ public class AcademicSessionLogicImpl implements AcademicSessionLogic {
 			
 			
 			// update cache
-			if (oldData != newValues) {
+			if (!oldData.equals(newValues)) {
 				log.debug("updating the cached Semester instance with new values");
 				// it might be a bit safer to use the "newValues" object itself, but in theory
 				// it should be enough to copy over the values to update the caches..
