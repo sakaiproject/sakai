@@ -72,7 +72,7 @@ public class MainController {
 	}
 	
 	@RequestMapping(value = "/viewreport", method = RequestMethod.GET)
-	public String viewReport(Model model, @RequestParam String contentId, @RequestParam String assignmentRef) {
+	public String viewReport(Model model, @RequestParam String contentId, @RequestParam String assignmentRef, @RequestParam String contextId) {
 		log.info("viewReport(): contentId: " + contentId + ", assignmentRef: " + assignmentRef);
 		if(sessionManager != null && sessionManager.getCurrentSession() != null
 				&& StringUtils.isNotEmpty(sessionManager.getCurrentSessionUserId())) {
@@ -81,7 +81,7 @@ public class MainController {
 				//this user doesn't have access to view this item
 				throw new SecurityException("A valid session ID with access to the content item is required");
 			}
-			return "redirect:" + contentReviewService.getReviewReportRedirectUrl(contentId, assignmentRef, sessionManager.getCurrentSessionUserId(), isInstructor);
+			return "redirect:" + contentReviewService.getReviewReportRedirectUrl(contentId, assignmentRef, sessionManager.getCurrentSessionUserId(), contextId, isInstructor);
 		}
 		throw new SecurityException("A valid session ID with access to the content item is required");			
 	}

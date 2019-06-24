@@ -405,7 +405,7 @@ public interface ContentReviewService {
 	 * @param isInstructor
 	 * @return
 	 */
-	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor);
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, String contextId, boolean isInstructor);
 	
 	/**
 	 * Webhook event listener that can be used to get messages sent from the provider to Sakai
