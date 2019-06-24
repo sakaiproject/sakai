@@ -1,6 +1,6 @@
 package org.sakaiproject.acadtermmanage.tool;
 
-public interface Constants {
+public interface AcademicTermConstants {
 	public static final String PROP_EID="eid";
 	public static final String PROP_START="startDate";
 	public static final String PROP_END="endDate";

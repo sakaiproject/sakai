@@ -9,7 +9,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.extensions.yui.calendar.DateField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -30,16 +29,15 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.acadtermmanage.exceptions.DuplicateKeyException;
 import org.sakaiproject.acadtermmanage.exceptions.NoSuchKeyException;
 import org.sakaiproject.acadtermmanage.model.Semester;
-import org.sakaiproject.acadtermmanage.tool.Constants;
+import org.sakaiproject.acadtermmanage.tool.AcademicTermConstants;
 import org.sakaiproject.acadtermmanage.tool.util.ComparatorFactory;
-import org.sakaiproject.acadtermmanage.tool.util.ReversableComparator;
 import org.sakaiproject.acadtermmanage.tool.wicketstuff.ActionLink;
 import org.sakaiproject.acadtermmanage.tool.wicketstuff.ActionPanel;
 
 import lombok.extern.slf4j.Slf4j;
 // TODO fromDate must not be after startDate => validator
 @Slf4j
-public class SemesterPage extends BasePage implements Constants{
+public class SemesterPage extends BasePage implements AcademicTermConstants{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -140,8 +138,8 @@ public class SemesterPage extends BasePage implements Constants{
 	        super(id, new CompoundPropertyModel<Semester>(sem));
 	        add(new RequiredTextField<String>(PROP_EID));
 	        add(new TextField<String>(PROP_TITLE));
-	        add(new DateField(PROP_START));
-	        add(new DateField(PROP_END));
+	        add(new TextField(PROP_START));
+	        add(new TextField(PROP_END));
 	        add(new TextField<String>(PROP_DESC){
 	       
 				private static final long serialVersionUID = 1L;
@@ -327,10 +325,10 @@ public class SemesterPage extends BasePage implements Constants{
 				String prop = getSort().getProperty();
 				SortOrder order =  getSortState().getPropertySortOrder(prop);			
 				Comparator<Semester> comp = ComparatorFactory.createComparator(prop);
-				if (order == SortOrder.DESCENDING) {
-					comp = new ReversableComparator<Semester>(comp, true);
-				}								
 				Collections.sort(myList, comp);
+				if (order == SortOrder.DESCENDING) {
+					Collections.reverse(myList);
+				}
 				needToSortList = false;
 			}
 			else {

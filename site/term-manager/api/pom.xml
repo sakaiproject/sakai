@@ -19,14 +19,6 @@
 
   	<dependencies>
 
-    	<!-- project dependencies -->
-		
-    	<!-- third party dependencies -->
-   		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
-
 		<!-- Sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>

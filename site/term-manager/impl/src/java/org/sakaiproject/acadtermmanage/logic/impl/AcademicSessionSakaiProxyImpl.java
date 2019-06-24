@@ -1,6 +1,6 @@
 package org.sakaiproject.acadtermmanage.logic.impl;
 
-import static org.sakaiproject.acadtermmanage.Constants.*;
+import static org.sakaiproject.acadtermmanage.AcademicTermConstants.*;
 
 import java.util.Date;
 import java.util.HashMap;
