@@ -3680,8 +3680,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 			}
 		}
-
-		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS && assignment.getPointsPossible() != null) {
+		else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS && assignment.getPointsPossible() != null) {
 
 			log.debug("Scaling point grades");
 
@@ -3697,7 +3696,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				if (gr.getPointsEarned() != null) {
 
 					final BigDecimal currentGrade = new BigDecimal(gr.getPointsEarned());
-					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT);
+					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT).setScale(2, BigDecimal.ROUND_HALF_UP);
 
 					log.debug("currentGrade: " + currentGrade);
 					log.debug("scaledGrade: " + scaledGrade);
