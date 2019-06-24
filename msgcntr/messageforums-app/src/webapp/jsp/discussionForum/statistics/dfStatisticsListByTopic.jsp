@@ -352,7 +352,7 @@
 		  <h:panelGroup styleClass="itemNav" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">
 		  	<h:commandButton action="#{mfStatisticsBean.proccessActionSubmitGrades}" value="#{msgs.stat_forum_submit_grades}" accesskey="s"
 		  		onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" />
-		  	<h:commandButton value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="c"
+		  	<h:commandButton value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="x"
 		  		onclick="warn = false;SPNR.disableControlsAndSpin( this, null );" />
 		  </h:panelGroup>	
         </h:panelGrid>  

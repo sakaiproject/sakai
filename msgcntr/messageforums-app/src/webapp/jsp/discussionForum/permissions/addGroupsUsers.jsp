@@ -35,7 +35,7 @@
   			        	    		        
       <sakai:button_bar>
         <h:commandButton action="#{ForumTool.processAddGroupsUsersSubmit}" accesskey="s" value="Submit" />
-        <h:commandButton action="#{ForumTool.processAddGroupsUsersCancel}" accesskey="c" value="Cancel" />
+        <h:commandButton action="#{ForumTool.processAddGroupsUsersCancel}" accesskey="x" value="Cancel" />
       </sakai:button_bar>
     </h:form>     
   </sakai:view>

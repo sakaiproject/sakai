@@ -62,7 +62,7 @@
       <sakai:button_bar_item action="#{podOptions.processOptionChange}" value="#{msgs.change_submit}"
             accesskey="s" title="Save Podcast Display Options" styleClass="active"/>
       <sakai:button_bar_item action="#{podOptions.processOptionCancel}" value="#{msgs.cancel}" 
-            accesskey="c" title="Cancel Podcast Display Options" />
+            accesskey="x" title="Cancel Podcast Display Options" />
     </sakai:button_bar>
   </h:form>
 

@@ -58,7 +58,7 @@
       <sakai:button_bar_item action="#{podfeedBean.processRevisePodcast}" value="#{msgs.change_submit}" 
           accesskey="s" title="#{msgs.change_submit}" styleClass="active" />
       <sakai:button_bar_item action="#{podfeedBean.processCancelPodfeedRevise}" value="#{msgs.cancel}" 
-          accesskey="c" title="#{msgs.cancel}" />
+          accesskey="x" title="#{msgs.cancel}" />
     </sakai:button_bar>
 
     </h:form>
