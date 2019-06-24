@@ -30,7 +30,7 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	private static final String PROP_KEY_EULA_TIMESTAMP = "contentReviewEULATimestamp";
 	private static final String PROP_KEY_EULA_VERSION = "contentReviewEULAVersion";
 	//relative path since it will be used within Sakai
-	private static final String REDIRECT_URL_TEMPLATE =  "/content-review-tool/viewreport?contentId=%s&assignmentRef=%s";
+	private static final String REDIRECT_URL_TEMPLATE =  "/content-review-tool/viewreport?contentId=%s&assignmentRef=%s&contextId=%s";
 	//full path since it will be used externally
 	private static final String WEBHOOK_URL_TEMPLATE = "%scontent-review-tool/webhooks?providerId=%s";
 	
@@ -94,34 +94,35 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	@Override
 	public String getReviewReport(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		checkContentItemStatus(contentId);
-		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+		ContentReviewItem item = checkContentItemStatus(contentId);
+		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef, item.getSiteId());
 	}
 	
 	@Override
 	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		checkContentItemStatus(contentId);
-		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+		ContentReviewItem item = checkContentItemStatus(contentId);
+		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef, item.getSiteId());
 	}
 	
 	@Override
 	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
 			throws QueueException, ReportException {
-		checkContentItemStatus(contentId);
-		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef);
+		ContentReviewItem item = checkContentItemStatus(contentId);
+		return String.format(REDIRECT_URL_TEMPLATE, contentId, assignmentRef, item.getSiteId());
 	}
 	
-	private void checkContentItemStatus(String contentId) throws ReportException {
+	private ContentReviewItem checkContentItemStatus(String contentId) throws ReportException {
 		ContentReviewItem item = getContentReviewItemByContentId(contentId);
 		if(item == null
 				|| !ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE.equals(item.getStatus())) {
 			throw new ReportException("Report status: " + (item != null ? item.getStatus() : ""));
 		}
+		return item;
 	}
 	
 	@Override
-	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, String contextId, boolean isInstructor) {
 		return null;
 	}
 
