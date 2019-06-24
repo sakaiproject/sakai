@@ -3672,12 +3672,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
 									.multiply(new BigDecimal(100));
 
-					final Double scaledScore = calculateEquivalentPointValueForPercent(assignment.getPointsPossible(),
-							scoreAsPercentage.doubleValue());
+					final BigDecimal scaledScore = new BigDecimal(calculateEquivalentPointValueForPercent(assignment.getPointsPossible(),
+							scoreAsPercentage.doubleValue()), GradebookService.MATH_CONTEXT).setScale(2, RoundingMode.HALF_UP);
 
 					log.debug("scoreAsPercentage: {}, scaledScore: {}", scoreAsPercentage, scaledScore);
 
-					gr.setPointsEarned(scaledScore);
+					gr.setPointsEarned(scaledScore.doubleValue());
 					eventsToAdd.add(new GradingEvent(assignment, gr.getGraderId(), gr.getStudentId(), scaledScore));
 				}
 			}
@@ -3696,7 +3696,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				if (gr.getPointsEarned() != null) {
 
 					final BigDecimal currentGrade = new BigDecimal(gr.getPointsEarned(), GradebookService.MATH_CONTEXT);
-					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT).setScale(2, BigDecimal.ROUND_HALF_UP);
+					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT).setScale(2, RoundingMode.HALF_UP);
 
 					log.debug("currentGrade: {}, scaledGrade: {}", currentGrade, scaledGrade);
 
