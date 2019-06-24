@@ -79,7 +79,12 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 			DN containerDN = dn.getParent();
 			RDN[] containerRDNs = containerDN.getRDNs();
 			for (RDN rdn : containerRDNs) {
-				String mappedValue = mapRdn(rdn.toNormalizedString());
+				String mappedValue = null;
+				for (String av : rdn.getAttributeValues()) {
+					if (mappedValue == null) {
+						mappedValue = mapRdn(av);
+					}
+				}
 				if(mappedValue != null || !recurseRdnIfNoMapping) {
 					return mappedValue;
 				}
