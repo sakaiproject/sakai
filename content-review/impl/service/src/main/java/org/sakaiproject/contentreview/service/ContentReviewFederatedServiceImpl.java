@@ -92,10 +92,10 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 		}
 	}
 
-	private Optional<Site> getCurrentSite() {
+	private Optional<Site> getCurrentSite(String contextId) {
 		Optional<Site> site = null;
 		try {
-			String context = toolManager.getCurrentPlacement().getContext();
+			String context = StringUtils.isNotEmpty(contextId) ?  contextId : toolManager.getCurrentPlacement().getContext();
 			site = Optional.of(siteService.getSite(context));
 		} catch (Exception e) {
 			// sakai failed to get us a location so we can assume we are not ins
@@ -122,10 +122,14 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	}
 
 	private ContentReviewService getSelectedProvider() {
+		return getSelectedProvider(null);
+	}
+	
+	private ContentReviewService getSelectedProvider(String contextId) {
 		if (defaultProvider < 0) {
 			throw new ContentReviewProviderException("No Default Content Review Provider");
 		}
-		Optional<Site> currentSite = getCurrentSite();
+		Optional<Site> currentSite = getCurrentSite(contextId);
 		
 		if (currentSite.isPresent()) {
 			if (log.isDebugEnabled()) log.debug("In Location:" + currentSite.get().getReference());
@@ -301,8 +305,8 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	}
 	
 	@Override
-	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
-		return getSelectedProvider().getReviewReportRedirectUrl(contentId, assignmentRef, userId, isInstructor);
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, String contextId, boolean isInstructor) {
+		return getSelectedProvider(contextId).getReviewReportRedirectUrl(contentId, assignmentRef, userId, contextId, isInstructor);
 	}
 
 	@Override
