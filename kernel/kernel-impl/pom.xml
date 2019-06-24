@@ -275,7 +275,7 @@
     <dependency>
       <groupId>org.owasp.antisamy</groupId>
       <artifactId>antisamy</artifactId>
-      <version>1.5.7</version>
+      <version>1.5.8</version>
     </dependency>
     <!-- This is needed by antisamy because batik-css has wrong versions getting pulled in -->
     <dependency>
