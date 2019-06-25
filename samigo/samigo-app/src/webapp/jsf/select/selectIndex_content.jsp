@@ -68,7 +68,7 @@
                     "paging": true,
                     "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
                     "pageLength": 20,
-                    "aaSorting": [[2, "desc"]],
+                    "aaSorting": [[2, "asc"]],
                     "columns": [
                         {"bSortable": true, "bSearchable": true, "type": "span"},
                         {"bSortable": true, "bSearchable": false},
