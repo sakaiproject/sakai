@@ -1,0 +1,347 @@
+# Using version 2.6 of the compose format
+version: '3.6'
+
+# Services Section
+services:
+  #
+  # HAProxy to handle everything.
+  # 
+  stackproxy:
+    image: dockercloud/haproxy:1.6.7
+    environment:
+      - "TIMEOUT=connect 5400000, client 5400000, server 5400000"
+      - "SKIP_FORWARDED_PROTO=true"
+    networks:
+      - proxy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "8080:80"
+    deploy:
+      mode: global
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "stackproxy-console"
+
+  # 
+  # Shell In A Box on a maven container.
+  #
+  builder:
+    image: maven:3.6.1-jdk-8
+    volumes:
+      - "$PWD/lib/maven_entry.sh:/maven_entry.sh"
+      - "$PWD/CONFIG/maven/zshrc:/root/.zshrc"
+      - "$PWD/CONFIG/maven/settings.xml:/usr/share/maven/conf/settings.xml"
+      - "$PWD/CONFIG/maven/black_on_white.css:/black_on_white.css"
+      - sakai_source:/source
+      - sakai_deploy:/deploy
+      - maven_cache:/root/.m2
+    entrypoint: bash /maven_entry.sh
+    environment:
+      - "SERVICE_PORTS=4200"
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/console/*"
+    networks:
+      - proxy
+
+  # 
+  # MySQL service.
+  #
+  mysql:
+    # Docker official image for MySQL 5.5
+    image: mysql:5.7.26
+    # Extra startup parameters for MySQL
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci --ssl=0
+    # Environment Variables
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: sakai
+      MYSQL_USER: sakai
+      MYSQL_PASSWORD: examplepassword
+    # Networks from section near bottom 
+    networks:
+      - mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "mysql-console"
+
+  # 
+  # Sakai Service
+  #
+  sakai:
+    image: tomcat:9.0.20-jre8
+    environment:
+      - "CATALINA_OPTS_MEMORY=-Xms4000m -Xmx4000m"
+      - "CATALINA_OPTS=-server -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:+UseCompressedOops -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 -XX:TargetSurvivorRatio=90 -Djava.awt.headless=true -Dsun.net.inetaddr.ttl=0 -Dsakai.component.shutdownonerror=true -Duser.language=en -Duser.country=US -Dsakai.home=/usr/local/sakai/properties -Dsakai.security=/usr/local/tomcat/sakai -Duser.timezone=US/Eastern -Dsun.net.client.defaultConnectTimeout=300000 -Dsun.net.client.defaultReadTimeout=1800000 -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false -Dsun.lang.ClassLoader.allowArraySyntax=true -Dhttp.agent=Sakai -Djava.util.Arrays.useLegacyMergeSort=true"
+      - "SERVICE_PORTS=8080"
+      - "VIRTUAL_HOST=*"
+      - "HTTP_CHECK=GET / \"HTTP/1.1\\r\\nHost: ingress.proxy\""
+    networks:
+      sakaielastic:
+        aliases:
+          - sakaielastic
+      graylog:
+        aliases:
+          - sakai
+      mysql:
+      mail:
+      proxy:
+    volumes:
+      - "$PWD/lib/tomcat_entry.sh:/tomcat_entry.sh"
+      - "$PWD/CONFIG/tomcat/server.xml:/usr/local/tomcat/conf/server.xml"
+      - "$PWD/CONFIG/tomcat/context.xml:/usr/local/tomcat/conf/context.xml"
+      - "$PWD/CONFIG/sakai/sakai.properties:/usr/local/sakai/es.properties"
+      - "sakai_deploy_components:/usr/local/tomcat/components"
+      - "sakai_deploy_lib:/usr/local/tomcat/sakai-lib"
+      - "sakai_deploy_webapps:/usr/local/tomcat/webapps"
+      - "sakai_root:/usr/local/tomcat/webapps/ROOT"
+      - "sakai_elastic:/search"
+      - "$PWD/CONFIG/sakai/log4j.properties:/usr/local/sakai/properties/log4j.properties"
+    entrypoint: bash /tomcat_entry.sh
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "sakai-console"
+
+  # 
+  # Mongo Service (for graylog)
+  #
+  mongo:
+    image: mongo:3
+    networks:
+      - mongo
+    volumes:
+      - "mongo_data:/data/db"
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "mongo-console"
+
+  #
+  # Elasticsearch 6 service (for graylog)
+  #
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.1
+    environment:
+      - "http.host=0.0.0.0"
+      - "transport.host=localhost"
+      - "network.host=0.0.0.0"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - elastic
+    volumes:
+      - "elastic_gl_data:/usr/share/elasticsearch/data"
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "elasticsearch-console"
+
+  #
+  # Graylog Service
+  #
+  graylog:
+    image: graylog/graylog:3.0
+    environment:
+      # CHANGE ME (must be at least 16 characters)!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:8080/graylog/
+      - GRAYLOG_CONTENT_PACKS_AUTO_LOAD=udp-input-graylog.json
+      - GRAYLOG_CONTENT_PACKS_LOADER_ENABLED=true
+      - GRAYLOG_CONTENT_PACKS_DIR=data/contentpacks
+      - "SERVICE_PORTS=9000"
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/graylog/*"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /graylog/(.*) \\1\\ /\\2"
+    volumes:
+      - "$PWD/CONFIG/graylog/udp-input-graylog.json:/usr/share/graylog/data/contentpacks/udp-input-graylog.json"
+    networks:
+      - mongo
+      - elastic
+      - graylog
+      - proxy
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      # GELF UDP
+      - 12201:12201/udp
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "graylog-console"
+
+  # 
+  # Cerebro service    
+  #
+  cerebro:
+    # 3rd party repo for Cerebro (Elasticsearch management)      
+    image: lmenezes/cerebro
+    environment:
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/elastic/*"
+      - "SERVICE_PORTS=9000"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /elastic/(.*) \\1\\ /\\2"
+    networks:
+      - elastic
+      - sakaielastic
+      - proxy
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "cerebro-console"
+
+  # 
+  # Mailcatcher service      
+  #
+  mailcatcher:
+    # 3rd party repo fro Mailcatcher (Fake mail server for development and testing)
+    image: tophfr/mailcatcher:0.7.1
+    environment:
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/mail/*"
+      - "SERVICE_PORTS=1080"
+    command: "mailcatcher --no-quit --foreground --ip=0.0.0.0 --http-path=/mail"
+    # Networks from section near bottom
+    networks:
+      - mail
+      - proxy
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "mailcatcher-console"
+  #
+  # Kibana Service (Sakai Search)
+  #
+  kibana:
+    image: kibana:4.1.11
+    networks:
+      - sakaielastic
+      - proxy
+    environment:
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/kibana/*"
+      - "SERVICE_PORTS=5601"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /kibana/(.*) \\1\\ /\\2"
+      - "SERVER_NAME=127.0.0.1"
+      - "ELASTICSEARCH_URL=http://sakaielastic:9200"
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "kibana-console"
+
+  #
+  # PHPMyAdmin Service
+  #
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.7
+    environment:
+      - "PMA_ARBITRARY=1"
+      - "PMA_ABSOLUTE_URI=http://127.0.0.1/pma/"
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/pma/*"
+      - "SERVICE_PORTS=80"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /pma/(.*) \\1\\ /\\2"
+    networks:
+      - mysql
+      - proxy
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+        tag: "phpmyadmin-console"
+    
+networks:
+  sakaielastic:
+    driver: overlay
+    ipam:
+      config:
+        - subnet: 10.99.99.0/24
+  elastic:
+    driver: overlay
+  mysql:
+    driver: overlay
+  mail:
+    driver: overlay
+  proxy:
+    driver: overlay
+  mongo:
+    driver: overlay
+  graylog:
+    driver: overlay
+
+volumes:
+  sakai_source:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/source
+      o: bind
+  sakai_root:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/ROOT
+      o: bind
+  sakai_deploy:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy
+      o: bind
+  sakai_deploy_components:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy/components
+      o: bind
+  sakai_deploy_lib:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy/lib
+      o: bind
+  sakai_deploy_webapps:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy/webapps
+      o: bind
+  maven_cache:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/maven
+      o: bind
+  mysql_data:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/mysql
+      o: bind
+  sakai_config:
+    driver_opts:
+      type: none
+      device: $PWD/CONFIG/sakai
+      o: bind
+  mongo_data:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/mongo
+      o: bind
+  elastic_gl_data:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/elastic/graylog
+      o: bind
+  sakai_elastic:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/elastic/sakai
+      o: bind

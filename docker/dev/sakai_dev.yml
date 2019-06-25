@@ -1,0 +1,141 @@
+# Using version 2.6 of the compose format
+version: '3.6'
+
+# Services Section
+services:
+  #
+  # HAProxy to handle everything.
+  # 
+  stackproxy:
+    image: dockercloud/haproxy:1.6.7
+    environment:
+      - "TIMEOUT=connect 5400000, client 5400000, server 5400000"
+      - "SKIP_FORWARDED_PROTO=true"
+    networks:
+      - proxy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "8080:80"
+    deploy:
+      mode: global
+
+  # 
+  # Shell In A Box on a maven container.
+  #
+  builder:
+    image: maven:3.6.1-jdk-8
+    volumes:
+      - "$PWD/lib/maven_entry.sh:/maven_entry.sh"
+      - "$PWD/CONFIG/maven/zshrc:/root/.zshrc"
+      - "$PWD/CONFIG/maven/settings.xml:/usr/share/maven/conf/settings.xml"
+      - "$PWD/CONFIG/maven/black_on_white.css:/black_on_white.css"
+      - sakai_source:/source
+      - sakai_deploy:/deploy
+      - maven_cache:/root/.m2
+    entrypoint: bash /maven_entry.sh
+    environment:
+      - "SERVICE_PORTS=4200"
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/console/*"
+    networks:
+      - proxy
+
+  # 
+  # MySQL service.
+  #
+  mysql:
+    # Docker official image for MySQL 5.5
+    image: mysql:5.7.26
+    # Extra startup parameters for MySQL
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci --ssl=0
+    # Environment Variables
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: sakai
+      MYSQL_USER: sakai
+      MYSQL_PASSWORD: examplepassword
+    # Networks from section near bottom 
+    networks:
+      - mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 
+  # Sakai Service
+  #
+  sakai:
+    image: tomcat:9.0.20-jre8
+    environment:
+      - "CATALINA_OPTS_MEMORY=-Xms4000m -Xmx4000m"
+      - "CATALINA_OPTS=-server -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:+UseCompressedOops -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 -XX:TargetSurvivorRatio=90 -Djava.awt.headless=true -Dsun.net.inetaddr.ttl=0 -Dsakai.component.shutdownonerror=true -Duser.language=en -Duser.country=US -Dsakai.home=/usr/local/sakai/properties -Dsakai.security=/usr/local/tomcat/sakai -Duser.timezone=US/Eastern -Dsun.net.client.defaultConnectTimeout=300000 -Dsun.net.client.defaultReadTimeout=1800000 -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false -Dsun.lang.ClassLoader.allowArraySyntax=true -Dhttp.agent=Sakai -Djava.util.Arrays.useLegacyMergeSort=true"
+      - "SERVICE_PORTS=8080"
+      - "VIRTUAL_HOST=*"
+      - "HTTP_CHECK=GET / \"HTTP/1.1\\r\\nHost: ingress.proxy\""
+    networks:
+      mysql:
+      proxy:
+    volumes:
+      - "$PWD/lib/tomcat_entry_nogl_nosearch.sh:/tomcat_entry.sh"
+      - "$PWD/CONFIG/tomcat/server.xml:/usr/local/tomcat/conf/server.xml"
+      - "$PWD/CONFIG/tomcat/context.xml:/usr/local/tomcat/conf/context.xml"
+      - "$PWD/CONFIG/sakai/sakai.nosearch.properties:/usr/local/sakai/es.properties"
+      - "sakai_deploy_components:/usr/local/tomcat/components"
+      - "sakai_deploy_lib:/usr/local/tomcat/sakai-lib"
+      - "sakai_deploy_webapps:/usr/local/tomcat/webapps"
+      - "sakai_root:/usr/local/tomcat/webapps/ROOT"
+      - "$PWD/DATA/ROOT/index_dev_min.html:/usr/local/tomcat/webapps/ROOT/index.html"
+    entrypoint: bash /tomcat_entry.sh
+
+networks:
+  mysql:
+    driver: overlay
+  proxy:
+    driver: overlay
+
+volumes:
+  sakai_source:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/source
+      o: bind
+  sakai_root:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/ROOT
+      o: bind
+  sakai_deploy:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy
+      o: bind
+  sakai_deploy_components:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy/components
+      o: bind
+  sakai_deploy_lib:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy/lib
+      o: bind
+  sakai_deploy_webapps:
+    driver_opts:
+      type: none
+      device: $PWD/sakai/deploy/webapps
+      o: bind
+  maven_cache:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/maven
+      o: bind
+  mysql_data:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/mysql
+      o: bind
+  sakai_config:
+    driver_opts:
+      type: none
+      device: $PWD/CONFIG/sakai
+      o: bind

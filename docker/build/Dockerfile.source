@@ -1,0 +1,49 @@
+FROM maven:3.6.1-jdk-8 as build
+
+ARG release=master
+
+COPY lib/settings.xml /usr/share/maven/conf/settings.xml
+RUN mkdir /deploy
+WORKDIR /deploy
+RUN git clone https://github.com/sakaiproject/sakai.git
+WORKDIR /deploy/sakai
+RUN git checkout ${release} && mvn clean install sakai:deploy -Dmaven.test.skip=true
+
+
+FROM tomcat:9.0.20-jre8
+
+COPY lib/server.xml /usr/local/tomcat/conf/server.xml
+COPY lib/context.xml /usr/local/tomcat/conf/context.xml
+COPY --from=build /deploy/components /usr/local/tomcat/components/
+COPY --from=build /deploy/lib /usr/local/tomcat/sakai-lib/
+COPY --from=build /deploy/webapps /usr/local/tomcat/webapps/
+
+RUN mkdir -p /usr/local/sakai/properties
+
+ENV CATALINA_OPTS_MEMORY -Xms2000m -Xmx2000m
+ENV CATALINA_OPTS \
+-server \
+-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC \
+-XX:+CMSParallelRemarkEnabled -XX:+UseCompressedOops -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 -XX:TargetSurvivorRatio=90 \
+-Djava.awt.headless=true \
+-Dsun.net.inetaddr.ttl=0 \
+-Dsakai.component.shutdownonerror=true \
+-Duser.language=en -Duser.country=US \
+-Dsakai.home=/usr/local/sakai/properties -Dsakai.security=/usr/local/tomcat/sakai \
+-Duser.timezone=US/Eastern \
+-Dsun.net.client.defaultConnectTimeout=300000 \
+-Dsun.net.client.defaultReadTimeout=1800000 \
+-Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false \
+-Dsun.lang.ClassLoader.allowArraySyntax=true \
+-Dhttp.agent=Sakai \
+-Djava.util.Arrays.useLegacyMergeSort=true 
+
+RUN sed -i '/^common.loader\=/ s/$/,"\$\{catalina.base\}\/sakai-lib\/*.jar"/' /usr/local/tomcat/conf/catalina.properties
+
+RUN curl -L -o /usr/local/tomcat/lib/mysql-connector-java-5.1.47.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar
+
+RUN mkdir -p /usr/local/tomcat/sakai
+COPY lib/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+

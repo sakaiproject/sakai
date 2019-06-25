@@ -1,0 +1,15 @@
+CONFIG
+!CONFIG/tomcat/server.xml
+!CONFIG/tomcat/context.xml
+DATA
+Dockerfile
+lib
+!lib/build_image_entry.sh
+README.md
+sakai/deploy/webapps
+!sakai/deploy/webapps/*.war
+sakai/source
+sakai_dev_full.yml
+sakai_dev_tools_search.yml
+sakai_dev_tools.yml
+sakai_dev.yml

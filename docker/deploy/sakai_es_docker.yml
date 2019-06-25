@@ -1,0 +1,193 @@
+# Using version 2.6 of the compose format
+version: '3.6'
+
+# Services Section
+services:
+  # Sakai Service
+  sakai:
+    # LOCAL image, fine for a single machine, but for a cluster
+    # you should use a repo (e.g. mydockerhubrepo/sakai:19.1)      
+    image: sakai
+    # Explicitly set any environment variables, in this case Tomcat memory
+    environment:
+      - "CATALINA_OPTS_MEMORY=-Xms8000m -Xmx8000m"
+      - "SERVICE_PORTS=8080"
+      - "VIRTUAL_HOST=*"
+      - "HTTP_CHECK=GET /direct/server-config/servers.json \"HTTP/1.1\\r\\nHost: ingress.proxy\""
+    # Map Docker managed configs into the service
+    configs:
+      # Mapping the sakai configuration to a different location 
+      # instead of /usr/local/sakai/properties/sakai.properties
+      # So our overridden entrypoint script can make changes
+      # before placing the finished file
+      - source: sakai_config
+        target: /usr/local/sakai/es.properties
+      # Providing an entrypoint script to override the default with.
+      # This script will finish calling the original entrypoint.
+      - source: elastic_entry
+        target: /es_entry.sh
+      - source: demopage
+        target: /demopage.tgz
+    # A configuration file needs to be updated at runtime, with the interface name
+    # of the "elastic" netowrk. This provides an example of how to get that done.
+    # We override the entrypoint script of an image, with one that discovers the 
+    # interface name using the known network range defined near the bottom, in the
+    # networks section. This script is located at config/es_entry.sh and 
+    # is mapped in the Configs section near the bottom.
+    entrypoint: bash /es_entry.sh
+    # The overlay networks to connect this service to. These are defined in the Networks 
+    # section near the bottom of this file
+    networks:
+      - elastic
+      - mysql
+      - mail
+      - proxy
+    # The secrets to provide to this service. These are defined in the Secrets section
+    # near the bottom of this file.
+    secrets:
+      - security.properties
+
+  # MySQL service.      
+  mysql:
+    # Docker official image for MySQL 5.5
+    image: mysql:5.5
+    # Extra startup parameters for MySQL
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+    # Environment Variables
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: sakai
+      MYSQL_USER: sakai
+      MYSQL_PASSWORD: examplepassword
+    # Networks from section near bottom 
+    networks:
+      - mysql
+
+  # HAProxy to handle everything.
+  stackproxy:
+    image: dockercloud/haproxy:1.6.7
+    environment:
+      - "TIMEOUT=connect 5400000, client 5400000, server 5400000"
+      - "SKIP_FORWARDED_PROTO=true"
+    networks:
+      - proxy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "8080:80"
+    deploy:
+      mode: global
+
+  # Elasticsearch Service     
+  elasticsearch:
+    # Docker official Elasticsearch 1.7.6 image      
+    image: elasticsearch:1.7.6
+    # Environment variables
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    # Configs from section near bottom
+    configs:
+      - source: elastic_config
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+    # Networks from section near bottom
+    networks:
+      - elastic
+    # Using DNS Round Robin, to make the overlay netowrk the primary
+    deploy:
+      endpoint_mode: dnsrr
+
+  # Cerebro service    
+  cerebro:
+    # 3rd party repo for Cerebro (Elasticsearch management)      
+    image: lmenezes/cerebro
+    environment:
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/elastic/*"
+      - "SERVICE_PORTS=9000"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /elastic/(.*) \\1\\ /\\2"
+    # Networks from section near bottom
+    networks:
+      - elastic
+      - proxy
+
+  # Mailcatcher service      
+  mailcatcher:
+    # 3rd party repo fro Mailcatcher (Fake mail server for development and testing)
+    image: tophfr/mailcatcher:0.7.1
+    environment:
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/mail/*"
+      - "SERVICE_PORTS=1080"
+    command: "mailcatcher --no-quit --foreground --ip=0.0.0.0 --http-path=/mail"
+    # Networks from section near bottom
+    networks:
+      - mail
+      - proxy
+
+  kibana:
+    image: kibana:4.1.11
+    networks:
+      - elastic
+      - proxy
+    environment:
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/kibana/*"
+      - "SERVICE_PORTS=5601"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /kibana/(.*) \\1\\ /\\2"
+      - "SERVER_NAME=127.0.0.1"
+      - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.7
+    environment:
+      - "PMA_ARBITRARY=1"
+      - "PMA_ABSOLUTE_URI=http://127.0.0.1/pma/"
+      - "VIRTUAL_HOST_WEIGHT=5"
+      - "VIRTUAL_HOST=/pma/*"
+      - "SERVICE_PORTS=80"
+      - "EXTRA_SETTINGS=reqrep ^([^\\ :]*)\\ /pma/(.*) \\1\\ /\\2"
+    networks:
+      - mysql
+      - proxy
+    
+# Configuration files we want Docker to manage
+configs:
+  # The Sakai config using Mailcatcher as the outgoing SMTP
+  # and Elasticsearch configuration with a placeholder value
+  # to be replaced by the entrypoint script at runtime
+  sakai_config:
+    file: ./config/sakai.es.properties
+  # The Elasticsearch config for elasticsearch service
+  elastic_config:
+    file: ./config/elasticsearch.yml
+  # The entrypoint script being used to override the defaut in the sakai service
+  elastic_entry:
+    file: ./config/es_entry.sh
+  demopage:
+    file: ./config/demopage.tgz
+
+# Secrets files we want docker to manage
+secrets:
+  # Example security properties for the sakai servicer
+  security.properties:
+    file: ./secrets/security.properties
+
+# Networks to be created, connected to services above
+networks:
+  # The elasticsearch overlay network, with a manually defined subnet
+  # so that the entrypoint script in the sakai service can easily
+  # identify the correct interface when configuring sakai search
+  elastic:
+    driver: overlay
+    ipam:
+      config:
+        - subnet: 10.99.99.0/24
+  # MySQL overlay netowrk
+  mysql:
+    driver: overlay
+  # Mail overlay netowrk
+  mail:
+    driver: overlay
+  # Proxy overlay network
+  proxy:
+    driver: overlay
