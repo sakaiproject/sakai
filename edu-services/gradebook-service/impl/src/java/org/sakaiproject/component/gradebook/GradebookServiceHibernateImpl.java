@@ -3642,6 +3642,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		final List<String> studentUids = getStudentsForGradebook(gradebook);
 		final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItem(assignment.getId(), studentUids);
+		final Set<GradingEvent> eventsToAdd = new HashSet<>();
+		final Date now = new Date();
 
 		// scale for total points changed when on percentage grading
 		// TODO could scale for total points changed when on a points grading as well, though needs different logic
@@ -3655,18 +3657,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							.divide(new BigDecimal(originalPointsPossible), GradebookService.MATH_CONTEXT))
 									.multiply(new BigDecimal(100));
 
-					final Double scaledScore = calculateEquivalentPointValueForPercent(assignment.getPointsPossible(),
-							scoreAsPercentage.doubleValue());
+					final BigDecimal scaledScore = new BigDecimal(calculateEquivalentPointValueForPercent(assignment.getPointsPossible(),
+							scoreAsPercentage.doubleValue()), GradebookService.MATH_CONTEXT).setScale(2, RoundingMode.HALF_UP);
 
-					log.debug("scoreAsPercentage: " + scoreAsPercentage);
-					log.debug("scaledScore: " + scaledScore);
+					log.debug("scoreAsPercentage: {}, scaledScore: {}", scoreAsPercentage, scaledScore);
 
-					gr.setPointsEarned(scaledScore);
+					gr.setPointsEarned(scaledScore.doubleValue());
+					eventsToAdd.add(new GradingEvent(assignment, gr.getGraderId(), gr.getStudentId(), scaledScore));
 				}
 			}
 		}
-
-		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS && assignment.getPointsPossible() != null) {
+		else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS && assignment.getPointsPossible() != null) {
 
 			log.debug("Scaling point grades");
 
@@ -3674,26 +3675,29 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			final BigDecimal current = new BigDecimal(assignment.getPointsPossible());
 			final BigDecimal factor = current.divide(previous, GradebookService.MATH_CONTEXT);
 
-			log.debug("previous points possible: " + previous);
-			log.debug("current points possible: " + current);
-			log.debug("factor: " + factor);
+			log.debug("previous points possible: {}, current points possible: {}, factor: {}", previous, current, factor);
 
 			for (final AssignmentGradeRecord gr : gradeRecords) {
 				if (gr.getPointsEarned() != null) {
 
-					final BigDecimal currentGrade = new BigDecimal(gr.getPointsEarned());
-					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT);
+					final BigDecimal currentGrade = new BigDecimal(gr.getPointsEarned(), GradebookService.MATH_CONTEXT);
+					final BigDecimal scaledGrade = currentGrade.multiply(factor, GradebookService.MATH_CONTEXT).setScale(2, RoundingMode.HALF_UP);
 
-					log.debug("currentGrade: " + currentGrade);
-					log.debug("scaledGrade: " + scaledGrade);
+					log.debug("currentGrade: {}, scaledGrade: {}", currentGrade, scaledGrade);
 
 					gr.setPointsEarned(scaledGrade.doubleValue());
+					eventsToAdd.add(new GradingEvent(assignment, gr.getGraderId(), gr.getStudentId(), scaledGrade));
 				}
 			}
 		}
 
 		// save all
 		batchPersistEntities(gradeRecords);
+
+		// Insert the new grading events (GradeRecord)
+		for (final GradingEvent ge : eventsToAdd) {
+			getHibernateTemplate().persist(ge);
+		}
 	}
 
 	/**

@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.business;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -784,9 +785,11 @@ public class GradebookNgBusinessService {
 		if (oldGrade != null) {
 			try {
 				NumberFormat format = NumberFormat.getNumberInstance();
-				BigDecimal storedBig = storedGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(storedGradeAdjusted).doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP);
-				BigDecimal oldBig = oldGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(oldGradeAdjusted).doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP);
+				// SAK-42001 A stored value in database of 69.225 needs to match the 69.22 coming back from UI AJAX call
+				final BigDecimal storedBig = storedGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(storedGradeAdjusted).doubleValue()).setScale(2, RoundingMode.HALF_DOWN);
+				final BigDecimal oldBig = oldGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(oldGradeAdjusted).doubleValue()).setScale(2, RoundingMode.HALF_DOWN);
 				if (storedBig.compareTo(oldBig) != 0) {
+					log.warn("Rejected new grade because of concurrent edit: {} vs {}", storedBig, oldBig);
 					return GradeSaveResponse.CONCURRENT_EDIT;
 				}
 			} catch (ParseException pe) {
