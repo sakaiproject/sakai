@@ -33,7 +33,7 @@
             <properties>
                 <maven.test.jvmargs />
                 <lucene.version>4.5.0</lucene.version>
-                <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
+                <bouncycastle.artifact.version>jdk15on</bouncycastle.artifact.version>
             </properties>
         </profile>
     </profiles>
@@ -162,12 +162,12 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-${bouncycastle.artifact.version}</artifactId>
-      <version>1.46</version>
+      <version>1.61</version>
     </dependency>
      <dependency>
        <groupId>org.bouncycastle</groupId>
        <artifactId>bcmail-${bouncycastle.artifact.version}</artifactId>
-       <version>1.46</version>
+       <version>1.61</version>
     </dependency>
     <dependency>
        <groupId>org.apache.tika</groupId>
