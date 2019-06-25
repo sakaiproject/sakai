@@ -159,15 +159,15 @@ var finFormatError = '<h:outputText value="#{deliveryMessages.fin_invalid_charac
 $( document ).ready(function() {
 	$('.fillInNumericInput').each(function() {
 		$(this).change(function(){
-			if(!$(this).val()){
+			if(!this.value){
 				//Empty inputs are accepted.
 				return;
 			}
 			//Replace the comma decimal separator as point, the JSF validator does the same and all the JS libraries work with point as decimal separator.
-			var rawInput = $(this).val().replace(/,/g, '.');
+			var rawInput = this.value.replace(/,/g, '.');
 			//Replace all the whitespaces.
 			rawInput = rawInput.replace(/\s/g,'');
-			$(this).val(rawInput);
+			this.value = rawInput;
 			var isValidFinInput = true;
 			var numericInputValue = rawInput;
 			var complexInputValue = [];
@@ -193,7 +193,7 @@ $( document ).ready(function() {
 			}
 			if(!isValidFinInput){
 				alert(finFormatError);
-				$(this).val("");
+				this.value = "";
 			}
 		});
 	});

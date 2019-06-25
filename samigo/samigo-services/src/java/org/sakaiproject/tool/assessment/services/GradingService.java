@@ -989,7 +989,7 @@ public class GradingService
                                totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence);
         }
         catch (FinFormatException e) {
-			log.warn("Fin Format Exception while processing response. ", e);
+        	log.warn("Fin Format Exception while processing response. ", e);
         	autoScore = 0d;
         	if (invalidFINMap != null) {
         		if (invalidFINMap.containsKey(itemId)) {
