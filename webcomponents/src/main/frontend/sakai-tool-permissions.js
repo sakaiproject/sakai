@@ -73,8 +73,7 @@ class SakaiToolPermissions extends SakaiElement {
         <div class="act">
           <input type="button" class="active" value="${this.i18n["save"]}" aria-label="${this.i18n["save"]}" @click=${this.savePermissions}/>
           <input type="button" value="${this.i18n["cancel"]}" aria-label="${this.i18n["save"]}" @click=${this.resetPermissions}/>
-          <span id="${this.tool}-success-message" class="permissions-save-message" style="display: none;">${this.i18n["save_success"]}</span>
-          <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["save_falure"]}</span>
+          <span id="${this.tool}-failure-message" class="permissions-save-message" style="display: none;">${this.i18n["save_failure"]}</span>
         </div>
       `;
     } else {
@@ -99,6 +98,8 @@ class SakaiToolPermissions extends SakaiElement {
 
   savePermissions() {
 
+    document.body.style.cursor = "wait";
+
     const boxes = document.querySelectorAll(`#${this.tool}-permissions-table input[type="checkbox"]`);
     const myData = {};
     const params = Array.from(boxes).reduce((acc,b) => {
@@ -112,9 +113,19 @@ class SakaiToolPermissions extends SakaiElement {
 
     fetch(`/direct/permissions/${portal.siteId}/setPerms`, {method: "POST", credentials: "same-origin", body: new URLSearchParams(params), timeout: 30000})
       .then(res => {
-        document.querySelector(`#${this.tool}-success-message`).style.display = "initial";
+
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          throw new Error("Network response was not ok.");
+        }
       })
-      .catch(error => console.log(`Failed to save permissions for tool ${this.tool}`, error));
+      .catch(error => {
+
+        document.querySelector(`#${this.tool}-failure-message`).style.display = "inline-block";
+        console.log(`Failed to save permissions for tool ${this.tool}`, error)
+      })
+      .finally(() => document.body.style.cursor = "default");
   }
 
   resetPermissions() {
