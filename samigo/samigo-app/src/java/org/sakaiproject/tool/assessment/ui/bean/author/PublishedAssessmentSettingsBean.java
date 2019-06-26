@@ -40,6 +40,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -202,6 +204,10 @@ public class PublishedAssessmentSettingsBean
   private ExtendedTime extendedTime;
   private ExtendedTime transitoryExtendedTime;
   private boolean editingExtendedTime = false;
+
+  @Getter
+  @Setter
+  private int activeTabIndex = SamigoConstants.ABOUT_TAB; // Used to track which settings tab the user had/has open
   
   // SAM-2323 jQuery-UI datepicker
   private final TimeUtil tu = new TimeUtil();
@@ -1658,11 +1664,13 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
           this.extendedTimes.add(this.extendedTime);
           resetExtendedTime();
       }
+      this.activeTabIndex = SamigoConstants.DELIVERY_EXCEPTIONS_TAB;
   }
 
   public void deleteExtendedTime() {
       this.extendedTimes.remove(this.transitoryExtendedTime);
       this.transitoryExtendedTime = null;
+      this.activeTabIndex = SamigoConstants.DELIVERY_EXCEPTIONS_TAB;
   }
 
   public void editExtendedTime() {
@@ -1670,6 +1678,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.extendedTime = new ExtendedTime(this.transitoryExtendedTime);
     //Remove from the list but keep transitory available for cancel
     this.extendedTimes.remove(this.transitoryExtendedTime);
+    this.activeTabIndex = SamigoConstants.DELIVERY_EXCEPTIONS_TAB;
   }
 
   public void saveEditedExtendedTime() {
@@ -1691,6 +1700,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.extendedTime = new ExtendedTime(this.getAssessment().getData());
     this.transitoryExtendedTime = null;
     this.editingExtendedTime = false;
+    this.activeTabIndex = SamigoConstants.ABOUT_TAB;
   }
 
         public String getDisplayScoreDuringAssessments(){

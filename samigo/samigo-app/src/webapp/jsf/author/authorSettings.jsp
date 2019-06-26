@@ -52,20 +52,10 @@
       <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
-          var accordionPanel = 1;
           var itemName = "samigo_assessmentsettings_" + <h:outputText value="#{assessmentSettings.assessmentId}"/>;
-          if (window.sessionStorage && window.sessionStorage.getItem(itemName)) {
-              accordionPanel = parseInt(window.sessionStorage.getItem(itemName));
-          }
-          $("#jqueryui-accordion").accordion({
-              heightStyle: "content",
-              activate: function(event, ui) {
-                  if (window.sessionStorage) {
-                      window.sessionStorage.setItem(itemName, $("#jqueryui-accordion").accordion("option", "active"));
-                  }
-              },
-              active: accordionPanel,
-              collapsible: true
+          var activeTab = $("#assessmentSettingsAction\\:activeTab").val();
+          $("#jqueryui-tabs").tabs({
+              active: parseInt(activeTab)
           });
           // This is a sub-accordion inside of the About the Assessment Panel
           $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
@@ -228,6 +218,7 @@
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
   <h:inputHidden id="blockDivs" value="#{assessmentSettings.blockDivs}"/>
   <h:inputHidden id="itemNavigationUpdated" value="false" />
+  <h:inputHidden id="activeTab" value="#{assessmentSettings.activeTabIndex}"/>
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
@@ -235,23 +226,27 @@
      <h:outputText value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{assessmentSettings.title}"/>
   </h1>
 
-  <div class="pull-right">
-      <a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-          <h:outputText value="#{assessmentSettingsMessages.expandAll}"/>
-      </a>
-      <a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-          <h:outputText value="#{assessmentSettingsMessages.collapseAll}"/>
-      </a>
-  </div>
-  <br/>
-  
+  <p class="help-block info-text">
+    <h:outputText value="#{assessmentSettingsMessages.settings_info}" />
+  </p>
+
   <p>
     <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   </p>
 
-<div class="tier1" id="jqueryui-accordion">
-
-<samigo:hideDivision title="#{assessmentSettingsMessages.heading_about}" >
+<div class="tier1" id="jqueryui-tabs">
+    <ul>
+        <li><a href="#about-tab"><h:outputText value="#{assessmentSettingsMessages.heading_about} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
+        <li><a href="#submissions-tab"><h:outputText value="#{assessmentSettingsMessages.heading_availability} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
+        <li><a href="#extendedtime-tab"><h:outputText value="#{assessmentSettingsMessages.heading_extended_time} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
+        <li><a href="#feedback-tab"><h:outputText value="#{assessmentSettingsMessages.heading_grading_feedback} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
+        <li><a href="#layout-tab"><h:outputText value="#{assessmentSettingsMessages.heading_layout} " /><span class="fa fa-arrow-circle-o-right" aria-hidden="true"></span></a></li>
+        <li><a href="#publish-tab"><h:outputText value="#{assessmentSettingsMessages.heading_publish}" /></a></li>
+    </ul>
+<div id="about-tab">
+    <h3>
+        <h:outputText value="#{assessmentSettingsMessages.heading_about}" />
+    </h3>
 
 <!-- *** ASSESSMENT INTRODUCTION *** -->
   <div class="tier2" id="assessment-intro">
@@ -356,9 +351,11 @@
     </h:panelGroup>
   </div><!-- This is the end of the sub-accordion -->
 
-</samigo:hideDivision><!-- End the About this Assessment category -->
-
-<samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}"> 
+</div><!-- End the About this Assessment category -->
+<div id="submissions-tab">
+    <h3>
+        <h:outputText value="#{assessmentSettingsMessages.heading_availability}" />
+    </h3>
   <!-- *** RELEASED TO *** -->
   <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
@@ -561,14 +558,18 @@
 
 </div><!-- This is the end of the sub-accordion -->
 
-</samigo:hideDivision><!-- END the Availabity and Submissions category -->
-
-<samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}" >
+</div><!-- END the Availabity and Submissions category -->
+<div id="extendedtime-tab">
+    <h3>
+        <h:outputText value="#{assessmentSettingsMessages.heading_extended_time}" />
+    </h3>
   <!-- Extended Time -->
   <%@ include file="inc/extendedTime.jspf"%>
-</samigo:hideDivision>
-
-<samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading_feedback}" >
+</div>
+<div id="feedback-tab">
+    <h3>
+        <h:outputText value="#{assessmentSettingsMessages.heading_grading_feedback}" />
+    </h3>
 
   <!-- *** GRADING *** -->
   <div class="tier3">
@@ -706,9 +707,11 @@
 
      </h:panelGroup>
    </h:panelGroup>
- </samigo:hideDivision>
-
-<samigo:hideDivision title="#{assessmentSettingsMessages.heading_layout}" >
+</div>
+<div id="layout-tab">
+    <h3>
+        <h:outputText value="#{assessmentSettingsMessages.heading_layout}" />
+    </h3>
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
   <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true or assessmentSettings.valueMap.displayChunking_isInstructorEditable==true or assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true }" >
@@ -790,23 +793,33 @@
     </div>
   </h:panelGroup>
 
-</samigo:hideDivision><!-- END Layout and Appearance Category -->
+</div><!-- END Layout and Appearance Category -->
+<div id="publish-tab">
+    <!-- Publish -->
+    <h:panelGroup styleClass="form-group row" layout="block">
+        <h:panelGroup styleClass="col-md-12" layout="block">
+            <!-- save & publish -->
+            <h4><h:outputText value="#{assessmentSettingsMessages.ready_to_publish_heading}" /></h4>
+            <p><h:outputText value="#{assessmentSettingsMessages.ready_to_publish_text1}" /></p>
+            <p><h:outputText value="#{assessmentSettingsMessages.ready_to_publish_text2}" /></p>
+            <p class="act">
+                <!-- save & publish -->
+                <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
+                                  action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
+                </h:commandButton>
 
+                <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
+                                  action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
+            </p>
+        </h:panelGroup>
+    </h:panelGroup>
+</div>
 </div>
  <p class="act">
-
- <!-- save & publish -->
-  <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
-  </h:commandButton>
-
-  <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
-      
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
+  <h:commandButton type="submit" value="#{commonMessages.action_save_and_exit}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>

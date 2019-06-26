@@ -143,6 +143,16 @@ public final class SamigoConstants {
     public static final     String      EVAL_BUNDLE                                         = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
     public static final     String      AUTHOR_BUNDLE                                       = "org.sakaiproject.tool.assessment.bundle.AuthorMessages";
 
+    /*
+     * Settings Tab Indexes
+     */
+    public static final     int         ABOUT_TAB                                           = 0;
+    public static final     int         AVAILABILITY_SUBISSIONS_TAB                         = 1;
+    public static final     int         DELIVERY_EXCEPTIONS_TAB                             = 2;
+    public static final     int         GRADING_FEEDBACK_TAB                                = 3;
+    public static final     int         LAYOUT_APPEARANCE_TAB                               = 4;
+    public static final     int         PUBLISH_TAB                                         = 5;
+
     private SamigoConstants() {
     	throw new AssertionError();
     }
