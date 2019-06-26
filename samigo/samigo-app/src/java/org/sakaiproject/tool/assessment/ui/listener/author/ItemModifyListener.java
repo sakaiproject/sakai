@@ -212,7 +212,7 @@ public class ItemModifyListener implements ActionListener
         itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
       }
 
-      bean.setIsExtraCredit(itemfacade.getIsExtraCredit()==null?false:itemfacade.getIsExtraCredit());
+      bean.setExtraCredit(itemfacade.getIsExtraCredit()==null?false:itemfacade.getIsExtraCredit());
 
       Double score = itemfacade.getScore();
       if (score == null)

@@ -745,8 +745,8 @@ public class PublishedAssessmentFacade
 
       while (iter2.hasNext()){
         ItemDataIfc item = (ItemDataIfc)iter2.next();
-        if (item.getIsExtraCredit()==null || !item.getIsExtraCredit().booleanValue()) {
-          total = total.add(BigDecimal.valueOf(item.getScore().doubleValue()));
+        if (item.getIsExtraCredit()==null || !item.getIsExtraCredit()) {
+          total = total.add(BigDecimal.valueOf(item.getScore()));
         }
       }
     }

@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -77,6 +79,8 @@ public class ItemData
   private Double minScore;
   private String hash;
   private Long originalItemId;
+  @Getter
+  @Setter
   private Boolean isExtraCredit;
 
   // for EMI question
@@ -353,14 +357,6 @@ public ItemData() {}
 
   public void setLastModifiedDate(Date lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
-  }
-
-  public Boolean getIsExtraCredit() {
-    return this.isExtraCredit;
-  }
-
-  public void setIsExtraCredit(Boolean isExtraCredit) {
-    this.isExtraCredit = isExtraCredit;
   }
 
   public Set<ItemTextIfc> getItemTextSet() {

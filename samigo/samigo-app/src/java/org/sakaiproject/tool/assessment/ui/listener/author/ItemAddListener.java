@@ -791,7 +791,7 @@ public class ItemAddListener
      	}
       }
 
-      item.setIsExtraCredit(bean.getIsExtraCredit());
+      item.setIsExtraCredit(bean.isExtraCredit());
 
       item.setScore(Double.valueOf(bean.getItemScore()));
       item.setDiscount(Double.valueOf(bean.getItemDiscount()));

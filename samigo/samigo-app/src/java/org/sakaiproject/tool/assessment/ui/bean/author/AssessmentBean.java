@@ -179,8 +179,8 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
       for (int j=0; j<itemsInThisSection; j++){
           ItemContentsBean item = items.get(j);
           if (item.getItemData().getScore()!=null){
-            if(item.getItemData().getIsExtraCredit()==null || !item.getItemData().getIsExtraCredit().booleanValue()) {
-              this.totalScore += item.getItemData().getScore().doubleValue();
+            if(item.getItemData().getIsExtraCredit()==null || !item.getItemData().getIsExtraCredit()) {
+              this.totalScore += item.getItemData().getScore();
             }
           }
       }
