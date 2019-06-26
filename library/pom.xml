@@ -225,6 +225,11 @@
 			<artifactId>awesomplete</artifactId>
 			<version>1.1.4</version>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>mathjs</artifactId>
+			<version>6.0.2</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
