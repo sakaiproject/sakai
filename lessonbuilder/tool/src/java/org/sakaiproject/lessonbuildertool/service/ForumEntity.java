@@ -889,14 +889,40 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     public boolean notPublished() {
 	if (!objectExists())
 	    return true;
+	boolean isDraft = false;
 	if (type == TYPE_FORUM_TOPIC) {
-	    return topic.getOpenForum().getDraft();
+		isDraft = topic.getOpenForum().getDraft();
+		if(isDraft){
+			return true;
+		}
+		boolean topicVisibleByDate = isResourceVisibleByDate(topic.getOpenDate(), topic.getCloseDate());
+		boolean forumVisibleByDate = isResourceVisibleByDate(topic.getOpenForum().getOpenDate(), topic.getOpenForum().getCloseDate());
+	    return !topicVisibleByDate || !forumVisibleByDate;
 	} else {
-	    return ((DiscussionForum)forum).getDraft();
+		isDraft = ((DiscussionForum)forum).getDraft();
+		if(isDraft){
+			return true;
+		}
+		boolean forumVisibleByDate = isResourceVisibleByDate(((DiscussionForum)forum).getOpenDate(), ((DiscussionForum)forum).getCloseDate());
+		
+	    return !forumVisibleByDate;
 	}
 
     }
 
+	private static boolean isResourceVisibleByDate(Date openDate, Date closeDate){
+		Date currentDate = new Date();
+
+		if(openDate != null && closeDate != null){
+			return currentDate.after(openDate) && currentDate.before(closeDate);
+		} else if(openDate != null && closeDate == null){
+			return currentDate.after(openDate);
+		} else if(openDate == null && closeDate != null){
+			return currentDate.before(closeDate);
+		}
+
+		return true;
+	}
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public List<String> getGroups(boolean nocache) {
