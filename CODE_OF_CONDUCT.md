@@ -11,7 +11,7 @@ Specifically, we strive to:
 4. Be inquisitive.
 5. Be careful in the words we choose. (We value professionalism in all interactions and take responsibility for our own speech).
 6. Be concise. We recognize each others time and endeavor to stay on topic, and to keep our emails on point as well as friendly.
-7. Sep down considerately. Given that members of every project come and go, we take steps to tell people if we are disengaging or leaving, and to help others pick up where one of us left off.
+7. Step down considerately. Given that members of every project come and go, we take steps to tell people if we are disengaging or leaving, and to help others pick up where one of us left off.
 
 Sakai is an Apereo Foundation sponsored project. The administration of our code of conduct can be found in the Foundation's welcoming policy [Apereo Foundation Welcoming Policy|https://www.apereo.org/content/apereo-welcoming-policy].
 
