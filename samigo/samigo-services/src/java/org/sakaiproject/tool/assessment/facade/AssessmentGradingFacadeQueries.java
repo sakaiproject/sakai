@@ -1050,13 +1050,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
         }
 
-        // get AssessmentGradingAttachments
-        Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
-        List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
-        if (attachments != null) {
-            ag.setAssessmentGradingAttachmentList(attachments);
-        } else {
-            ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+        if (ag != null) {
+	        // get AssessmentGradingAttachments
+	        Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+	        List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
+	        if (attachments != null) {
+	            ag.setAssessmentGradingAttachmentList(attachments);
+	        } else {
+	            ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+	        }
         }
 
         return ag;

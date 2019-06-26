@@ -1,0 +1,16 @@
+export LANG=C.UTF-8
+export MAVEN_HOME=/usr/share/maven
+export JAVA_HOME=/usr/local/openjdk-8
+export JAVA_VERSION=8u212-b04
+export HOME=/root
+export MAVEN_CONFIG=/root/.m2
+export JAVA_BASE_URL=https://github.com/AdoptOpenJDK/openjdk8-upstream-binaries/releases/download/jdk8u212-b04/OpenJDK8U-
+export SHLVL=1
+export JAVA_URL_VERSION=8u212b04
+
+export ZSH="/root/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+plugins=(git)
+source $ZSH/oh-my-zsh.sh
+
+cd /source

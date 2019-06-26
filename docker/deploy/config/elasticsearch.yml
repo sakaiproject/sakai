@@ -1,0 +1,14 @@
+# cluster name
+cluster.name: sakai_cluster
+
+# Prevent memory swapping
+bootstrap.memory_lock: true
+
+# Connect to sakai nodes using DNS discovery
+discovery.zen.ping.unicast.hosts: tasks.sakai:9300
+
+# Require 2 master Names
+discovery.zen.minimum_master_nodes: 2 
+
+# This is a master node
+node.master: true
