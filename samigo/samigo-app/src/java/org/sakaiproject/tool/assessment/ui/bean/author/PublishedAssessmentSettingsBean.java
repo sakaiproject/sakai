@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -45,6 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
@@ -87,10 +90,10 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 @Slf4j
 public class PublishedAssessmentSettingsBean
@@ -221,11 +224,23 @@ public class PublishedAssessmentSettingsBean
   private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
 
   private ResourceLoader assessmentSettingMessages;
-  
+
+  @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
+  private GradebookService gradebookService;
+  @Resource(name = "org.sakaiproject.tool.api.SessionManager")
+  private SessionManager sessionManager;
+  @Resource(name = "org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
+
   /*
    * Creates a new AssessmentBean object.
    */
   public PublishedAssessmentSettingsBean() {
+    this(ContextLoader.getCurrentWebApplicationContext());
+  }
+
+  public PublishedAssessmentSettingsBean(WebApplicationContext context) {
+    context.getAutowireCapableBeanFactory().autowireBean(this);
     this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
@@ -417,10 +432,8 @@ public class PublishedAssessmentSettingsBean
     Long categoryId = null;
 
     if (this.gradebookExists) {
-      GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-      org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      gbAssignments = g.getAssignments(gradebookUid);
+      gbAssignments = gradebookService.getAssignments(gradebookUid);
       for (Assignment assignment : gbAssignments) {
         if (StringUtils.equals(assessmentName, assignment.getName())) {
           categoryId = assignment.getCategoryId();
@@ -449,17 +462,15 @@ public class PublishedAssessmentSettingsBean
     List<SelectItem> selectList = new ArrayList<>();
 
     if (this.gradebookExists) {
-      GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-      org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
       String gradebookUid = toolManager.getCurrentPlacement().getContext();
-      categoryDefinitions = g.getCategoryDefinitions(gradebookUid);
+      categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
 
       selectList.add(new SelectItem("-1","Uncategorized")); // -1 for a cat id means unassigned
       for (CategoryDefinition categoryDefinition: categoryDefinitions) {
         selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
       }
       // Also set if categories are enabled based on category type
-      GradebookInformation gbInfo = g.getGradebookInformation(gradebookUid);
+      GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid);
       if (gbInfo != null) {
         this.categoriesEnabled = gbInfo.getCategoryType() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
       } else {
@@ -1383,7 +1394,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		TreeMap sortedSelectItems = new TreeMap();
 		Site site;
 		try {
-			site = SiteService.getSite(ToolManager.getCurrentPlacement()
+			site = SiteService.getSite(toolManager.getCurrentPlacement()
 					.getContext());
 			Collection groups = site.getGroups();
 			if (groups != null && groups.size() > 0) {
@@ -1427,7 +1438,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	public int getNumberOfGroupsForSite() {
 		int numGroups = 0;
 		try {
-			Site site = SiteService.getSite(ToolManager.getCurrentPlacement()
+			Site site = SiteService.getSite(toolManager.getCurrentPlacement()
 					.getContext());
 			Collection groups = site.getGroups();
 			if (groups != null) {
@@ -1509,7 +1520,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 			if (attachmentList != null){
 				filePickerList = prepareReferenceList(attachmentList);
 			}
-			ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+			ToolSession currentToolSession = sessionManager.getCurrentToolSession();
 			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.redirect("sakai.filepicker.helper/tool");
@@ -1642,7 +1653,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		Site site;
 
 		try {
-			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
 			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 			Map<String, String> studentTargets = new HashMap<>();
