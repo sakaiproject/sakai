@@ -34,7 +34,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.ReferenceMap;
+import org.apache.commons.collections4.map.ReferenceMap;
 import org.jdom.JDOMException;
 import org.jdom.output.DOMOutputter;
 import org.w3c.dom.Attr;

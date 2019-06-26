@@ -27,7 +27,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.collections.iterators.IteratorChain;
+import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.io.output.NullOutputStream;

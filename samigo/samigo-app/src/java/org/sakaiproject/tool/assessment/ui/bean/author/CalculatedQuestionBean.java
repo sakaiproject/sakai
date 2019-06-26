@@ -22,7 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
-import org.apache.commons.collections.comparators.NullComparator;
+import org.apache.commons.collections4.comparators.NullComparator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
