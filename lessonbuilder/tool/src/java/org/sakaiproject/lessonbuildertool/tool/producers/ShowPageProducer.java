@@ -108,6 +108,7 @@ import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
@@ -170,7 +171,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private SecurityService securityService;
 	private SiteService siteService;
 	private FormatAwareDateInputEvolver dateevolver;
-	private TimeService timeService;
+	private UserTimeService userTimeService;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
 	// have to do it here because we need it in urlCache. It has to happen before Spring initialization
@@ -444,7 +445,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		boolean cameFromGradingPane = params.getPath().equals("none");
 
-		TimeZone localtz = timeService.getLocalTimeZone();
+		TimeZone localtz = userTimeService.getLocalTimeZone();
 		isoDateFormat.setTimeZone(localtz);
 
 		if (!canReadPage) {
@@ -580,7 +581,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// potentially need time zone for setting release date
 		if (!canSeeAll && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date()) && !currentPage.isHidden()) {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-			TimeZone tz = timeService.getLocalTimeZone();
+			TimeZone tz = userTimeService.getLocalTimeZone();
 			df.setTimeZone(tz);
 			String releaseDate = df.format(currentPage.getReleaseDate());
 			String releaseMessage = messageLocator.getMessage("simplepage.not_yet_available_releasedate").replace("{}", releaseDate);
@@ -1188,7 +1189,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// similarly warn them if it isn't released yet
 				} else if (currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
 					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-					TimeZone tz = timeService.getLocalTimeZone();
+					TimeZone tz = userTimeService.getLocalTimeZone();
 					df.setTimeZone(tz);
 					String releaseDate = df.format(currentPage.getReleaseDate());
 					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
@@ -4025,8 +4026,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		this.dateevolver = dateevolver;
 	}
 
-	public void setTimeService(TimeService ts) {
-		timeService = ts;
+	public void setUserTimeService(UserTimeService ts) {
+		userTimeService = ts;
 	}
 
 	public void setLocaleGetter(LocaleGetter localegetter) {
