@@ -2364,10 +2364,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public String getDeepLink(String context, String assignmentId) throws Exception {
-        boolean allowReadAssignment = allowGetAssignment(context);
-        boolean allowAddAssignment = allowAddAssignment(context);
-        boolean allowSubmitAssignment = allowAddSubmission(context);
+    public String getDeepLink(String context, String assignmentId, String userId) throws Exception {
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
+        boolean allowReadAssignment = permissionCheck(SECURE_ACCESS_ASSIGNMENT, resourceString, userId);
+        boolean allowAddAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, userId) || (!getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, userId).isEmpty());
+        boolean allowSubmitAssignment = permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, userId);
 
         return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment);
     }
