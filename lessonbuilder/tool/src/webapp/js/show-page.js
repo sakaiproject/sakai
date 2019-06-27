@@ -3339,7 +3339,7 @@ $(function() {
 	});
 
 	function mmFileInputDelete() {
-	    $(this).parent().parent().remove();
+	    $(this).parent().parent().parent().remove();
 	}
 	function mmFileInputChanged() {
 	    var previousTitle = $("#mm-name").val();
@@ -3364,7 +3364,7 @@ $(function() {
 		$('.add-another-file').last().show().parent().addClass('add-another-file-div');
 		// Loop through the new files in reverse order so that they can be added just after the lastInput element.
 		for (i = lastInput[0].files.length-1; i >= 0; i--) {
-			var newStuff = '<p><span class="mm-file-input-name">' + lastInput[0].files[i].name + '</span><span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
+			var newStuff = '<p><span class="mm-file-input-name h5">' + lastInput[0].files[i].name + '</span><span class="remove-upload" title="\' + msg(\'simplepage.remove_from_uploads\') + \'"><span class="mm-file-input-delete fa fa-trash"></span></span>';
 			if (doingNames) {
 				var valueContent = '';
 				if(i === 0 && previousTitle){
@@ -3372,8 +3372,9 @@ $(function() {
 				}
 				newStuff = newStuff + '<label for="link-title">Link title</label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255" ' + valueContent + '/></p>';
 			} else {
-				newStuff = newStuff + '</p>';
+			    newStuff = newStuff + '<div><label for="link-title"> Custom name for uploaded file [optional]: </label><input id="link-title" class="mm-file-input-names" type="text" size="30" maxlength="255"/></div>';
 			}
+			newStuff = newStuff + '</p>'
 			lastInput.after(newStuff);
 			lastInput.parent().addClass('mm-file-group');
 			$('.mm-file-input-delete').on('click', mmFileInputDelete);
@@ -3381,8 +3382,8 @@ $(function() {
 		// hide the original button as a new one has been created with the annotation of the new number of files.  
 		lastInput.hide();
 		// Hide the add from resources link and add URL section as one can't upload files and do these at the same time.
-		$('.mm-url-section').hide();
-		$('.mm-resources-section').hide();
+		$('#new-url-panel').hide();
+		$('#existing-resource-panel').hide();
 	    }
 	};
 
