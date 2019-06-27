@@ -62,7 +62,7 @@
     <sakai.spring.data.commons.version>1.13.22.RELEASE</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>1.11.22.RELEASE</sakai.spring.data.jpa.version>
     <sakai.spring.data.rest.version>2.6.22.RELEASE</sakai.spring.data.rest.version>
-    <sakai.spring.security.version>4.2.12.RELEASE</sakai.spring.security.version>
+    <sakai.spring.security.version>4.2.13.RELEASE</sakai.spring.security.version>
     <sakai.spring.hateoas.version>0.25.1.RELEASE</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
