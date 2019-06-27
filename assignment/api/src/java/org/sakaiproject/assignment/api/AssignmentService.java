@@ -642,9 +642,10 @@ public interface AssignmentService extends EntityProducer {
      *
      * @param context      The site id
      * @param assignmentId The assignment id
+     * @param userId       The user id
      * @return The url as a String
      */
-    public String getDeepLink(String context, String assignmentId) throws Exception;
+    public String getDeepLink(String context, String assignmentId, String userId) throws Exception;
 
     /**
      * get csv separator for exporting to CSV. It can be a comma or point configured through

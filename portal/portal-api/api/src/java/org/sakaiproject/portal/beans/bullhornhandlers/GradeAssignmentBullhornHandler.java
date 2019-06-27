@@ -25,10 +25,8 @@ import javax.inject.Inject;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.portal.api.BullhornData;
@@ -59,30 +57,25 @@ public class GradeAssignmentBullhornHandler extends AbstractBullhornHandler {
 
         String siteId = pathParts[3];
         String submissionId = pathParts[pathParts.length - 1];
-        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
-                                        , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
-                                        , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
-
-        // Without hacking assignment's permissions model, this is only way to
-        // get a submission, other than switching to the submitting user.
         try {
             AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
             if (submission.getGradeReleased()) {
                 Assignment assignment = submission.getAssignment();
                 String title = assignment.getTitle();
-                String url = assignmentService.getDeepLink(siteId, assignment.getId());
                 List<BullhornData> bhEvents = new ArrayList<>();
                 submission.getSubmitters().forEach(to -> {
-                    bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, url, false));
-                    countCache.remove(to.getSubmitter());
+                    try {
+                        bhEvents.add(new BullhornData(from, to.getSubmitter(), siteId, title, assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter()), false));
+                        countCache.remove(to.getSubmitter());
+                    } catch(Exception exc) {
+                        log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);
+                    }
                 });
 
                 return Optional.of(bhEvents);
             }
         } catch (Exception ex) {
             log.error("Failed to find either the submission or the site", ex);
-        } finally {
-            lock(sa);
         }
 
         return Optional.empty();

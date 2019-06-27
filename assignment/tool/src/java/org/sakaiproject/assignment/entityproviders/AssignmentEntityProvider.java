@@ -340,7 +340,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Assignment a = assignmentService.getAssignment(assignmentId);
             assignData.put("assignmentId", assignmentId);
             assignData.put("assignmentTitle", a.getTitle());
-            assignData.put("assignmentUrl", assignmentService.getDeepLink(context, assignmentId));
+            assignData.put("assignmentUrl", assignmentService.getDeepLink(context, assignmentId, sessionManager.getCurrentSessionUserId()));
         } catch (IdUnusedException e) {
             throw new EntityNotFoundException("Assignment or site not found", assignmentId, e);
         } catch (PermissionException e) {
