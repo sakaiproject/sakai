@@ -58,12 +58,18 @@ export class SakaiRubricGradingComment extends SakaiElement {
     `;
   }
 
+  hide() {
+    this.hideTooltip();
+  }
+
   toggleEditor(e) {
 
     e.stopPropagation();
     e.preventDefault();
 
     if (!this.classList.contains("show-tooltip")) {
+
+      this.dispatchEvent(new CustomEvent('comment-shown'));
 
       this.classList.add('show-tooltip');
 
