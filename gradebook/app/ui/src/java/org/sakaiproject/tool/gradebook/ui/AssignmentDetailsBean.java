@@ -577,6 +577,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			log.debug("saveScores " + this.assignmentId);
 		}
 
+        final Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(this.assignment, this.updatedGradeRecords, this.updatedComments);
+
         if (log.isDebugEnabled()) {
 			log.debug("About to save " + this.updatedComments.size() + " updated comments");
 		}
