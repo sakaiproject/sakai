@@ -19,7 +19,7 @@ The data is still retrieved via the Sakai SqlService and for 2.3 is only impleme
 
 Server Wide stats are enabled by default. Disable them via:
 ```
-serverWideStatsEnabled@org.sakaiproject.sitestats.api.StatsManager=false
+serverWideStatsEnabled@org.sakaiproject.sitestats.api.StatsManager.target=false
 ```
 in sakai.properties
 
