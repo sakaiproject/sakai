@@ -356,7 +356,6 @@ jQuery.fn.threadsSorter = function() {
 		//replaceWith added in jQuery 1.2, not in 1.1.4
 		//$(expandCollapseCol).find("a").replaceWith("<img src=" + imageCollapseUrl + " alt='Expand All/Collapse All' title='Expand All/Collapse All'/>");
 		$(expandCollapseCol).find("a").remove();
-		$(expandCollapseCol).append("<img src=" + imageExpandCollapseUrl + " alt='Expand All/Collapse All' title='Expand All/Collapse All'/>");
 		$(expandCollapseCol).css("cursor", "pointer");
 		var flip = 0;   //indicates click times for expand all/collapse all
 
@@ -367,16 +366,18 @@ jQuery.fn.threadsSorter = function() {
 			if(flip %2 == 0){
 				$($this[0].tBodies[0].rows).not(".hierItemBlock").hide();
 				//Sync icons showing consitent for collapsing 
-				imageObj.attr({'src': imageExpandCollapseUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
-				$("tr.hierItemBlock td:first-child img").attr({'src': imageCollapseUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'})
+				imageObj.attr({'src': imageExpandCollapseUrl});
+				$("tr.hierItemBlock td:first-child img").attr({'src': imageCollapseUrl})
 			}
 			else {
 				$($this[0].tBodies[0].rows).not(".hierItemBlock").show();
 				//Sync icons showing consitent for expanding 
-				imageObj.attr({'src': imageCollapseExpandUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
-				$("tr.hierItemBlock td:first-child img").attr({'src': imageExpandUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
+				imageObj.attr({'src': imageCollapseExpandUrl});
+				$("tr.hierItemBlock td:first-child img").attr({'src': imageExpandUrl});
 			}
-			mySetMainFrameHeight($('iframe',parent.document).filter('iframe.portletMainIframe')[0].id);
+			if($('iframe.portletMainIframe',parent.document).length>0){
+				mySetMainFrameHeight($('iframe.portletMainIframe',parent.document)[0].id);
+			}
 			return false;
 		
 		});
