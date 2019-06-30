@@ -60,9 +60,14 @@ $PBJQ(document).ready(function(){
     });
   };
 
-  $PBJQ('#roleSwitchSelect').on("change", function(){
-    if( $PBJQ('option:selected', this ).text() !== '' ){
-      document.location = $PBJQ('option:selected', this ).val() + '#roleSwitch';
+  $PBJQ('#roleSwitchSelect').on("click keydown", function(e){
+    var keyCodeEnter = "13";
+    var optSelected = $PBJQ('option:selected', this);
+    if( optSelected && optSelected.val() && optSelected.text() !== '' ){
+	console.log(e)
+        if ((e.type == "keydown" && e.keyCode == keyCodeEnter) || e.type == "click") {
+          document.location = optSelected.val() + '#roleSwitch';
+	}
     }else{
       $PBJQ(this)[0].selectedIndex = 0;
     }
