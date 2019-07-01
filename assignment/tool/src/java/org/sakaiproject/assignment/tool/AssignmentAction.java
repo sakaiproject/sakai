@@ -5533,9 +5533,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // retrieve the submission text (as formatted text)
         String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
-        //if it comes from preview screen
-        if(state.getAttribute(PREVIEW_SUBMISSION_TEXT) != null) {
-            text = (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
+        if (text == null) {
+            text = state.getAttribute(VIEW_SUBMISSION_TEXT) != null ? (String) state.getAttribute(VIEW_SUBMISSION_TEXT) : (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
         }
         state.setAttribute(PREVIEW_SUBMISSION_TEXT, text);
         state.setAttribute(VIEW_SUBMISSION_TEXT, text);
@@ -11626,7 +11625,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(VIEW_SUBMISSION_TEXT);
         state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
         state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
-
+        state.removeAttribute(PREVIEW_SUBMISSION_TEXT);
     } // resetViewSubmission
 
     /**
