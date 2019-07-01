@@ -340,7 +340,6 @@ public abstract class BaseDigestService implements DigestService, SingleStorageU
 							send(edit.getId(), msgs, periodRange);
 						}
 
-						Object timeServise;
 						// clear this period
 						edit.clear(timeInPeriodInstant);
 
