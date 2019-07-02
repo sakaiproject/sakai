@@ -24,7 +24,12 @@ package org.sakaiproject.calendar.tool;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Year;
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.Vector;
 
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.time.api.Time;
@@ -282,24 +287,23 @@ class CalendarFilter
 		if (SHOW_DAY.equals(mode))
 		{
 			// To show the day, we only use one date for start/end.
-			TimeBreakdown breakDown =
-				TimeService.newTime().breakdownLocal();
+			ZonedDateTime breakDown = ZonedDateTime.now(TimeService.getLocalTimeZone().toZoneId());
 
 			startYear = breakDown.getYear();
 			endYear = startYear;
 
-			startMonth = breakDown.getMonth();
+			startMonth = breakDown.getMonth().getValue();
 			endMonth = startMonth;
 
-			startDay = breakDown.getDay();
+			startDay = breakDown.getDayOfMonth();
 			endDay = startDay;
 		}
 		else
 		if (SHOW_WEEK.equals(mode))
 		{
-			GregorianCalendar calStart =
+			Calendar calStart =
 				new GregorianCalendar(TimeService.getLocalTimeZone(), rb.getLocale());
-			GregorianCalendar calEnd =
+			Calendar calEnd =
 				(GregorianCalendar) calStart.clone();
 
 			// Set the first/last days of the week.
@@ -318,10 +322,10 @@ class CalendarFilter
 		else
 		if (SHOW_MONTH.equals(mode))
 		{
-			GregorianCalendar calStart =
+			Calendar calStart =
 				new GregorianCalendar(
 					TimeService.getLocalTimeZone());
-			GregorianCalendar calEnd =
+			Calendar calEnd =
 				(GregorianCalendar) calStart.clone();
 
 			// Set the first/last days of the month.
