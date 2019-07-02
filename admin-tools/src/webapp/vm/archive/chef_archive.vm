@@ -25,7 +25,7 @@
 		    </label>
 			<input type="checkbox" name="zip-id" value="true" id="zip-id" />
 		</p>
-		<p class="act"><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>		
+		<p class="act"><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1 active" /></p>
 		
 		<hr class="itemSeparator" />
 		
@@ -42,7 +42,7 @@
 				</label>	
 				<input type="text" size="80" name="import-id" id="import-id" />
 			</p>
-			<p class="act"><input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")" class="indnt1" /></p>
+			<p class="act"><input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")" class="indnt1 active" /></p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

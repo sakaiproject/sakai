@@ -31,7 +31,7 @@
                 #searchFilterPanel("searchFilter1", $userSearch, "doUser_search", "doUser_search_clear")
             #end
         </div>
-        <div class ="sakai-table-buttonContainer">
+        <div class ="sakai-table-buttonContainer act">
             <input type="button" accesskey="s" class="active" value="$tlang.getString("sitegen.siteinfolist.update")" onclick="updateParticipants(this);"
                 #if($participantList.isEmpty()) disabled="disabled" #end />
             <input type="button" accesskey="x" value="$tlang.getString("gen.cancel")" onclick="cancel('#toolLink("$action" "doCancel")', this);"
@@ -243,7 +243,7 @@
                 #viewFilterPanel("viewFilter2", "view", $viewSelectOptions, "do_manageParticipants_changeFilter")
                 #searchFilterPanel("searchFilter2", $userSearch, "doUser_search", "doUser_search_clear")
             </div>
-            <div class ="sakai-table-buttonContainer">
+            <div class ="sakai-table-buttonContainer act">
                 <input type="button" accesskey="s" class="active" value="$tlang.getString("sitegen.siteinfolist.update")" onclick="updateParticipants(this);" />
                 <input type="button" accesskey="x" value="$tlang.getString("gen.cancel")" onclick="cancel('#toolLink("$action" "doCancel")', this);" />
             </div>
