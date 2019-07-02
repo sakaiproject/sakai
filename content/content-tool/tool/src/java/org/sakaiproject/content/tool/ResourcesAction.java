@@ -24,15 +24,14 @@ package org.sakaiproject.content.tool;
 import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
 import static org.sakaiproject.content.util.IdUtil.isolateName;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.text.Normalizer;
 import java.text.NumberFormat;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,8 +55,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -134,7 +131,6 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -1072,7 +1068,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						
 			String ccInfoUrl = "";
 			
-			int year = timeService.newTime().breakdownLocal().getYear();
+			int year = Year.now().getValue();
 			String username = userDirectoryService.getCurrentUser().getDisplayName(); 
 
 			context.put("usingCreativeCommons", Boolean.TRUE);

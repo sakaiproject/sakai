@@ -23,6 +23,7 @@ package org.sakaiproject.calendar.tool;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.*;
 
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -67,15 +68,13 @@ class CalendarFilter
 	 * The end year is the current date plus half the range.
 	 */
 	public static final int LIST_VIEW_ENDING_YEAR =
-		TimeService.newTime().breakdownLocal().getYear()
-			+ LIST_VIEW_YEAR_RANGE / 2;
+		Year.now().getValue() + LIST_VIEW_YEAR_RANGE / 2;
 
 	/**
 	 * The start year is the current date minus half the range.
 	 */
 	public static final int LIST_VIEW_STARTING_YEAR =
-		TimeService.newTime().breakdownLocal().getYear()
-			- LIST_VIEW_YEAR_RANGE / 2;
+			Year.now().getValue()- LIST_VIEW_YEAR_RANGE / 2;
 
 	/** Mode to show all future events */
 	public final static String SHOW_FUTURE_RANGE = "SHOW_FUTURE";
@@ -344,10 +343,7 @@ class CalendarFilter
 		else
 		if (SHOW_YEAR.equals(mode))
 		{
-			TimeBreakdown breakDown =
-				TimeService.newTime().breakdownLocal();
-
-			startYear = breakDown.getYear();
+			startYear = Year.now().getValue();
 			endYear = startYear;
 
 			startMonth = 1;

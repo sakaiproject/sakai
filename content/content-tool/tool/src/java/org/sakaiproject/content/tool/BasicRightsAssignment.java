@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.tool;
 
+import java.time.Year;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -28,17 +29,9 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -61,7 +54,6 @@ public class BasicRightsAssignment
     
 	/** kernel api **/
 	private static UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-	private static TimeService timeService = ComponentManager.get(TimeService.class);
 	
 	public class RightsChoice
 	{
@@ -544,7 +536,7 @@ public class BasicRightsAssignment
 	 */
 	public String getDefaultCopyrightYear()
 	{
-		int year = timeService.newTime().breakdownLocal().getYear();
+		int year = Year.now().getValue();
 		return Integer.toString(year);
 
 	}
