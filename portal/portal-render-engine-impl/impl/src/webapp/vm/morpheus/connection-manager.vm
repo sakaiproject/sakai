@@ -13,7 +13,7 @@
                                     <input type="text" id="connection-manager-connectionsview-searchbox" class="connection-manager-searchbox" placeholder="${cmLoader.getString("connection_manager_search_text")}"/>
                                     <div id="connection-manager-connectionsview-searchresults-wrapper">
                                         <div id="connection-manager-connectionsview-searchresults"></div>
-                                        <div id="connection-manager-connectionsview-searchresults-more"><a id="connection-manager-view-more-link" href="javascript:;">View More</a></div>
+                                        <div id="connection-manager-connectionsview-searchresults-more"><a id="connection-manager-view-more-link" href="javascript:;">${cmLoader.getString("connection_manager_more")}</a></div>
                                     </div>
                                 </div>
                                 <ul id="connection-manager-navbar" class="navIntraTool actionToolBar" role="menu">
