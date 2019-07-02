@@ -21,8 +21,9 @@
 
 package org.sakaiproject.email.api;
 
+import java.time.Instant;
+
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -51,11 +52,12 @@ public interface DigestEdit extends Digest, Edit
 	 */
 	void add(DigestMessage msg);
 
+	
 	/**
 	 * Clear all messages from a time period.
 	 * 
 	 * @param period
 	 *        a Time in the time period.
 	 */
-	void clear(Time period);
+	void clear(Instant period);
 }

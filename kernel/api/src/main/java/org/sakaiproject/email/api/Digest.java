@@ -21,10 +21,10 @@
 
 package org.sakaiproject.email.api;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -47,7 +47,7 @@ public interface Digest extends Entity, Comparable
 	 *        A time in the time period to select.
 	 * @return The List (DigestMessage) of messages (possibly empty).
 	 */
-	List getMessages(Time period);
+	List<DigestMessage> getMessages(Instant period);
 
 	/**
 	 * Access the list (String, TimePeriod string) of periods.
