@@ -133,7 +133,6 @@
 
     <bean id="org.sakaiproject.component.app.scheduler.ScheduledInvocationTestJob"
           class="org.sakaiproject.component.app.scheduler.ScheduledInvocationTestJob">
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="sim" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
     </bean>
 
