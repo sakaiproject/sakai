@@ -364,13 +364,13 @@ jQuery.fn.threadsSorter = function() {
 			var imageObj = $(e.target).is("img")?$(e.target):$(e.target).find("img");
 			
 			var toggleThreadSorter = function (el, show) {
-				  $(el.tBodies[0].rows).not(".hierItemBlock").toggle(show); 
-				  imageObj.attr({'src': show ? imageExpandCollapseUrl : imageCollapseExpandUrl});
-				  $("tr.hierItemBlock td:first-child img").attr({'src': show ? imageCollapseUrl : imageExpandUrl})
+				$(el.tBodies[0].rows).not(".hierItemBlock").toggle(show); 
+				imageObj.attr({'src': show ? imageExpandCollapseUrl : imageCollapseExpandUrl});
+				$("tr.hierItemBlock td:first-child img").attr({'src': show ? imageCollapseUrl : imageExpandUrl})
 			};
 			toggleThreadSorter($this[0], flip %2 === 0);
 
-			if($('iframe.portletMainIframe',parent.document).length>0){
+			if($('iframe.portletMainIframe',parent.document).length > 0){
 				mySetMainFrameHeight($('iframe.portletMainIframe',parent.document)[0].id);
 			}
 			return false;
