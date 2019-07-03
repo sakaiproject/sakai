@@ -3014,6 +3014,17 @@ function closeMultimediaEditDialog() {
 }
 
 function closeAddMultimediaDialog() {
+	//clear all sticky values so that the dialog can be fully usable if reopened
+	$('#mm-url-name').val('');
+	$('#mm-url').val('');
+	$("[name='mm-file']").val('');
+	// collapse resources/URL sections. expand file upload section...returns window to its initial state
+	$('#new-url-section').collapse();
+	$('#existing-resource-section').collapse();
+	$('#new-file-section').collapse('show');
+	// show the Resource and URL sections in case those were hidden on cancel
+	$('#new-url-panel').show();
+	$('#existing-resource-panel').show();
 	$("#add-multimedia-dialog").dialog("close");
 	oldloc.focus();
     $(oldloc).closest('div.item').removeClass('editInProgress');
@@ -3339,7 +3350,8 @@ $(function() {
 	});
 
 	function mmFileInputDelete() {
-	    $(this).parent().parent().parent().remove();
+	    $(this).parent().parent().parent().remove();	//remove file name
+		$('.selector-helper').val('');		//remove file from the visible input/picker as well
 	}
 	function mmFileInputChanged() {
 	    var previousTitle = $("#mm-name").val();
@@ -3353,7 +3365,7 @@ $(function() {
 		if ($('.fileTitles')[0]) {
 			doingNames = true;
 		}
-		// user has chosen a file. 
+		// user has chosen a file.
 		// Add another button for user to pick more files
 		lastInput.parent().after(lastInput.parent().clone());
 		// find the new button and put this trigger on it
@@ -3381,6 +3393,7 @@ $(function() {
 		}		
 		// hide the original button as a new one has been created with the annotation of the new number of files.  
 		lastInput.hide();
+		lastInput.removeClass('selector-helper');	//this empty class is used as a selector for deletion...we do NOT want to clear existing files' inputs, so they should not have this class; only the clones [created above] should.
 		// Hide the add from resources link and add URL section as one can't upload files and do these at the same time.
 		$('#new-url-panel').hide();
 		$('#existing-resource-panel').hide();

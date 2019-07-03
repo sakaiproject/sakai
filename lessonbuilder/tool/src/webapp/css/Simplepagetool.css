@@ -306,6 +306,12 @@ span.mm-file-input-name {
 }
 .mm-file-input-delete {
 	cursor: pointer;
+    color: red;
+}
+.multimedia-url-box{
+    width: 75%;
+    display: block;
+    margin-bottom: 5px;
 }
 .mm-file-input-itemname {
 	margin-left: 1.0em;
