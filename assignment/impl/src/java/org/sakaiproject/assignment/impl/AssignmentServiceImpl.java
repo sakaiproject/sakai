@@ -1205,7 +1205,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             User user = userDirectoryService.getUser(submitter.getSubmitter());
                             LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
                             // graded and saved before releasing it
-                            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                            String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).submitter(submitter.getSubmitter()).reckon().getReference();
+                            Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionReference, null, true, NotificationService.NOTI_OPTIONAL, statement);
                             eventTrackingService.post(event);
                         } catch (UserNotDefinedException e) {
                             log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
@@ -1221,7 +1222,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         User user = userDirectoryService.getUser(submitter.getSubmitter());
                     	LRS_Statement statement = getStatementForAssignmentGraded(reference, submission.getAssignment(), submission, user);
                     	// releasing a submitted assignment or releasing grade to an unsubmitted assignment
-                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    	String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).submitter(submitter.getSubmitter()).reckon().getReference();
+                    	Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionReference, null, true, NotificationService.NOTI_OPTIONAL, statement);
                     	eventTrackingService.post(event);
                     } catch (UserNotDefinedException e) {
                         log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());
@@ -1238,7 +1240,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     User user = userDirectoryService.getUser(submitter.getSubmitter());
                     LRS_Statement statement = getStatementForUnsubmittedAssignmentGraded(reference, submission.getAssignment(), submission, user);
                     // releasing a submitted assignment or releasing grade to an unsubmitted assignment
-                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, reference, null, true, NotificationService.NOTI_OPTIONAL, statement);
+                    String submissionReference = AssignmentReferenceReckoner.reckoner().submission(submission).submitter(submitter.getSubmitter()).reckon().getReference();
+                    Event event = eventTrackingService.newEvent(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionReference, null, true, NotificationService.NOTI_OPTIONAL, statement);
                     eventTrackingService.post(event);
                 } catch (UserNotDefinedException e) {
                     log.warn("Assignments could not find user ({}) while registering Event for LRSS", submitter.getSubmitter());

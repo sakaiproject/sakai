@@ -92,6 +92,7 @@ public class AssignmentReferenceTest {
         final String context = UUID.randomUUID().toString();
         final String assignmentId = UUID.randomUUID().toString();
         final String submissionId = UUID.randomUUID().toString();
+        final String submitterId = UUID.randomUUID().toString();
         Assignment assignment = new Assignment();
         assignment.setId(assignmentId);
         assignment.setContext(context);
@@ -101,5 +102,7 @@ public class AssignmentReferenceTest {
         String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
         Assert.assertNotNull(reference);
         Assert.assertEquals("/assignment/s/" + context + "/" + assignmentId + "/" + submissionId, reference);
+        reference = AssignmentReferenceReckoner.reckoner().submission(submission).submitter(submitterId).reckon().getReference();
+        Assert.assertEquals("/assignment/s/" + context + "/" + assignmentId + "/" + submissionId + "/" + submitterId, reference);
     }
 }

@@ -42,6 +42,7 @@ public class AssignmentReferenceReckoner {
         private String id;
         @Getter(AccessLevel.NONE) private String reference;
         private String subtype;
+        private String submitter;
 
         @Override
         public String toString() {
@@ -79,6 +80,10 @@ public class AssignmentReferenceReckoner {
                 reference = reference + Entity.SEPARATOR + id;
             }
 
+            if (StringUtils.isNotBlank(submitter) && "s".equals(subtype)) {
+                reference = reference + Entity.SEPARATOR + submitter;
+            }
+
             return reference;
         }
 
@@ -99,7 +104,7 @@ public class AssignmentReferenceReckoner {
      * @return
      */
     @Builder(builderMethodName = "reckoner", buildMethodName = "reckon")
-    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission, String container, String context, String id, String reference, String subtype) {
+    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission, String container, String context, String id, String reference, String subtype, String submitter) {
         if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
             String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
@@ -114,6 +119,10 @@ public class AssignmentReferenceReckoner {
                     if ("s".equals(subtype) && parts.length > 5) {
                         if (container == null) container = parts[4];
                         if (id == null) id = parts[5];
+                        // submissions might have the submitter
+                        if (parts.length > 6) {
+                            if (submitter == null) submitter = parts[6];
+                        }
                     } else {
                         // others don't
                         if (parts.length > 4) {
@@ -142,6 +151,7 @@ public class AssignmentReferenceReckoner {
                 (context == null) ? "" : context,
                 (id == null) ? "" : id,
                 (reference == null) ? "" : reference,
-                (subtype == null) ? "" : subtype);
+                (subtype == null) ? "" : subtype,
+                (submitter == null) ? "" : submitter);
     }
 }
