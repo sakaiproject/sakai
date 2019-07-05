@@ -1017,6 +1017,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		while ((nextItem = crqs.getNextItemInQueueToSubmit(getProviderId())).isPresent()) {
 			try {
 				ContentReviewItem item = nextItem.get();
+				if (item.getNextRetryTime().getTime() > new Date().getTime()) {
+					continue;
+				}
 				if (!incrementItem(item)) {
 					errors++;
 					continue;
@@ -1324,6 +1327,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 	}
 	
+	/**
+	 * Bumps up the item's retryCount and nextRetryTime
+	 * @return true iff the retry count hasn't exceeded
+	 */
 	public boolean incrementItem(ContentReviewItem item) {
 		// If retry count is null set to 0
 		Calendar cal = Calendar.getInstance();
