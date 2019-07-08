@@ -216,6 +216,12 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		this.calculatedPointsEarned = literalTotalPointsEarned;
 	}
 
+	// Added compatibility in GB Classic (12.x) - SAK-41295
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned,
+			double literalTotalPointsEarned) {
+		initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, 0.0);
+	}
+
 	public void initNonpersistentFields(final double totalPointsPossible, final double totalPointsEarned,
 			final double literalTotalPointsEarned, final double totalPointsExtra) {
 		BigDecimal percentageEarned;
