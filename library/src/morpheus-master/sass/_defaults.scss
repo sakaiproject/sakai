@@ -401,11 +401,11 @@ $siteDelete-border: 1px solid $info-color !default;
 //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
 
 /* Footer */
-$footer-background-color: $tool-menu-background-color !default;
-$footer-border-color: $tool-border-color !default;
-$footer-color: $text-color !default;
-$footer-link-separator: #ccc !default;
-$footer-details-border-color: $footer-link-separator !default;
+$footer-background-color: $tool-menu-background-color;
+$footer-border-color: $tool-border-color;
+$footer-font-size: 12px;
+$footer-color: $text-color;
+$footer-link-separator: #ccc;
 
 // Overview page column widths. Total to add up to 96% as the columns have a margin.
 $col1of2-width: 48% !default;
