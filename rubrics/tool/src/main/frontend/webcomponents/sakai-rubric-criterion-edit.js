@@ -43,8 +43,8 @@ export class SakaiRubricCriterionEdit extends SakaiElement {
       <div id="edit_criterion_${this.criterion.id}" class="popover criterion-edit-popover bottom">
         <div class="arrow"></div>
         <div class="popover-title">
-          <div class="buttons">
-            <button class="btn btn-primary btn-xs save" @click="${this.saveEdit}">
+          <div class="buttons act">
+            <button class="active save" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
             <button class="btn btn-link btn-xs cancel" @click="${this.cancelEdit}">

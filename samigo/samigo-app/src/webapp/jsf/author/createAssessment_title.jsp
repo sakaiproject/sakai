@@ -82,8 +82,8 @@
                     </h:selectOneMenu>
                 </div>
 
-                <div class="form-group">
-                    <h:commandButton id="createnew" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
+                <div class="form-group act">
+                    <h:commandButton id="createnew" styleClass="active" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
                     </h:commandButton>
                 </div>
@@ -94,7 +94,7 @@
             </div>
 
             <div id="samigo-create-import-box" class="col-md-5">
-                <div>
+                <div class="">
                     <h4>
                         <h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
                     </h4>

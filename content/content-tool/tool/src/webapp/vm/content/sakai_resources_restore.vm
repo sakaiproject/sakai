@@ -30,9 +30,9 @@
 			<br /><div class="messageValidation">$validator.escapeHtml($alertMessage)</div><div class="clear"></div>
 		#end
 			<div class="navPanel">
-				<div class="navIntraToolLink viewNav">
+				<div class="navIntraToolLink viewNav act">
 						<span>
-								<input id="restore-button" type="button" value="$tlang.getString("restore.restore")"
+								<input id="restore-button" type="button" class="active" value="$tlang.getString("restore.restore")"
 									onclick="this.disabled = true; submitThis('restoreForm','restore')"
 									disabled="disabled" alt="$tlang.getString("restore.restore")" />
 								<input id="remove-button" type="button" value="$tlang.getString("restore.remove")"
