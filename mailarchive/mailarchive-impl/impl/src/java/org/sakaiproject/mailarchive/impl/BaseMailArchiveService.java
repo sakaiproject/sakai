@@ -826,11 +826,12 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 				List attachments, String[] body) throws PermissionException
 		{
 			StringBuilder alertMsg = new StringBuilder();
-			String cleanedHtml = FormattedText.processFormattedText(body[1], alertMsg);
+			final String cleanedHtml = FormattedText.processFormattedText(body[1], alertMsg);
+			final String cleanedText = FormattedText.encodeUnicode(body[0]);
 
 			MailArchiveMessageEdit edit = (MailArchiveMessageEdit) addMessage();
 			MailArchiveMessageHeaderEdit archiveHeaders = edit.getMailArchiveHeaderEdit();
-			edit.setBody(body[0]); 
+			edit.setBody(cleanedText);
 			edit.setHtmlBody(cleanedHtml);
 			archiveHeaders.replaceAttachments(attachments);
 			archiveHeaders.setSubject(subject);
