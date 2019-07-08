@@ -81,12 +81,14 @@
 	margin-right: 5px;
 	/*	display:none; - uncomment to hide the "new" message */
 }
+.childrenNewNumber{
+	margin-left: 5px;
+}
 .childrenNew{
 	color: #e90;
 	font-size:87%;
 	font-weight:bold;
 	padding: 1px 2px;
-	margin-left: 5px;
 	/*	display:none; - uncomment to hide the message associated with parents of new messages*/
 }
 
