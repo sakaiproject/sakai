@@ -5930,14 +5930,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					entity = contentService.getCollection(deleteId);
 				}
-				else if(contentService.allowRemoveResource(deleteId))
+				else
 				{
 					entity = contentService.getResource(deleteId);
 				}
-				else
-				{
-					
-				}
+				
 				ListItem item = new ListItem(entity);
 				if(item.isCollection() && contentService.allowRemoveCollection(deleteId))
 				{
