@@ -157,6 +157,7 @@ public class GradebookNgBusinessService {
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
+	public static final String ALL = "all";
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -1300,6 +1301,7 @@ public class GradebookNgBusinessService {
 
 			// if we still have permissions, they will be of type grade, so we
 			// need to enrich the students grades
+			boolean allPermissions = false;
 			if (!permissions.isEmpty()) {
 				// first need a lookup map of assignment id to category, so we
 				// can link up permissions by category
@@ -1310,6 +1312,25 @@ public class GradebookNgBusinessService {
 
 				// get the group membership for the students
 				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships();
+
+				//Pair group <-> category
+				Map <Long, List<String>> permByCat = new HashMap<>();
+
+				for (final PermissionDefinition permission : permissions) {
+					final Long permissionCategoryId = permission.getCategoryId() != null ? permission.getCategoryId() : -1L;
+					final String permissionGroupReference = permission.getGroupReference() != null ? permission.getGroupReference() : ALL;
+
+					//permissions over all categories and grades
+					if (Long.valueOf(-1L).equals(permissionCategoryId) && ALL.equals(permissionGroupReference)) {
+						allPermissions = true;
+						break;
+					}
+
+					//By categories
+					List<String> arr = permByCat.getOrDefault(permissionCategoryId, new ArrayList<String>());
+					arr.add(permissionGroupReference);
+					permByCat.put(permissionCategoryId, arr);
+				}
 
 				// for every student
 				for (final GbUser student : gbStudents) {
@@ -1334,47 +1355,30 @@ public class GradebookNgBusinessService {
 
 						boolean gradeable = false;
 
-						for (final PermissionDefinition permission : permissions) {
-							// we know they are all GRADE so no need to check here
+						//If TA does not have all the permissions over categories and groups
+						if (!allPermissions) {
 
-							boolean categoryOk = false;
-							boolean groupOk = false;
+							//Check category and group permissions
+							List<String> arr = permByCat.getOrDefault(gradeCategoryId, new ArrayList<String>());
 
-							final Long permissionCategoryId = permission.getCategoryId();
-							final String permissionGroupReference = permission.getGroupReference();
+							//add groups with permission in all categories
+							Optional.ofNullable(permByCat.get(Long.valueOf(-1L))).ifPresent(arr::addAll);
 
-							log.debug("permissionCategoryId: {}", permissionCategoryId);
-							log.debug("permissionGroupReference: {}", permissionGroupReference);
+							for (String group: arr) {
+								List<String> members = groupMembershipsMap.get(group);
 
-							// if permissions category is null (can grade all categories) or they match (can grade this category)
-							if (!categoriesAreEnabled() || (permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId))) {
-								categoryOk = true;
-								log.debug("Category check passed");
-							}
-
-							// if group reference is null (can grade all groups) or group membership contains student (can grade this group)
-							if (StringUtils.isBlank(permissionGroupReference)) {
-								groupOk = true;
-								log.debug("Group check passed #1");
-							} else {
-								final List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
-								log.debug("groupMembers: {}", groupMembers);
-
-								if (groupMembers != null && groupMembers.contains(student.getUserUuid())) {
-									groupOk = true;
-									log.debug("Group check passed #2");
+								//permissions over this category in all groups
+								if ((group != null && ALL.equals(group)) ||
+										(members != null && members.contains(student.getUserUuid()))) {
+									gradeable = true;
+									break;
 								}
-							}
-
-							if (categoryOk && groupOk) {
-								gradeable = true;
-								break;
 							}
 						}
 
 						// set the gradeable flag on this grade instance
 						final GbGradeInfo gradeInfo = entry.getValue();
-						gradeInfo.setGradeable(gradeable);
+						gradeInfo.setGradeable(gradeable || allPermissions);
 					}
 				}
 			}
