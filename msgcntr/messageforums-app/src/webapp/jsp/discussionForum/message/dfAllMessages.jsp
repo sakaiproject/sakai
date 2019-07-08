@@ -277,15 +277,10 @@
 					columnClasses="attach, attach,messageTitle,attach,bogus,bogus">		
 			<h:column id="_checkbox">
 				<f:facet name="header">
+					<h:graphicImage value="/images/expand-collapse.gif" style="vertical-align:middle" alt="#{msgs.expandAll}" title="#{msgs.expandAll}" />
 				</f:facet>
 			</h:column>
 			<h:column id="_toggle">
-				<f:facet name="header">
-					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true" title="#{msgs.cdfm_collapse_expand_all}">
-							<h:graphicImage value="/images/collapse-expand.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded == 'true'}" alt=""  />
-							<h:graphicImage value="/images/expand-collapse.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded != 'true'}" alt=""  />
-					</h:commandLink>
-				</f:facet>
 			</h:column>
 			<h:column id="_msg_subject">
 				<f:facet name="header">
