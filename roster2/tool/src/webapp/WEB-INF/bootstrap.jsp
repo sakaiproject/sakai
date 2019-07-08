@@ -45,7 +45,8 @@
                 showPermsToMaintainers: ${showPermsToMaintainers},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {},
-                showVisits: ${showVisits}
+                showVisits: ${showVisits},
+                profileNamePronunciationLink: '${profileNamePronunciationLink}',
             };
     
         </script>
