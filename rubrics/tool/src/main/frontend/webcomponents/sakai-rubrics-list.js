@@ -41,10 +41,12 @@ export class SakaiRubricsList extends SakaiElement {
         </div>
       </div>
       <br>
-      <button class="btn-primary add-rubric" @click="${this.createNewRubric}">
-        <span class="add fa fa-plus"></span>
-        <sr-lang key="add_rubric">add_rubric</sr-lang>
-      </button>
+      <div class="act">
+        <button class="active add-rubric" @click="${this.createNewRubric}">
+            <span class="add fa fa-plus"></span>
+            <sr-lang key="add_rubric">add_rubric</sr-lang>
+        </button>
+      </div>
     `;
   }
 

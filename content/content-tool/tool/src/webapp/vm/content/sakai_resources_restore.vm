@@ -32,7 +32,7 @@
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav act">
 						<span>
-								<input id="restore-button" type="button" value="$tlang.getString("restore.restore")"
+								<input id="restore-button" type="button" class="active" value="$tlang.getString("restore.restore")"
 									onclick="this.disabled = true; submitThis('restoreForm','restore')"
 									disabled="disabled" alt="$tlang.getString("restore.restore")" class="active"/>
 								<input id="remove-button" type="button" value="$tlang.getString("restore.remove")"
