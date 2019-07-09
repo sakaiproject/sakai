@@ -59,7 +59,7 @@
 						<tr>
 							<td headers="class">
 								<h5>
-									<label for="mcl$manualCourseListNum">
+									<label for="mcl$manualCourseListNum">`
 										$id $tlang.getString("sitedicla.requested")
 									</label>
 								</h5>
@@ -86,7 +86,7 @@
 				<p class="act">
 					<input type="hidden" name="back" value="12" />
 					<input type="hidden" name="templateIndex" value="$!templateIndex" />
-					<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitedicla.can")" aria-label=""$tlang.getString("sitedicla.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" name="eventSubmit_doBack" class="active" value="$tlang.getString("sitedicla.can")" aria-label=""$tlang.getString("sitedicla.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				</p>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
