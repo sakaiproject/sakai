@@ -366,7 +366,34 @@
                                     <charset>UTF-8</charset>
                                     <webappSourceDir>${basedir}/src/${sakai.skin.source}</webappSourceDir>
                                     <jsSourceDir>js/src/</jsSourceDir>
-                                    <jsIncludes>*.js</jsIncludes>
+					
+				    <jsSourceFiles>
+                                    	<jsSourceFile>sakai.morpheus.authz.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.bullhorns.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.chat.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.connection-manager.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.footer.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.i18n.utils.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.keyboard.sortable.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.more.sites.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.profile.popup.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.publish.site.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.quicklinks.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.reorderer.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.responsive.menus.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.session.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.short.url.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.skipnav.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.subnav.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.toggletools.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.update.presence.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.usernav.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.utils.js</jsSourceFile>
+										<jsSourceFile>sakai.morpheus.xlogin.js</jsSourceFile>
+                                    </jsSourceFiles>	
+					
+                                    
+					
                                     <jsTargetDir>skin/${sakai.skin.target}/js</jsTargetDir>
                                     <jsFinalFile>morpheus.scripts.js</jsFinalFile>
                                     <jsEngine>CLOSURE</jsEngine>
