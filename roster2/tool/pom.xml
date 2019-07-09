@@ -177,7 +177,11 @@
                             <charset>UTF-8</charset>
                             <webappSourceDir>${basedir}/src/webapp</webappSourceDir>
                             <jsSourceDir>js/</jsSourceDir>
-                            <jsIncludes>*.js</jsIncludes>
+                            
+                            <jsSourceFiles>
+                                   <jsSourceFile>roster.js</jsSourceFile>
+                            </jsSourceFiles>
+                            
                             <jsTargetDir>js</jsTargetDir>
                             <jsFinalFile>roster.js</jsFinalFile>
                             <jsEngine>CLOSURE</jsEngine>
