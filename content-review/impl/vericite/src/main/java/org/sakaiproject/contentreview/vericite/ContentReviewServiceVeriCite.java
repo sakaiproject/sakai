@@ -677,21 +677,21 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 				resource = contentHostingService.getResource(item.getContentId());
 			} catch (IdUnusedException e4) {
 				log.error("IdUnusedException: no resource with id " + item.getContentId());
-				item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
+				setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.idunusedexception"));
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				crqs.update(item);
 				errors++;
 				continue;
 			} catch (PermissionException e) {
 				log.error("PermissionException: no resource with id " + item.getContentId());
-				item.setLastError("PermissionException: no resource with id " + item.getContentId());
+				setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.permissionexception"));
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				crqs.update(item);
 				errors++;
 				continue;
 			} catch (TypeException e) {
 				log.error("TypeException: no resource with id " + item.getContentId());
-				item.setLastError("TypeException: no resource with id " + item.getContentId());
+				setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.type.exception", e.getLocalizedMessage()));
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				crqs.update(item);
 				errors++;
@@ -718,7 +718,7 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 				}
 			} catch (ApiException e) {
 				log.error(e.getMessage()  + ", id: " + item.getContentId(), e);
-				item.setLastError(e.getMessage());
+				item.setLastError(e.getLocalizedMessage());
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 				crqs.update(item);
 				errors++;
@@ -733,7 +733,7 @@ public class ContentReviewServiceVeriCite extends BaseContentReviewService {
 								uploadExternalContent(info.getUrlPost(), resource.getContent(), info.getHeaders());
 							} catch (Exception e) {
 								log.warn("ServerOverloadException: " + item.getContentId(), e);
-								item.setLastError(e.getMessage());
+								item.setLastError(e.getLocalizedMessage());
 								item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 								crqs.update(item);
 								errors++;

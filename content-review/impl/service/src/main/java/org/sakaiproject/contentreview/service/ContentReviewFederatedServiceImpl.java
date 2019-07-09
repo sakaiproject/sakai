@@ -41,6 +41,7 @@ import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -316,5 +317,14 @@ public class ContentReviewFederatedServiceImpl extends BaseContentReviewService 
 	@Override
 	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
 		providers.stream().filter(crs -> crs.getProviderId().intValue() == providerId).collect(Collectors.toList()).get(0).webhookEvent(request, providerId, customParam);		
+	}
+
+	@Override
+	protected ResourceLoader getResourceLoader() {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider instanceof BaseContentReviewService) {
+			return ((BaseContentReviewService)provider).getResourceLoader();
+		}
+		throw new UnsupportedOperationException("getResourceLoader() is not implemented outside of BaseContentReviewService");
 	}
 }

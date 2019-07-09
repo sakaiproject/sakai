@@ -152,7 +152,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO = "report_gen_speed";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY = "0";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE = "2";	
-	
+
 	final static long LOCK_PERIOD = 12000000;
 	private Long maxRetry = 20L;
 	
@@ -431,7 +431,8 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 				document = compilatioConn.callCompilatioReturnDocument(params);
 
 			} catch (TransientSubmissionException | SubmissionException e) {
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Error Submitting Assignment for Submission: " + e.getMessage() + ". Assume unsuccessful", null);
+				String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.generic", e.getLocalizedMessage()));
+				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, errorMsg, null);
 				errors++;
 				continue;
 			}
@@ -468,7 +469,8 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 					if (CompilatioError.valueOf(rCode) != null) {
 						errorCodeInt = CompilatioError.valueOf(rCode).getErrorCode();
 					}
-					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Submission Error: " + rMessage + "(" + rCode + ")", errorCodeInt);
+					String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.with.code", rMessage, rCode));
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, errorMsg, errorCodeInt);
 					errors++;
 				}
 	
@@ -539,7 +541,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 				document = compilatioConn.callCompilatioReturnDocument(params);
 			} catch (TransientSubmissionException | SubmissionException e) {
 				log.warn("Update failed : " + e.toString(), e);
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE, e.getMessage(), null);
+				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE, e.getLocalizedMessage(), null);
 				errors++;
 				continue;
 			}
@@ -555,7 +557,8 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 
 				if ("ANALYSE_NOT_STARTED".equals(status)) {
 					//send back to the process queue, we need no analyze it again
-					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "ANALYSE_NOT_STARTED", null);
+					String msg = createLastError(doc -> createFormattedMessageXML(doc, "report.error.analyse.not.started"));
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, msg, null);
 					errors++;
 					continue;
 				} else if ("ANALYSE_COMPLETE".equals(status)) {
@@ -636,7 +639,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 			 * Use ResourceLoader to resolve the file types.
 			 * If the resource loader doesn't find the file extenions, log a warning and return the [missing key...] messages
 			 */
-			ResourceLoader resourceLoader = new ResourceLoader("compilatio");
+			ResourceLoader resourceLoader = getResourceLoader();
 			for( String fileExtension : acceptableFileExtensions )
 			{
 				String key = KEY_FILE_TYPE_PREFIX + fileExtension;
@@ -695,9 +698,7 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 
 	@Override
 	public String getLocalizedStatusMessage(String messageCode, String userRef) {
-		String userId = EntityReference.getIdFromRef(userRef);
-		ResourceLoader resourceLoader = new ResourceLoader(userId, "compilatio");
-		return resourceLoader.getString(messageCode);
+		return getResourceLoader().getString(messageCode);
 	}
 
 	@Override
@@ -793,18 +794,21 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 				//this never should happen, user can not add to queue invalid files
 				if(!compilatioContentValidator.isAcceptableContent(resource)){
 					log.error("Not valid extension: resource with id " + currentItem.getContentId());
-					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE, "Not valid extension: resource with id " + currentItem.getContentId(), null);
+					String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.invalid.extension"));
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE, errorMsg, null);
 					return false;
 				}
 
 			} catch (TypeException e4) {
 
 				log.warn("TypeException: resource with id " + currentItem.getContentId());
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE, "TypeException: resource with id " + currentItem.getContentId(), null);
+				String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.type.exception", e4.getLocalizedMessage()));
+				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE, errorMsg, null);
 				return false;
 			} catch (IdUnusedException e) {
 				log.warn("IdUnusedException: no resource with id " + currentItem.getContentId());
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE, "IdUnusedException: no resource with id " + currentItem.getContentId(), null);
+				String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.id.unused.exception"));
+				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE, errorMsg, null);
 				return false;
 			}
 			ResourceProperties resourceProperties = resource.getProperties();
@@ -812,7 +816,8 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 			fileName = escapeFileName(fileName, resource.getId());
 		} catch (PermissionException e2) {
 			log.error("Submission failed due to permission error.", e2);
-			processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Permission exception: " + e2.getMessage(), null);
+			String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.permission.exception"));
+			processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, errorMsg, null);
 			return false;
 		}
 		
@@ -850,7 +855,8 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 					crqs.update(currentItem);
 				} else {
 					log.warn("invalid external id");
-					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Submission error: no external id received", null);
+					String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.no.external.id.received"));
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, errorMsg, null);
 					return false;
 				}
 			} else {
@@ -863,11 +869,13 @@ public class CompilatioReviewServiceImpl extends BaseContentReviewService {
 				if (errorCode != null) {
 					errorCodeInt = errorCode.getErrorCode();
 				}
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Add Document To compilatio Error: " + rMessage + "(" + rCode + ")", errorCodeInt);
+				String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.compilatio.with.code", rMessage, rCode));
+				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, errorMsg, errorCodeInt);
 				return false;
 			}
 		} catch (Exception e) {
-			processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "Error Submitting Assignment for Submission: " + e.getMessage() + ". Assume unsuccessful", null);
+			String errorMsg = createLastError(doc -> createFormattedMessageXML(doc, "submission.error.generic", e.getLocalizedMessage()));
+			processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, errorMsg, null);
 			return false;
 		}
 
