@@ -476,8 +476,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			source = (lessonEntity==null)?"dummy":lessonEntity.getUrl();
 		}
 
-	    UIComponent iframe = UILink.make(tofill, "iframe1", source);
-	    iframe.decorate(new UIFreeAttributeDecorator("data-namespace", LESSONS_NAMESPACE + " " + getNamespaceClass));
+	    UIComponent iframe = UILink.make(tofill, "iframe1", source)
+				.decorate(new UIFreeAttributeDecorator("data-namespace", LESSONS_NAMESPACE + " " + getNamespaceClass))
+				.decorate(new UIFreeAttributeDecorator("allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow"))));
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
 		String height = item.getHeight();
 		if (height == null || height.equals(""))
