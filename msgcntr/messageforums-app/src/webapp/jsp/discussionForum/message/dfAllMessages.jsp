@@ -399,9 +399,14 @@
 					</f:facet>
                	
 					<h:graphicImage value="/images/trans.gif" rendered="#{message.read}" style="margin-left:.5em" alt="" />
-					<h:graphicImage value="/images/markAsRead.gif" rendered="#{!message.read}"
-						alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
-						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsReadIcon"/>
+					<h:outputLink value="javascript:void(0);"
+								  title="#{msgs.cdfm_mark_as_read}"
+								  rendered="#{!message.read}"
+								  styleClass="markAsReadIcon button"
+								  onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
+						<h:graphicImage value="/images/trans.gif"/>
+						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+					</h:outputLink>
 			</h:column>
 			<h:column>
 				<f:facet name="header">

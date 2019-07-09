@@ -374,8 +374,8 @@ function doAjax(messageId, topicId, self){
                     if ($(self).parent('td').size() === 1) {
                         var thisTheadClassArr = $(thisRow).prop('class').split(' ');
                         var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
-                        var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text());
-                        if(unread > 0) {
+                        var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber', 10).text());
+                        if (unread > 0) {
                             $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread - 1);
                         }
                         $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
