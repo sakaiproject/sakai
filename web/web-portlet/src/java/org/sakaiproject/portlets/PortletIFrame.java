@@ -369,7 +369,7 @@ public class PortletIFrame extends GenericPortlet {
 				context.put("validator", validator);
 				context.put("source",url);
 				context.put("height",height);
-				context.put("browser-feature-allow", ServerConfigurationService.getStrings("browser.feature.allow"));
+				context.put("browser-feature-allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow")));
 				sendAlert(request,context);
 				context.put("popup", Boolean.valueOf(popup));
 				context.put("popupdone", Boolean.valueOf(popupDone != null));
