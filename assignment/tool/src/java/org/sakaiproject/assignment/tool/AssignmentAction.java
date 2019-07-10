@@ -1479,8 +1479,13 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (assignment.getContentReview()) {
                 Map<String, String> properties = assignment.getProperties();
-                state.setAttribute("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
+
+                // Indicate that the student's submission is going to Turnitin, and whether their submission will be indexed to be compared against by other submissions
+                boolean isSubmissionIndexed = "true".equals(properties.get("store_inst_index"));
+                String plagiarismNoteKey = isSubmissionIndexed ? "gen.yoursubwill.indexed" : "gen.yoursubwill";
+                state.setAttribute("plagiarismNote", rb.getFormattedMessage(plagiarismNoteKey, contentReviewService.getServiceName()));
                 context.put("plagiarismNote", state.getAttribute("plagiarismNote"));
+
                 if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment)) {
                 		state.setAttribute("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage())); 
                     context.put("plagiarismFileTypes", state.getAttribute("plagiarismFileTypes"));
