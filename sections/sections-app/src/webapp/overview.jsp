@@ -7,6 +7,7 @@
     <t:aliasBean alias="#{viewName}" value="overview">
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
+
     <div class="page-header">
         <h1>
             <h:outputFormat value="#{msgs.overview_page_header}">

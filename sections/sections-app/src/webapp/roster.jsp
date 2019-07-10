@@ -9,7 +9,7 @@
     </t:aliasBean>
 
     <div class="page-header">
-	    <h1><h:outputText value="#{msgs.student_member}"/></h1>
+        <h1><h:outputText value="#{msgs.student_member}"/></h1>
     </div>
 
 	<div class="instructions">	
