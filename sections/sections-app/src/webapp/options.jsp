@@ -12,8 +12,9 @@
     <t:aliasBean alias="#{viewName}" value="options">
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
-
-        <h3><h:outputText value="#{msgs.options_page_header}"/></h3>
+		<div class="page-header">
+        	<h1><h:outputText value="#{msgs.options_page_header}"/></h1>
+		</div>
         <h4><h:outputText value="#{msgs.options_page_subheader}"/></h4>
         
         <%@ include file="/inc/globalMessages.jspf"%>

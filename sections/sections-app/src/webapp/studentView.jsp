@@ -10,8 +10,10 @@
 
     <sakai:flowState bean="#{studentViewBean}"/>
 
-        <h3><h:outputText value="#{msgs.student_view_page_header}"/></h3>
-    
+        <div class="page-header">
+            <h1><h:outputText value="#{msgs.student_view_page_header}"/></h1>
+        </div>
+
         <t:div styleClass="instructions" rendered="#{not empty studentViewBean.instructions}">
             <h:outputText value="#{studentViewBean.instructions}"/>
         </t:div>

@@ -10,7 +10,9 @@
         </t:aliasBean>
     </h:panelGroup>
 
-        <h3><h:outputText value="#{msgs.edit_manager_page_header}"/></h3>
+        <div class="page-header">
+            <h1><h:outputText value="#{msgs.edit_manager_page_header}"/></h1>
+        </div>
         <h4><h:outputText value="#{editManagersBean.sectionDescription}"/></h4>
 
         <%@ include file="/inc/globalMessages.jspf"%>

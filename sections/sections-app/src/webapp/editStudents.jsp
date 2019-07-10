@@ -8,7 +8,9 @@
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
-        <h3><h:outputText value="#{msgs.edit_student_page_header}"/></h3>
+        <div class="page-header">
+            <h1><h:outputText value="#{msgs.edit_student_page_header}"/></h1>
+        </div>
         <h4><h:outputText value="#{editStudentsBean.sectionDescription}"/></h4>
 
         <%@ include file="/inc/globalMessages.jspf"%>

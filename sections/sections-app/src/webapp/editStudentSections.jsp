@@ -9,11 +9,13 @@
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
-        <h3>
-            <h:outputFormat value="#{msgs.edit_student_sections_page_header}">
-                <f:param value="#{editStudentSectionsBean.studentName}"/>
-            </h:outputFormat>
-        </h3>
+        <div class="page-header">
+            <h1>
+                <h:outputFormat value="#{msgs.edit_student_sections_page_header}">
+                    <f:param value="#{editStudentSectionsBean.studentName}"/>
+                </h:outputFormat>
+            </h1>
+        </div>
 
 		<t:div styleClass="instruction">
             <h:outputFormat value="#{msgs.edit_student_sections_current_sections}">

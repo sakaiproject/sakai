@@ -7,9 +7,11 @@
     <t:aliasBean alias="#{viewName}" value="editSection">
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
-    
-    <h3><h:outputText value="#{msgs.edit_section_page_header}"/></h3>
-        
+
+    <div class="page-header">
+        <h1><h:outputText value="#{msgs.edit_section_page_header}"/></h1>
+    </div>
+
     <%@ include file="/inc/globalMessages.jspf"%>
 
 	<t:aliasBean alias="#{bean}" value="#{editSectionBean}">
