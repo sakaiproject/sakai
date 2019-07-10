@@ -19,7 +19,8 @@
     </bean>
     <bean id="iframeRenderService" name="iframeRenderService"
           class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService" >
-        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+        <property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
 

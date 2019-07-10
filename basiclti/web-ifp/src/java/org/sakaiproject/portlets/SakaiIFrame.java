@@ -230,6 +230,7 @@ public class SakaiIFrame extends GenericPortlet {
 				context.put("validator", validator);
 				context.put("source",source);
 				context.put("height",height);
+				context.put("browser-feature-allow", ServerConfigurationService.getStrings("browser.feature.allow"));
 				sendAlert(request,context);
 				context.put("popupdone", Boolean.valueOf(popupDone != null));
 				context.put("popup", Boolean.valueOf(popup));
