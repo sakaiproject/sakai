@@ -2793,6 +2793,16 @@ user_id: admin
 		return null;
 	}
 
+	public static String getStringNull(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof String) {
+			return (String) value;
+		}
+		return null;
+	}
+
 	/**
 	 * Setup a security advisor.
 	 */
