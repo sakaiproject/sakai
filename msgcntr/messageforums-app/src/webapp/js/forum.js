@@ -374,6 +374,10 @@ function doAjax(messageId, topicId, self){
                     if ($(self).parent('td').size() === 1) {
                         var thisTheadClassArr = $(thisRow).prop('class').split(' ');
                         var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
+                        var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(), 10);
+                        if (unread > 0) {
+                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread - 1);
+                        }
                         $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
 						//hide "New Messages" in thread seed if all messages have been marked as "read"
                         if ($('.' + thisThread).find('span.messageNew').size() === 1) {
@@ -392,8 +396,8 @@ function doAjax(messageId, topicId, self){
                             $('.jumpToNew').remove();
                         }
                     }
-                    
-                    
+
+
                     //remove at end after references are not needed
                     $(self).remove();
                     $("#" + messageId).parents("tr:first").children("td").each(function(){

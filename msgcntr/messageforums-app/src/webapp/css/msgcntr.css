@@ -81,12 +81,14 @@
 	margin-right: 5px;
 	/*	display:none; - uncomment to hide the "new" message */
 }
+.childrenNewNumber{
+	margin-left: 5px;
+}
 .childrenNew{
 	color: #e90;
 	font-size:87%;
 	font-weight:bold;
 	padding: 1px 2px;
-	margin-left: 5px;
 	/*	display:none; - uncomment to hide the message associated with parents of new messages*/
 }
 
@@ -144,13 +146,26 @@
 	padding: 1px 2px;
 	margin-right: 5px;
 }
-a.markAsReadIcon{
+
+.Mrphs-sakai-forums #msgForum a.button.markAsReadIcon{
 	cursor: pointer;
 	margin-left:.5em;
-	background: #fff url(../images/silk/email.png) 5px 5px no-repeat;
+	position:relative;
 }
-a.markAsReadIcon:hover{
-	background: #fff url(../images/silk/email_open.png) 5px 3px no-repeat
+
+.Mrphs-sakai-forums #msgForum a.button.markAsReadIcon::before{
+	content: "";
+	position:absolute;
+	background: url('../images/silk/email.png') 0 center no-repeat;
+	width: 20px;
+	height: 16px;
+	top: 50%;
+	left: 5px;
+	transform: translateY(-50%);
+}
+
+.Mrphs-sakai-forums #msgForum a.markAsReadIcon:hover::before{
+	background-image: url('../images/silk/email_open.png');
 }
 .messagesFlat,.messagesThreaded{
 	width: 98% !important;
