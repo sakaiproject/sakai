@@ -460,7 +460,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return null;
 	}
 	
-	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
+	@Override
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, String contextId, boolean isInstructor) {
 		
 		// Set variables
 		String viewerUrl = null;
