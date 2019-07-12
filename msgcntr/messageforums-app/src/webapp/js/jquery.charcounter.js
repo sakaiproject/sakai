@@ -31,6 +31,8 @@
 			    	pulse(container, true);
 			    };
 			};
+			container.attr('aria-live','polite');
+			container.attr('aria-atomic','false');
 			if (settings.delay > 0) {
 				if (timeout) {
 					window.clearTimeout(timeout);
@@ -76,6 +78,11 @@
 			if (this.addEventListener) {
 				this.addEventListener('input', function () { count(this, container); }, false);
 			};
+
+			container.attr('id', $(this).attr('id')+'--'+settings.classname);
+			container.attr('aria-hidden', 'true');
+			$(this).attr('aria-describedby', $(this).attr('id')+'--'+settings.classname);
+			
 			count(this, container);
 		});
 	};
