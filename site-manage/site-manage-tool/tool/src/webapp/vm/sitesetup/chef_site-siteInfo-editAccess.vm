@@ -65,11 +65,20 @@
 </script>
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
+
+##  header for manage access page
+<div class="page-header">
 	#if (!$!site)
-		<h3>
+		<h1>
 			$tlang.getString("ediacc.other.setsitacc")
-		</h3>
+		</h1>
+	#else
+		<h1>
+			$tlang.getString("java.siteaccess")
+		</h1>
+
 	#end
+</div>
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("ediacc.alert") $alertMessage</div>
 		<div class="clear"></div>

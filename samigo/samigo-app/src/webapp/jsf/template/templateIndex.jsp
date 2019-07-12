@@ -40,10 +40,11 @@
   <!-- HEADINGS -->
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-
-<h3>
-   <h:outputText value="#{templateMessages.index_templates}"/>
- </h3>
+<div class="page-header">
+    <h1>
+       <h:outputText value="#{templateMessages.index_templates}"/>
+    </h1>
+</div>
 
 <div class="tier1">
  <h:outputText value="#{templateMessages.index_desc}"  rendered="#{authorization.createTemplate}"/>

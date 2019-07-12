@@ -42,6 +42,13 @@
         <script type="text/JavaScript">includeWebjarLibrary('datatables');</script>
         <script type="text/javascript" src="/samigo-app/js/info.js"></script>
 
+<%--        header--%>
+        <div class="page-header">
+            <h1>
+                <h:outputText value="#{questionPoolMessages.add} #{authorFrontDoorMessages.assessments}" />
+            </h1>
+        </div>
+
         <div class="samigo-container">
             <p>
                 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>

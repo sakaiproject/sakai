@@ -2,8 +2,14 @@
 ## Edit Site Information
 <div class="portletBody container-fluid">
 	#if($menu)#toolbar($menu)#end
-	## definie form
+	## header for edit site information page
+	<div class="page-header">
+		<h1>
+			$tlang.getString("java.editsite")
+		</h1>
+	</div>
 	<form name="classInformationForm" id="classInformationForm" method="post" action="#toolForm("SiteAction")">
+	## definie form
 	#if(!$existingSite)
 		## adding new site
 		<h3>
