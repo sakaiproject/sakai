@@ -10,9 +10,11 @@
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
 			<h:form id="redirectForm">
-				<h3>
-					<h:outputText value="#{msgs.redirect_sylla}" />
-				</h3>
+
+				<div class="page-header">
+					<h1><h:outputText value="#{msgs.redirect_sylla}" /></h1>
+				</div>
+
 				<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1">
 					<h:panelGroup styleClass="instruction">
