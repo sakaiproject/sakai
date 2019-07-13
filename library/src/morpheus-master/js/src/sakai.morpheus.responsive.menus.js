@@ -64,7 +64,6 @@ $PBJQ(document).ready(function(){
     var keyCodeEnter = "13";
     var optSelected = $PBJQ('option:selected', this);
     if( optSelected && optSelected.val() && optSelected.text() !== '' ){
-	console.log(e)
         if ((e.type == "keydown" && e.keyCode == keyCodeEnter) || e.type == "click") {
           document.location = optSelected.val() + '#roleSwitch';
 	}
