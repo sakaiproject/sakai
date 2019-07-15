@@ -252,7 +252,7 @@ public class GradebookPage extends BasePage {
 		final GbAddButton addGradeItem2 = new GbAddButton("addGradeItem2") {
 			@Override
 			public boolean isVisible() {
-				return GradebookPage.this.role == GbRole.INSTRUCTOR;
+				return businessService.isUserAbleToEditAssessments();
 			}
 		};
 		addGradeItem2.setDefaultFormProcessing(false);
@@ -652,7 +652,7 @@ public class GradebookPage extends BasePage {
 
 		@Override
 		public boolean isVisible() {
-			return GradebookPage.this.role == GbRole.INSTRUCTOR && GradebookPage.this.hasGradebookItems;
+			return businessService.isUserAbleToEditAssessments() && GradebookPage.this.hasGradebookItems;
 		}
 	}
 }
