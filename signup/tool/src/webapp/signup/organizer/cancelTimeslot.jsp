@@ -15,7 +15,9 @@
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 			<h:form id="meeting">
-		 		<sakai:view_title value="#{msgs.cancel_timeslot}"/>
+				<div class="page-header">
+					<sakai:view_title value="#{msgs.cancel_timeslot}"/>
+				</div>
 				<sakai:doc_section>
 					<h:outputText value="#{msgs.confirm_cancel}"/>
 				</sakai:doc_section>

@@ -262,7 +262,9 @@
 				<h:inputHidden id="userActionType" value="#{OrganizerSignupMBean.userActionType}"/>
 				<h:inputHidden id="selectedFirstUser"  value="#{OrganizerSignupMBean.selectedFirstUser}"/>
 			
-			 	<sakai:view_title value="#{msgs.organizer_page_title}"/>
+			 	<div class="page-header">
+					<sakai:view_title value="#{msgs.organizer_page_title}"/>
+				</div>
 			 	<%-- show title only when collapsed --%>
 			 	<div id="showMeetingTitleOnly" styleClass="orgShowTitleOnly">
 					<div class="row">

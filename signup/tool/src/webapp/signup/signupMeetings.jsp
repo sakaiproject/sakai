@@ -190,9 +190,11 @@
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
-				<div class="page-header">
-			 		<h1><h:outputText value="#{msgs.signup_tool}"/></h1>
-				</div>
+                <div class="page-header">
+                    <h1>
+                        <h:outputText value="#{msgs.signup_tool}"/>
+                    </h1>
+                </div>
 				<h:panelGroup styleClass="" rendered="#{(SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.meetingsAvailable) or (!SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.meetingsAvailable)}">
 					<h:outputText value="#{msgs.events_organizer_instruction}"  rendered="#{SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>

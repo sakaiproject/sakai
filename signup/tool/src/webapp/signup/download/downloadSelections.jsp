@@ -168,11 +168,11 @@
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
-				<div class="page-header">
-					<h1>
-						<h:outputText value="#{msgs.signup_download}"/>
-					</h1>
-				</div>
+                <div class="page-header">
+                    <h1>
+                        <h:outputText value="#{msgs.signup_download}"/>
+                    </h1>
+                </div>
 				
 				<h:outputText value="&nbsp;" escape="false"/>
 				

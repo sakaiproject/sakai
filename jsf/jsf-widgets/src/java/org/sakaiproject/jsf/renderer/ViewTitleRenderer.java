@@ -46,7 +46,7 @@ public class ViewTitleRenderer extends Renderer
 		if (!component.isRendered()) return;
 
 		ResponseWriter writer = context.getResponseWriter();
-		writer.startElement("h3", null);
+		writer.startElement("h1", null);
 
 		// TODO: Should we really write out the ID?  Is there any need for this in this tag?
 //		String id = (String) RendererUtil.getAttribute(context, component, "id");
@@ -76,7 +76,7 @@ public class ViewTitleRenderer extends Renderer
 		if (!component.isRendered()) return;
 
 		ResponseWriter writer = context.getResponseWriter();
-		writer.endElement("h3");
+		writer.endElement("h1");
 	}
 }
 
