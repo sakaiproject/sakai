@@ -614,6 +614,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			enableSecurityAdvisor();
 
+			try{
+				this.contentHostingService.checkResource(resourceId);
+			} catch(final Exception e){
+				return false;
+			} finally {
+				disableSecurityAdvisor();
+			}
+
 			this.contentHostingService.removeResource(resourceId);
 
 			result = true;
