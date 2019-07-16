@@ -70,6 +70,7 @@ public class CriterionOutcome implements Serializable {
         private Integer points;
 
         @Lob
+        @Column(length = 65535)
         private String comments;
 
 }
