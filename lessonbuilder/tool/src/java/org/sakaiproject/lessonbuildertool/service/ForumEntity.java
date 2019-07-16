@@ -895,15 +895,15 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		if(isDraft){
 			return true;
 		}
-		boolean topicVisibleByDate = isResourceVisibleByDate(topic.getOpenDate(), topic.getCloseDate());
-		boolean forumVisibleByDate = isResourceVisibleByDate(topic.getOpenForum().getOpenDate(), topic.getOpenForum().getCloseDate());
+		boolean topicVisibleByDate = !topic.getAvailabilityRestricted() || isResourceVisibleByDate(topic.getOpenDate(), topic.getCloseDate());
+		boolean forumVisibleByDate = !topic.getOpenForum().getAvailabilityRestricted() || isResourceVisibleByDate(topic.getOpenForum().getOpenDate(), topic.getOpenForum().getCloseDate());
 	    return !topicVisibleByDate || !forumVisibleByDate;
 	} else {
 		isDraft = ((DiscussionForum)forum).getDraft();
 		if(isDraft){
 			return true;
 		}
-		boolean forumVisibleByDate = isResourceVisibleByDate(((DiscussionForum)forum).getOpenDate(), ((DiscussionForum)forum).getCloseDate());
+		boolean forumVisibleByDate = !((DiscussionForum)forum).getAvailabilityRestricted() || isResourceVisibleByDate(((DiscussionForum)forum).getOpenDate(), ((DiscussionForum)forum).getCloseDate());
 		
 	    return !forumVisibleByDate;
 	}
