@@ -308,6 +308,11 @@ span.mm-file-input-name {
 	cursor: pointer;
     color: red;
 }
+div.mm-file-group {
+    border: 1px solid lightgrey;
+    padding: 8px;
+    margin-bottom: 5px;
+}
 .multimedia-url-box{
     width: 75%;
     display: block;
@@ -334,7 +339,8 @@ a[href].collapse-toggle:hover {
 }
 span.remove-upload {
     margin-left: 6px;
-    font-size: 15px;
+    font-size: 22px;
+    float: right;
 }
 .add-another-file-div {
 	padding: 10px;

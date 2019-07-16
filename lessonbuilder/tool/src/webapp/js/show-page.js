@@ -3350,7 +3350,7 @@ $(function() {
 	});
 
 	function mmFileInputDelete() {
-	    $(this).parent().parent().parent().remove();	//remove file name
+	    $(this).parent().parent().remove();	//remove file name
 		$('.selector-helper').val('');		//remove file from the visible input/picker as well
 	}
 	function mmFileInputChanged() {
@@ -3376,7 +3376,7 @@ $(function() {
 		$('.add-another-file').last().show().parent().addClass('add-another-file-div');
 		// Loop through the new files in reverse order so that they can be added just after the lastInput element.
 		for (i = lastInput[0].files.length-1; i >= 0; i--) {
-			var newStuff = '<p><span class="mm-file-input-name h5">' + lastInput[0].files[i].name + '</span><span class="remove-upload" title="\' + msg(\'simplepage.remove_from_uploads\') + \'"><span class="mm-file-input-delete fa fa-trash"></span></span>';
+			var newStuff = '<p><span class="mm-file-input-name h5">' + lastInput[0].files[i].name + '</span>';
 			if (doingNames) {
 				var valueContent = '';
 				if(i === 0 && previousTitle){
@@ -3389,8 +3389,10 @@ $(function() {
 			newStuff = newStuff + '</p>'
 			lastInput.after(newStuff);
 			lastInput.parent().addClass('mm-file-group');
-			$('.mm-file-input-delete').on('click', mmFileInputDelete);
-		}		
+		}
+		var nextStuff = '<span class="remove-upload" title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-trash"></span></span>';
+		lastInput.after(nextStuff);
+		$('.mm-file-input-delete').on('click', mmFileInputDelete);
 		// hide the original button as a new one has been created with the annotation of the new number of files.  
 		lastInput.hide();
 		lastInput.removeClass('selector-helper');	//this empty class is used as a selector for deletion...we do NOT want to clear existing files' inputs, so they should not have this class; only the clones [created above] should.
