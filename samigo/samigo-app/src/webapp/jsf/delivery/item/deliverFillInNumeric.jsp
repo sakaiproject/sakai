@@ -65,7 +65,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
       <h:panelGroup rendered="#{answer.hasInput && delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment'}">
         <h:outputLabel styleClass="sr-only" for="fin" value="#{deliveryMessages.fin_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.fin_sr_answer_label_part2}" />
-        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="fin" />
+        <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="fin" styleClass="fillInNumericInput"/>
       </h:panelGroup>
       <h:outputText style="text-decoration: underline" rendered="#{delivery.actionString=='gradeAssessment' || delivery.actionString=='reviewAssessment'}"
          value="#{answer.response}"/>
@@ -130,7 +130,6 @@ should be included in file importing DeliveryMessages
   </h:panelGrid>
 </h:panelGroup>
 
-<f:verbatim>
 <script>
 //Setup qtips
 $('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
@@ -151,5 +150,50 @@ $('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
        hide: 'unfocus click'
       });
 });
+
+includeWebjarLibrary('mathjs');
+var finFormatError = '<h:outputText value="#{deliveryMessages.fin_invalid_characters_error}" escape="false"/>';
+
+$( document ).ready(function() {
+	$('.fillInNumericInput').each(function() {
+		$(this).change(function(){
+			if(!this.value){
+				//Empty inputs are accepted.
+				return;
+			}
+			//Replace the comma decimal separator as point, the JSF validator does the same and all the JS libraries work with point as decimal separator.
+			var rawInput = this.value.replace(/,/g, '.');
+			//Replace all the whitespaces.
+			rawInput = rawInput.replace(/\s/g,'');
+			this.value = rawInput;
+			var isValidFinInput = true;
+			var numericInputValue = rawInput;
+			var complexInputValue = [];
+			rawInput.replace(/\{(.+?)\}/g, function(_, m){complexInputValue.push(m)});
+			// Check if the number is complex first
+			if(complexInputValue != ''){
+				try{
+					//Parsing relies on MathJS https://mathjs.org
+					const complexNumber = math.complex(complexInputValue);
+				}catch(error){
+					console.debug('The inserted complex number is not valid, please review the syntax. eg: {8.5 + 9.4i}');
+					isValidFinInput = false;
+				}
+			} else{
+				// If not complex, lets check if is numeric.
+				try{
+					//Simple as that, try to add 0.0 to a numeric value.
+					const numericNumber = math.add(numericInputValue, 0.0); 
+				}catch(error){
+					console.debug('The inserted value is not numeric, please review the syntax. eg: 1.5 , 9, -4, -3.1415');
+					isValidFinInput = false;
+				}
+			}
+			if(!isValidFinInput){
+				alert(finFormatError);
+				this.value = "";
+			}
+		});
+	});
+});
 </script>
-</f:verbatim>

@@ -215,6 +215,11 @@
 			<version>1.7.13</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>mathjs</artifactId>
+			<version>6.0.2</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
