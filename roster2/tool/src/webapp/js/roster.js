@@ -399,7 +399,13 @@
                         var singleGroupId = groupIds[0];
                         m.singleGroup = { id: singleGroupId, title: m.groups[singleGroupId] };
                     } else {
-                        m.groups = groupIds.reduce((acc, id) => { acc.push({id: id, title: m.groups[id]}); return acc; }, []);
+                        m.groups = groupIds.reduce(function (acc, id) {
+                            acc.push({
+                                  id: id,
+                                      title: m.groups[id]
+                                        });
+                              return acc;
+                        }, []);
                     }
 
                     if (roster.showVisits) {
