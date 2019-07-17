@@ -27,7 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -260,7 +262,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return false;
     }
 
-    String groupTitle = null;
+    final String groupTitle;
     if(isForum){
       groupTitle = forumManager.getAllowedGroupForRestrictedForum(objectId, PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR);
     } else {
@@ -270,12 +272,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     try {
       Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
       Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-      for (String groupId : groups) {
-        Group currentGroup = site.getGroup(groupId);
-        if (currentGroup.getTitle().equals(groupTitle)){
-          return true;
-        }
-      }
+      return groups.stream().map(site::getGroup).anyMatch(g -> g.getTitle().equals(groupTitle));
     } catch(Exception e){
       log.error("isInstructorForAllowedGroup error: exception {} in forum {}", e.getMessage(), objectId);
     }
@@ -948,13 +945,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  try {
 		  Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
 		  Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-	
-		  for (String groupId : groups) {
-			  Group currentGroup = site.getGroup(groupId);
-			  if (currentGroup != null) {
-				  userMemberships.add(currentGroup.getTitle());
-			  }
-		  }
+		  groups.stream().map(site::getGroup).filter(Objects::nonNull).map(Group::getTitle).forEach(userMemberships::add);
 	  } catch (IdUnusedException iue) {
 		  log.debug("No memberships found");
 	  }
@@ -969,11 +960,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     try
     {
       Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-	  Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-      for (String groupId : groups) {
-        Group currentGroup = site.getGroup(groupId);
-        memberof.add(currentGroup.getId());
-      }
+	  memberof.addAll(getGroupsWithMember(site, getCurrentUserId()));
     }
     catch (IdUnusedException e)
     {
@@ -993,12 +980,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     try
     {
     	Site site = siteService.getSite(siteId);
-    	Set<String> groups = getGroupsWithMember(site, getCurrentUserId());
-
-    	for (String groupId : groups) {
-    		Group currentGroup = site.getGroup(groupId);
-    		memberof.add(currentGroup.getTitle());
-    	}
+    	getGroupsWithMember(site, getCurrentUserId()).stream()
+                .map(site::getGroup).map(Group::getTitle).forEach(memberof::add);
     }
     catch (IdUnusedException e)
     {
@@ -1043,15 +1026,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     	Site currentSite = siteService.getSite(getContextId());
     	Set<String> groups = getGroupsWithMember(currentSite, getCurrentUserId());
     	if (groups != null) {
-    		for (String groupId : groups) {
-    			Group currentGroup = currentSite.getGroup(groupId);
-
-    			DBMembershipItem groupItem = forumManager.getDBMember(areaItemsInThread, currentGroup.getTitle(), DBMembershipItem.TYPE_GROUP);
-    			if (groupItem != null) {
-    				areaItems.add(groupItem);
-    			}
-
-    		}
+    	    groups.stream().map(currentSite::getGroup)
+                    .map(g -> forumManager.getDBMember(areaItemsInThread, g.getTitle(), DBMembershipItem.TYPE_GROUP))
+                    .filter(Objects::nonNull)
+                    .forEach(areaItems::add);
     	}
     }
     catch (Exception iue) {
@@ -1089,7 +1067,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   {
     List<DBMembershipItem> forumItems = new ArrayList<>();
     //Set membershipItems = forum.getMembershipItemSet();
-    
+
 
 		if (threadLocalManager.get("message_center_permission_set") == null || !((Boolean)threadLocalManager.get("message_center_permission_set")).booleanValue())
 		{
@@ -1135,15 +1113,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     	Set<String> groups = getGroupsWithMember(currentSite, getCurrentUserId());
 
     	if(groups != null) {
-    		for (String groupId : groups) {
-    			Group currentGroup = currentSite.getGroup(groupId);
-
-    			DBMembershipItem groupItem = forumManager.getDBMember(thisForumItemSet, currentGroup.getTitle(),
-    					DBMembershipItem.TYPE_GROUP);
-    			if (groupItem != null){
-    				forumItems.add(groupItem);
-    			}
-    		}
+            groups.stream().map(currentSite::getGroup)
+                    .map(g -> forumManager.getDBMember(thisForumItemSet, g.getTitle(), DBMembershipItem.TYPE_GROUP))
+                    .filter(Objects::nonNull)
+                    .forEach(forumItems::add);
     	}
     }
     catch(Exception iue)
@@ -1238,15 +1211,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     	Site currentSite = siteService.getSite(siteId);
     	Set<String> groups = getGroupsWithMember(currentSite, userId);
     	if (groups != null) {
-    		for (String groupId : groups) {
-    			Group currentGroup = currentSite.getGroup(groupId);
-
-    			DBMembershipItem groupItem = forumManager.getDBMember(thisTopicItemSet, currentGroup.getTitle(),
-    					DBMembershipItem.TYPE_GROUP, "/site/" + siteId);
-    			if (groupItem != null){
-    				topicItems.add(groupItem);
-    			}
-    		}
+            groups.stream().map(currentSite::getGroup)
+                    .map(g -> forumManager.getDBMember(thisTopicItemSet, g.getTitle(), DBMembershipItem.TYPE_GROUP, "/site/" + siteId))
+                    .filter(Objects::nonNull)
+                    .forEach(topicItems::add);
     	}
     }
     catch(Exception iue)
@@ -1537,11 +1505,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  Set<String> el = userGroupMembershipCache.get(id);
 	  if (el == null) {
 		  Collection<Group> groups = site.getGroupsWithMember(userId);
-
-		  el = new HashSet<>();
-		  for (Group group : groups) {
-			  el.add(group.getId());
-		  }
+		  el = groups.stream().map(Group::getId).collect(Collectors.toSet());
 		  userGroupMembershipCache.put(id, el);
 	  }
 	  return el;
