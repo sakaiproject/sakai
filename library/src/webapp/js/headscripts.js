@@ -804,7 +804,7 @@ function includeWebjarLibrary(library) {
 		document.write('\x3Clink rel="stylesheet" href="' + webjars + 'awesomplete/' + libraryVersion + '/awesomplete.css' + ver + '"/>');
 	} else if (library == 'mathjs') {
 		libraryVersion = "6.0.2";
-		document.write('\x3Cscript type="text/javascript" src="' + webjars + 'mathjs/' + libraryVersion + '/dist/mathjs.min.js' + ver + '">' + '\x3C/script>');
+		document.write('\x3Cscript src="' + webjars + 'mathjs/' + libraryVersion + '/dist/math.min.js' + ver + '">' + '\x3C/script>');
 	} else {
 		if (library.endsWith(".js")) {
 			document.write('\x3Cscript type="text/javascript" src="' + webjars + library + ver + '">' + '\x3C/script>');
