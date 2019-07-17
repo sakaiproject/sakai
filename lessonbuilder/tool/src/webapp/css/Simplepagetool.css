@@ -309,7 +309,7 @@ span.mm-file-input-name {
     color: red;
 }
 div.mm-file-group {
-    border: 1px solid lightgrey;
+    border: 1px solid #D3D3D3;
     padding: 8px;
     margin-bottom: 5px;
 }
