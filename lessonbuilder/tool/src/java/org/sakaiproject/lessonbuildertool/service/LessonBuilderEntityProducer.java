@@ -512,6 +512,24 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
 		
 		String attrString = item.getAttributeString(); //json encoded attributes
+		Object jsonAttributes = item.getJsonAttribute("checklistItems");
+		if (jsonAttributes != null){	//inspect the jsonAttributes for whatever you need. currently only linked checklist items. Have to do by String operations because we can't seem to turn this thing into any kind of iterable array.
+			int start = attrString.indexOf("checklistItems");
+			int end = attrString.indexOf("btnColor");
+			String checklistPart = attrString.substring(start, end);
+			while (checklistPart.length() > 6){
+				String now = checklistPart.substring(checklistPart.indexOf('{'), checklistPart.indexOf('}'));	//the individual item we're currently checking
+				String nowAntecedent = checklistPart.substring(checklistPart.indexOf('{'), checklistPart.indexOf('}')); //hold old value of Now to search/replace later
+				int linkposition = now.indexOf("link");
+				if (now.charAt(linkposition + 6) != '-'){	//determine if there is a link, and break it
+					String replaceVictim = now.substring(linkposition+6, checklistPart.indexOf(',', linkposition+6)-1);	//get the old link value by itself
+					String replaceAggressor = "-2";	//this will indicate that there used to be a link, but it's now broken.
+					now = now.replace(replaceVictim, replaceAggressor);
+					attrString = attrString.replace(nowAntecedent, now);	//put the altered data in the attributes
+				}
+				checklistPart = checklistPart.substring(nowAntecedent.length() + checklistPart.indexOf(nowAntecedent) + 1);
+			}
+		}
 		if (attrString != null) {
 		    Element attributeElement = doc.createElement("attributes");
 		    attributeElement.setTextContent(attrString);

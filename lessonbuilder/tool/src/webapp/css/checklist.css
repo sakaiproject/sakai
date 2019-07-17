@@ -94,9 +94,15 @@ ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
     display: inline-block;
     vertical-align: top;
 }
-label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label {
+label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label, label.checklistLabel.disabled input.checklist-checkbox ~ span.link-broken {
     background-image: none;
     cursor: not-allowed;
+    vertical-align: top;
+    padding-bottom: 13px;
+}
+span.link-broken-icon {
+    line-height: .5em;
+    padding-top: 2.5%;
 }
 label.checklistLabel:hover .checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: url("../images/gray_checkmark.png");
@@ -160,7 +166,7 @@ legend.no-border {
     padding-left: calc(.5em + 16px);
 }
 
-.checklistLabel.disabled:hover .externally-linked {
+.checklistLabel.disabled:hover .externally-linked, .link-broken {
     margin-right: -22px;
     display: inline-block;
     vertical-align: 20px;
