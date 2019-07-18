@@ -2175,8 +2175,6 @@ public class GradebookNgBusinessService {
 			rval.add(new GbGradeLog(ge));
 		}
 
-		Collections.reverse(rval);
-
 		return rval;
 	}
 
