@@ -31,10 +31,10 @@
 		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}"> 
 			<h:panelGrid>
  	  	  		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{!empty facesContext.maximumSeverity}"/>
-				<h:panelGroup> 
-	 	      		<f:verbatim><h3></f:verbatim>
- 		        	<h:outputText value="#{msgs.podcast_home_title}" />
- 	    			<f:verbatim></h3></f:verbatim>
+				<h:panelGroup>
+					<div class="page-header">
+						<h1><h:outputText value="#{msgs.podcast_home_title}" /></h1>
+					</div>
  	      		</h:panelGroup>
  	  		</h:panelGrid>
  	    </h:panelGroup>

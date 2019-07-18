@@ -7,11 +7,11 @@
 
 <%-- Students (access) get no podcasts exist --%>
 <h:panelGroup rendered="#{! podHomeBean.canUpdateSite}" >
-	<f:verbatim><div><h3></f:verbatim>
+	<f:verbatim><div class="page-header"><h1></f:verbatim>
  	        	
 	<h:outputText value="#{msgs.podcast_home_title}" />
  	      	  
- 	<f:verbatim></h3>
+    <f:verbatim></h1></div>
 	<div class="indnt1">
     <br /></f:verbatim>
         
