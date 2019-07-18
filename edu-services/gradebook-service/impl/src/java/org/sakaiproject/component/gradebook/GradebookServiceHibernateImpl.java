@@ -3667,10 +3667,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final List<String> studentUids = getStudentsForGradebook(gradebook);
 		final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItem(assignment.getId(), studentUids);
 		final Set<GradingEvent> eventsToAdd = new HashSet<>();
-		final Date now = new Date();
+		final String currentUserUid = getAuthn().getUserUid();
 
 		// scale for total points changed when on percentage grading
-		// TODO could scale for total points changed when on a points grading as well, though needs different logic
 		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE && assignment.getPointsPossible() != null) {
 
 			log.debug("Scaling percentage grades");
@@ -3687,7 +3686,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					log.debug("scoreAsPercentage: {}, scaledScore: {}", scoreAsPercentage, scaledScore);
 
 					gr.setPointsEarned(scaledScore.doubleValue());
-					eventsToAdd.add(new GradingEvent(assignment, gr.getGraderId(), gr.getStudentId(), scaledScore));
+					eventsToAdd.add(new GradingEvent(assignment, currentUserUid, gr.getStudentId(), scaledScore));
 				}
 			}
 		}
@@ -3710,7 +3709,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					log.debug("currentGrade: {}, scaledGrade: {}", currentGrade, scaledGrade);
 
 					gr.setPointsEarned(scaledGrade.doubleValue());
-					eventsToAdd.add(new GradingEvent(assignment, gr.getGraderId(), gr.getStudentId(), scaledGrade));
+					eventsToAdd.add(new GradingEvent(assignment, currentUserUid, gr.getStudentId(), scaledGrade));
 				}
 			}
 		}
