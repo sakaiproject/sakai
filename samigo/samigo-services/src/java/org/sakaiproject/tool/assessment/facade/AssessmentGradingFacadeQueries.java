@@ -1680,6 +1680,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 .setBoolean("forgrade", true)
                 .setString("fid", "OWN_PUBLISHED_ASSESSMENT")
                 .setString("agent", siteId)
+                .setCacheable(true)
                 .list();
 
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
@@ -1716,6 +1717,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 .setString("agent", siteId)
                 .setInteger("status1", 0)
                 .setInteger("status2", 6)
+                .setCacheable(true)
                 .list();
 
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
