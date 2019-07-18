@@ -798,9 +798,10 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             return user;
         }).collect(Collectors.toList());
         Assignment assignment = createNewAssignment(context);
+        String addSubmissionReference = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
         String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         when(securityService.unlockUsers(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(submitterUsers);
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, addSubmissionReference)).thenReturn(true);
 
         final Site site = mock(Site.class);
         try {
@@ -863,12 +864,12 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException, IdUnusedException {
         Assignment assignment = createNewAssignment(context);
-        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        String addSubmissionRef = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
         Site site = mock(Site.class);
         when(site.getGroup(submitterId)).thenReturn(mock(Group.class));
         when(site.getMember(submitterId)).thenReturn(mock(Member.class));
         when(siteService.getSite(context)).thenReturn(site);
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference)).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, addSubmissionRef)).thenReturn(true);
         AssignmentSubmission submission = null;
         try {
             submission = assignmentService.addSubmission(assignment.getId(), submitterId);
