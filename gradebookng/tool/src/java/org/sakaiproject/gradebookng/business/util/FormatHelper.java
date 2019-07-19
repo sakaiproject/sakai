@@ -384,4 +384,8 @@ public class FormatHelper {
 	public static String htmlEscape(String input){
 		return HtmlUtils.htmlEscape(input, StandardCharsets.UTF_8.name());
 	}
+	
+	public static String htmlUnescape(String input){
+		return HtmlUtils.htmlUnescape(input);
+	}
 }
