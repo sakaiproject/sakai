@@ -87,7 +87,7 @@
             <h:form id="meeting" >              
                 <div class="page-header">
                     <h1>
-                        <h:outputText value="#{msgs.create_new_event} #{msgs.basic}"/>
+                        <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                     </h1>
                 </div>
                 <sakai:doc_section>
