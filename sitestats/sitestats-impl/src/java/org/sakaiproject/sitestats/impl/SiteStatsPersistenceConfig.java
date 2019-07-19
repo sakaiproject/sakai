@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.impl;
 
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
@@ -124,13 +125,14 @@ public class SiteStatsPersistenceConfig {
 
     private HikariDataSource getExternalDataSource() {
         if (externalDataSource == null) {
-            externalDataSource = new HikariDataSource();
-            externalDataSource.setUsername(serverConfigurationService.getString("sitestats.externalDb.username", serverConfigurationService.getString("username@org.sakaiproject.sitestats.externalDbDataSource", "sa")));
-            externalDataSource.setPassword(serverConfigurationService.getString("sitestats.externalDb.password", serverConfigurationService.getString("password@org.sakaiproject.sitestats.externalDbDataSource", "")));
-            externalDataSource.setJdbcUrl(serverConfigurationService.getString("sitestats.externalDb.jdbcUrl", serverConfigurationService.getString("url@org.sakaiproject.sitestats.externalDbDataSource", "jdbc:hsqldb:mem:sitestats_db")));
-            externalDataSource.setDriverClassName(serverConfigurationService.getString("sitestats.externalDb.driverClassName", serverConfigurationService.getString("driverClassName@org.sakaiproject.sitestats.externalDbDataSource", "org.hsqldb.jdbcDriver")));
-            externalDataSource.setConnectionTestQuery(serverConfigurationService.getString("sitestats.externalDb.connectionTestQuery", "SELECT 1"));
-            externalDataSource.setPoolName(serverConfigurationService.getString("sitestats.externalDb.poolName", "externalDBCP"));
+            HikariConfig config = new HikariConfig();
+            config.setUsername(serverConfigurationService.getString("sitestats.externalDb.username", serverConfigurationService.getString("username@org.sakaiproject.sitestats.externalDbDataSource", "sa")));
+            config.setPassword(serverConfigurationService.getString("sitestats.externalDb.password", serverConfigurationService.getString("password@org.sakaiproject.sitestats.externalDbDataSource", "")));
+            config.setJdbcUrl(serverConfigurationService.getString("sitestats.externalDb.jdbcUrl", serverConfigurationService.getString("url@org.sakaiproject.sitestats.externalDbDataSource", "jdbc:hsqldb:mem:sitestats_db")));
+            config.setDriverClassName(serverConfigurationService.getString("sitestats.externalDb.driverClassName", serverConfigurationService.getString("driverClassName@org.sakaiproject.sitestats.externalDbDataSource", "org.hsqldb.jdbcDriver")));
+            config.setPoolName(serverConfigurationService.getString("sitestats.externalDb.poolName", "externalDBCP"));
+            config.setMaximumPoolSize(serverConfigurationService.getInt("sitestats.externalDb.maxPoolSize", 5));
+            externalDataSource = new HikariDataSource(config);
             log.info("SiteStats configuring external database with pool name {}", externalDataSource.getPoolName());
         }
         return externalDataSource;
