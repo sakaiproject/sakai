@@ -1258,11 +1258,11 @@ GbGradeTable.modelIndexForStudent = function(studentId) {
 GbGradeTable.colForAssignment = function(assignmentId, array) {
     if (array === undefined){
         return GbGradeTable.findIndex(GbGradeTable.instance.view.settings.columns, function(column) {
-            return column._data_ && column._data_.assignmentId === parseInt(assignmentId);
+            return column._data_ && column._data_.assignmentId === parseInt(assignmentId, 10);
         });
     } else {
         return GbGradeTable.findIndex(array, function(column) {
-            return column.assignmentId && column.assignmentId === parseInt(assignmentId);
+            return column.assignmentId && column.assignmentId === parseInt(assignmentId, 10);
         });
     }
 };
