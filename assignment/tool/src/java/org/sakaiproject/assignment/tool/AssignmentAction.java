@@ -6321,9 +6321,6 @@ public class AssignmentAction extends PagedResourceActionII {
         try {
             securityService.pushAdvisor(sa);
             ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
-            // TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
-            String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
-            contentReviewService.queueContent(contentUserId, siteId, AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference(), Collections.singletonList(attachment));
 
             try {
                 Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getId()));
