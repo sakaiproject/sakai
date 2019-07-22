@@ -183,7 +183,7 @@ table.listHier th a:hover{
 /*a column in a table that contains only a very small icon - all cells in the column have that class */
 /*see an announcement list where one announcement has an attachment*/
 table.listHier .attach{
-	width: .5em;
+	width: 24px;
 }
 
 /*make the currently sorted column header text bold,apply to <th> tag*/
