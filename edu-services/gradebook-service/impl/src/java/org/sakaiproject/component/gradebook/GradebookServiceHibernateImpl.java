@@ -2973,7 +2973,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		final HibernateCallback<List<GradingEvent>> hc = session -> {
 			final Query q = session
-					.createQuery("from GradingEvent as ge where ge.studentId=:studentId and ge.gradableObject.id=:assignmentId");
+					.createQuery("from GradingEvent as ge where ge.studentId=:studentId and ge.gradableObject.id=:assignmentId order by date_graded desc");
 			q.setParameter("studentId", studentId);
 			q.setParameter("assignmentId", assignmentId);
 			return q.list();
