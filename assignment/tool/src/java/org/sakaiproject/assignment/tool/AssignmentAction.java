@@ -1540,7 +1540,7 @@ public class AssignmentAction extends PagedResourceActionII {
             List<Reference> currentAttachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
 
             if (s != null) {
-                log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", user);
+                log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", submitter);
                 context.put("submission", s);
                 String currentUser = userDirectoryService.getCurrentUser().getId();
                 String grade = assignmentService.getGradeForSubmitter(s, currentUser);
@@ -12899,8 +12899,13 @@ public class AssignmentAction extends PagedResourceActionII {
             // cancel
             doCancel_show_submission(data);
         } else if ("confirm".equals(option)) {
-            // confirm
-            doConfirm_submission(data);
+            if (StringUtils.isNotBlank(data.getParameters().get("submit_on_behalf_of"))) {
+                // instructor submitting on behalf of a student go straight to posting submission
+                doPost_submission(data);
+            } else {
+                // students go to confirmation screen
+                doConfirm_submission(data);
+            }
         } else if ("preview".equals(option)) {
             // preview
             doPreview_submission(data);
