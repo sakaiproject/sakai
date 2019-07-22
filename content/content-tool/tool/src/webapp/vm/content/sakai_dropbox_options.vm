@@ -25,8 +25,7 @@
 			$title
 		</h4>
 		#if ($itemAlertMessage)
-			<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
-			<div style="display:block;clear:both" ></div>
+			<div class="sak-banner-error">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		#end
 		<p class="instruction">
 			$tlang.getString("instr.dropbox.options") 
