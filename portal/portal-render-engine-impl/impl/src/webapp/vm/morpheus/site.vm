@@ -236,8 +236,8 @@
                 <div class="modal-content">
                     <div class="modal-header"><h2>${rloader.getString("pic_changer_title")}</h2></div>
                     <div class="modal-body">
-                        <div id="remove-error" class="alert alert-danger">${rloader.getString("pic_changer_remove_error")}</div>
-                        <div id="upload-error" class="alert alert-danger">${rloader.getString("pic_changer_upload_error")}</div>
+                        <div id="remove-error" class="sak-banner-error">${rloader.getString("pic_changer_remove_error")}</div>
+                        <div id="upload-error" class="sak-banner-error">${rloader.getString("pic_changer_upload_error")}</div>
                         <label for="file">${rloader.getString("pic_changer_upload")}</label>
                         <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*" aria-required="true">
                         <div id="cropme">
