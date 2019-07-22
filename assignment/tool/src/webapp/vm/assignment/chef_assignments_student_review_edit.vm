@@ -247,7 +247,7 @@
 										#if($!display_grade.length() > 0)
 											<span class="highlight">$!display_grade</span>
 										#else
-											<spn class="instruction">$tlang.getString("peerassessment.noscore")</span>
+											<span class="instruction">$tlang.getString("peerassessment.noscore")</span>
 										#end
 									#else
 										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" />
