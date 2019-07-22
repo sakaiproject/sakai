@@ -2,7 +2,7 @@
 <div class="portletBody">
 #if($menu)#toolbar($menu)#end
 
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 
 <h3>$tlang.getString("view.calyear")</h3>
 	<div class="navPanel">
@@ -25,7 +25,7 @@
 			</form>
 		</div>
 		<div class="listNav">
-			<div class="instruction">$year</div>
+			<div class="sak-banner-info"">$year</div>
 			<form action="#toolForm("$action")" method="post">
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewy.lasy')" title="$tlang.getString('viewy.gotop')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" />

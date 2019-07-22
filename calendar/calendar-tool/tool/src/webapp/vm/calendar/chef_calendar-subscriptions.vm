@@ -7,8 +7,7 @@
 	</h3>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
+		<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
 	#end
 
 	<form name="Options" action="#toolForm("$action")" method="post" class="indnt1">
@@ -16,7 +15,7 @@
 		#if ($institutionalSubscriptionsAvailable)
 			<br/>
 			<h4>$tlang.getString('subs.institutional')</h4>
-			<div class="instruction">
+			<div class="sak-banner-info"">
 				$tlang.getString('subs.institutional.instruction')
 				<ul>
 					<li>$tlang.getString('subs.institutional.instruction.detailed.1')</li>
@@ -51,7 +50,7 @@
 	
 		<br/>
 		<h4>$tlang.getString('subs.user')</h4>
-		<p class="instruction">
+		<p class="sak-banner-info"">
 			$tlang.getString('subs.user.instruction')
 		</p>
 			<table style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.user.instruction')">

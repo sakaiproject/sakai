@@ -3,8 +3,8 @@
 	<h3>
 		$tlang.getString('merge.merge')
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
-	<p class="instruction">
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	<p class="sak-banner-info">
 		$tlang.getString('merge.select')
 	</p>
 	<form name="Options" action="#toolForm("$action")" method="post" style="margin-top:.5em">

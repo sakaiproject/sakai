@@ -5,8 +5,8 @@
 	<h3>
 		$tlang.getString("set.setting")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
-	<div class="instruction">
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="sak-banner-info">
 		$tlang.getString("set.toset") <span class="reqStarInline">*</span>
 	</div>
 	<form name="setFrequencyForm" id="setFrequencyForm" action="#toolForm("$action")" method="post">
@@ -33,7 +33,7 @@
 	<form name="setFrequencyFormII" id="setFrequencyFormII" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="frequencySelect" value="$freq" />
 		#if ($freq == "once")
-			<p class="instruction">
+			<p class="sak-banner-info">
 				$tlang.getString("set.theonly")
 				$freqOnceDate
 			</p>

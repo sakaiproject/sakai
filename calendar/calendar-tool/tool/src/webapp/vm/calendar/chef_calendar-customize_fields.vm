@@ -17,10 +17,9 @@
 	</h3>
 	<script type="text/javascript"> var a = document.MyCalendar; </script>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
+		<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
 	#end
-	<p class="instruction">
+	<p class="sak-banner-info"">
 		$tlang.getString('cust.toadd')
 	</p>
 	<form name="Options" action="#toolForm("$action")" method="post">
