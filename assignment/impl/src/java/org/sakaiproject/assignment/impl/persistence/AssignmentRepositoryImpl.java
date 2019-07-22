@@ -219,6 +219,17 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
+    @Transactional
+    public List<AssignmentSubmission> findSubmissionForUsers(String assignmentId, List<String> userIds) {
+        List<AssignmentSubmission> submissions = sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .createAlias("submitters", "s")
+                .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("s.submitter", userIds))
+                .list();
+        return submissions;
+    }
+
+    @Override
     public AssignmentSubmission findSubmissionForGroup(String assignmentId, String groupId) {
         return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
