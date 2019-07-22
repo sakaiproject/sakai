@@ -28,7 +28,7 @@
 
 <div class="permsMessages">
   <c:if test="${not empty(messages)}">
-  <div class="messageInformation">
+  <div class="sak-banner-info">
       <c:forEach var="message" items="${messages}" varStatus="counter">
       <ul style="margin:0px;">
           <li>${message}</li>
@@ -37,7 +37,7 @@
   </div>
   </c:if>
   <c:if test="${not empty(errors)}">
-  <div class="messageError">
+  <div class="sak-banner-error">
       <c:forEach var="message" items="${errors}" varStatus="counter">
       <ul style="margin:0px;">
           <li>${message}</li>
