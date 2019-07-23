@@ -21,7 +21,7 @@
                     <option value="select-forum" id="select-forum"><h:outputText value="#{msgs.select_forum}"/></option>
                 </select>
             </div>
-            <div class="messageWarning">
+            <div class="sak-banner-warn">
                 <img src="../../images/exclamation.gif" alt="warning"/>
                 <h:outputText value="#{msgs.locked_topics_hidden}"  />
             </div>
