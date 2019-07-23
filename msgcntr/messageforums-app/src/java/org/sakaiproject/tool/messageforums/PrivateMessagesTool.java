@@ -3078,12 +3078,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      final List<Reference> refs = (List<Reference>) session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       if(CollectionUtils.isNotEmpty(refs))
       {
-        for(int i=0; i<refs.size(); i++)
-        {
-          Reference ref = (Reference) refs.get(i);
+        for(Reference ref : refs) {
           Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
               ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
           attachments.add(new DecoratedAttachment(thisAttach));
@@ -3102,12 +3100,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
         session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) 
     {
-      List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+      final List<Reference> refs = (List<Reference>) session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
       if(CollectionUtils.isNotEmpty(refs))
       {
-        for(int i=0; i<refs.size(); i++)
-        {
-          Reference ref = (Reference) refs.get(i);
+        for(Reference ref : refs) {
           Attachment thisAttach = prtMsgManager.createPvtMsgAttachment(
               ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
           allAttachments.add(new DecoratedAttachment(thisAttach));
@@ -3171,16 +3167,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 
-    Map paramMap = context.getRequestParameterMap();
+    Map<String, String> paramMap = context.getRequestParameterMap();
 
-    final String attachId = (String) CollectionUtils.emptyIfNull(paramMap.entrySet()).stream().
-            filter(entry -> ((Entry<Object, String>) entry).getKey() instanceof String && ((String) ((Entry<Object,
-                    String>) entry).getKey()).contains("pvmsg_current_attach")).
-            collect(Collectors.collectingAndThen(Collectors.toList(), list -> list.isEmpty() ? null : ((Entry<Object,
-                    String>) list.get(0)).getValue()));
-
-    if (StringUtils.isNotEmpty(attachId)) {
-      attachments.removeIf(da -> attachId.equalsIgnoreCase(da.getAttachment().getAttachmentId()));
+    if(paramMap != null) {
+        final String attachId = paramMap.entrySet().stream().
+                filter(entry -> entry.getKey().contains("pvmsg_current_attach")).
+                collect(Collectors.collectingAndThen(Collectors.toList(), list -> list.isEmpty() ? null : list.get(0).getValue()));
+        if (StringUtils.isNotEmpty(attachId)) {
+            attachments.removeIf(da -> attachId.equalsIgnoreCase(da.getAttachment().getAttachmentId()));
+        }
     }
     return null;
   }
