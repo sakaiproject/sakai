@@ -267,6 +267,39 @@ public class SiteManageServiceImpl implements SiteManageService {
 
         return rv;
     }
+    
+    /**
+     * Helper to copy the tool title from one site to another.
+     * <p>
+     * Note that it does NOT save the site. The caller must handle this.
+     *
+     * @param toSite the site to update
+     * @param fromSiteId the site id to copy from
+     * @param importTools the tool id to copy
+     * @return site the updated site object
+     */
+    private Site setToolTitle(Site toSite, String fromSiteId, String toolId) {
+        try {
+            if (toSite.getToolForCommonId(toolId) != null) {
+                Site fromSite = siteService.getSite(fromSiteId);
+                for (ToolConfiguration tc : fromSite.getTools(toolId)) {
+                    try {
+                        ToolConfiguration toTc = toSite.getToolForCommonId(toolId);
+                        toTc.getContainingPage().setTitle(tc.getContainingPage().getTitle());
+                        toTc.getContainingPage().setTitleCustom(tc.getContainingPage().getTitleCustom());
+                        toTc.setTitle(tc.getTitle());
+                    } catch (Exception e) {
+                        log.warn("Can't set tool title, {}", e.getMessage());
+                    }
+                }
+            } else {
+              log.debug("Site : {} does not have the tool: {}", toSite.getTitle(), toolId);
+            }
+        } catch (Exception e) {
+            log.warn("Error setting tool title from {} to {} : {}", fromSiteId, toSite.getId(), e.getMessage());
+        }
+        return toSite;
+    }
 
     /**
      * Helper to add a tool to a site if the site does not contain an instance of the tool.
@@ -342,6 +375,20 @@ public class SiteManageServiceImpl implements SiteManageService {
                 //now update toolIds to match importTools so that the content is imported
                 toolIds.clear();
                 toolIds.addAll(importTools.keySet());
+            }
+            
+            //set custom title
+            if (cleanup) {
+                log.debug("allToolIds: " + toolIds);
+                for (String toolId : toolIds) {
+                    try {
+                        String siteFromId = importTools.get(toolId).get(0);
+                        site = setToolTitle(site, siteFromId, toolId);
+                        saveSite(site);
+                    } catch (Exception e) {
+                        log.warn("Problem with {}: {}", toolId, e.getMessage());
+                    }
+                }
             }
 
             Map<String, String> transversalMap = new HashMap<>();
