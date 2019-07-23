@@ -246,7 +246,7 @@
   <br/>
   
   <p>
-    <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+    <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   </p>
 
 <div class="tier1" id="jqueryui-accordion">

@@ -39,12 +39,12 @@
   <h:form id="templateCreateForm">
   <!-- HEADINGS -->
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-<div class="page-header">
-    <h1>
-       <h:outputText value="#{templateMessages.index_templates}"/>
-    </h1>
-</div>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+
+<h3>
+   <h:outputText value="#{templateMessages.index_templates}"/>
+ </h3>
+>>>>>>> SAK-42183 Samigo: Standardized banners and replaces the messageSamigo ones
 
 <div class="tier1">
  <h:outputText value="#{templateMessages.index_desc}"  rendered="#{authorization.createTemplate}"/>

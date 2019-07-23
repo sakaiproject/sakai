@@ -38,7 +38,7 @@
 <div class="portletBody">
 <h:form id="redirectLoginForm">
   <h3><h:outputText value="#{deliveryMessages.access_denied}"/></h3>
-   <div class="messageSamigo">
+   <div class="sak-banner-error">
   <h:outputText  value="#{deliveryMessages.access_denied_message}" />
   </div>
  <p class="act">

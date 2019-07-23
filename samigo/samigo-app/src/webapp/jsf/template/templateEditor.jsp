@@ -79,7 +79,7 @@
      <h:outputText value="#{template.templateName}"/>
 </h3>
  <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
- <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+ <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="tier1" id="jqueryui-accordion">
   <samigo:hideDivision id="div1" title="#{templateMessages.template_inform}" >

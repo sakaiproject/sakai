@@ -121,7 +121,7 @@ $Id$
 
     <f:verbatim><br /></f:verbatim>
 
-   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
    
 <div class="tier1">
 

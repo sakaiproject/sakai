@@ -42,7 +42,7 @@
   </h3>
   <%-- Clicking OK will renew the session but ignoring will lead to session expiration. --%>
   <h:form id="ok">
-   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
    <h:commandButton value="#{authorMessages.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>

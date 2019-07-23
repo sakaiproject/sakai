@@ -63,7 +63,7 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
 
   <div class="tier1">
     <div class="form_label">
-      <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+      <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
       <p class="text-info">
         <h:outputText value="#{authorImportExport.choose_type_1}" escape="true" />
         <h:outputText value="&#160;" escape="false" />

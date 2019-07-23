@@ -67,9 +67,9 @@
     <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.t_for} #{delivery.courseName} " escape="false"/>
   </div>
 
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <div class="bs-callout-primary">
+  <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
     <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 

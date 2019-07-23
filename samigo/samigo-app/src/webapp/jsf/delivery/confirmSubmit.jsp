@@ -115,13 +115,11 @@ function saveTime()
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <%-- PART/ITEM DATA TABLES --%>
 
-  <h:panelGroup styleClass="messageSamigo2">
-    <h:panelGrid border="0">
+  <h:panelGroup styleClass="sak-banner-warn">
 	  <h:outputText value="#{deliveryMessages.submit_warning_1}" escape="false"/>
 	  <h:outputText value="#{deliveryMessages.submit_warning_2}" escape="false"/>
 	  <h:outputText value="#{deliveryMessages.submit_warning_3_non_linear}" rendered="#{delivery.navigation ne '1'}" escape="false"/>
 	  <h:outputText value="#{deliveryMessages.submit_warning_3_linear}" rendered="#{delivery.navigation eq '1'}" escape="false"/>
-	</h:panelGrid>
   </h:panelGroup>
 
   <h:panelGrid columns="2">

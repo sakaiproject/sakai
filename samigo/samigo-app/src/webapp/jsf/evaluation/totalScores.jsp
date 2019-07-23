@@ -198,7 +198,7 @@ $(document).ready(function(){
   <h:outputText value="</span></li></ul>" escape="false"/>
 
 <div class="tier1">
-  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
   <sakai:flowState bean="#{totalScores}" />
