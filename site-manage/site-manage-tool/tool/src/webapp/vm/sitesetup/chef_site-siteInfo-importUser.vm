@@ -5,8 +5,7 @@
 		$tlang.getString("sitinfimp.reuse.user")
 	</h3>
 	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $alertMessage</div>
-		<div class="clear"></div>
+		<div class="sak-banner-error">$tlang.getString("sitinfimp.alert") $alertMessage</div>
 	#end
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
 		## import is possible when use has maintain rights on at least one site other than the current one

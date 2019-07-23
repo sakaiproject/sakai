@@ -14,8 +14,7 @@
 			<h3>$tlang.getString("man.edit")</h3>
 		#end
 		#if ($alertMessage)
-			<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
-			<div class="clear"></div>
+			<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 		#end
 		
 		<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">

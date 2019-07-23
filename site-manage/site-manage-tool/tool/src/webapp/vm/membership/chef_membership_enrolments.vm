@@ -4,11 +4,10 @@
     <div class="membershipContent">
 
         #if ($alertMessage)
-            <div class="alertMessage">$validator.escapeHtml( $alertMessage )</div>
-            <div class="clear"></div>
+            <div class="sak-banner-error">$validator.escapeHtml( $alertMessage )</div>
         #end
 
-        <div class="messageInformation">
+        <div class="sak-banner-info">
             #if( $hasBlurb )<p>$enrolmentsBlurb</p>#end
             <p>$tlang.getString( "mb.enrolments.instructions" )</p>
         </div>
