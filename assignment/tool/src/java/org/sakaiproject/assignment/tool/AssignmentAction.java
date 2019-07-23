@@ -11488,7 +11488,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
-        state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.TRUE);
+        state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, serverConfigurationService.getBoolean("asn.reminder.email.default", true));
 
         // Accept until date is shifted forward by the offset
         Instant tAccept = t.plusSeconds(acceptUntilDateOffset);
