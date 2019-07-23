@@ -84,6 +84,7 @@ public class PublishedAssessmentData
   private Integer scoringType;
   private Date lastNeedResubmitDate;
   private Integer timeLimit;
+  private Long categoryId;
 
   
   public PublishedAssessmentData() {}
@@ -751,4 +752,11 @@ public class PublishedAssessmentData
 	  this.timeLimit = timeLimit;
   }
 
+  public Long getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
+  }
 }

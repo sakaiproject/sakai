@@ -66,6 +66,7 @@ public class AssessmentBaseData
   private HashMap assessmentFeedbackMap = new HashMap();
   private Set securedIPAddressSet;
   private Integer questionSize;
+  private Long categoryId;
 
   public AssessmentBaseData() {}
 
@@ -407,5 +408,13 @@ public class AssessmentBaseData
 
   public void setQuestionSize(Integer questionSize) {
     this.questionSize = questionSize;
+  }
+
+  public Long getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
   }
 }
