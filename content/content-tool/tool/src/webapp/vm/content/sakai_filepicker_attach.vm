@@ -5,12 +5,15 @@
 		margin-left: 3px;
 		margin-right: 3px;
 	}
+
 	.joinLabel{
 		margin: -1px 0px 0px -1px;
 	}
+
 	.joinLabel .act {
 		margin: 15px;
 	}
+
 </style>
 
 <script type="text/javascript">
@@ -75,12 +78,12 @@
 	</script>
 
 	<script>
-	document.addEventListener("DOMContentLoaded", function(event){ 
-		$('#resourceTabs a').click(function (e) {
-			e.preventDefault();
-			$(this).tab('show');
+		document.addEventListener("DOMContentLoaded", function(event){ 
+			$('#resourceTabs a').click(function (e) {
+				e.preventDefault();
+				$(this).tab('show');
+			});
 		});
-	});
 	</script>
 
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post" enctype="multipart/form-data">
