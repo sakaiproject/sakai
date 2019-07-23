@@ -306,7 +306,7 @@ public class ExportPanel extends BasePanel {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.studentNumber")));
 				}
 				if (isCustomExport && this.includeSectionMembership) {
-					header.add(getString("column.header.section"));
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.section")));
 				}
 
 				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
