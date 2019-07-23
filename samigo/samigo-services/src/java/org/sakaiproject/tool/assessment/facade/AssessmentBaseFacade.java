@@ -80,6 +80,7 @@ public class AssessmentBaseFacade
   private HashMap assessmentMetaDataMap = new HashMap();
   private Set securedIPAddressSet;
   private String assessmentAttachmentMetaData;
+  private Long categoryId;
   
   /** AssessmentBaseFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -224,6 +225,7 @@ public class AssessmentBaseFacade
     this.assessmentMetaDataMap = getAssessmentMetaDataMap(
         this.assessmentMetaDataSet);
     this.securedIPAddressSet = getSecuredIPAddressSet();
+    this.categoryId = getCategoryId();
   }
 
   // the following methods implements
@@ -799,5 +801,13 @@ public class AssessmentBaseFacade
   private void readObject(java.io.ObjectInputStream in) throws IOException,
       ClassNotFoundException {
     in.defaultReadObject();
+  }
+
+  public Long getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
   }
 }

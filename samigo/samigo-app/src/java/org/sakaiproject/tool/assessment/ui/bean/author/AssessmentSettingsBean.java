@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import javax.annotation.Resource;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -42,11 +43,16 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -72,10 +78,10 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  *
@@ -198,6 +204,10 @@ public class AssessmentSettingsBean
   private boolean honorPledge;
   private String releaseToGroupsAsString;
   private String blockDivs;
+
+  private boolean categoriesEnabled;
+  private List<SelectItem> categoriesSelectList;
+  private String categorySelected;
   
   private List<ExtendedTime> extendedTimes;
   private ExtendedTime extendedTime;
@@ -215,11 +225,23 @@ public class AssessmentSettingsBean
 
   private ResourceLoader assessmentSettingMessages;
 
+  @Resource(name = "org.sakaiproject.service.gradebook.GradebookService")
+  private GradebookService gradebookService;
+  @Resource(name = "org.sakaiproject.tool.api.SessionManager")
+  private SessionManager sessionManager;
+  @Resource(name = "org.sakaiproject.tool.api.ToolManager")
+  private ToolManager toolManager;
+
   /*
    * Creates a new AssessmentBean object.
    */
   public AssessmentSettingsBean() {
-      this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+    this(ContextLoader.getCurrentWebApplicationContext());
+  }
+
+  public AssessmentSettingsBean(WebApplicationContext context) {
+    context.getAutowireCapableBeanFactory().autowireBean(this);
+    this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
   public AssessmentFacade getAssessment() {
@@ -383,6 +405,10 @@ public class AssessmentSettingsBean
 
         String currentSiteId = AgentFacade.getCurrentSiteId();
         this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+
+        this.categoriesSelectList = populateCategoriesSelectList();
+        this.categorySelected = initializeCategorySelected(assessment.getData().getCategoryId());
+
       }
 
       // ip addresses
@@ -420,6 +446,28 @@ public class AssessmentSettingsBean
     	log.error(ex.getMessage(), ex);
     }
   }
+
+    /**
+     * Returns the saved category id if it's there. Otherwise returns
+     * "-1". This is needed to choose which select item is selected
+     * when the authorSettings page loads.
+     * @param categoryId
+     * @return
+     */
+    private String initializeCategorySelected(Long categoryId) {
+
+        String catSelected = "-1";
+        if (categoryId != null) {
+            String catId;
+            for (SelectItem catIdAndName : categoriesSelectList) {
+                catId = catIdAndName.getValue().toString();
+                if (catId.equals(categoryId.toString())) {
+                    catSelected = catId;
+                }
+            }
+        }
+        return catSelected;
+    }
 
  public String getBgColorSelect()
     {
@@ -1399,7 +1447,7 @@ public class AssessmentSettingsBean
       if (attachmentList != null){
         filePickerList = prepareReferenceList(attachmentList);
       }
-      ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+      ToolSession currentToolSession = sessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
       context.redirect("sakai.filepicker.helper/tool");
@@ -1509,7 +1557,7 @@ public class AssessmentSettingsBean
       TreeMap sortedSelectItems = new TreeMap();
       Site site;
       try {
-          site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+          site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
           Collection groups = site.getGroups();
           if (groups != null && groups.size() > 0) {
               groupSelectItems = new SelectItem[groups.size()];
@@ -1553,7 +1601,7 @@ public class AssessmentSettingsBean
   public int getNumberOfGroupsForSite(){
 	  int numGroups = 0;
 	  try {
-		 Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		 Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
 		 Collection groups = site.getGroups();
 	     if (groups != null) {
 	    	 numGroups = groups.size();
@@ -1625,6 +1673,22 @@ public class AssessmentSettingsBean
   {
 	  this.isMarkForReview = isMarkForReview;
   }
+
+    public List getCategoriesSelectList() {
+        return categoriesSelectList;
+    }
+
+    public void setCategoriesSelectList(List categoriesSelectList) {
+        this.categoriesSelectList = categoriesSelectList;
+    }
+
+    public String getCategorySelected() {
+        return categorySelected;
+    }
+
+    public void setCategorySelected(String categorySelected) {
+        this.categorySelected = categorySelected;
+    }
   
   public void setReleaseToGroupsAsString(String releaseToGroupsAsString){
 	  this.releaseToGroupsAsString = releaseToGroupsAsString;
@@ -1662,6 +1726,40 @@ public class AssessmentSettingsBean
 	  return selections;
   }
 
+    public void setCategoriesEnabled(boolean categoriesEnabled) {
+        this.categoriesEnabled = categoriesEnabled;
+    }
+
+    public boolean getCategoriesEnabled() {
+        return categoriesEnabled;
+    }
+
+    /**
+     * Populate the categoriesSelectList property with a list of string names
+     * of the categories in the gradebook
+     */
+    private List populateCategoriesSelectList() {
+        List<CategoryDefinition> categoryDefinitions;
+        List<SelectItem> selectList = new ArrayList<>();
+
+        if (this.gradebookExists) {
+            String gradebookUid = toolManager.getCurrentPlacement().getContext();
+            categoryDefinitions = gradebookService.getCategoryDefinitions(gradebookUid);
+
+            selectList.add(new SelectItem("-1","Uncategorized")); // -1 for a cat id means unassigned
+            for (CategoryDefinition categoryDefinition: categoryDefinitions) {
+                selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
+            }
+            // Also set if categories are enabled based on category type
+            GradebookInformation gbInfo = gradebookService.getGradebookInformation(gradebookUid);
+            if (gbInfo != null) {
+                this.categoriesEnabled = gbInfo.getCategoryType() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
+            } else {
+                this.categoriesEnabled = false;
+            }
+        }
+        return selectList;
+    }
 
 	public void setExtendedTimes(List<ExtendedTime> extendedTimes) {
 		this.extendedTimes = extendedTimes;
@@ -1684,7 +1782,7 @@ public class AssessmentSettingsBean
 		Site site;
 
 		try {
-			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
 			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 			Map<String, String> studentTargets = new HashMap<>();

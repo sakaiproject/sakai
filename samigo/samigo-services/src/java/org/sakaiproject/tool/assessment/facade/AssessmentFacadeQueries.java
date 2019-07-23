@@ -843,6 +843,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		data.setLastModifiedBy(AgentFacade.getAgentString());
 		data.setLastModifiedDate(new Date());
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
+		data.setCategoryId(assessment.getCategoryId());
 		while (retryCount > 0) {
 			try {
 				getHibernateTemplate().saveOrUpdate(data);

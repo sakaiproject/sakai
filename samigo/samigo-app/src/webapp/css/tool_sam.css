@@ -1441,3 +1441,6 @@ label#itemForm\:noFeedbackMsg {
 	list-style: none;
 	padding-left: 0;
 }
+.categorySelect {
+	margin-left: 8px;
+}
