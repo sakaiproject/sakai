@@ -1311,10 +1311,16 @@ GbGradeTable.modelIndexForStudent = function(studentId) {
 };
 
 
-GbGradeTable.colForAssignment = function(assignmentId) {
-  return GbGradeTable.findIndex(GbGradeTable.instance.view.settings.columns, function(column) {
-           return column._data_ && column._data_.assignmentId === parseInt(assignmentId);
-         });
+GbGradeTable.colForAssignment = function(assignmentId, array) {
+    if (array === undefined){
+        return GbGradeTable.findIndex(GbGradeTable.instance.view.settings.columns, function(column) {
+            return column._data_ && column._data_.assignmentId === parseInt(assignmentId, 10);
+        });
+    } else {
+        return GbGradeTable.findIndex(array, function(column) {
+            return column.assignmentId && column.assignmentId === parseInt(assignmentId, 10);
+        });
+    }
 };
 
 GbGradeTable.colForCategoryScore = function(categoryId) {
@@ -2043,7 +2049,7 @@ GbGradeTable.setupToggleGradeItems = function() {
     var data = $.data($th[0]);
     var index = 0;
     if (data.columnType == "assignment") {
-      index = GbGradeTable.colForAssignment(data.assignmentid) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1;
+      index = GbGradeTable.colForAssignment(data.assignmentid, GbGradeTable.columns) + 1;
     } else if (data.columnType == "category") {
       index = GbGradeTable.colForCategoryScore(data.categoryId) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1;
     }
