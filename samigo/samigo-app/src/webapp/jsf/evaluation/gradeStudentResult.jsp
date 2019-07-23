@@ -184,6 +184,7 @@ function toPoint(id)
                 <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
                   <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText}"/>
                 </h:outputLink>
+                <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit==true}" value=" #{deliveryMessages.extra_credit_preview}" />
         </t:dataList>
       </samigo:hideDivision>
      </h:panelGroup>
@@ -221,6 +222,7 @@ function toPoint(id)
             <h:outputText value="#{deliveryMessages.pt}"/>
             </span>
             <h:message for="adjustedScore" style="color:red"/>
+            <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value=" #{deliveryMessages.extra_credit_preview}" />
         </h:panelGroup>
 
         <br/>

@@ -1441,6 +1441,12 @@ label#itemForm\:noFeedbackMsg {
 	list-style: none;
 	padding-left: 0;
 }
+
+.extraCreditLabel {
+	font-weight: bold;
+	color: #004400;
+}
+
 .categorySelect {
 	margin-left: 8px;
 }

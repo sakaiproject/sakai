@@ -790,6 +790,9 @@ public class ItemAddListener
      		item = new PublishedItemFacade();
      	}
       }
+
+      item.setIsExtraCredit(bean.isExtraCredit());
+
       item.setScore(Double.valueOf(bean.getItemScore()));
       item.setDiscount(Double.valueOf(bean.getItemDiscount()));
       //default should be "true", so anything other than "false" is a true value

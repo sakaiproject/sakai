@@ -2023,6 +2023,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			newItem.setItemAttachmentSet(newItemAttachmentSet);
 			newItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
 			newItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
+			newItem.setIsExtraCredit(item.getIsExtraCredit());
 			h.add(newItem);
 		}
 		return h;

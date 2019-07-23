@@ -172,6 +172,9 @@
         </div>
     </div>    
 
+    <!-- Extra Credit -->
+    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+
     <!-- 2 TEXT -->
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.q_text_image_map}" styleClass="col-md-12 form-control-label"/> 

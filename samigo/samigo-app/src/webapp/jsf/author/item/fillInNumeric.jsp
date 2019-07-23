@@ -101,6 +101,9 @@
         </div>
     </div>
 
+    <!-- Extra Credit -->
+    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+
     <%-- 2 QUESTION TEXT --%>
     <div class="longtext"> 
         <h:outputLabel value="#{authorMessages.q_text}" /><br/>

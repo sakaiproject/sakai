@@ -122,7 +122,10 @@
             </div>
         </div>
     </f:subview>
-    
+
+    <!-- Extra Credit -->
+    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+
     <!-- 2 TEXT -->
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-4 col-lg-2 form-control-label"/>  

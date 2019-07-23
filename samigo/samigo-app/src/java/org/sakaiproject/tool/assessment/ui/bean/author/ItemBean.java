@@ -102,6 +102,8 @@ public class ItemBean
   
   private int totalMCAsnwers;
   private CalculatedQuestionBean calculatedQuestion;
+  @Getter @Setter
+  private boolean isExtraCredit;
   
   private String requireAllOk = "false";
   private String imageMapSrc="";

@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -73,6 +75,9 @@ public class PublishedItemData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
+  @Getter
+  @Setter
+  private Boolean isExtraCredit;
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;

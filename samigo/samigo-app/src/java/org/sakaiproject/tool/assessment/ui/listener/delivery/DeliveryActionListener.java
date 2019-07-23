@@ -1063,7 +1063,7 @@ public class DeliveryActionListener
       }
 
       // scoring
-      maxPoints += itemBean.getMaxPoints();
+      maxPoints += itemBean.getItemData().getIsExtraCredit()==true?0:itemBean.getMaxPoints();
       points += itemBean.getExactPoints();
       itemBean.setShowStudentScore(delivery.isShowStudentScore());
       itemBean.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
@@ -1145,7 +1145,7 @@ public class DeliveryActionListener
       }
 
       // scoring
-      maxPoints += itemBean.getMaxPoints();
+      maxPoints += itemBean.getItemData().getIsExtraCredit()==true?0:itemBean.getMaxPoints();
       points += itemBean.getExactPoints();
       itemBean.setShowStudentScore(delivery.isShowStudentScore());
       itemBean.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());

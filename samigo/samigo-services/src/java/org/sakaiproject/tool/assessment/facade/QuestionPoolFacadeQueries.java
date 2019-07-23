@@ -1243,6 +1243,7 @@ public class QuestionPoolFacadeQueries
       item.setAnswerOptionsRichCount(itemData.getAnswerOptionsRichCount());
       item.setAnswerOptionsSimpleOrRich(itemData.getAnswerOptionsSimpleOrRich());
       item.setDescription(itemData.getDescription());
+      item.setIsExtraCredit(itemData.getIsExtraCredit());
 
       item.setItemTextSet(copyItemText(item.getData(), itemData));
       item.setItemMetaDataSet(copyMetaData(item.getData(), itemData));

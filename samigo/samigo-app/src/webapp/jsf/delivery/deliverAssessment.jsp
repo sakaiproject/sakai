@@ -327,6 +327,7 @@ document.links[newindex].onclick();
 					<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
 				</h:outputText>
 			</span>
+			<h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}" value="#{deliveryMessages.extra_credit_preview}" />
 		</h:panelGroup>
 
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
