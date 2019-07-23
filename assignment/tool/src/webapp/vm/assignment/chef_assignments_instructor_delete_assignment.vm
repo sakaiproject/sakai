@@ -9,11 +9,11 @@
 	</h3>
 
 		#if ($alertMessage)
-			<div class="alertMessage">  <strong>$tlang.getString("gen.alert")</strong>  $alertMessage</div><div class="clear"></div>
+			<div class="sak-banner-error">  <strong>$tlang.getString("gen.alert")</strong>  $alertMessage</div>
 		#else
-			<div class="alertMessage">
+			<div class="sak-banner-error">
 				$confirmMessage
-			</div><div class="clear"></div>
+			</div>
 		#end
 		<form name="form1" method="post" action="#toolForm("AssignmentAction")">
 			<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("gen.lisofassto")">
