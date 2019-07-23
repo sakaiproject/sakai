@@ -3,7 +3,7 @@
 	#if($menu)#menu($menu)#end
 	<h3>$tlang.getString("memory.vm.memory")</h3>
 		#if ($alertMessage)
-			<div class="alertMessage">
+			<div class="sak-banner-error">
 				$tlang.getFormattedMessage("memory.vm.alert.nosplit", $validator.escapeHtml($alertMessage))
 			</div>
 		#end

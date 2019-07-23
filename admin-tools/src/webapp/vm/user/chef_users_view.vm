@@ -11,7 +11,7 @@
 			$tlang.getString("usevie.revandmod")
 		</h3>
 		#if ($alertMessage)
-			<div class="alertMessage">
+			<div class="sak-banner-error">
 				$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)
 			</div>
 		#end
