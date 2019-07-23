@@ -2407,6 +2407,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
 	{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+
 		Set<String> expandedItems = getExpandedCollections(toolSession);
 
 		//get the ParameterParser from RunData
@@ -2424,6 +2426,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doCollapse_collection(RunData data)
 	{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute(STATE_NAVIGATING_RESOURCES, true);
+
 		Set<String> expandedItems = getExpandedCollections(toolSession);
 
 		//get the ParameterParser from RunData
@@ -2450,6 +2454,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doExpandall ( RunData data)
 	{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute(STATE_NAVIGATING_RESOURCES, true);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2501,6 +2506,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doShowOtherSites(RunData data)
 	{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		toolSession.setAttribute(STATE_NAVIGATING_RESOURCES, true);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2526,6 +2532,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
 		toolSession.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
+		toolSession.setAttribute(STATE_NAVIGATING_RESOURCES, true);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
