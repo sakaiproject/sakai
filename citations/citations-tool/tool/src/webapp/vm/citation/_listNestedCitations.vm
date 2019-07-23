@@ -31,7 +31,7 @@
 		$introduction
 	</div>
     <div id="buttonsDescription" class="buttonsDescription">
-        <input type="button" id="toggleDescription" class="active" value='$tlang.getString("nested.start.editing.button")'/>
+        <input type="button" id="toggleDescription" class="btn btn-default" value='$tlang.getString("nested.start.editing.button")' aria-label="Edit"/>
     </div>
 #end
 

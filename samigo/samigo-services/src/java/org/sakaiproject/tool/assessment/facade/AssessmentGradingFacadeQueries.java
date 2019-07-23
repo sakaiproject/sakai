@@ -1050,13 +1050,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
         }
 
-        // get AssessmentGradingAttachments
-        Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
-        List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
-        if (attachments != null) {
-            ag.setAssessmentGradingAttachmentList(attachments);
-        } else {
-            ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+        if (ag != null) {
+	        // get AssessmentGradingAttachments
+	        Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+	        List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
+	        if (attachments != null) {
+	            ag.setAssessmentGradingAttachmentList(attachments);
+	        } else {
+	            ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+	        }
         }
 
         return ag;
@@ -1690,6 +1692,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 .setBoolean("forgrade", true)
                 .setString("fid", "OWN_PUBLISHED_ASSESSMENT")
                 .setString("agent", siteId)
+                .setCacheable(true)
                 .list();
 
         List<Object[]> countList = getHibernateTemplate().execute(hcb);
@@ -1726,6 +1729,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 .setString("agent", siteId)
                 .setInteger("status1", 0)
                 .setInteger("status2", 6)
+                .setCacheable(true)
                 .list();
 
         List<Object[]> countList = getHibernateTemplate().execute(hcb);

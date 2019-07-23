@@ -290,4 +290,5 @@ public class NoOpContentReviewService extends BaseContentReviewService {
 		String ret = "There is no content review service configured, please see your administrator";
 		log.debug("{} webhookEvent", ret);
 	}
+
 }

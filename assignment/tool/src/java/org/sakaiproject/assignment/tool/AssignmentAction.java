@@ -49,7 +49,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1540,7 +1540,7 @@ public class AssignmentAction extends PagedResourceActionII {
             List<Reference> currentAttachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
 
             if (s != null) {
-                log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", user);
+                log.debug("BUILD SUBMISSION FORM HAS SUBMISSION FOR USER {}", submitter);
                 context.put("submission", s);
                 String currentUser = userDirectoryService.getCurrentUser().getId();
                 String grade = assignmentService.getGradeForSubmitter(s, currentUser);
@@ -5533,9 +5533,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // retrieve the submission text (as formatted text)
         String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), true);
-        //if it comes from preview screen
-        if(state.getAttribute(PREVIEW_SUBMISSION_TEXT) != null) {
-            text = (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
+        if (text == null) {
+            text = state.getAttribute(VIEW_SUBMISSION_TEXT) != null ? (String) state.getAttribute(VIEW_SUBMISSION_TEXT) : (String) state.getAttribute(PREVIEW_SUBMISSION_TEXT);
         }
         state.setAttribute(PREVIEW_SUBMISSION_TEXT, text);
         state.setAttribute(VIEW_SUBMISSION_TEXT, text);
@@ -6681,9 +6680,6 @@ public class AssignmentAction extends PagedResourceActionII {
         try {
             securityService.pushAdvisor(sa);
             ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
-            // TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
-            String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
-            contentReviewService.queueContent(contentUserId, siteId, AssignmentReferenceReckoner.reckoner().assignment(submission.getAssignment()).reckon().getReference(), Collections.singletonList(attachment));
 
             try {
                 Reference ref = entityManager.newReference(contentHostingService.getReference(attachment.getId()));
@@ -11626,7 +11622,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(VIEW_SUBMISSION_TEXT);
         state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
         state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
-
+        state.removeAttribute(PREVIEW_SUBMISSION_TEXT);
     } // resetViewSubmission
 
     /**
@@ -11704,7 +11700,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // enable the close date by default
         state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.TRUE);
-        state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, Boolean.TRUE);
+        state.setAttribute(NEW_ASSIGNMENT_REMINDER_EMAIL, serverConfigurationService.getBoolean("asn.reminder.email.default", true));
 
         // Accept until date is shifted forward by the offset
         Instant tAccept = t.plusSeconds(acceptUntilDateOffset);
@@ -12903,8 +12899,13 @@ public class AssignmentAction extends PagedResourceActionII {
             // cancel
             doCancel_show_submission(data);
         } else if ("confirm".equals(option)) {
-            // confirm
-            doConfirm_submission(data);
+            if (StringUtils.isNotBlank(data.getParameters().get("submit_on_behalf_of"))) {
+                // instructor submitting on behalf of a student go straight to posting submission
+                doPost_submission(data);
+            } else {
+                // students go to confirmation screen
+                doConfirm_submission(data);
+            }
         } else if ("preview".equals(option)) {
             // preview
             doPreview_submission(data);

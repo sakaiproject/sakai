@@ -45,8 +45,8 @@ export class SakaiRubricGradingComment extends SakaiElement {
               <sr-lang key="comment_for_criterion" values="${JSON.stringify([this.criterion.title])}" />
             </label>
           </div>
-          <div class="buttons" style="flex: 0">
-            <button class="btn btn-primary btn-xs done" @click="${this.hideTooltip}"><sr-lang key="done" /></button>
+          <div class="buttons act" style="flex: 0">
+            <button class="active btn-xs done" @click="${this.hideTooltip}"><sr-lang key="done" /></button>
           </div>
         </div>
         <div class="popover-content form">
@@ -58,12 +58,18 @@ export class SakaiRubricGradingComment extends SakaiElement {
     `;
   }
 
+  hide() {
+    this.hideTooltip();
+  }
+
   toggleEditor(e) {
 
     e.stopPropagation();
     e.preventDefault();
 
     if (!this.classList.contains("show-tooltip")) {
+
+      this.dispatchEvent(new CustomEvent('comment-shown'));
 
       this.classList.add('show-tooltip');
 

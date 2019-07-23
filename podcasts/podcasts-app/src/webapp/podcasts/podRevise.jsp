@@ -31,7 +31,9 @@
   <h:form id="podRev" enctype="multipart/form-data">
 
     <div>  <!-- Page title and Instructions -->
-      <h3><h:outputText value="#{msgs.revise_title}" /></h3>
+      <div class="page-header">
+        <h1><h:outputText value="#{msgs.revise_title}" /></h1>
+      </div>
       <div class="indnt1">
           <p class="instruction"> 
             <h:outputText value="#{msgs.revise_directions}" />

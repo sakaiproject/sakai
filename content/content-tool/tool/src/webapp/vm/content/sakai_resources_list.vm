@@ -202,7 +202,7 @@
     <div class="container-fluid">
       <div class="row">
             #if($listActions || $showHotDropboxWidget)
-                    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm" role="group" style="padding-left:0;">
+                    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 btn-group btn-group-sm act" role="group" style="padding-left:0;">
                         #if($listActions)
                                 #set ($itemsOnLine = 0)
                                 #foreach($key in $listActions.keySet())
@@ -270,7 +270,7 @@
                   <li class="dropdown-header"><span id="creatorTog"><input type="checkbox" id="creatorCol" checked="checked" /><label for ="creatorCol">&nbsp;&nbsp;$clang.getString("gen.created")</label></span></li>
                   <li class="dropdown-header"><span id="modifiedTog"><input type="checkbox" id="modifiedCol" checked="checked"/><label for="modifiedCol">&nbsp;&nbsp;$clang.getString("gen.last1")</label></span></li>
                   <li class="dropdown-header"><span id="sizeTog"><input type="checkbox" id="sizeCol" checked="checked"/><label for="sizeCol">&nbsp;&nbsp;$clang.getString("gen.size")</label></span></li>
-                  <li class="dropdown-header"><button class="btn btn-primary  btn-sm btn-block" id="saveCols">$clang.getString("gen.save")</button></li>
+                  <li class="dropdown-header act"><button class="active" id="saveCols">$clang.getString("gen.save")</button></li>
                 </ul>
               </span>
             #end
@@ -601,8 +601,8 @@
 						<tr class="exclude">
 							<td colspan="9" class="container-fluid">
                 <div class="row">
-							    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                    <button class="btn btn-default btn-sm" id="copy-button-other" type="button"
+							    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 act">
+                    <button class="btn btn-default" id="copy-button-other" type="button"
                         onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
                         disabled="disabled">$tlang.getString('action.copy')
                     </button>

@@ -34,8 +34,8 @@ export class SakaiRubricCriterionRatingEdit extends SakaiElement {
       <div id="edit_criterion_rating_${this.rating.id}" class="popover rating-edit-popover bottom">
         <div class="arrow"></div>
         <div class="popover-title">
-          <div class="buttons">
-            <button class="btn btn-primary btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
+          <div class="buttons act">
+            <button class="active btn-xs save" title="${tr("save")} ${this.rating.title}" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
             <button class="delete" title="${tr("remove_label")} ${this.rating.title}" @click="${this.deleteRating}"><sr-lang key="remove_label" /></button>

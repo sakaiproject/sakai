@@ -365,9 +365,6 @@ body.is-logged-out{
 
 		&.moving{
 			top: -4.2em;
-			#mastLogin #loginLinks ul.#{$namespace}userNav__subnav{
-				display: none;
-			}
 		}
 	}
 

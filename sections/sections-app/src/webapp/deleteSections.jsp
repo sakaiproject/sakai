@@ -8,12 +8,14 @@
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
-	<h3>
-	    <h:outputFormat value="#{msgs.overview_page_header}">
-	        <f:param value="#{overviewBean.siteRole}"/>
-	    </h:outputFormat>
-	</h3>
-
+    <div class="page-header">
+        <h1>
+            <h:outputFormat value="#{msgs.overview_page_header}">
+                <f:param value="#{overviewBean.siteRole}"/>
+            </h:outputFormat>
+        </h1>
+    </div>
+    
     <t:div styleClass="alertMessage">
         <h:outputText value="#{msgs.overview_delete_section_confirmation_pre}"/>
         <t:dataList

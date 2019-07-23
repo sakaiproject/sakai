@@ -131,7 +131,8 @@ public class SettingsPage extends BasePage {
 					BigDecimal totalWeight = BigDecimal.ZERO;
 					for (final CategoryDefinition cat : categories) {
 
-						if (cat.getWeight() == null) {
+						BigDecimal catWeight = (cat.getWeight() == null) ? null : new BigDecimal(cat.getWeight());
+						if (catWeight == null || catWeight.compareTo(BigDecimal.ZERO) == 0) {
 							error(getString("settingspage.update.failure.categorymissingweight"));
 						} else {
 							// extra credit items do not participate in the weightings, so exclude from the tally
@@ -229,6 +230,7 @@ public class SettingsPage extends BasePage {
 			@Override
 			public void onError(final AjaxRequestTarget target, final Form<?> form) {
 				target.add(SettingsPage.this.feedbackPanel);
+				target.appendJavaScript("scroll(0,0);");// Scroll to the top to see the message error
 			}
 		};
 		form.add(submit);

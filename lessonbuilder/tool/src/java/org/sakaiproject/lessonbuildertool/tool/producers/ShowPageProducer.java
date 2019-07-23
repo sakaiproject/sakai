@@ -107,7 +107,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
@@ -120,6 +120,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -170,7 +171,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private SecurityService securityService;
 	private SiteService siteService;
 	private FormatAwareDateInputEvolver dateevolver;
-	private TimeService timeService;
+	@Setter private UserTimeService userTimeService;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
 	// have to do it here because we need it in urlCache. It has to happen before Spring initialization
@@ -444,7 +445,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		boolean cameFromGradingPane = params.getPath().equals("none");
 
-		TimeZone localtz = timeService.getLocalTimeZone();
+		TimeZone localtz = userTimeService.getLocalTimeZone();
 		isoDateFormat.setTimeZone(localtz);
 
 		if (!canReadPage) {
@@ -580,7 +581,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// potentially need time zone for setting release date
 		if (!canSeeAll && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date()) && !currentPage.isHidden()) {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-			TimeZone tz = timeService.getLocalTimeZone();
+			TimeZone tz = userTimeService.getLocalTimeZone();
 			df.setTimeZone(tz);
 			String releaseDate = df.format(currentPage.getReleaseDate());
 			String releaseMessage = messageLocator.getMessage("simplepage.not_yet_available_releasedate").replace("{}", releaseDate);
@@ -1188,7 +1189,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// similarly warn them if it isn't released yet
 				} else if (currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
 					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-					TimeZone tz = timeService.getLocalTimeZone();
+					TimeZone tz = userTimeService.getLocalTimeZone();
 					df.setTimeZone(tz);
 					String releaseDate = df.format(currentPage.getReleaseDate());
 					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
@@ -1226,7 +1227,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				UIOutput.make(tofill, "startupHelp")
 				    .decorate(new UIFreeAttributeDecorator("src", helpUrl))
-				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
+				    .decorate(new UIFreeAttributeDecorator("id", "iframe"))
+					.decorate(new UIFreeAttributeDecorator("allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow"))));
 				if (!iframeJavascriptDone) {
 				    UIOutput.make(tofill, "iframeJavascript");
 				    iframeJavascriptDone = true;
@@ -1995,7 +1997,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    // allowfullscreen="true" allowScriptAccess="always"
 						    // width="640" height="390"></object>
 
-						    item = UIOutput.make(tableRow, "youtubeIFrame");
+						    item = UIOutput.make(tableRow, "youtubeIFrame")
+									.decorate(new UIFreeAttributeDecorator("allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow"))));
 						    // youtube seems ok with length and width
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
@@ -2309,7 +2312,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						} else  {
 						    UIOutput.make(tableRow, "iframe-link-div");
 						    UILink.make(tableRow, "iframe-link-link", messageLocator.getMessage("simplepage.open_new_window"), itemUrl);
-						    item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", itemUrl));
+						    item = UIOutput.make(tableRow, "iframe")
+									.decorate(new UIFreeAttributeDecorator("src", itemUrl))
+									.decorate(new UIFreeAttributeDecorator("allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow"))));
 						    // if user specifies auto, use Javascript to resize the
 						    // iframe when the
 						    // content changes. This only works for URLs with the
@@ -3861,7 +3866,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (i.getHeight() != null && !i.getHeight().equals(""))
 			    height = i.getHeight().replace("px","");  // just in case
 			
-			UIComponent iframe = UIOutput.make(container, "blti-iframe");
+			UIComponent iframe = UIOutput.make(container, "blti-iframe")
+					.decorate(new UIFreeAttributeDecorator("allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow"))));
 			if (lessonEntity != null)
 			    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
 			
@@ -4023,10 +4029,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setDateEvolver(FormatAwareDateInputEvolver dateevolver) {
 		this.dateevolver = dateevolver;
-	}
-
-	public void setTimeService(TimeService ts) {
-		timeService = ts;
 	}
 
 	public void setLocaleGetter(LocaleGetter localegetter) {

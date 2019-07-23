@@ -30,7 +30,7 @@
     				#end
     			</select>
     		</p>
-    		<p class="act"><input type="submit" name="eventSubmit_doBatch_Archive_PreProcess" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>
+    		<p class="act"><input type="submit" name="eventSubmit_doBatch_Archive_PreProcess" value="$tlang.getString("archive.vm.archive1")" class="indnt1 active" /></p>
     		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 		
@@ -55,7 +55,7 @@
 			</label>	
 			<input type="file" name="importFile"   id="importFile"  />
 		</p>	
-		<p class="act"><input type="submit" name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")" class="indnt1" /></p>
+		<p class="act"><input type="submit" name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")" class="indnt1 active" /></p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

@@ -537,7 +537,8 @@
             enrollmentsMode: enrollmentsMode,
             viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
             viewConnections: ((undefined !== window.friendStatus) && roster.viewConnections),
-            showVisits: roster.showVisits
+            showVisits: roster.showVisits,
+            profileNamePronunciationLink: roster.profileNamePronunciationLink,
         };
 
     if (!renderAll) {
@@ -759,6 +760,13 @@
 
   Handlebars.registerHelper('getName', function (firstNameLastName) {
     return (firstNameLastName) ? this.displayName : this.sortName;
+  });
+
+  Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+    if(v1 === v2) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
   });
 
   roster.init = function () {

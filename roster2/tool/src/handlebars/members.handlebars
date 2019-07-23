@@ -32,7 +32,15 @@
                 {{#if pronunciation}}
                     {{{pronunciation}}}
                 {{else}}
-                    {{{translate 'name_pronunciation_not_provided'}}}
+                    {{#ifCond ../currentUserId userId}}
+                        {{#if ../profileNamePronunciationLink}}
+                            <a href="{{../profileNamePronunciationLink}}">{{translate 'name_pronunciation_profile_link'}}</a>
+                        {{else}}
+                            {{{translate 'name_pronunciation_not_provided'}}}
+                        {{/if}}
+                    {{else}}
+                        {{{translate 'name_pronunciation_not_provided'}}}
+                    {{/ifCond}}
                 {{/if}}
                 </span>
         </div>

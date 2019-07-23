@@ -197,18 +197,18 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	}
 
 	public void initNonpersistentFields(final double totalPointsPossible, final double totalPointsEarned) {
-		Double percentageEarned;
+		BigDecimal percentageEarned;
 		this.totalPointsPossible = totalPointsPossible;
 		this.calculatedPointsEarned = totalPointsEarned;
-		final BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
-		final BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		final BigDecimal bdTotalPointsPossible = BigDecimal.valueOf(totalPointsPossible);
+		final BigDecimal bdTotalPointsEarned = BigDecimal.valueOf(totalPointsEarned);
 		if (totalPointsPossible == 0.0) {
-			percentageEarned = null;
+			this.autoCalculatedGrade = null;
 		} else {
-			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT)
-					.multiply(new BigDecimal("100")).doubleValue());
+			percentageEarned = bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT)
+					.multiply(new BigDecimal("100"));
+			this.autoCalculatedGrade = percentageEarned.doubleValue();
 		}
-		this.autoCalculatedGrade = percentageEarned;
 	}
 
 	// Added by -Qu for totalPoints implementation in GB2 bugid:4371 9/2011
@@ -216,21 +216,30 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		this.calculatedPointsEarned = literalTotalPointsEarned;
 	}
 
+	// Added compatibility in GB Classic (12.x) - SAK-41295
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned,
+			double literalTotalPointsEarned) {
+		initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, 0.0);
+	}
+
 	public void initNonpersistentFields(final double totalPointsPossible, final double totalPointsEarned,
-			final double literalTotalPointsEarned) {
-		Double percentageEarned;
+			final double literalTotalPointsEarned, final double totalPointsExtra) {
+		BigDecimal percentageEarned;
+		BigDecimal percentageExtraEarned;
 		this.calculatedPointsEarned = literalTotalPointsEarned;
 		this.totalPointsPossible = totalPointsPossible;
-		final BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
-		final BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		final BigDecimal bdTotalPointsPossible = BigDecimal.valueOf(totalPointsPossible);
+		final BigDecimal bdTotalPointsEarned = BigDecimal.valueOf(totalPointsEarned);
 
 		if (totalPointsPossible <= 0.0) {
-			percentageEarned = null;
+			this.autoCalculatedGrade = null;
 		} else {
-			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT)
-					.multiply(new BigDecimal("100")).doubleValue());
+			percentageEarned =  bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT)
+					.multiply(new BigDecimal("100"));
+			percentageExtraEarned = BigDecimal.valueOf(totalPointsExtra).multiply(new BigDecimal("100"), GradebookService.MATH_CONTEXT);
+			percentageEarned = percentageEarned.add(percentageExtraEarned, GradebookService.MATH_CONTEXT);
+			this.autoCalculatedGrade = percentageEarned.doubleValue();
 		}
-		this.autoCalculatedGrade = percentageEarned;
 	}
 
 	public Double getCalculatedPointsEarned() {

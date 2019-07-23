@@ -40,9 +40,9 @@
 				<label for="search" class="skip">$tlang.getString('lis.search')</label>
 				<input size="15" value="$validator.escapeHtml($!search)" name="search" id="search" type="text" class="searchField"  />
 				<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for emails" />
-				<a href="#" title="$tlang.getString('lis.search')" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');document.getElementById('submitnotifwrap').style.visibility='visible';return false;" style="text-decoration:none !important"><input type="button" value="$tlang.getString('lis.search')" /></a>
+				<a href="#" title="$tlang.getString('lis.search')" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');document.getElementById('submitnotifwrap').style.visibility='visible';return false;" style="text-decoration:none !important" class="act"><input type="button" class="active" value="$tlang.getString('lis.search')" /></a>
 				#if (($!search) && (!$search.equals("")))
-					<a href="#" title="$tlang.getString('lis.clear')" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;" style="text-decoration:none !important"><input type="button" value="$tlang.getString('lis.clear')" /></a>
+					<a href="#" title="$tlang.getString('lis.clear')" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;" style="text-decoration:none !important" ><input type="button" value="$tlang.getString('lis.clear')" /></a>
 				#end
 				<div id="submitnotifwrap" style="padding:6px 0;visibility:hidden"><span id="submitnotif">$tlang.getString("lis.searchnotif")</span></div>								
 			</div>

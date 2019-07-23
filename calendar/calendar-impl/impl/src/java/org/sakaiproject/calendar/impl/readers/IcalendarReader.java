@@ -103,12 +103,16 @@ public class IcalendarReader extends Reader
 				Component vTimeZone = calendar.getComponent("VTIMEZONE");
 				if (vTimeZone!=null) {
 					Property tzProperty = vTimeZone.getProperty("TZID");
-					if (tzProperty!=null) calendarTzid = tzProperty.getValue();
+					if (tzProperty!=null) {
+						calendarTzid = tzProperty.getValue();
+						ZoneId.of(calendarTzid);//check zone is valid or throw exception
+					}
 				} else {
 					log.debug("Calendar time zone not found");
 				}
 			} catch (Exception e) {
 				log.warn("Error reading VTIMEZONE component/TZID property: "+e);
+				calendarTzid = null;
 			}
 			
 			for (Iterator i = calendar.getComponents("VEVENT").iterator(); i.hasNext();)
@@ -239,7 +243,7 @@ public class IcalendarReader extends Reader
 			// Raw + calendar/owner TZ's offset
 			ZonedDateTime srcZonedDateTime = startInstant.atZone(srcZoneId);
 			long millis = startInstant.plusMillis(srcZonedDateTime.getOffset().getTotalSeconds() * 1000).toEpochMilli();
-			TimeZone tz = TimeZone.getTimeZone(tzid);
+			TimeZone tz = TimeZone.getTimeZone(srcZoneId);
 			if( tz.inDaylightTime(startDate) ) {
 				millis = millis - tz.getDSTSavings();
 			}

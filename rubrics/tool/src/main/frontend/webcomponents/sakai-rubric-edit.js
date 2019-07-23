@@ -40,8 +40,8 @@ export class SakaiRubricEdit extends SakaiElement {
       <div id="edit_rubric_${this.rubric.id}" @click="${this.eatEvent}" class="popover rubric-edit-popover bottom">
         <div class="arrow"></div>
         <div class="popover-title">
-          <div class="buttons">
-            <button class="btn btn-primary btn-xs save" @click="${this.saveEdit}">
+          <div class="buttons act">
+            <button class="active save" @click="${this.saveEdit}">
               <sr-lang key="save">Save</sr-lang>
             </button>
             <button class="btn btn-link btn-xs cancel" @click="${this.cancelEdit}">

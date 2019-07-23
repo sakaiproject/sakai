@@ -62,6 +62,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
+import org.sakaiproject.contentreview.exception.ContentReviewProviderException;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
@@ -487,7 +488,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		return null;
 	}
 	
-	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, boolean isInstructor) {
+	@Override
+	public String getReviewReportRedirectUrl(String contentId, String assignmentRef, String userId, String contextId, boolean isInstructor) {
 		
 		// Set variables
 		String viewerUrl = null;
@@ -736,8 +738,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		} else if ((responseCode == 409)) {
 			log.debug("A Similarity Report is already generating for this submission");
 		} else {
-			throw new ReportException(
-					"Submission failed to initiate: " + responseCode + ", " + responseMessage + ", " + responseBody);
+			throw new ContentReviewProviderException("Submission failed to initiate: " + responseCode + ", " + responseMessage + ", " + responseBody,
+				createLastError(doc -> createFormattedMessageXML(doc, "report.error.unsuccessful", responseMessage, responseCode)));
 		}
 	}
 
@@ -755,8 +757,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		// Create JSONObject from response
 		JSONObject responseJSON = JSONObject.fromObject(responseBody);
 		if ((responseCode < 200) || (responseCode >= 300)) {
-			throw new TransientSubmissionException("getSubmissionJSON invalid request: " + responseCode + ", " + responseMessage + ", "
-					+ responseBody);
+			throw new ContentReviewProviderException("getSubmissionJSON invalid request: " + responseCode + ", " + responseMessage + ", " + responseBody,
+				createLastError(doc -> createFormattedMessageXML(doc, "submission.error.unexpected.response", responseMessage, responseCode)));
 		}
 
 		return responseJSON;
@@ -858,20 +860,28 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					submissionId = responseJSON.getString("id");
 				} else {
 					log.error("getSubmissionId response: " + responseMessage);
-					item.setLastError("Unexpected response from Turnitin. Response code is " + responseCode + ". " +
-						(STATUS_CREATED.equals(status) ? "Expected a Turnitin ID, but none was provided" : "Status is: " + status));
+					setLastError(item, doc-> {
+						Object cause;
+						if (!STATUS_CREATED.equals(status)) {
+							cause = createFormattedMessageXML(doc, "submission.error.unexpected.response.wrong.status", status);
+						}
+						else {
+							cause = createFormattedMessageXML(doc, "submission.error.unexpected.response.no.id");
+						}
+						return createFormattedMessageXML(doc, "submission.error.unexpected.response", cause, responseCode);
+					});
 				}
 			} else {
 				log.error("getSubmissionId response code: " + responseCode + ", " + responseMessage + ", "
 						+ responseJSON);
-				item.setLastError(responseCode + " - " + responseMessage);
+				setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.unsuccessful.response", responseMessage, responseCode));
 			}
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-			item.setLastError("A problem occurred communicating with Turnitin");
+			setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.ioexception"));
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			item.setLastError("An unknown / unhandled error has occurred");
+			setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.general"));
 		}
 
 		return submissionId;
@@ -990,13 +1000,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			} catch (IOException e) {
 				log.error(e.getLocalizedMessage(), e);
-				item.setLastError("A problem occurred while retrieving an originality score from Turnitin");
+				setLastError(item, doc->createFormattedMessageXML(doc, "report.error.ioexception"));
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
 				crqs.update(item);
 				errors++;
 			} catch (Exception e) {
 				log.error(e.getLocalizedMessage(), e);
-				item.setLastError(e.getMessage());
+				setLastError(item, e);
 				item.setStatus(ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE);
 				crqs.update(item);
 				errors++;
@@ -1051,21 +1061,21 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						resource = contentHostingService.getResource(item.getContentId());
 					} catch (IdUnusedException e4) {
 						log.error("IdUnusedException: no resource with id " + item.getContentId(), e4);
-						item.setLastError("IdUnusedException: no resource with id " + item.getContentId());
+						setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.idunusedexception"));
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 						crqs.update(item);
 						errors++;
 						continue;
 					} catch (PermissionException e) {
 						log.error("PermissionException: no resource with id " + item.getContentId(), e);
-						item.setLastError("PermissionException: no resource with id " + item.getContentId());
+						setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.permissionexception"));
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 						crqs.update(item);
 						errors++;
 						continue;
 					} catch (TypeException e) {
 						log.error("TypeException: no resource with id " + item.getContentId(), e);
-						item.setLastError("TypeException: no resource with id " + item.getContentId());
+						setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.idunusedexception"));
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 						crqs.update(item);
 						errors++;
@@ -1126,7 +1136,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
 						if (updateLastError) {
-							item.setLastError(e.getMessage());
+							setLastError(item, e);
 						}
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 						crqs.update(item);
@@ -1138,7 +1148,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						// Get submission status, returns the state of the submission as string		
 						JSONObject submissionJSON = getSubmissionJSON(item.getExternalId());
 						if (!submissionJSON.containsKey("status")) {
-							throw new TransientSubmissionException("Response from Turnitin is missing expected data");
+							throw new ContentReviewProviderException("Response from Turnitin is missing expected data", createLastError(doc->createFormattedMessageXML(doc, "submission.error.missing.data")));
 						}
 						String submissionStatus = submissionJSON.getString("status");
 
@@ -1155,7 +1165,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
-						item.setLastError(e.getMessage());
+						setLastError(item, e);
 						item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 						crqs.update(item);
 						errors++;
@@ -1224,11 +1234,6 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			String submissionStatus = submissionJSON.getString("status");
 
-			// Handle possible error status
-			String errorStr = null;
-			// Assume any errors are irrecoverable; flip to true for those we should try again
-			boolean recoverable = false;
-
 			switch (submissionStatus) {
 			case "COMPLETE":
 				// If submission status is complete, start similarity report process
@@ -1259,45 +1264,27 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				break;
 			default:
 				String errorCode = submissionJSON.containsKey("error_code") ? submissionJSON.getString("error_code") : submissionStatus;
-				switch (errorCode)
-				{
-				case "UNSUPPORTED_FILETYPE":
-					errorStr = "The uploaded filetype is not supported";
-					break;
-					//break on all
-				case "PROCESSING_ERROR":
-					errorStr = "An unspecified error occurred while processing the submissions";
-					break;
-				case "TOO_LITTLE_TEXT":
-					errorStr = "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)";
-					break;
-				case "TOO_MUCH_TEXT":
-					errorStr = "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)";
-					break;
-				case "TOO_MANY_PAGES":
-					errorStr = "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 400 pages)";
-					break;
-				case "FILE_LOCKED":
-					errorStr = "The uploaded file requires a password in order to be opened";
-					break;
-				case "CORRUPT_FILE":
-					errorStr = "The uploaded file appears to be corrupt";
-					break;
-				case "ERROR":
-					errorStr = "Submission returned with ERROR status";
-					break;
-				default:
-					errorStr = errorCode;
+				// Grab an appropriate message from turnitin.properties by the prefix "submission.terminal.status."
+				// If a message with this key exists, it's considered a terminal error and the item should not be retried
+				String terminalKey = "submission.terminal.status." + errorCode;
+				ResourceLoader rb = getResourceLoader();
+				if (rb.containsKey(terminalKey)) {
+					setLastError(item, doc->createFormattedMessageXML(doc, terminalKey));
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
+				} else {
 					log.info("Unknown submission status, will retry: " + submissionStatus);
-					recoverable = true;
-					break;
+					String recoverableKey = "submission.recoverable.status." + errorCode;
+					if (rb.containsKey(recoverableKey)) {
+						// Currently these don't exist, but this implementation is ready should recoverable errors become identified
+						setLastError(item, doc->createFormattedMessageXML(doc, recoverableKey));
+					} else {
+						// Unknown submission status / error code. Assume it's recoverable; if it's terminal, the retry count will be exceeded eventually
+						setLastError(item, doc->createFormattedMessageXML(doc, "submission.error.unhandled.status", errorCode));
+					}
+					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE);
 				}
-			}
-			if(StringUtils.isNotEmpty(errorStr)) {
-				item.setLastError(errorStr);
-				Long errorStatus = recoverable ? ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE : ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE;
-				item.setStatus(errorStatus);
 				crqs.update(item);
+				break;
 			}
 		}  catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -1320,7 +1307,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			// Similarity report is still generating, will try again
 			log.info("Processing report " + item.getExternalId() + "...");
 		} else if(status == -2){
-			throw new ReportException("Unknown error during report status call");
+			throw new ContentReviewProviderException("Unknown error during report status call",
+				createLastError(doc -> createFormattedMessageXML(doc, "report.error.unknown")));
 		}
 	}
 	
@@ -1413,13 +1401,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			 * Use ResourceLoader to resolve the file types.
 			 * If the resource loader doesn't find the file extenions, log a warning and return the [missing key...] messages
 			 */
-			ResourceLoader resourceLoader = new ResourceLoader("turnitin");
 			for( String fileExtension : acceptableFileExtensions ) {
 				String key = KEY_FILE_TYPE_PREFIX + fileExtension;
-				if (!resourceLoader.getIsValid(key)) {
+				ResourceLoader rb = getResourceLoader();
+				if (!rb.getIsValid(key)) {
 					log.warn("While resolving acceptable file types for Turnitin, the sakai.property " + PROP_ACCEPTABLE_FILE_TYPES + " is not set, and the message bundle " + key + " could not be resolved. Displaying [missing key ...] to the user");
 				}
-				String fileType = resourceLoader.getString(key);
+				String fileType = rb.getString(key);
 				appendToMap( acceptableFileTypesToExtensions, fileType, fileExtension );
 			}
 		}
@@ -1669,7 +1657,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			String secrete_key_encoded = getSigningSignature(apiKey.getBytes(), body);
 			if (StringUtils.isNotEmpty(secrete_key_encoded) && signature_header.equals(secrete_key_encoded)) {
 				if (SUBMISSION_COMPLETE_EVENT_TYPE.equals(eventType)) {
-					if (webhookJSON.has("id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
+					if (webhookJSON.has("id") && webhookJSON.has("status")) {
 						// Allow cb to access assignment settings, needed for due date check
 						SecurityAdvisor advisor = pushAdvisor();
 						try {
@@ -1719,5 +1707,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private class Webhook {
 		private String id;
 		private String url;
+	}
+
+	@Override
+	protected String getResourceLoaderName() {
+		return "turnitin-oc";
 	}
 }

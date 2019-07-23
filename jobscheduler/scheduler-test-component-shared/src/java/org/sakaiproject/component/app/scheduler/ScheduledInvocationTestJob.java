@@ -25,7 +25,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.time.api.TimeService;
+
 
 @Slf4j
 public class ScheduledInvocationTestJob implements Job {
@@ -37,19 +37,7 @@ public class ScheduledInvocationTestJob implements Job {
 	{
 		m_sim = service;
 	}
-	
 
-	/** Dependency: TimeService */
-	protected TimeService m_timeService = null;
-	
-	public void setTimeService(TimeService service)
-	{
-		m_timeService = service;
-	}
-	
-	
-	
-	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
 		log.info("Creating a delayed invocation");

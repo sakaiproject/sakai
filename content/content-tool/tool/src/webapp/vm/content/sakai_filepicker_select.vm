@@ -583,7 +583,7 @@ $(document).ready(function() {
 			</table>
 		
 			<p class="act">
-				<input type="button" name="attachButton2" id="attachButton2"  accesskey="s"
+				<input type="button" name="attachButton2" class="active" id="attachButton2"  accesskey="s"
 					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
 				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"

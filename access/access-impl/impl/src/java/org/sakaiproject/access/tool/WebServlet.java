@@ -23,6 +23,7 @@ package org.sakaiproject.access.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Year;
 import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
@@ -47,8 +48,6 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.Session;
@@ -65,7 +64,6 @@ public class WebServlet extends AccessServlet
 {
 	protected ContentHostingService contentHostingService;
 	protected UserDirectoryService userDirectoryService;
-	protected TimeService timeService;
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.access.tool.AccessServlet#init(javax.servlet.ServletConfig)
@@ -77,7 +75,6 @@ public class WebServlet extends AccessServlet
 		
 		contentHostingService = ComponentManager.get(ContentHostingService.class);
 		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-		timeService = ComponentManager.get(TimeService.class);
 	}
 	/**
 	 * Set active session according to sessionId parameter
@@ -276,8 +273,7 @@ public class WebServlet extends AccessServlet
 			{
 				User user = userDirectoryService.getCurrentUser();
 
-				TimeBreakdown timeBreakdown = timeService.newTime().breakdownLocal();
-				String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
+				String mycopyright = "copyright (c)" + " " + Year.now() + ", " + user.getDisplayName()
 						+ ". All Rights Reserved. ";
 
 				resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT, mycopyright);

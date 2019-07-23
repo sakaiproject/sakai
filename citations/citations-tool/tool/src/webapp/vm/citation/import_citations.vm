@@ -33,7 +33,7 @@ doubleDeep = true;
 </script>
 
 <!-- template: sakai_citation-import_citations.vm -->
-<div class="portletBody">
+<div class="portletBody act">
         #set ($fromListPage = $state.getAttribute("fromListPage"))
 
   <div class="indnt1">
@@ -47,7 +47,7 @@ doubleDeep = true;
 	  <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
       <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
 
-	  <input type="button" value='$tlang.getString("label.import")' id="import1"
+	  <input type="button" value='$tlang.getString("label.import")' class="active" id="import1"
 	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
 			 
 	  #if($fromListPage)
@@ -78,7 +78,7 @@ doubleDeep = true;
 	    <textarea cols="80" rows="4" name="ristext" id="ristext"></textarea>
 	  </span>
       <p />
-	  <input type="button" value='$tlang.getString("label.import")' id="import2"
+	  <input type="button" value='$tlang.getString("label.import")' class="active" id="import2"
 	         onclick="importCitations('$FORM_NAME', '$tlang.getString("import.alert")');"/>
 			 
 	  #if($fromListPage)

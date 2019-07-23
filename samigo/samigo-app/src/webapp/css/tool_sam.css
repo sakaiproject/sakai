@@ -1447,3 +1447,6 @@ label#itemForm\:noFeedbackMsg {
 	color: #004400;
 }
 
+.categorySelect {
+	margin-left: 8px;
+}

@@ -274,4 +274,11 @@ public interface SakaiProxy {
      * @return the value of the <code>roster.display.user.name.pronunciation</code> Sakai property.
      */
     public Boolean getViewUserNamePronunciation();
+
+    /**
+     * Returns the profile tool link. Null if user doesn't have profile tool.
+     *
+     * @return the profile tool link. Null if user doesn't have profile tool.
+     */
+    public String getProfileToolLink();
 }

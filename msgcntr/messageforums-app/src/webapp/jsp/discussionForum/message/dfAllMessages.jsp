@@ -277,15 +277,10 @@
 					columnClasses="attach, attach,messageTitle,attach,bogus,bogus">		
 			<h:column id="_checkbox">
 				<f:facet name="header">
+					<h:graphicImage value="/images/expand-collapse.gif" style="vertical-align:middle" alt="#{msgs.expandAll}" title="#{msgs.expandAll}" />
 				</f:facet>
 			</h:column>
 			<h:column id="_toggle">
-				<f:facet name="header">
-					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true" title="#{msgs.cdfm_collapse_expand_all}">
-							<h:graphicImage value="/images/collapse-expand.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded == 'true'}" alt=""  />
-							<h:graphicImage value="/images/expand-collapse.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded != 'true'}" alt=""  />
-					</h:commandLink>
-				</f:facet>
 			</h:column>
 			<h:column id="_msg_subject">
 				<f:facet name="header">
@@ -378,8 +373,10 @@
 					<h:outputText value= " mr: #{message.read}" />
 					--%>
                     <%-- // display  ('unread ') if unread message is>= 1 --%>
-                    <h:outputText styleClass="childrenNew" id="topic_msg_count55" value="  #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}" 
-                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>     
+                    <h:outputText styleClass="childrenNew childrenNewNumber" id="topic_msg_count55" value="#{(message.childUnread) + (message.read ? 0 : 1)}"
+                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>
+                    <h:outputText styleClass="childrenNew" id="topic_msg_count56" value="#{msgs.cdfm_lowercase_unread_msg}"
+                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>
    
                     <%-- // display ('unread ') with different style sheet if unread message is 0 --%>  
                     <h:outputText styleClass="childrenNewZero" id="topic_msg_count57" value="  #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}" 
@@ -402,9 +399,14 @@
 					</f:facet>
                	
 					<h:graphicImage value="/images/trans.gif" rendered="#{message.read}" style="margin-left:.5em" alt="" />
-					<h:graphicImage value="/images/trans.gif" rendered="#{!message.read}"
-						alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
-						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsReadIcon"/>
+					<h:outputLink value="javascript:void(0);"
+								  title="#{msgs.cdfm_mark_as_read}"
+								  rendered="#{!message.read}"
+								  styleClass="markAsReadIcon button"
+								  onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
+						<h:graphicImage value="/images/trans.gif"/>
+						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+					</h:outputLink>
 			</h:column>
 			<h:column>
 				<f:facet name="header">

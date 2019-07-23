@@ -208,7 +208,7 @@
 <p class="act">
 
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%> 
-   <h:commandButton	value="#{evaluationMessages.download}" actionListener="#{downloadFileSubmissions.downloadFiles}" style="active" />
+   <h:commandButton	value="#{evaluationMessages.download}" actionListener="#{downloadFileSubmissions.downloadFiles}" styleClass="active" />
    
 </p>
 <f:verbatim></div></f:verbatim>
