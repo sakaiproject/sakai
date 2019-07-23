@@ -314,7 +314,7 @@ $(function() {
 		$tlang.getString("rev.revising")
 	</h3>
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<p class="sak-banner-info"">
+	<p class="instruction">
 		$tlang.getString("rev.torev")<br />
 		$tlang.getString("new.a") <span class="reqStarInline">*</span>
 	</p>
@@ -830,7 +830,7 @@ $(function() {
 				#end
 			</ul>
 		#end
-		#if ($size == 0) <p class="sak-banner-info"">$tlang.getString("gen.noattach")</p>
+		#if ($size == 0) <p class="instruction">$tlang.getString("gen.noattach")</p>
 			<p class="act">
 			<input type="submit" name="eventSubmit_doAttachments" value="$tlang.getString("new.addattach")" />
 			</p>

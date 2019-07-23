@@ -25,7 +25,7 @@
 			</form>
 		</div>
 		<div class="listNav">
-			<div class="sak-banner-info"">$year</div>
+			<div class="instruction">$year</div>
 			<form action="#toolForm("$action")" method="post">
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewy.lasy')" title="$tlang.getString('viewy.gotop')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" />

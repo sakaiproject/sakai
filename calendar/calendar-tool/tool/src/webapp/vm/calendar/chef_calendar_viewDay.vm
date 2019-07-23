@@ -25,7 +25,7 @@
 				</form>
 			</div>
 			<div class="listNav">
-				<div class="sak-banner-info"">
+				<div class="instruction">
 					$today $timezone</div>
 				
 				#set($isToday = false)

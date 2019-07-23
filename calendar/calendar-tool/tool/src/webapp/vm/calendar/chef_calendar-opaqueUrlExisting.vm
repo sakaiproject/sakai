@@ -4,14 +4,14 @@
 	<h3>
 		$tlang.getString('ical_opaqueurl_header_existing')
 	</h3>
-		<p class="sak-banner-info"">
+		<p class="instruction">
 			$tlang.getString('ical_opaqueurl_explanation_existing')
 		</p>
-		<p class = "sak-banner-info"">
+		<p class = "instruction">
 			$icalInfoStr
 		</p>
 	#if (!$isMyWorkspace)
-		<p class="sak-banner-info"">
+		<p class="instruction">
 			<em>$tlang.getString('ical_opaqueurl_myworkspace')</em>
 		</p>
 	#end

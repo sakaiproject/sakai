@@ -19,7 +19,7 @@
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
 	#end
-	<p class="sak-banner-info"">
+	<p class="instruction">
 		$tlang.getString('cust.toadd')
 	</p>
 	<form name="Options" action="#toolForm("$action")" method="post">

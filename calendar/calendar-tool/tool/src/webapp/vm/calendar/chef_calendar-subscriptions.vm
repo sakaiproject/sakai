@@ -15,7 +15,7 @@
 		#if ($institutionalSubscriptionsAvailable)
 			<br/>
 			<h4>$tlang.getString('subs.institutional')</h4>
-			<div class="sak-banner-info"">
+			<div class="instruction">
 				$tlang.getString('subs.institutional.instruction')
 				<ul>
 					<li>$tlang.getString('subs.institutional.instruction.detailed.1')</li>
@@ -50,7 +50,7 @@
 	
 		<br/>
 		<h4>$tlang.getString('subs.user')</h4>
-		<p class="sak-banner-info"">
+		<p class="instruction">
 			$tlang.getString('subs.user.instruction')
 		</p>
 			<table style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.user.instruction')">

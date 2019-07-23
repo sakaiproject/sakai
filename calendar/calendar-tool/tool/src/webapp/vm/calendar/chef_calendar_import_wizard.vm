@@ -24,20 +24,20 @@
 		#if ($importWizardState == "SELECT_TYPE")
 			<h4>$tlang.getString("imp.select")</h4>
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
-      			<p class="sak-banner-info"">$tlang.getString("imp.mm.outlook")<br />
+      			<p class="instruction">$tlang.getString("imp.mm.outlook")<br />
       			$tlang.getString("import.outlook.note")<br />
 
 		#elseif ($importWizardState == "ICAL_SELECT_FILE")
-      			<p class="sak-banner-info"">$tlang.getString("imp.ical.todo")<br />
+      			<p class="instruction">$tlang.getString("imp.ical.todo")<br />
       
 		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
-			<p class="sak-banner-info"">$tlang.getString("imp.todo")<br /><br />
+			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
 				<a href="#scheduleLink("CalendarTemplate.zip")" title="CalendarTemplate.zip" target="_blank">
 				<img src = "#imageLink("sakai/excel_sc.gif")" border="0" alt="$tlang.getString('imp.generic')" />
 				$tlang.getString("imp.generic")
 				</a><br /><br />
 			</p>	
-			<p class="sak-banner-info"">$tlang.getString("imp.when")</p>
+			<p class="instruction">$tlang.getString("imp.when")</p>
 			                                                                                                                                             
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
 ##			$tlang.getString("imp.browse")
