@@ -19,7 +19,7 @@ noURL.setParameter("sakai.action","edit");
 
 <portlet:defineObjects/>
 
-<p class="messageConfirmation" style="clear:none;width:30%"><%= rb.getString("are.you.sure") %></p>
+<p class="sak-banner-warn" style="width:30%"><%= rb.getString("are.you.sure") %></p>
 <p class="act">
 	<input type="button" onclick="window.location='<%= yesURL.toString() %>'" value="<%= rb.getString("edit.clear.yes") %>" />
 	<input type="button" onclick="window.location='<%= noURL.toString() %>'" value="<%= rb.getString("edit.clear.no") %>" />

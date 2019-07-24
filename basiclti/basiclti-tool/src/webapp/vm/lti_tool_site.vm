@@ -105,8 +105,8 @@ ${includeLatestJQuery}
 		<li class="firstToolBarItew"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
 		<li><span class="current">$tlang.getString("tool.in.site")</span></li>
 	</ul>
-	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	#if ($isAdmin || $allowMaintainerAddToolSite)
 	<div align="right"><a href="" title="$tlang.getString("add.to.site")" onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;"> $tlang.getString("add.to.site")</a></div>
 	<br/>

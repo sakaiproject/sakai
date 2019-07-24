@@ -102,7 +102,7 @@ class SakaiRubricAssociation extends SakaiElement {
         `
         :
         html`
-        <span class="messageInformation indnt2" style="width: 80%">
+        <span class="sak-banner-info indnt2" style="width: 80%">
           <sr-lang key="no_rubrics">No rubrics have been created.</sr-lang>
         </span>
       `}

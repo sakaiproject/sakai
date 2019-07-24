@@ -2,8 +2,8 @@
 	<h3>
 		$tlang.getString("link.add")
 	</h3>
-	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($messageSuccess)<div class="sak-banner-success">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div>#end
+	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	$tlang.getString("link.add.detail")
 	<form action="#toolForm("")" method="post" name="customizeForm" >
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
