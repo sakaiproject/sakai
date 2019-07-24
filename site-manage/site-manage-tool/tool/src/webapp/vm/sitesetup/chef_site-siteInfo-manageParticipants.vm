@@ -48,7 +48,7 @@
                 <thead>
                     <tr>
                         <th id="name" scope="col">
-                            <a href="#toolLinkParam("$action" "doSort_roster" "criterion=participant_name")" title="$tlang.getString("sitegen.siteinfolist.sortid")">
+                            <a href="#toolLinkParam("$action" "doSort_roster" "criterion=participant_name")" title="$tlang.getString("sitegen.siteinfolist.sortname")">
                                 $tlang.getString("sitegen.siteinfolist.name")
                                 #if ($currentSortedBy.equals("participant_name"))
                                     #if ($currentSortAsc.equals("true"))
