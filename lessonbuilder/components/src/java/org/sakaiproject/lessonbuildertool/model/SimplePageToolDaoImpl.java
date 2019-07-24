@@ -1926,6 +1926,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	}
 
+    /**
+     * Gets the top level page items, ordered to correspond with the top level lessons tools
+     */
     public List<SimplePageItem> getOrderedTopLevelPageItems(String siteId) {
 
         // The unordered top level items
