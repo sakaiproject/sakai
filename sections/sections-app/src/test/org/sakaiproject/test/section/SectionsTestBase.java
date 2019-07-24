@@ -35,7 +35,3 @@ public class SectionsTestBase extends AbstractTransactionalSpringContextTests {
     }
 
 }
-
-
-
-

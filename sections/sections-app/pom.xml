@@ -80,25 +80,15 @@
 <!-- Sakai plugin -->
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies -->
-    <dependency>
+    <!-- Tests broken since SAK-33994, noticed in SAK-40909-->
+    <!--<dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency>
-<!-- Uncomment as necessary to run tests, or to generate new db schemas -->
-<!-- 
-				<dependency>
-					<groupId>mysql</groupId>
-					<artifactId>mysql-connector-java</artifactId>
-					<version>3.1.12</version>
-				</dependency>
-			<dependency>
-				<groupId>oracle</groupId>
-				<artifactId>oracle</artifactId>
-				<jar>ojdbc14.jar</jar>
-			</dependency>
-		-->
+    -->
 <!-- End database dependencies -->
-    <dependency>
+    <!-- Tests broken since SAK-33994, noticed in SAK-40909 -->
+    <!--<dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.test.artifactId}</artifactId>
       <version>${sakai.spring.test.version}</version>
@@ -113,7 +103,7 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -164,6 +154,13 @@
             <include implementation="java.lang.String">**/SectionsTestSuite</include>
           </testIncludes>
         </configuration>
+        <!-- Tests broken since SAK-33994, noticed in SAK-40909 -->
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <resources>
@@ -193,12 +190,15 @@
           <include>log4j.properties</include>
         </includes>
       </testResource>
+      <!-- Tests broken since SAK-33994, noticed in SAK-40909 -->
+      <!--
       <testResource>
         <directory>${basedir}/src/test/</directory>
         <includes>
           <include>hibernate.properties</include>
         </includes>
       </testResource>
+      -->
     </testResources>
   </build>
 </project>

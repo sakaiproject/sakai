@@ -78,9 +78,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>jdom</groupId>
-      <artifactId>jdom</artifactId>
-      <version>${jdom.version}</version>
+      <groupId>org.jdom</groupId>
+      <artifactId>jdom2</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.tags</groupId>

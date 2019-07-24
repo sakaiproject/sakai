@@ -47,14 +47,12 @@
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
-      <version>1.1.1</version>
+      <version>${json.simple.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject.pasystem</groupId>
       <artifactId>pasystem-api</artifactId>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -65,7 +63,9 @@
         <executions>
           <execution>
             <configuration>
-              <descriptor>src/template-zip-assembly.xml</descriptor>
+              <descriptors>
+                  <descriptor>src/template-zip-assembly.xml</descriptor>
+              </descriptors>
               <finalName>pasystem-samples</finalName>
               <appendAssemblyId>false</appendAssemblyId>
               <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
