@@ -406,7 +406,7 @@ public class LessonsAccess {
 
 			simplePageBean = makeSimplePageBean(simplePageBean, siteId, currentPage);
 
-			List<SimplePageItem> items = dao.findItemsInSite(siteId);
+			List<SimplePageItem> items = dao.getOrderedTopLevelPageItems(siteId);
 			// sorted by SQL
 
 			boolean ok = true;
