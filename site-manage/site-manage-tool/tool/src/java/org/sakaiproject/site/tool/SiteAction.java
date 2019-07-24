@@ -8897,14 +8897,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				//Check for search term
 				String search = (String)state.getAttribute(SITE_USER_SEARCH);
 				if(StringUtils.isNotBlank(search)) {
-					//search is true, get the complete list of participants from the other attribute.
+					// search term is provided, get the search-filtered list of participants from the other attribute.
 					participants = new ArrayList<>((Collection) state.getAttribute(STATE_SITE_PARTICIPANT_LIST));
 				} else {
+					// search term not provided, get the list (either full list or filtered by 'view' drop down)
 					participants = new ArrayList<>((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 				}
 
-				// SAK 23029 Test proposed removals/updates; reject all where activeMainainer count would = 0 if all proposed changes were made
-				List<Participant> maintainersAfterProposedChanges = testProposedUpdates(participants, params, maintainRoleString);
+				// SAK-23029 Test proposed removals/updates; reject all where activeMainainer count would = 0 if all proposed changes were made
+				// SAK-42185 need to provide full list of participants to test proposed updates, not filtered/search list
+				List<Participant> allParticipants = new ArrayList<>(SiteParticipantHelper.prepareParticipants(s.getId(), SiteParticipantHelper.getProviderCourseList(s.getId())));
+				List<Participant> maintainersAfterProposedChanges = testProposedUpdates(allParticipants, params, maintainRoleString);
 				if (maintainersAfterProposedChanges.size() == 0) {
 					addAlert(state, rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuseractive", new Object[] {maintainRoleString}));
 					return;
