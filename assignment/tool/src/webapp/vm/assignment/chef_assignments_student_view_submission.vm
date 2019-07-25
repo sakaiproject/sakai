@@ -273,36 +273,7 @@ $(document).ready(function(){
 					</div>
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="itemSummaryValue">
-							#set($reviewResults=$!service.getContentReviewResults($!submission))
-							#if ($reviewResults.size() >= 3)
-								<div class="discTria">
-									<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
-									$reviewResults.size() $tlang.getString("review.reports")
-								</div>
-								<div id="reportsDiv" style="display:none;">
-							#end
-							#foreach ($reviewResult in $reviewResults)
-								<div>
-									#set ($props = $reviewResult.getContentResource().Properties)
-									<span class="reportIcon">
-										#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
-										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.contentReviewItem.getReviewScore()#end"></span>
-										#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
-									</span>
-									#if ($reviewResult.isInline())
-										$tlang.getString("submission.inline")
-									#else
-										$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
-									#end
-									#if (!$reviewResult.getReviewReport().equals("Error") &&
-										$reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl))
-										(<a href="$!reviewResult.contentReviewItem.Properties.get($NamePropContentReviewOptoutUrl)" target="_blank">$tlang.getString("review.report.urkund.optoutlink")</a>)
-									#end
-								</div>
-							#end
-							#if ($reviewResults.size() >= 3)
-								</div>
-							#end
+							#contentReviewReports($submission false true)
 						</div>
 					</div>
 				</div>

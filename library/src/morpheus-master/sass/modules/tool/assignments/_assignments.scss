@@ -191,6 +191,7 @@
 	.reportIcon {
 	  display: inline-block;
 	  width: 20px;
+	  text-align: center;
 	}
 
 	.disclosureTriangle {
@@ -382,6 +383,10 @@
 	  }
 	}
 
+	.contentReviewColumn {
+		width: 320px;
+	}
+
 	.contentReviewIcon {
 		@extend .fa, .fa-flag;
 	}
@@ -463,6 +468,40 @@
 	.contentReviewIconThreshold-6-draft {
 		@extend .contentReviewIconDraft;
 		color: #9E9E9E;
+	}
+
+	.contentReviewDisclosure {
+		position: relative;
+		display: flex;
+		margin-right: $standard-space;
+		align-items: baseline;
+	}
+
+	.contentReviewDisclosure:focus {
+		outline-offset: -1px;
+	}
+
+	.contentReviewMessage {
+		background-color:#fff;
+		position: relative;
+		border: 1px solid;
+		border-radius: 5px;
+		margin: 7px 24px 4px 24px;
+		padding: 4px 8px;
+		background-color: #cef;
+		border-color: #cef;
+		color: $primary-color;
+
+		&::before {
+			content: "";
+			position: absolute;
+			top: -14px; // -2 x the border
+			left: 5px;
+			width: $standard-spacing;
+			height: $standard-spacing;
+			border: 7px solid transparent;
+			border-bottom-color: $primary-color;
+		}
 	}
 
 	div#pagingHeader {
