@@ -3,6 +3,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean id="org.sakaiproject.announcement.impl.AnnouncementObserver"
+		  class="org.sakaiproject.announcement.impl.AnnouncementObserver"
+		  init-method="init" destroy-method="destroy">
+		<property name="memoryService">
+			<ref bean="org.sakaiproject.memory.api.MemoryService" />
+		</property>
+		<property name="eventTrackingService">
+			<ref bean="org.sakaiproject.event.api.EventTrackingService" />
+		</property>
+	</bean>
+
 	<bean id="org.sakaiproject.announcement.api.AnnouncementService"
 			class="org.sakaiproject.announcement.impl.DbAnnouncementService"
 			init-method="init"
