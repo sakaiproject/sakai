@@ -66,36 +66,6 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
             return new String[] { Formats.TXT ,Formats.JSON, Formats.HTML};
         }
 
-        @EntityCustomAction(action = "deploys", viewKey = EntityView.VIEW_SHOW)
-	@EntityParameters(accepted = { "order", "first", "last" })
-        public LTIListEntity handleDeploysCollection(EntityView view, Map<String, Object> params) {
-		String siteId = view.getEntityReference().getId();
-		getSiteById(siteId);
-		requireAdminUser(siteId);
-		boolean inAdmin = inAdmin(siteId);
-		int [] paging = parsePaging(params);
-
-		// Search is not yet safely implemented
-                List<Map<String,Object>> deploys = ltiService.getDeploysDao(null, (String)params.get("order"),
-			paging[0], paging[1], siteId, inAdmin);
-		adjustList(deploys, inAdmin, siteId, "deploy");
-		LTIListEntity retval = new LTIListEntity (deploys);
-                return retval;
-        }
-
-        @EntityCustomAction(action = "deploy", viewKey = "")
-        public Map<String,Object> handleDeploy(EntityView view) {
-                String siteId = view.getPathSegment(2);
-                String deployId = view.getPathSegment(3);
-		getSiteById(siteId);
-		requireAdminUser(siteId);
-		boolean inAdmin = inAdmin(siteId);
-                Map<String,Object> deploy = ltiService.getDeployDao(new Long(deployId), siteId, inAdmin);
-		adjustMap(deploy, inAdmin, siteId, "deploy");
-                return deploy;
-        }
-
-
         @EntityCustomAction(action = "tools", viewKey = EntityView.VIEW_SHOW)
 	@EntityParameters(accepted = { "order", "first", "last" })
         public LTIListEntity handleToolsCollection(EntityView view, Map<String, Object> params) {

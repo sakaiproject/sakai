@@ -17,7 +17,7 @@
  * permissions and limitations under the License.
  */
 
-package org.tsugi.lti2;
+package org.tsugi.basiclti;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -39,8 +39,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import static org.tsugi.lti2.LTI2Util.getArray;
-import static org.tsugi.lti2.LTI2Util.getString;
+import static org.tsugi.basiclti.BasicLTIUtil.getArray;
+import static org.tsugi.basiclti.BasicLTIUtil.getString;
 
 /* {
 	"@context": "http:\/\/purl.imsglobal.org\/ctx\/lti\/v1\/ContentItem",
@@ -68,7 +68,6 @@ public class ContentItem {
 	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
 	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
-	// TYPE is in LTI2Constants.TYPE (since it is JSON_LD really)
 	public static final String TYPE_LTILINKITEM = "LtiLinkItem";
 	public static final String TYPE_LTILINK_OLD = "LtiLink";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
@@ -134,7 +133,7 @@ public class ContentItem {
 			dataProps.setProperty(key, (String) value);
 		}
 
-		graph = getArray(contentItem,LTI2Constants.GRAPH);
+		graph = getArray(contentItem,BasicLTIConstants.GRAPH);
 		if ( graph == null ) {
 			throw new java.lang.RuntimeException("A content_item must include a @graph");
 		}
@@ -215,7 +214,7 @@ public class ContentItem {
 		for ( Object i : graph ) {
 			if ( ! (i instanceof JSONObject) ) continue;
 			JSONObject item = (JSONObject) i;
-			String type = getString(item,LTI2Constants.TYPE);
+			String type = getString(item,BasicLTIConstants.TYPE);
 			if ( type == null ) continue;
 			if ( type.equals(itemType) ) return item;
 		}

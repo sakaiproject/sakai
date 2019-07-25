@@ -180,10 +180,6 @@ public abstract class BaseLTIService implements LTIService {
 			log.warn("{}=Missing LTIService Translation", str);
 		}
 
-		strings = foorm.checkI18NStrings(LTIService.DEPLOY_MODEL, rb);
-		for (String str : strings) {
-			log.warn("{}=Missing LTIService Translation", str);
-		}
 	}
 
 	/**
@@ -866,37 +862,6 @@ public abstract class BaseLTIService implements LTIService {
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
 	}
-
-	// The methods for deployment objects
-	public String[] getDeployModel() {
-		return DEPLOY_MODEL;
-	}
-
-	public Object insertDeployDao(Properties newProps) {
-		return insertDeployDao(newProps, null, true, true);
-	}
-
-	public Object updateDeployDao(Long key, Object newProps) {
-		return updateDeployDao(key, newProps, null, true, true);
-	}
-
-	public boolean deleteDeployDao(Long key) {
-		return deleteDeployDao(key, null, true, true);
-	}
-
-	public Map<String, Object> getDeployDao(Long key) {
-		return getDeployDao(key, null, true);
-	}
-
-	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last) {
-		return getDeploysDao(search, order, first, last, null, true);
-	}
-
-	public abstract Object insertProxyBindingDao(Properties newProps);
-	public abstract Object updateProxyBindingDao(Long key, Object newProps);
-	public abstract boolean deleteProxyBindingDao(Long key);
-	public abstract Map<String, Object> getProxyBindingDao(Long key);
-	public abstract Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
 
 	@Override
 	public void registerPropertiesFilter(LTISubstitutionsFilter filter) {
