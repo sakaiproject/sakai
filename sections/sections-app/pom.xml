@@ -10,11 +10,6 @@
   <name>sakai-sections-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-sections-tool</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
     <dependency>
@@ -53,11 +48,6 @@
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
     </dependency>
-<!--properties:	war.bundle: false -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-app-util</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
       <artifactId>jsf-tool</artifactId>
@@ -71,44 +61,15 @@
       <artifactId>jsf-app</artifactId>
       <exclusions>
         <exclusion>
-<!-- we are pulling the myfaces version of this api -->
           <groupId>javax.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
-<!-- Sakai plugin -->
-<!-- End Sakai2 Dependencies -->
-<!-- Database dependencies -->
-    <!-- Tests broken since SAK-33994, noticed in SAK-40909-->
-    <!--<dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-    </dependency>
-    -->
-<!-- End database dependencies -->
-    <!-- Tests broken since SAK-33994, noticed in SAK-40909 -->
-    <!--<dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.test.artifactId}</artifactId>
-      <version>${sakai.spring.test.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-jdbc</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-      <scope>test</scope>
-    </dependency>-->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
-<!-- MyFaces JSF -->
     <dependency>
       <groupId>org.apache.myfaces.core</groupId>
       <artifactId>myfaces-api</artifactId>
@@ -138,31 +99,13 @@
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
     </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
+    </dependency>
   </dependencies>
   <reports />
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <testExcludes>
-            <exclude implementation="java.lang.String">**/*Test*</exclude>
-            <exclude implementation="java.lang.String">**/*Loader*</exclude>
-          </testExcludes>
-          <testIncludes>
-            <include implementation="java.lang.String">**/SectionsTestSuite</include>
-          </testIncludes>
-        </configuration>
-        <!-- Tests broken since SAK-33994, noticed in SAK-40909 -->
-        <executions>
-          <execution>
-            <id>default-testCompile</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
     <resources>
       <resource>
         <directory>${basedir}/src/java</directory>
@@ -176,29 +119,6 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
-      <resource>
-        <directory>${hibernate.properties.dir}</directory>
-        <includes>
-          <include>hibernate.properties</include>
-        </includes>
-      </resource>
     </resources>
-    <testResources>
-      <testResource>
-        <directory>${basedir}</directory>
-        <includes>
-          <include>log4j.properties</include>
-        </includes>
-      </testResource>
-      <!-- Tests broken since SAK-33994, noticed in SAK-40909 -->
-      <!--
-      <testResource>
-        <directory>${basedir}/src/test/</directory>
-        <includes>
-          <include>hibernate.properties</include>
-        </includes>
-      </testResource>
-      -->
-    </testResources>
   </build>
 </project>

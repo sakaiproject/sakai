@@ -49,21 +49,6 @@
 					<h:outputLabel for="meetingsTable" value="#{msgs.section_logistics}" styleClass="formLabel"/>
 					<h:panelGroup>
 						<h:dataTable id="meetingsTable" value="#{section.meetings}" var="meeting">					
-							<% // One column per meeting.  Use a div to add a line break in the form controls %>
-							<h:column>
-								<t:div>
-									<h:outputLabel value="#{msgs.student_view_header_day}"/>
-								</t:div>
-								<t:div styleClass="meetingFirstCol">
-									<h:outputLabel value="#{msgs.section_start_time}"/>
-								</t:div>
-								<t:div styleClass="meetingFirstCol">
-									<h:outputLabel value="#{msgs.section_end_time}"/>
-								</t:div>
-								<t:div styleClass="meetingFirstCol">
-									<h:outputLabel value="#{msgs.student_view_header_location}"/>
-								</t:div>
-							</h:column>
 							<h:column>
 								<h:panelGroup>
 									<t:div styleClass="paddedMeetingRow">

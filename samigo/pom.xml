@@ -106,12 +106,6 @@
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.edu-services.sections</groupId>
-                <artifactId>sections-impl-standalone</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-            </dependency>
             <!-- Sakai-embedded version -->
             <dependency>
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
