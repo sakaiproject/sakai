@@ -1395,7 +1395,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		//ResourceType type = registry.getType(typeId); 
 		
 		String url = params.getCleanString("url");
-		
+
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
 
 		ResourcePropertiesEdit resourceProperties = contentService.newResourceProperties ();
