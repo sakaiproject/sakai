@@ -221,6 +221,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
 	public static final String SAK_PROP_SHOW_ALL_SITES = PREFIX + "show_all_collections";
+	protected static final String STATE_NAVIGATING_RESOURCES = "navigating_resources";
 
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
@@ -1192,6 +1193,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 
 	}	// doAttachitem
 
@@ -1366,6 +1368,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 
 	}	// doAttachupload
 
@@ -1485,6 +1488,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		state.removeAttribute(STATE_NAVIGATING_RESOURCES);
 		
 	}	// doAttachurl
 
@@ -3205,6 +3209,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			state.setAttribute(STATE_COLLECTION_ID, collectionId);
+			state.setAttribute(STATE_NAVIGATING_RESOURCES, true);
 			Set<String> currentMap = getExpandedCollections(toolSession);
 			SortedSet<String> newCurrentMap = new TreeSet<String>();
 			for(String id: currentMap)
