@@ -147,7 +147,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.springframework.web.multipart.MultipartFile;
-import org.tsugi.lti2.ContentItem;
+import org.tsugi.basiclti.ContentItem;
 
 import com.opencsv.CSVParser;
 
