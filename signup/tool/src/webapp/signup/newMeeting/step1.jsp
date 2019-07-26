@@ -86,14 +86,15 @@
      		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
             <h:form id="meeting" >              
                 <div class="page-header">
-                    <h1>
-                        <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
-                    </h1>
+                    <sakai:view_title value="#{msgs.create_new_event} #{msgs.basic}"/>
                 </div>
                 <sakai:doc_section>
                     <h:panelGrid columns="1" styleClass="instruction" style="background:#fff;">
                         <h:outputText value="#{msgs.create_instruction} " escape="false" />                      
-                        <h:panelGroup>                           
+                        <h:panelGroup>                           site-manage/site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-editToolGroupFeatures.vm
+
+
+
                             <h:outputText value="#{msgs.star_character}" style="color:#B11;" />
                             <h:outputText value="&nbsp;#{msgs.required2}" escape="false" />
                         </h:panelGroup>

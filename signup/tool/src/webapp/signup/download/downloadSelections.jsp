@@ -169,9 +169,7 @@
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="items">
 				<div class="page-header">
-					<h1>
-						<sakai:view_title value="#{msgs.signup_download}"/>
-					</h1>
+					<sakai:view_title value="#{msgs.signup_download}"/>
 				</div>
 
 				<h:outputText value="&nbsp;" escape="false"/>
